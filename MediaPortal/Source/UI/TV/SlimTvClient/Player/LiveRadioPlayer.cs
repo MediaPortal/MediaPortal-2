@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -53,7 +53,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     #endregion
 
-    protected IBaseFilter _sourceFilter = null;
+    protected FilterFileWrapper _sourceFilter = null;
+    protected ITsReader _tsReader;
     protected bool _useTsReader;
 
     public LiveRadioPlayer(bool useTsReader)
@@ -80,14 +81,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
       // Render the file
       _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
+      var baseFilter = _sourceFilter.GetFilter();
 
-      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)_sourceFilter;
-      ITsReader tsReader = (ITsReader)_sourceFilter;
-      tsReader.SetRelaxedMode(1);
-      tsReader.SetTsReaderCallback(this);
-      tsReader.SetRequestAudioChangeCallback(this);
+      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;
+      _tsReader = (ITsReader)baseFilter;
+      _tsReader.SetRelaxedMode(1);
+      _tsReader.SetTsReaderCallback(this);
+      _tsReader.SetRequestAudioChangeCallback(this);
 
-      _graphBuilder.AddFilter(_sourceFilter, TSREADER_FILTER_NAME);
+      _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
@@ -132,13 +134,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         return;
       }
 
-      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter);
+      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter.GetFilter());
     }
 
     protected override void FreeCodecs()
     {
       // Free file source
-      FilterGraphTools.TryRelease(ref _sourceFilter);
+      FilterGraphTools.TryDispose(ref _sourceFilter);
 
       base.FreeCodecs();
 

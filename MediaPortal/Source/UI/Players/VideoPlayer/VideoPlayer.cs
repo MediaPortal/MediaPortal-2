@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,9 +35,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Settings;
+using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
@@ -51,7 +51,6 @@ using SharpDX;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -89,15 +88,10 @@ namespace MediaPortal.UI.Players.Video
     protected IntPtr _presenterInstance;
 
     // The default name for "No subtitles available" or "Subtitles disabled".
-    protected const string NO_SUBTITLES = "No subtitles";
+    protected internal const string NO_SUBTITLES = "No subtitles";
     protected const string FORCED_SUBTITLES = "forced subtitles";
 
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
-
-    // Auto loading version of VSFilter
-    public const string VSFILTER_CLSID = "{9852A670-F845-491b-9BE6-EBD841B8A613}";
-    public const string VSFILTER_NAME = "xy-VSFilter";
-    public const string VSFILTER_FILENAME = "VSFilter.dll";
 
     // ClosedCaptions parser
     public const string CCFILTER_CLSID = "{6F0B7D9C-7548-49A9-AC4C-1DA1927E6C15}";
@@ -111,6 +105,8 @@ namespace MediaPortal.UI.Players.Video
     // DirectShow objects
     protected IBaseFilter _evr;
     protected EVRCallback _evrCallback;
+    protected GraphRebuilder _graphRebuilder;
+    protected IBaseFilter _subsFilter = null;
 
     // Managed Direct3D Resources
     protected Size _displaySize = new Size(100, 100);
@@ -130,9 +126,9 @@ namespace MediaPortal.UI.Players.Video
 
     protected SkinEngine.Players.RenderDlgt _renderDlgt = null;
 
-    protected StreamInfoHandler _streamInfoAudio = null;
-    protected StreamInfoHandler _streamInfoSubtitles = null;
-    protected StreamInfoHandler _streamInfoTitles = null; // Used mostly for MKV Editions
+    protected BaseStreamInfoHandler _streamInfoAudio = null;
+    protected BaseStreamInfoHandler _streamInfoSubtitles = null;
+    protected BaseStreamInfoHandler _streamInfoTitles = null; // Used mostly for MKV Editions
     protected List<IAMStreamSelect> _streamSelectors = null;
     private readonly object _syncObj = new object();
 
@@ -147,6 +143,8 @@ namespace MediaPortal.UI.Players.Video
     protected string[] _chapterNames = null;
 
     protected bool _textureInvalid = true;
+    protected MpcSubsRenderer _mpcSubsRenderer;
+    private FilterFileWrapper _ccFilter;
 
     #endregion
 
@@ -162,6 +160,7 @@ namespace MediaPortal.UI.Players.Video
         throw new EnvironmentException("This video player can only run on Windows Vista or above");
 
       PlayerTitle = "VideoPlayer";
+      _mpcSubsRenderer = new MpcSubsRenderer(OnTextureInvalidated);
     }
 
     #endregion
@@ -188,15 +187,28 @@ namespace MediaPortal.UI.Players.Video
       AddEvr();
     }
 
-    protected override void AddSubtitleFilter()
+    protected override void AddSubtitleFilter(bool isSourceFilterPresent)
     {
-      var vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
-      if (vsFilter == null)
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      int preferredSubtitleLcid = settings.PreferredSubtitleLanguage;
+      var fileSystemResourceAccessor = _resourceAccessor as IFileSystemResourceAccessor;
+
+      if (fileSystemResourceAccessor != null)
       {
-        ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, VSFILTER_NAME);
-        return;
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding MPC-HC subtitle engine", PlayerTitle);
+        SubtitleStyle defStyle = new SubtitleStyle();
+        defStyle.Load();
+        MpcSubtitles.SetDefaultStyle(ref defStyle, false);
+
+        IntPtr upDevice = SkinContext.Device.NativePointer;
+        string filename = fileSystemResourceAccessor.ResourcePathName;
+
+        MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", preferredSubtitleLcid);
+        if (settings.EnableSubtitles)
+        {
+          MpcSubtitles.SetEnable(true);
+        }
       }
-      _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
 
       AddClosedCaptionsFilter();
     }
@@ -207,13 +219,15 @@ namespace MediaPortal.UI.Players.Video
       if (settings.EnableClosedCaption)
       {
         // ClosedCaptions filter
-        var ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
-        if (ccFilter == null)
+        _ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
+        var baseFilter = _ccFilter.GetFilter();
+        if (baseFilter == null)
         {
+          _ccFilter.Dispose();
           ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, CCFILTER_FILENAME);
           return;
         }
-        _graphBuilder.AddFilter(ccFilter, CCFILTER_FILENAME);
+        _graphBuilder.AddFilter(baseFilter, CCFILTER_FILENAME);
       }
     }
 
@@ -263,7 +277,10 @@ namespace MediaPortal.UI.Players.Video
       // Release all existing stream selector references
       if (_streamSelectors != null)
         foreach (IAMStreamSelect streamSelector in _streamSelectors)
-          Marshal.ReleaseComObject(streamSelector);
+        {
+          if (Marshal.IsComObject(streamSelector))
+            Marshal.ReleaseComObject(streamSelector);
+        }
       _streamSelectors = null;
       _streamInfoAudio = null;
       _streamInfoSubtitles = null;
@@ -368,7 +385,9 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     /// <param name="targetTexture"></param>
     protected virtual void PostProcessTexture(Texture targetTexture)
-    { }
+    {
+      _mpcSubsRenderer.DrawItem(targetTexture, false);
+    }
 
     public IGeometry GeometryOverride
     {
@@ -399,14 +418,14 @@ namespace MediaPortal.UI.Players.Video
     protected void SetPreferredAudio(bool useFirstAsDefault = false)
     {
       EnumerateStreams();
-      StreamInfoHandler audioStreams;
+      BaseStreamInfoHandler audioStreams;
       lock (SyncObj)
         audioStreams = _streamInfoAudio;
 
       SetPreferedAudio_intern(ref audioStreams, useFirstAsDefault);
     }
 
-    private void SetPreferedAudio_intern(ref StreamInfoHandler audioStreams, bool useFirstAsDefault)
+    private void SetPreferedAudio_intern(ref BaseStreamInfoHandler audioStreams, bool useFirstAsDefault)
     {
       if (audioStreams == null || audioStreams.Count == 0)
         return;
@@ -468,7 +487,7 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void SetAudioStream(string audioStream)
     {
-      StreamInfoHandler audioStreams;
+      BaseStreamInfoHandler audioStreams;
       lock (SyncObj)
         audioStreams = _streamInfoAudio;
 
@@ -491,7 +510,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        StreamInfoHandler audioStreams;
+        BaseStreamInfoHandler audioStreams;
         lock (SyncObj)
           audioStreams = _streamInfoAudio;
 
@@ -504,7 +523,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         EnumerateStreams();
-        StreamInfoHandler audioStreams;
+        BaseStreamInfoHandler audioStreams;
         lock (SyncObj)
           audioStreams = _streamInfoAudio;
 
@@ -531,19 +550,16 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder == null || !_initialized)
         return false;
 
-      StreamInfoHandler audioStreams;
-      StreamInfoHandler subtitleStreams;
-      StreamInfoHandler titleStreams;
+      BaseStreamInfoHandler audioStreams;
+      BaseStreamInfoHandler titleStreams;
       lock (SyncObj)
       {
         audioStreams = _streamInfoAudio;
-        subtitleStreams = _streamInfoSubtitles;
         titleStreams = _streamInfoTitles;
       }
-      if (forceRefresh || audioStreams == null || subtitleStreams == null || titleStreams == null)
+      if (forceRefresh || audioStreams == null || titleStreams == null)
       {
         audioStreams = new StreamInfoHandler();
-        subtitleStreams = new StreamInfoHandler();
         titleStreams = new StreamInfoHandler();
 
         // Release stream selectors
@@ -612,17 +628,6 @@ namespace MediaPortal.UI.Players.Video
                   audioStreams.AddUnique(currentStream);
                 }
                 break;
-              case StreamGroup.Subtitle:
-                {
-                  currentStream.IsAutoSubtitle = currentStream.Name.ToLowerInvariant().Contains(FORCED_SUBTITLES);
-                  subtitleStreams.AddUnique(currentStream, true);
-                }
-                break;
-              case StreamGroup.VsFilterSubtitle:
-              case StreamGroup.VsFilterSubtitleOptions:
-              case StreamGroup.DirectVobSubtitle:
-                subtitleStreams.AddUnique(currentStream, true);
-                break;
               case StreamGroup.MatroskaEdition: // This is a MKV Edition handled by Haali splitter
                 titleStreams.AddUnique(currentStream, true);
                 break;
@@ -639,8 +644,11 @@ namespace MediaPortal.UI.Players.Video
           }
         }
 
-        SetPreferedAudio_intern(ref audioStreams, false);
+        // MPC engine uses it's own way to enumerate subs.
+        BaseStreamInfoHandler subtitleStreams = new MpcStreamInfoHandler();
         SetPreferredSubtitle_intern(ref subtitleStreams);
+        SetPreferedAudio_intern(ref audioStreams, false);
+
         lock (SyncObj)
         {
           _streamInfoAudio = audioStreams;
@@ -721,34 +729,40 @@ namespace MediaPortal.UI.Players.Video
         {
           if (lfsra.LocalFsResourceAccessor == null)
             return false;
-          using (var stream = lfsra.LocalFsResourceAccessor.OpenRead())
-          using (var chaptersReader = new StreamReader(stream))
+
+          Stream stream;
+          using (stream = lfsra.LocalFsResourceAccessor.OpenRead())
           {
-            string line = chaptersReader.ReadLine();
-
-            int fps;
-            if (string.IsNullOrWhiteSpace(line) || !int.TryParse(line.Substring(line.LastIndexOf(' ') + 1), out fps))
-            {
-              ServiceRegistration.Get<ILogger>().Warn("VideoPlayer: EnumerateExternalChapters() - Invalid ComSkip chapter file");
+            if (stream == null || stream.Length == 0)
               return false;
-            }
-
-            double framesPerSecond = fps / 100.0;
-
-            while ((line = chaptersReader.ReadLine()) != null)
+            using (var chaptersReader = new StreamReader(stream))
             {
-              if (String.IsNullOrEmpty(line))
-                continue;
+              string line = chaptersReader.ReadLine();
 
-              string[] tokens = line.Split('\t');
-              if (tokens.Length != 2)
-                continue;
-
-              foreach (var token in tokens)
+              int fps;
+              if (string.IsNullOrWhiteSpace(line) || !int.TryParse(line.Substring(line.LastIndexOf(' ') + 1), out fps))
               {
-                int time;
-                if (int.TryParse(token, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out time))
-                  positions.Add(time / framesPerSecond);
+                ServiceRegistration.Get<ILogger>().Warn("VideoPlayer: EnumerateExternalChapters() - Invalid ComSkip chapter file");
+                return false;
+              }
+
+              double framesPerSecond = fps / 100.0;
+
+              while ((line = chaptersReader.ReadLine()) != null)
+              {
+                if (String.IsNullOrEmpty(line))
+                  continue;
+
+                string[] tokens = line.Split('\t');
+                if (tokens.Length != 2)
+                  continue;
+
+                foreach (var token in tokens)
+                {
+                  int time;
+                  if (int.TryParse(token, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out time))
+                    positions.Add(time / framesPerSecond);
+                }
               }
             }
           }
@@ -877,14 +891,14 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void SetPreferredSubtitle()
     {
-      StreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler subtitleStreams;
       lock (SyncObj)
         subtitleStreams = _streamInfoSubtitles;
 
       SetPreferredSubtitle_intern(ref subtitleStreams);
     }
 
-    private void SetPreferredSubtitle_intern(ref StreamInfoHandler subtitleStreams)
+    private void SetPreferredSubtitle_intern(ref BaseStreamInfoHandler subtitleStreams)
     {
       if (subtitleStreams == null)
         return;
@@ -920,7 +934,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         EnumerateStreams();
-        StreamInfoHandler subtitleStreams;
+        BaseStreamInfoHandler subtitleStreams;
         lock (SyncObj)
           subtitleStreams = _streamInfoSubtitles;
 
@@ -941,7 +955,8 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="subtitle">subtitle stream</param>
     public virtual void SetSubtitle(string subtitle)
     {
-      StreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler subtitleStreams;
+
       lock (SyncObj)
         subtitleStreams = _streamInfoSubtitles;
 
@@ -954,7 +969,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void SaveSubtitlePreference()
     {
-      StreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler subtitleStreams;
       lock (SyncObj)
         subtitleStreams = _streamInfoSubtitles;
 
@@ -985,7 +1000,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        StreamInfoHandler subtitleStreams;
+        BaseStreamInfoHandler subtitleStreams;
         lock (SyncObj)
           subtitleStreams = _streamInfoSubtitles;
         return subtitleStreams == null ? String.Empty : subtitleStreams.CurrentStreamName;
@@ -1130,7 +1145,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         EnumerateStreams();
-        StreamInfoHandler titleStreams;
+        BaseStreamInfoHandler titleStreams;
         lock (SyncObj)
           titleStreams = _streamInfoTitles;
 
@@ -1148,7 +1163,7 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="title">Title</param>
     public virtual void SetTitle(string title)
     {
-      StreamInfoHandler titleStreams;
+      BaseStreamInfoHandler titleStreams;
       lock (SyncObj)
         titleStreams = _streamInfoTitles;
 
@@ -1167,7 +1182,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        StreamInfoHandler titleStreams;
+        BaseStreamInfoHandler titleStreams;
         lock (SyncObj)
           titleStreams = _streamInfoTitles;
 
@@ -1201,7 +1216,7 @@ namespace MediaPortal.UI.Players.Video
       if (currentTime.TotalSeconds / duration.TotalSeconds > 0.99)
         state = null;
       else
-        state = new PositionResumeState { ResumePosition = CurrentTime };
+        state = new PositionResumeState { ResumePosition = CurrentTime, ActiveResourceLocatorIndex = _mediaItem != null ? _mediaItem.ActiveResourceLocatorIndex : 0 };
       return true;
     }
 
@@ -1215,6 +1230,17 @@ namespace MediaPortal.UI.Players.Video
       PositionResumeState pos = state as PositionResumeState;
       if (pos == null)
         return false;
+
+      if (_mediaItem != null)
+      {
+        // Check for multi-resource media items, first set the matching part, then the position
+        if (pos.ActiveResourceLocatorIndex != _mediaItem.ActiveResourceLocatorIndex && pos.ActiveResourceLocatorIndex <= _mediaItem.MaximumResourceLocatorIndex)
+        {
+          _mediaItem.ActiveResourceLocatorIndex = pos.ActiveResourceLocatorIndex;
+          if (!NextItem(_mediaItem, StartTime.AtOnce))
+            return false;
+        }
+      }
       CurrentTime = pos.ResumePosition;
       return true;
     }

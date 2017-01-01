@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,13 +23,11 @@
 #endregion
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
@@ -40,15 +38,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   {
     #region Consts
 
-    public const String BLOCK_NAME_QUICK = "MetadataExtractorBlock_Quick";
-    public const String BLOCK_NAME_FULL = "MetadataExtractorBlock_Full";
-
-    #endregion
-
-    #region Variables
-
-    private readonly bool _forceQuickMode;
-    private readonly Lazy<Task<DateTime>> _mostRecentMiaCreationDate; 
+    public const String BLOCK_NAME = "MetadataExtractorBlock";
 
     #endregion
 
@@ -58,7 +48,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// Initiates the MetadataExtractorBlock
     /// </summary>
     /// <remarks>
-    /// The preceding FileUnfoldBlock has a BoundedCapacity. To avoid that this limitation does not have any effect
+    /// The preceding MediaItemLoadBlock has a BoundedCapacity. To avoid that this limitation does not have any effect
     /// because all the items are immediately passed to an unbounded InputBlock of this MetadataExtractorBlock, we
     /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 100,
     /// which is a good trade-off between speed and memory usage. For the reason mentioned before, we also have to
@@ -67,16 +57,13 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
     /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
-    /// <param name="forceQuickMode"><c>true</c> if this is the MetadataExtractorBlock used for FirstPassImports, else <c>false</c></param>
-    public MetadataExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController, bool forceQuickMode)
+    public MetadataExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
       : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5, BoundedCapacity = 100 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
-      forceQuickMode ? BLOCK_NAME_QUICK : BLOCK_NAME_FULL, true, parentImportJobController)
+      BLOCK_NAME, true, parentImportJobController)
     {
-      _forceQuickMode = forceQuickMode;
-      _mostRecentMiaCreationDate = new Lazy<Task<DateTime>>(GetMostRecentMiaCreationDate);
     }
 
     #endregion
@@ -107,20 +94,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        if (ImportJobInformation.JobType == ImportJobType.Refresh)
-        {
-          // Do not import again, if the file or directory wasn't changed since the last import
-          // and there were no new relevant MIAs added since then.
-          // ToDo: We should only omit MDEs that get their data from the file or directory itself. All others should be called anyway.
-          if (importResource.DateOfLastImport > importResource.ResourceAccessor.LastChanged &&
-              importResource.DateOfLastImport > await _mostRecentMiaCreationDate.Value)
-          {
-            importResource.IsValid = false;
-            return importResource;
-          }
-        }
-        
-        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, _forceQuickMode);
+        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, importResource.ExistingAspects, !importResource.MediaItemId.HasValue);
+        if (importResource.Aspects == null)
+          importResource.Aspects = importResource.ExistingAspects;
         if (importResource.Aspects == null)
           importResource.IsValid = false;
 
@@ -136,30 +112,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         importResource.IsValid = false;
         return importResource;
       }
-    }
-
-    /// <summary>
-    /// Returns the most recent creation date of the MIAs relevant to this ImportJob
-    /// </summary>
-    /// <returns>Most recent creation date</returns>
-    /// <remarks>
-    /// We first get all MDEs to be applied in this ImportJob. Then we determine which MIAs are imported by these relevant
-    /// MDEs. Then we fetch from the MediaLibrary the dates on which these MIAs have ben created and take the most
-    /// recent one of these dates.
-    /// </remarks>
-    private async Task<DateTime> GetMostRecentMiaCreationDate()
-    {
-      if (ImportJobInformation.MetadataExtractorIds.Count == 0)
-        return DateTime.MinValue;
-      var mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      var relevantMdes = mediaAccessor.LocalMetadataExtractors.Where(kvp => ImportJobInformation.MetadataExtractorIds.Contains(kvp.Key)).Select(kvp => kvp.Value).ToList();
-      var relevantMiaIds = relevantMdes.SelectMany(mde => mde.Metadata.ExtractedAspectTypes.Keys).Distinct();
-
-      var creationDates = await GetManagedMediaItemAspectCreationDates();
-
-      var mostRecentRelevantDate = creationDates.Where(kvp => relevantMiaIds.Contains(kvp.Key)).Select(kvp => kvp.Value).Max();
-      ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: Most recent creation date of the MIAs relevant to this ImportJob: {2}", ParentImportJobController, ToString(), mostRecentRelevantDate);
-      return mostRecentRelevantDate;
     }
 
     #endregion

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -90,6 +90,12 @@ namespace MediaPortal.UI.Presentation.Players
     /// order, not the order in which the items will be played.
     /// </summary>
     IList<MediaItem> ItemList { get; }
+
+    /// <summary>
+    /// Returns the number of playable resources. Usually this equals to <see cref="ItemList"/>'s count property.
+    /// Exceptions are multi-resource media items that consists of multiple physical sources.
+    /// </summary>
+    int PlayableItemsCount { get; }
 
     /// <summary>
     /// Gets or sets the index of the current item in the <see cref="ItemList"/> or <c>-1</c>, if no item

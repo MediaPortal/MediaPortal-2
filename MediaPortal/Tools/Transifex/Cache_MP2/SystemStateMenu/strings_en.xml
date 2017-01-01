@@ -12,7 +12,25 @@
   <string name="SystemState.Suspend">Suspend</string>
   <string name="SystemState.Restart">Restart</string>
   <string name="SystemState.Logoff">Logoff</string>
+  <string name="SystemState.SleepTimerConfig">Setup sleep timer</string>
+  <string name="SystemState.SleepTimerStop">Stop sleep timer</string>
 
   <string name="SystemState.MinimizeMP">Minimize MediaPortal</string>
   <string name="SystemState.ShutdownMP">Close MediaPortal</string>
+
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Shutdown menu</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Shutdown menu configuration</string>
+
+  <string name="SleepTimer.Title">Sleep Timer</string>
+  <string name="SleepTimer.Start">Start</string>
+  <string name="SleepTimer.Stop">Stop</string>
+  <string name="SleepTimer.Action">Action:</string>
+  <string name="SleepTimer.TimeStr">Time:</string>
+  <string name="SleepTimer.Minutes">min.</string>
+  <string name="SleepTimer.MediaItem">After current media item</string>
+  <string name="SleepTimer.Playlist">After current playlist</string>
+  <string name="SleepTimer.ShutdownTextSingle">{0} in less than one minute</string>
+  <string name="SleepTimer.ShutdownTextMulti">{0} in {1} minutes</string>
+
+  <string name="SleepTimer.MaxMinutes">Sleep timer max minutes:</string>
 </resources>

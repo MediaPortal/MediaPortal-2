@@ -1,12 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Trakt.Enable">Activer le srobbling (envoyer un état visionné)</string>
+  <string name="Trakt.Close">Fermer</string>
   <string name="Trakt.UsernamePasswordGroup">Détails du compte</string>
   <string name="Trakt.Username">Nom d\'utilisateur</string>
+  <string name="Trakt.PinCode">Code pin reçu</string>
   <string name="Trakt.SyncMovies">Synchronisation des films en cours...</string>
   <string name="Trakt.SyncSeries">Synchronisation des séries en cours...</string>
   <string name="Trakt.SyncFinished">Synchronisation finie!</string>
   <string name="Trakt.MediaLibraryNotConnected">Le serveur n\'étant pas connecté, la synchronisation est impossible!</string>
+  <string name="Trakt.WrongToken">Token non disponible</string>
+  <string name="Trakt.EmptyUsername">SVP, entrez votre nom d\'utilisateur</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Configuration de Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Configurer votre compte pour accéder à Trakt.tv</string>

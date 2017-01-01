@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare_info.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    >
+  <Include.Resources>
+
+    <!--ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/-->
+
+    <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
+
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <ControlTemplate.Resources>
+        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.Background>
+          <VideoBrush Stream="0"/>
+        </Grid.Background>
+        <Image x:Name="FanArtImageBackground" Stretch="UniformToFill">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+          </Image.Source>
+        </Image>
+      </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Alternative_Footer_Template">
+      <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Color="#00074381" Offset="0"/>
+                <GradientStop Color="#D9074381" Offset="0.15"/>
+                <GradientStop Color="#F2081a42" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <Grid Margin="10" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" >
+              <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="245"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+
+              <Image Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Stretch="Fill" Margin="20,60,20,20" 
+                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Image.Source>
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                            fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                </Image.Source>
+                <Image.OpacityMask>
+                  <VisualBrush>
+                    <VisualBrush.Visual>
+                      <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+                    </VisualBrush.Visual>
+                  </VisualBrush>
+                </Image.OpacityMask>
+                <Image.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"  />
+                    <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Image.IsVisible>
+              </Image>
+
+              <!--<ScrollViewer Grid.Row="0" Grid.Column="1" CanContentScroll="True" 
+                            HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">-->
+              <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                <RadioButton x:Name="General" Content="General" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True" Margin="40,0,40,0">
+                  <Label x:Name="TabLabel" Content="General" HorizontalAlignment="Center" VerticalAlignment="Center"
+                         FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+                <RadioButton x:Name="Synopsis" Content="Synopsis" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False" Margin="40,0,40,0">
+                  <Label x:Name="TabLabel2" Content="Synopsis" HorizontalAlignment="Center" VerticalAlignment="Center"
+                         FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel2" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+                <RadioButton x:Name="CastCrew" Content="Cast + Crew" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False" Margin="40,0,40,0">
+                  <Label x:Name="TabLabel3" Content="Cast + Crew" HorizontalAlignment="Center" VerticalAlignment="Center"
+                         FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel3" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+                <RadioButton x:Name="Audio" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False" Margin="40,0,40,0">
+                  <Label x:Name="TabLabel4" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center"
+                         FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel4" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+                <RadioButton x:Name="Subtitle" Content="Subtitle" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False" Margin="40,0,40,0">
+                  <Label x:Name="TabLabel5" Content="Subtitle" HorizontalAlignment="Center" VerticalAlignment="Center"
+                         FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel5" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+              </StackPanel>
+              <!--</ScrollViewer>-->
+
+              <!-- SYNOPSIS INFO TAB -->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Synopsis, Path=IsChecked}"
+                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="StoryPlot" Wrap="True" Margin="40" TextTrimming="WordEllipsis" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" 
+                       Content="{Binding VideoStoryPlot}"/>
+              </Grid>
+
+              <!-- SUBTITLE INFO TAB -->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Subtitle, Path=IsChecked}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+                  <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Subtitles[0].Language}"
+                         Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                  <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding VideoStreams[0].AspectRatio}"
+                         Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                </StackPanel>
+
+              </Grid>
+
+              <!-- Cast+Crew INFO TAB -->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=CastCrew, Path=IsChecked}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--ListView Grid.Row="0" Grid.Column="0" x:Name="ActorList" ItemsSource="{Binding Path=VideoActors, Converter={StaticResource StringSplitConverter}}"
+                          HorizontalAlignment="Center" VerticalAlignment="Stretch" Style="{ThemeResource XXXListStyle}"
+                          Margin="10,5,10,5" /-->
+                <Label Margin="20,5,10,5" Content="{Binding Path=VideoActors}" Wrap="True"
+                       Opacity="1.3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
+              </Grid>
+
+              <!-- GENERAL INFO TAB -->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=General, Path=IsChecked}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="50*"/>
+                  <ColumnDefinition Width="15*"/>
+                  <ColumnDefinition Width="35*"/>
+                </Grid.ColumnDefinitions>
+                <Control x:Name="Info_MovieGeneral" Grid.Column="0">
+                  <Control.IsVisible>
+                    <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                      <Binding Path="MediaItem"  />
+                      <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                    </MultiBinding>
+                  </Control.IsVisible>
+                  <Control.TemplateControl>
+                    <Include Source="screens\InfoMovieGeneral.inc"/>
+                  </Control.TemplateControl>
+                </Control>
+
+                <media:VideoStreamAspectWrapper Grid.Column="2" AspectIndex="0" MediaItem="{Binding MediaItem}">
+                  <media:VideoStreamAspectWrapper.Template>
+                    <ControlTemplate>
+                      <UniformGrid Rows="2" Columns="3" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,20,0,20">
+
+                        <media:SubtitleAspectWrapper MediaItem="{Binding MediaItem}">
+                          <media:SubtitleAspectWrapper.Template>
+                            <ControlTemplate>
+                              <Grid>
+                                <Border CornerRadius="6" Background="#1A000000" Margin="10"/>
+                                <Image DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="38"
+                                       HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                                  <Image.Source>
+                                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 1 ? {1} : {2}">
+                                      <Binding Path="AspectCount"/>
+                                      <Binding Source="Medialogos\subtitle\nosubtitles.png"/>
+                                      <Binding Source="Medialogos\subtitle\subtitles.png"/>
+                                    </MultiBinding>
+                                  </Image.Source>
+                                </Image>
+                              </Grid>
+                            </ControlTemplate>
+                          </media:SubtitleAspectWrapper.Template>
+                        </media:SubtitleAspectWrapper>
+
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                          <Grid.IsVisible>
+                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {1} || {0} == {2} || {0} == {3} || {0} == {4}">
+                              <Binding Path="VideoType"/>
+                              <Binding Source="HSBS"/>
+                              <Binding Source="SBS"/>
+                              <Binding Source="HTAB"/>
+                              <Binding Source="TAB"/>
+                            </MultiBinding>
+                          </Grid.IsVisible>
+                          <Border CornerRadius="6" Background="#1A000000" Margin="10">
+                          </Border>
+                          <Image Source="Medialogos\video\3d.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="23"/>
+                          <Label HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,30" Content="{Binding VideoType}"
+                                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold">
+                          </Label>
+                        </Grid>
+
+                        <Border CornerRadius="6" Background="#1A000000" Margin="10"
+                                IsVisible="{Binding Path=VideoEncoding,Converter={StaticResource ReferenceToBoolConverter}}">
+                          <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                            <Image.Source>
+                              <Binding Path="VideoEncoding" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\video\{0}.png"/>
+                            </Image.Source>
+                          </Image>
+                        </Border>
+                        
+                        <Border CornerRadius="10" Background="#1A000000" Margin="10"
+                                IsVisible="{Binding Path=AspectHeight,Converter={StaticResource ReferenceToBoolConverter}}">
+                          <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                            <Image.Source>
+                              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 340 ? {1} : ({0} &lt; 460 ? {2} : ({0} &lt; 520 ? {3} : ({0} &lt; 570 ? {4} : ({0} &lt; 700 ? {5} : ({0} &lt; 1000 ? {6} : ({0} &lt; 2000 ? {7} : ({0} &lt; 4000 ? {8} : {9})))))))">
+                                <Binding Path="AspectHeight"/>
+                                <Binding Source="Medialogos\resolution\240.png"/>
+                                <Binding Source="Medialogos\resolution\360.png"/>
+                                <Binding Source="Medialogos\resolution\480.png"/>
+                                <Binding Source="Medialogos\resolution\540.png"/>
+                                <Binding Source="Medialogos\resolution\576.png"/>
+                                <Binding Source="Medialogos\resolution\720p.png"/>
+                                <Binding Source="Medialogos\resolution\1080p.png"/>
+                                <Binding Source="Medialogos\resolution\2160p.png"/>
+                                <Binding Source="Medialogos\resolution\4320p.png"/>
+                              </MultiBinding>
+                            </Image.Source>
+                          </Image>
+                        </Border>
+                        
+                        <Border CornerRadius="10" Background="#1A000000" Margin="10"
+                                IsVisible="{Binding Path=AspectRatio,Converter={StaticResource ReferenceToBoolConverter}}">
+                          <Grid HorizontalAlignment="Center">
+                            <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Source="Medialogos\aspectratio\aspectratio.png"/>
+                            <Label Margin="8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                               HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                              <Label.Content>
+                                <Binding Path="AspectRatio" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F2}:1" />
+                              </Label.Content>
+                            </Label>
+                            <Label Margin="8,13,8,8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                               HorizontalAlignment="Center" VerticalAlignment="Top">
+                              <Label.Content>
+                                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 1.4 ? {1} : ({0} &lt; 1.8 ? {2} : {3})">
+                                  <Binding Path="AspectHeight"/>
+                                  <Binding Source="4:3"/>
+                                  <Binding Source="16:9"/>
+                                  <Binding Source="21:9"/>
+                                </MultiBinding>
+                              </Label.Content>
+                            </Label>
+                          </Grid>
+                        </Border>
+                        <Border CornerRadius="6" Background="#1A000000" Margin="10">
+                          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                                   IsVisible="{Binding Path=VideoBitRate,Converter={StaticResource ReferenceToBoolConverter}}"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center">
+                              <Label.Content>
+                                <Binding Path="VideoBitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kbps"/>
+                              </Label.Content>
+                            </Label>
+                            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                                   IsVisible="{Binding Path=FPS,Converter={StaticResource ReferenceToBoolConverter}}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                              <Label.Content>
+                                <Binding Path="FPS" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F3} fps"/>
+                              </Label.Content>
+                            </Label>
+                          </StackPanel>
+                        </Border>
+                      </UniformGrid>
+                    </ControlTemplate>
+                  </media:VideoStreamAspectWrapper.Template>
+                </media:VideoStreamAspectWrapper>
+              </Grid>
+
+              <!-- AUDIO INFO TAB-->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Audio, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="33*"/>
+                  <ColumnDefinition Width="33*"/>
+                  <ColumnDefinition Width="33*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                  <ControlTemplate x:Key="VideoAudioStream_Template">
+                    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="*"/>
+                      </Grid.RowDefinitions>
+                      <Label FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="40,0,0,0">
+                        <Label.Content>
+                          <Binding Path="AspectIndex" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}+1"/>
+                        </Label.Content>
+                        <Label.IsVisible>
+                          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; {1}">
+                            <Binding Path="AspectIndex"/>
+                            <Binding Path="AspectCount"/>
+                          </MultiBinding>
+                        </Label.IsVisible>
+                      </Label>
+
+                      <UniformGrid Grid.Row="1" Rows="2" Columns="2" Margin="30,10,30,20">
+                        <Border CornerRadius="6" Background="#1A000000" Margin="10"
+                                IsVisible="{Binding Path=AudioChannels,Converter={StaticResource ReferenceToBoolConverter}}">
+                          <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="-10">
+                            <Image.Source>
+                              <Binding Path="AudioChannels" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
+                            </Image.Source>
+                          </Image>
+                        </Border>
+
+                        <Grid IsVisible="{Binding Path=AudioLanguage,Converter={StaticResource ReferenceToBoolConverter}}" Margin="10">
+                          <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                          </Grid.RowDefinitions>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70*"/>
+                            <ColumnDefinition Width="30*"/>
+                          </Grid.ColumnDefinitions>
+                          <Border Grid.ColumnSpan="2" CornerRadius="6" Background="#1A000000"/>
+                          <Image Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5,8,5,8"
+                                 IsVisible="{Binding Path=AudioLanguage,Converter={StaticResource EmptyStringToFalseConverter}}">
+                            <Image.Source>
+                              <Binding Path="AudioLanguage" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
+                            </Image.Source>
+                          </Image>
+                          <Image Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" 
+                                 Margin="5,8,0,8" Source="Medialogos\flags\Unknown.png" IsVisible="{Binding Path=!AudioLanguage,Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                          <Label Grid.Column="1" Margin="-5,5,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Label.Content>
+                              <Binding Path="AudioLanguage"/>
+                            </Label.Content>
+                          </Label>
+                        </Grid>
+                        <Border CornerRadius="10" Background="#1A000000" Margin="10"
+                                IsVisible="{Binding Path=AudioEncoding,Converter={StaticResource ReferenceToBoolConverter}}">
+                          <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="-10">
+                            <Image.Source>
+                              <Binding Path="AudioEncoding" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
+                            </Image.Source>
+                          </Image>
+                        </Border>
+                        <Border CornerRadius="10" Background="#1A000000" Margin="10"
+                                IsVisible="{Binding Path=AudioBitRate,Converter={StaticResource ReferenceToBoolConverter}}">
+                          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                              <Label.Content>
+                                <Binding Path="AudioBitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kbps"/>
+                              </Label.Content>
+                            </Label>
+                            <Label Margin="5,0,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                              <Label.Content>
+                                <Binding Path="AudioSampleRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0} Hz"/>
+                              </Label.Content>
+                            </Label>
+                          </StackPanel>
+                        </Border>
+                      </UniformGrid>
+                    </Grid>
+                  </ControlTemplate>
+                </Grid.Resources>
+
+                <media:VideoAudioStreamAspectWrapper Grid.Column="0" Grid.Row="0" AspectIndex="0" MediaItem="{Binding MediaItem}" Template="{StaticResource VideoAudioStream_Template}"/>
+                <media:VideoAudioStreamAspectWrapper Grid.Column="1" Grid.Row="0" AspectIndex="1" MediaItem="{Binding MediaItem}" Template="{StaticResource VideoAudioStream_Template}"/>
+                <media:VideoAudioStreamAspectWrapper Grid.Column="2" Grid.Row="0" AspectIndex="2" MediaItem="{Binding MediaItem}" Template="{StaticResource VideoAudioStream_Template}"/>
+
+              </Grid>
+
+              <!-- SUBTITLE INFO TAB-->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Subtitle, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="15*"/>
+                  <ColumnDefinition Width="15*"/>
+                  <ColumnDefinition Width="15*"/>
+                  <ColumnDefinition Width="15*"/>
+                  <ColumnDefinition Width="15*"/>
+                  <ColumnDefinition Width="15*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Grid.Resources>
+                  <ControlTemplate x:Key="SubtitleAspect_Template">
+                    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="*"/>
+                      </Grid.RowDefinitions>
+                      <Grid.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; {1}">
+                          <Binding Path="AspectIndex"/>
+                          <Binding Path="AspectCount"/>
+                        </MultiBinding>
+                      </Grid.IsVisible>
+                      <Label FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="40,0,0,0">
+                        <Label.Content>
+                          <Binding Path="AspectIndex" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}+1"/>
+                        </Label.Content>
+                      </Label>
+
+                      <Grid Grid.Row="1" Margin="30,10,30,20">
+                        <Grid.RowDefinitions>
+                          <RowDefinition Height="4*"/>
+                          <RowDefinition Height="3*"/>
+                          <RowDefinition Height="3*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CornerRadius="8" Background="#1A000000"/>
+                        <Grid Grid.Row="0" Margin="8">
+                          <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                          </Grid.RowDefinitions>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="65*"/>
+                            <ColumnDefinition Width="35*"/>
+                          </Grid.ColumnDefinitions>
+                          <Image Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5,5,0,5"
+                                 IsVisible="{Binding Path=SubtitleLanguage,Converter={StaticResource EmptyStringToFalseConverter}}">
+                            <Image.Source>
+                              <Binding Path="SubtitleLanguage" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
+                            </Image.Source>
+                          </Image>
+                          <Image Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" 
+                                 Margin="5,5,0,5" Source="Medialogos\flags\Unknown.png" IsVisible="{Binding Path=!SubtitleLanguage,Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                          <Label Grid.Column="1" Margin="0,5,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                               HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Label.Content>
+                              <Binding Path="SubtitleLanguage"/>
+                            </Label.Content>
+                          </Label>
+                        </Grid>
+                        <Label Grid.Row="1" Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <Label.Content>
+                            <Binding Path="SubtitleFormat"/>
+                          </Label.Content>
+                        </Label>
+                        <Image Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                               Margin="10" Source="Medialogos\Subtitle\Frame.png"
+                               IsVisible="{Binding Path=SubtitleFormat,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                        <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
+                              IsVisible="{Binding Path=IsInternal,Converter={StaticResource ReferenceToBoolConverter}}">
+                          <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                          </Grid.RowDefinitions>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="65*"/>
+                            <ColumnDefinition Width="45*"/>
+                          </Grid.ColumnDefinitions>
+                          <Image Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                 Margin="0,0,10,0" Source="Medialogos\Subtitle\Internal.png" IsVisible="{Binding IsInternal}"/>
+                          <!--Image Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                 Margin="0,0,10,0" Source="Medialogos\Subtitle\External.png" IsVisible="{Binding !IsInternal}"/-->
+                          <Label Grid.Column="0" Margin="20,0,0,0" Color="{ThemeResource TextColor}" 
+                                 FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                                 Content="Forced" IsVisible="{Binding IsForced}"/>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </ControlTemplate>
+                </Grid.Resources>
+
+                <media:SubtitleAspectWrapper Grid.Column="0" Grid.Row="0" AspectIndex="0" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
+                <media:SubtitleAspectWrapper Grid.Column="1" Grid.Row="0" AspectIndex="1" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
+                <media:SubtitleAspectWrapper Grid.Column="2" Grid.Row="0" AspectIndex="2" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
+                <media:SubtitleAspectWrapper Grid.Column="3" Grid.Row="0" AspectIndex="3" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
+                <media:SubtitleAspectWrapper Grid.Column="4" Grid.Row="0" AspectIndex="4" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
+                <media:SubtitleAspectWrapper Grid.Column="5" Grid.Row="0" AspectIndex="5" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
+
+              </Grid>
+            </Grid>
+          </Border>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

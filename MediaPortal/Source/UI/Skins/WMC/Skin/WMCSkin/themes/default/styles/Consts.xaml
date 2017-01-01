@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+    <!-- Footer Details -->
+  <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
+  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-940,0,50,50"/>
+
+  <ResourceWrapper x:Key="HugeFontSize" Resource="72"/>
+  <ResourceWrapper x:Key="InfoTabFontSize" Resource="55"/>
+  <ResourceWrapper x:Key="HeaderFontSize" Resource="80"/>
+  <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
+
+  <ResourceWrapper x:Key="DateTimeFontSize" Resource="30"/>
+  <ResourceWrapper x:Key="NormalFontSize" Resource="45"/>
+  <ResourceWrapper x:Key="SmallFontSize" Resource="33"/>
+  <ResourceWrapper x:Key="SmallerFontSize" Resource="27"/>
+  <ResourceWrapper x:Key="TinyFontSize" Resource="13"/>
+
+  <ResourceWrapper x:Key="DialogButtonMinWidth" Resource="300"/>
+
+  <ResourceWrapper x:Key="TextBoxBorderThickness" Resource="3"/>
+  <ResourceWrapper x:Key="TextBoxCornerRadius" Resource="4"/>
+
+  <ResourceWrapper x:Key="VirtualKeyboardBorderThickness" Resource="10"/>
+  <ResourceWrapper x:Key="VirtualKeyboardCornerRadius" Resource="10"/>
+
+  <ResourceWrapper x:Key="ContentGroupBoxCornerRadius" Resource="5"/>
+  <ResourceWrapper x:Key="ProgressBarRadius" Resource="2"/>
+
+  <ResourceWrapper x:Key="DefaultPlayerControlBorderThickness" Resource="1"/>
+  <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="4"/>
+  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="1"/>
+  <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="2"/>
+  <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
+
+  <ResourceWrapper x:Key="FullScreenContentVideoPrimaryPlayerOSDWidth" Resource="850"/>
+ 
+  <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
+  
+  <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="2"/>
+    
+  <!-- width and margin for small OSD buttons -->
+  <ResourceWrapper x:Key="OSDControlWidth" Resource="14" />
+  <ResourceWrapper x:Key="OSDControlMargin" Resource="5,2,5,2" />
+
+  
+</ResourceDictionary>

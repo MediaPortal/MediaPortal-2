@@ -21,6 +21,7 @@
   <string name="SlimTvClient.NoProgram">Programinformation saknas.</string>
   <string name="SlimTvClient.ChooseProgramAction">Välj åtgärd...</string>
   <string name="SlimTvClient.ChooseChannelGroup">Välj kanalgrupp...</string>
+  <string name="SlimTvClient.ChannelGroupButton">Kanalgrupp...</string>
   <string name="SlimTvClient.ProgramOver">Programmet är slut</string>
   <string name="SlimTvClient.WatchNow">Titta nu</string>
   <string name="SlimTvClient.WatchFromBeginning">Se inspelningen från början</string>
@@ -71,6 +72,10 @@
   <string name="SlimTvClient.AutoStartTv.Help">När funktionen är aktiverad så startar senaste använda kanal automatiskt när startsidan för TV väljs.</string>
   <string name="SlimTvClient.ShowSeriesInfo">Visa information om multipla inspelningar</string>
   <string name="SlimTvClient.ShowSeriesInfo.Help">Aktivera för att se, om den finns tillgänglig, säsongs- och avsnittsinformation i tablån.</string>
+  <string name="SlimTvClient.ZapByChannelIndex">Välj kanal via index</string>
+  <string name="SlimTvClient.ZapByChannelIndex.Help">Bestäm om kanal ska väljas med index eller kanalnummer.</string>
+  <string name="SlimTvClient.ZapTimeout">Timeout vid kanalbyte</string>
+  <string name="SlimTvClient.ZapTimeout.Help">Sätt fördröjning tills kanalinställning startar.</string>
   <string name="SlimTvClient.HideAllChannelsGroup">Dölj kanalgruppen \"Alla kanaler\".</string>
   <string name="SlimTvClient.HideAllChannelsGroup.Help">När funktionen är aktiverad så döljs kanalgruppen \"Alla kanaler\" </string>
   <string name="SlimTvClient.RecordingsMenuItem">Inspelningar</string>

@@ -4,8 +4,8 @@
   <string name="Network.NoWirelessNetworksFound">Keine drahtlosen Netzwerke gefunden</string>
   <string name="Network.Connect">Verbinden</string>
   <string name="Network.Disconnect">Trennen</string>
-  <string name="Network.EnterWifiPassword">Wi-Fi-Passwort eingeben</string>
-  <string name="Network.DeleteProfile">Wi-Fi-Profil löschen</string>
-  <string name="Settings.General.Connectivity.WifiConnection">Wi-Fi-Verbindung</string>
+  <string name="Network.EnterWifiPassword">WLAN-Passwort eingeben</string>
+  <string name="Network.DeleteProfile">WLAN-Profil löschen</string>
+  <string name="Settings.General.Connectivity.WifiConnection">WLAN-Verbindung</string>
   <string name="Settings.General.Connectivity.WifiConnection.Help">Mit drahtlosem Netzwerk verbinden</string>
 </resources>

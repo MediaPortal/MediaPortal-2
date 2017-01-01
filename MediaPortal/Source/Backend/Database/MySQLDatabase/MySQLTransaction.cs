@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,78 +29,94 @@ using MediaPortal.Backend.Services.Database;
 
 namespace MediaPortal.Database.MySQL
 {
-    public class MySQLTransaction : ITransaction
+  public class MySQLTransaction : ITransaction
+  {
+    #region Protected fields
+
+    protected MySqlTransaction _transaction;
+    protected ISQLDatabase _database;
+    protected IDbConnection _connection;
+
+    #endregion
+
+    #region ITransaction Member
+
+    public ISQLDatabase Database
     {
-      #region Protected fields
+      get { return _database; }
+    }
 
-      protected MySqlTransaction _transaction;
-      protected ISQLDatabase _database;
-      protected IDbConnection _connection;
+    public IDbConnection Connection
+    {
+      get { return _connection; }
+    }
 
-      #endregion
-
-      #region ITransaction Member
-
-      public ISQLDatabase Database
-      {
-        get { return _database; }
-      }
-
-      public IDbConnection Connection
-      {
-        get { return _connection; }
-      }
-
-      public void Commit()
-      {
-        _transaction.Commit();
-        Dispose();
-      }
-
-      public void Rollback()
-      {
+    public void Begin(IsolationLevel level)
+    {
+      if (_transaction != null)
         _transaction.Rollback();
-        Dispose();
-      }
+      _transaction = ((MySqlConnection)_connection).BeginTransaction(level);
+    }
 
-      public IDbCommand CreateCommand()
-      {
-        IDbCommand result = _connection.CreateCommand();
+    public void Commit()
+    {
+      if (_transaction != null)
+        _transaction.Commit();
+      Dispose();
+    }
+
+    public void Rollback()
+    {
+      if (_transaction != null)
+        _transaction.Rollback();
+      Dispose();
+    }
+
+    public IDbCommand CreateCommand()
+    {
+      IDbCommand result = _connection.CreateCommand();
 #if DEBUG
-        // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
-        result = new LoggingDbCommandWrapper(result);
+      // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
+      result = new LoggingDbCommandWrapper(result);
 #endif
-        result.Transaction = _transaction;
-        return result;
-      }
+      result.Transaction = _transaction;
+      return result;
+    }
 
-      #endregion
+    #endregion
 
-      #region IDisposable Member
+    #region IDisposable Member
 
-      public void Dispose()
+    public void Dispose()
+    {
+      if (_connection != null)
       {
-        if (_connection != null)
-        {
-          _connection.Close();
-          _connection = null;
-        }
-      }
-
-      #endregion
-
-      public static ITransaction BeginTransaction(MySQLDatabase database, string connectionString, IsolationLevel level)
-      {
-        MySqlConnection connection = new MySqlConnection(connectionString);
-        connection.Open();
-        return new MySQLTransaction(database, connection, connection.BeginTransaction(level));
-      }
-
-      public MySQLTransaction(ISQLDatabase database, IDbConnection connection, MySqlTransaction transaction)
-      {
-        _database = database;
-        _connection = connection;
-        _transaction = transaction;
+        _connection.Close();
+        _connection = null;
       }
     }
+
+    #endregion
+
+    public static ITransaction BeginTransaction(MySQLDatabase database, string connectionString, IsolationLevel level)
+    {
+      MySqlConnection connection = new MySqlConnection(connectionString);
+      connection.Open();
+      return new MySQLTransaction(database, connection, connection.BeginTransaction(level));
+    }
+
+    public static ITransaction CreateTransaction(MySQLDatabase database, string connectionString)
+    {
+      MySqlConnection connection = new MySqlConnection(connectionString);
+      connection.Open();
+      return new MySQLTransaction(database, connection, null);
+    }
+
+    public MySQLTransaction(ISQLDatabase database, IDbConnection connection, MySqlTransaction transaction)
+    {
+      _database = database;
+      _connection = connection;
+      _transaction = transaction;
+    }
+  }
 }

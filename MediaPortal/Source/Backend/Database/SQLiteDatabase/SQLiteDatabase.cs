@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -65,7 +65,7 @@ namespace MediaPortal.Database.SQLite
     private readonly string _connectionString;
     private ConnectionPool<SQLiteConnection> _connectionPool;
     private readonly SQLiteSettings _settings;
-    private readonly FileLogger _sqliteDebugLogger;
+    private readonly ILogger _sqliteDebugLogger;
     private readonly AsynchronousMessageQueue _messageQueue;
     private readonly ActionBlock<bool> _maintenanceScheduler;
 
@@ -75,6 +75,12 @@ namespace MediaPortal.Database.SQLite
 
     public SQLiteDatabase()
     {
+      VersionUpgrade upgrade = new VersionUpgrade();
+      if (!upgrade.Upgrade())
+      {
+        ServiceRegistration.Get<ILogger>().Warn("SQLiteDatabase: Could not upgrade existing database");
+      }
+
       try
       {
         _maintenanceScheduler = new ActionBlock<bool>(async _ => await PerformDatabaseMaintenanceAsync(), new ExecutionDataflowBlockOptions { BoundedCapacity = 2 });
@@ -98,7 +104,7 @@ namespace MediaPortal.Database.SQLite
         // We use our own collation sequence which is registered here to be able
         // to sort items taking into account culture specifics
         SQLiteFunction.RegisterFunction(typeof(SQLiteCultureSensitiveCollation));
-        
+
         var pathManager = ServiceRegistration.Get<IPathManager>();
         string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
@@ -465,6 +471,11 @@ namespace MediaPortal.Database.SQLite
     public ITransaction BeginTransaction()
     {
       return new SQLiteTransaction(this, IsolationLevel.Serializable, _settings);
+    }
+
+    public ITransaction CreateTransaction()
+    {
+      return new SQLiteTransaction(this, _settings);
     }
 
     public bool TableExists(string tableName)

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="www.team-mediaportal.com/2008/mpf/directx"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System"
+                    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+                    DependsOnStyleResources="Colors,Buttons,OtherControls">
+
+  <DataTemplate x:Key="HomeEditorMenuItemDataTemplate">
+    <Grid x:Name="ItemControl" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,-3,0,1">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource WindowHeaderColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="HomeEditorMovableItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid x:Name="ParentPanel">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="65" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Margin="4,4,12,4" Context="{Binding}" Style="{ThemeResource ButtonWideStyle}"
+                    Command="{DynamicResource ResourceKey=Menu_Command}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+
+            <Button Grid.Column="1" Margin="2" Width="70" Height="70" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{ThemeResource UpButtonStyle}"
+                    Command="{DynamicResource ResourceKey=MoveUp_Command}" SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}" />
+
+            <Button x:Name="MoveDownButton" Grid.Column="2" Margin="2" Width="70" Height="70" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{ThemeResource DownButtonStyle}" 
+                    Command="{DynamicResource ResourceKey=MoveDown_Command}" SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeEditorMovableListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource HomeEditorMenuItemDataTemplate}" />
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}" />
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeEditorMovableItemContainerStyle}" />
+  </Style>
+
+</ResourceDictionary>

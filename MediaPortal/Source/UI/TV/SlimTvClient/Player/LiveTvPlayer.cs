@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -150,7 +150,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       // Set indicator for zapping to blank the video surface with black.
       _zapping = true;
       // Tell the TsReader that we are zapping, before we actually tune the new channel.
-      ((ITsReader)_sourceFilter).OnZapping(0x80);
+      _tsReader.OnZapping(0x80);
     }
 
     public void EndZap()
@@ -257,7 +257,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     public event RequestNextItemDlgt NextItemRequest;
 
-    public bool NextItem(MediaItem mediaItem, StartTime startTime)
+    public override bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
       string mimeType;
       string title;

@@ -40,7 +40,7 @@
   <!-- Dialog related -->
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="12"/>
 
-  <ResourceWrapper x:Key="FixedDialogWidth" Resource="670"/>
+  <ResourceWrapper x:Key="FixedDialogWidth" Resource="720"/>
   <ResourceWrapper x:Key="FixedDialogHeight" Resource="280"/>
 
   <!-- Button related -->
@@ -66,6 +66,6 @@
   
   <!-- Footer Details -->
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="242"/>
-  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-50,-40,-50,-10"/>
+  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-50,-40,-50,20"/>
 
 </ResourceDictionary>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -57,6 +57,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public override string ToString()
     {
       return _name + "=" + _value;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (!(obj is BindVar))
+            return false;
+
+        BindVar bv = (BindVar)obj;
+        //return _name == bv.Name && _value == bv.Value;
+        if (!_name.Equals(bv.Name))
+        {
+            //Console.WriteLine(_name + " is different to " + bv.Name);
+            return false;
+        }
+        if (!_value.Equals(bv.Value))
+        {
+            //Console.WriteLine(_value.GetType() + ":" + _value + "(" + _type + ") is different to " + bv.Value.GetType() + ":" + bv.Value + "(" + bv.VariableType + ")");
+            return false;
+        }
+
+        return true;
     }
   }
 }

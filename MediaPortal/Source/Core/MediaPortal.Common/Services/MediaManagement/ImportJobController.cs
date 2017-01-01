@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -149,6 +149,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <param name="importResultHandler"></param>
     public void Activate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler)
     {
+      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, _importJobInformation.BasePath);
       // To avoid peaks on system startup we start one Block every 100ms.
       // Currently we also need this because the MediaAccessor is not threadsafe on startup
       // see here: http://forum.team-mediaportal.com/threads/mediaaccessor-not-thread-safe.125132/
@@ -159,7 +160,6 @@ namespace MediaPortal.Common.Services.MediaManagement
         Task.Delay(100).Wait();
       }
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}: Activated", this);
-      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, _importJobInformation.BasePath);
     }
 
     /// <summary>
@@ -354,7 +354,9 @@ namespace MediaPortal.Common.Services.MediaManagement
           _dataflowBlocks.Add(new DirectoryUnfoldBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new DirectorySaveBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new FileUnfoldBlock(_cts.Token, _importJobInformation, this));
-          _dataflowBlocks.Add(new MetadataExtractorBlock(_cts.Token, _importJobInformation, this, false));
+          _dataflowBlocks.Add(new ChangeUnfoldBlock(_cts.Token, _importJobInformation, this));
+          _dataflowBlocks.Add(new MediaItemLoadBlock(_cts.Token, _importJobInformation, this));
+          _dataflowBlocks.Add(new MetadataExtractorBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new MediaItemSaveBlock(_cts.Token, _importJobInformation, this));
 
           // Link the blocks

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Default background image - no media present
+-->
+
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:animation="clr-namespace:MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;assembly=SkinEngine" 
+    xmlns:bm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Models;assembly=BackgroundManager"
+    x:Name="DefaultBackgroundScreen"
+    >
+  <DockPanel>
+    <DockPanel.Resources>
+      <Model x:Key="VideoBackgroundModel" Id="441288AC-F88D-4186-8993-6E259F7C75D8"/>
+      <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    </DockPanel.Resources>
+
+    <!-- Video background -->
+    <Grid IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=IsEnabled}" DockPanel.Dock="Center">
+      <Grid.Background>
+        <bm:BackgroundVideoBrush VideoPlayer="{Binding Source={StaticResource VideoBackgroundModel},Path=VideoPlayer}"/>
+      </Grid.Background>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.Triggers>
+        <EventTrigger RoutedEvent="Screen.Show">
+          <TriggerCommand Command="{Command Source={StaticResource VideoBackgroundModel}, Path=StartBackgroundPlayback}"/>
+        </EventTrigger>
+        <EventTrigger RoutedEvent="Screen.Hide">
+          <TriggerCommand Command="{Command Source={StaticResource VideoBackgroundModel}, Path=EndBackgroundPlayback}"/>
+        </EventTrigger>
+      </Grid.Triggers>
+    </Grid>
+
+    <StackPanel IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=!IsEnabled}">
+      <StackPanel.Background>
+        <VisualBrush x:Name="FanartVisualBrush" AnimationEnabled="True">
+          <VisualBrush.Visual>
+            <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{ThemeResource BackgroundBrush}">
+              <!--<Grid.Resources>
+                <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+                <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+              </Grid.Resources>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              --><!-- If active, semitransparent FanArts will appear--><!--
+              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0"
+                     IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+                <Image.Source>
+                  <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+                </Image.Source>
+              </Image>-->
+            </Grid>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </StackPanel.Background>
+    </StackPanel>
+  </DockPanel>
+</Screen>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -104,7 +104,7 @@ namespace MediaPortal.Utilities.DB
         return String.Empty;
 
       StringBuilder sb = new StringBuilder();
-      foreach (System.Data.Common.DbParameter param in parameterCollection)
+      foreach (System.Data.IDbDataParameter param in parameterCollection)
       {
         String quoting = "";
         String pv = "[NULL]";

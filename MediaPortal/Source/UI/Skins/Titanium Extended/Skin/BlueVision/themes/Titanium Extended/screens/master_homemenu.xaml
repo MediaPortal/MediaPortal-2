@@ -240,7 +240,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Content="[Movies.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource LatestMovieItemsListListViewStyle}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
@@ -467,7 +467,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </Storyboard>
               <Storyboard x:Key="SlideDownStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PowerBottomPanel" Storyboard.TargetProperty="RenderTransform.Y">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.01" Value="-500"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-600"/>
                   <SplineDoubleKeyFrame KeyTime="00:00:00.25" Value="0"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
@@ -498,7 +498,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <BeginStoryboard x:Name="SlideUp_BeginStoryboard" Storyboard="{ThemeResource SlideUpStoryboard}"/>
                 </DataTrigger.EnterActions>
                 <DataTrigger.ExitActions>
-                  <!--BeginStoryboard x:Name="SlideDown_BeginStoryboard" Storyboard="{ThemeResource SlideDownStoryboard}"/-->
+                  <BeginStoryboard x:Name="SlideDown_BeginStoryboard" Storyboard="{ThemeResource SlideDownStoryboard}"/>
                   <StopStoryboard BeginStoryboardName="SlideUp_BeginStoryboard"/>
                 </DataTrigger.ExitActions>
                 <Setter TargetName="PowerMenu" Property="SetFocusPrio" Value="Highest" />

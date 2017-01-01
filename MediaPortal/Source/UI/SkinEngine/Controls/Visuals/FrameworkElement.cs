@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -2105,7 +2105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       col.Alpha *= (float) Opacity;
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
-          bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+          bounds.Left /*- 0.5f*/, bounds.Top /*- 0.5f*/, bounds.Right /*- 0.5f*/, bounds.Bottom /*- 0.5f*/,
           bounds.Left / width, bounds.Top / height, bounds.Right / width, bounds.Bottom / height,
           zPos, col);
 
@@ -2156,7 +2156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       col.Alpha *= (float) Opacity;
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
-          bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+          bounds.Left /*- 0.5f*/, bounds.Top /*- 0.5f*/, bounds.Right /*- 0.5f*/, bounds.Bottom /*- 0.5f*/,
           0.0f, 0.0f, 1.0f, 1.0f,
           zPos, col);
 

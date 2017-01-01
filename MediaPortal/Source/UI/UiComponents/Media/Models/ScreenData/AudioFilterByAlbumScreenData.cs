@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -33,13 +35,23 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public AudioFilterByAlbumScreenData() :
         base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM, Consts.RES_FILTER_BY_ALBUM_MENU_ITEM,
-        Consts.RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(AudioAspect.ATTR_ALBUM))
+        Consts.RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL, new FilterByAlbumCriterion())
     {
+      _itemMias = new Guid[] { AudioAspect.ASPECT_ID };
+      _availableMias = Consts.NECESSARY_ALBUM_MIAS;
+      if (Consts.OPTIONAL_ALBUM_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_ALBUM_MIAS);
     }
 
     public override AbstractFiltersScreenData<AlbumFilterItem> Derive()
     {
       return new AudioFilterByAlbumScreenData();
+    }
+
+    //Special case for album screen, it can support album filters and track filters
+    public override bool IsAvailable(AbstractScreenData parentScreen)
+    {
+      return base.IsAvailable(parentScreen) || parentScreen.ItemMias.Contains(AudioAlbumAspect.ASPECT_ID);
     }
   }
 }

@@ -24,32 +24,22 @@
               <ColumnDefinition Width="200"/>
             </Grid.ColumnDefinitions>
             
-    
-            <Label Grid.Row="0" Grid.Column="1" x:Name="MovieCollectionName" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                   Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}" Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="-20,0,20,0"
-                   HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+            <media:MovieCollectionAspectWrapper Grid.Row="0" Grid.Column="1"
+              MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch" >
+              <media:MovieCollectionAspectWrapper.Template>
+                <ControlTemplate>
+                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                    <Label x:Name="MediaItemName" FontSize="{ThemeResource SmallFontSize}"
+                           Content="{Binding CollectionName}" Color="{ThemeResource TextColor}"/>
+                  </Grid>
+                </ControlTemplate>
+              </media:MovieCollectionAspectWrapper.Template>
+            </media:MovieCollectionAspectWrapper>
 
             <Label Grid.Row="0" Grid.Column="1"  HorizontalAlignment="Right" 
                    VerticalAlignment="Bottom" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                    Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="0,0,10,0" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=NumItems}"/>
-            
-            <!--StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
-              <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyBlackTemplate}"
-                                           Maximum="10" Value="{Binding TotalRating}" Margin="0,2,0,-2">
-                <StarRatingPanel.LayoutTransform>
-                  <TransformGroup>
-                    <ScaleTransform ScaleX="1.65" ScaleY="1.5"/>
-                  </TransformGroup>
-                </StarRatingPanel.LayoutTransform>
-              </StarRatingPanel>
-
-              <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0">
-                <Label.Content>
-                  <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
-                </Label.Content>
-              </Label>
-            </StackPanel-->
-             
+                         
           </Grid>  
         </ControlTemplate>
       </media:MovieAspectWrapper.Template>

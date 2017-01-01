@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.UiComponents.Media.General;
 
@@ -38,12 +39,38 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      DateTime startTimeX;
-      DateTime startTimeY;
-      if (!MediaItemAspect.TryGetAttribute(x.Aspects, RecordingAspect.ATTR_STARTTIME, out startTimeX) || !MediaItemAspect.TryGetAttribute(y.Aspects, RecordingAspect.ATTR_STARTTIME, out startTimeY))
-        return base.Compare(x, y);
+      DateTime startTimeX = GetBestDate(x);
+      DateTime startTimeY = GetBestDate(y);
+      if (startTimeX == startTimeY)
+      {
+        string titleX = GetBestTitle(x);
+        string titleY = GetBestTitle(y);
+        return String.CompareOrdinal(titleX, titleY);
+      }
 
       return -startTimeX.CompareTo(startTimeY);
+    }
+
+    public static string GetBestTitle(MediaItem mediaItem)
+    {
+      string name;
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_MOVIE_NAME, out name))
+        return name;
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIES_NAME, out name))
+        return name;
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_TITLE, out name))
+        return name;
+      return string.Empty;
+    }
+
+    public static DateTime GetBestDate(MediaItem mediaItem)
+    {
+      DateTime recordingDate;
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, RecordingAspect.ATTR_ENDTIME, out recordingDate))
+        return recordingDate;
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+        return recordingDate;
+      return DateTime.MinValue;
     }
   }
 }

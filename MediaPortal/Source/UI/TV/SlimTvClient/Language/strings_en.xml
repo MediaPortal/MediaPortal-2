@@ -24,6 +24,7 @@
   <string name="SlimTvClient.NoProgram">No program data.</string>
   <string name="SlimTvClient.ChooseProgramAction">Choose program action...</string>
   <string name="SlimTvClient.ChooseChannelGroup">Choose channel group...</string>
+  <string name="SlimTvClient.ChannelGroupButton">Channel group</string>
 
   <string name="SlimTvClient.ProgramOver">Program already over</string>
   <string name="SlimTvClient.WatchNow">Watch program now</string>

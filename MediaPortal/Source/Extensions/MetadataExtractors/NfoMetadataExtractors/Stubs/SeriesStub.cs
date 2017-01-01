@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public string Title { get; set; }
 
     /// <summary>
-    /// Title of the series as a whole (same as <see cref="Title"/>
+    /// Title of the series as a whole (same as <see cref="Title"/>)
     /// </summary>
     /// <example>"Castle"</example>
     public string ShowTitle { get; set; }

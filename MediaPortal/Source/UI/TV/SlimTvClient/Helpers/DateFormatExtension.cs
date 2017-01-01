@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -61,6 +61,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     public static String FormatProgramTime(this DateTime dateTime, CultureInfo cultureInfo = null)
     {
+      if (dateTime == DateTime.MinValue)
+        return string.Empty;
       cultureInfo = cultureInfo ?? CultureInfo.CurrentUICulture;
       if (GetDay(dateTime) != Today)
         return String.Format("{0} {1}",

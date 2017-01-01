@@ -10,7 +10,7 @@
     DependsOnStyleResources="SlimTvColors,SlimTvConsts,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls,MediaStyles,OSD"
     >
   <!-- SlimTvClient model -->
-  <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/> 
+  <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
@@ -218,11 +218,6 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <!-- SHADOW -->
-      <Control Height="{Binding ElementName=PosterGrid,Path=ActualHeight}" Width="{Binding ElementName=PosterGrid,Path=ActualWidth}"
-               Style="{ThemeResource Shadow_3_20}" IsVisible="{Binding ElementName=thumb, Path=HasImage}"/>
-      <!-- SHADOW -->
-
       <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center"
             MaxHeight="{StaticResource MEDIA_THUMB_HEIGHT}" MaxWidth="{StaticResource MEDIA_THUMB_WIDTH}">
         <Grid.OpacityMask>
@@ -232,7 +227,7 @@
             </VisualBrush.Visual>
           </VisualBrush>
         </Grid.OpacityMask>
-        
+
         <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
                HorizontalAlignment="Center" VerticalAlignment="Center">
           <Image.Opacity>
@@ -297,7 +292,7 @@
         </Label.Opacity>
       </Label>
 
-      <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2"  >
+      <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2">
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -340,7 +335,7 @@
         </Control.LayoutTransform>
       </Control>
 
-      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,23,0"
+      <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
             HorizontalAlignment="Stretch"
             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
 
@@ -353,7 +348,7 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2" Margin="60,0,-60,0"  >
+        <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2">
           <Image.Source>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding Path="PlayCount"/>
@@ -379,15 +374,15 @@
       </Grid>
     </Grid>
   </ControlTemplate>
-  
+
   <DataTemplate DataType="{x:Type navitems:RecordingItem}">
     <Control>
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource ListViewRecordingItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewRecordingItemTemplate}"/>
-          <Binding Source=""/>
+          <Binding Source="{StaticResource ListViewVideoItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewVideoItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewVideoItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -482,6 +477,22 @@
 
   <!-- Style definition for EpgGrid defining header and program item styles -->
   <Style x:Key="EpgGridStyle" TargetType="{x:Type tv:EpgGrid}">
+    <Setter Property="GroupButtonWidth" Value="{ThemeResource GroupButtonWidth}" />
+    <Setter Property="GroupButtonTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}">
+            <Label x:Name="GroupLabel" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="DefaultBold"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Content="[SlimTvClient.ChannelGroupButton]">
+              <Label.LayoutTransform>
+                <RotateTransform CenterX="0.5" CenterY="0.5" Angle="-90" />
+              </Label.LayoutTransform>
+            </Label>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="HeaderWidth" Value="{ThemeResource MultiGuideHeaderWidth}" />
     <Setter Property="HeaderTemplate">
       <Setter.Value>
@@ -492,7 +503,7 @@
                 <!-- Channel Logo -->
                 <ColumnDefinition Width="Auto"/>
                 <!-- Channel Number -->
-                <ColumnDefinition Width="Auto"/>               
+                <ColumnDefinition Width="Auto"/>
                 <!-- Channel Name -->
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -506,7 +517,7 @@
                 </Image.Source>
               </Image>
               <Label x:Name="ChannelNumber" Grid.Column="1" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="DefaultBold" Opacity="0.4"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>  
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
               <Label Grid.Column="2" Grid.Row="0" x:Name="NameLabel" VerticalAlignment="Center" Margin="5,0,0,0"
                      Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
             </Grid>
@@ -541,6 +552,7 @@
 
             <Grid>
               <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
@@ -548,8 +560,9 @@
               </Grid.RowDefinitions>
 
               <Label x:Name="ItemLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="2,0,0,0"
-                     FontFamily="DefaultBold"/>
+                     Margin="2,0,0,0" FontFamily="DefaultBold"/>
+              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Margin="5,0,0,0"/>
             </Grid>
           </Button>
         </ControlTemplate>
@@ -640,7 +653,7 @@
     </Setter>
   </Style>
 
-    <Style x:Key="TVButtonWideStyle2" TargetType="{x:Type Button}">
+  <Style x:Key="TVButtonWideStyle2" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -688,7 +701,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <Style x:Key="TVItemContainerStyle" TargetType="{x:Type ListViewItem}">
     <Style.Triggers>
       <Trigger Property="Selected" Value="True">
@@ -743,7 +756,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="ScheduleItemContainerStyle" TargetType="{x:Type ListViewItem}"> 
+  <Style x:Key="ScheduleItemContainerStyle" TargetType="{x:Type ListViewItem}">
     <Style.Triggers>
       <Trigger Property="Selected" Value="True">
         <!-- Hack: It is sufficient to set the attached ZIndex property for one panel type; the MP2 SkinEngine maps it to the
@@ -766,7 +779,7 @@
                 <Setter TargetName="ChannelText" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="TypeLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ProgramStartEnd" Property="Scroll" Value="Auto"/>           
+                <Setter TargetName="ProgramStartEnd" Property="Scroll" Value="Auto"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -798,18 +811,18 @@
                 <Setter TargetName="Item2" Property="Background" Value="#003366"/>
                 <Setter TargetName="Item3" Property="Background" Value="#003366"/-->
               </Trigger>
-            </Button.Triggers>                     
+            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <!-- Default ListView style. The properties "ItemTemplate", "ItemContainerStyle" and "DataStringProvider" should be exchanged for custom ListView styles. -->
   <Style x:Key="TVListViewStyle" TargetType="{x:Type ListView}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">         
+        <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer CanContentScroll="True">
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
@@ -821,27 +834,6 @@
         <ItemsPanelTemplate>
           <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
         </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-  
-  <Style x:Key="TVProgressBarStyle" TargetType="{x:Type ProgressBar}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="12"/>
-            </Grid.RowDefinitions>
-            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="6" RadiusY="6"      
-                       Fill="#26FFFFFF"/>
-            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Stretch" RadiusX="6" RadiusY="6"                 
-                       Fill="{ThemeResource ProgressBarFillColor}"/>
-          </Grid>
-        </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>
@@ -895,7 +887,7 @@
 
       <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,4,0,4" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}"
        VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
-      
+
       <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,4,0,4" VerticalAlignment="Center"
         Content="{Binding [Title]}" FontSize="{ThemeResource SmallFontSize}"
         Color="{ThemeResource TextColor}"/>
@@ -952,7 +944,7 @@
               Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
       <Border x:Name="Item4_overlay" Grid.Row="0" Grid.Column="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="-10,-5,-15,-5"/>
-      
+
       <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,4,0,4" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"
        VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
 
@@ -970,8 +962,8 @@
              Color="{ThemeResource TextColor}"/>
 
       <!-- Shows the progress of current time in relation to the current playing program -->
-      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="4" Grid.Row="0" Height="15" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Value="{Binding Programs[0].Progress}" Style="{ThemeResource TVProgressBarStyle}"/>
+      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="4" Grid.Row="0" Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Value="{Binding Programs[0].Progress}" Style="{ThemeResource PercentageProgressBarStyle}"/>
     </Grid>
   </DataTemplate>
 
@@ -1039,7 +1031,7 @@
         <Label x:Name="ProgramEnd" Content="{Binding [EndTime]}" FontSize="{ThemeResource SmallFontSize}"
             Color="{ThemeResource TextColor}"/>
       </StackPanel>
-      
+
     </Grid>
   </DataTemplate>
 
@@ -1084,7 +1076,7 @@
               Background="Transparent" BorderThickness="0" Margin="2,-5,2,-5"/>
       <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="2,-5,-2,-5"/>
-      
+
       <StackPanel Orientation="Horizontal" Grid.Column="0" x:Name="Channel">
         <Image x:Name="ChannelLogo" Height="40" Stretch="Uniform" Margin="5,2,5,2">
           <Image.Source>
@@ -1096,8 +1088,16 @@
                FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center"/>
       </StackPanel>
 
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" Scroll="Auto"
-             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center"/>
+      <Label x:Name="ItemLabel" Grid.Column="1" Color="{ThemeResource TextColor}" Scroll="Auto"
+             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
+            <Binding Path="[Name]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            <Binding Source=" "/>
+            <Binding Path="[Series]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+          </MultiBinding>
+        </Label.Content>
+      </Label>
 
       <Label Grid.Column="2" x:Name="ProgramStartEnd" Margin="10,0,10,0"  Color="{ThemeResource TextColor}" VerticalAlignment="Center"
              FontSize="{ThemeResource SmallFontSize}">
@@ -1141,13 +1141,13 @@
         <Label x:Name="ChannelText" Content="{Binding [ChannelName]}" Color="{ThemeResource TextColor}"
                FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
       </StackPanel>
-      
+
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" 
              FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 
       <Label x:Name="TypeLabel" Grid.Column="2" Content="{Binding [ScheduleType]}" VerticalAlignment="Center" 
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" HorizontalAlignment="Stretch" />
-     
+
       <Label Grid.Column="3" x:Name="ProgramStartEnd" Margin="10,0,10,0"  Color="{ThemeResource TextColor}" VerticalAlignment="Center"
              FontSize="{ThemeResource SmallFontSize}">
         <Label.Content>
@@ -1158,7 +1158,7 @@
           </MultiBinding>
         </Label.Content>
       </Label>
-    
+
     </Grid>
   </DataTemplate>
 

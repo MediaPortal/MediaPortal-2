@@ -83,6 +83,9 @@
   <string name="RawUrlResourceProvider.Name">Raw Url</string>
   <string name="RawUrlResourceProvider.Description">Access raw Uri sources</string>
 
+  <string name="VirtualResourceProvider.Name">Virtual resources</string>
+  <string name="VirtualResourceProvider.Description">Access virtual resources</string>
+
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
 
   <!-- For MP UI player subsystem -->

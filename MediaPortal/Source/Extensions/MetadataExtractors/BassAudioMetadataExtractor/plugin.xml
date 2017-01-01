@@ -7,15 +7,15 @@
     Description="Metadata extractor based on BASS.NET for many kinds of audio file formats">
 
   <Version
-    PluginVersion="1.0"
-    ReleaseDate="2015-01-20 01:00:00 GMT+01:00"
-    CurrentAPI="1"/>
+    PluginVersion="1.1"
+    ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
+    CurrentAPI="2"/>
 
   <DependsOn>
-    <PluginReference PluginId="{8B248D2D-C6DF-4263-BBF3-B424C6C81B31}" CompatibleAPI="1"/> <!-- AudioMetadataExtractor -->
+    <PluginReference PluginId="{8B248D2D-C6DF-4263-BBF3-B424C6C81B31}" CompatibleAPI="2"/> <!-- AudioMetadataExtractor -->
     <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}" CompatibleAPI="1"/> <!-- BassLibraries -->
 
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
   </DependsOn>
 

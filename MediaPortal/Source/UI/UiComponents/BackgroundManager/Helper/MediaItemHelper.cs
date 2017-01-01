@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -50,8 +50,13 @@ namespace MediaPortal.UiComponents.BackgroundManager.Helper
     {
       if (mediaItem == null)
         return false;
-      string mimeType;
-      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_MIME_TYPE, out mimeType) && mimeType.StartsWith("video/");
+
+      IList<MultipleMediaItemAspect> pras;
+      if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
+        return false;
+
+      string mimeType = pras[0].GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE);
+      return mimeType.StartsWith("video/");
     }
   }
 }

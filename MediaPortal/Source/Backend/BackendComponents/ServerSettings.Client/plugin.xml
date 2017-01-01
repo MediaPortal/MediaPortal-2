@@ -12,8 +12,8 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
     <CoreDependency Name="UPnP" CompatibleAPI="1" />
     <PluginReference PluginId="{B1F33F5C-3E2C-4151-9DCE-9F965CA5CDFC}" CompatibleAPI="1"/>    <!-- NetworkNeighborhoodResourceProvider -->
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/>    <!-- SkinEngine -->
@@ -68,20 +68,201 @@
         Redundant="true"
         Text="[Settings.ServerSettings]"/>
   </Register>
-
+  
   <Register Location="/Configuration/Settings/ServerSettings">
-    <ConfigSetting
-        Id="ServerDOKANDrive"
-        Text="[Settings.ServerSettings.ServerDOKANDrive]"
-        HelpText="[Settings.ServerSettings.ServerDOKANDrive.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerDOKANDrive"/>
-
     <CustomConfigSetting
         Id="NetworkCredentials"
         Text="[Settings.ServerSettings.NetworkCredentials]"
         HelpText="[Settings.ServerSettings.NetworkCredentials.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerNetworkCredentials"
         AdditionalData="WorkflowState=20954924-19B3-45C0-9F79-640EDD9EAE58,ConfAppPanel=..."/>
+  </Register>
+  
+  <!-- Importer settings --> 
+  <Register Location="/Configuration/Settings/ServerSettings">
+    <ConfigSection
+        Id="AudioMDESettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.AudioMDESettings]"/>
+    <ConfigSection
+        Id="MovieMDESettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.MovieMDESettings]"/>
+    <ConfigSection
+        Id="SeriesMDESettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.SeriesMDESettings]"/>
+  <ConfigSection
+        Id="ImageMDESettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.ImageMDESettings]"/>
+  <ConfigSection
+        Id="FanArtSettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.FanArtSettings]"/>
+    <ConfigSection
+        Id="LanguageSettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.LanguageSettings]"/>
+  </Register>
+
+  <!-- Audio importer settings -->
+  <Register Location="/Configuration/Settings/ServerSettings/AudioMDESettings">
+    <ConfigSetting
+        Id="ServerAudioMDEOnlineData"
+        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData]"
+        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEOnlineData"/>
+    <ConfigSetting
+        Id="ServerAudioMDESourceEnable"
+        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable]"
+        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDESourceEnable"/>
+    <ConfigSetting
+        Id="ServerAudioMDESourcePrimary"
+        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary]"
+        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDESourcePrimary"/>
+    <ConfigSetting
+        Id="ServerAudioMDEBrowseOffline"
+        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOffline]"
+        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOffline.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEBrowseOffline"/>
+    <ConfigSetting
+        Id="ServerAudioMDEFilter"
+        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter]"
+        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEFilter"/>
+  </Register>
+
+  <!-- Movie importer settings -->
+  <Register Location="/Configuration/Settings/ServerSettings/MovieMDESettings">
+    <ConfigSetting
+        Id="ServerMovieMDEOnlineData"
+        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData]"
+        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEOnlineData"/>
+    <ConfigSetting
+        Id="ServerMovieMDESourceEnable"
+        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable]"
+        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDESourceEnable"/>
+    <ConfigSetting
+        Id="ServerMovieMDESourcePrimary"
+        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary]"
+        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDESourcePrimary"/>
+    <ConfigSetting
+        Id="ServerMovieMDEBrowseOffline"
+        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOffline]"
+        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOffline.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEBrowseOffline"/>
+    <ConfigSetting
+        Id="ServerMovieMDEFilter"
+        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEFilter]"
+        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEFilter.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEFilter"/>
+  </Register>
+
+  <!-- Series importer settings -->
+  <Register Location="/Configuration/Settings/ServerSettings/SeriesMDESettings">
+    <ConfigSetting
+        Id="ServerSeriesMDEOnlineData"
+        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData]"
+        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEOnlineData"/>
+    <ConfigSetting
+        Id="ServerSeriesMDESourceEnable"
+        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable]"
+        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDESourceEnable"/>
+    <ConfigSetting
+        Id="ServerSeriesMDESourcePrimary"
+        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary]"
+        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDESourcePrimary"/>
+    <ConfigSetting
+        Id="ServerSeriesMDEBrowseOffline"
+        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOffline]"
+        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOffline.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEBrowseOffline"/>
+    <ConfigSetting
+        Id="ServerSeriesMDEFilter"
+        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter]"
+        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEFilter"/>
+  </Register>
+  
+  <!-- Image importer settings -->
+  <Register Location="/Configuration/Settings/ServerSettings/ImageMDESettings">
+    <ConfigSetting
+        Id="ServerImageMDEGeoLocation"
+        Text="[Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation]"
+        HelpText="[Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerImageMDEGeoLocation"/>
+  </Register>
+  
+  <!-- FanArt importer settings -->
+  <Register Location="/Configuration/Settings/ServerSettings/FanArtSettings">
+    <ConfigSetting
+        Id="ServerFanArtMaxBackdrops"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxBackdrops"/>
+    <ConfigSetting
+        Id="ServerFanArtMaxPosters"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxPosters]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxPosters.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxPosters"/>
+    <ConfigSetting
+        Id="ServerFanArtMaxBanners"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBanners]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBanners.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxBanners"/>
+    <ConfigSetting
+        Id="ServerFanArtMaxThumbs"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxThumbs]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxThumbs.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxThumbs"/>
+    <ConfigSetting
+        Id="ServerFanArtMaxClearArts"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxClearArts]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxClearArts.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxClearArts"/>
+  <ConfigSetting
+        Id="ServerFanArtMaxDiscArts"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxDiscArts]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxDiscArts.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxDiscArts"/>
+  <ConfigSetting
+        Id="ServerFanArtMaxLogos"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxLogos"/>
+  </Register>
+
+  <!-- Language settings -->
+  <Register Location="/Configuration/Settings/ServerSettings/LanguageSettings">
+    <ConfigSetting
+        Id="ServerLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerLanguage"/>
+    <ConfigSetting
+        Id="ServerAudioLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerAudioLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerAudioLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioLanguage"/>
+    <ConfigSetting
+        Id="ServerMovieLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerMovieLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieLanguage"/>
+    <ConfigSetting
+        Id="ServerSeriesLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesLanguage"/>
   </Register>
 
   <!-- Contents of '/Shares' section -->

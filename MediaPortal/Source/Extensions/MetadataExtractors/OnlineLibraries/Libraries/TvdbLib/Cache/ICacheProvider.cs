@@ -92,6 +92,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     TvdbSeries LoadSeriesFromCache(int seriesId);
 
     /// <summary>
+    /// Return path to series cache file
+    /// </summary>
+    /// <param name="seriesId">Id of the series to load</param>
+    /// <returns>The TvdbSeries cache file</returns>
+    string[] GetSeriesCacheFiles(int seriesId);
+
+    /// <summary>
     /// Load user info from cache
     /// </summary>
     /// <param name="userId">Id of the user</param>
@@ -127,16 +134,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// </summary>
     /// <param name="image">banner to save</param>
     /// <param name="seriesId">id of series</param>
+    /// <param name="folderName">folder name</param>
     /// <param name="fileName">filename (will be the same name used by LoadImageFromCache)</param>
-    void SaveToCache(Image image, int seriesId, String fileName);
+    void SaveToCache(Image image, int seriesId, string folderName, string fileName);
 
     /// <summary>
     /// Loads the specified image from the cache
     /// </summary>
     /// <param name="seriesId">series id</param>
+    /// <param name="folderName">folder name</param>
     /// <param name="fileName">filename of the image (same one as used by SaveToCache)</param>
     /// <returns>The loaded image or null if the image wasn't found</returns>
-    Image LoadImageFromCache(int seriesId, String fileName);
+    Image LoadImageFromCache(int seriesId, string folderName, String fileName);
 
     /// <summary>
     /// Receives a list of all series that have been cached
@@ -159,8 +168,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// Removes the specified image from cache (if it has been cached)
     /// </summary>
     /// <param name="seriesId">id of series</param>
+    /// <param name="folderName">folder name</param>
     /// <param name="fileName">name of image</param>
     /// <returns>true if image was removed successfully, false otherwise (e.g. image didn't exist)</returns>
-    bool RemoveImageFromCache(int seriesId, string fileName);
+    bool RemoveImageFromCache(int seriesId, string folderName, string fileName);
   }
 }

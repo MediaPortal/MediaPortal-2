@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -44,6 +44,14 @@ namespace MediaPortal.Backend.Database
     /// Returns the connection this transaction uses.
     /// </summary>
     IDbConnection Connection { get; }
+
+    /// <summary>
+    /// Begins this transaction on the current connection.
+    /// </summary>
+    /// <remarks>
+    /// Calling <see cref="IDisposable.Dispose"/> after calling this method has no effect.
+    /// </remarks>
+    void Begin(IsolationLevel level);
 
     /// <summary>
     /// Commits and disposes this transaction. This transaction becomes invalid after calling this method.
@@ -197,6 +205,17 @@ namespace MediaPortal.Backend.Database
     /// </remarks>
     /// <returns>Transaction instance.</returns>
     ITransaction BeginTransaction();
+
+    /// <summary>
+    /// Gets a database connection from the connection pool and prepares a new transaction on that connection without starting it.
+    /// </summary>
+    /// <remarks>
+    /// The returned transaction instance can be started with <see cref="ITransaction.Begin"/> and has to be closed with 
+    /// using of the methods <see cref="ITransaction.Commit"/>, <see cref="ITransaction.Rollback"/> or <see cref="ITransaction.Dispose"/>, 
+    /// because this is needed for maintaining the connection pool management in the background.
+    /// </remarks>
+    /// <returns>Transaction instance.</returns>
+    ITransaction CreateTransaction();
 
     /// <summary>
     /// Returns the information if a table with the given <paramref name="tableName"/> exists in the database.

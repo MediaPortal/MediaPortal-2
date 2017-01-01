@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -131,6 +131,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       }
       _primitiveType = primitiveType;
 
+      // Update vertices to compensate texel/pixel coordinate origins (top left of pixel vs. center of texel)
+      // See https://msdn.microsoft.com/en-us/library/bb219690(VS.85).aspx
+      for (int i = 0; i < vertices.Length; i++)
+      {
+        vertices[i].X -= 0.5f;
+        vertices[i].Y -= 0.5f;
+      }
       using (DataStream stream = _vertexBuffer.Lock(0, 0, LockFlags.None))
         stream.WriteRange(vertices);
       _vertexBuffer.Unlock();

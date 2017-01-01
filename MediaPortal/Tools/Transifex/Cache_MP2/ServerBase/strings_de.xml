@@ -1,17 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="MainForm.Title">MediaPortal-2-Server-Anwendung</string>
+  <string name="MainForm.Title">MP2-Server-Anwendung</string>
   <string name="MainForm.AttachedClients">Verbundene Clients</string>
   <string name="MainForm.Client">Client</string>
   <string name="MainForm.System">System</string>
   <string name="MainForm.ConnectionState">Verbindungsstatus</string>
   <string name="MainForm.Connected">Verbunden</string>
   <string name="MainForm.Disconnected">Getrennt</string>
-  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal-2-Server</string>
-  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MP2-Server</string>
+  <string name="UPnPBackendServer.Manufacturer">Team MediaPortal</string>
   <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 Server - verwaltet Audio-, Video- und Bilddateien und bietet eine gemeinsame Medien-Datenbank an</string>
-  <string name="UPnPBackendServer.ModelName">MediaPortal-2-Server</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2-Server - verwaltet Audio-, Video- und Bilddateien in einer zentralen Medien-Datenbank</string>
+  <string name="UPnPBackendServer.ModelName">MP2-Server</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
   <string name="UPnPBackendServer.ModelUrl">...</string>
   <string name="MediaLibrary.EmptyOrMiscCharGroupName">&lt;Leer oder sonst. Zeichen&gt;</string>

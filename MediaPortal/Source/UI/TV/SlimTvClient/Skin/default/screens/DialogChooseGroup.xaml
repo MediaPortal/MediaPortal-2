@@ -12,10 +12,10 @@
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SlimTvClient.ChooseChannelGroup]"/>
 
     <!-- SlimTvMultiChannelGuide model -->
-    <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+    <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
 
     <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
-        Resource="{Binding Source={StaticResource SlimTvClient},Path=ChannelGroupList,Mode=OneTime}"/>
+        Resource="{Binding Source={StaticResource SlimTvMultiChannelGuide},Path=ChannelGroupList,Mode=OneTime}"/>
 
     <!-- Menu_Command -->
     <CommandList x:Key="Menu_Command">

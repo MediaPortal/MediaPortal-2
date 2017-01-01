@@ -77,14 +77,14 @@
                     </media:MovieAspectWrapper.Template>
                   </media:MovieAspectWrapper>
 
-                  <media:SeriesAspectWrapper MediaItem="{Binding Path=MediaItem}">
-                    <media:SeriesAspectWrapper.IsVisible>
+                  <media:EpisodeAspectWrapper MediaItem="{Binding Path=MediaItem}">
+                    <media:EpisodeAspectWrapper.IsVisible>
                       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                         <Binding Path="MediaItem" />
-                        <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+                        <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
                       </MultiBinding>
-                    </media:SeriesAspectWrapper.IsVisible>
-                    <media:SeriesAspectWrapper.Template>
+                    </media:EpisodeAspectWrapper.IsVisible>
+                    <media:EpisodeAspectWrapper.Template>
                       <ControlTemplate>
                         <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
                                FallbackSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}">
@@ -95,8 +95,8 @@
                           </Image.Source>
                         </Image>
                       </ControlTemplate>
-                    </media:SeriesAspectWrapper.Template>
-                  </media:SeriesAspectWrapper>
+                    </media:EpisodeAspectWrapper.Template>
+                  </media:EpisodeAspectWrapper>
                 </Grid>
               </ControlTemplate>
 
@@ -132,7 +132,7 @@
                         </RadialGradientBrush>
                       </Border.Background>
                       <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                        Value="{Binding Path=PercentPlayed}"/>
+                        Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
                     </Border>
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="20,0,0,0"
@@ -274,7 +274,7 @@
                         </RadialGradientBrush>
                       </Border.Background>
                       <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                        Value="{Binding Path=PercentPlayed}"/>
+                        Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
                     </Border>
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="20,0,0,0"

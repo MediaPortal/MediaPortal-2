@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,6 +35,9 @@ using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.Utilities;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -43,10 +46,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected MLFilterCriterion _filterCriterion;
     protected string _navbarSubViewNavigationDisplayLabel;
     protected IFilter _clusterFilter = null;
+    protected bool _sortable = false;
 
     // Variables to be synchronized for multithreading access
     protected bool _buildingList = false;
     protected bool _listDirty = false;
+
+    // Change tracking of FilterItems
+    protected AsynchronousMessageQueue _messageQueue;
 
     /// <summary>
     /// Creates a new instance of <see cref="AbstractFiltersScreenData&lt;T&gt;"/>.
@@ -80,6 +87,58 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// <returns>Screen data instance which looks the same as this view.</returns>
     public abstract AbstractFiltersScreenData<T> Derive();
 
+    private void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ContentDirectoryMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.MediaItemChanged:
+            MediaItem mediaItem = (MediaItem)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM];
+            ContentDirectoryMessaging.MediaItemChangeType changeType = (ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE];
+            UpdateLoadedMediaItems(mediaItem, changeType);
+            break;
+        }
+      }
+    }
+
+    protected void UpdateLoadedMediaItems(MediaItem mediaItem, ContentDirectoryMessaging.MediaItemChangeType changeType)
+    {
+      if (changeType == ContentDirectoryMessaging.MediaItemChangeType.None)
+        return;
+
+      lock (_syncObj)
+      {
+        if (changeType == ContentDirectoryMessaging.MediaItemChangeType.Updated)
+        {
+          PlayableContainerMediaItem existingItem = _items.OfType<PlayableContainerMediaItem>().FirstOrDefault(pcm => pcm.MediaItem.Equals(mediaItem));
+          if (existingItem != null)
+          {
+            existingItem.Update(mediaItem);
+          }
+        }
+      }
+    }
+
     public override void Reload()
     {
       lock (_syncObj)
@@ -88,12 +147,20 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     public override void UpdateItems()
     {
+      SortFilterValuesList();
     }
 
     public override void CreateScreenData(NavigationData navigationData)
     {
       base.CreateScreenData(navigationData);
       ReloadFilterValuesList(true);
+      SubscribeToMessages();
+    }
+
+    public override void ReleaseScreenData()
+    {
+      base.ReleaseScreenData();
+      UnsubscribeFromMessages();
     }
 
     /// <summary>
@@ -148,11 +215,18 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             Display_TooManyItems(fv.Count);
           else
           {
+            bool dirty;
             lock (_syncObj)
-              if (_listDirty)
-                goto RebuildView;
-            int totalNumItems = 0;
+              dirty = _listDirty;
+            if (dirty)
+            {
+              UpdateOrRebuildView(items, createNewList);
+              return;
+            }
 
+            _sortable = true;
+            int totalNumItems = 0;
+            List<FilterItem> itemsList = new List<FilterItem>();
             // Build collection of available (filter/display) screens which will remain in the next view - that is all currently
             // available screens without the screen which equals this current screen. But we cannot simply remove "this"
             // from the collection, because "this" could be a derived screen (in case our base screen showed groups).
@@ -161,21 +235,32 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             // So we simply use the MenuItemLabel, which should be the same in this and the base screen of the same filter.
             foreach (FilterValue filterValue in fv)
             {
+              _sortable &= filterValue.Item != null;
               string filterTitle = filterValue.Title;
               IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
-              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter);
+              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter, _itemMias);
               T filterValueItem = new T
               {
+                // Support non-playable MediaItems (i.e. Series, Seasons)
+                MediaItem = filterValue.Item,
                 SimpleTitle = filterTitle,
                 NumItems = filterValue.NumItems,
+                Id = filterValue.Id,
                 Command = grouping ? 
                   new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) :
                   new MethodDelegateCommand(() => NavigateToSubView(subVS))
               };
-              items.Add(filterValueItem);
+              itemsList.Add(filterValueItem);
               if (filterValue.NumItems.HasValue)
                 totalNumItems += filterValue.NumItems.Value;
             }
+            if (_sortable)
+            {
+              Sorting.Sorting sorting = CurrentSorting;
+              if (sorting != null)
+                itemsList.Sort((i1, i2) => sorting.Compare(i1.MediaItem, i2.MediaItem));
+            }
+            CollectionUtils.AddAll(items, itemsList);
             Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
           }
         }
@@ -184,23 +269,73 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           ServiceRegistration.Get<ILogger>().Warn("AbstractFiltersScreenData: Error creating filter values list", e);
           Display_ItemsInvalid();
         }
-      RebuildView:
-        if (_listDirty)
-        {
-          lock (_syncObj)
-            _buildingList = false;
-          ReloadFilterValuesList(createNewList);
-        }
-        else
-        {
-          _items = items;
-          _items.FireChange();
-        }
+        UpdateOrRebuildView(items, createNewList);
       }
       finally
       {
         lock (_syncObj)
           _buildingList = false;
+      }
+    }
+
+    protected void SortFilterValuesList()
+    {
+      Sorting.Sorting sorting = CurrentSorting;
+      if (sorting == null)
+        return;
+
+      lock (_syncObj)
+      {
+        if (_buildingList)
+        { // Another thread is already building the items list - mark it as dirty and let the other thread
+          // rebuild it.
+          _listDirty = true;
+          return;
+        }
+        if (!_sortable)
+          return;
+        // Mark the list as being built
+        _buildingList = true;
+        _listDirty = false;
+      }
+      try
+      {
+
+        ItemsList items = _items;
+        List<FilterItem> itemsList = items.Select(li => li as FilterItem).ToList();
+        itemsList.Sort((i1, i2) => sorting.Compare(i1.MediaItem, i2.MediaItem));
+
+        bool dirty;
+        lock (_syncObj)
+          dirty = _listDirty;
+        if (dirty)
+        {
+          UpdateOrRebuildView(items, false);
+          return;
+        }
+        items.Clear();
+        CollectionUtils.AddAll(items, itemsList);
+        UpdateOrRebuildView(items, false);
+      }
+      finally
+      {
+        lock (_syncObj)
+          _buildingList = false;
+      }
+    }
+
+    protected void UpdateOrRebuildView(ItemsList items, bool createNewList)
+    {
+      if (_listDirty)
+      {
+        lock (_syncObj)
+          _buildingList = false;
+        ReloadFilterValuesList(createNewList);
+      }
+      else
+      {
+        _items = items;
+        _items.FireChange();
       }
     }
 

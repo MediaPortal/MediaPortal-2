@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -70,6 +70,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     #region Constants
 
     protected const string ZINDEX_ATTACHED_PROPERTY = "Panel.ZIndex";
+    protected const string HORIZONTAL_SCROLL_DISTANCE_ATTACHED_PROPERTY = "Panel.HorizontalScrollDistance";
+    protected const string VERTICAL_SCROLL_DISTANCE_ATTACHED_PROPERTY = "Panel.VerticalScrollDistance";
 
     #endregion
 
@@ -302,8 +304,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
-        RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
-            actualSize.Width + 0.5f, actualSize.Height + 0.5f);
+        RectangleF rect = new RectangleF(ActualPosition.X /*- 0.5f*/, ActualPosition.Y /*- 0.5f*/,
+            actualSize.Width /*+ 0.5f*/, actualSize.Height /*+ 0.5f*/);
 
         PositionColoredTextured[] verts = new PositionColoredTextured[6];
         verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);
@@ -489,6 +491,121 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return targetObject.GetAttachedProperty(ZINDEX_ATTACHED_PROPERTY);
     }
 
+
+    /// <summary>
+    /// Getter method for the attached property <c>HorizontalScrollDistance</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>HorizontalScrollDistance</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetHorizontalScrollDistance(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(HORIZONTAL_SCROLL_DISTANCE_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>HorizontalScrollDistance</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>HorizontalScrollDistance</c> property on the
+    /// <paramref name="targetObject"/> to be set.</param>
+    public static void SetHorizontalScrollDistance(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(HORIZONTAL_SCROLL_DISTANCE_ATTACHED_PROPERTY, value);
+      TryScheduleUpdateParentsRenderOrder(targetObject);
+    }
+
+    /// <summary>
+    /// Returns the <c>HorizontalScrollDistance</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>HorizontalScrollDistance</c> property.</returns>
+    public static AbstractProperty GetHorizontalScrollDistanceAttachedProperty(DependencyObject targetObject)
+    {
+      AbstractProperty result = targetObject.GetAttachedProperty(HORIZONTAL_SCROLL_DISTANCE_ATTACHED_PROPERTY);
+      if (result != null)
+        return result;
+      TryScheduleUpdateParentsRenderOrder(targetObject);
+      return targetObject.GetOrCreateAttachedProperty(HORIZONTAL_SCROLL_DISTANCE_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Returns the <c>HorizontalScrollDistance</c> attached property whithout creating it
+    /// for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached property should be returned.</param>
+    /// <returns>Attached <c>HorizontalScrollDistance</c> property or <c>null</c>.</returns>
+    public static AbstractProperty GetHorizontalScrollDistanceAttachedProperty_NoCreate(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedProperty(HORIZONTAL_SCROLL_DISTANCE_ATTACHED_PROPERTY);
+    }
+
+
+    /// <summary>
+    /// Getter method for the attached property <c>VerticalScrollDistance</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>VerticalScrollDistance</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static double GetVerticalScrollDistance(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<double>(VERTICAL_SCROLL_DISTANCE_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>VerticalScrollDistance</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>VerticalScrollDistance</c> property on the
+    /// <paramref name="targetObject"/> to be set.</param>
+    public static void SetVerticalScrollDistance(DependencyObject targetObject, double value)
+    {
+      targetObject.SetAttachedPropertyValue<double>(VERTICAL_SCROLL_DISTANCE_ATTACHED_PROPERTY, value);
+      TryScheduleUpdateParentsRenderOrder(targetObject);
+    }
+
+    /// <summary>
+    /// Returns the <c>VerticalScrollDistance</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>VerticalScrollDistance</c> property.</returns>
+    public static AbstractProperty GetVerticalScrollDistanceAttachedProperty(DependencyObject targetObject)
+    {
+      AbstractProperty result = targetObject.GetAttachedProperty(VERTICAL_SCROLL_DISTANCE_ATTACHED_PROPERTY);
+      if (result != null)
+        return result;
+      TryScheduleUpdateParentsRenderOrder(targetObject);
+      return targetObject.GetOrCreateAttachedProperty(VERTICAL_SCROLL_DISTANCE_ATTACHED_PROPERTY, 0.0);
+    }
+
+    /// <summary>
+    /// Returns the <c>VerticalScrollDistance</c> attached property whithout creating it
+    /// for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached property should be returned.</param>
+    /// <returns>Attached <c>VerticalScrollDistance</c> property or <c>null</c>.</returns>
+    public static AbstractProperty GetVerticalScrollDistanceAttachedProperty_NoCreate(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedProperty(VERTICAL_SCROLL_DISTANCE_ATTACHED_PROPERTY);
+    }
     #endregion
   }
 }

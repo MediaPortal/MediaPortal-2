@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -129,7 +129,7 @@ namespace MediaPortal.Common.FileEventNotification
       _changeTypes = new List<FileWatchChangeType>(fileWatchInfo.ChangeTypes);
       _filter = new List<string>(fileWatchInfo._filter);
       _eventHandler = fileWatchInfo.EventHandler;
-      _path = fileWatchInfo.Path.ToLowerInvariant();
+      _path = fileWatchInfo.Path;
       _includeSubdirectories = fileWatchInfo.IncludeSubdirectories;
     }
 
@@ -243,7 +243,7 @@ namespace MediaPortal.Common.FileEventNotification
       {
         path = path + @"\";
       }
-      _path = path.ToLowerInvariant();
+      _path = path;
     }
 
     #endregion
@@ -258,7 +258,7 @@ namespace MediaPortal.Common.FileEventNotification
     /// <returns></returns>
     public virtual bool Equals(FileWatchInfo other)
     {
-      return _path == other._path
+      return string.Equals(_path, other._path, StringComparison.InvariantCultureIgnoreCase)
              && _includeSubdirectories == other._includeSubdirectories
              && _eventHandler == other._eventHandler
              && CollectionUtils.CompareObjectCollections(_filter, other._filter)

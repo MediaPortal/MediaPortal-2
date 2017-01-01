@@ -5,4 +5,5 @@
   <Path name="CONFIG" value="&lt;DATA&gt;\Config" />
   <Path name="LOG" value="&lt;DATA&gt;\Log" />
   <Path name="PLUGINS" value="&lt;APPLICATION_ROOT&gt;\Plugins" />
+  <Path name="REMOTERESOURCES" value="&lt;DATA&gt;\RemoteResources" />
 </Paths>

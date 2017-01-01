@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,21 +23,29 @@
 #endregion
 
 using MediaPortal.UI.Players.Video;
+using MediaPortal.UI.Players.Video.Tools;
 
 namespace MediaPortal.UPnPRenderer.Players
 {
   public class UPnPRendererVideoPlayer : VideoPlayer
   {
+    private FilterFileWrapper _filterWrapper;
     public const string MIMETYPE = "upnpvideo/upnprenderer";
 
     protected override void AddSourceFilter()
     {
-      PlayerHelpers.AddSourceFilterOverride(base.AddSourceFilter, _resourceAccessor, _graphBuilder);
+      PlayerHelpers.AddSourceFilterOverride(base.AddSourceFilter, _resourceAccessor, _graphBuilder, out _filterWrapper);
     }
 
     public override string Name
     {
       get { return "UPnPRenderer Video Player"; }
+    }
+
+    public override void Dispose()
+    {
+      FilterGraphTools.TryDispose(ref _filterWrapper);
+      base.Dispose();
     }
   }
 }

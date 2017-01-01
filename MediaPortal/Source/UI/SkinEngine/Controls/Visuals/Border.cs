@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -341,8 +341,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _performLayout = false;
 
       float borderThickness = (float) BorderThickness;
-      RectangleF innerBorderRect = new RectangleF(_outerBorderRect.X + borderThickness -0.5f, _outerBorderRect.Y + borderThickness -0.5f,
-          _outerBorderRect.Size.Width - 2*borderThickness + 0.5f, _outerBorderRect.Size.Height - 2*borderThickness + 0.5f);
+      RectangleF innerBorderRect = new RectangleF(_outerBorderRect.X + borderThickness /*-0.5f*/, _outerBorderRect.Y + borderThickness /*-0.5f*/,
+          _outerBorderRect.Size.Width - 2*borderThickness /*+ 0.5f*/, _outerBorderRect.Size.Height - 2*borderThickness /*+ 0.5f*/);
       PerformLayoutBackground(innerBorderRect, context);
       PerformLayoutBorder(innerBorderRect, context);
     }

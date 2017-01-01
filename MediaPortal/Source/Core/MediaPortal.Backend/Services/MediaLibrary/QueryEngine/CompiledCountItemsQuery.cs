@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -74,7 +74,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public int Execute()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         using (IDbCommand command = transaction.CreateCommand())
@@ -82,7 +82,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           string countAlias;
           string statementStr;
           IList<BindVar> bindVars;
-          MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, new QueryAttribute[] {}, null,
+          MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement, new QueryAttribute[] { }, null,
               _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
           IDictionary<QueryAttribute, string> qa2a;
           builder.GenerateSqlGroupByStatement(out countAlias, out qa2a, out statementStr, out bindVars);

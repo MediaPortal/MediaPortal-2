@@ -1,0 +1,928 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{874401F8-1283-4C20-8EFA-FD0EE7AD53A8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.UiComponents.WMCSkin</RootNamespace>
+    <AssemblyName>WMCSkin</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D9, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D9.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Actions\SkinSettingsAction.cs" />
+    <Compile Include="Controls\HomeMenuContentPresenter.cs" />
+    <Compile Include="Controls\ItemsListFilter.cs" />
+    <Compile Include="Controls\SubItemsContentPresenter.cs" />
+    <Compile Include="Converters\ItemsListActionFilter.cs" />
+    <Compile Include="Converters\RoundingFormatConverter.cs" />
+    <Compile Include="Models\HomeMenuActionProxy.cs" />
+    <Compile Include="Models\HomeMenuModel.cs" />
+    <Compile Include="Models\NavigationList.cs" />
+    <Compile Include="Models\NestedItem.cs" />
+    <Compile Include="Models\ScreenModeModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\EnableBannersConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableAnimatedBackgroundConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableMediaItemDetailsViewConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableWatchedFlagsConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
+    <Compile Include="Settings\WMCSkinSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="Skin\WMCSkin\fonts\default-font.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4EFocus.png" />
+    <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4ENofocus.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer2.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer3.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer4.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer5.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer6.png" />
+    <Content Include="Skin\WMCSkin\images\HOME.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\HOME.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\aspectratio\1.33.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\aspectratio\1.66.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\aspectratio\1.78.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\aspectratio\1.85.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\aspectratio\fullscreen.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\aspectratio\widescreen.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\0.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\2.0.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\2.1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\3.1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\3.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\4.1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\5.1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\6.1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\7.1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\7.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\8.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\9.1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\aac lc-sbr.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\aac lc.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\aac.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\ac3 dolby digital.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\ac3.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dca.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\defaultsound.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dolbydigital.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dolbydigitalplus.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dolbypro.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dolbytruehd.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dtmsa-1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\DTS ES.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dts hra.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dts-hd.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dts.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dts9624.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dtsex.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dtshd.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dtshd_hra.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dtshd_ma.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dtshra.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\dtsma.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\eac3.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\flac.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\mono.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\mp1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\mp2.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\mp3.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\mpeg audio version 1 layer 3.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\MPEG-1 Audio layer 2.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\pcm.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\RA.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\stereo.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\truehd.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\vorbis.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\wma.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\wmahd.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\audio\wmapro.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Afghanistan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Aland-islands.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Albania-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Algeria-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Andorra-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Angola-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Anguilla.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Antigua-and-barbuda.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Argentina-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Armenia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Aruba.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Australia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Austria-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Azerbaijan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bahamas-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bahrain-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bangladesh-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Barbados-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Belarus-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Belgium-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Belize-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Benin-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bolivia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bonaire-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bosnian-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Botswana-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bouvet-island.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Brazil-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\British-antarctic-territory.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\British-virgin-islands.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Brunei-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bulgaria-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Burkina-faso-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Burma-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Burundi-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Cambodia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Cameroon-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Canada-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Cape-verde-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Cascadia.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Centralafricanrepublic128.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Chad-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Chile-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\China-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Christmas-island.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Colombia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Comoros-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Congo-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Congo-kinshasa.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Cook-islands.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Costa-rica-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Croatian-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Cuba-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Curacao-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Czech-republic.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\de.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Denmark.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Djibouti-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Dominica.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Dominican-republic-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Ecuador-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Egypt-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\El-salvador-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\en.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\England-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Equatorial-guinea-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Eritrea-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Estonia.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Ethiopia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Ex-yugoslavia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Falkland-islands.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Faroe-islands.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\fi.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Fiji.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\fr.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\French-polynesia.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\French-southern-territories.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Gabon-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Gambia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Georgia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Ghana-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Greece-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Guatemala-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Guinea-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Guyana-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\he.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Honduras-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Hong-kong-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Hungary-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Iceland-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\India-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Indonesia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Iran-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Iraq-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Ireland-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\it.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Ivory-coast-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\ja.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Jamaica-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Jan-mayen-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Jarvis-island-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Jersey-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Jordan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Kazakhstan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Kenya-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Kiribati.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\korea-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Kosovo.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Kuwait-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Kyrgyzstan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Laos-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Latvia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Lebanon-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Lesotho-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Liberia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Libya-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Liechtenstein-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Lithuania-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Luxembourg-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Macedonia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Madagascar-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Malawi-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Malaysia.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Maldives-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Mali-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Malta-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Marshall-islands-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Mauritania-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Mauritius-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Mayotte-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Mexico-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Micronesia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Moldova-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Monaco-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Mongolia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Montenegro.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Montserrat-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Morocco-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Mozambique-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Myanmar.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Namibia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Nepal-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\New-caledonia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\New-zealand.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Nicaragua-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Niger-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Nigeria-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Niue-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\nl.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\no.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\North-korea-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Northern-ireland.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Northern-mariana-islands.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Oman-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Pakistan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Palau-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Palestinian-territory.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Panama-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Papua-new-guinea-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Paraguay-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Peru-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Philippines-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Pitcairn.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\pl.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\pt.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Puerto-rico-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Qatar-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Reunion-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Romania-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\ru.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Rwanda-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Saint Vincent And The Grenadines128.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Saint-kitts-and-nevis.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Samoa-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Saudi-arabia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Scotland.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Senegal-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Serbia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Seychelles-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Sierra-leone-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Singapore-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Sint-Maarten-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Slovakia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Slovenia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Smom.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Solomon-islands-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Somalia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\South-africa-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\South-sudan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Spain-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Spm.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Sudan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Suriname-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Svalbard-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Svg.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Swaziland-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Sweden-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Switzerland-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Syria-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Taiwan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Tajikistan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Tanzania-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Thailand-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Timor-leste-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\tk.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Togo-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Tokelau.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Tonga-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\tr.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Trinidad-and-tobago.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Tunisia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Turks-and-caicos-islands.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Tuvalu.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Uganda-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\uk.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\United-arab-emirates.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\United-states-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Uruguay-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Uzbekistan-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Vanuatu-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Venezuela-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Vietnam-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Virgin-islands-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Yemen-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Zambia-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Zimbabwe-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\nosubtitles.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\1080i.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\1080p.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\2160p.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\240.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\360.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\4320p.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\480.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\540.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\576.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\720p.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\HD.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\resolution\SD.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\source\bluray.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\source\dvd.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\subtitles.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\3gp.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\3iv2.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\asf.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\avc.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\avc1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\avi.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\default.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\div2.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\div3.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\div3_bak.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\divx 3 low.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\divx 4.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\divx 5.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\divx.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\dx50.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\flash.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\flv.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\fmp4.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\folder copy.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\h262.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\h263.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\h264.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\hdmv.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\hevc.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\iso.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\m2ts.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mkv.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mov.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mp4.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mp4v.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg video.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg-1 video.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg-2 video.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg-4 visual ASP.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg-4 visual.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg1video.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg2.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg2video.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg4.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpeg4video.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\mpg4.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\ms mpeg-4 v3.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\msmpeg4v1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\msmpeg4v2.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\ogg.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\oggtheora.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\quicktime.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\real.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\rv30.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\rv40.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\sorenson h263.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\theora.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\vc-1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\vorbis.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\vp6.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\vp6f.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\v_mpeg2.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\V_MPEGH_ISO_HEVC.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\wmahd.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\wmapro.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\wmav2.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\wmv.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\wmv2.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\wmv3.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\wmvhd.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\wmvhd_info.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\wvc1.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\x264.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\xvid.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\DIVIDER.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\FORWARD.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\FORWARD.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\FORWARD.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GOBACK.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GOBACK.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GOBACK.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GOBACK.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MENU.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MINUS.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MINUS.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MINUS.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTE.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTE.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTE.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTEON.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTEON.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTEON.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\NEXT.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\NEXT.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\NEXT.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLAY.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLAY.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLAY.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLAY.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLUS.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLUS.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLUS.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PREVIOUS.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PREVIOUS.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PREVIOUS.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\STARTMENU.LAUNCH.SKITTLE.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\preview.png" />
+    <Content Include="Skin\WMCSkin\images\RECORD.SERIES.PNG" />
+    <Content Include="Skin\WMCSkin\images\RECORD.SINGLE.PNG" />
+    <Content Include="Skin\WMCSkin\images\watched.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\0.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\1.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\10.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\11.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\12.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\13.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\14.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\15.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\16.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\17.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\18.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\19.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\2.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\20.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\21.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\22.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\23.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\24.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\25.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\26.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\27.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\28.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\29.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\3.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\30.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\31.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\32.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\33.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\34.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\35.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\36.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\37.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\38.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\39.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\4.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\40.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\41.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\42.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\43.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\44.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\45.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\46.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\47.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\5.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\6.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\7.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\8.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\9.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\na.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\permission.txt" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\WEATHERALERT.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\0.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\1.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\10.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\11.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\12.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\13.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\14.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\15.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\16.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\17.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\18.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\19.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\2.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\20.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\21.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\22.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\23.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\24.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\25.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\26.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\27.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\28.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\29.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\3.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\30.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\31.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\32.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\33.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\34.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\35.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\36.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\37.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\38.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\39.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\4.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\40.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\41.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\42.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\43.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\44.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\45.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\46.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\47.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\5.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\6.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\7.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\8.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\9.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\na.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\permission.txt" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\WMCSkin\screens\LatestMedia.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemAudioAlbumDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListAudioAlbumDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListEpisodeDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListMovieCollectionDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListSeasonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemMovieCollectionDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemSeasonDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListImageDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListAudioDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemAudioDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemImageDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListOthersDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemOthersDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListSeriesDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemEpisodeDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemSeriesDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MultiListDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MultiDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\weather.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
+    <Content Include="Skin\WMCSkin\skin.xml" />
+    <Content Include="Skin\WMCSkin\themes\default\images\FilterLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\FilterSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\VideoLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\VideoSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\AudioLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\AudioSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\NavigationLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\NavigationSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\ImageLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\ImageSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\Colors.xaml" />
+    <Content Include="Skin\WMCSkin\workflow\wmc-actions.xml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\Consts.xaml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\default\images\preview.png" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\OtherControlsOverrides.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\theme.xml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\Buttons.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Content Include="Skin\WMCSkin\fonts\eurof55.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\EuroFurence.desc" />
+    <Content Include="Skin\WMCSkin\fonts\mayatypeui.desc" />
+    <Content Include="Skin\WMCSkin\fonts\mayatypelight.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\mayatypeui.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\mayatypeuitvg.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\RitzyNormal.desc" />
+    <Content Include="Skin\WMCSkin\fonts\RitzyNormal.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\SansBetween.desc" />
+    <Content Include="Skin\WMCSkin\fonts\SansBetween.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\SketchyTimes.desc" />
+    <Content Include="Skin\WMCSkin\fonts\SketchyTimes.ttf" />
+    <None Include="Skin\WMCSkin\fonts\seguisb.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\seguisb.desc" />
+    <Content Include="Skin\WMCSkin\screens\InfoMovieGeneral.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemPersonDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListPersonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\home.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_home.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_homemenu.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\AnalogClock.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\OSD.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\Graphics.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\default\styles\MediaStyles.xaml" />
+    <Content Include="Skin\WMCSkin\superlayers\ScreenSaver.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\default\styles\MediaConsts.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_menu.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Incubator\HomeEditor\HomeEditor.csproj">
+      <Project>{8a94cde9-eda2-4dd7-b860-0421e578055c}</Project>
+      <Name>HomeEditor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Incubator\SkinSettings\SkinSettings.csproj">
+      <Project>{61c5a548-5b9b-4750-b98b-8161ec95dead}</Project>
+      <Name>SkinSettings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
+      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
+      <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
+      <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
+      <Name>SkinBase</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\master_dialog_bare.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\master_mediamenu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SimpleShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SimpleFilterItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\backgrounds\video-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\configuration-section.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\FullScreenContentVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\BusyCursor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\superlayers\SkipStepOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\backgrounds\image-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\backgrounds\default-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\shares_config_choose_system.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\shares_config_remove_shares.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\dialogSystemState.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\SystemStateStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\WeatherStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\NewsFeeds.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\NewsItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\NewsStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\Animations.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\VirtualKeyboardStyle.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\DialogVirtualKeyboard.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\CurrentlyPlayingVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\master_bare_info.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SimpleSearch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\FullscreenContentImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
+  <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets'))" />
+  </Target>
+</Project>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,8 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.General;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -32,6 +34,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public SeriesSimpleSearchScreenData(PlayableItemCreatorDelegate playableItemCreator) :
       base(playableItemCreator)
     {
+      _availableMias = Consts.NECESSARY_EPISODE_MIAS;
+      if (Consts.OPTIONAL_EPISODE_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_EPISODE_MIAS);
     }
 
     public override AbstractItemsScreenData Derive()
@@ -45,8 +50,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       var filter = new BooleanCombinationFilter(BooleanOperator.Or,
         new IFilter[]
         {
-          new LikeFilter(SeriesAspect.ATTR_SERIESNAME, GetSearchTerm(), null),
-          new LikeFilter(SeriesAspect.ATTR_EPISODENAME, GetSearchTerm(), null)
+          new LikeFilter(EpisodeAspect.ATTR_SERIES_NAME, GetSearchTerm(), null),
+          new LikeFilter(EpisodeAspect.ATTR_EPISODE_NAME, GetSearchTerm(), null)
         });
       return filter;
     }

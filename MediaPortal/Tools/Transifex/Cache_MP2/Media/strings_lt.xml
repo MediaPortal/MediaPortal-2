@@ -101,7 +101,7 @@
   <string name="Media.MediaItemsHeader">Media įrašai</string>
   <string name="Media.VideoItemsHeader">Video</string>
   <string name="Media.AudioItemsHeader">Audio įrašai</string>
-  <string name="Media.SeriesItemsHeader">Epizodai</string>
+  <string name="Media.EpisodeItemsHeader">Epizodai</string>
   <string name="Media.MoviesItemsHeader">Filmai</string>
   <string name="Media.ImageItemsHeader">Vaizdai</string>
   <string name="Media.SimpleSearchHeader">Paprasta paieška</string>
@@ -141,6 +141,8 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Video </string>
   <string name="Media.SeriesRootViewName">Serijos</string>
+  <string name="Media.SeasonRootViewName">Sezonas</string>
+  <string name="Media.EpisodeRootViewName">Epizodas</string>
   <string name="Media.ImagesRootViewName">Vaizdai</string>
   <string name="Media.SimpleSearchViewName">Paprasta paieška</string>
   <!--General strings used in views-->
@@ -333,4 +335,7 @@
   <string name="Settings.Players.SkipStepList.Help">Įveskite praleidimo žingsnius sekundėmis atskirtomis ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Atverti grotuvo strategiją</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategija, kaip naujai paleisti grotuvai bus išdėstyti tarp esamų atvirų grotuvų</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

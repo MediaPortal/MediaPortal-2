@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,12 +38,13 @@ using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider
 {
-  public class NetworkNeighborhoodResourceAccessor : ILocalFsResourceAccessor, IResourceDeletor
+  public class NetworkNeighborhoodResourceAccessor : ILocalFsResourceAccessor, IResourceChangeNotifier, IResourceDeletor
   {
     #region Protected fields
 
     protected NetworkNeighborhoodResourceProvider _parent;
     protected string _path;
+    protected event PathChangeDelegate _changeDelegateProxy;
     protected ILocalFsResourceAccessor _underlayingResource = null; // Only set if the path points to a file system resource - not a server or root
 
     #endregion
@@ -70,7 +71,9 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     protected ICollection<IFileSystemResourceAccessor> WrapLocalFsResourceAccessors(ICollection<IFileSystemResourceAccessor> localFsResourceAccessors)
     {
       ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
-      CollectionUtils.AddAll(result, localFsResourceAccessors.Select(resourceAccessor => new NetworkNeighborhoodResourceAccessor(_parent, resourceAccessor.Path.Substring(1))));
+      if(localFsResourceAccessors != null && localFsResourceAccessors.Count > 0)
+        CollectionUtils.AddAll(result, localFsResourceAccessors.Where(resourceAccessor => resourceAccessor != null && resourceAccessor.Path != null).
+          Select(resourceAccessor => new NetworkNeighborhoodResourceAccessor(_parent, resourceAccessor.Path.Substring(1))));
       return result;
     }
 
@@ -296,6 +299,57 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       // Note: the ToDosPath method returns only one leading backslash
       get { return @"\" + LocalFsResourceProviderBase.ToDosPath(_path); }
+    }
+
+    #endregion
+
+    #region IResourceChangeNotifier implementation
+
+    protected IResourceAccessor WrapLocalFsResourceAccessor(IResourceAccessor localFsResourceAccessor)
+    {
+      return new NetworkNeighborhoodResourceAccessor(_parent, localFsResourceAccessor.Path.Substring(1));
+    }
+
+    protected void PathChangedProxy(IResourceAccessor resourceAccessor, IResourceAccessor oldResourceAccessor, MediaSourceChangeType changeType)
+    {
+      if (_changeDelegateProxy != null)
+        _changeDelegateProxy(WrapLocalFsResourceAccessor(resourceAccessor), WrapLocalFsResourceAccessor(oldResourceAccessor), changeType);
+    }
+
+    public void RegisterChangeTracker(PathChangeDelegate changeDelegate, IEnumerable<string> fileNameFilters,
+        IEnumerable<MediaSourceChangeType> changeTypes)
+    {
+      _changeDelegateProxy = changeDelegate;
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
+      {
+        if (_underlayingResource != null)
+        {
+          LocalFsResourceProvider lfsProvider = _underlayingResource.ParentProvider as LocalFsResourceProvider;
+          string path = NetworkPath;
+          if (!path.EndsWith(@"\")) path += @"\";
+          lfsProvider.RegisterChangeTracker(PathChangedProxy, path, fileNameFilters, changeTypes);
+        }
+      }
+    }
+
+    public void UnregisterChangeTracker(PathChangeDelegate changeDelegate)
+    {
+      if (_underlayingResource != null)
+      {
+        _changeDelegateProxy = null;
+        LocalFsResourceProvider lfsProvider = _underlayingResource.ParentProvider as LocalFsResourceProvider;
+        lfsProvider.UnregisterChangeTracker(PathChangedProxy, LocalFileSystemPath);
+      }
+    }
+
+    public void UnregisterAll(PathChangeDelegate changeDelegate)
+    {
+      if (_underlayingResource != null)
+      {
+        _changeDelegateProxy = null;
+        LocalFsResourceProvider lfsProvider = _underlayingResource.ParentProvider as LocalFsResourceProvider;
+        lfsProvider.UnregisterAll(PathChangedProxy);
+      }
     }
 
     #endregion

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,12 +23,12 @@
 #endregion
 
 using System;
-using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider;
+using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.UI.Players.BassPlayer.InputSources;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.Settings;
@@ -114,6 +114,8 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 
       using (IResourceAccessor accessor = locator.CreateAccessor())
       {
+        if (accessor is VirtualResourceAccessor)
+          return false;
         if (accessor is AudioCDResourceAccessor || accessor is INetworkResourceAccessor)
           return true;
         string ext = DosPathHelper.GetExtension(accessor.ResourcePathName).ToLowerInvariant();

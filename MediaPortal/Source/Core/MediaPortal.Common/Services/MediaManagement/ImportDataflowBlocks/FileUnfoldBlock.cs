@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -104,26 +104,72 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         // ToDo: Clarify if this is a bug
         var files = FileSystemResourceNavigator.GetFiles(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
         IDictionary<ResourcePath, DateTime> path2LastImportDate = null;
+        IDictionary<ResourcePath, Guid> path2MediaItem = null;
 
-        if (ImportJobInformation.JobType == ImportJobType.Refresh)
+        SingleMediaItemAspect directoryAspect;
+        // ReSharper disable once PossibleInvalidOperationException
+        // TODO: Rework this
+        IEnumerable<MediaItem> mediaItems = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
+          .Where(mi => !MediaItemAspect.TryGetAspect(mi.Aspects, DirectoryAspect.Metadata, out directoryAspect));
+        if (mediaItems != null)
         {
-          MediaItemAspect directoryAspect;
-          // ReSharper disable once PossibleInvalidOperationException
-          path2LastImportDate = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
-            .Where(mi => !mi.Aspects.TryGetValue(DirectoryAspect.ASPECT_ID, out directoryAspect))
-            .ToDictionary(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)), mi => mi[ImporterAspect.ASPECT_ID].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+          path2LastImportDate = new Dictionary<ResourcePath, DateTime>();
+          path2MediaItem = new Dictionary<ResourcePath, Guid>();
+          foreach (MediaItem mi in mediaItems)
+          {
+            //Check metadata and files:
+            // 1. Last import date is lower than file change date => Refresh needed
+            // 2. Media item ID is empty => Reimport/import needed
+            // 3. Media item is dirty => Reimport/import needed
+            IList<MultipleMediaItemAspect> providerAspects = null;
+            if (MediaItemAspect.TryGetAspects(mi.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
+            {
+              foreach (var pra in providerAspects)
+              {
+                ResourcePath path = ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+                if (!path2LastImportDate.ContainsKey(path))
+                {
+                  //If last refresh is equal to added date, it has never been through the refresh cycle, so set low last change date
+                  //All media items must be added because the paths are later used to delete no longer existing media items
+                  if ((mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) -
+                    mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED)).TotalSeconds <= 5)
+                    path2LastImportDate.Add(path, DateTime.MinValue);
+                  else
+                    path2LastImportDate.Add(path, mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+                }
+                if (!path2MediaItem.ContainsKey(path))
+                {
+                  //If it is dirty, leave media item ID empty
+                  if (mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY))
+                    continue;
+
+                  path2MediaItem.Add(path, mi.MediaItemId);
+                }
+              }
+            }
+          }
           await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
         }
 
-        result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
+        if (ImportJobInformation.JobType == ImportJobType.Import)
+        {
+          //Only import new files so only add non existing paths
+          result.UnionWith(files.Where(f => !path2LastImportDate.Keys.Contains(f.CanonicalLocalResourcePath)).
+            Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
+        }
+        else
+        {
+          result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId,
+            path2MediaItem.ContainsKey(f.CanonicalLocalResourcePath) ? path2MediaItem[f.CanonicalLocalResourcePath] : (Guid?)null)));
 
-        // If this is a RefreshImport and we found files of the current directory in the MediaLibrary,
-        // store the DateOfLastImport in the PendingImportResource
-        DateTime dateTime;
-        if (path2LastImportDate != null)
-          foreach (var pir in result)
-            if(path2LastImportDate.TryGetValue(pir.PendingResourcePath, out dateTime))
-              pir.DateOfLastImport = dateTime;
+          // If this is a RefreshImport and we found files of the current directory in the MediaLibrary,
+          // store the DateOfLastImport in the PendingImportResource
+          DateTime dateTime;
+          if (path2LastImportDate != null)
+            foreach (var pir in result)
+              if (path2LastImportDate.TryGetValue(pir.PendingResourcePath, out dateTime))
+                pir.DateOfLastImport = dateTime;
+        }
 
         return result;
       }

@@ -1050,7 +1050,15 @@
       </StackPanel>
 
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" Scroll="Auto"
-             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center"/>
+             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
+            <Binding Path="[Name]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            <Binding Source=" "/>
+            <Binding Path="[Series]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+          </MultiBinding>
+        </Label.Content>
+      </Label>
 
       <StackPanel Orientation="Horizontal" Grid.Column="2" >
         <Label x:Name="ProgramStart" Margin="10,0,10,0"  Color="{ThemeResource TextColor}" VerticalAlignment="Center"

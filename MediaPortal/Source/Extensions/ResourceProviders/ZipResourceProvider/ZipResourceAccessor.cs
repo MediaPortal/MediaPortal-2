@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -257,8 +257,12 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     public Stream OpenRead()
     {
      PrepareStreamAccess();
-      // We need to operate on a temporary file because the underlaying ZIP library doesn't support seeking in the returned entry stream
-     return File.OpenRead(_tempFileName);
+      if (File.Exists(_tempFileName))
+      {
+        // We need to operate on a temporary file because the underlaying ZIP library doesn't support seeking in the returned entry stream
+        return File.OpenRead(_tempFileName);
+      }
+      return null;
     }
 
     public async Task<Stream> OpenReadAsync()

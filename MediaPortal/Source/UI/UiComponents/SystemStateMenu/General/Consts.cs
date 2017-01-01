@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -52,6 +52,7 @@ namespace MediaPortal.Plugins.SystemStateMenu
 
     // Accessor keys for GUI communication
     public const string KEY_NAME = "Name";
+    public const string KEY_ACTION = "Action";
     public const string KEY_INDEX = "Sort-Index";
 
     // SleepTimer

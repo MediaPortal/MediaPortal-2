@@ -17,6 +17,7 @@
   <string name="Media.PlaylistsOverviewHeader">गीत-सूचियाँ</string>
   <!--View names (names for the view instances)-->
   <string name="Media.VideosRootViewName">वीडियो</string>
+  <string name="Media.EpisodeRootViewName">एपिसोड</string>
   <!--General strings used in views-->
   <!--Shown in the header of an items list-->
   <!--Shown in the header of an items list-->
@@ -43,4 +44,7 @@
   <string name="Media.SwitchFilterMenuItem">फ़िल्टर</string>
   <string name="Media.SwitchFilterDialogTitle">फ़िल्टर</string>
   <string name="Settings.Players">प्लेयर</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

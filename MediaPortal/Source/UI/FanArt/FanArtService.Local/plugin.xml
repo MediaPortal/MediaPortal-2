@@ -12,11 +12,11 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="2"/> <!-- FanartService -->
+    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="3"/> <!-- FanartService -->
     <PluginReference PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}" CompatibleAPI="1"/> <!-- MatroskaLib -->
 
-    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <CoreDependency Name="UPnP" CompatibleAPI="1" />
   </DependsOn>
@@ -28,7 +28,14 @@
 
   <!-- We use our own local name here to avoid circular references to FanArtService -->
   <Register Location="/Fanart/Providers">
-    <FanartProviderBuilder Id="{279D584D-9C31-425D-B71B-154FD84B8F9F}" MediaTypes="Poster,Fanart" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalFanartProvider"/>
-    <FanartProviderBuilder Id="{B3B36840-C9E2-4B25-B630-7F6662E48D83}" MediaTypes="Poster,Fanart" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.MkvAttachmentsProvider"/>
+    <FanartProviderBuilder Id="{279D584D-9C31-425D-B71B-154FD84B8F9F}" MediaTypes="Movies,Series,Audio" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalFanartProvider"/>
+    <FanartProviderBuilder Id="{B3B36840-C9E2-4B25-B630-7F6662E48D83}" MediaTypes="Movies,Series" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.MkvAttachmentsProvider"/>
+    <FanartProviderBuilder Id="{89BCF5DF-8F02-4A8D-82BC-053FD61F91C9}" MediaTypes="Audio" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalAlbumFanartProvider"/>
+    <FanartProviderBuilder Id="{D68E9637-3E29-462A-B262-A0AF9A34E7E2}" MediaTypes="Audio" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalArtistFanartProvider"/>
+    <FanartProviderBuilder Id="{23D37F88-BBC7-4E14-AA5A-0CCACDE7D407}" MediaTypes="Series" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalSeasonFanartProvider"/>
+    <FanartProviderBuilder Id="{A80ECBA0-9573-42F3-B1BD-1EF3AAFFC5F5}" MediaTypes="Series" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalSeriesFanartProvider"/>
+    <FanartProviderBuilder Id="{E087745D-ED8B-4999-9EA1-076159FC5C2A}" MediaTypes="Series" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalSeriesActorFanartProvider"/>
+    <FanartProviderBuilder Id="{6C77798B-D9FA-428B-955B-92965C14FAD8}" MediaTypes="Movies" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalMovieCollectionFanartProvider"/>
+    <FanartProviderBuilder Id="{21BDD584-647B-433B-BAFA-07666B7B39F2}" MediaTypes="Movies" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalMovieActorFanartProvider"/>
   </Register>
 </Plugin>

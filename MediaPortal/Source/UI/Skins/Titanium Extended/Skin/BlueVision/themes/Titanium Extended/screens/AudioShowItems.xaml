@@ -6,9 +6,7 @@
     Source="screens\SimpleShowItems.xaml"
     >
   <Include.Resources>
-
-    <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioItemsHeader]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.ChooseAudioHeader]"/>
 
     <!-- Control template for the MediaItem details (cover, thumbs, duration, genres...)-->
     <ControlTemplate x:Key="Media_Details_Template">
@@ -17,7 +15,5 @@
 
     <ControlTemplate x:Key="Cover_Details_Template">
       <Include Source="screens\MediaItemAudioDetailsCover.inc"/>
-    </ControlTemplate>
-
-  </Include.Resources>
+    </ControlTemplate>  </Include.Resources>
 </Include>

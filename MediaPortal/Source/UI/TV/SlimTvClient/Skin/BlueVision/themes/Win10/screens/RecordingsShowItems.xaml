@@ -8,7 +8,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoItemsHeader]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.RecordingsMenuItem]"/>
 
     <!-- Header_Text resource has to be added by including screen -->
 

@@ -1,0 +1,29 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="Server State Service Plugin"
+    PluginId="{A81167C0-4E2D-4B2B-97C7-FAFEE551D49C}"
+    Author="Brownard"
+    Copyright="GPL"
+    Description="Provides services to send server status updates to clients"
+    AutoActivate="true">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2016-08-22 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <CoreDependency Name="UPnP" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="ServerStateService.Interfaces.dll"/>
+    <Assembly FileName="ServerStateService.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.ServerStateService.ServerStateServicePlugin"/>
+  </Runtime>
+
+</Plugin>
+

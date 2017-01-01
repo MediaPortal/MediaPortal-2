@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for all screens:
+A header text, player controls and a client area.
+Below the client area, the navigation bar is visible.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master.xaml">
+    <Include.Resources>
+      <ResourceWrapper x:Key="Header_Text">
+        [Header text]
+      </ResourceWrapper>
+      <ControlTemplate x:Key="Client_Template">
+        [UI element to be displayed in the client area]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Header_Text (String): The text to be displayed as header
+ - Client_Template (ConrolTemplate): Template for element to be shown in the client area.
+-->
+
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    x:Name="Screen"
+    >
+  <Screen.Resources>
+    <!--<Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HoverGrid" Storyboard.TargetProperty="RenderTransform.X">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="470"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="0"/>
+      </DoubleAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="Opacity">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="1.0"/>
+      </DoubleAnimationUsingKeyFrames>
+    </Storyboard>-->
+  </Screen.Resources>
+  <!--<Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{StaticResource SlideInStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>-->
+
+  <Grid x:Name="RootElement">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+
+    <Image x:Name="L1" Source="Effects\Layer1.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L2" Source="Effects\Layer2.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L3" Source="Effects\Layer3.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L4" Source="Effects\Layer4.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L5" Source="Effects\Layer5.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+
+    <Grid.Resources>
+      <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+      <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      <Model x:Key="ScreenModeModel" Id="0E621AA5-0733-4E88-A0F0-887F8D73A055"/>
+      <Storyboard
+                x:Key="AnimationL1"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L1" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:03.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard
+                x:Key="AnimationL2"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L2" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard
+                x:Key="AnimationL3"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L3" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:08.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard
+                x:Key="AnimationL4"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L4" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:11.500" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard
+                x:Key="AnimationL5"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L5" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:14.500" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+    </Grid.Resources>
+
+    <Grid.Triggers>
+      <Trigger Property="IsVisible" Value="True">
+        <Trigger.EnterActions>
+          <BeginStoryboard x:Name="BeginStoryboardL1" Storyboard="{StaticResource AnimationL1}"/>
+          <BeginStoryboard x:Name="BeginStoryboardL2" Storyboard="{StaticResource AnimationL2}"/>
+          <BeginStoryboard x:Name="BeginStoryboardL3" Storyboard="{StaticResource AnimationL3}"/>
+          <BeginStoryboard x:Name="BeginStoryboardL4" Storyboard="{StaticResource AnimationL4}"/>
+          <BeginStoryboard x:Name="BeginStoryboardL5" Storyboard="{StaticResource AnimationL5}"/>
+          <!--BeginStoryboard x:Name="BeginStoryboardL6" Storyboard="{StaticResource AnimationL6}"/-->
+        </Trigger.EnterActions>
+        <Trigger.ExitActions>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL1"/>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL2"/>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL3"/>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL4"/>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL5"/>
+          <!--StopStoryboard BeginStoryboardName="BeginStoryboardL6"/-->
+        </Trigger.ExitActions>
+      </Trigger>
+    </Grid.Triggers>
+
+    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      LastChildFill="True">
+      <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="50"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+        <!--Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,50,0">
+          <Label x:Name="HeaderLabel"
+              FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
+              Content="Home" />
+          <Grid.OpacityMask>
+            <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+              <GradientStop Offset="0.0" Color="#FF000000" />
+              <GradientStop Offset="1.0" Color="#1A000000" />
+            </LinearGradientBrush>
+          </Grid.OpacityMask>
+        </-->
+        <Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,30,50,0">
+          <Grid.Resources>
+            <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+          </Grid.Resources>
+          <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+                 FontSize="{ThemeResource NormalFontSize}"
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        </Grid>
+      </Grid>
+      <!-- HeaderPanel -->
+      <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel x:Name="PlayerControls" Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+          <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
+                  AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+          <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
+                  AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+        </StackPanel>
+      </Grid>
+            <!-- FooterPanel -->
+
+      <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
+      <Control x:Name="ClientArea" DockPanel.Dock="Right" Template="{DynamicResource Client_Template}"/>
+    </DockPanel>
+
+    <!-- Mouse control buttons -->
+    <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">
+      <StackPanel Orientation="Horizontal">
+        <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Button x:Name="WindowedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=NormalWindowed}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+          <Button x:Name="MaximizedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=FullScreen}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+          <Button x:Name="ExitButton" Style="{ThemeResource ExitButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=Shutdown}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
+
+  </Grid>
+</Screen>

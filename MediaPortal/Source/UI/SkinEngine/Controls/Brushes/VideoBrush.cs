@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -32,7 +34,6 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX.Direct3D9;
 using SharpDX;
 using MediaPortal.UI.Presentation.Players;
@@ -47,6 +48,185 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   /// </summary>
   public class VideoBrush : Brush
   {
+    [DebuggerDisplay("BrushContext '{ContextName}'")]
+    public class BrushContext : IDisposable
+    {
+      protected Matrix _inverseRelativeTransformCache;
+      protected ImageContext _imageContext;
+      protected SizeF _scaledVideoSize;
+      protected RectangleF _videoTextureClip;
+
+      protected IGeometry _currentGeometry;
+      protected IGeometry _lastGeometry;
+      protected string _lastEffect;
+      protected Rectangle _lastCropVideoRect;
+      protected Size _lastVideoSize;
+      protected SizeF _lastAspectRatio;
+      protected int _lastDeviceWidth;
+      protected int _lastDeviceHeight;
+      protected Vector4 _lastFrameData;
+      protected RectangleF _lastVertsBounds;
+      protected Texture _texture = null;
+      protected volatile bool _refresh = true;
+      protected readonly VideoBrush _parentBrush;
+      protected bool _renderStarted = false;
+      protected PrimitiveBuffer _primitiveContext;
+
+      public BrushContext(VideoBrush parentBrush)
+      {
+        _parentBrush = parentBrush;
+        _imageContext = new ImageContext
+        {
+          OnRefresh = OnImagecontextRefresh,
+          ExtraParameters = new Dictionary<string, object>()
+        };
+      }
+
+      public Func<Texture> GetBrushTexture { get; set; }
+      public Func<RectangleF> GetVertBounds { get; set; }
+      public Func<Transform> GetRelativeTransform { get; set; }
+      public Func<Matrix> GetCachedFinalBrushTransform { get; set; }
+      public string ContextName { get; set; }
+
+      public void Dispose()
+      {
+        TryDispose(ref _texture);
+      }
+
+      public void Refresh()
+      {
+        _refresh = true;
+      }
+
+      public void SetGeoemtry(IGeometry geometry)
+      {
+        _currentGeometry = geometry;
+      }
+
+      public bool RefreshEffectParameters(IVideoPlayer player, Texture texture)
+      {
+        ISharpDXVideoPlayer sdvPlayer = player as ISharpDXVideoPlayer;
+        if (sdvPlayer == null || texture == null || texture.IsDisposed)
+          return false;
+        SizeF aspectRatio = sdvPlayer.VideoAspectRatio.ToSize2F();
+        Size playerSize = sdvPlayer.VideoSize.ToSize2();
+        Rectangle cropVideoRect = sdvPlayer.CropVideoRect;
+        IGeometry geometry = ChooseVideoGeometry(player);
+        string effectName = player.EffectOverride;
+        int deviceWidth = GraphicsDevice.Width; // To avoid threading issues if the device size changes
+        int deviceHeight = GraphicsDevice.Height;
+        RectangleF vertsBounds = GetVertBounds();
+
+        // Do we need a refresh?
+        if (!_refresh &&
+            _lastVideoSize == playerSize &&
+            _lastAspectRatio == aspectRatio &&
+            _lastCropVideoRect == cropVideoRect &&
+            _lastGeometry == geometry &&
+            _lastEffect == effectName &&
+            _lastDeviceWidth == deviceWidth &&
+            _lastDeviceHeight == deviceHeight &&
+            _lastVertsBounds == vertsBounds)
+          return true;
+
+        _lastVertsBounds = vertsBounds;
+        SizeF targetSize = vertsBounds.Size;
+
+        lock (sdvPlayer.SurfaceLock)
+        {
+          SurfaceDescription desc = texture.GetLevelDescription(0);
+          _videoTextureClip = new RectangleF(cropVideoRect.X / desc.Width, cropVideoRect.Y / desc.Height,
+              cropVideoRect.Width / desc.Width, cropVideoRect.Height / desc.Height);
+        }
+        _scaledVideoSize = cropVideoRect.Size.ToSize2F();
+
+        // Correct aspect ratio for anamorphic video
+        if (!aspectRatio.IsEmpty() && geometry.RequiresCorrectAspectRatio)
+        {
+          float pixelRatio = aspectRatio.Width / aspectRatio.Height;
+          _scaledVideoSize.Width = _scaledVideoSize.Height * pixelRatio;
+        }
+        // Adjust target size to match final Skin scaling
+        targetSize = ImageContext.AdjustForSkinAR(targetSize);
+
+        // Adjust video size to fit desired geometry
+        _scaledVideoSize = geometry.Transform(_scaledVideoSize.ToDrawingSizeF(), targetSize.ToDrawingSizeF()).ToSize2F();
+
+        // Cache inverse RelativeTransform
+        Transform relativeTransform = GetRelativeTransform();
+        _inverseRelativeTransformCache = (relativeTransform == null) ? Matrix.Identity : Matrix.Invert(relativeTransform.GetTransform());
+
+        // Prepare our ImageContext
+        _imageContext.FrameSize = targetSize;
+        _imageContext.ShaderBase = EFFECT_BASE_VIDEO;
+        _imageContext.ShaderTransform = geometry.Shader;
+        _imageContext.ShaderEffect = player.EffectOverride;
+
+        // Store state
+        _lastFrameData = new Vector4(playerSize.Width, playerSize.Height, 0.0f, 0.0f);
+        _lastVideoSize = playerSize;
+        _lastAspectRatio = aspectRatio;
+        _lastGeometry = geometry;
+        _lastCropVideoRect = cropVideoRect;
+        _lastEffect = effectName;
+        _lastDeviceWidth = deviceWidth;
+        _lastDeviceHeight = deviceHeight;
+
+        _refresh = false;
+        return true;
+      }
+
+      protected IGeometry ChooseVideoGeometry(IVideoPlayer player)
+      {
+        if (_currentGeometry != null)
+          return _currentGeometry;
+        if (player.GeometryOverride != null)
+          return player.GeometryOverride;
+
+        return ServiceRegistration.Get<IGeometryManager>().DefaultVideoGeometry;
+      }
+
+      protected void OnImagecontextRefresh()
+      {
+        _imageContext.ExtraParameters[PARAM_RELATIVE_TRANSFORM] = _inverseRelativeTransformCache;
+        _imageContext.ExtraParameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
+      }
+
+      public bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+      {
+        _primitiveContext = primitiveContext;
+        _renderStarted = false;
+        if (!IsValid())
+          return false;
+
+        _renderStarted = true;
+        // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
+        RectangleF tranformedRect;
+        GraphicsDevice.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);
+        return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, tranformedRect, _parentBrush.BorderColor, _lastFrameData);
+      }
+
+      public bool IsValid()
+      {
+        if (GetBrushTexture == null)
+          return false;
+        _texture = GetBrushTexture();
+        return _texture != null;
+      }
+
+      public void Render(int stream)
+      {
+        if (_primitiveContext != null && _renderStarted)
+          _primitiveContext.Render(stream);
+      }
+
+      public void EndRender()
+      {
+        if (_renderStarted)
+          _imageContext.EndRender();
+      }
+    }
+
     #region Consts
 
     protected const string EFFECT_BASE_VIDEO = "video_base";
@@ -62,23 +242,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _geometryProperty;
     protected AbstractProperty _borderColorProperty;
 
-    protected IGeometry _currentGeometry;
-    protected Matrix _inverseRelativeTransformCache;
-    protected ImageContext _imageContext;
-    protected SizeF _scaledVideoSize;
-    protected RectangleF _videoTextureClip;
-
-    protected IGeometry _lastGeometry;
-    protected string _lastEffect;
-    protected Rectangle _lastCropVideoRect;
-    protected Size _lastVideoSize;
-    protected SizeF _lastAspectRatio;
-    protected int _lastDeviceWidth;
-    protected int _lastDeviceHeight;
-    protected Vector4 _lastFrameData;
-    protected RectangleF _lastVertsBounds;
-    protected Texture _texture = null;
-    protected volatile bool _refresh = true;
+    protected List<BrushContext> _brushContexts = new List<BrushContext>();
+    protected BrushContext _lastBeginContext;
 
     #endregion
 
@@ -96,11 +261,65 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _geometryProperty = new SProperty(typeof(string), null);
       _borderColorProperty = new SProperty(typeof(Color), Color.Black);
 
-      _imageContext = new ImageContext
+      ISharpDXVideoPlayer player;
+
+      // Primary video texture
+      BrushContext videoContext = CreateAndAddBrushContext();
+      videoContext.ContextName = "MainVideoTexture";
+      videoContext.GetBrushTexture = () =>
+      {
+        if (!GetPlayer(out player))
+          return null;
+
+        lock (player.SurfaceLock)
         {
-          OnRefresh = OnImagecontextRefresh,
-          ExtraParameters = new System.Collections.Generic.Dictionary<string, object>()
+          var texture = player.Texture;
+          if (!videoContext.RefreshEffectParameters(player, texture))
+            return null;
+          return texture;
+        }
+      };
+
+      // Check for multiple texture planes
+      if (!GetPlayer(out player))
+        return;
+
+      ISharpDXMultiTexturePlayer multiTexturePlayer = player as ISharpDXMultiTexturePlayer;
+      if (multiTexturePlayer == null)
+        return;
+
+      for(int i = 0; i < multiTexturePlayer.TexturePlanes.Length; i++)
+      {
+        int plane = i;
+        // All additional overlay textures
+        var planeContext = CreateAndAddBrushContext();
+        planeContext.ContextName = "OverlayTexture_" + plane;
+        planeContext.GetBrushTexture = () =>
+        {
+          if (!GetPlayer(out player))
+            return null;
+
+          lock (multiTexturePlayer.SurfaceLock)
+          {
+            var texture = multiTexturePlayer.TexturePlanes[plane];
+            if (!planeContext.RefreshEffectParameters(player, texture))
+              return null;
+            return texture;
+          }
         };
+      }
+    }
+
+    protected BrushContext CreateAndAddBrushContext()
+    {
+      BrushContext context = new BrushContext(this)
+      {
+        GetCachedFinalBrushTransform = GetCachedFinalBrushTransform,
+        GetRelativeTransform = () => RelativeTransform,
+        GetVertBounds = () => _vertsBounds
+      };
+      _brushContexts.Add(context);
+      return context;
     }
 
     void Attach()
@@ -121,14 +340,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Stream = b.Stream;
       Geometry = b.Geometry;
       BorderColor = b.BorderColor;
-      _refresh = true;
+      foreach (var brushContext in _brushContexts)
+        brushContext.Refresh();
       Attach();
     }
 
     public override void Dispose()
     {
       base.Dispose();
-      TryDispose(ref _texture);
+      foreach (var brushContext in _brushContexts)
+      {
+        brushContext.Dispose();
+      }
+      _brushContexts.Clear();
     }
 
     #endregion
@@ -140,119 +364,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       string geometryName = Geometry;
       if (String.IsNullOrEmpty(geometryName))
       {
-        _currentGeometry = null;
+        SetGeometries(null);
         return;
       }
       IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
       IGeometry geometry;
       if (geometryManager.AvailableGeometries.TryGetValue(geometryName, out geometry))
-        _currentGeometry = geometry;
+        SetGeometries(geometry);
       else
       {
         ServiceRegistration.Get<ILogger>().Debug("VideoBrush: Geometry '{0}' does not exist", geometryName);
-        _currentGeometry = null;
+        SetGeometries(null);
       }
+    }
+
+    protected void SetGeometries(IGeometry geometry)
+    {
+      foreach (var brushContext in _brushContexts)
+        brushContext.SetGeoemtry(geometry);
     }
 
     protected override void OnRelativeTransformChanged(IObservable trans)
     {
-      _refresh = true;
+      foreach (var brushContext in _brushContexts)
+        brushContext.Refresh();
       base.OnRelativeTransformChanged(trans);
-    }
-
-    protected IGeometry ChooseVideoGeometry(IVideoPlayer player)
-    {
-      if (_currentGeometry != null)
-        return _currentGeometry;
-      if (player.GeometryOverride != null)
-        return player.GeometryOverride;
-
-      return ServiceRegistration.Get<IGeometryManager>().DefaultVideoGeometry;
-    }
-
-    protected bool RefreshEffectParameters(IVideoPlayer player)
-    {
-      ISharpDXVideoPlayer sdvPlayer = player as ISharpDXVideoPlayer;
-      if (sdvPlayer == null)
-        return false;
-      SizeF aspectRatio = sdvPlayer.VideoAspectRatio.ToSize2F();
-      Size playerSize = sdvPlayer.VideoSize.ToSize2();
-      Rectangle cropVideoRect = sdvPlayer.CropVideoRect;
-      IGeometry geometry = ChooseVideoGeometry(player);
-      string effectName = player.EffectOverride;
-      int deviceWidth = GraphicsDevice.Width; // To avoid threading issues if the device size changes
-      int deviceHeight = GraphicsDevice.Height;
-      RectangleF vertsBounds = _vertsBounds;
-
-      // Do we need a refresh?
-      if (!_refresh &&
-          _lastVideoSize == playerSize &&
-          _lastAspectRatio == aspectRatio &&
-          _lastCropVideoRect == cropVideoRect &&
-          _lastGeometry == geometry &&
-          _lastEffect == effectName &&
-          _lastDeviceWidth == deviceWidth &&
-          _lastDeviceHeight == deviceHeight &&
-          _lastVertsBounds == vertsBounds)
-        return true;
-
-      SizeF targetSize = vertsBounds.Size;
-
-      lock (sdvPlayer.SurfaceLock)
-      {
-        Texture texture = sdvPlayer.Texture;
-        if (texture == null || texture.IsDisposed)
-        {
-          _refresh = true;
-          return false;
-        }
-
-        SurfaceDescription desc = texture.GetLevelDescription(0);
-        _videoTextureClip = new RectangleF(cropVideoRect.X / desc.Width, cropVideoRect.Y / desc.Height,
-            cropVideoRect.Width / desc.Width, cropVideoRect.Height / desc.Height);
-      }
-      _scaledVideoSize = cropVideoRect.Size.ToSize2F();
-
-      // Correct aspect ratio for anamorphic video
-      if (!aspectRatio.IsEmpty() && geometry.RequiresCorrectAspectRatio)
-      {
-        float pixelRatio = aspectRatio.Width / aspectRatio.Height;
-        _scaledVideoSize.Width = _scaledVideoSize.Height * pixelRatio;
-      }
-      // Adjust target size to match final Skin scaling
-      targetSize = ImageContext.AdjustForSkinAR(targetSize);
-
-      // Adjust video size to fit desired geometry
-      _scaledVideoSize = geometry.Transform(_scaledVideoSize.ToDrawingSizeF(), targetSize.ToDrawingSizeF()).ToSize2F();
-
-      // Cache inverse RelativeTransform
-      Transform relativeTransform = RelativeTransform;
-      _inverseRelativeTransformCache = (relativeTransform == null) ? Matrix.Identity : Matrix.Invert(relativeTransform.GetTransform());
-
-      // Prepare our ImageContext
-      _imageContext.FrameSize = targetSize;
-      _imageContext.ShaderBase = EFFECT_BASE_VIDEO;
-      _imageContext.ShaderTransform = geometry.Shader;
-      _imageContext.ShaderEffect = player.EffectOverride;
-
-      // Store state
-      _lastFrameData = new Vector4(playerSize.Width, playerSize.Height, 0.0f, 0.0f);
-      _lastVideoSize = playerSize;
-      _lastAspectRatio = aspectRatio;
-      _lastGeometry = geometry;
-      _lastCropVideoRect = cropVideoRect;
-      _lastEffect = effectName;
-      _lastDeviceWidth = deviceWidth;
-      _lastDeviceHeight = deviceHeight;
-
-      _refresh = false;
-      return true;
-    }
-
-    protected void OnImagecontextRefresh()
-    {
-      _imageContext.ExtraParameters[PARAM_RELATIVE_TRANSFORM] = _inverseRelativeTransformCache;
-      _imageContext.ExtraParameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
     }
 
     #endregion
@@ -314,25 +450,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override bool BeginRenderBrushOverride(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      ISharpDXVideoPlayer player;
-      if (!GetPlayer(out player))
-        return false;
-
-      if (!RefreshEffectParameters(player))
-        return false;
-
-      lock (player.SurfaceLock)
+      // Clear last context
+      _lastBeginContext = null;
+      bool result = false;
+      foreach (var brushContext in _brushContexts)
       {
-        Texture texture = player.Texture;
-        if (texture == null)
-          return false;
-        _texture = texture;
-      }
+        // We can only begin a new render pass if the previous ended
+        if (_lastBeginContext != null && brushContext.IsValid())
+        {
+          _lastBeginContext.Render(0);
+          _lastBeginContext.EndRender();
+          _lastBeginContext = null;
+        }
 
-      // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
-      RectangleF tranformedRect;
-      GraphicsDevice.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);
-      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, tranformedRect, BorderColor, _lastFrameData);
+        var currentResult = brushContext.BeginRenderBrushOverride(primitiveContext, renderContext);
+        result |= currentResult;
+        if (currentResult)
+          _lastBeginContext = brushContext;
+      }
+      return result;
     }
 
     protected virtual bool GetPlayer(out ISharpDXVideoPlayer player)
@@ -348,7 +484,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override void EndRender()
     {
-      _imageContext.EndRender();
+      if (_lastBeginContext != null)
+        _lastBeginContext.EndRender();
     }
 
     #endregion

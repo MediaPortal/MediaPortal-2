@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,6 +41,9 @@ using MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy;
 using MediaPortal.UI.Services.Players.Settings;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UI.Services.Players
 {
@@ -157,8 +160,8 @@ namespace MediaPortal.UI.Services.Players
           case PlayerManagerMessaging.MessageType.PlayerResumeState:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             IResumeState resumeState = (IResumeState) message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
-            Guid mediaItemId = (Guid) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM_ID];
-            HandleResumeInfo(psc, mediaItemId, resumeState);
+            MediaItem mediaItem = (MediaItem) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM];
+            HandleResumeInfo(psc, mediaItem, resumeState);
             break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
@@ -230,17 +233,121 @@ namespace MediaPortal.UI.Services.Players
           _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.FullscreenContent, stateId));
     }
 
-    protected void HandleResumeInfo(IPlayerSlotController psc, Guid mediaItemId, IResumeState resumeState)
+    protected void HandleResumeInfo(IPlayerSlotController psc, MediaItem mediaItem, IResumeState resumeState)
     {
       // We can only handle resume info for valid MediaItemIds that are coming from MediaLibrary, not from local browsing.
-      if (mediaItemId == Guid.Empty)
+      if (mediaItem == null)
+        return;
+      if (mediaItem.MediaItemId == Guid.Empty)
         return;
 
       string serialized = ResumeStateBase.Serialize(resumeState);
 
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
+
+      if (!mediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
+        mediaItem.UserData.Add(PlayerContext.KEY_RESUME_STATE, "");
+      mediaItem.UserData[PlayerContext.KEY_RESUME_STATE] = serialized;
+
+      int playPercentage = GetPlayPercentage(mediaItem, resumeState);
+      NotifyPlayback(mediaItem, playPercentage);
+    }
+
+    protected static int GetPlayPercentage(MediaItem mediaItem, IResumeState resumeState)
+    {
+      int playPercentage = 100;
+      PositionResumeState positionResume = resumeState as PositionResumeState;
+      if (positionResume != null)
+      {
+        TimeSpan resumePosition = positionResume.ResumePosition;
+        TimeSpan duration = TimeSpan.FromSeconds(0);
+        IList<MediaItemAspect> aspects;
+        if (mediaItem.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out aspects))
+        {
+          var aspect = aspects.First();
+          int? part = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART];
+          int? partSet = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
+          long? dur = null;
+          if (!part.HasValue || part < 0)
+          {
+            dur = (long?)aspect[VideoStreamAspect.ATTR_DURATION];
+          }
+          else if (partSet.HasValue)
+          {
+            dur = aspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            aspect[VideoStreamAspect.ATTR_DURATION] != null).Sum(a => (long)a[VideoStreamAspect.ATTR_DURATION]);
+          }
+          if (dur.HasValue)
+            duration = TimeSpan.FromSeconds(dur.Value);
+        }
+        else if (mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspects))
+        {
+          var aspect = aspects.First();
+          long? dur = aspect == null ? null : (long?)aspect[AudioAspect.ATTR_DURATION];
+          if (dur.HasValue)
+            duration = TimeSpan.FromSeconds(dur.Value);
+        }
+
+        if (duration.TotalSeconds > 0)
+          playPercentage = (int)(resumePosition.TotalSeconds * 100 / duration.TotalSeconds);
+        else
+          playPercentage = 0;
+      }
+      if (playPercentage > 100)
+        playPercentage = 100;
+      return playPercentage;
+    }
+
+    protected static void NotifyPlayback(MediaItem mediaItem, int playPercentage)
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
+      bool watched = playPercentage >= settings.WatchedPlayPercentage;
+      if (watched)
+        playPercentage = 100;
+
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
+      if (cd != null)
+        cd.NotifyPlayback(mediaItem.MediaItemId, watched);
+
+      // Update loaded item also, so changes will be visible in GUI without reloading
+      if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
+        mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_PERCENTAGE, "0");
+      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
+
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement.IsValidUser)
+      {
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId,
+          UserDataKeysKnown.KEY_PLAY_PERCENTAGE, playPercentage.ToString());
+      }
+
+      if (watched)
+      {
+        // Update loaded item also, so changes will be visible in GUI without reloading
+        int currentPlayCount;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out currentPlayCount))
+        {
+          MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, ++currentPlayCount);
+        }
+
+        if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
+          mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_COUNT, "0");
+        currentPlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
+        currentPlayCount++;
+        mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = currentPlayCount.ToString();
+
+        if (userProfileDataManagement.IsValidUser)
+        {
+          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 
+            UserDataKeysKnown.KEY_PLAY_COUNT, currentPlayCount.ToString());
+        }
+      }
+      ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
     }
 
     protected void HandlePlayerEnded(IPlayerSlotController psc)

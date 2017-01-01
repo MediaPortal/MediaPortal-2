@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -322,6 +322,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                   // Default sorting: Use SortString
                   itemsList.Sort((i1, i2) => string.Compare(i1.SortString, i2.SortString));
                 CollectionUtils.AddAll(items, itemsList);
+
+                // Support custom sorting logic by view specification. At this time it can work on both MediaItems and SubViews.
+                if (view.Specification.CustomItemsListSorting != null)
+                  view.Specification.CustomItemsListSorting(items, sorting);
 
                 _currentTotalNumItems = totalNumItems == 0 ? new int?() : totalNumItems;
                 Display_Normal(items.Count, _currentTotalNumItems);

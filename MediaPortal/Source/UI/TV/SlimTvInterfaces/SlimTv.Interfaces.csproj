@@ -64,6 +64,7 @@
     <Compile Include="Items\ITimeshiftContext.cs" />
     <Compile Include="Items\KeepMethodType.cs" />
     <Compile Include="Items\PriorityType.cs" />
+    <Compile Include="Items\TvServerState.cs" />
     <Compile Include="ITimeshiftControl.cs" />
     <Compile Include="ITvHandler.cs" />
     <Compile Include="ITvProvider.cs" />

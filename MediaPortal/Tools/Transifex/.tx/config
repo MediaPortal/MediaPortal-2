@@ -1,5 +1,5 @@
 [main]
-host=https://www.transifex.com
+host= https://www.transifex.com
 [MP2.ApolloOne]
 file_filter=Cache_MP2\ApolloOne\strings_<lang>.xml
 source_file=Cache_MP2\ApolloOne\strings_en.xml
@@ -45,9 +45,19 @@ file_filter=Cache_MP2\ConfigurationManager\strings_<lang>.xml
 source_file=Cache_MP2\ConfigurationManager\strings_en.xml
 source_lang=en
 type=ANDROID
+[MP2.Diagnostics]
+file_filter=Cache_MP2\Diagnostics\strings_<lang>.xml
+source_file=Cache_MP2\Diagnostics\strings_en.xml
+source_lang=en
+type=ANDROID
 [MP2.HelloWorldExamplePlugin]
 file_filter=Cache_MP2\HelloWorldExamplePlugin\strings_<lang>.xml
 source_file=Cache_MP2\HelloWorldExamplePlugin\strings_en.xml
+source_lang=en
+type=ANDROID
+[MP2.HomeEditor]
+file_filter=Cache_MP2\HomeEditor\strings_<lang>.xml
+source_file=Cache_MP2\HomeEditor\strings_en.xml
 source_lang=en
 type=ANDROID
 [MP2.ImagePlayer]
@@ -168,6 +178,11 @@ type=ANDROID
 [MP2.WifiConfiguration]
 file_filter=Cache_MP2\WifiConfiguration\strings_<lang>.xml
 source_file=Cache_MP2\WifiConfiguration\strings_en.xml
+source_lang=en
+type=ANDROID
+[MP2.WMC]
+file_filter=Cache_MP2\WMC\strings_<lang>.xml
+source_file=Cache_MP2\WMC\strings_en.xml
 source_lang=en
 type=ANDROID
 [MP2.ZipResourceProvider]

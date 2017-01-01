@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -161,6 +161,16 @@ namespace MediaPortal.Common.Services.FileEventNotification
       if (callEvent && PathStateChangedEvent != null)
         PathStateChangedEvent(this, _available);
       return _available;
+    }
+
+    /// <summary>
+    /// Returns whether the given path is equivalent to <see cref="Path"/>.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public bool IsEquivalentPath(string path)
+    {
+      return new DirectoryInfo(path).FullName == _path.FullName;
     }
 
     /// <summary>

@@ -6,6 +6,7 @@
     Source="screens\SimpleFilterItems.xaml"
     >
   <Include.Resources>
-    <ResourceWrapper x:Key="Cover_Width" Resource="520"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.ChooseAlbumHeader]"/>
+    <ResourceWrapper x:Key="Cover_Width" Resource="860"/>
   </Include.Resources>
 </Include>
