@@ -1,0 +1,26 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="WakeOnLan Server"
+    PluginId="{9575FE5E-933E-4E4B-911F-D1C87C1688C2}"
+    Author="Brownard"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Plugin to allow the client to wake the server by WOL">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2017-01-08 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="WakeOnLan.Server.dll"/>
+    <Assembly FileName="WakeOnLan.Interfaces.dll"/>
+    <PluginStateTracker ClassName="WakeOnLan.Server.WakeOnLanServerPlugin"/>
+  </Runtime>
+  
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="UPnP" CompatibleAPI="1" />
+  </DependsOn>
+
+</Plugin>
