@@ -44,12 +44,11 @@ using ILogger = MediaPortal.Common.Logging.ILogger;
 using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 using MediaPortal.Common.Runtime;
-using System.Threading;
-using System.Threading.Tasks;
+using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
-  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
+  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, IMessageReceiver
   {
     public static readonly MediaCategory Series = new MediaCategory("Series", null);
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
@@ -61,6 +60,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected string _cloneConnection;
     protected string _providerName;
     protected string _serviceName;
+    private bool _abortInit = false;
 
     public string Name
     {
@@ -69,68 +69,58 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool Init()
     {
-      ThreadPool.QueueUserWorkItem(InitAsync);
+      ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
       return true;
-    }
+    }			
 
+    public void Receive(SystemMessage message)
+    {
+      if (message.MessageType as SystemMessaging.MessageType? == SystemMessaging.MessageType.SystemStateChanged)
+      {
+        SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+        if (newState == SystemState.Running)
+        {
+          InitAsync();
+        }
+        else if (newState == SystemState.ShuttingDown)
+        {
+          _abortInit = true;
+        }
+      }
+    }
+			
     #region Database and program data initialization
 
-    private async Task<bool> WaitForRunningState(ISystemStateService systemState)
+    private void InitAsync()
     {
-      while (systemState.CurrentState != SystemState.Running)
-      {
-        if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
-          return false;
-        await Task.Delay(100);
-      }
-      return true;
-    }
-
-    private async void InitAsync(object sender)
-    {
-      ISystemStateService systemState = ServiceRegistration.Get<ISystemStateService>();
-      var task = WaitForRunningState(systemState);
-      if (await Task.WhenAny(task, Task.Delay(10000)) != task || task.Result == false)
-      {
-        // Timeout
-        ServiceRegistration.Get<ILogger>().Info("SlimTvService: Timeout waiting for running system state.");
-        return;
-      }
+      ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialising");
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       if (database == null)
+			{
+			  ServiceRegistration.Get<ILogger>().Error("SlimTvService: Database not available.");
         return;
+			}
 
       using (var transaction = database.BeginTransaction())
       {
         // Prepare TV database if required.
         PrepareTvDatabase(transaction);
-        if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
-          return;
-
         PrepareConnection(transaction);
-        if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
-          return;
       }
 
       // Initialize integration into host system (MP2-Server)
       PrepareIntegrationProvider();
-      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
-        return;
 
       // Needs to be done after the IntegrationProvider is registered, so the TVCORE folder is defined.
       PrepareProgramData();
-      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
-        return;
 
       // Register required filters
       PrepareFilterRegistrations();
-      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
-        return;
 
       // Run the actual TV core thread(s)
       InitTvCore();
-      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+      if (_abortInit)
       {
         DeInit();
         return;
@@ -138,11 +128,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       // Prepare the MP2 integration
       PrepareMediaSources();
-      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
-      {
-        DeInit();
-        return;
-      }
+
+      ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialised");
     }
 
     /// <summary>
