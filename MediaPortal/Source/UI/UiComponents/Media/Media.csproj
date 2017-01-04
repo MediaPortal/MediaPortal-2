@@ -97,6 +97,7 @@
     <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\SeriesAction.cs" />
     <Compile Include="Actions\SwitchFilterAction.cs" />
+    <Compile Include="Actions\SwitchGroupingAction.cs" />
     <Compile Include="Actions\SwitchSortingAction.cs" />
     <Compile Include="Actions\RemovePlaylistsAction.cs" />
     <Compile Include="Actions\SwitchViewModeAction.cs" />
@@ -111,8 +112,25 @@
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
+    <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
+    <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByTvNetworkCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByCompanyCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByMusicLabelCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByComposerCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByAlbumCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByArtistCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByWriterCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByDirectorCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByActorCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByMovieCollectionCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterBySeasonEpisodeCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterBySeriesSeasonCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterBySeriesCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByPlayCountCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
+    <Compile Include="FilterCriteria\FilteredRelationshipMLFilterCriterion.cs" />
+    <Compile Include="FilterCriteria\RelationshipMLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
@@ -121,16 +139,30 @@
     <Compile Include="MediaItemActions\AbstractPlayCountAction.cs" />
     <Compile Include="MediaItemActions\SetWatched.cs" />
     <Compile Include="MediaItemActions\SetUnwatched.cs" />
+    <Compile Include="Models\AspectWrappers\AudioAlbumAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\CharacterAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\CompanyAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\EpisodeAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\GenreAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\ImageAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\ImporterAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MediaAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MovieAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\MovieCollectionAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\PersonAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\SeasonAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\SeriesAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\SubtitleAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\UserDataWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\VideoAudioStreamAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
+    <Compile Include="Models\MediaGroupingModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
@@ -147,18 +179,54 @@
     <Compile Include="Models\NavigationModel\SeriesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
+    <Compile Include="Models\Navigation\ArtistFilterItem.cs" />
+    <Compile Include="Models\Navigation\ComposerFilterItem.cs" />
+    <Compile Include="Models\Navigation\GenreFilterItem.cs" />
+    <Compile Include="Models\Navigation\VideoStreamItem.cs" />
+    <Compile Include="Models\Navigation\VideoAudioStreamItem.cs" />
+    <Compile Include="Models\Navigation\SubtitleItem.cs" />
+    <Compile Include="Models\Navigation\PlayableContainerMediaItem.cs" />
     <Compile Include="Models\Navigation\SeasonFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieItem.cs" />
+    <Compile Include="Models\Navigation\ActorFilterItem.cs" />
+    <Compile Include="Models\Navigation\DirectorFilterItem.cs" />
+    <Compile Include="Models\Navigation\CompanyFilterItem.cs" />
+    <Compile Include="Models\Navigation\TVNetworkFilterItem.cs" />
+    <Compile Include="Models\Navigation\WriterFilterItem.cs" />
+    <Compile Include="Models\Navigation\CharacterFilterItem.cs" />
     <Compile Include="Models\Navigation\SeriesFilterItem.cs" />
-    <Compile Include="Models\Navigation\SeriesItem.cs" />
+    <Compile Include="Models\Navigation\EpisodeItem.cs" />
     <Compile Include="Models\MediaItemsActionModel.cs" />
+    <Compile Include="Models\ScreenData\AbstractAlbumFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByAlbumLabelScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByAlbumArtistScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByComposerScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
+    <Compile Include="Models\ScreenData\MoviesSimpleSearchScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesEpisodeFilterByDirectorScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesEpisodeFilterByWriterScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesEpisodeFilterByActorScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByActorScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesEpisodeFilterByCharacterScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByCharacterScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByGenreScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByTvNetworkScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByCompanyScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByActorScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByCharacterScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByCharacterScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByDirectorScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByCompanyScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByGenreScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByGenreScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByPlayCountScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByWriterScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByWriterScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByDirectorScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByCollectionScreenData.cs" />
@@ -167,8 +235,12 @@
     <Compile Include="Models\ScreenData\SeriesShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterBySeasonScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByNameScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesSimpleSearchScreenData.cs" />
+    <Compile Include="Models\Sorting\AudioAlbumSortByFirstMusicLabel.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbumTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbum.cs" />
+    <Compile Include="Models\Sorting\AudioAlbumSortByFirstArtist.cs" />
+    <Compile Include="Models\Sorting\AudioSortByFirstComposer.cs" />
     <Compile Include="Models\Sorting\AudioSortByTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByFirstArtist.cs" />
     <Compile Include="Models\Sorting\BrowseDefaultSorting.cs" />
@@ -176,6 +248,18 @@
     <Compile Include="Models\Sorting\AbstractSortByFirstComparableAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableObjectAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableValueAttribute.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByDVDEpisode.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByFirstProductionStudio.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByFirstTVNetwork.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByEpisodeTitle.cs" />
+    <Compile Include="Models\Sorting\AudioSortByTitle.cs" />
+    <Compile Include="Models\Sorting\SortByAddedDate.cs" />
+    <Compile Include="Models\Sorting\SeriesSortBySeasonTitle.cs" />
+    <Compile Include="Models\Sorting\SortBySortTitle.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByFirstActor.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByFirstCharacter.cs" />
+    <Compile Include="Models\Sorting\SortByName.cs" />
+    <Compile Include="Models\Sorting\VideoSortByFirstCharacter.cs" />
     <Compile Include="Models\Sorting\VideoSortByFirstWriter.cs" />
     <Compile Include="Models\Sorting\SortByFirstAiredDate.cs" />
     <Compile Include="Models\Sorting\SeriesSortByEpisode.cs" />
@@ -217,7 +301,6 @@
     <Compile Include="Models\ScreenData\ImagesFilterByYearScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByYearScreenData.cs" />
-    <Compile Include="Models\ScreenData\VideosFilterByGenreScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByDecadeScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByGenreScreenData.cs" />
@@ -247,14 +330,19 @@
     <Compile Include="FilterCriteria\MLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
     <Compile Include="General\Utils.cs" />
+    <Compile Include="SecondaryFilter\IItemsFilter.cs" />
+    <Compile Include="SecondaryFilter\RemoteNumpadFilter.cs" />
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
     <Compile Include="Settings\Configuration\OpenPlayerStrategy.cs" />
     <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
+    <Compile Include="Settings\Configuration\ShowVirtual.cs" />
     <Compile Include="Settings\Configuration\SkipStepList.cs" />
     <Compile Include="Settings\Configuration\SkipStepTimeout.cs" />
+    <Compile Include="Settings\Configuration\WatchedPlayPercentage.cs" />
     <Compile Include="Settings\ViewSettings.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="General\MultimediaDirectory.cs" />
+    <Compile Include="Settings\ShowVirtualSetting.cs" />
     <Compile Include="Views\BrowseMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\AbstractMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\LocalMediaRootProxyViewSpecification.cs" />
@@ -282,7 +370,9 @@
     <Compile Include="Views\ViewSpecification.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="plugin.xml" />
     <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml" />
     <Content Include="Skin\default\screens\DialogChooseAVType.xaml" />
@@ -292,6 +382,7 @@
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
+    <Content Include="Skin\default\screens\MediaItemsFilterKeyBindings.inc" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\MediaItemsList.inc">
@@ -345,6 +436,7 @@
     <Content Include="Skin\default\themes\default\styles\MediaConsts.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />
     <Content Include="Skin\default\workflow\filter-actions.xml" />
+    <Content Include="Skin\default\workflow\grouping-actions.xml" />
     <Content Include="Skin\default\workflow\sorting-actions.xml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\viewmode-actions.xml" />
@@ -367,7 +459,9 @@
     <Content Include="Skin\default\screens\SeriesFilterBySeason.xaml" />
     <Content Include="Skin\default\screens\SeriesShowItems.xaml" />
     <Content Include="Skin\default\screens\VideoFilterByLanguage.xaml" />
-    <Content Include="Skin\default\screens\MoviesFilterByCollection.xaml" />
+    <Content Include="Skin\default\screens\MovieFilterByCollection.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\ImageFilterByCountry.xaml" />
     <Content Include="Skin\default\screens\ImageFilterByState.xaml" />
     <Content Include="Skin\default\screens\ImageFilterByCity.xaml" />
@@ -397,6 +491,104 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Skin\default\screens\VideoFilterByPlayCount.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByAlbumArtist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogSwitchGrouping.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\SeriesFilterByActor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByCharacter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByCompany.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByTvNetwork.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByAlbumLabel.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByComposer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByActor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByCharacter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByCompany.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByDirector.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesEpisodeFilterByDirector.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByWriter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesEpisodeFilterByActor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesEpisodeFilterByCharacter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesEpisodeFilterByWriter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\VideosFilterByCharacter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByGenre.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByGenre.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,8 +22,10 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Presentation.Screens;
 using SharpDX.Direct2D1;
 
 namespace MediaPortal.UI.SkinEngine.Settings
@@ -32,7 +34,8 @@ namespace MediaPortal.UI.SkinEngine.Settings
   {
     #region Consts
 
-    protected const bool DEFAULT_FULL_SCREEN = true;
+    protected const ScreenMode DEFAULT_SCREEN_MODE = ScreenMode.FullScreen;
+    protected const bool DEFAULT_SKIN_SOUNDS = true;
     protected const bool DEFAULT_CELL_PHONE_INPUT_STYLE = false;
     protected const bool DEFAULT_SCREEN_SAVER_ENABLED = true;
     protected const double DEFAULT_SCREEN_SAVER_TIMEOUT_MIN = 5;
@@ -53,8 +56,17 @@ namespace MediaPortal.UI.SkinEngine.Settings
     [Setting(SettingScope.User, DEFAULT_VIDEO_INTERPOLATION)]
     public InterpolationMode VideoInterpolationMode { get; set; }
 
-    [Setting(SettingScope.User, DEFAULT_FULL_SCREEN)]
-    public bool FullScreen { get; set; }
+    [Setting(SettingScope.User, DEFAULT_SCREEN_MODE)]
+    public ScreenMode ScreenMode { get; set; }
+
+    [Setting(SettingScope.User, null)]
+    public Point? WindowPosition {  get; set; }
+
+    [Setting(SettingScope.User, null)]
+    public Size? WindowSize { get; set; }
+
+    [Setting(SettingScope.User, DEFAULT_SKIN_SOUNDS)]
+    public bool SkinSounds { get; set; }
 
     [Setting(SettingScope.User, DEFAULT_CELL_PHONE_INPUT_STYLE)]
     public bool CellPhoneInputStyle { get; set; }

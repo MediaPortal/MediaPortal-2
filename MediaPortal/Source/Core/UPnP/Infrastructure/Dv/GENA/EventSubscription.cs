@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -132,7 +132,8 @@ namespace UPnP.Infrastructure.Dv.GENA
       {
         _disposed = true;
         foreach (AsyncRequestState state in new List<AsyncRequestState>(_pendingRequests))
-          state.Request.Abort();
+          if (state.Request != null)
+            state.Request.Abort();
       }
     }
 

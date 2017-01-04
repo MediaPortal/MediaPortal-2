@@ -20,6 +20,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">改变的MediaPortal2的外观和感觉</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">改变主题</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">改变当前皮肤图像</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">启用皮肤声音</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">设置是否配置皮肤声音</string>
   <string name="Settings.Players">播放器</string>
   <string name="Settings.Players.Rendering">渲染</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">默认缩放模式</string>

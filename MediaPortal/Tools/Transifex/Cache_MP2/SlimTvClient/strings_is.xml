@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Upphafstími</string>
   <string name="SlimTvClient.ProgramEndLabel">Lokatími</string>
   <string name="SlimTvClient.EpisodeLabel">Þáttur</string>
+  <string name="SlimTvClient.Progress">Framvinda</string>
   <string name="SlimTvClient.Guide">Dagskrá</string>
   <string name="SlimTvClient.NoProgram">Engar dagskrárupplýsingar</string>
   <string name="SlimTvClient.ChooseProgramAction">Veljið aðgerðir...</string>

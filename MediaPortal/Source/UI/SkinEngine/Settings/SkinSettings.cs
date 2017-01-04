@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,13 +31,13 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected string _skin;
     protected string _theme;
 
-    [Setting(SettingScope.User, "Titanium")]
+    [Setting(SettingScope.User, "BlueVision")]
     public string Skin
     {
       get { return _skin; }
       set { _skin = value; }
     }
-    [Setting(SettingScope.User, "anniversary")]
+    [Setting(SettingScope.User, "default")]
     public string Theme
     {
       get { return _theme; }

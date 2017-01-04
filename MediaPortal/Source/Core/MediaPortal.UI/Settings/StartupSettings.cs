@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UI.Settings
@@ -47,5 +46,12 @@ namespace MediaPortal.UI.Settings
       get { return _startupScreenNum; }
       set { _startupScreenNum = value; }
     }
+
+    /// <summary>
+    /// Gets or sets an alternative path to an image which will be used as splash screen. If not set, the default image is used.
+    /// The path needs to be relative to entry assembly.
+    /// </summary>
+    [Setting(SettingScope.User, null)]
+    public string AlternativeSplashScreen { get; set; }
   }
 }

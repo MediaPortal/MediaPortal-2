@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Başlangıç zamanı</string>
   <string name="SlimTvClient.ProgramEndLabel">Bitiş zamanı</string>
   <string name="SlimTvClient.EpisodeLabel">Bölüm</string>
+  <string name="SlimTvClient.Progress">İlerleme</string>
   <string name="SlimTvClient.Guide">TV Rehberi</string>
   <string name="SlimTvClient.NoProgram">Program bilgisi yok</string>
   <string name="SlimTvClient.ChooseProgramAction">Program eylemini seçin...</string>

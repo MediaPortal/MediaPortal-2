@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -47,6 +47,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _borderColorProperty;
     protected AbstractProperty _effectProperty;
     protected AbstractProperty _effectTimerProperty;
+    protected AbstractProperty _horizontalTextureAlignmentProperty;
+    protected AbstractProperty _verticalTextureAlignmentProperty;
 
     protected ImageContext _imageContext = new ImageContext();
     protected SizeF _frameSize;
@@ -74,16 +76,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _borderColorProperty = new SProperty(typeof(Color), ColorConverter.FromArgb(0, Color.Black));
       _effectProperty = new SProperty(typeof(string), null);
       _effectTimerProperty = new SProperty(typeof(double), 0.0);
+      _horizontalTextureAlignmentProperty = new SProperty(typeof(HorizontalTextureAlignmentEnum), HorizontalTextureAlignmentEnum.Center);
+      _verticalTextureAlignmentProperty = new SProperty(typeof(VerticalTextureAlignmentEnum), VerticalTextureAlignmentEnum.Center);
     }
 
     void Attach()
     {
       _effectProperty.Attach(OnEffectChanged);
+      _horizontalTextureAlignmentProperty.Attach(OnHorizontalTextureAlignmentChanged);
+      _verticalTextureAlignmentProperty.Attach(OnVerticalTextureAlignmentChanged);
     }
 
     void Detach()
     {
       _effectProperty.Detach(OnEffectChanged);
+      _horizontalTextureAlignmentProperty.Detach(OnHorizontalTextureAlignmentChanged);
+      _verticalTextureAlignmentProperty.Detach(OnVerticalTextureAlignmentChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -94,6 +102,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       BorderColor = tis.BorderColor;
       Effect = tis.Effect;
       EffectTimer = tis.EffectTimer;
+      HorizontalTextureAlignment = tis.HorizontalTextureAlignment;
+      VerticalTextureAlignment = tis.VerticalTextureAlignment;
 
       Attach();
       FreeData();
@@ -143,6 +153,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public AbstractProperty EffectTimerProperty
     {
       get { return _effectTimerProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the horizonatal alignment of the texture within the target rectangle.
+    /// </summary>
+    public HorizontalTextureAlignmentEnum HorizontalTextureAlignment
+    {
+      get { return (HorizontalTextureAlignmentEnum)_horizontalTextureAlignmentProperty.GetValue(); }
+      set { _horizontalTextureAlignmentProperty.SetValue(value); }
+    }
+
+    public AbstractProperty HorizontalTextureAlignmentProperty
+    {
+      get { return _horizontalTextureAlignmentProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the vertical alignment of the texture within the target rectangle.
+    /// </summary>
+    public VerticalTextureAlignmentEnum VerticalTextureAlignment
+    {
+      get { return (VerticalTextureAlignmentEnum)_verticalTextureAlignmentProperty.GetValue(); }
+      set { _verticalTextureAlignmentProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VerticalTextureAlignmentProperty
+    {
+      get { return _verticalTextureAlignmentProperty; }
     }
 
     #endregion
@@ -235,6 +273,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected virtual void OnEffectChanged(AbstractProperty prop, object oldValue)
     {
       _imageContext.ShaderEffect = Effect;
+    }
+
+    protected virtual void OnHorizontalTextureAlignmentChanged(AbstractProperty property, object oldValue)
+    {
+      _imageContext.HorizontalTextureAlignment = HorizontalTextureAlignment;
+    }
+
+    protected virtual void OnVerticalTextureAlignmentChanged(AbstractProperty property, object oldValue)
+    {
+      _imageContext.VerticalTextureAlignment = VerticalTextureAlignment;
     }
 
     protected virtual void FreeData()

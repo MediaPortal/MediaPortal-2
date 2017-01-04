@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">Povolit změnu obnovovací frekvence</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Je-li povoleno, dojde k pokusu změnit obnovovací frekvenci tak, aby byla identická s frekvencí videa.</string>
+  <string name="RefreshRateChanger.NoChangeForRate">Vyřadit obnovovací frekvence</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Seznam vyřazených obnovovacích frekvencí. Hodnoty zadejte jako celá čísla oddělená čárkami (např. 23,25,50).</string>
+</resources>

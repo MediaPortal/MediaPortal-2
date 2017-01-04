@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,6 +45,7 @@ namespace MediaPortal.UiComponents.Media.Settings
   public struct ScreenConfig
   {
     public string Sorting { get; set; }
+    public string Grouping { get; set; }
     public LayoutType LayoutType { get; set; }
     public LayoutSize LayoutSize { get; set; }
   }
@@ -74,5 +75,23 @@ namespace MediaPortal.UiComponents.Media.Settings
 
     [Setting(SettingScope.User)]
     public MediaDictionary<string, string> ScreenHierarchy { get; set; }
+
+    /// <summary>
+    /// Default setting for showing virtual series related media items.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool ShowVirtualSeriesMedia { get; set; }
+
+    /// <summary>
+    /// Default setting for showing virtual movie related media items.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool ShowVirtualMovieMedia { get; set; }
+
+    /// <summary>
+    /// Default setting for showing virtual audio related media items.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool ShowVirtualAudioMedia { get; set; }
   }
 }

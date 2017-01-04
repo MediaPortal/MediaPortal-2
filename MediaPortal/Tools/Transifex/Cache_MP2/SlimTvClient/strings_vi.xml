@@ -19,6 +19,8 @@
   <string name="SlimTvClient.DeleteSchedule">Xóa lịch</string>
   <string name="SlimTvClient.CreateSchedule">Ghi hình lịch xem</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Ghi hình với tên</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Ghi hình với tên</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">HIện không có nhà cung cấp TV (vẫn chưa)</string>
   <!--Settings-->

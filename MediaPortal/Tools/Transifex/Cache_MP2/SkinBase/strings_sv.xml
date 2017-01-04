@@ -21,7 +21,7 @@
   <string name="Keys.Copy">Kopiera</string>
   <string name="Keys.Paste">Klistra in</string>
   <string name="Home.Title">MediaPortal 2</string>
-  <string name="Home.HomeStateDisplayLabel">Hem</string>
+  <string name="Home.HomeStateDisplayLabel">Start</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
   <string name="Dialogs.WarningHeaderText">Varning</string>
   <string name="Dialogs.ErrorHeaderText">Fel</string>
@@ -101,6 +101,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Zoomläge</string>
   <string name="Players.ChoosePlayerEffect">Effekt</string>
+  <string name="Players.ChoosePlayerSubtitle">Undertext</string>
   <string name="Settings.Appearance">Utseende</string>
   <string name="Settings.Appearance.Skin">Skinn</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datumformat</string>
@@ -109,7 +110,7 @@
 </string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Tidsformat</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tidsformat som används. Använd format enligt .NET DateTimeFormatInfo-klassen.
-\"t\"=kort tidpunkt. \"T\" lång tidpunkt.</string>
+\"t\"=kort tidpunkt. \"T\"=lång tidpunkt.</string>
   <string name="Settings.General">Allmänt</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
@@ -123,10 +124,18 @@
   <string name="Settings.General.Connectivity.ServerListener.Help">Aktivera meddelanden, i frånkopplat läge, för när en MediaPortal 2-server blir tillgänglig på nätverket</string>
   <string name="Settings.General.Connectivity.ClientName">Klientnamn</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Sätt namn på denna MediaPortal 2-klient</string>
+  <string name="Settings.General.Connectivity.HttpServerPort">HTTP server port</string>
+  <string name="Settings.General.Connectivity.HttpServerPort.Help">Sätt HTTP Serverns port</string>
+  <string name="Settings.General.Connectivity.UseIPv4">Använd IPv4</string>
+  <string name="Settings.General.Connectivity.UseIPv4.Help">Bestäm om den här MediaPortal 2 klienten ska använda IPv4 för att koppla sig tll hemmaservern.</string>
+  <string name="Settings.General.Connectivity.UseIPv6">Använd IPv6</string>
+  <string name="Settings.General.Connectivity.UseIPv6.Help">Bestäm om den här MediaPortal 2 klienten ska använda IPv6 för att koppla sig tll hemmaservern.</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">IP-adress bindningar</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings.Help">Skapa en lista av IP-adresser som ska användas av den här MediaPortal 2 klienten för att koppla upp mot hemmaservern.</string>
   <string name="Settings.Regional">Regionalt</string>
   <string name="Settings.Regional.Language">Språk</string>
   <string name="Settings.Regional.Language.Main">Språk</string>
-  <string name="Settings.Regional.Language.Main.Help">Sätt huvudspråket som ska användas i applikationen</string>
+  <string name="Settings.Regional.Language.Main.Help">Sätt huvudspråket som ska användas i MediaPortal 2</string>
   <string name="Settings.Shares">Mediakällor</string>
   <!--Section name-->
   <string name="Settings.Shares.Configure">Konfigurera mediakällor</string>
@@ -173,7 +182,7 @@
   <string name="SharesConfig.ShareResourcePathInfo">Teknisk sökväg:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Mediakategorier:</string>
   <string name="SharesConfig.ReImportShare">Återimportera mediakällor</string>
-  <string name="SharesConfig.SetupDefaultShares">Bestäm förvalda källor</string>
+  <string name="SharesConfig.SetupDefaultShares">Bestäm förvalda mediakällor</string>
   <string name="SharesConfig.RemoveShares">Ta bort mediakällor</string>
   <string name="SharesConfig.EditShare">Redigera mediakällor</string>
   <string name="SharesConfig.ChooseSystem">Välj system</string>

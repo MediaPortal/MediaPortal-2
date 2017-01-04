@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,8 +45,15 @@ namespace MediaPortal.UI.Presentation.Workflow
     protected string _name;
     protected ICollection<Guid> _sourceStateIds;
     protected IResourceString _displayTitle;
+    protected IResourceString _helpText;
 
     #endregion
+
+    protected WorkflowAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, IResourceString helpText)
+      :this(actionId, name, sourceStateIds, displayTitle)
+    {
+      _helpText = helpText;
+    }
 
     protected WorkflowAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle)
     {
@@ -122,6 +129,14 @@ namespace MediaPortal.UI.Presentation.Workflow
     public virtual IResourceString DisplayTitle
     {
       get { return _displayTitle; }
+    }
+
+    /// <summary>
+    /// Returns the localized help string for this action. It can be used to give an explanation for the current action.
+    /// </summary>
+    public virtual IResourceString HelpText
+    {
+      get { return _helpText; }
     }
 
     /// <summary>

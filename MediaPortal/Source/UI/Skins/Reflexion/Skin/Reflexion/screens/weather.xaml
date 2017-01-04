@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Weather.Title]"/>
+
+    <!-- Weather model -->
+    <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+          DataContext="{Binding Source={StaticResource Model}}">
+        <Control x:Name="GlassOverlay"
+               Style="{ThemeResource GlassOverlayControl}"                
+               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Center">
+          <Control.Resources>
+            <ResourceWrapper x:Key="ControlWidth" Resource="1000"/>
+            <ResourceWrapper x:Key="ControlHeight" Resource="400"/>
+            <ControlTemplate x:Key="MakeGlass">
+              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{ThemeResource ButtonBackgroundFill}">
+                <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Image x:Name="BigIcon" Width="220" Height="220" Source="{Binding CurrentLocation.Condition.BigIconProperty}" Stretch="UniformToFill"/>
+                    <StackPanel x:Name="Temperatures" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding CurrentLocation}">
+                      <Label x:Name="Temperature" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                      Content="{Binding CurrentLocation.Condition.Temperature}"/>
+                    </StackPanel>
+                    <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                    Content="{Binding CurrentLocation.Name}"/>
+                  </StackPanel>
+                  <Grid x:Name="CurrentConditionDetail" Grid.Column="2" Grid.Row="0"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="30"/>
+                      <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Column="0" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Wind]"/>
+                    <Label Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Wind}"/>
+
+                    <Label Grid.Column="0" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Humidity]"/>
+                    <Label Grid.Column="2" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Humidity}"/>
+
+                    <Label Grid.Column="0" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Precipitation]"/>
+                    <Label Grid.Column="2" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Precipitation}"/>
+
+                    <Label Grid.Column="0" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Pressure]"/>
+                    <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Pressure}"/>
+
+                  </Grid>
+                </Grid>
+              </Grid>
+            </ControlTemplate>
+          </Control.Resources>
+        </Control>
+
+        <!-- Forecasts (dynamic count) -->
+        <ListView Margin="0,20,0,120" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ForecastContainerStyle}"
+              ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" />
+
+        <StackPanel HorizontalAlignment="Left">
+          <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding LastUpdateTime}" Color="{ThemeResource HintTextColor}" IsVisible="{Binding !IsUpdating}"/>
+          <Label FontSize="{ThemeResource SmallerFontSize}" x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
+              HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource HintTextColor}"/>
+        </StackPanel>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

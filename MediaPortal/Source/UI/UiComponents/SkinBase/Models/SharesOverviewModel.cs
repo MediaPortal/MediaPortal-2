@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -130,12 +130,27 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             break;
           case ContentDirectoryMessaging.MessageType.ShareImportStarted:
           case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
-            Guid shareId = (Guid) message.MessageData[ContentDirectoryMessaging.SHARE_ID];
-            IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-            IContentDirectory cd = scm.ContentDirectory;
-            if (cd == null)
-              break;
-            UpdateShareImportState_NoLock(shareId, messageType == ContentDirectoryMessaging.MessageType.ShareImportStarted);
+            {
+              Guid shareId = (Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID];
+              IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+              IContentDirectory cd = scm.ContentDirectory;
+              if (cd == null)
+                break;
+              UpdateShareImportState_NoLock(shareId, messageType == ContentDirectoryMessaging.MessageType.ShareImportStarted, null);
+            }
+            break;
+          case ContentDirectoryMessaging.MessageType.ShareImportProgress:
+            {
+              Guid shareId = (Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID];
+              int? progress = (int)message.MessageData[ContentDirectoryMessaging.PROGRESS];
+              if (progress < 0)
+                progress = null;
+              IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+              IContentDirectory cd = scm.ContentDirectory;
+              if (cd == null)
+                break;
+              UpdateShareImportState_NoLock(shareId, true, progress);
+            }
             break;
         }
       }
@@ -273,7 +288,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             shareItem.SetLabel(Consts.KEY_PATH, resourcePathName);
             string categories = StringUtils.Join(", ", share.MediaCategories);
             shareItem.SetLabel(Consts.KEY_MEDIA_CATEGORIES, categories);
-            UpdateShareImportState_NoLock(shareItem, importingShares.Contains(share.ShareId));
+            UpdateShareImportState_NoLock(shareItem, importingShares.Contains(share.ShareId), null);
             Share shareCopy = share;
             shareItem.Command = new MethodDelegateCommand(() => ReImportShare(shareCopy));
             shareItem.AdditionalProperties[Consts.KEY_REIMPORT_ENABLED] = isConnected;
@@ -290,7 +305,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    protected void UpdateShareImportState_NoLock(Guid shareId, bool isImporting)
+    protected void UpdateShareImportState_NoLock(Guid shareId, bool isImporting, int? progress)
     {
       ListItem itemToUpdate = null;
       lock (_syncObj)
@@ -309,12 +324,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
       if (itemToUpdate == null)
         return;
-      UpdateShareImportState_NoLock(itemToUpdate, isImporting);
+      UpdateShareImportState_NoLock(itemToUpdate, isImporting, progress);
     }
 
-    protected void UpdateShareImportState_NoLock(ListItem shareItem, bool isImporting)
+    protected void UpdateShareImportState_NoLock(ListItem shareItem, bool isImporting, int? progress)
     {
       shareItem.AdditionalProperties[Consts.KEY_IS_IMPORTING] = isImporting;
+      shareItem.AdditionalProperties[Consts.KEY_IMPORTING_PROGRESS] = progress;
       shareItem.FireChange();
     }
 

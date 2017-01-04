@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,9 +23,16 @@
 #endregion
 
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.PathManager;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -34,9 +41,23 @@ namespace Test.OnlineLibraries
   [TestClass]
   public class SeriesNameMatcher
   {
+    private void Init()
+    {
+      PathManager pathManager = new PathManager();
+      // Use only local folder for temporary config
+      string testDataLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+      pathManager.SetPath("<CONFIG>", testDataLocation);
+      ServiceRegistration.Set<IPathManager>(pathManager);
+      ServiceRegistration.Set<ILocalization>(new NoLocalization());
+      ServiceRegistration.Set<ILogger>(new NoLogger());
+      ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
+    }
+
     [TestMethod]
     public void SeriesMatchesAreCorrect()
     {
+      Init();
+
       List<string> shouldMatchPaths = new List<string>
                           {
                             @"\\SAGESERVER\TV Series\Almost Human\Almost.Human.S01E01.720p.HDTV.X264-DIMENSION.mkv",
@@ -76,10 +97,7 @@ namespace Test.OnlineLibraries
       foreach (string folderOrFileName in shouldMatchPaths)
       {
         SeriesInfo seriesInfo;
-        IResourceAccessor ra;
-        LocalFsResourceProvider.Instance.TryCreateResourceAccessor(folderOrFileName, out ra);
-        var lfsra = ra as ILocalFsResourceAccessor;
-        bool match = matcher.MatchSeries(lfsra, out seriesInfo);
+        bool match = matcher.MatchSeries(folderOrFileName, out seriesInfo);
         Assert.IsTrue(match, string.Format("Failed to match path '{0}'", folderOrFileName));
       }
     }
@@ -87,6 +105,8 @@ namespace Test.OnlineLibraries
     [TestMethod]
     public void SeriesFalseMatches()
     {
+      Init();
+
       List<string> shouldNotMatchPaths = new List<string>
                           {
                             @"\\Fool's Gold (2008).mkv",
@@ -101,10 +121,7 @@ namespace Test.OnlineLibraries
       foreach (string folderOrFileName in shouldNotMatchPaths)
       {
         SeriesInfo seriesInfo;
-        IResourceAccessor ra;
-        LocalFsResourceProvider.Instance.TryCreateResourceAccessor(folderOrFileName, out ra);
-        var lfsra = ra as ILocalFsResourceAccessor;
-        bool match = matcher.MatchSeries(lfsra, out seriesInfo);
+        bool match = matcher.MatchSeries(folderOrFileName, out seriesInfo);
         Assert.IsFalse(match, string.Format("Wrong match for '{0}' should not be matched!", folderOrFileName));
       }
     }

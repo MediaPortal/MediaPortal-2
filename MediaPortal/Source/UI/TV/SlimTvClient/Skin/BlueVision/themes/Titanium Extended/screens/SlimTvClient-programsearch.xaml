@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_homemenu.xaml"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <!--ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.ProgramSearch]"/-->
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvProgramSearchModel" Id="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,-108,0,-30"
+              DataContext="{Binding Source={StaticResource SlimTvProgramSearchModel}}">
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="620"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Image Stretch="Fill" Source="panel_tv_guide_large.png" Grid.Row="0" Grid.RowSpan="3"
+               Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,0,-43,-60" ></Image>
+        
+        <Label Grid.Row="0" Content="[SlimTvClient.ProgramSearch]" Color="Black" Wrap="True" Margin="20,10,10,10"/>
+        <Label Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="0" Margin="20,0,20,0"
+               Color="Black" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        
+        <TextBox Grid.Row="1" Margin="20,30,20,10" Text="{Binding Path=ProgramSearchText,Mode=TwoWay}" PreferredTextLength="10" SetFocusPrio="DefaultHigh"/>
+
+        <ListView Grid.Column="1" Grid.Row="1" Grid.RowSpan="2"
+              Margin="10,30,-35,-5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource SearchProgramListViewStyle}"
+              ItemsSource="{Binding Path=ProgramsList}"
+              SelectionChanged="{CommandStencil UpdateProgram}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <Grid Grid.Column="0" Grid.Row="2" Margin="20,10,20,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{ThemeResource ProgramInfoHeaderWidth}"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="0" Grid.Column="0"
+                 Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-5,0,0">
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                                        fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+            </Image.Source>
+          </Image>
+
+          <Label x:Name="ChannelLabel" Grid.Row="1" Grid.Column="0" Content="[SlimTvClient.ChannelLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+          <Label x:Name="Channel" Grid.Row="1" Grid.Column="1"  Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
+
+          <Label x:Name="ProgramLabel" Grid.Row="2" Grid.Column="0" Content="[SlimTvClient.ProgramLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+          <Label x:Name="Program" Grid.Row="2" Grid.Column="1"  Scroll="Auto" Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}"/>
+
+          <Label x:Name="ProgramStartLabel" Grid.Row="3" Grid.Column="0" Content="[SlimTvClient.ProgramStartLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+          <Label x:Name="ProgramStart" Grid.Row="3" Grid.Column="1" Scroll="Auto"
+              Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+              Color="{ThemeResource TextColor}"/>
+
+          <Label x:Name="ProgramEndLabel" Grid.Row="4" Grid.Column="0" Content="[SlimTvClient.ProgramEndLabel]" Color="{ThemeResource EmphasisTextColor}" />
+          <Label x:Name="ProgramEnd" Grid.Row="4" Grid.Column="1" Scroll="Auto"
+              Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+              Color="{ThemeResource TextColor}"/>
+
+          <Label x:Name="GenreLabel" Grid.Row="5" Grid.Column="0" Content="[SlimTvClient.GenreLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+          <Label x:Name="Genre" Grid.Row="5" Grid.Column="1"  Content="{Binding Path=CurrentProgram.Genre}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+          <!-- TODO: add all related episode information -->
+          <Label x:Name="EpisodeLabel" Grid.Row="6" Grid.Column="0" Content="[SlimTvClient.EpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+          <Label x:Name="SeriesLabel" Grid.Column="6" Grid.Row="1" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Scroll="Auto"
+             IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}">
+            <Label.Content>
+              <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+            </Label.Content>
+          </Label>
+
+          <Label x:Name="DescriptionLabel" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="[SlimTvClient.DescriptionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+          <Label x:Name="Description" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Wrap="True" Scroll="Auto" Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

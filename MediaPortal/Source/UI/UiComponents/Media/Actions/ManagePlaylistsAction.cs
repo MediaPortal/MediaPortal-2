@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.Workflow;
@@ -32,6 +33,10 @@ namespace MediaPortal.UiComponents.Media.Actions
 {
   public class ManagePlaylistsAction : VisibilityDependsOnServerConnectStateAction
   {
+    protected bool _insideMedia;
+    protected static Guid WF_HOME_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
+
+
     #region Consts
 
     public const string MANAGE_PLAYLISTS_ACTION_CONTRIBUTOR_MODEL_ID_STR = "2C3A747D-7FD7-408b-8843-31842A2EB6F3";
@@ -58,6 +63,21 @@ namespace MediaPortal.UiComponents.Media.Actions
             break;
         }
       }
+    }
+
+    protected override void Update()
+    {
+      base.Update();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      // Playlists should appear only inside home and all derived media browsing models
+      _insideMedia = workflowManager.CurrentNavigationContext.WorkflowState.StateId == WF_HOME_ID ||
+        workflowManager.IsAnyStateContainedInNavigationStack(Consts.WF_STATE_IDS_MEDIA_ROOTS) && 
+        MediaNavigationModel.GetNavigationData(workflowManager.CurrentNavigationContext, false) != null;
+    }
+
+    public override bool IsActionVisible(NavigationContext context)
+    {
+      return _insideMedia && base.IsActionVisible(context);
     }
 
     /// <summary>

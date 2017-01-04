@@ -5,11 +5,11 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Konfigurerer drevbogstavet til fjerntildeling af ressourcer på serveren.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Netværks legitimationsoplysninger</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Konfigurerer brugernavn og adgangskode for at få adgang til netværks ressourcer fra serveren.</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Brug legitimationsoplysninger fra interaktiv session på serveren.</string>
   <string name="Settings.ServerSettings.UseCredentials">Brug brugernavn og adgangskode for at tilgå netværket</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Brugernavn og adgangskode</string>
   <string name="Settings.ServerSettings.Username">Brugernavn:</string>
   <string name="Settings.ServerSettings.Password">Adgangskode:</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Media kilde importer konfiguration</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Konfigurer automatisk opdatering af delinger</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Aktivér automatisk opdatering</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Kør på tidspunkt af dagen (24 timers ur)</string>

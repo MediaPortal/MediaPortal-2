@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -85,7 +86,9 @@ namespace MediaPortal.Common.MediaManagement
   /// If changed, this has to be taken into consideration.
   /// </para>
   /// </remarks>
-  public class MediaItemAspectMetadata
+  [XmlInclude(typeof(SingleMediaItemAspectMetadata))]
+  [XmlInclude(typeof(MultipleMediaItemAspectMetadata))]
+  public abstract class MediaItemAspectMetadata
   {
     #region Constants
 
@@ -125,7 +128,9 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// Stores the metadata for one attribute in a media item aspect.
     /// </summary>
-    public class AttributeSpecification
+    [XmlInclude(typeof(SingleAttributeSpecification))]
+    [XmlInclude(typeof(MultipleAttributeSpecification))]
+    public abstract class AttributeSpecification
     {
       #region Protected fields
 
@@ -296,11 +301,56 @@ namespace MediaPortal.Common.MediaManagement
       #endregion
     }
 
+    public class SingleAttributeSpecification : AttributeSpecification
+    {
+      public SingleAttributeSpecification(string name, Type type, Cardinality cardinality, bool indexed) : base(name, type, cardinality, indexed)
+      {
+      }
+
+      /// <summary>
+      /// Gets or sets the media item aspect metadata instance, this attribute type belongs to.
+      /// </summary>
+      [XmlIgnore]
+      new public SingleMediaItemAspectMetadata ParentMIAM
+      {
+        get { return (SingleMediaItemAspectMetadata)_parentMIAM; }
+        internal set { _parentMIAM = value; }
+      }
+
+      #region Additional members for the XML serialization
+      internal SingleAttributeSpecification() { }
+      #endregion
+    }
+
+    public class MultipleAttributeSpecification : AttributeSpecification
+    {
+      public MultipleAttributeSpecification(string name, Type type, Cardinality cardinality, bool indexed) : base(name, type, cardinality, indexed)
+      {
+      }
+
+      /// <summary>
+      /// Gets or sets the media item aspect metadata instance, this attribute type belongs to.
+      /// </summary>
+      [XmlIgnore]
+      new public MultipleMediaItemAspectMetadata ParentMIAM
+      {
+        get { return (MultipleMediaItemAspectMetadata)_parentMIAM; }
+        internal set { _parentMIAM = value; }
+      }
+
+      #region Additional members for the XML serialization
+      internal MultipleAttributeSpecification() { }
+      #endregion
+    }
+
     #region Protected fields
 
     protected string _aspectName;
     protected Guid _aspectId;
+    protected IList<String> _refAttributeNames = new List<String>();
+    protected Guid _refAspectId = Guid.Empty;
     protected bool _isSystemAspect;
+    protected bool _isTransientAspect;
     protected IDictionary<string, AttributeSpecification> _attributeSpecifications =
         new Dictionary<string, AttributeSpecification>();
 
@@ -320,11 +370,12 @@ namespace MediaPortal.Common.MediaManagement
     /// a localized string.</param>
     /// <param name="attributeSpecifications">Enumeration of specifications for the attribute of the new
     /// aspect type</param>
-    public MediaItemAspectMetadata(Guid aspectId, string aspectName,
-        IEnumerable<AttributeSpecification> attributeSpecifications)
+    protected MediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<AttributeSpecification> attributeSpecifications, bool isTransient)
     {
       _aspectId = aspectId;
       _aspectName = aspectName;
+      _isTransientAspect = isTransient;
       foreach (AttributeSpecification spec in attributeSpecifications)
         _attributeSpecifications[spec.AttributeName] = spec;
       CorrectParentsInAttributeTypes();
@@ -367,6 +418,16 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Gets the information if this aspect is a transient aspect. Transient aspects are not persisted to 
+    /// the database and are only used for passing data in a consistent manner.
+    /// </summary>
+    [XmlIgnore]
+    public bool IsTransientAspect
+    {
+      get { return _isTransientAspect; }
+    }
+
+    /// <summary>
     /// Returns a read-only mapping of names to attribute specifications for all
     /// available attributes of this media item aspect.
     /// </summary>
@@ -374,6 +435,29 @@ namespace MediaPortal.Common.MediaManagement
     public IDictionary<string, AttributeSpecification> AttributeSpecifications
     {
       get { return _attributeSpecifications; }
+    }
+
+    /// <summary>
+    /// Returns a read-only mapping of names to attribute specifications for all
+    /// referenced attributes of this media item aspect. Must be in the same order as 
+    /// the unique attributes in the referencing aspect (if any).
+    /// </summary>
+    [XmlIgnore]
+    public IDictionary<string, AttributeSpecification> ReferencedAttributeSpecifications
+    {
+      get
+      {
+        return _attributeSpecifications.Where(x => _refAttributeNames.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+      }
+    }
+
+    /// <summary>
+    /// Returns the globally unique ID of the referencing aspect (if any).
+    /// </summary>
+    [XmlIgnore]
+    public Guid? ReferencingAspectId
+    {
+      get { return _refAspectId == Guid.Empty ? (Guid?)null : _refAspectId; }
     }
 
     /// <summary>
@@ -387,11 +471,29 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="cardinality">Cardinality of the new attribute.</param>
     /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
     /// This should only be done if the attribute will often occur in filter criteria.</param>
-    public static AttributeSpecification CreateStringAttributeSpecification(string attributeName,
+    public static SingleAttributeSpecification CreateSingleStringAttributeSpecification(string attributeName,
         uint maxNumChars, Cardinality cardinality, bool indexed)
     {
-      AttributeSpecification result = new AttributeSpecification(attributeName, typeof(string), cardinality, indexed)
+      SingleAttributeSpecification result = new SingleAttributeSpecification(attributeName, typeof(string), cardinality, indexed)
         {MaxNumChars = maxNumChars};
+      return result;
+    }
+
+    /// <summary>
+    /// Creates a specification for a new string attribute which can be used in a new
+    /// <see cref="MediaItemAspectMetadata"/> instance.
+    /// </summary>
+    /// <param name="attributeName">Name of the string attribute to be created.
+    /// TODO: Describe constraints on the name value. See also other CreateXXXAttributeSpecification methods.</param>
+    /// <param name="maxNumChars">Maximum number of characters to be stored in the attribute to
+    /// be created.</param>
+    /// <param name="cardinality">Cardinality of the new attribute.</param>
+    /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
+    /// This should only be done if the attribute will often occur in filter criteria.</param>
+    public static MultipleAttributeSpecification CreateMultipleStringAttributeSpecification(string attributeName,
+        uint maxNumChars, Cardinality cardinality, bool indexed)
+    {
+      MultipleAttributeSpecification result = new MultipleAttributeSpecification(attributeName, typeof(string), cardinality, indexed) { MaxNumChars = maxNumChars };
       return result;
     }
 
@@ -406,13 +508,33 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="cardinality">Cardinality of the new attribute.</param>
     /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
     /// This should only be done if the attribute will often occur in filter criteria.</param>
-    public static AttributeSpecification CreateAttributeSpecification(string attributeName,
+    public static SingleAttributeSpecification CreateSingleAttributeSpecification(string attributeName,
         Type attributeType, Cardinality cardinality, bool indexed)
     {
       if (!SUPPORTED_BASIC_TYPES.Contains(attributeType))
         throw new ArgumentException(string.Format("Attribute type {0} is not supported for media item aspect attributes",
             attributeType.Name));
-      return new AttributeSpecification(attributeName, attributeType, cardinality, indexed);
+      return new SingleAttributeSpecification(attributeName, attributeType, cardinality, indexed);
+    }
+
+    /// <summary>
+    /// Creates a specification for a new attribute which can be used in a new
+    /// <see cref="MediaItemAspectMetadata"/> instance.
+    /// </summary>
+    /// <param name="attributeName">Name of the string attribute to be created.
+    /// TODO: Describe constraints on the name value. See also other CreateXXXAttributeSpecification methods.</param>
+    /// <param name="attributeType">Type of the attribute to be stored in the attribute to be created.
+    /// For a list of supported attribute types, see <see cref="SUPPORTED_BASIC_TYPES"/>.</param>
+    /// <param name="cardinality">Cardinality of the new attribute.</param>
+    /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
+    /// This should only be done if the attribute will often occur in filter criteria.</param>
+    public static MultipleAttributeSpecification CreateMultipleAttributeSpecification(string attributeName,
+        Type attributeType, Cardinality cardinality, bool indexed)
+    {
+      if (!SUPPORTED_BASIC_TYPES.Contains(attributeType))
+        throw new ArgumentException(string.Format("Attribute type {0} is not supported for media item aspect attributes",
+            attributeType.Name));
+      return new MultipleAttributeSpecification(attributeName, attributeType, cardinality, indexed);
     }
 
     /// <summary>
@@ -511,6 +633,16 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
+    [XmlAttribute("IsTransientAspect")]
+    public bool XML_IsTransientAspect
+    {
+      get { return _isTransientAspect; }
+      set { _isTransientAspect = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
     [XmlElement("Name")]
     public string XML_Name
     {
@@ -542,6 +674,199 @@ namespace MediaPortal.Common.MediaManagement
       }
     }
 
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("RefId")]
+    public string XML_RefAspectId
+    {
+      get { return _refAspectId.ToString(); }
+      set { _refAspectId = new Guid(value); }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlArray("RefAttributes")]
+    [XmlArrayItem("RefAttribute")]
+    // We use an array here because when using a List, stupid XML serializer only uses the property getter and fills the
+    // List with its deserialized entries. When using an array, the property setter is invoked.
+    public String[] XML_RefAttributes
+    {
+      get
+      {
+        return _refAttributeNames.ToArray();
+      }
+      set
+      {
+        _refAttributeNames.Clear();
+        foreach (String refAttributeName in value)
+        {
+          _refAttributeNames.Add(refAttributeName);
+        }
+      }
+    }
+
+    #endregion
+  }
+
+  public class SingleMediaItemAspectMetadata : MediaItemAspectMetadata
+  {
+    public SingleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<SingleAttributeSpecification> attributeSpecifications) 
+      : this(aspectId, aspectName, attributeSpecifications, false)
+    {
+    }
+
+    public SingleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<SingleAttributeSpecification> attributeSpecifications, bool isTransient) 
+      : this(aspectId, aspectName, attributeSpecifications, Guid.Empty, null, isTransient)
+    {
+    }
+
+    public SingleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<SingleAttributeSpecification> attributeSpecifications,
+        Guid referencedAspectId,
+        IEnumerable<MultipleAttributeSpecification> referencedAttributeSpecifications) 
+      : this(aspectId, aspectName, attributeSpecifications, referencedAspectId, referencedAttributeSpecifications, false)
+    {
+    }
+
+    public SingleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<SingleAttributeSpecification> attributeSpecifications,
+        Guid referencedAspectId,
+        IEnumerable<MultipleAttributeSpecification> referencedAttributeSpecifications, bool isTransient) 
+      : base(aspectId, aspectName, attributeSpecifications, isTransient)
+    {
+      _refAspectId = referencedAspectId;
+      if (referencedAttributeSpecifications != null)
+      {
+        foreach (MultipleAttributeSpecification refAttributeSpecification in referencedAttributeSpecifications)
+        {
+          _refAttributeNames.Add(refAttributeSpecification.AttributeName);
+        }
+      }
+    }
+
+    #region Additional members for the XML serialization
+
+    internal SingleMediaItemAspectMetadata() { }
+
+    new protected static XmlSerializer GetOrCreateXMLSerializer()
+    {
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(SingleMediaItemAspectMetadata)));
+    }
+    #endregion
+  }
+
+  public class MultipleMediaItemAspectMetadata : MediaItemAspectMetadata
+  {
+    protected IList<String> _uniqueAttributeNames = new List<String>();
+
+    public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+      IEnumerable<MultipleAttributeSpecification> attributeSpecifications)
+      : this(aspectId, aspectName, attributeSpecifications, null, false)
+    {
+    }
+
+    public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+      IEnumerable<MultipleAttributeSpecification> attributeSpecifications, bool isTransient)
+      : this(aspectId, aspectName, attributeSpecifications, null, isTransient)
+    {
+    }
+
+    public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
+        IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications)
+      : this(aspectId, aspectName, attributeSpecifications, uniqueAttributeSpecifications, false)
+    {
+    }
+
+    public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
+        IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications, bool isTransient)
+      : this(aspectId, aspectName, attributeSpecifications, uniqueAttributeSpecifications, Guid.Empty, null, isTransient)
+    {
+    }
+
+    public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+    IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
+    IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications,
+    Guid referencedAspectId,
+    IEnumerable<MultipleAttributeSpecification> referencedAttributeSpecifications)
+      : this(aspectId, aspectName, attributeSpecifications, uniqueAttributeSpecifications, referencedAspectId, referencedAttributeSpecifications, false)
+    {
+    }
+
+    public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
+        IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications,
+        Guid referencedAspectId,
+        IEnumerable<MultipleAttributeSpecification> referencedAttributeSpecifications, bool isTransient)
+      : base(aspectId, aspectName, attributeSpecifications, isTransient)
+    {
+      if (uniqueAttributeSpecifications != null)
+      {
+        foreach (MultipleAttributeSpecification uniqueAttributeSpecification in uniqueAttributeSpecifications)
+        {
+          _uniqueAttributeNames.Add(uniqueAttributeSpecification.AttributeName);
+        }
+      }
+      _refAspectId = referencedAspectId;
+      if (referencedAttributeSpecifications != null)
+      {
+        foreach (MultipleAttributeSpecification refAttributeSpecification in referencedAttributeSpecifications)
+        {
+          _refAttributeNames.Add(refAttributeSpecification.AttributeName);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Returns a read-only mapping of names to attribute specifications for all
+    /// unique attributes of this media item aspect. Note that all attributes in the
+    /// aspect cannot be unique as this will cause errors in update operations.
+    /// </summary>
+    [XmlIgnore]
+    public IDictionary<string, AttributeSpecification> UniqueAttributeSpecifications
+    {
+      get
+      {
+        return _attributeSpecifications.Where(x => _uniqueAttributeNames.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+      }
+    }
+
+    #region Additional members for the XML serialization
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlArray("UniqueAttributes")]
+    [XmlArrayItem("UniqueAttribute")]
+    // We use an array here because when using a List, stupid XML serializer only uses the property getter and fills the
+    // List with its deserialized entries. When using an array, the property setter is invoked.
+    public String[] XML_UniqueAttributes
+    {
+      get
+      {
+        return _uniqueAttributeNames.ToArray();
+      }
+      set
+      {
+        _uniqueAttributeNames.Clear();
+        foreach(String uniqueAttributeName in value)
+        {
+          _uniqueAttributeNames.Add(uniqueAttributeName);
+        }
+      }
+    }
+
+    internal MultipleMediaItemAspectMetadata() { }
+
+    new protected static XmlSerializer GetOrCreateXMLSerializer()
+    {
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(MultipleMediaItemAspectMetadata)));
+    }
     #endregion
   }
 }

@@ -17,6 +17,7 @@
 #include <mferror.h>
 #include <mfapi.h>
 #include <math.h>
+#include <streams.h>  // CAutolock
 
 #include "EVRCustomPresenter.h"
 
@@ -315,6 +316,7 @@ bool Scheduler::ProcessSample(LONG *plNextSleep)
   MFTIME   hnsSystemTime = 0;
 
   BOOL bPresentNow = TRUE;
+  BOOL bIsLate = FALSE;
   LONG lNextSleep = 0;
 
   IMFSample *pSample;
@@ -338,6 +340,10 @@ bool Scheduler::ProcessSample(LONG *plNextSleep)
       // Calculate the time until the sample's presentation time. 
       // A negative value means the sample is late.
       LONGLONG hnsDelta = hnsPresentationTime - hnsTimeNow;
+
+      // Usually we use 1/4th of frame time for scheduling, except for the case where GUI rendering takes already more than this value.
+      LONGLONG hnsCompareThreshold = max(m_PerFrame_1_4th, m_averageFrameRenderDuration);
+
       if (m_fRate < 0)
       {
         // For reverse playback, the clock runs backward. Therefore the delta is reversed.
@@ -347,12 +353,18 @@ bool Scheduler::ProcessSample(LONG *plNextSleep)
       if (hnsDelta < 0)
       {
         // This sample is late.
+        bIsLate = TRUE;
+      }
+      // Check if the frame is either about 1/4th of per frame time ahead, or the last averaged render time
+      else if (hnsDelta < hnsCompareThreshold)
+      {
+        // Good time to present
         bPresentNow = TRUE;
       }
-      else if (hnsDelta > m_PerFrame_1_4th)
+      else if (hnsDelta > hnsCompareThreshold)
       {
         // This sample is still too early. Go to sleep.
-        lNextSleep = MFTimeToMsec(hnsDelta - m_PerFrame_1_4th);
+        lNextSleep = MFTimeToMsec(hnsDelta - hnsCompareThreshold);
 
         // Adjust the sleep time for the clock rate. (The presentation clock runs
         // at m_fRate, but sleeping uses the system clock.)
@@ -366,9 +378,16 @@ bool Scheduler::ProcessSample(LONG *plNextSleep)
 
   if (bPresentNow)
   {
+    LONGLONG startTime = GetCurrentTimestamp();
+
     hr = m_pCB->PresentSample(pSample, hnsPresentationTime);
+
+    LONGLONG delta = GetCurrentTimestamp() - startTime;
+
+    // Calculate exponential moving average
+    m_averageFrameRenderDuration = (m_alpha * delta) + (1.0 - m_alpha) * m_averageFrameRenderDuration;
   }
-  else
+  else if (!bIsLate)
   {
     // The sample is not ready yet. Return it to the queue.
     hr = m_ScheduledSamples.PutBack(pSample);
@@ -379,7 +398,6 @@ bool Scheduler::ProcessSample(LONG *plNextSleep)
   SAFE_RELEASE(pSample);
   return true;
 }
-
 
 // ThreadProc for the scheduler thread.
 DWORD WINAPI Scheduler::SchedulerThreadProc(LPVOID lpParameter)
@@ -458,3 +476,158 @@ DWORD Scheduler::SchedulerThreadProcPrivate()
 
   return (SUCCEEDED(hr) ? 0 : 1);
 }
+
+
+#define ABS64(num) (num >=0 ? num : -num)
+#define LowDW(num) ((unsigned __int64)(unsigned long)(num & 0xFFFFFFFFUL))
+#define HighDW(num) ((unsigned __int64)(num >> 32))
+
+#pragma warning(disable: 4723)
+__int64 _stdcall Scheduler::cMulDiv64(__int64 operant, __int64 multiplier, __int64 divider)
+{
+  // Declare 128bit storage
+  union {
+    unsigned long DW[4];
+    struct {
+      unsigned __int64 LowQW;
+      unsigned __int64 HighQW;
+    };
+  } var128, quotient;
+  // Change semantics for intermediate results for Full Div by renaming the vars
+#define REMAINDER quotient
+#define QUOTIENT var128
+
+  bool negative = ((operant ^ multiplier ^ divider) & 0x8000000000000000LL) != 0;
+
+  // Take absolute values because algorithm is for unsigned only
+  operant = ABS64(operant);
+  multiplier = ABS64(multiplier);
+  divider = ABS64(divider);
+
+  // integer division by zero needs to be handled in the calling method
+  if (divider == 0)
+  {
+    return 1 / divider;
+#pragma warning(default: 4723)
+  }
+
+  // Multiply
+  if (multiplier == 0)
+  {
+    return 0;
+  }
+
+  var128.HighQW = 0;
+
+  if (multiplier == 1)
+  {
+    var128.LowQW = operant;
+  }
+  else if (((multiplier | operant) & 0xFFFFFFFF00000000LL) == 0)
+  {
+    // 32*32 multiply
+    var128.LowQW = operant * multiplier;
+  }
+  else
+  {
+    // Full multiply: var128 = operant * multiplier
+    var128.LowQW = LowDW(operant) * LowDW(multiplier);
+    unsigned __int64 tmp = var128.DW[1] + LowDW(operant) * HighDW(multiplier);
+    unsigned __int64 tmp2 = tmp + HighDW(operant) * LowDW(multiplier);
+    if (tmp2 < tmp)
+    {
+      var128.DW[3]++;
+    }
+    var128.DW[1] = LowDW(tmp2);
+    var128.DW[2] = HighDW(tmp2);
+    var128.HighQW += HighDW(operant) * HighDW(multiplier);
+  }
+
+  // Divide
+  if (HighDW(divider) == 0)
+  {
+    if (divider != 1)
+    {
+      // 32 bit divisor, do 128:32
+      quotient.DW[3] = (unsigned long)(var128.DW[3] / divider);
+      unsigned __int64 tmp = ((var128.DW[3] % divider) << 32) | var128.DW[2];
+      quotient.DW[2] = (unsigned long)(tmp / divider);
+      tmp = ((tmp % divider) << 32) | var128.DW[1];
+      quotient.DW[1] = (unsigned long)(tmp / divider);
+      tmp = ((tmp % divider) << 32) | var128.DW[0];
+      quotient.DW[0] = (unsigned long)(tmp / divider);
+      var128 = quotient;
+    }
+  }
+  else
+  {
+    // 64 bit divisor, do full division (128:64)
+    int c = 128;
+    quotient.LowQW = 0;
+    quotient.HighQW = 0;
+    do
+    {
+      REMAINDER.HighQW = (REMAINDER.HighQW << 1) | (REMAINDER.DW[1] >> 31);
+      REMAINDER.LowQW = (REMAINDER.LowQW << 1) | (QUOTIENT.DW[3] >> 31);
+      QUOTIENT.HighQW = (QUOTIENT.HighQW << 1) | (QUOTIENT.DW[1] >> 31);
+      QUOTIENT.LowQW = (QUOTIENT.LowQW << 1);
+      if (REMAINDER.HighQW > 0 || REMAINDER.LowQW >= (unsigned __int64)divider)
+      {
+        if (REMAINDER.LowQW < (unsigned __int64)divider)
+        {
+          REMAINDER.LowQW -= divider;
+          REMAINDER.HighQW--;
+        }
+        else
+        {
+          REMAINDER.LowQW -= divider;
+        }
+        if (++QUOTIENT.LowQW == 0)
+        {
+          QUOTIENT.HighQW++;
+        }
+      }
+    } while (--c > 0);
+  }
+
+  // Apply Sign
+  if (negative)
+  {
+    return -(__int64)var128.LowQW;
+  }
+  else
+  {
+    return (__int64)var128.LowQW;
+  }
+}
+
+
+LONGLONG Scheduler::GetCurrentTimestamp()
+{
+  LONGLONG result;
+  if (!g_bTimerInitializer)
+  {
+    CAutoLock lock(&lock);
+    DWORD_PTR oldmask = SetThreadAffinityMask(GetCurrentThread(), 1);
+    g_bQPCAvail = QueryPerformanceFrequency((LARGE_INTEGER*)&g_lPerfFrequency);
+    SetThreadAffinityMask(GetCurrentThread(), oldmask);
+    g_bTimerInitializer = true;
+    if (g_lPerfFrequency.QuadPart == 0)
+    {
+      // Bug in HW? Frequency cannot be zero
+      g_bQPCAvail = false;
+    }
+  }
+  if (g_bQPCAvail)
+  {
+    ULARGE_INTEGER tics;
+    QueryPerformanceCounter((LARGE_INTEGER*)&tics);
+    result = cMulDiv64(tics.QuadPart, 10000000, g_lPerfFrequency.QuadPart); // to keep accuracy
+  }
+  else
+  {
+    result = timeGetTime() * 10000; // ms to 100ns units
+  }
+  return result;
+}
+

@@ -20,6 +20,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Spremeni videz in delovanje MediaPortala 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Spremeni temo</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Spremeni videz trenutnega izgleda</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Omogoči zvoke izgleda</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">Nastavi, ali naj se zvoki izgleda predvajajo, ali ne</string>
   <string name="Settings.Players">Predvajalniki</string>
   <string name="Settings.Players.Rendering">Risanje</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Privzeti način povečave</string>

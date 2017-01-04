@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure.Dv;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
@@ -32,22 +33,33 @@ namespace MediaPortal.Backend.Services.ClientCommunication
   public class UPnPBackendServer : UPnPServer
   {
     public const int SSDP_ADVERTISMENT_INTERVAL = 180;
+    protected readonly UPnPSystemResumeHelper _systemResumeHelper;
 
     public UPnPBackendServer(string backendServerSystemId)
     {
       AddRootDevice(new MP2BackendServerDevice(backendServerSystemId));
       // TODO: add UPnP standard MediaServer device: it's not implemented yet
       //AddRootDevice(new UPnPMediaServerDevice(...));
+
+      _systemResumeHelper = new UPnPSystemResumeHelper(this);
     }
 
     public void Start()
     {
       Bind(SSDP_ADVERTISMENT_INTERVAL);
+      _systemResumeHelper.Startup();
     }
 
     public void Stop()
     {
+      _systemResumeHelper.Shutdown();
       Close();
+    }
+
+    public override void Dispose()
+    {
+      _systemResumeHelper.Dispose();
+      base.Dispose();
     }
   }
 }

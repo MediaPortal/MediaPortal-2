@@ -101,7 +101,7 @@
   <string name="Media.MediaItemsHeader">Media įrašai</string>
   <string name="Media.VideoItemsHeader">Video</string>
   <string name="Media.AudioItemsHeader">Audio įrašai</string>
-  <string name="Media.SeriesItemsHeader">Epizodai</string>
+  <string name="Media.EpisodeItemsHeader">Epizodai</string>
   <string name="Media.MoviesItemsHeader">Filmai</string>
   <string name="Media.ImageItemsHeader">Vaizdai</string>
   <string name="Media.SimpleSearchHeader">Paprasta paieška</string>
@@ -141,6 +141,8 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Video </string>
   <string name="Media.SeriesRootViewName">Serijos</string>
+  <string name="Media.SeasonRootViewName">Sezonas</string>
+  <string name="Media.EpisodeRootViewName">Epizodas</string>
   <string name="Media.ImagesRootViewName">Vaizdai</string>
   <string name="Media.SimpleSearchViewName">Paprasta paieška</string>
   <!--General strings used in views-->
@@ -190,6 +192,8 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Saugoti PiP video</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Media įrašo veiksmai</string>
+  <string name="Media.SetWatched">Nustatyti kaip peržiūrėta</string>
+  <string name="Media.SetUnwatched">Nustatyti kaip nežiūrėta</string>
   <string name="Media.DeleteFromStorage">Ištrinti iš saugyklos</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Atkurti įrašą</string>
@@ -214,6 +218,7 @@
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
   <string name="Media.VideoCurrentlyPlayingHeader">Šio video informacija</string>
+  <string name="Media.Rating">Įvertinimas:</string>
   <string name="Media.VideoTitleLabel">Antraštė: </string>
   <string name="Media.VideoGenreLabel">Žanras: </string>
   <string name="Media.VideoCollectionLabel">Kolekcija:</string>
@@ -296,6 +301,7 @@
   <string name="Media.LargeList">Ilgas sąrašas</string>
   <string name="Media.LargeGrid">Tinklelis</string>
   <string name="Media.CoverLayout">Viršeliai</string>
+  <string name="Media.Watched">Peržiūrėta</string>
   <string name="Media.SwitchSortingMenuItem">Rūšiuojama</string>
   <string name="Media.SwitchSortingDialogTitle">Rūšiuojama</string>
   <string name="Media.SortByTitle">Rūšiuoti pagal antraštę</string>
@@ -329,4 +335,7 @@
   <string name="Settings.Players.SkipStepList.Help">Įveskite praleidimo žingsnius sekundėmis atskirtomis ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Atverti grotuvo strategiją</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategija, kaip naujai paleisti grotuvai bus išdėstyti tarp esamų atvirų grotuvų</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

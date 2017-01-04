@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.SkinBase.Settings;
 
@@ -42,10 +43,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public const string STR_TIME_MODEL_ID = "E821B1C8-0666-4339-8027-AA45A4F6F107";
     public static readonly Guid TIME_MODEL_ID = new Guid(STR_TIME_MODEL_ID);
 
+    protected const string DEFAULT_DATEFORMAT = "D";
+    protected const string DEFAULT_TIMEFORMAT = "t";
+
     #region Protected fields
 
-    protected string _dateFormat = "D";
-    protected string _timeFormat = "t";
+    protected string _dateFormat = DEFAULT_DATEFORMAT;
+    protected string _timeFormat = DEFAULT_TIMEFORMAT;
+    protected bool _loggedErrorOnce = false;
 
     protected AbstractProperty _currentTimeProperty = new WProperty(typeof(string), string.Empty);
     protected AbstractProperty _currentDateProperty = new WProperty(typeof(string), string.Empty);
@@ -106,8 +111,23 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
       MinuteAngle = now.Minute * 6;
 
-      CurrentTime = now.ToString(_timeFormat, culture);
-      CurrentDate = now.ToString(_dateFormat, culture);
+      try
+      {
+        CurrentTime = now.ToString(_timeFormat, culture);
+        CurrentDate = now.ToString(_dateFormat, culture);
+      }
+      catch (Exception ex)
+      {
+        if (!_loggedErrorOnce)
+        {
+          _loggedErrorOnce = true;
+          ServiceRegistration.Get<ILogger>().Error("TimeModel: Error updating Date or Time. Please check settings for correct formats!", ex);
+        }
+
+        // Fallback
+        CurrentTime = now.ToString(DEFAULT_TIMEFORMAT, culture);
+        CurrentDate = now.ToString(DEFAULT_DATEFORMAT, culture);
+      }
     }
 
     public AbstractProperty CurrentDateProperty

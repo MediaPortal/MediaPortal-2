@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Lyd</string>
+  <string name="Menu.Image">Bilder</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Nyheter</string>
+  <string name="Menu.Weather">Vær</string>
+  <string name="Menu.Settings">Innstillinger</string>
+  <string name="Menu.Others">Andre</string>
+</resources>

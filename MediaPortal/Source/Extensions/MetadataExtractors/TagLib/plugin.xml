@@ -4,9 +4,13 @@
     PluginId="{9EBD5979-7BDF-4eb5-9010-ED77CC748BE7}"
     Author="Team MediaPortal, Third party: Brian Nickel"
     Copyright="GPL"
-    Description="Library plugin providing the TagLib functionality needed for some default metadata extractors"
-    PluginVersion="2.1.0.0">
+    Description="Library plugin providing the TagLib functionality needed for some default metadata extractors">
 
+  <Version
+    PluginVersion="2.1.0.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+  
   <Runtime>
     <Assembly FileName="taglib-sharp.dll"/>
   </Runtime>

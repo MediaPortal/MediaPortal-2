@@ -106,7 +106,7 @@
     </Feature>
 
     <InstallExecuteSequence>
-      <Custom Action="LaunchServiceMonitor" After="InstallFinalize" />
+      <Custom Action="LaunchServiceMonitor" After="InstallFinalize"><![CDATA[&ServiceMonitor=3]]></Custom>
     </InstallExecuteSequence>
 
     <CustomAction Id="LaunchServiceMonitor"

@@ -1,6 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Çalıcılar</string>
+  <string name="Settings.Players.AudioPlayer">Ses çalıcısı</string>
+  <string name="Settings.Players.BassPlayer.Setup">Çıkış cihazını yapılandır</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Bassplayer çıkış cihazını ve ayarları yapılandırır</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.Rendering">Çalma şekli</string>
   <string name="Settings.Players.Rendering.CrossFading">Yumuşak Geçiş</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Yumuşak Geçiş devre dışı</string>

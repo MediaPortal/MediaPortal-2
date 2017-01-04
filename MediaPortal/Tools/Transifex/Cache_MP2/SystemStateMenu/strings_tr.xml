@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SleepTimer.Start">Başlangıç</string>
+  <string name="SleepTimer.Stop">Dur</string>
+</resources>

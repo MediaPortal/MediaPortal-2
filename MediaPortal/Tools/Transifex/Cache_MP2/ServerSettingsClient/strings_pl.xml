@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Konfiguruje literę dysku używaną do podłączenia zasobów na serwerze.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Poświadczenia sieciowe</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Konfiguruje użytkownika i hasło dla dostępu do zasobów na serwerze.</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Użyj poświadczeń interaktywnej sesji na serwerze</string>
   <string name="Settings.ServerSettings.UseCredentials">Używaj nazwy użytkownika i hasła dla dostępu do sieci</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Nazwa użytkownika i hasło</string>
   <string name="Settings.ServerSettings.Username">Użytkownik:</string>

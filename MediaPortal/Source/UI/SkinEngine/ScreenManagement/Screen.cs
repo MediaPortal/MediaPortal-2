@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -833,6 +833,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void TriggerScreenClosingEvent_Sync()
     {
+      _closeTime = FindCloseEventCompletionTime().AddMilliseconds(20); // 20 more milliseconds because of the delay until the event is fired in render loop
       DoFireScreenEvent(new PendingScreenEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree));
     }
 

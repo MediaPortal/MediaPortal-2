@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">Įjungti ekrano skleistinės perjungimą</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Jei įjungta ekrano skleistinės keitimas bus taikomas su video kadrų dažniu</string>
+  <string name="RefreshRateChanger.NoChangeForRate">Išskyrus skleistinės dažnį</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Išskirti sąrašą skleistinės dažnių, kurių netaikyti. Įvesti vertes kaip skaičius atskirtus kableliais (t.y. 23,25,50).</string>
+</resources>

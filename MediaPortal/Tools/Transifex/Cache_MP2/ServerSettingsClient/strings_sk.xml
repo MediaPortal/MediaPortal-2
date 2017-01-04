@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Nastavenie jednotky na pripojenie k vzdialenému serveru.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Sieťové iniciály</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Nastavenie mena a hesla na prístup k serveru v sieti.</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Použiť iniciály na interaktívne prihlásenie k serveru</string>
   <string name="Settings.ServerSettings.UseCredentials">Použiť meno a heslo na prístup k sieti</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Meno a heslo</string>
   <string name="Settings.ServerSettings.Username">Meno:</string>

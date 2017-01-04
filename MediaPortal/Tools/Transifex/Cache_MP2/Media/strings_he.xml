@@ -101,7 +101,7 @@
   <string name="Media.MediaItemsHeader">פריטי מדיה</string>
   <string name="Media.VideoItemsHeader">וידאו</string>
   <string name="Media.AudioItemsHeader">פריטי אודיו</string>
-  <string name="Media.SeriesItemsHeader">פרקים</string>
+  <string name="Media.EpisodeItemsHeader">פרקים</string>
   <string name="Media.MoviesItemsHeader">סרטים</string>
   <string name="Media.ImageItemsHeader">תמונות</string>
   <string name="Media.SimpleSearchHeader">חיפוש פשוט</string>
@@ -141,6 +141,7 @@
   <string name="Media.AudioRootViewName">אודיו</string>
   <string name="Media.VideosRootViewName">וידאו</string>
   <string name="Media.SeriesRootViewName">סדרה</string>
+  <string name="Media.EpisodeRootViewName">פרק</string>
   <string name="Media.ImagesRootViewName">תמונות</string>
   <string name="Media.SimpleSearchViewName">חיפוש פשוט</string>
   <!--General strings used in views-->
@@ -327,4 +328,7 @@
   <string name="Settings.Players.SkipStepList.Help">הכנס צעדי דילוג מופרדים בפסיק</string>
   <string name="Settings.Players.OpenPlayerStrategy">פתח אסטרטגית נגן</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">אסטרטגיה, איך נגנים חדשים ימוקמו בד בבד עם נגנים אחרים</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -12,7 +12,7 @@
     <AssemblyName>HttpServer</AssemblyName>
     <StartupObject>
     </StartupObject>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>test.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -147,6 +147,12 @@
   <ItemGroup>
     <None Include="httpserver.pfx" />
     <None Include="test.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Images</string>
+  <string name="Menu.MediaHub">Concentrateur de Médias</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Actualités</string>
+  <string name="Menu.Weather">Météo</string>
+  <string name="Menu.Settings">Réglages</string>
+  <string name="Menu.Others">Autres</string>
+  <string name="Menu.Main">Menu Principal</string>
+</resources>

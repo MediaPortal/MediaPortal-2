@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    DependsOnStyleResources="Colors,Buttons,NewsConsts"
+    >
+
+  <SolidColorBrush x:Key="NewsItemSeparatorBrush" Color="{ThemeResource HintTextColor}"/>
+
+  <!-- Default no transformation for scrollbars -->
+  <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+  </ResourceWrapper>
+
+  <Style x:Key="NewsItemButtonStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonMediaItemCoverStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}" Margin="4">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+            <Button.ContextMenuCommand>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+            </Button.ContextMenuCommand>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  
+  <!-- Style for a single feed item -->
+  <DataTemplate x:Key="NewsFeedDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Margin="0" >
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="200"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="165"/>
+      </Grid.RowDefinitions>
+      <Border Grid.Column="0" Grid.Row="0" CornerRadius="13.5" Background="#0DFFFFFF" Margin="0"> </Border>
+            
+      <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center"
+               MaxWidth="{ResolutionResource NewsItemLogoWidth}"/>
+      <Image Grid.Column="0" Grid.Row="0" Stretch="Fill" Source="onlinevideos_thumb_focus.png" VerticalAlignment="Center" HorizontalAlignment="Center"
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Style for a single news item -->
+  <DataTemplate x:Key="NewsItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Margin="0" >
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="200"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="165"/>
+      </Grid.RowDefinitions>
+
+      <Grid.Opacity>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+          <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+          <Binding Source="1.0"/>
+          <Binding Source="0.8"/>
+        </MultiBinding>
+      </Grid.Opacity>
+      
+      <Border Grid.Column="0" Grid.Row="0" CornerRadius="13.5" Background="#1AFFFFFF" Margin="0"> </Border>
+      
+      <Image Grid.Column="0" Grid.Row="0" x:Name="thumb" Stretch="Uniform" Source="{Binding Thumb}" Margin="1">
+        <Image.OpacityMask >
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
+                      BorderThickness="0" BorderBrush="Black" />
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+
+      <!--Image Grid.Column="0" Grid.Row="0" Stretch="Fill" Source="defaultFolderVideo.png" Margin="3" Opacity="0.8"
+             IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Image.OpacityMask >
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
+                      BorderThickness="0" BorderBrush="Black" />
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image-->
+
+      <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="defaultFolder.png" Margin="55"
+       IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+      </Image>
+
+      <Label x:Name="ItemLabel" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+             VerticalAlignment="Bottom" Wrap="False" Scroll="Auto" Margin="20,90,20,20" HorizontalAlignment="Center"
+             FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=Title}" Color="{ThemeResource TextColor}" />
+      <Image Grid.Column="0" Grid.Row="0" Stretch="Fill" Source="onlinevideos_thumb_focus.png" VerticalAlignment="Center" HorizontalAlignment="Center"
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Style for a single news feed bookmark item in the config list -->
+  <DataTemplate x:Key="NewsFeedBookmarkItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="30"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Label Content="{Binding Name}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+             Width="{ResolutionResource NewsFeedTitleWidth}"/>
+      <Label Grid.Column="1" Content="{Binding Url}" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
+      <Label Grid.Column="2" Content="X" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" IsVisible="{Binding Selected}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- ListView style for all news feeds -->
+  <Style x:Key="NewsFeedsContainerStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}" >
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewsFeedDataTemplate}" />
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource NewsItemButtonStyle}" />
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,0,-100" HorizontalAlignment="Center" >
+          </VirtualizingWrapPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style for all news items -->
+  <Style x:Key="NewsItemsContainerStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewsItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource NewsItemButtonStyle}" />
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,50,-100" HorizontalAlignment="Center" >
+          </VirtualizingWrapPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for the list in the news feeds configuration dialog -->
+  <Style x:Key="NewsFeedsBookmarksListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewsFeedBookmarkItemDataTemplate}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
+  </Style>
+
+
+
+
+</ResourceDictionary>

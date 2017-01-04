@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.ServerSettings">Možnosti serveru</string>
+  <string name="Settings.ServerSettings.ServerDOKANDrive">Písmeno připojované zdrojové jednotky</string>
+  <string name="Settings.ServerSettings.UsernamePasswordGroup">Jméno uživatele a heslo</string>
+  <string name="Settings.ServerSettings.Username">Jméno uživatele:</string>
+  <string name="Settings.ServerSettings.Password">Heslo:</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Konfigurace importéru zdroje médií</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Povolit automatickou aktualizaci</string>
+</resources>

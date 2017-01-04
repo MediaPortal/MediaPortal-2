@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -57,13 +57,13 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="extractedAspectData">Dictionary containing a mapping of media item aspect ids to
     /// already present media item aspects, this metadata extractor should edit. If a media item aspect is not present
     /// in this dictionary but found by this metadata extractor, it will add it to the dictionary.</param>
-    /// <param name="forceQuickMode">Interactive browsing needs to be quick, but the server side importer can extract further details.
-    /// If the value is set to <c>true</c>, no slow operations are permitted (like lookup of metadata from the internet or
+    /// <param name="importOnly">Importing needs to be quick, but the server side importer can extract further details.
+    /// If the value is set to <c>true</c>, no unnecessary slow operations are permitted (like lookup of metadata from the internet or
     /// non-cached thumbnail extraction).</param>
     /// <returns><c>true</c> if the metadata could be extracted from the specified media item, else <c>false</c>.
     /// If the return value is <c>true</c>, the extractedAspectData collection was filled by this metadata extractor.
     /// If the return value is <c>false</c>, the <paramref name="extractedAspectData"/> collection remains
     /// unchanged.</returns>
-    bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode);
+    bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly);
   }
 }

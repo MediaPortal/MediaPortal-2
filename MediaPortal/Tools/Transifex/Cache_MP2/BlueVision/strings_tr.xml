@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Ses</string>
+  <string name="Menu.Image">Resimler</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Haberler</string>
+  <string name="Menu.Weather">Hava durumu</string>
+  <string name="Menu.Settings">Ayarlar</string>
+  <string name="Menu.Others">Others</string>
+  <string name="Menu.Home">Ev</string>
+  <string name="Movies.Title">Filmler</string>
+  <string name="Series.Title">Dizi</string>
+  <string name="Audio.Title">Ses</string>
+  <string name="Recordings.Title">Kayıtlar</string>
+  <string name="Images.Title">Resimler</string>
+  <string name="Videos.Title">Videolar</string>
+  <string name="News.Title">Haberler</string>
+  <string name="Weather.Title">Hava durumu</string>
+  <string name="General.Title">Genel</string>
+</resources>

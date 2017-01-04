@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+
+  <!-- ReflexionControl provides a control template to generate a vertical reflexion of any given control.
+  
+  The control has to be passed as ControlTemplate
+        <Control x:Name="ExampleReflexion" Style="{ThemeResource ReflexionControl}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="ControlWidth" Resource="620"/>
+            <ResourceWrapper x:Key="ControlHeight" Resource="340"/>
+            <ControlTemplate x:Key="MakeReflexion">
+              Place content here...              
+            </ControlTemplate>
+          </Control.Resources>
+        </Control>  
+  -->
+  <Style x:Key="ReflexionControl" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainReflexionGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=MakeReflexion}" />
+
+            <Control Grid.Column="0" Grid.Row="1" x:Name="ReflexionControlPresenter" Margin="0,10,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=MakeReflexion}">
+              <Control.LayoutTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1" ScaleY="-0.45"/>
+                </TransformGroup>
+              </Control.LayoutTransform>
+              <Control.OpacityMask>
+                <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+                  <GradientStop Offset="0.0" Color="#60000000" />
+                  <GradientStop Offset="1.0" Color="#00000000" />
+                </LinearGradientBrush>
+              </Control.OpacityMask>
+            </Control>
+
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+
+  <!-- Shine overlay is part of the GlassOverlayControl and SmallGlassOverlayControl -->
+  <ResourceWrapper x:Key="Shine">
+    <ResourceWrapper.Resource>
+      <Canvas Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Canvas.Background>
+          <LinearGradientBrush StartPoint="1,0" EndPoint="0.65,0.65">
+            <GradientStop Offset="0" Color="#4AFFFFFF"/>
+            <GradientStop Offset="0.961" Color="#40FFFFFF"/>
+            <GradientStop Offset="1" Color="#00FFFFFF"/>
+          </LinearGradientBrush >
+        </Canvas.Background>
+      </Canvas>
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+  
+  <ResourceWrapper x:Key="ShineSquare">
+    <ResourceWrapper.Resource>
+      <Canvas Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Canvas.Background>
+          <LinearGradientBrush StartPoint="1,0" EndPoint="0.5,0.5">
+            <GradientStop Offset="0" Color="#4AFFFFFF"/>
+            <GradientStop Offset="0.961" Color="#40FFFFFF"/>
+            <GradientStop Offset="1" Color="#00FFFFFF"/>
+          </LinearGradientBrush >
+        </Canvas.Background>
+      </Canvas>
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+  
+  <!-- GlassOverlayControl provides a control template to generate a glassy border look to any control (i.e. images).
+  
+  The control has to be passed as ControlTemplate, the dimensions need to be set using ControlWidth and ControlHeight, the border is scalable.
+  
+          <Control x:Name="GlassOverlayExample" Style="{ThemeResource GlassOverlayControl}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="ControlWidth" Resource="620"/>
+            <ResourceWrapper x:Key="ControlHeight" Resource="340"/>
+            <ControlTemplate x:Key="MakeGlass">
+              Place content here...              
+            </ControlTemplate>
+          </Control.Resources>
+        </Control>  
+  -->
+  <Style x:Key="GlassOverlayControl" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainGlassGrid" Width="{DynamicResource ResourceKey=ControlWidth}" Height="{DynamicResource ResourceKey=ControlHeight}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_14" Margin="0" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="1" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_5" Margin="1" BorderBrush="#4A808080"
+                    CornerRadius="0" BorderThickness="8" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_1" Margin="10" Opacity="1" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="3" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_12" Margin="12" Opacity="0.49" BorderBrush="White"
+                    CornerRadius="0" BorderThickness="3" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_14-1" Margin="15" Opacity="1" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="15" BorderLineJoin="Miter"/>
+
+            <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="29" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=MakeGlass}" />
+
+            <StaticResource ResourceKey="Shine"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+
+  <!-- SmallGlassOverlayControl provides a control template to generate a glassy border look to any control (i.e. images).
+  
+  The control has to be passed as ControlTemplate, the dimensions need to be set using ControlWidth and ControlHeight, the border is scalable.
+  
+          <Control x:Name="SmallGlassOverlayControlExample" Style="{ThemeResource SmallGlassOverlayControl}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="ControlWidth" Resource="620"/>
+            <ResourceWrapper x:Key="ControlHeight" Resource="340"/>
+            <ControlTemplate x:Key="MakeGlass">
+              Place content here...              
+            </ControlTemplate>
+          </Control.Resources>
+        </Control>  
+  -->
+  <Style x:Key="SmallGlassOverlayControl" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainGlassGrid" Width="{DynamicResource ResourceKey=ControlWidth}" Height="{DynamicResource ResourceKey=ControlHeight}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_14" Margin="0" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="1" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_5" Margin="1" BorderBrush="#4A808080"
+                    CornerRadius="0" BorderThickness="3" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_1" Margin="4" Opacity="1" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="2" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_12" Margin="6" Opacity="0.49" BorderBrush="White"
+                    CornerRadius="0" BorderThickness="1" BorderLineJoin="Miter"/>
+
+            <Control Grid.Column="0" Grid.Row="0" Margin="7" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#D0000000"/>
+            
+            <Control Grid.Column="0" Grid.Row="0" Margin="7" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=MakeGlass}" />
+
+            <!--
+            Morpheus_xx, 2012-01-11: Temporary disabled, the shine looks quite bad for list layouts
+            <StaticResource ResourceKey="ShineSquare"/>
+            -->
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- SmallGlassBorder provides a control template to generate a glassy border look to any control (i.e. images).
+  
+  The control has to be passed as ControlTemplate, the dimensions need to be set using ControlWidth and ControlHeight, the border is scalable.
+  
+          <Control x:Name="SmallGlassBorderExample" Style="{ThemeResource SmallGlassBorder}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="ControlWidth" Resource="620"/>
+            <ResourceWrapper x:Key="ControlHeight" Resource="340"/>
+            <ControlTemplate x:Key="MakeGlass">
+              Place content here...              
+            </ControlTemplate>
+          </Control.Resources>
+        </Control>  
+  -->
+  <Style x:Key="SmallGlassBorder" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainGlassGrid" Width="{DynamicResource ResourceKey=ControlWidth}" Height="{DynamicResource ResourceKey=ControlHeight}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_14" Margin="0" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="1" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_5" Margin="1" BorderBrush="#4A808080"
+                    CornerRadius="0" BorderThickness="3" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_1" Margin="4" Opacity="1" BorderBrush="Black"
+                    CornerRadius="0" BorderThickness="2" BorderLineJoin="Miter"/>
+            <Border Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" x:Name="Layer_12" Margin="6" Opacity="0.49" BorderBrush="White"
+                    CornerRadius="0" BorderThickness="1" BorderLineJoin="Miter"/>
+
+            <Control Grid.Column="0" Grid.Row="0" Margin="7" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#D0000000"/>
+
+            <Control Grid.Column="0" Grid.Row="0" Margin="7" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=MakeGlass}" />
+
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

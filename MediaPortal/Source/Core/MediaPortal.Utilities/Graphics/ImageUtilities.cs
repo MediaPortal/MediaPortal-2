@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,7 +49,7 @@ namespace MediaPortal.Utilities.Graphics
       // Get accessor that creates the dictionary on demand
       get
       {
-        if (_encoders != null) 
+        if (_encoders != null)
           return _encoders;
         // If the quick lookup isn't initialised, initialise it
         return _encoders = ImageCodecInfo.GetImageEncoders().ToDictionary(codec => codec.MimeType.ToLower());
@@ -106,6 +106,29 @@ namespace MediaPortal.Utilities.Graphics
 
       using (fullsizeImage)
         return ResizeImageExact(fullsizeImage, maxWidth, newHeight);
+    }
+
+    /// <summary>
+    /// Checks the given <paramref name="image"/> for contained EXIF orientation tags and automatically rotates the image if required.
+    /// </summary>
+    /// <param name="image">Image</param>
+    public static void ExifAutoRotate(this Image image)
+    {
+      RotateFlipType rotate = RotateFlipType.RotateNoneFlipNone;
+      var exifOrientation = image.PropertyItems.FirstOrDefault(p => p.Id == 0x0112);
+      if (exifOrientation != null)
+      {
+        var value = (int)exifOrientation.Value[0];
+        if (value == 6)
+          rotate = RotateFlipType.Rotate90FlipNone;
+        else if (value == 8)
+          rotate = RotateFlipType.Rotate270FlipNone;
+        else if (value == 3)
+          rotate = RotateFlipType.Rotate180FlipNone;
+      }
+
+      if (rotate != RotateFlipType.RotateNoneFlipNone)
+        image.RotateFlip(rotate);
     }
 
     /// <summary> 
@@ -188,6 +211,8 @@ namespace MediaPortal.Utilities.Graphics
     /// <returns>Stream containing the resized image</returns>
     public static Stream ResizeImage(Stream sourceStream, ImageFormat targetFormat, int maxWidth, int maxHeight)
     {
+      if (sourceStream.CanSeek && sourceStream.Length == 0)
+        return null;
       using (Image bitmap = ResizeImage(Image.FromStream(sourceStream), maxWidth, maxHeight))
       {
         MemoryStream tmpImageStream = new MemoryStream();

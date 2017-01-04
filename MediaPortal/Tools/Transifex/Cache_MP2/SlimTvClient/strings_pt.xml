@@ -12,6 +12,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Hora de início</string>
   <string name="SlimTvClient.ProgramEndLabel">Hora de término</string>
   <string name="SlimTvClient.EpisodeLabel">Episódio</string>
+  <string name="SlimTvClient.Progress">Progresso</string>
   <string name="SlimTvClient.Guide">Guia da TV</string>
   <string name="SlimTvClient.NoProgram">Sem dados do programa.</string>
   <string name="SlimTvClient.ChooseProgramAction">Escolha a ação do programa...</string>
@@ -33,6 +34,8 @@
   <string name="SlimTvClient.RecordSeries">Gravar séries</string>
   <string name="SlimTvClient.ChooseScheduleType">Escolha o tipo de calendário de gravação</string>
   <string name="SlimTvClient.DeleteSingle">Apagar programa único</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Gravações por nome</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Gravações por nome</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Sem fornecedor de TV disponível (ainda)</string>
   <!--Settings-->

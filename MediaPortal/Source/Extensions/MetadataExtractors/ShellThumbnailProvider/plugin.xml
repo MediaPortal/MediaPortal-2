@@ -4,8 +4,17 @@
     PluginId="{A2CF09C5-D4D0-43AC-89A8-3ECF5ED2510B}"
     Author = "Morpheus_xx"
     Copyright="GPL"
-    Description="Thumbnail creator based on Windows Explorer shell methods."
-    PluginVersion="1.0">
+    Description="Thumbnail creator based on Windows Explorer shell methods.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="ShellThumbnailProvider.dll"/>

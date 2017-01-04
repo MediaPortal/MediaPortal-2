@@ -18,7 +18,6 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,6 +40,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DuoVia.FuzzyStrings, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\Packages\DuoVia.FuzzyStrings.1.0.1\lib\net40\DuoVia.FuzzyStrings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\log4net.dll</HintPath>
@@ -48,10 +51,11 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.23.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Packages\Microsoft.Tpl.Dataflow.4.5.23\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\Packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Management" />
@@ -61,16 +65,79 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="FanArt\FanArtCache.cs" />
+    <Compile Include="FanArt\FanArtConstants.cs" />
+    <Compile Include="FanArt\FanArtSettings.cs" />
+    <Compile Include="Genres\SeriesGenre.cs" />
+    <Compile Include="Genres\MovieGenre.cs" />
+    <Compile Include="Genres\MusicGenre.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\GenreAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\MovieCollectionAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\CompanyAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\PersonAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\ExternalIdentifierAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SeasonAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\CharacterAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
+    <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\RelationshipCache.cs" />
+    <Compile Include="MediaManagement\Helpers\SimpleRating.cs" />
+    <Compile Include="MediaManagement\Helpers\SimpleTitle.cs" />
+    <Compile Include="MediaManagement\Helpers\MovieCollectionInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\CompanyInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\SeasonInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\CharacterInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\PersonInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\AlbumInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\TrackInfo.cs" />
+    <Compile Include="MediaManagement\IMediaFanArtHandler.cs" />
+    <Compile Include="MediaManagement\IMediaMergeHandler.cs" />
+    <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
+    <Compile Include="MediaManagement\FanArtHandlerMetadata.cs" />
+    <Compile Include="MediaManagement\MergeHandlerMetadata.cs" />
+    <Compile Include="MediaManagement\MLQueries\AbstractRelationshipFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
+    <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
+    <Compile Include="MediaManagement\RelationshipHierarchy.cs" />
+    <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
+    <Compile Include="Services\Dokan\DokanFileInfo.cs" />
+    <Compile Include="Services\Dokan\DokanOptions.cs" />
+    <Compile Include="Services\Dokan\DokanResult.cs" />
+    <Compile Include="Services\Dokan\FileAcces.cs" />
+    <Compile Include="Services\Dokan\FileInformation.cs" />
+    <Compile Include="Services\Dokan\FileSystemFeatures.cs" />
+    <Compile Include="Services\Dokan\Native\BY_HANDLE_FILE_INFORMATION.cs" />
+    <Compile Include="Services\Dokan\Native\DOKAN_OPERATIONS.cs" />
+    <Compile Include="Services\Dokan\Native\DOKAN_OPTIONS.cs" />
+    <Compile Include="Services\Dokan\Native\DokanNativeMethods.cs" />
+    <Compile Include="Services\Dokan\Native\SECURITY_INFORMATION.cs" />
+    <Compile Include="Services\Dokan\Native\WIN32_FIND_DATA.cs" />
+    <Compile Include="Services\Dokan\Native\WIN32_FIND_STREAM_DATA.cs" />
+    <Compile Include="Services\Dokan\NTStatus.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
+    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ChangeUnfoldBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ImporterWorkerDataflowBlockBase.cs" />
+    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemLoadBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemSaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MetadataExtractorBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportJobNewGen.cs" />
     <Compile Include="Network\UriExtension.cs" />
+    <Compile Include="PluginManager\PluginDependencyInfo.cs" />
     <Compile Include="ResourceAccess\IResourceDeletor.cs" />
     <Compile Include="ResourceAccess\LocalFsResourceAccessorHelper.cs" />
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
@@ -81,6 +148,7 @@
     <Compile Include="Services\MediaManagement\ImportJobController.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResourceNewGen.cs" />
     <Compile Include="Services\MediaManagement\PendingResourcesSettings.cs" />
+    <Compile Include="Services\MediaManagement\ShareImportServerState.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\AsyncImpersonationProcess.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -90,9 +158,10 @@
     <Compile Include="Services\ResourceAccess\ImpersonationService\TokenWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsIdentityWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsImpersonationContextWrapper.cs" />
+    <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceAccessor.cs" />
+    <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
-    <Compile Include="Services\ResourceAccess\Settings\AvailableDriveLettersSettings.cs" />
     <Compile Include="Services\Runtime\PowerEventHandler.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
@@ -166,15 +235,16 @@
     <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\DirectoryAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MovieAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\EpisodeAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ThumbnailLargeAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MediaAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImageAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\RelationshipAspect.cs" />
     <Compile Include="MediaManagement\Helpers\MovieInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\EpisodeInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SharesHelper.cs" />
     <Compile Include="MediaManagement\MLQueries\FalseFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\MediaItemIdFilter.cs" />
@@ -229,8 +299,7 @@
     <Compile Include="SystemCommunication\IContentDirectory.cs" />
     <Compile Include="SystemCommunication\IServerController.cs" />
     <Compile Include="SystemCommunication\ServerDescriptor.cs" />
-    <Compile Include="Services\Dokan\DokanNet.cs" />
-    <Compile Include="Services\Dokan\DokanOperations.cs" />
+    <Compile Include="Services\Dokan\IDokanOperations.cs" />
     <Compile Include="Services\Dokan\FileHandle.cs" />
     <Compile Include="Services\Dokan\Proxy.cs" />
     <Compile Include="Services\Dokan\Dokan.cs" />
@@ -286,7 +355,6 @@
     <Compile Include="Services\Logging\CrashLoggerBase.cs" />
     <Compile Include="Services\Logging\DefaultLogger.cs" />
     <Compile Include="Services\Logging\FileLogger.cs" />
-    <Compile Include="Services\ResourceAccess\Settings\ResourceMountingSettings.cs" />
     <Compile Include="Services\ResourceAccess\ResourceMountingService.cs" />
     <Compile Include="Services\ResourceAccess\ResourceServer.cs" />
     <Compile Include="Services\ResourceAccess\Settings\ServerSettings.cs" />
@@ -367,6 +435,7 @@
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
     <Compile Include="UPnP\UPnPDtDictionary.cs" />
     <Compile Include="UPnP\UPnPDtMediaCategoryEnumeration.cs" />
+    <Compile Include="UPnP\UPnPSystemResumeHelper.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />
     <Compile Include="UPnP\DataTypesConfiguration.cs" />
@@ -392,6 +461,7 @@
     <Compile Include="UPnP\UPnPDtUserProfile.cs" />
     <Compile Include="UPnP\UPnPDtUserProfileEnumeration.cs" />
     <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
+    <Compile Include="UserProfileDataManagement\UserDataKeysKnown.cs" />
     <Compile Include="UserProfileDataManagement\UserProfile.cs" />
     <Compile Include="VersionInfo\VersionInfo.cs" />
   </ItemGroup>

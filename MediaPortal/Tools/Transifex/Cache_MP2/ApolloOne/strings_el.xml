@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Ήχος</string>
+  <string name="Menu.Image">Εικόνες</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.Weather">Καιρός</string>
+  <string name="Menu.Settings">Ρυθμίσεις</string>
+</resources>

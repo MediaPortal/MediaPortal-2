@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,6 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Protected fields
 
     protected AbstractProperty _selectedProperty;
+    protected AbstractProperty _itemIndexProperty;
 
     #endregion
 
@@ -44,6 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _selectedProperty = new SProperty(typeof(bool), false);
+      _itemIndexProperty = new SProperty(typeof(int), 0);
     }
 
     void Attach()
@@ -60,8 +62,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      ListViewItem lvi = (ListViewItem) source;
+      ListViewItem lvi = (ListViewItem)source;
       Selected = lvi.Selected;
+      ItemIndex = lvi.ItemIndex;
       Attach();
     }
 
@@ -79,8 +82,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool Selected
     {
-      get { return (bool) _selectedProperty.GetValue(); }
+      get { return (bool)_selectedProperty.GetValue(); }
       set { _selectedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ItemIndexProperty
+    {
+      get { return _itemIndexProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the absolute index of this item based on the total amount of available items.
+    /// This is especially used for virtualization, where only a subset of total items are allocated.
+    /// </summary>
+    public int ItemIndex
+    {
+      get { return (int)_itemIndexProperty.GetValue(); }
+      set { _itemIndexProperty.SetValue(value); }
     }
   }
 }

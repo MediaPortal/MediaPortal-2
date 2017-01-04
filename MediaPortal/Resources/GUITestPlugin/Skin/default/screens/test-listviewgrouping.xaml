@@ -1,0 +1,263 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Screen.Resources>
+    <Model x:Key="Model" Id="F4FC1599-F412-40d0-82BF-46FC352E93BE"/>
+
+    <Storyboard x:Key="VerticalScrollAnimation" FillBehavior="HoldEnd">
+      <DoubleAnimation BeginTime="00:00:00"
+                       To="0" 
+                       Duration="00:00:01.200" FillBehavior="HoldEnd" 
+                       Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="RenderTransform.Children[0].Y">
+
+        <DoubleAnimation.From>
+          <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Panel.VerticalScrollDistance"/>
+        </DoubleAnimation.From>
+      </DoubleAnimation>
+    </Storyboard>
+
+    <Style x:Key="MyGroupHeaderContainerStyle" BasedOn="{ThemeResource DefaultGroupHeaderContainerStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ListViewGroupHeader}" x:Name="ListViewItem">
+            <ControlTemplate.Triggers>
+              <Trigger Property="Panel.VerticalScrollDistance" Value="0">
+                <Trigger.EnterActions>
+                  <StopStoryboard BeginStoryboardName="GroupHeader_BeginStoryboard"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard x:Name="GroupHeader_BeginStoryboard" Storyboard="{StaticResource VerticalScrollAnimation}"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+            <ContentPresenter x:Name="ContentPresenter">
+              <ContentPresenter.RenderTransform>
+                <TransformGroup>
+                  <TranslateTransform X="0" Y="0"/>
+                </TransformGroup>
+              </ContentPresenter.RenderTransform>
+            </ContentPresenter>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="MyItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ListViewItem}" x:Name="ListViewItem">
+            <ControlTemplate.Triggers>
+              <Trigger Property="Panel.VerticalScrollDistance" Value="0">
+                <Trigger.EnterActions>
+                  <StopStoryboard BeginStoryboardName="GroupHeader_BeginStoryboard"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard x:Name="GroupHeader_BeginStoryboard" Storyboard="{StaticResource VerticalScrollAnimation}"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+            <Button Style="{ThemeResource ButtonWideStyle}" x:Name="ContentPresenter"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.RenderTransform>
+                <TransformGroup>
+                  <TranslateTransform X="0" Y="0"/>
+                </TransformGroup>
+              </Button.RenderTransform>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    
+    <Style x:Key="ListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+
+      <Setter Property="GroupHeaderContainerStyle" Value="{ThemeResource MyGroupHeaderContainerStyle}"/>
+      <Setter Property="ItemContainerStyle" Value="{ThemeResource MyItemContainerStyle}"/>
+
+      <BindingSetter Property="GroupHeaderTemplate">
+        <BindingSetter.BindingWrapper>
+          <BindingWrapper>
+            <BindingWrapper.Binding>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : ({0} == 2 ? {1} : {2})">
+                <Binding Source="{StaticResource Model}" Path="LayoutType"/>
+                <!-- layout vertical -->
+                <Binding>
+                  <Binding.Source>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Label FontSize="{ThemeResource SmallFontSize}" Color="White"
+                               Content="Year" />
+                        <Label FontSize="{ThemeResource SmallFontSize}" Color="White"
+                               Margin="10,0,0,0"
+                               Content="{Binding Path=GroupingValue}" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </Binding.Source>
+                </Binding>
+                <!-- layout horizontal -->
+                <Binding>
+                  <Binding.Source>
+                    <DataTemplate>
+                      <Grid>
+                        <Grid.LayoutTransform>
+                          <RotateTransform Angle="-90"/>
+                        </Grid.LayoutTransform>
+
+                        <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top">
+                          <Label FontSize="{ThemeResource SmallFontSize}" Color="White"
+                                 Content="Year" />
+                          <Label FontSize="{ThemeResource SmallFontSize}" Color="White"
+                                 Margin="10,0,0,0"
+                                 Content="{Binding Path=GroupingValue}" />
+                        </StackPanel>
+                      </Grid>
+                    </DataTemplate>
+                  </Binding.Source>
+                </Binding>
+              </MultiBinding>
+            </BindingWrapper.Binding>
+          </BindingWrapper>
+        </BindingSetter.BindingWrapper>
+      </BindingSetter>
+      
+      <BindingSetter Property="ItemTemplate">
+        <BindingSetter.BindingWrapper>
+          <BindingWrapper>
+            <BindingWrapper.Binding>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : ({0} == 1 ? {2} : {3})">
+                <Binding Source="{StaticResource Model}" Path="LayoutType"/>
+                <!-- List layout vertical -->
+                <Binding>
+                  <Binding.Source>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal">
+                        <Label x:Name="VListItemDataLabel" Content="{Binding Path=Labels[Name]}" FontSize="{ThemeResource SmallFontSize}" Color="White"/>
+                        <Label x:Name="VListItemDataYear" Content="{Binding Path=AdditionalProperties[Year]}" FontSize="{ThemeResource SmallFontSize}" Color="White"
+                                 Margin="10,0,0,0"/>
+                      </StackPanel>
+                    </DataTemplate>
+                  </Binding.Source>
+                </Binding>
+                <!-- List layout horizontal -->
+                <Binding>
+                  <Binding.Source>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal">
+                        <StackPanel.LayoutTransform>
+                          <RotateTransform Angle="-90"/>
+                        </StackPanel.LayoutTransform>
+                        <Label x:Name="HListItemDataLabel" Content="{Binding Path=Labels[Name]}" FontSize="{ThemeResource SmallFontSize}" Color="White"/>
+                        <Label x:Name="HListItemDataYear" Content="{Binding Path=AdditionalProperties[Year]}" FontSize="{ThemeResource SmallFontSize}" Color="White"
+                               Margin="10,0,0,0"/>
+                      </StackPanel>
+                    </DataTemplate>
+                  </Binding.Source>
+                </Binding>
+                <!-- Grid layout -->
+                <Binding>
+                  <Binding.Source>
+                    <DataTemplate>
+                      <StackPanel Orientation="Vertical">
+                        <Label x:Name="GridItemDataLabel" Content="{Binding Path=Labels[Name]}" FontSize="{ThemeResource SmallFontSize}" Color="White"
+                               Width="100" Height="100" Wrap="true"/>
+                        <Label x:Name="GridItemDataYear" Content="{Binding Path=AdditionalProperties[Year]}" FontSize="{ThemeResource SmallFontSize}" Color="White"/>
+                      </StackPanel>
+                    </DataTemplate>
+                  </Binding.Source>
+                </Binding>
+              </MultiBinding>
+            </BindingWrapper.Binding>
+          </BindingWrapper>
+        </BindingSetter.BindingWrapper>
+      </BindingSetter>
+
+      <BindingSetter Property="ItemsPanel">
+        <BindingSetter.BindingWrapper>
+          <BindingWrapper>
+            <BindingWrapper.Binding>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : ({0} == 1 ? {2} : ({0} == 2 ? {3} : {4}))">
+                <Binding Source="{StaticResource Model}" Path="LayoutType"/>
+                <!-- List layout vertical -->
+                <Binding>
+                  <Binding.Source>
+                    <ItemsPanelTemplate>
+                      <VirtualizingStackPanel x:Name="VListItemsHost" IsItemsHost="True" Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                  </Binding.Source>
+                </Binding>
+                <!-- List layout horizontal -->
+                <Binding>
+                  <Binding.Source>
+                    <ItemsPanelTemplate>
+                      <VirtualizingStackPanel x:Name="HListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                  </Binding.Source>
+                </Binding>
+                <!-- Grid layout vertical -->
+                <Binding>
+                  <Binding.Source>
+                    <ItemsPanelTemplate>
+                      <VirtualizingWrapPanel x:Name="VGridItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+                      <!-- Orientation is inverse! -->
+                    </ItemsPanelTemplate>
+                  </Binding.Source>
+                </Binding>
+                <!-- Grid layout horizontal -->
+                <Binding>
+                  <Binding.Source>
+                    <ItemsPanelTemplate>
+                      <VirtualizingWrapPanel x:Name="HGridItemsHost" IsItemsHost="True" Orientation="Vertical"/>
+                      <!-- Orientation is inverse! -->
+                    </ItemsPanelTemplate>
+                  </Binding.Source>
+                </Binding>
+              </MultiBinding>
+            </BindingWrapper.Binding>
+          </BindingWrapper>
+        </BindingSetter.BindingWrapper>
+      </BindingSetter>
+    </Style>
+  </Screen.Resources>
+
+  <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10">
+      <Button Style="{StaticResource ButtonWideStyle}" Content="List vertical"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=SetLayoutType,Parameters=0}"/>
+
+      <Button Style="{StaticResource ButtonWideStyle}" Content="List horizontal"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=SetLayoutType,Parameters=1}"/>
+
+      <Button Style="{StaticResource ButtonWideStyle}" Content="Grid vertical"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=SetLayoutType,Parameters=2}"/>
+
+      <Button Style="{StaticResource ButtonWideStyle}" Content="Grid horizontal"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=SetLayoutType,Parameters=3}"/>
+    </StackPanel>
+
+
+    <Border BorderThickness="2" BorderBrush="White" Margin="10">
+      <ListView x:Name="ItemsList" Style="{ThemeResource ListViewStyle}" Margin="10"
+                ItemsSource="{Binding Path=Items}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" Width="1100" Height="500">
+        <ListView.GroupingBindingWrapper>
+          <BindingWrapper Binding="{Binding Path=AdditionalProperties[Year]}"/>
+        </ListView.GroupingBindingWrapper>
+      </ListView>
+    </Border>
+
+  </DockPanel>
+</Screen>

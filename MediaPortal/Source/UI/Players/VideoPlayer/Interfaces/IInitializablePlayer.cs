@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.UI.Players.Video.Interfaces
@@ -32,5 +33,6 @@ namespace MediaPortal.UI.Players.Video.Interfaces
   internal interface IInitializablePlayer
   {
     void SetMediaItem(IResourceLocator locator, string mediaItemTitle);
+    void SetMediaItem(IResourceLocator locator, string mediaItemTitle, MediaItem mediaItem);
   }
 }

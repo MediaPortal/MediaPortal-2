@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled.Help">Wanneer ingeschakeld wordt geprobeerd om de refresh rate aan te passen aan de frames per second van de video</string>
+</resources>

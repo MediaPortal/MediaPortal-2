@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configurez la lettre du lecteur afin de permettre de monter des ressources distantes sur ce serveur.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Informations concernant l\'identification du réseau</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configurer le  nom d\'utilisateur et le mot de passe afin d\'accéder aux ressources du réseau depuis le serveur.</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Utilisez les informations d\'identification de session interactive sur le serveur</string>
   <string name="Settings.ServerSettings.UseCredentials">Utiliser votre nom d\'utilisateur et mot de passe pour accéder au réseau</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Nom d\'utilisateur et mot de passe</string>
   <string name="Settings.ServerSettings.Username">Nom d\'utilisateur:</string>

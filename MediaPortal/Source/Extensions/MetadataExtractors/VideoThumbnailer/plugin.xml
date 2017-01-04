@@ -4,8 +4,19 @@
     PluginId="{FB0AA0ED-97B2-4721-BE74-AC67E77A17B2}"
     Author = "Morpheus_xx"
     Copyright="GPL"
-    Description="Thumbnail creator for video files. It is used only if no other thumbnail could be extracted before."
-    PluginVersion="1.1">
+    Description="Thumbnail creator for video files. It is used only if no other thumbnail could be extracted before.">
+
+  <Version
+    PluginVersion="1.1"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <!-- FFMpegLib -->
+    <PluginReference PluginId="{8B61C331-DBE8-4E56-8A1D-11C32D8C850D}" CompatibleAPI="1"/>
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="VideoThumbnailer.dll"/>

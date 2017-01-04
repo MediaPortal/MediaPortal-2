@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
@@ -32,6 +34,12 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortByFirstAiredDate : SeriesSortByEpisode
   {
+    public SortByFirstAiredDate()
+    {
+      _includeMias = new[] { MediaAspect.ASPECT_ID };
+      _excludeMias = null;
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_FIRST_AIRED_DATE; }
@@ -39,15 +47,30 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect seriesAspectX;
-      MediaItemAspect seriesAspectY;
-      if (x.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectX) && y.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectY))
+      SingleMediaItemAspect episodeAspectX;
+      SingleMediaItemAspect episodeAspectY;
+      if (MediaItemAspect.TryGetAspect(x.Aspects, MediaAspect.Metadata, out episodeAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, MediaAspect.Metadata, out episodeAspectY))
       {
-        DateTime? firstAiredX = (DateTime?) seriesAspectX.GetAttributeValue(SeriesAspect.ATTR_FIRSTAIRED);
-        DateTime? firstAiredY = (DateTime?) seriesAspectY.GetAttributeValue(SeriesAspect.ATTR_FIRSTAIRED);
+        DateTime? firstAiredX = (DateTime?) episodeAspectX.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+        DateTime? firstAiredY = (DateTime?) episodeAspectY.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
         return ObjectUtils.Compare(firstAiredX, firstAiredY);
       }
       return base.Compare(x, y);
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_FIRST_AIRED_DATE; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> episodeAspect;
+      if (item.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out episodeAspect))
+      {
+        return episodeAspect.First().GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      }
+      return base.GetGroupByValue(item);
     }
   }
 }

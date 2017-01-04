@@ -6,6 +6,7 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">Izberi lokacijo</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Vreme</string>
+  <string name="Weather.Title.Help">Preveri trenutno vreme in napovedi</string>
   <string name="Weather.ChooseLocation">Izberi lokacijo</string>
   <string name="Weather.Refresh">Osveži</string>
   <string name="Weather.Updating">Posodabljam...</string>

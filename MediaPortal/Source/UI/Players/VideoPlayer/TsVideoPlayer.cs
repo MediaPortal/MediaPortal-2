@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -60,11 +60,11 @@ namespace MediaPortal.UI.Players.Video
 
     #region Variables
 
-    protected IBaseFilter _sourceFilter = null;
+    protected FilterFileWrapper _sourceFilter = null;
     protected SubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
+    protected ITsReader _tsReader;
     protected GraphRebuilder _graphRebuilder;
-    protected int _selectedSubtitleIndex = NO_STREAM_INDEX;
     protected ChangedMediaType _changedMediaType;
     protected string _oldVideoFormat;
     protected LocalFsResourceAccessorHelper _localFsRaHelper;
@@ -99,7 +99,7 @@ namespace MediaPortal.UI.Players.Video
       base.FreeCodecs();
 
       // Free file source
-      FilterGraphTools.TryRelease(ref _sourceFilter);
+      FilterGraphTools.TryDispose(ref _sourceFilter);
     }
 
     /// <summary>
@@ -107,24 +107,29 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected override void AddSourceFilter()
     {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       // Render the file
       _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
+      var baseFilter = _sourceFilter.GetFilter();
 
-      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)_sourceFilter;
-      ITsReader tsReader = (ITsReader)_sourceFilter;
-      tsReader.SetRelaxedMode(1);
-      tsReader.SetTsReaderCallback(this);
-      tsReader.SetRequestAudioChangeCallback(this);
+      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;
+      _tsReader = (ITsReader)baseFilter;
+      _tsReader.SetRelaxedMode(1);
+      _tsReader.SetTsReaderCallback(this);
+      _tsReader.SetRequestAudioChangeCallback(this);
 
-      _graphBuilder.AddFilter(_sourceFilter, TSREADER_FILTER_NAME);
+      _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 
       _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
       _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
       if (_subtitleFilter != null)
       {
-        _subtitleRenderer.RenderSubtitles = true;
+        _subtitleRenderer.RenderSubtitles = settings.EnableSubtitles;
         _subtitleRenderer.SetPlayer(this);
       }
+
+      // For supporting CC
+      AddClosedCaptionsFilter();
 
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
@@ -162,12 +167,12 @@ namespace MediaPortal.UI.Players.Video
         }
       }
       // Init GraphRebuilder
-      _graphRebuilder = new GraphRebuilder(_graphBuilder, _sourceFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
+      _graphRebuilder = new GraphRebuilder(_graphBuilder, baseFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
     }
 
     protected override void OnBeforeGraphRunning()
     {
-      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter);
+      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter.GetFilter());
     }
 
     #endregion
@@ -192,8 +197,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected void OnAfterGraphRebuild()
     {
-      ITsReader tsReader = (ITsReader)_sourceFilter;
-      tsReader.OnGraphRebuild(_changedMediaType);
+      _tsReader.OnGraphRebuild(_changedMediaType);
     }
 
     /// <summary>
@@ -223,6 +227,12 @@ namespace MediaPortal.UI.Players.Video
       _oldVideoFormat = newFormat;
       return 0;
     }
+
+    public int OnBitRateChanged(int bitrate)
+    {
+      return 0;
+    }
+
     #endregion
 
     #region ITSReaderAudioCallback members
@@ -251,29 +261,9 @@ namespace MediaPortal.UI.Players.Video
       if (refreshed)
       {
         // If base class has refreshed the stream infos, then update the subtitle streams.
-        ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
-        int count = 0;
+        ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
         if (subtitleStream != null)
-        {
-          _streamInfoSubtitles = new StreamInfoHandler();
-          subtitleStream.GetSubtitleStreamCount(ref count);
-          if (count > 0)
-          {
-            StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, NO_SUBTITLES, 0);
-            _streamInfoSubtitles.AddUnique(subStream);
-          }
-          for (int i = 0; i < count; ++i)
-          {
-            //FIXME: language should be passed back also as LCID
-            SubtitleLanguage language = new SubtitleLanguage();
-            subtitleStream.GetSubtitleStreamLanguage(i, ref language);
-            int lcid = LookupLcidFromName(language.lang);
-            // Note: the "type" is no longer considered in MP1 code as well, so I guess DVBSub3 only supports Bitmap subs at all.
-            string name = language.lang;
-            StreamInfo subStream = new StreamInfo(null, i, name, lcid);
-            _streamInfoSubtitles.AddUnique(subStream);
-          }
-        }
+          _streamInfoSubtitles = new TsReaderStreamInfoHandler(subtitleStream);
       }
       return refreshed;
     }
@@ -281,38 +271,21 @@ namespace MediaPortal.UI.Players.Video
     public override void SetSubtitle(string subtitle)
     {
       EnumerateStreams();
-      ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
-      if (_streamInfoSubtitles == null || subtitleStream == null)
+      TsReaderStreamInfoHandler tsStreamInfoHandler = _streamInfoSubtitles as TsReaderStreamInfoHandler;
+      if (tsStreamInfoHandler == null)
         return;
 
-      // First try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(subtitle);
-      if (streamInfo != null)
+      if (tsStreamInfoHandler.EnableStream(subtitle))
       {
-        // Tell the renderer if it should render subtitles
-        _selectedSubtitleIndex = streamInfo.StreamIndex;
-        _subtitleRenderer.RenderSubtitles = _selectedSubtitleIndex != NO_STREAM_INDEX;
-        if (_selectedSubtitleIndex != NO_STREAM_INDEX)
-          subtitleStream.SetSubtitleStream(_selectedSubtitleIndex);
+        _subtitleRenderer.RenderSubtitles = !tsStreamInfoHandler.DisableSubs;
         SaveSubtitlePreference();
       }
-    }
-
-    protected override void SaveSubtitlePreference()
-    {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      settings.PreferredSubtitleStreamName = _selectedSubtitleIndex != NO_STREAM_INDEX
-        ? Subtitles[_selectedSubtitleIndex] : String.Empty;
-
-      // If selected stream is "No subtitles", we disable the setting
-      settings.EnableSubtitles = _selectedSubtitleIndex != NO_STREAM_INDEX;
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     protected override void SetPreferredSubtitle()
     {
       EnumerateStreams();
-      ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
+      ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
       if (_streamInfoSubtitles == null || subtitleStream == null)
         return;
 
@@ -321,8 +294,11 @@ namespace MediaPortal.UI.Players.Video
       // first try to find a stream by it's exact LCID.
       StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
       if (streamInfo == null || !settings.EnableSubtitles)
+      {
         // Tell the renderer it should not render subtitles
-        _subtitleRenderer.RenderSubtitles = false;
+        if (_subtitleRenderer != null)
+          _subtitleRenderer.RenderSubtitles = false;
+      }
       else
         subtitleStream.SetSubtitleStream(streamInfo.StreamIndex);
     }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
@@ -32,19 +31,20 @@ using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Utilities.Events;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
   /// <summary>
   /// ExtendedVideoSkip model provides additional seeking methods for media playback.
   /// </summary>
-  public class ExtendedVideoSkip
+  public class ExtendedVideoSkip : IDisposable
   {
     protected int _skipStepIndex = 0;
     protected int _skipStepDirection = 1;
     protected bool _skipStepValid = true;
     protected List<int> _skipSteps = new List<int>();
-    protected Timer _skipStepTimer;
+    protected DelayedEvent _skipStepTimer;
     protected AbstractProperty _skipStepProperty;
     private const string SKIP_OSD_SUPERLAYER_SCREEN_NAME = "SkipStepOSD";
 
@@ -59,6 +59,12 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       _skipStepProperty = new WProperty(typeof(string), string.Empty);
       InitSkipSteps();
+    }
+
+    public void Dispose()
+    {
+      if (_skipStepTimer != null)
+        _skipStepTimer.Dispose();
     }
 
     #region GUI Properties
@@ -202,15 +208,10 @@ namespace MediaPortal.UiComponents.Media.Models
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
       if (_skipStepTimer == null)
       {
-        _skipStepTimer = new Timer(settings.SkipStepTimeout * 1000) { Enabled = true, AutoReset = false };
-        _skipStepTimer.Elapsed += SkipStepTimerElapsed;
+        _skipStepTimer = new DelayedEvent(settings.SkipStepTimeout * 1000);
+        _skipStepTimer.OnEventHandler += SkipStepTimerElapsed;
       }
-      else
-      {
-        // In case of new user action, reset the timer.
-        _skipStepTimer.Stop();
-        _skipStepTimer.Start();
-      }
+      _skipStepTimer.EnqueueEvent(this, EventArgs.Empty);
     }
 
     private static void ShowSkipOSD()
@@ -235,7 +236,7 @@ namespace MediaPortal.UiComponents.Media.Models
       HideSkipOSD();
     }
 
-    private void SkipStepTimerElapsed(object sender, ElapsedEventArgs e)
+    private void SkipStepTimerElapsed(object sender, EventArgs eventArgs)
     {
       IPlayerContext pc = GetPlayerContext();
       if (pc != null)

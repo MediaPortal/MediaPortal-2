@@ -101,7 +101,7 @@
   <string name="Media.MediaItemsHeader">媒体项</string>
   <string name="Media.VideoItemsHeader">视频</string>
   <string name="Media.AudioItemsHeader">音频项</string>
-  <string name="Media.SeriesItemsHeader">集</string>
+  <string name="Media.EpisodeItemsHeader">集</string>
   <string name="Media.MoviesItemsHeader">电影</string>
   <string name="Media.ImageItemsHeader">图片</string>
   <string name="Media.SimpleSearchHeader">简单搜索</string>
@@ -141,6 +141,7 @@
   <string name="Media.AudioRootViewName">音频</string>
   <string name="Media.VideosRootViewName">视频</string>
   <string name="Media.SeriesRootViewName">系列</string>
+  <string name="Media.EpisodeRootViewName">集</string>
   <string name="Media.ImagesRootViewName">图片</string>
   <string name="Media.SimpleSearchViewName">简单搜索</string>
   <!--General strings used in views-->
@@ -212,6 +213,7 @@
   <string name="Media.AudioContextName">音频</string>
   <!--Video currently playing-->
   <string name="Media.VideoCurrentlyPlayingHeader">当前视频信息</string>
+  <string name="Media.Rating">星级：</string>
   <string name="Media.VideoTitleLabel">标题：</string>
   <string name="Media.VideoGenreLabel">流派：</string>
   <string name="Media.VideoCollectionLabel">选集：</string>
@@ -294,6 +296,8 @@
   <string name="Media.LargeList">大列表</string>
   <string name="Media.LargeGrid">格</string>
   <string name="Media.CoverLayout">封面</string>
+  <string name="Media.Watched">已观看</string>
+  <string name="Media.Unwatched">未观看</string>
   <string name="Media.SwitchSortingMenuItem">排序</string>
   <string name="Media.SwitchSortingDialogTitle">排序</string>
   <string name="Media.SortByTitle">按标题排序</string>
@@ -327,4 +331,7 @@
   <string name="Settings.Players.SkipStepList.Help">输入跳过步骤间隔的时间(秒)</string>
   <string name="Settings.Players.OpenPlayerStrategy">打开播放器策略</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">策略，how newly opened players will be positioned among already open players</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

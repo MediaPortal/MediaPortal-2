@@ -68,6 +68,7 @@
   <string name="ImporterMessages.ImportCompletedText">A importação de \'{0}\' foi concluída.</string>
   <string name="LocalFsResourceProvider.Description">Acessar o sistema de arquivos local</string>
   <string name="RemoteResourceProvider.Description">Acessar recursos localizados em outro sistema MediaPortal 2</string>
+  <string name="RawUrlResourceProvider.Name">Url bruta</string>
   <string name="RawUrlResourceProvider.Description">Aceder às fontes dos URI brutos</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->

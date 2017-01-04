@@ -16,11 +16,14 @@
     <ControlTemplate x:Key="Contents_Template">
       <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           DataContext="{Binding Source={StaticResource Model}}">
+        <Image Margin="0,0,0,-60" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Center" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="50"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.Triggers>
             <!-- Setting default state of menu to hidden -->
@@ -30,7 +33,7 @@
             </EventTrigger>
           </Grid.Triggers>
 
-          <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0" Grid.Row="0"
+          <StackPanel x:Name="CurrentConditionOverview" Grid.Column="1" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,0,0,0">
             <Image x:Name="BigIcon" Width="{ResolutionResource WeatherIconBigWidth}" Height="{ResolutionResource WeatherIconBigHeight}"
                    Source="{Binding CurrentLocation.Condition.BigIconProperty}" Stretch="Uniform" />
@@ -47,8 +50,10 @@
             </StackPanel>
             <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                 Content="{Binding CurrentLocation.Name}"/>
-          </StackPanel>
-          <Grid x:Name="CurrentConditionDetail" Grid.Column="2" Grid.Row="0"
+          </StackPanel>             
+
+          
+          <Grid x:Name="CurrentConditionDetail" Grid.Column="3" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>

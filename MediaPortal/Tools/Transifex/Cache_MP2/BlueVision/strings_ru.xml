@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Аудио</string>
+  <string name="Menu.Image">Изображения</string>
+  <string name="Menu.TV">ТВ</string>
+  <string name="Menu.Weather">Погода</string>
+  <string name="Menu.Settings">Настройки</string>
+  <string name="Menu.Others">Другие</string>
+  <string name="Series.Title">Сериалы</string>
+  <string name="Audio.Title">Аудио</string>
+  <string name="Images.Title">Изображения</string>
+  <string name="Videos.Title">Видео</string>
+  <string name="Weather.Title">Погода</string>
+</resources>

@@ -14,7 +14,6 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>2ec480f7</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -86,13 +85,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets'))" />
-  </Target>
   <Import Project="..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets" Condition="Exists('..\..\..\..\Packages\mkvextract.7.0.0\build\mkvextract.targets')" />
   <Import Project="..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets" Condition="Exists('..\..\..\..\Packages\mkvinfo.7.0.0\build\mkvinfo.targets')" />
 </Project>
+

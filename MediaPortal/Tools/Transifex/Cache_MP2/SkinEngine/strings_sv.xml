@@ -20,6 +20,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Ändra utseende och hur användaren interagerar med MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Byt tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Byt nyanser och färgschema på aktuellt skinn</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Aktivera ljudliga klick</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">Bestäm om klickningar ska markeras med ljud</string>
   <string name="Settings.Players">Spelare</string>
   <string name="Settings.Players.Rendering">Uppspelning</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Förvalt zoomläge</string>

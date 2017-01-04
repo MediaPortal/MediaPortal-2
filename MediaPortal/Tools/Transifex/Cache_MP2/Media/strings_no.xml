@@ -99,7 +99,7 @@
   <string name="Media.MediaItemsHeader">Mediaelementer</string>
   <string name="Media.VideoItemsHeader">Videoer</string>
   <string name="Media.AudioItemsHeader">Lydelementer</string>
-  <string name="Media.SeriesItemsHeader">Episoder</string>
+  <string name="Media.EpisodeItemsHeader">Episoder</string>
   <string name="Media.MoviesItemsHeader">Filmer</string>
   <string name="Media.ImageItemsHeader">Bilder</string>
   <string name="Media.SimpleSearchHeader">Enkelt søk</string>
@@ -139,6 +139,8 @@
   <string name="Media.AudioRootViewName">Lyd</string>
   <string name="Media.VideosRootViewName">Videoer</string>
   <string name="Media.SeriesRootViewName">Serier</string>
+  <string name="Media.SeasonRootViewName">Sesong</string>
+  <string name="Media.EpisodeRootViewName">Episode</string>
   <string name="Media.ImagesRootViewName">Bilder</string>
   <string name="Media.SimpleSearchViewName">Enkelt søk</string>
   <!--General strings used in views-->
@@ -290,6 +292,7 @@
   <string name="Media.LargeList">Stor liste</string>
   <string name="Media.LargeGrid">Rutenett</string>
   <string name="Media.CoverLayout">Cover</string>
+  <string name="Media.Watched">Sett</string>
   <string name="Media.SwitchSortingMenuItem">Sorter</string>
   <string name="Media.SwitchSortingDialogTitle">Sortering</string>
   <string name="Media.SortByTitle">Sorter etter tittel</string>
@@ -323,4 +326,7 @@
   <string name="Settings.Players.SkipStepList.Help">Legg inn skippsteg i sekunder separert med ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Åpne spiller strategi</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, hvor nylig åpnede avspillere vil bli posisjonert blant allerede åpne avspillere</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

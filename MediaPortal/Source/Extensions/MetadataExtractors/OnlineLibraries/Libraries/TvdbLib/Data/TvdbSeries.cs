@@ -46,6 +46,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
   ///       <Network>ABC</Network>
   ///       <Overview>After Oceanic Air flight 815...</Overview>
   ///       <Rating>8.9</Rating>
+  ///       <RatingCount>8</RatingCount>
   ///       <Runtime>60</Runtime>
   ///       <SeriesID>24313</SeriesID>
   ///       <SeriesName>Lost</SeriesName>
@@ -67,7 +68,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
   public class TvdbSeries : TvdbSeriesFields
   {
     #region private properties
-    private Dictionary<TvdbLanguage, TvdbSeriesFields> _seriesTranslations;
+    private Dictionary<TvdbLanguage, TvdbSeriesFields> _seriesTranslations = new Dictionary<TvdbLanguage, TvdbSeriesFields>();
     #endregion
 
     /// <summary>
@@ -388,7 +389,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
 
 
     /// <summary>
-    /// Uptdate the info of the current series with the updated one
+    /// Update the info of the current series with the updated one
     /// </summary>
     /// <param name="series">TvdbSeries object</param>
     protected void UpdateSeriesInfo(TvdbSeries series)

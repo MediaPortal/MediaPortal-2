@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Аудио</string>
+  <string name="Menu.Image">Изображения</string>
+  <string name="Menu.TV">ТВ</string>
+  <string name="Menu.Weather">Погода</string>
+  <string name="Menu.Settings">Настройки</string>
+  <string name="Menu.Others">Другие</string>
+</resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,7 +41,13 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     public MethodDelegateAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle,
         ParameterlessMethod executor) :
-        base(actionId, name, sourceStateIds, displayTitle)
+        this(actionId, name, sourceStateIds, displayTitle, null, executor)
+    {
+    }
+
+    public MethodDelegateAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, IResourceString helpText,
+        ParameterlessMethod executor) :
+        base(actionId, name, sourceStateIds, displayTitle, helpText)
     {
       _executor = executor;
     }

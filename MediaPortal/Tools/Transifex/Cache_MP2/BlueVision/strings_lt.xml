@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Vaizdai</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Naujienos</string>
+  <string name="Menu.Weather">Orai</string>
+  <string name="Menu.Settings">Nustatymai</string>
+  <string name="Menu.Others">Kiti</string>
+  <string name="Menu.Home">Pagrindinis</string>
+  <string name="Movies.Title">Filmai</string>
+  <string name="Series.Title">Serijos</string>
+  <string name="Audio.Title">Audio</string>
+  <string name="Recordings.Title">Įrašai</string>
+  <string name="Images.Title">Vaizdai</string>
+  <string name="Videos.Title">Video</string>
+  <string name="News.Title">Naujienos</string>
+  <string name="Weather.Title">Orai</string>
+  <string name="General.Title">Bendras</string>
+</resources>

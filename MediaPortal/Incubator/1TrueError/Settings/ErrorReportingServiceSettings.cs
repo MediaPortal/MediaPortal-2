@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -46,10 +46,10 @@ namespace MediaPortal.Plugins.OneTrueError.Settings
       "Mediaportal.TV.Server.TVLibrary.Interfaces.TvExceptionTunerLoadFailed",
 
       // TVE 3 names
-      "TVLibrary.Interfaces.TvExceptionNoPMT",
-      "TVLibrary.Interfaces.TvExceptionNoSignal",
-      "TVLibrary.Interfaces.TvExceptionSWEncoderMissing",
-      "TVLibrary.Interfaces.TvExceptionTuneCancelled",
+      "TvLibrary.TvExceptionNoPMT",
+      "TvLibrary.TvExceptionNoSignal",
+      "TvLibrary.TvExceptionSWEncoderMissing",
+      "TvLibrary.TvExceptionTuneCancelled",
     };
 
     private List<string> _exceptionExcludedList = new List<string>();

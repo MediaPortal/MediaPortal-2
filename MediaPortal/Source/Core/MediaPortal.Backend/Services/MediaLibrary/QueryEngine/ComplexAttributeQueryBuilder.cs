@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -251,6 +251,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       TableQueryData mainJoinTableQuery;
       RequestedAttribute miaIdAttribute;
       RequestedAttribute valueAttribute;
+      RequestedAttribute orderAttribute;
 
       // Build main join table
       switch (_queryAttribute.Cardinality)
@@ -259,6 +260,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           mainJoinTableQuery = new TableQueryData(_miaManagement.GetMIACollectionAttributeTableName(_queryAttribute));
           miaIdAttribute = new RequestedAttribute(mainJoinTableQuery, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
           valueAttribute = new RequestedAttribute(mainJoinTableQuery, MIA_Management.COLL_ATTR_VALUE_COL_NAME);
+          orderAttribute = new RequestedAttribute(mainJoinTableQuery, MIA_Management.COLL_ATTR_VALUE_ORDER_COL_NAME);
           break;
         case Cardinality.ManyToMany:
           mainJoinTableQuery = new TableQueryData(_miaManagement.GetMIACollectionAttributeNMTableName(_queryAttribute));
@@ -268,6 +270,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               new RequestedAttribute(mainJoinTableQuery, MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME),
               new RequestedAttribute(collAttrTableQuery, MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME)));
           valueAttribute = new RequestedAttribute(collAttrTableQuery, MIA_Management.COLL_ATTR_VALUE_COL_NAME);
+          orderAttribute = new RequestedAttribute(collAttrTableQuery, MIA_Management.COLL_ATTR_VALUE_ORDER_COL_NAME);
           break;
         default:
           throw new IllegalCallException("Media item aspect attributes of cardinality '{0}' cannot be requested via the {1}",
@@ -332,6 +335,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         result.Append("WHERE ");
         result.Append(whereStr);
+      }
+
+      if(orderAttribute != null)
+      {
+        result.Append(" ORDER BY ");
+        result.Append(orderAttribute.GetQualifiedName(ns));
       }
 
       statementStr = result.ToString();

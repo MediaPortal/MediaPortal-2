@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.Players">Reprodutores</string>
+  <string name="Settings.Players.Rendering">Renderização</string>
   <!--File names (files in shaders/effects, without extension) to effect names to be shown in the GUI-->
   <string name="PlayerControl.HeaderNormal">{0}</string>
   <!--{0} = media item title-->

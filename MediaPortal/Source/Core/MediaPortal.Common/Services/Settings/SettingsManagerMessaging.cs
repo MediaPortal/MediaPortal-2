@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -55,7 +55,7 @@ namespace MediaPortal.Common.Services.Settings
     {
       SystemMessage msg = new SystemMessage(MessageType.SettingsChanged);
       msg.MessageData[SETTINGSTYPE] = settingsType;
-      IMessageBroker messageBroker = ServiceRegistration.Get<IMessageBroker>();
+      IMessageBroker messageBroker = ServiceRegistration.Get<IMessageBroker>(false);
       if (messageBroker != null)
         messageBroker.Send(CHANNEL, msg);
     }

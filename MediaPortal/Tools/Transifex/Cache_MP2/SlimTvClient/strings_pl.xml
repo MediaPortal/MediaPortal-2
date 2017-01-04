@@ -11,12 +11,15 @@
   <string name="SlimTvClient.ProgramStartLabel">Czas rozpoczęcia</string>
   <string name="SlimTvClient.ProgramEndLabel">Czas zakończenia</string>
   <string name="SlimTvClient.EpisodeLabel">Odcinek</string>
+  <string name="SlimTvClient.Progress">Postęp</string>
   <string name="SlimTvClient.Guide">Przewodnik TV</string>
   <string name="SlimTvClient.ProgramOver">Program już się zakończył</string>
   <string name="SlimTvClient.WatchNow">Oglądaj program teraz</string>
   <string name="SlimTvClient.RecordNow">Rozpocznij nagrywanie</string>
   <string name="SlimTvClient.CreateSchedule">Zaplanuj nagrywanie</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nagrania wg nazwy</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nagrania wg nazwy</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Nagrania</string>

@@ -79,7 +79,7 @@
   <string name="Media.MediaItemsHeader">Медиа элементы</string>
   <string name="Media.VideoItemsHeader">Видео</string>
   <string name="Media.AudioItemsHeader">Аудио</string>
-  <string name="Media.SeriesItemsHeader">Эпизоды</string>
+  <string name="Media.EpisodeItemsHeader">Эпизоды</string>
   <string name="Media.ImageItemsHeader">Изображения</string>
   <string name="Media.SimpleSearchHeader">Простой поиск</string>
   <string name="Media.ChooseActorHeader">Выбрать актера</string>
@@ -108,6 +108,7 @@
   <string name="Media.AudioRootViewName">Аудио</string>
   <string name="Media.VideosRootViewName">Видео</string>
   <string name="Media.SeriesRootViewName">Сериалы</string>
+  <string name="Media.EpisodeRootViewName">Эпизод</string>
   <string name="Media.ImagesRootViewName">Изображения</string>
   <string name="Media.SimpleSearchViewName">Простой поиск</string>
   <!--General strings used in views-->
@@ -267,4 +268,7 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Установите паузу между выбором величины пропуска и срабатыванием пропуска</string>
   <string name="Settings.Players.SkipStepList">Шаги пропуска</string>
   <string name="Settings.Players.SkipStepList.Help">Введите шаги пропуска в секундах, разделяя их ,</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Skin Name="BlueVision" Version="1.0">
+  <ShortDescription>BlueVision Skin</ShortDescription>
+  <UsageNote></UsageNote>
+  <Preview>images\preview.jpg</Preview>
+  <Author>Ge2301,Morpheus_xx, Osre</Author>
+  <SkinVersion>1.0</SkinVersion>
+  <SkinEngine>1.0</SkinEngine>
+
+  <NativeWidth>1920</NativeWidth>
+  <NativeHeight>1080</NativeHeight>
+  <DefaultTheme>default</DefaultTheme>
+</Skin>

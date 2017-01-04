@@ -194,8 +194,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     public event UpdateFinishedDelegate UpdateFinished;
     #endregion
 
-
-
     /// <summary>
     /// UserInfo for this tvdb handler
     /// </summary>
@@ -231,12 +229,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <para>Creates a new Tvdb handler</para>
     /// <para>The tvdb handler is used not only for downloading data from thetvdb but also to cache the downloaded data to a persistent storage,
     ///       handle user specific tasks and keep the downloaded data consistent with the online data (via the updates api)</para>
+    /// <para>An api key is used for downloading data from thetvdb -> see http://thetvdb.com/wiki/index.php/Programmers_API</para>
     /// </summary>
-    /// <param name="apiKey">The api key used for downloading data from thetvdb -> see http://thetvdb.com/wiki/index.php/Programmers_API</param>
-    public TvdbHandler(String apiKey)
+    public TvdbHandler(string apiKey, bool useHttps)
     {
       _apiKey = apiKey; //store api key
-      _downloader = new TvdbDownloader(_apiKey);
+      _downloader = new TvdbDownloader(_apiKey, useHttps);
       _cacheProvider = null;
     }
 
@@ -245,9 +243,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// </summary>
     /// <param name="cacheProvider">The cache provider used to store the information</param>
     /// <param name="apiKey">Api key to use for this project</param>
-    public TvdbHandler(ICacheProvider cacheProvider, String apiKey)
-      : this(apiKey)
+    public TvdbHandler(string apiKey, bool useHttps, ICacheProvider cacheProvider)
     {
+      _apiKey = apiKey; //store api key
+      _downloader = new TvdbDownloader(_apiKey, useHttps);
       _cacheProvider = cacheProvider; //store given cache provider
     }
 
@@ -303,7 +302,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     public List<TvdbSearchResult> SearchSeries(String name)
     {
       List<TvdbSearchResult> retSeries = _downloader.DownloadSearchResults(name);
-
+      if (retSeries != null && retSeries.Count == 0)
+        return null;
       return retSeries;
     }
 
@@ -316,6 +316,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     public List<TvdbSearchResult> SearchSeries(String name, TvdbLanguage language)
     {
       List<TvdbSearchResult> retSeries = _downloader.DownloadSearchResults(name, language);
+      if (retSeries != null && retSeries.Count == 0)
+        return null;
       return retSeries;
     }
 
@@ -410,7 +412,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         }
         watch.Stop();
         loadedAdditionalInfo = true;
-        Log.Info("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
+        Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
         series.IsFavorite = _userInfo != null && CheckIfSeriesFavorite(seriesId, _userInfo.UserFavorites);
       }
       else
@@ -429,7 +431,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
               List<TvdbEpisode> epList = _downloader.DownloadEpisodes(seriesId, language);
               if (epList != null)
               {
-                newFields.Episodes = epList;
+                newFields.Episodes.Clear();
+                newFields.Episodes.AddRange(epList);
                 newFields.EpisodesLoaded = true;
               }
             }
@@ -480,7 +483,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         }
 
         watch.Stop();
-        Log.Info("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
+        Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
       }
 
       if (_cacheProvider != null)
@@ -526,6 +529,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
       }
       return series;
+    }
+
+    /// <summary>
+    /// Gets the series cache files. These should not be manipulated or changed in any manner 
+    /// because they are managed by the cache provider.
+    /// </summary>
+    /// <param name="seriesId">id of series</param>
+    public string[] GetSeriesCacheFiles(int seriesId)
+    {
+      return _cacheProvider.GetSeriesCacheFiles(seriesId);
     }
 
     /// <summary>
@@ -763,34 +776,33 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
                                                    + "the cache has to be initialisee");
       }
 
-
-
       if (interval == Interval.Automatic)
       {
-        //MakeUpdate(TvDbUtils.UpdateInterval.month);
-        //return true;
         TimeSpan timespanLastUpdate = (DateTime.Now - _loadedData.LastUpdated);
-        //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvdbLinks.UpdateInterval.day));
-        if (timespanLastUpdate < new TimeSpan(1, 0, 0, 0))
-        {//last update is less than a day ago -> make a daily update
-          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvDbUtils.UpdateInterval.day));
-          return UpdateAllSeries(Interval.Day, zipped, false);
-        }
-        if (timespanLastUpdate < new TimeSpan(7, 0, 0, 0))
-        {//last update is less than a week ago -> make a weekly update
-          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvDbUtils.UpdateInterval.week));
-          return UpdateAllSeries(Interval.Week, zipped, false);
-        }
-        if (timespanLastUpdate < new TimeSpan(31, 0, 0, 0) ||
-            _loadedData.LastUpdated == new DateTime())//lastUpdated not available -> make longest possible upgrade
-        {//last update is less than a month ago -> make a monthly update
-          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvDbUtils.UpdateInterval.month));
+        if (_loadedData.LastUpdated == DateTime.MinValue)
+        {//lastUpdated not available -> make longest possible upgrade
+         //todo: Make a full update -> full update deosn't make sense... (do a complete re-scan?)
           return UpdateAllSeries(Interval.Month, zipped, true);
         }
-        //todo: Make a full update -> full update deosn't make sense... (do a complete re-scan?)
-        Log.Warn("The last update occured longer than a month ago, to avoid data inconsistency, all cached series "
-                 + "and episode informations is downloaded again");
-        return UpdateAllSeries(Interval.Month, zipped, true);
+        if (timespanLastUpdate > new TimeSpan(31, 0, 0, 0))
+        {//last update is over 1 month ago -> make a monthly update
+          Log.Warn("The last update occured longer than a month ago, to avoid data inconsistency, all cached series "
+         + "and episode informations is downloaded again");
+          return UpdateAllSeries(Interval.Month, zipped, true);
+        }
+        if (timespanLastUpdate > new TimeSpan(29, 0, 0, 0))
+        {//last update is more than a month ago -> make a monthly update
+          return UpdateAllSeries(Interval.Month, zipped, true);
+        }
+        if (timespanLastUpdate > new TimeSpan(7, 0, 0, 0))
+        {//last update is more than a week ago -> make a weekly update
+          return UpdateAllSeries(Interval.Week, zipped, false);
+        }
+        if (timespanLastUpdate > new TimeSpan(1, 0, 0, 0))
+        {//last update is more than a day ago -> make a daily update
+          return UpdateAllSeries(Interval.Day, zipped, false);
+        }
+        return false;
       }
       if (interval == Interval.Day)
         return UpdateAllSeries(interval, zipped, false);
@@ -981,6 +993,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {//changes occured in series
             TvdbSeries series;
             series = seriesToSave.ContainsKey(s) ? seriesToSave[s] : _cacheProvider.LoadSeriesFromCache(s);
+            if (series == null)
+              break;
 
             int currProg = (int)(100.0 / countUpdatedSeries * countSeriesDone);
 
@@ -1024,6 +1038,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {//changes occured in series
             TvdbSeries series;
             series = seriesToSave.ContainsKey(s) ? seriesToSave[s] : _cacheProvider.LoadSeriesFromCache(ue.SeriesId);
+            if (series == null)
+              break;
 
             int progress = (int)(100.0 / countEpisodeUpdates * countEpisodesDone);
             String text = "";
@@ -1063,6 +1079,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {//banner for this series has changed
             int currProg = (int)(100.0 / countUpdatedBanner * countBannerDone);
             TvdbSeries series = seriesToSave.ContainsKey(s) ? seriesToSave[s] : _cacheProvider.LoadSeriesFromCache(b.SeriesId);
+            if (series == null)
+              break;
             bool updated = UpdateBanner(series, b);
             if (updated)
             {
@@ -1774,7 +1792,5 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     }
 
     #endregion
-
-
   }
 }

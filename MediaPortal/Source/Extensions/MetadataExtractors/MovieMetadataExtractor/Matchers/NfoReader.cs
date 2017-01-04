@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -32,6 +33,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
   /// <summary>
   /// <see cref="NfoReader"/> tries to read a valid IMDB id from additional .nfo or .txt files.
   /// </summary>
+  /// <remarks>ToDo: Remove ths class once the NfoMetadataExtractors plugin has proven to be stable</remarks>
+  [Obsolete("Functionaility now contained in NfoMetadataExtractors plugin")]
   public class NfoReader
   {
     protected static string[] NFO_EXTENSIONS = new[] { ".nfo", ".txt" };

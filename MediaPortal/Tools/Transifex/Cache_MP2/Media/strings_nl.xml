@@ -101,7 +101,7 @@
   <string name="Media.MediaItemsHeader">Media-items</string>
   <string name="Media.VideoItemsHeader">Video\'s</string>
   <string name="Media.AudioItemsHeader">Audio items</string>
-  <string name="Media.SeriesItemsHeader">Afleveringen</string>
+  <string name="Media.EpisodeItemsHeader">Afleveringen</string>
   <string name="Media.MoviesItemsHeader">Films</string>
   <string name="Media.ImageItemsHeader">Afbeeldingen</string>
   <string name="Media.SimpleSearchHeader">Eenvoudig zoeken</string>
@@ -141,6 +141,8 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Video\'s</string>
   <string name="Media.SeriesRootViewName">Series</string>
+  <string name="Media.SeasonRootViewName">Seizoen</string>
+  <string name="Media.EpisodeRootViewName">Aflevering</string>
   <string name="Media.ImagesRootViewName">Afbeeldingen</string>
   <string name="Media.SimpleSearchViewName">Eenvoudig zoeken</string>
   <!--General strings used in views-->
@@ -190,6 +192,8 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Behoud PiP video</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Media item acties</string>
+  <string name="Media.SetWatched">Stel bekeken in</string>
+  <string name="Media.SetUnwatched">Stel onbekeken in</string>
   <string name="Media.DeleteFromStorage">Verwijder uit opslag</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Item afspelen</string>
@@ -214,6 +218,7 @@
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
   <string name="Media.VideoCurrentlyPlayingHeader">Informatie huidige video</string>
+  <string name="Media.Rating">Beoordeling:</string>
   <string name="Media.VideoTitleLabel">Titel: </string>
   <string name="Media.VideoGenreLabel">Genre: </string>
   <string name="Media.VideoCollectionLabel">Verzameling:</string>
@@ -296,6 +301,7 @@
   <string name="Media.LargeList">Grootte lijst</string>
   <string name="Media.LargeGrid">Raster</string>
   <string name="Media.CoverLayout">Covers</string>
+  <string name="Media.Watched">Bekeken</string>
   <string name="Media.SwitchSortingMenuItem">Sortering</string>
   <string name="Media.SwitchSortingDialogTitle">Sortering</string>
   <string name="Media.SortByTitle">Sorteer op titel</string>
@@ -329,4 +335,7 @@
   <string name="Settings.Players.SkipStepList.Help">Geef stapgrootte voor overslaan in seconden gescheiden door een ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Spelerstrategie openen</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategie, hoe nieuw geopende spelers worden gepositioneerd naast al geopende spelers</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

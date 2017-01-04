@@ -4,11 +4,15 @@
     PluginId="{AC442F92-02F6-44be-8434-094B84A1892A}"
     Author="Albert"
     Copyright="GPL"
-    Description="Base services and language resources for the MP2 server"
-    PluginVersion="1.0">
+    Description="Base services and language resources for the MP2 server">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
   </DependsOn>
 
   <Runtime>

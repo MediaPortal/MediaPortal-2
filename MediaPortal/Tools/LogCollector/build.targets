@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(TargetName)\bin\$(PlatformName)\$(ConfigurationName)\</PluginDestination>
+  </PropertyGroup>
+
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(TargetName).exe" />
+      <PluginFiles Include="$(TargetDir)$(TargetName).exe.config" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <DllFiles Include="$(TargetDir)\**\*.dll" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+
+    <Copy SourceFiles="@(DllFiles)"
+          DestinationFiles="@(DllFiles->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

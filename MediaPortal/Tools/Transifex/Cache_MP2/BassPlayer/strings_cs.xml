@@ -1,6 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Přehrávače</string>
+  <string name="Settings.Players.AudioPlayer">Hudební přehrávač</string>
+  <string name="Settings.Players.BassPlayer.Setup">Nastavení výstupního zařízení</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Nastavuje výstupní zařízení aplikace BassPlayer a jeho možnosti</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Výhradní mód</string>
   <string name="Settings.Players.Rendering">Vykreslování</string>
   <string name="Settings.Players.Rendering.CrossFading">Prolínání</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Prolínání je povoleno</string>

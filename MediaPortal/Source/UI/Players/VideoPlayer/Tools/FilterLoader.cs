@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,19 +41,11 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <param name="interfaceId">Interface to create an object instance for</param>
     /// <param name="useAssemblyRelativeLocation">Combine the given file name to a full path</param>
     /// <returns>Instance or <c>null</c></returns>
-    public static IBaseFilter LoadFilterFromDll(string dllName, Guid interfaceId, bool useAssemblyRelativeLocation = false)
+    public static FilterFileWrapper LoadFilterFromDll(string dllName, Guid interfaceId, bool useAssemblyRelativeLocation = false)
     {
       // Get a ClassFactory for our classID
       string dllPath = useAssemblyRelativeLocation ? BuildAssemblyRelativePath(dllName) : dllName;
-      IClassFactory classFactory = ComHelper.GetClassFactory(dllPath, interfaceId);
-      if (classFactory == null)
-        return null;
-
-      // And create an IFilter instance using that class factory
-      Guid baseFilterGuid = typeof(IBaseFilter).GUID;
-      object obj;
-      classFactory.CreateInstance(null, ref baseFilterGuid, out obj);
-      return (obj as IBaseFilter);
+      return new FilterFileWrapper(dllPath, interfaceId);
     }
 
     /// <summary>

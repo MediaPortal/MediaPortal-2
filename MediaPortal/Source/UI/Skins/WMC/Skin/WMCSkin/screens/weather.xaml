@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Weather.Title]"/>
+
+    <!-- Weather model -->
+    <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/> 
+
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Image Stretch="Fill" Opacity="1">
+        <Image.Source>
+          <Binding Source="Background_GridView.png"/>
+        </Image.Source>
+      </Image>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Client_Template">
+      <DockPanel LastChildFill="True" Margin="20,10,20,10">
+        <DockPanel.Resources>
+          <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+        </DockPanel.Resources>
+        <ListView x:Name="TopMenu" DockPanel.Dock="Top" Margin="10,0,300,10" Style="{ThemeResource TopMenuListViewStyle}" Height="90"
+            VerticalAlignment="Top" HorizontalAlignment="Stretch" SetFocusPrio="Fallback"
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+
+        </ListView>
+
+        <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->
+        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultLow">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Image Margin="0,50,20,-50" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+          <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+          DataContext="{Binding Source={StaticResource Model}}">
+            <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Center" VerticalAlignment="Stretch">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.Triggers>
+                <!-- Setting default state of menu to hidden -->
+                <!-- Checking if weather has been configured -->
+                <EventTrigger RoutedEvent="Screen.Show">
+                  <TriggerCommand Command="{Command Path=CheckWeatherConfigured}"/>
+                </EventTrigger>
+              </Grid.Triggers>
+
+              <StackPanel x:Name="CurrentConditionOverview" Grid.Column="1" Grid.Row="0" Orientation="Horizontal"
+                          HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,0">
+                <Image x:Name="BigIcon" Width="250" Height="250"
+                   Source="{Binding CurrentLocation.Condition.BigIconProperty}" Stretch="Uniform" />
+                <StackPanel x:Name="Temperatures" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding CurrentLocation}">
+                  <Label x:Name="Temperature" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}"
+                         Content="{Binding CurrentLocation.Condition.Temperature}"/>
+                  <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}"
+                         Content="{Binding CurrentLocation.Name}" Height="100"/>
+                </StackPanel>
+              </StackPanel>
+
+              <Grid x:Name="CurrentConditionDetail" Grid.Column="3" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="30"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Column="0" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource WindowHeaderColor}" Content="[Weather.Wind]"/>
+                <Label Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Wind}"/>
+
+                <Label Grid.Column="0" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource WindowHeaderColor}" Content="[Weather.Humidity]"/>
+                <Label Grid.Column="2" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Humidity}"/>
+
+                <Label Grid.Column="0" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource WindowHeaderColor}" Content="[Weather.Precipitation]"/>
+                <Label Grid.Column="2" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Precipitation}"/>
+
+                <Label Grid.Column="0" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource WindowHeaderColor}" Content="[Weather.Pressure]"/>
+                <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Pressure}"/>
+
+              </Grid>
+            </Grid>
+
+            <!-- Forecasts (dynamic count) -->
+            <ListView Margin="10,30,10,10" HorizontalAlignment="Center" VerticalAlignment="Center"
+              Style="{ThemeResource ForecastListViewStyle}"
+              ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" />
+
+            <StackPanel HorizontalAlignment="Right" Margin="0,10,20,0">
+              <Label FontSize="{ThemeResource TinyFontSize}" Content="{Binding LastUpdateTime}" Color="{ThemeResource HintTextColor}" IsVisible="{Binding !IsUpdating}"/>
+              <Label FontSize="{ThemeResource TinyFontSize}" x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
+              HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
+          </StackPanel>
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
+
+

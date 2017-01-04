@@ -8,6 +8,8 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">设置MPEG2视频(H.264, x264)的解码器</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC视频解码器</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">设置MPEG2视频 (HDTV, BluRay)的解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC视频解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">设置HEVC视频 (HD, UHD)的解码器</string>
   <string name="Settings.Players.Codecs.AudioCodecs">音频解码器</string>
   <string name="Settings.Players.Codecs.AudioRenderer">音频渲染</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2音频解码器</string>

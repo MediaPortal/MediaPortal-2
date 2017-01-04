@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for a standard dialog.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_dialog_bare.xaml"
+      >
+    <Include.Resources>
+      <ResourceWrapper x:Key="Dialog_Header_Text">
+        [Header text to be shown as dialog title]
+      </ResourceWrapper>
+      <ControlTemplate x:Key="Contents_Template">
+        [Element which represents the contents area of the dialog.
+         Will be placed into a ScrollViewer.]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Dialog_Header_Text (String): The text to be displayed as dialog title
+ - Contents_Template (ConrolTemplate): Template for the content area of the dialog.
+-->
+
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    x:Name="DialogScreen">
+  
+  <Screen.Resources>
+    <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+  </Screen.Resources>
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource ShowDialogStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="Screen.Hide">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource HideDialogStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>
+  
+  <DockPanel x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" Background="{ThemeResource DialogScreenBackgroundColor}"
+      LastChildFill="False">
+    <DockPanel.RenderTransform>
+      <TransformGroup>
+        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>
+        <SkewTransform CenterX="0.5" CenterY="0.5" AngleX="0" AngleY="0"/>
+        <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0"/>
+        <TranslateTransform X="0" Y="0"/>
+      </TransformGroup>
+    </DockPanel.RenderTransform>
+
+    <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      MousePositionMode="Relative"
+      Buttons="Left"
+      MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel},Path=CloseTopmostDialog}"
+      IsActive="{Binding ElementName=ContentPanel, Path=!IsKeyboardFocusWithin}"/>
+
+    <Border x:Name="DialogBorder" Margin="80" DockPanel.Dock="Center"
+        CornerRadius="{ThemeResource DialogBorderCornerRadius}"
+        VerticalAlignment="Center" HorizontalAlignment="Center">
+      <Border.Background>
+        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+          <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}"/>
+          <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
+        </LinearGradientBrush>
+      </Border.Background>
+
+      <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True">
+
+          <Grid x:Name="DialogHeaderBackground" DockPanel.Dock="Top" Background="{ThemeResource DialogHeaderBackgroundBrush}"
+            VerticalAlignment="Top" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid x:Name="DialogHeaderGrid" Grid.Column="0" Grid.Row="0" Margin="5" HorizontalAlignment="Stretch">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="60"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="5,0,10,0"
+                Content="{Binding Source={DynamicResource Dialog_Header_Text},Path=Resource}" Color="{ThemeResource DialogHeaderColor}"
+                VerticalAlignment="Center" HorizontalAlignment="Left"
+                IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Content,Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+              <Control x:Name="AlternativeHeaderControl" Grid.Row="0" Grid.Column="0"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+                Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
+                IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+              <!--Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogCloseButtonStyle}" Margin="0,0,10,0"
+                  Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" 
+                  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" /-->
+            </Grid>
+          </Grid>
+              
+          <Control x:Name="ContentPanel" Margin="10" DockPanel.Dock="Center"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            Template="{DynamicResource ResourceKey=Contents_Template}"/>
+        </DockPanel>
+    </Border>
+  </DockPanel>
+</Screen>

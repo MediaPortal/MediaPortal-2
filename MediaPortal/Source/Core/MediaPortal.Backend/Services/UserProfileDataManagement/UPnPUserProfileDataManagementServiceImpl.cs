@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,6 +31,7 @@ using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
+using MediaPortal.Backend.MediaLibrary;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -50,6 +51,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           };
       AddStateVariable(A_ARG_TYPE_UserProfileEnumeration);
 
+      //Used for transporting a user profile
       DvStateVariable A_ARG_TYPE_UserProfile = new DvStateVariable("A_ARG_TYPE_UserProfile", new DvExtendedDataType(UPnPExtendedDataTypes.DtUserProfile))
           {
             SendEvents = false,
@@ -333,6 +335,8 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       string key = (string) inParams[2];
       string data = (string) inParams[3];
       bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserMediaItemData(profileId, mediaItemId, key, data);
+      if(success)
+        ServiceRegistration.Get<IMediaLibrary>().UserDataUpdated(profileId, mediaItemId, key, data);
       outParams = new List<object> {success};
       return null;
     }

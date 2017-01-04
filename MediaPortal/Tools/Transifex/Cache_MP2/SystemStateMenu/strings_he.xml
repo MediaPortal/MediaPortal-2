@@ -11,4 +11,7 @@
   <string name="SystemState.Logoff">ניתוק</string>
   <string name="SystemState.MinimizeMP">מזער מדיה פורטל</string>
   <string name="SystemState.ShutdownMP">סגור מדיה פורטל</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">תפריט כיבוי</string>
+  <string name="SleepTimer.Start">התחלה</string>
+  <string name="SleepTimer.Stop">עצור</string>
 </resources>

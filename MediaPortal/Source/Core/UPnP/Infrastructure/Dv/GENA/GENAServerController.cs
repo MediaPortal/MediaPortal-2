@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -95,7 +95,7 @@ namespace UPnP.Infrastructure.Dv.GENA
           subscription.Dispose();
       }
       else
-        UPnPConfiguration.LOGGER.Error("SSDPServerController.OnExpirationTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
+        UPnPConfiguration.LOGGER.Error("GENAServerController.OnExpirationTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
     }
 
     /// <summary>

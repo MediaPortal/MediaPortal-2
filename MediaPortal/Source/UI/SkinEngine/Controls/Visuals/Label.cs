@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Windows;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.UI.SkinEngine.DirectX11;
@@ -51,6 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _scrollDelayProperty;
     protected AbstractProperty _wrapProperty;
     protected AbstractProperty _lineHeightProperty;
+    protected AbstractProperty _textTrimmingProperty;
     protected string _resourceString;
     private TextBuffer2D _asset;
     private SolidColorBrush _textBrush;
@@ -74,6 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _scrollDelayProperty = new SProperty(typeof(double), DEFAULT_SCROLL_DELAY);
       _wrapProperty = new SProperty(typeof(bool), false);
       _lineHeightProperty = new SProperty(typeof(double), Double.NaN);
+      _textTrimmingProperty = new SProperty(typeof(TextTrimming), TextTrimming.None);
 
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
       InitializeResourceString();
@@ -84,6 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _contentProperty.Attach(OnContentChanged);
       _wrapProperty.Attach(OnLayoutPropertyChanged);
       _lineHeightProperty.Attach(OnLayoutPropertyChanged);
+      _textTrimmingProperty.Attach(OnLayoutPropertyChanged);
       _scrollProperty.Attach(OnLayoutPropertyChanged);
       _scrollSpeedProperty.Attach(OnLayoutPropertyChanged);
       _scrollDelayProperty.Attach(OnLayoutPropertyChanged);
@@ -105,6 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _contentProperty.Detach(OnContentChanged);
       _wrapProperty.Detach(OnLayoutPropertyChanged);
       _lineHeightProperty.Detach(OnLayoutPropertyChanged);
+      _textTrimmingProperty.Detach(OnLayoutPropertyChanged);
       _scrollProperty.Detach(OnLayoutPropertyChanged);
       _scrollSpeedProperty.Detach(OnLayoutPropertyChanged);
       _scrollDelayProperty.Detach(OnLayoutPropertyChanged);
@@ -135,6 +140,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ScrollSpeed = l.ScrollSpeed;
       Wrap = l.Wrap;
       LineHeight = l.LineHeight;
+      TextTrimming = l.TextTrimming;
       InitializeResourceString();
       Attach();
     }
@@ -264,7 +270,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the line height. A value of <see cref="Double.NaN"/> uses default line heights.
+    /// Gets or sets whether content text should be trimmed if it does not fit within the available space and any remaining text replaced with an ellipsis (...) 
     /// </summary>
     public double LineHeight
     {
@@ -275,6 +281,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public AbstractProperty LineHeightProperty
     {
       get { return _lineHeightProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets whether content text should be trimmed if it does not fit within the available space and any remaining text replaced with an ellipsis (...) 
+    /// </summary>
+    public TextTrimming TextTrimming
+    {
+      get { return (TextTrimming)_textTrimmingProperty.GetValue(); }
+      set { _textTrimmingProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TextTrimmingProperty
+    {
+      get { return _textTrimmingProperty; }
     }
 
     #endregion

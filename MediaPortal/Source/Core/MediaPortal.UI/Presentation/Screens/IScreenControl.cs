@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,14 +23,28 @@
 #endregion
 
 using System;
+using System.Windows.Forms;
 using MediaPortal.Common.Runtime;
 
 namespace MediaPortal.UI.Presentation.Screens
 {
+  /// <summary>
+  /// Defines the different modes of the main GUI window.
+  /// </summary>
   public enum ScreenMode
   {
+    /// <summary>
+    /// Windowed mode.
+    /// </summary>
     NormalWindowed,
-    FullScreen
+    /// <summary>
+    /// Fullscreen mode.
+    /// </summary>
+    FullScreen,
+    /// <summary>
+    /// Special windowed mode, which forces the window to stay on top.
+    /// </summary>
+    WindowedOnTop
   };
 
   public interface IScreenControl
@@ -56,7 +70,16 @@ namespace MediaPortal.UI.Presentation.Screens
     /// <value>
     /// <c>true</c> if this instance is fullscreen mode; otherwise, <c>false</c>.
     /// </value>
+    [Obsolete("Use CurrentScreenMode property instead.")]
     bool IsFullScreen { get; }
+
+    /// <summary>
+    /// Returns the current selected <see cref="ScreenMode"/>.
+    /// </summary>
+    /// <value>
+    /// A value of <see cref="ScreenMode"/>.
+    /// </value>
+    ScreenMode CurrentScreenMode { get; }
 
     /// <summary>
     /// Returns the window handle of the main window.
@@ -113,5 +136,13 @@ namespace MediaPortal.UI.Presentation.Screens
     /// </summary>
     /// <param name="mode">The requested mode.</param>
     void SwitchMode(ScreenMode mode);
+
+    /// <summary>
+    /// Usually MediaPortal runs as <see cref="Form.TopMost"/> window in <see cref="ScreenMode.FullScreen"/>.
+    /// By setting this property to <c>true</c>, a plugin can temporary disable this behavior to allow
+    /// other windows to be on top, while MediaPortal can remain the <see cref="Form.ActiveForm"/> to be able
+    /// to receive key inputs.
+    /// </summary>
+    bool DisableTopMost { get; set; }
   }
 }

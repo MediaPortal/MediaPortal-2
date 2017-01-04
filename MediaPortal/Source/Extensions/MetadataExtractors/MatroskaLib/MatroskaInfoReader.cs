@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,6 +35,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Process;
+using System.Threading;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 {
@@ -43,15 +44,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
   /// </summary>
   public class MatroskaInfoReader
   {
+    public enum StereoMode
+    {
+      Mono,
+      SBSLeftEyeFirst,
+      TABRightEyeFirst,
+      TABLeftEyeFirst,
+      CheckboardRightEyeFirst,
+      CheckboardLeftEyeFirst,
+      RowInterleavedRightEyeFirst,
+      RowInterleavedLeftEyeFirst,
+      ColumnInterleavedRightEyeFirst,
+      ColumnInterleavedLeftEyeFirst,
+      AnaglyphCyanRed,
+      SBSRightEyeFirst,
+      AnaglyphGreenMagenta,
+      FieldSequentialModeLeftEyeFirst,
+      FieldSequentialModeRightEyeFirst,
+    }
+
+    /// <summary>
+    /// Maximum duration for creating a tag extraction.
+    /// </summary>
+    protected const int PROCESS_TIMEOUT_MS = 15000;
+    protected const int MAX_CONCURRENT_MKVINFO = 5;
+    protected const int MAX_CONCURRENT_MKVEXTRACT = 5;
+
     #region Fields
 
     private readonly ILocalFsResourceAccessor _lfsra;
     private List<MatroskaAttachment> _attachments;
     private readonly string _mkvInfoPath;
-    private static readonly object MKVINFO_THROTTLE_LOCK = new object();
+    private static readonly SemaphoreSlim MKVINFO_THROTTLE_LOCK = new SemaphoreSlim(MAX_CONCURRENT_MKVINFO, MAX_CONCURRENT_MKVINFO);
     private readonly string _mkvExtractPath;
-    private static readonly object MKVEXTRACT_THROTTLE_LOCK = new object();
-    private readonly ProcessPriorityClass _priorityClass = ProcessPriorityClass.Idle;
+    private static readonly SemaphoreSlim MKVEXTRACT_THROTTLE_LOCK = new SemaphoreSlim(MAX_CONCURRENT_MKVEXTRACT, MAX_CONCURRENT_MKVEXTRACT);
+    private readonly ProcessPriorityClass _priorityClass = ProcessPriorityClass.BelowNormal;
 
     #endregion
 
@@ -113,8 +140,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       var arguments = string.Format("tags \"{0}\"", _lfsra.LocalFileSystemPath);
       try
       {
-        lock (MKVEXTRACT_THROTTLE_LOCK)
-          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass).Result;
+        MKVEXTRACT_THROTTLE_LOCK.Wait();
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
       catch (AggregateException ae)
       {
@@ -127,6 +154,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
           }
           return false;
         });
+      }
+      finally
+      {
+        MKVEXTRACT_THROTTLE_LOCK.Release();
       }
       if (executionResult != null && executionResult.Success && !string.IsNullOrEmpty(executionResult.StandardOutput))
       {
@@ -146,10 +177,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             tagName = parts[0];
 
           var result = from simpleTag in GetTagsForTargetType(doc, targetType).Elements("Simple")
-                       where simpleTag.Element("Name").Value == tagName && !string.IsNullOrEmpty(simpleTag.Element("String").Value)
-                       select simpleTag.Element("String").Value;
-          if (result.Any())
-            tagsToExtract[key] = result.ToList();
+                       let nameElement = simpleTag.Element("Name")
+                       let stringElement = simpleTag.Element("String")
+                       where nameElement != null && nameElement.Value == tagName &&
+                             stringElement != null && !string.IsNullOrWhiteSpace(stringElement.Value)
+                       select stringElement.Value;
+
+          var resultList = result.ToList();
+          if (resultList.Any())
+            tagsToExtract[key] = resultList.ToList();
         }
       }
     }
@@ -177,8 +213,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       var arguments = string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath);
       try
       {
-        lock (MKVINFO_THROTTLE_LOCK)
-          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass).Result;
+        MKVINFO_THROTTLE_LOCK.Wait();
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
       catch (AggregateException ae)
       {
@@ -191,6 +227,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
           }
           return false;
         });
+      }
+      finally
+      {
+        MKVINFO_THROTTLE_LOCK.Release();
       }
       if (executionResult != null && executionResult.Success)
       {
@@ -212,6 +252,61 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             _attachments[_attachments.Count - 1].FileSize = Int32.Parse(line.Substring(line.LastIndexOf(": ") + 2));
         }
       }
+    }
+
+    /// <summary>
+    /// Reads the stereoscopic information from the matroska file.
+    /// </summary>
+    public StereoMode ReadStereoMode()
+    {
+      // Structure of mkvinfo attachment output
+      // |+ Attachments
+      // | + Attached
+      // |  + File name: cover.jpg
+      // |  + Mime type: image/jpeg
+      // |  + File data, size: 132908
+      // |  + File UID: 1495003044
+      ProcessExecutionResult executionResult = null;
+      // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
+      var arguments = string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath);
+      try
+      {
+        MKVINFO_THROTTLE_LOCK.Wait();
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
+      }
+      catch (AggregateException ae)
+      {
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadAttachments: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvInfoPath, arguments);
+            return true;
+          }
+          return false;
+        });
+      }
+      finally
+      {
+        MKVINFO_THROTTLE_LOCK.Release();
+      }
+      if (executionResult != null && executionResult.Success)
+      {
+        StringReader reader = new StringReader(executionResult.StandardOutput);
+        string line;
+        while ((line = reader.ReadLine()) != null)
+        {
+          if (line.Contains("Stereo mode"))
+          {
+            int stereoMode = 0;
+            if (int.TryParse(line.Substring(line.LastIndexOf(": ") + 2, 2), out stereoMode))
+            {
+              return (StereoMode)stereoMode;
+            }
+          }
+        }
+      }
+      return StereoMode.Mono;
     }
 
     /// <summary>
@@ -278,8 +373,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       var arguments = string.Format("attachments \"{0}\" {1}:\"{2}\"", _lfsra.LocalFileSystemPath, attachmentIndex + 1, tempFileName);
       try
       {
-        lock (MKVEXTRACT_THROTTLE_LOCK)
-          success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass).Result.Success;
+        MKVEXTRACT_THROTTLE_LOCK.Wait();
+        success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result.Success;
       }
       catch (AggregateException ae)
       {
@@ -292,6 +387,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
           }
           return false;
         });
+      }
+      finally
+      {
+        MKVEXTRACT_THROTTLE_LOCK.Release();
       }
 
       if (!success)
@@ -315,11 +414,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     {
       if (targetTypeValue.HasValue)
         return from simpleTag in doc.Descendants("Tags").Descendants("Tag")
-               where simpleTag.Element("Targets").HasElements && simpleTag.Element("Targets").Element("TargetTypeValue") != null && Convert.ToInt32(simpleTag.Element("Targets").Element("TargetTypeValue").Value) == targetTypeValue.Value
+               let targetsElement = simpleTag.Element("Targets")
+               where targetsElement != null && targetsElement.HasElements
+               let targetTypeValueElement = targetsElement.Element("TargetTypeValue")
+               where targetTypeValueElement != null && Convert.ToInt32(targetTypeValueElement.Value) == targetTypeValue.Value
                select simpleTag;
 
       return from simpleTag in doc.Descendants("Tags").Descendants("Tag")
-             where !simpleTag.Element("Targets").HasElements
+             let targetsElement = simpleTag.Element("Targets")
+             where !targetsElement.HasElements
              select simpleTag;
     }
 

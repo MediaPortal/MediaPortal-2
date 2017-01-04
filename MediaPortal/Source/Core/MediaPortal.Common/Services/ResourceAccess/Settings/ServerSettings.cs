@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,6 +34,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     protected int _httpServerPort = 0;
     protected bool _useIPv4 = true;
     protected bool _useIPv6 = true;
+    protected bool _limitIPEndpoints = false;
     protected string _ipAddressBindings = null;
 
     /// <summary>
@@ -66,6 +67,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     {
       get { return _ipAddressBindings; }
       set { _ipAddressBindings = value; }
+    }
+
+    [Setting(SettingScope.Global, false)]
+    public bool LimitIPEndpoints
+    {
+      get { return _limitIPEndpoints; }
+      set { _limitIPEndpoints = value; }
     }
 
     /// <summary>

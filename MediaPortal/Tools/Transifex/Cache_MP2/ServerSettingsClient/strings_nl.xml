@@ -5,7 +5,6 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configureert de schijfletter voor externe bronnen op de server.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Netwerk identificatie</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configureert username en wachtwoord voor toegang tot bronnen op de server.</string>
-  <string name="Settings.ServerSettings.ImpersonateInteractive">Gebruik login gegevens van interactieve sessies op de server</string>
   <string name="Settings.ServerSettings.UseCredentials">Gebruik gebruikersnaam en wachtwoord voor netwerk toegang</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Gebruikersnaam en wachtwoord</string>
   <string name="Settings.ServerSettings.Username">Gebruikersnaam:</string>

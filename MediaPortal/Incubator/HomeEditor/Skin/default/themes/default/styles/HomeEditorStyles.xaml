@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="www.team-mediaportal.com/2008/mpf/directx"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System"
+                    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+                    DependsOnStyleResources="Colors,Buttons,OtherControls">
+
+  <Style x:Key="HomeEditorMovableItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid x:Name="ParentPanel">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Margin="2,1,0,1" Context="{Binding}"
+                    Command="{DynamicResource ResourceKey=Menu_Command}"/>
+
+            <Button Grid.Column="1" Margin="3" Width="30" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{ThemeResource ArrowButtonUpStyle}"
+                    Command="{DynamicResource ResourceKey=MoveUp_Command}" SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}" />
+
+            <Button x:Name="MoveDownButton" Grid.Column="2" Margin="3" Width="30" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{ThemeResource ArrowButtonDownStyle}" 
+                    Command="{DynamicResource ResourceKey=MoveDown_Command}" SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeEditorMovableListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}" />
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}" />
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeEditorMovableItemContainerStyle}" />
+  </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare_players.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]"/>
+
+    <ControlTemplate x:Key="Client_Template">
+      <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
+                Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
+                Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
+                Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
+                Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0"
+                Content="[Media.AudioYearLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Year" Grid.Row="2" Grid.Column="1"
+                Content="{Binding AudioYear}" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0"
+                Content="[Media.AudioDurationLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Duration" Grid.Row="3" Grid.Column="1"
+                Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
+
+            <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4" Stretch="Uniform" 
+                Source="{Binding MediaItem}" FallbackSource="AudioLarge.png"
+                Width="{StaticResource MEDIA_THUMB_WIDTH_CP}" Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}"/>
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

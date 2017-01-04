@@ -1,70 +1,41 @@
-﻿using System.Collections.Generic;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
   [DataContract]
-  public class TraktMovie : TraktMovieBase
+  public class TraktMovie
   {
-    [DataMember(Name = "certification")]
-    public string Certification { get; set; }
+    [DataMember(Name = "title", EmitDefaultValue = false)]
+    public string Title { get; set; }
 
-    [DataMember(Name = "overview")]
-    public string Overview { get; set; }
+    [DataMember(Name = "year", EmitDefaultValue = false)]
+    public int? Year { get; set; }
 
-    [DataMember(Name = "released")]
-    public long Released { get; set; }
-
-    [DataMember(Name = "runtime")]
-    public int Runtime { get; set; }
-
-    [DataMember(Name = "tagline")]
-    public string Tagline { get; set; }
-
-    [DataMember(Name = "rt_id")]
-    public string RtId { get; set; }
-
-    [DataMember(Name = "trailer")]
-    public string Trailer { get; set; }
-
-    [DataMember(Name = "url")]
-    public string Url { get; set; }
-
-    [DataMember(Name = "plays")]
-    public int Plays { get; set; }
-
-    [DataMember(Name = "watched")]
-    public bool Watched { get; set; }
-
-    [DataMember(Name = "in_collection")]
-    public bool InCollection { get; set; }
-
-    [DataMember(Name = "in_watchlist")]
-    public bool InWatchList { get; set; }
-
-    [DataMember(Name = "rating")]
-    public string Rating { get; set; }
-
-    [DataMember(Name = "rating_advanced")]
-    public int RatingAdvanced { get; set; }
-
-    [DataMember(Name = "ratings")]
-    public TraktRatings Ratings { get; set; }
-
-    [DataMember(Name = "genres")]
-    public List<string> Genres { get; set; }
-
-    [DataMember(Name = "images")]
-    public MovieImages Images { get; set; }
-
-    [DataContract]
-    public class MovieImages
-    {
-      [DataMember(Name = "fanart")]
-      public string Fanart { get; set; }
-
-      [DataMember(Name = "poster")]
-      public string Poster { get; set; }
-    }
+    [DataMember(Name = "ids")]
+    public TraktMovieId Ids { get; set; }
   }
 }

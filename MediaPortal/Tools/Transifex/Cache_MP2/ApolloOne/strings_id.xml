@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audio</string>
+  <string name="Menu.Image">Gambar</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Berita</string>
+  <string name="Menu.Weather">Cuaca</string>
+  <string name="Menu.Settings">Setelan</string>
+  <string name="Menu.Others">Lainnya</string>
+</resources>

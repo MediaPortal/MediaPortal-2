@@ -2,7 +2,9 @@
 <resources>
   <string name="SlimTvClient.Title">Slim TV-klient</string>
   <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.Main.Help">Här kan du titta och lyssna på dina favorit TV- och radiokanaler. Du kan även byta kanal.</string>
   <string name="SlimTvClient.TvGuide">TV-tablå</string>
+  <string name="SlimTvClient.TvGuide.Help">Utforska tablån och välj program som du vill titta på nu eller spela in senare.</string>
   <string name="SlimTvClient.SingleChannelGuide">Kanaltablå</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programinformation</string>
   <string name="SlimTvClient.ChannelLabel">Kanal</string>
@@ -12,16 +14,21 @@
   <string name="SlimTvClient.ProgramStartLabel">Börjar</string>
   <string name="SlimTvClient.ProgramEndLabel">Slutar</string>
   <string name="SlimTvClient.EpisodeLabel">Avsnitt</string>
+  <string name="SlimTvClient.CurrentProgram">Pågående program</string>
+  <string name="SlimTvClient.NextProgram">Nästa program</string>
+  <string name="SlimTvClient.Progress">Status</string>
   <string name="SlimTvClient.Guide">TV-tablå</string>
   <string name="SlimTvClient.NoProgram">Programinformation saknas.</string>
   <string name="SlimTvClient.ChooseProgramAction">Välj åtgärd...</string>
   <string name="SlimTvClient.ChooseChannelGroup">Välj kanalgrupp...</string>
+  <string name="SlimTvClient.ChannelGroupButton">Kanalgrupp...</string>
   <string name="SlimTvClient.ProgramOver">Programmet är slut</string>
   <string name="SlimTvClient.WatchNow">Titta nu</string>
   <string name="SlimTvClient.WatchFromBeginning">Se inspelningen från början</string>
   <string name="SlimTvClient.RecordNow">Spela in nu</string>
   <string name="SlimTvClient.DeleteSchedule">Ta bort planerad inspelning</string>
   <string name="SlimTvClient.CreateSchedule">Planera inspelning</string>
+  <string name="SlimTvClient.ProgramSearch">Sök program</string>
   <!--Extended recording features-->
   <string name="SlimTvClient.RecordActions">Inspelningsåtgärder</string>
   <string name="SlimTvClient.StopCurrentRecording">Stoppa pågående inspelning \'{0}\'</string>
@@ -30,9 +37,9 @@
   <string name="SlimTvClient.ManualRecordingTitle">Manuell inspelning</string>
   <string name="SlimTvClient.RecordProgram">Spela in program</string>
   <string name="SlimTvClient.DontRecordProgram">Spela inte in</string>
-  <string name="SlimTvClient.RecordSeries">Spela in TV-serier</string>
+  <string name="SlimTvClient.RecordSeries">Spela in flera program</string>
   <string name="SlimTvClient.ChooseScheduleType">Välj typ av planerad inspelning</string>
-  <string name="SlimTvClient.DeleteScheduleType">Hur tar man bort en planerad inspelning</string>
+  <string name="SlimTvClient.DeleteScheduleType">Hur vill du ta bort den planerade inspelningen?</string>
   <string name="SlimTvClient.DeleteSingle">Ta bort enstaka planerad inspelning</string>
   <string name="SlimTvClient.DeleteFullSchedule">Ta bort hela den planerade TV-serieinspelningen</string>
   <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Ta bort en enstaka inspelning från en planerad TV-serieinspelning</string>
@@ -44,20 +51,35 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Helger</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Arbetsdagar</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Veckovis varje gång på denna kanal</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Inspelningar per namn</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Inspelningar per namn</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Information om planerade inspelningar</string>
   <string name="SlimTvClient.ScheduleName">Namn på den planerade inspelningen</string>
   <string name="SlimTvClient.ScheduleType">Typ av planerad inspelning</string>
   <string name="SlimTvClient.Schedules">Planerade inspelningar</string>
+  <string name="SlimTvClient.Schedules.Help">Se vilka program du planerat att spela in. Du kan även ta bort planerade inspelningar här.</string>
   <string name="SlimTvClient.ExtendedSchedule">Utökade planerade inspelningar</string>
   <string name="SlimTvClient.ScheduleManagement">Hantera planerade inspelningar</string>
+  <string name="SlimTvClient.ScheduleModeSeries">Hantera flera planerade inspelningar.</string>
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV-försörjare är (ännu) tillgänglig</string>
   <!--Settings-->
   <string name="SlimTvClient.EpgNumberOfRows">Antal rader i TV-tablån</string>
   <string name="SlimTvClient.EpgNumberOfRows.Help">Bestämmer hur många rader (kanaler) som visas i TV-tablån</string>
   <string name="SlimTvClient.EpgNumberOfHours">Antal timmar i TV-tablån</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Bestämmer hur många timmar (program) som visas i TV-tablån</string>
+  <string name="SlimTvClient.AutoStartTv">Starta TV automatiskt</string>
+  <string name="SlimTvClient.AutoStartTv.Help">När funktionen är aktiverad så startar senaste använda kanal automatiskt när startsidan för TV väljs.</string>
+  <string name="SlimTvClient.ShowSeriesInfo">Visa information om multipla inspelningar</string>
+  <string name="SlimTvClient.ShowSeriesInfo.Help">Aktivera för att se, om den finns tillgänglig, säsongs- och avsnittsinformation i tablån.</string>
+  <string name="SlimTvClient.ZapByChannelIndex">Välj kanal via index</string>
+  <string name="SlimTvClient.ZapByChannelIndex.Help">Bestäm om kanal ska väljas med index eller kanalnummer.</string>
+  <string name="SlimTvClient.ZapTimeout">Timeout vid kanalbyte</string>
+  <string name="SlimTvClient.ZapTimeout.Help">Sätt fördröjning tills kanalinställning startar.</string>
+  <string name="SlimTvClient.HideAllChannelsGroup">Dölj kanalgruppen \"Alla kanaler\".</string>
+  <string name="SlimTvClient.HideAllChannelsGroup.Help">När funktionen är aktiverad så döljs kanalgruppen \"Alla kanaler\" </string>
   <string name="SlimTvClient.RecordingsMenuItem">Inspelningar</string>
+  <string name="SlimTvClient.Recordings.Help">Här kan du se en lista av dina inspelade program. Du kan även spela upp dessa program.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV-inspelningar</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrera på kanal</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Kanal: {0}</string>

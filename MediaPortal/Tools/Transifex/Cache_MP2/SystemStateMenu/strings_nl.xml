@@ -11,4 +11,7 @@
   <string name="SystemState.Logoff">Uitloggen</string>
   <string name="SystemState.MinimizeMP">Mediaportal minimaliseren</string>
   <string name="SystemState.ShutdownMP">Mediaportal afsluiten</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Afsluitmenu</string>
+  <string name="SleepTimer.Start">Start</string>
+  <string name="SleepTimer.Stop">stop</string>
 </resources>

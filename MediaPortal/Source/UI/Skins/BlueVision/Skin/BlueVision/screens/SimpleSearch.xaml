@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header_Text resource has to be added by including screen -->
+
+    <Model x:Key="MediaNavigationModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource MediaNavigationModel},Path=NavigationData.CurrentScreenData}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="40"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label x:Name="Duration" Grid.Row="0" Content="[Media.SimpleSearchFilterMenuItem]" Color="{ThemeResource TextColor}"/>
+
+        <TextBox Grid.Column="0" Grid.Row="1"
+            Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100"/>
+        <Control Grid.Column="0" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsList.inc"/>
+          </Control.TemplateControl>
+        </Control>
+      </Grid>
+    </ControlTemplate>
+
+    <!-- Control template for the MediaItem details (cover, thumbs, duration, genres...)-->
+    <ControlTemplate x:Key="Media_Details_Template">
+      <Include Source="screens\MediaItemFanArt.inc"/>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Alternative_Footer_Template">
+      <Include Source="screens\MultiDetails.inc"/>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

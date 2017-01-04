@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">Aktiver opdateringshastigheds tilpasning</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Hvis slået til vil opdateringshastighed forsøges at matche afspillet videos fps. </string>
+  <string name="RefreshRateChanger.NoChangeForRate">Ekskluder opdateringshastigheder</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Ekskluder liste af opdateringshastigheder fra ændringer. Tast værdier som integer sepereret med komma (f.eks. 23,25,50).</string>
+</resources>

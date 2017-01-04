@@ -1,6 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Afspillere</string>
+  <string name="Settings.Players.AudioPlayer">Lyd afspiller</string>
+  <string name="Settings.Players.BassPlayer.Setup">Konfigurer udgangs enheder</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Konfigurerer BassPlayer, Udgangs enheder og optioner</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Eksklusiv Modus</string>
   <string name="Settings.Players.Rendering">Rendere</string>
   <string name="Settings.Players.Rendering.CrossFading">Overlapning</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Overlapning slået til</string>

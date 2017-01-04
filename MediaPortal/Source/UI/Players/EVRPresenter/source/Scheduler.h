@@ -56,6 +56,8 @@ private:
   // non-static version of SchedulerThreadProc.
   DWORD SchedulerThreadProcPrivate();
 
+  LONGLONG GetCurrentTimestamp();
+  __int64 _stdcall cMulDiv64(__int64 operant, __int64 multiplier, __int64 divider);
 
 private:
   ThreadSafeQueue<IMFSample>  m_ScheduledSamples;   // Samples waiting to be presented.
@@ -72,6 +74,16 @@ private:
   MFTIME        m_PerFrameInterval;   // Duration of each frame.
   LONGLONG      m_PerFrame_1_4th;     // 1/4th of the frame duration.
   MFTIME        m_LastSampleTime;     // Most recent sample time.
+
+  // Statistics
+  double        m_averageFrameRenderDuration; // For calculating exponential moving average of present time (GUI render)
+  double        m_alpha = 0.99;
+  BOOL          g_bTimerInitializer = false;
+  BOOL          g_bQPCAvail;
+  LARGE_INTEGER g_lPerfFrequency;
+
+  CCritSec lock;  // lock for timer initialization (multiple threads are using the timer during startup)
+
 };
 
 

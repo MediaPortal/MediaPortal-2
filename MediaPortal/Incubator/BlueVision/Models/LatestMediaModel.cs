@@ -39,6 +39,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -134,7 +135,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         SetLayout();
 
         FillList(contentDirectory, Media.General.Consts.NECESSARY_MOVIES_MIAS, Movies, item => new MovieItem(item));
-        FillList(contentDirectory, Media.General.Consts.NECESSARY_SERIES_MIAS, Series, item => new SeriesItem(item));
+        FillList(contentDirectory, Media.General.Consts.NECESSARY_SERIES_MIAS, Series, item => new EpisodeItem(item));
         FillList(contentDirectory, Media.General.Consts.NECESSARY_IMAGE_MIAS, Images, item => new ImageItem(item));
         FillList(contentDirectory, Media.General.Consts.NECESSARY_VIDEO_MIAS, Videos, item => new VideoItem(item));
         FillList(contentDirectory, Media.General.Consts.NECESSARY_AUDIO_MIAS, Audio, item => new AudioItem(item));
@@ -156,7 +157,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         SortInformation = new List<SortInformation> { new SortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
 
-      var items = contentDirectory.Search(query, false);
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+      var items = contentDirectory.Search(query, false, userProfile, false);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

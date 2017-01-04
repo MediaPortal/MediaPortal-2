@@ -11,4 +11,7 @@
   <string name="SystemState.Logoff">Išsiregistruoti</string>
   <string name="SystemState.MinimizeMP">Minimizuoti MediaPortal</string>
   <string name="SystemState.ShutdownMP">Uždaryti MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Išjungimo meniu</string>
+  <string name="SleepTimer.Start">Pradžia</string>
+  <string name="SleepTimer.Stop">Stop</string>
 </resources>

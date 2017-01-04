@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,6 +34,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     {
       try
       {
+        if(!File.Exists(fileName))
+          return default(TE);
         XmlSerializer serializer = new XmlSerializer(typeof(TE));
         using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
           return (TE)serializer.Deserialize(fileStream);

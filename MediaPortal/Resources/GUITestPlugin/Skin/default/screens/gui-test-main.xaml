@@ -41,6 +41,12 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="VirtualKeyboard test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-virtualkeyboardcontrol}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Text trimming test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-texttrimming}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="ListView grouping test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-listviewgrouping}"/>
           </StackPanel>
           <StackPanel Orientation="Vertical" Margin="5,0,0,0">
             <Button Style="{StaticResource ButtonWideStyle}" Content="Border test"
@@ -64,9 +70,15 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="EventManager test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-eventmanager}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Loop scroll test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-loopscroll}"/>
             <Button Style="{StaticResource ButtonWideStyle}" Content="2D Effects test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-effects2d}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="List restore focus test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-listview-restore-focus}"/>
           </StackPanel>
         </UniformGrid>
       </DockPanel>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,78 +29,94 @@ using MediaPortal.Backend.Services.Database;
 
 namespace MediaPortal.Database.SQLCE
 {
-    public class SQLCETransaction : ITransaction
+  public class SQLCETransaction : ITransaction
+  {
+    #region Protected fields
+
+    protected SqlCeTransaction _transaction;
+    protected ISQLDatabase _database;
+    protected IDbConnection _connection;
+
+    #endregion
+
+    #region ITransaction Member
+
+    public ISQLDatabase Database
     {
-      #region Protected fields
+      get { return _database; }
+    }
 
-      protected SqlCeTransaction _transaction;
-      protected ISQLDatabase _database;
-      protected IDbConnection _connection;
+    public IDbConnection Connection
+    {
+      get { return _connection; }
+    }
 
-      #endregion
-
-      #region ITransaction Member
-
-      public ISQLDatabase Database
-      {
-        get { return _database; }
-      }
-
-      public IDbConnection Connection
-      {
-        get { return _connection; }
-      }
-
-      public void Commit()
-      {
-        _transaction.Commit();
-        Dispose();
-      }
-
-      public void Rollback()
-      {
+    public void Begin(IsolationLevel level)
+    {
+      if (_transaction != null)
         _transaction.Rollback();
-        Dispose();
-      }
+      _transaction = ((SqlCeConnection)_connection).BeginTransaction(level);
+    }
 
-      public IDbCommand CreateCommand()
-      {
-        IDbCommand result = _connection.CreateCommand();
+    public void Commit()
+    {
+      if(_transaction != null)
+        _transaction.Commit();
+      Dispose();
+    }
+
+    public void Rollback()
+    {
+      if (_transaction != null)
+        _transaction.Rollback();
+      Dispose();
+    }
+
+    public IDbCommand CreateCommand()
+    {
+      IDbCommand result = _connection.CreateCommand();
 #if DEBUG
-        // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
-        result = new LoggingDbCommandWrapper(result);
+      // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
+      result = new LoggingDbCommandWrapper(result);
 #endif
-        result.Transaction = _transaction;
-        return result;
-      }
+      result.Transaction = _transaction;
+      return result;
+    }
 
-      #endregion
+    #endregion
 
-      #region IDisposable Member
+    #region IDisposable Member
 
-      public void Dispose()
+    public void Dispose()
+    {
+      if (_connection != null)
       {
-        if (_connection != null)
-        {
-          _connection.Close();
-          _connection = null;
-        }
-      }
-
-      #endregion
-
-      public static ITransaction BeginTransaction(SQLCEDatabase database, string connectionString, IsolationLevel level)
-      {
-        SqlCeConnection connection = new SqlCeConnection(connectionString);
-        connection.Open();
-        return new SQLCETransaction(database, connection, connection.BeginTransaction(level));
-      }
-
-      public SQLCETransaction(ISQLDatabase database, IDbConnection connection, SqlCeTransaction transaction)
-      {
-        _database = database;
-        _connection = connection;
-        _transaction = transaction;
+        _connection.Close();
+        _connection = null;
       }
     }
+
+    #endregion
+
+    public static ITransaction BeginTransaction(SQLCEDatabase database, string connectionString, IsolationLevel level)
+    {
+      SqlCeConnection connection = new SqlCeConnection(connectionString);
+      connection.Open();
+      return new SQLCETransaction(database, connection, connection.BeginTransaction(level));
+    }
+
+    public static ITransaction CreateTransaction(SQLCEDatabase database, string connectionString)
+    {
+      SqlCeConnection connection = new SqlCeConnection(connectionString);
+      connection.Open();
+      return new SQLCETransaction(database, connection, null);
+    }
+
+    public SQLCETransaction(ISQLDatabase database, IDbConnection connection, SqlCeTransaction transaction)
+    {
+      _database = database;
+      _connection = connection;
+      _transaction = transaction;
+    }
+  }
 }

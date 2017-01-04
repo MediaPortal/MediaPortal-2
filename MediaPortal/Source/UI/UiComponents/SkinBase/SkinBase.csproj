@@ -102,7 +102,6 @@
     <Compile Include="Settings\Configuration\Appearance\Skin\TimeFormat.cs" />
     <Compile Include="Settings\Configuration\General\HomeServerSetting.cs" />
     <Compile Include="Settings\Configuration\General\ClientName.cs" />
-    <Compile Include="Settings\Configuration\General\ClientDOKANDrive.cs" />
     <Compile Include="Settings\Configuration\General\HttpServerPortSetting.cs" />
     <Compile Include="Settings\Configuration\General\IPAddressBindingsSetting.cs" />
     <Compile Include="Settings\Configuration\General\ServerListener.cs" />
@@ -249,6 +248,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogPlayerChooseSubtitle.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

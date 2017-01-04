@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Audió</string>
+  <string name="Menu.Image">Képek</string>
+  <string name="Menu.TV">TV</string>
+  <string name="Menu.Weather">Időjárás</string>
+  <string name="Menu.Settings">Beállítások</string>
+  <string name="Menu.Home">Home</string>
+  <string name="Movies.Title">Filmek</string>
+  <string name="Series.Title">Sorozatok</string>
+  <string name="Audio.Title">Audió</string>
+  <string name="Images.Title">Képek</string>
+  <string name="Videos.Title">Videók</string>
+  <string name="Weather.Title">Időjárás</string>
+  <string name="General.Title">Általános</string>
+</resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,15 +22,20 @@
 
 #endregion
 
+using System.Net;
+using HttpServer.Authentication;
 using HttpServer.HttpModules;
 
 namespace MediaPortal.Common.ResourceAccess
 {
   public interface IResourceServer
   {
-    int PortIPv4 { get; }
-
-    int PortIPv6 { get; }
+    /// <summary>
+    /// Gets the port number on which the HttpServer with give IP is listening.
+    /// </summary>
+    /// <param name="ipAddress">Bound IP address</param>
+    /// <returns>Port number</returns>
+    int GetPortForIP(IPAddress ipAddress);
 
     void Startup();
 
@@ -53,6 +58,16 @@ namespace MediaPortal.Common.ResourceAccess
     /// </remarks>
     /// <param name="module"></param>
     void AddHttpModule(HttpModule module);
+
+    /// <summary>
+    /// Adds a new Authentication Module to the HTTP server.
+    /// </summary>
+    /// <remarks>
+    /// The Authentication Module approach is implemented by our <see cref="HttpServer.HttpServer"/> and fits very well into
+    /// the MediaPortal concept: Plugins simply can add a module to the HTTP server.
+    /// </remarks>
+    /// <param name="module"></param>
+    void AddAuthenticationModule(AuthenticationModule module);
 
     /// <summary>
     /// Removes an HTTP module from the HTTP server.

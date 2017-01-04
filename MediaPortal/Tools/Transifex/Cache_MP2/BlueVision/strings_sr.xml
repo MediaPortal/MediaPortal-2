@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Звук</string>
+  <string name="Menu.Image">Слике</string>
+  <string name="Menu.TV">ТВ</string>
+  <string name="Menu.News">Новости</string>
+  <string name="Menu.Weather">Време</string>
+  <string name="Menu.Settings">Подешавања</string>
+  <string name="Menu.Home">Основна страна</string>
+  <string name="Movies.Title">Филмови</string>
+  <string name="Series.Title">Серије</string>
+  <string name="Audio.Title">Звук</string>
+  <string name="Recordings.Title">Снимљено</string>
+  <string name="Images.Title">Слике</string>
+  <string name="Videos.Title">Видео</string>
+  <string name="News.Title">Новости</string>
+  <string name="Weather.Title">Време</string>
+  <string name="General.Title">Генерално</string>
+</resources>

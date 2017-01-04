@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,6 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     public BeginStoryboard()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -57,13 +58,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       _handoffBehaviorProperty = new SProperty(typeof(HandoffBehavior), HandoffBehavior.SnapshotAndReplace);
     }
 
+    void Attach()
+    {
+      _storyBoardProperty.Attach(OnStoryboardChanged);
+    }
+
+    void Detach()
+    {
+      _storyBoardProperty.Detach(OnStoryboardChanged);
+    }
+
+    private void OnStoryboardChanged(AbstractProperty property, object oldvalue)
+    {
+      var oldStoryboard = oldvalue as Storyboard;
+      if (oldStoryboard != null && ReferenceEquals(oldStoryboard.LogicalParent, this))
+      {
+        oldStoryboard.LogicalParent = null;
+      }
+      Storyboard.LogicalParent = this;
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       BeginStoryboard s = (BeginStoryboard) source;
       Storyboard = copyManager.GetCopy(s.Storyboard);
       HandoffBehavior = s.HandoffBehavior;
       Name = s.Name;
+      Attach();
     }
 
     public override void Dispose()

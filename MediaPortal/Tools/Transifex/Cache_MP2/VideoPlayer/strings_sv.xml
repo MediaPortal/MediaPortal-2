@@ -8,6 +8,8 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Välj videoavkodare för MPEG4 (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC-videoavkodare</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Välj videoavkodare för AVC (HDTV, Bluray)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC Videoavkodare</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Välj videoavkodare för HEVC video (HD, UHD)</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Ljudavkodare</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Ljuduppspelare</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2-ljudavkodare</string>
@@ -29,7 +31,7 @@
   <string name="Playback.NotSpecified">Ej specifierat</string>
   <string name="Playback.CaptionNormal">Normal text</string>
   <string name="Playback.CaptionBig">Stor text</string>
-  <string name="Playback.CaptionChildren">Liten Text</string>
+  <string name="Playback.CaptionChildren">Text för barn</string>
   <string name="Playback.CCNormal">Normal text</string>
   <string name="Playback.CCBig">Stor text</string>
   <string name="Playback.CCChildren">Text för barn</string>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,9 +42,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
   {
     #region Constants
 
-    public const int CHUNK_SIZE = 512 * 1024; // 512 kB chunk size
-    public const int NUM_READAHEAD_CHUNKS = 4;
-    public const int MAX_NUM_CACHES = 20;
+    public const int CHUNK_SIZE = 4 * 512 * 1024; // 4 * 512 kB chunk size
+    public const int NUM_READAHEAD_CHUNKS = 2;
+    public const int MAX_NUM_CACHES = 10;
 
     #endregion
 

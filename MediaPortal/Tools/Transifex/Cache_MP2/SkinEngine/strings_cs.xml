@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">Systém</string>
   <string name="Settings.Appearance.System.Fullscreen">Na celou obrazovku</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">Zobrazit MediaPortal v režimu na celou obrazovku</string>
+  <string name="Settings.Appearance.System.StartupScreen">Úvodní obrazovka</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Zvolte úvodní obrazovku</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Nepoužívat výběr obrazovky</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Styl vstupu mobilní telefon</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Použít styl vstupu mobilní telefon/SMS</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Povolit spořič obrazovky</string>

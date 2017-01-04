@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Appearance.Skin.Background.VideoBackground">Video arkaplanı</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Video arkaplanını etkinleştir ve video seç</string>
   <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Video arkaplanını etkinleştir</string>
   <string name="Settings.Appearance.Skin.Background.Setup">Video arkaplanı ayarları</string>
   <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Video dosyası</string>

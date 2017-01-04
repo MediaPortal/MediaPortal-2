@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -75,5 +75,13 @@ namespace MediaPortal.Common.PluginManager.Exceptions
         base(msg, args) { }
     public PluginLockException(string msg, Exception ex, params object[] args):
         base(msg, ex, args) { }
+  }
+
+  public class PluginIncompatibleException : PluginManagerException
+  {
+    public PluginIncompatibleException(string msg, params object[] args) :
+      base(msg, args) { }
+    public PluginIncompatibleException(string msg, Exception ex, params object[] args) :
+      base(msg, ex, args) { }
   }
 }

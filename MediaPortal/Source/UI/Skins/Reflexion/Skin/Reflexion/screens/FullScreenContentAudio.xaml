@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    xmlns:mp_audio_viz="clr-namespace:MediaPortal.UiComponents.Media.Controls;assembly=Media"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    x:Name="FullscreenContentAudioScreen"
+    >
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="180"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="350"/>
+      <RowDefinition Height="500"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <Control x:Name="WindowButtons" Grid.Column="1" Grid.Row="0">
+      <Control.TemplateControl>
+        <Include Source="screens\FSCWindowButtons.inc"/>
+      </Control.TemplateControl>
+    </Control>
+
+    <Control Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="0,-50,0,-50">
+      <Control.Background>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <GradientStop Offset="0" Color="#A0000000"/>
+          <GradientStop Offset="1" Color="#14000000"/>
+        </LinearGradientBrush >
+      </Control.Background>
+    </Control>
+
+    <Control x:Name="GlassOverlay" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Width="850" Height="500"
+               Style="{ThemeResource GlassOverlayControl}" 
+               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="ControlWidth" Resource="800"/>
+        <ResourceWrapper x:Key="ControlHeight" Resource="450"/>
+        <ControlTemplate x:Key="MakeGlass">
+
+          <mp_audio_viz:AudioSpectrumAnalyzer  Width="800" Height="450"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"
+              BarSpacing="10" BarCount="41"/>
+        </ControlTemplate>
+      </Control.Resources>
+    </Control>
+    <Grid Grid.Row="1" Grid.Column="0" Grid.RowSpan="2">
+
+      <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="450"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Control x:Name="CoverReflexion" Style="{ThemeResource ReflexionControl}" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="50,170,0,0">
+              <Control.Resources>
+                <ResourceWrapper x:Key="ControlWidth" Resource="250"/>
+                <ResourceWrapper x:Key="ControlHeight" Resource="250"/>
+                <ControlTemplate x:Key="MakeReflexion">
+                   <Image x:Name="ItemTypeImage" Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png" Width="250" Height="250"/>
+                </ControlTemplate>
+              </Control.Resources>
+            </Control>          
+
+            <Label x:Name="ArtistsLabel" Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom"
+                Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+            <Label x:Name="Artists" Grid.Row="1" Grid.Column="2" VerticalAlignment="Bottom"
+                Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+            <Label x:Name="TitleLabel" Grid.Row="2" Grid.Column="1"
+                Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+            <Label x:Name="Title" Grid.Row="2" Grid.Column="2" Scroll="Auto"
+                Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"/>
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+
+
+    </Grid>
+  </Grid>
+</Screen>

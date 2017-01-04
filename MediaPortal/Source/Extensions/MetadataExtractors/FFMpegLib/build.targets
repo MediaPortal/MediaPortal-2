@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+    <PluginFiles Include="$(ProjectDir)plugin.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <References Include="$(TargetDir)ffmpeg.exe" />
+    <References Include="$(TargetDir)ffprobe.exe" />
+    <References Include="$(TargetDir)ffplay.exe" />
+    <References Include="$(TargetDir)av*.dll" />
+    <References Include="$(TargetDir)sw*.dll" />
+    <References Include="$(TargetDir)post*.dll" />
+    <Fonts Include="$(TargetDir)fonts\**\*.*" />
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(PluginDestination)\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

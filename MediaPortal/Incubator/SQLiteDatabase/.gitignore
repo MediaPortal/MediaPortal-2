@@ -1,4 +1,0 @@
-# SQLite interop assemblies copied to the project directory
-# when installing the SQLite nuget package
-x64/
-x86/

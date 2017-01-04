@@ -3,8 +3,6 @@
   <string name="Trakt.Enable">Omogoči scrobbling</string>
   <string name="Trakt.UsernamePasswordGroup">Podrobnosti računa</string>
   <string name="Trakt.Username">Up. ime</string>
-  <string name="Trakt.Password">Geslo</string>
-  <string name="Trakt.TestAccount">Preizkusi račun</string>
   <string name="Trakt.SyncMovies">Sinhroniziranje filmov...</string>
   <string name="Trakt.SyncSeries">Sinhroniziranje serij...</string>
   <string name="Trakt.SyncFinished">Sinhronizacija je končana!</string>

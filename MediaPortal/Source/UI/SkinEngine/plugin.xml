@@ -5,13 +5,21 @@
     Author="Frodo, Albert, Baboonanza"
     Copyright="GPL"
     AutoActivate="true"
-    Description="DirectX Window Manager"
-    PluginVersion="1.0">
+    Description="DirectX Window Manager">
+
+  <Version
+    PluginVersion="1.0.1"
+    ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
+    MinCompatibleAPI="1"
+    CurrentAPI="4"/>
 
   <DependsOn>
-    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
-    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
-    <PluginReference PluginId="{94B90D7C-EF2E-466C-9FDE-E9F57472761A}"/> <!-- FreeImageLib -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{94B90D7C-EF2E-466C-9FDE-E9F57472761A}" CompatibleAPI="1"/> <!-- FreeImageLib -->
   </DependsOn>
 
   <Runtime>
@@ -120,6 +128,11 @@
         HelpText="[Settings.Appearance.System.ScreenSaverTimeout.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.ScreenSaverTimeout"/>
 
+    <ConfigSetting
+        Id="SkinSounds"
+        Text="[Settings.Appearance.Skin.SkinAndTheme.SkinSounds]"
+        HelpText="[Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.SkinSounds"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->
@@ -147,15 +160,15 @@
   </Register>
 
   <!-- Contents of '/Players' section -->
-  <Register Location="/Configuration/Settings/Players">
+  <Register Location="/Configuration/Settings/Players/">
     <ConfigSection
-        Id="Rendering"
+        Id="VideoPlayer"
         Redundant="true"
-        Text="[Settings.Players.Rendering]"/>
+        Text="[Settings.Players.VideoPlayer]"/>
   </Register>
 
   <!-- Contents of '/Players/Rendering' section -->
-  <Register Location="/Configuration/Settings/Players/Rendering">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer">
     <ConfigSetting
         Id="DefaultGeometry"
         Text="[Settings.Players.Rendering.DefaultGeometry]"

@@ -21,7 +21,7 @@ m_DeviceResetToken(0),
 m_pD3D9(NULL),
 m_pDevice(d3DDevice),
 m_pDeviceManager(NULL),
-m_pSurfaceRepaint(NULL),
+m_pTextureRepaint(NULL),
 m_EVRCallback(callback),
 m_Width(0),
 m_Height(0)
@@ -40,7 +40,7 @@ m_Height(0)
 D3DPresentEngine::~D3DPresentEngine()
 {
   SAFE_RELEASE(m_pDevice);
-  SAFE_RELEASE(m_pSurfaceRepaint);
+  SAFE_RELEASE(m_pTextureRepaint);
   SAFE_RELEASE(m_pDeviceManager);
   SAFE_RELEASE(m_pD3D9);
 }
@@ -185,8 +185,12 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
     m_ArY = m_Height;
   }
 
-  hr = videoType.GetFourCC((DWORD*)&d3dFormat);
-  CHECK_HR(hr, "D3DPresentEngine::CreateVideoSamples VideoType::GetFourCC() failed");
+  //hr = videoType.GetFourCC((DWORD*)&d3dFormat);
+  //CHECK_HR(hr, "D3DPresentEngine::CreateVideoSamples VideoType::GetFourCC() failed");
+
+  // Morpheus_xx, 2016-08-14: we force a format without alpha channel here, because rendering subtitles with MPC-HC engine expects this format. Actually I can't imagine a video format
+  // that actually delivers alpha channel information.
+  d3dFormat = D3DFMT_X8R8G8B8;
 
   for (int i = 0; i < NUM_PRESENTER_BUFFERS; i++)
   {
@@ -240,7 +244,7 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
 // Released Direct3D resources used by this object. 
 void D3DPresentEngine::ReleaseResources()
 {
-  SAFE_RELEASE(m_pSurfaceRepaint);
+  SAFE_RELEASE(m_pTextureRepaint);
 }
 
 
@@ -298,7 +302,7 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
   HRESULT hr = S_OK;
 
   IMFMediaBuffer* pBuffer = NULL;
-  IDirect3DSurface9* pSurface = NULL;
+  IDirect3DTexture9* pTexture = NULL;
 
   DWORD sharedResourceHandle;
   DWORD dataSize;
@@ -309,6 +313,7 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
     if (SUCCEEDED(hr))
     {
       // Get the surface from the buffer.
+      IDirect3DSurface9* pSurface = NULL;
       hr = MFGetService(pBuffer, MR_BUFFER_SERVICE, __uuidof(IDirect3DSurface9), (void**)&pSurface);
       hr = pSurface->GetPrivateData(MFSamplePresenter_SharedResourceHande, &sharedResourceHandle, &dataSize);
       if (FAILED(hr))
@@ -326,7 +331,7 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
       hr = S_OK;
     }
   }
-  else if (m_pSurfaceRepaint)
+  else if (m_pTextureRepaint)
   {
     //// Redraw from the last surface.
     //pSurface = m_pSurfaceRepaint;
@@ -335,7 +340,7 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
 
   hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (DWORD)&sharedResourceHandle); // Return reference, so C# side can modify the pointer after Dispose() to avoid duplicated releasing.
 
-  SAFE_RELEASE(pSurface);
+  SAFE_RELEASE(pTexture);
   SAFE_RELEASE(pBuffer);
 
   return hr;

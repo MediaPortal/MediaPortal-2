@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
@@ -45,6 +46,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Consts
 
     public const String BLOCK_NAME = "MediaItemSaveBlock";
+
+    #endregion
+
+    #region Variables
+
+    private readonly CancellationToken _ct;
 
     #endregion
 
@@ -70,6 +77,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       BLOCK_NAME, false, parentImportJobController)
     {
+      _ct = ct;
     }
 
     #endregion
@@ -91,12 +99,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         // ReSharper disable once PossibleInvalidOperationException
-        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, importResource.Aspects.Values);
+        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, importResource.MediaItemId.HasValue, _ct);
 
         if (ImportJobInformation.JobType == ImportJobType.Refresh)
-          if(importResource.IsSingleResource)
+        {
+          if (importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
             await DeleteUnderPath(importResource.PendingResourcePath);
+        }
 
+        importResource.Aspects.Clear();
         importResource.IsValid = false;
         return importResource;
       }
@@ -107,6 +118,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
+        importResource.Aspects.Clear();
         importResource.IsValid = false;
         return importResource;
       }

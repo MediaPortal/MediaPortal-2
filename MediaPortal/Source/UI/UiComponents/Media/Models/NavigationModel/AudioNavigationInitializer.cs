@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -39,6 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT;
       _viewName = Consts.RES_AUDIO_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
+      _optionalMias = Consts.OPTIONAL_AUDIO_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
@@ -52,7 +53,10 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new AudioShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           // C# doesn't like it to have an assignment inside a collection initializer
           _defaultScreen,
+          new AudioFilterByComposerScreenData(),
+          new AudioFilterByAlbumArtistScreenData(),
           new AudioFilterByAlbumScreenData(),
+          new AudioFilterByAlbumLabelScreenData(),
           new AudioFilterByGenreScreenData(),
           new AudioFilterByDecadeScreenData(),
           new AudioFilterBySystemScreenData(),
@@ -63,12 +67,40 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _availableSortings = new List<Sorting.Sorting>
         {
           _defaultSorting,
+          new AudioSortByTitle(),
           new SortByTitle(),
+          new SortBySortTitle(),
+          new SortByName(),
           new AudioSortByFirstGenre(),
+          new AudioAlbumSortByFirstArtist(),
+          new AudioAlbumSortByFirstMusicLabel(),
+          new AudioSortByFirstArtist(),
+          new AudioSortByFirstComposer(),
+          new AudioSortByAlbum(),
+          new AudioSortByTrack(),
+          new SortByYear(),
+          new SortByAddedDate(),
+          new SortBySystem(),
+        };
+
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new AudioSortByAlbumTrack(),
+          new AudioSortByTitle(),
+          new SortByTitle(),
+          new SortBySortTitle(),
+          new SortByName(),
+          new AudioSortByFirstGenre(),
+          new AudioAlbumSortByFirstArtist(),
+          new AudioAlbumSortByFirstMusicLabel(),
+          new AudioSortByFirstComposer(),
           new AudioSortByFirstArtist(),
           new AudioSortByAlbum(),
           new AudioSortByTrack(),
           new SortByYear(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
     }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WMC.Configuration.SkinSettings">Skin-Einstellungen</string>
+  <string name="WMC.Configuration.EnableFanart">Fanart aktivieren</string>
+  <string name="WMC.Configuration.EnableFanart.Help">Hintergrund-Fanart anzeigen</string>
+</resources>

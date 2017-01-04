@@ -3,6 +3,9 @@
   <string name="Settings.Appearance.System">Sistem</string>
   <string name="Settings.Appearance.System.Fullscreen">Tam ekran</string>
   <string name="Settings.Appearance.System.Fullscreen.Help">MediaPortalı tam ekran göster</string>
+  <string name="Settings.Appearance.System.StartupScreen">Başlangıç ekranı</string>
+  <string name="Settings.Appearance.System.StartupScreen.Help">Başlangıç ekranı seç</string>
+  <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Ekran seçimi kullanma</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Mobil telefon giriş stili</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Mobil telefon giriş stili kullan</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Ekran Koruyucu etkin</string>

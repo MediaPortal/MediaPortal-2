@@ -23,7 +23,10 @@
   <DateFormatConverter x:Key="DateFormatConverter"/>
   <DurationConverter x:Key="DurationConverter"/>
   <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
+  <GetIndexMultiConverter x:Key="GetIndexMultiConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
+  <SafeFilenameConverter x:Key="SafeFilenameConverter"/>
+  <StringSplitConverter x:Key="StringSplitConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 
@@ -65,7 +68,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -229,6 +232,20 @@
     <Setter Property="CornerRadius" Value="{ThemeResource ContentGroupBoxCornerRadius}"/>
   </Style>
 
+  <!-- ************************* ListView group header container styles ************************** -->
+  
+  <!-- An item list base container style which sets the selected item's ZIndex to the top.
+       This base style simly shows the content of the ListViewItem. -->
+  <Style x:Key="DefaultGroupHeaderContainerStyle" TargetType="{x:Type ListViewGroupHeader}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewGroupHeader}">
+          <ContentPresenter/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
   <!-- ************************* ListView item container styles ************************** -->
 
   <!-- An item list base container style which sets the selected item's ZIndex to the top.
@@ -591,17 +608,16 @@
       <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}"
           HorizontalAlignment="Left" VerticalAlignment="Center"
           Color="{ThemeResource TextColor}"/>
-      <Label x:Name="OnlineState" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
-          Color="{ThemeResource TextColor}">
-        <Label.Content>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="AdditionalProperties[IsImporting]"/>
-            <Binding Source="[Shares.Importing]"/>
-            <Binding Source="{StaticResource EmptyString}"/>
-          </MultiBinding>
-        </Label.Content>
-      </Label>
+
+      <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" VerticalAlignment="Center">
+        <Label Content="[Shares.Importing]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               IsVisible="{Binding Path=AdditionalProperties[ImportingProgress],Converter={StaticResource ReferenceToBoolConverter}}">
+          <Label.Content>
+            <Binding Path="AdditionalProperties[ImportingProgress]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} {0:F0}%"/>
+          </Label.Content>
+        </Label>
+      </StackPanel>
       <Button x:Name="ReImportButton" Grid.Column="3" Content="[Shares.ReImport]" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}" Command="{Binding Command}"/>
 <!-- Additionally available properties to show here:
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}"

@@ -53,11 +53,15 @@
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Attributes\CoreAPIAttribute.cs" />
+    <Compile Include="Cache\AsyncStaticCache.cs" />
+    <Compile Include="Cache\AsyncStaticTimeoutCache.cs" />
     <Compile Include="Cache\ILRUCache.cs" />
     <Compile Include="Cache\SmallLRUCache.cs" />
     <Compile Include="Collections\SafeDictionary.cs" />
     <Compile Include="CollectionUtils.cs" />
     <Compile Include="Conversion\Conversion.cs" />
+    <Compile Include="Events\DelayedEvent.cs" />
     <Compile Include="Graphics\ImageUtilities.cs" />
     <Compile Include="Network\Netbios\NbName.cs" />
     <Compile Include="Network\Netbios\NbNsClient.cs" />
@@ -71,7 +75,11 @@
     <Compile Include="Network\Netbios\NbNsResourceRecordBase.cs" />
     <Compile Include="Network\Netbios\NbNsStatistics.cs" />
     <Compile Include="Network\Netbios\NbPacketSegmentBase.cs" />
+    <Compile Include="Process\Ipc.cs" />
+    <Compile Include="Process\IpcClient.cs" />
+    <Compile Include="Process\IpcServer.cs" />
     <Compile Include="Process\ProcessExecutionResult.cs" />
+    <Compile Include="Screens\FormExtensions.cs" />
     <Compile Include="Security\SafeProcessHandle.cs" />
     <Compile Include="Security\SafeThreadHandle.cs" />
     <Compile Include="Security\SafeTokenHandle.cs" />
@@ -116,6 +124,7 @@
     <Compile Include="Xml\SerializableDictionary.cs" />
     <Compile Include="Xml\SerializableNetworkCredential.cs" />
     <Compile Include="Xml\XmlSerialization.cs" />
+    <Compile Include="Xml\XmlWrappingReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,7 +23,9 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -108,14 +110,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       }
     }
 
-    protected void AttachToDataDescriptor()
+    protected void AttachToDataDescriptor(UIElement element)
     {
       if (_element == null)
         return;
       if (!String.IsNullOrEmpty(Property))
       {
-        if (ReflectionHelper.FindMemberDescriptor(_element, Property, out _dataDescriptor))
+        string property = Property;
+        int index = property.IndexOf('.');
+        if (index != -1)
+        {
+          string propertyProvider = property.Substring(0, index);
+          string propertyName = property.Substring(index + 1);
+          DefaultAttachedPropertyDataDescriptor result;
+          if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(new MpfNamespaceHandler(),
+            element, propertyProvider, propertyName, out result))
+          {
+            ServiceRegistration.Get<ILogger>().Warn(
+              string.Format("Attached property '{0}' cannot be set on element '{1}'", property, element));
+            return;
+          }
+          _dataDescriptor = result;
           _dataDescriptor.Attach(OnPropertyChanged);
+        }
+        else
+        {
+          if (ReflectionHelper.FindMemberDescriptor(_element, Property, out _dataDescriptor))
+            _dataDescriptor.Attach(OnPropertyChanged);
+        }
       }
     }
 
@@ -123,7 +145,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     {
       DetachFromDataDescriptor();
       base.Setup(element);
-      AttachToDataDescriptor();
+      AttachToDataDescriptor(element);
       if (_dataDescriptor == null)
         return;
       TriggerIfValuesEqual(_dataDescriptor.Value, Value);

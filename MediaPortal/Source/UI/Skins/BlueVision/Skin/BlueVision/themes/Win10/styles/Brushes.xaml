@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors,Consts"
+    >
+
+  <!-- Default brush used to paint the background of a page/window -->
+  <ResourceWrapper x:Key="BackgroundBrush">
+    <ImageBrush ImageSource="Background.jpg" />
+
+    <!--VisualBrush>
+      <VisualBrush.Visual>
+        <Rectangle Fill="#0066CC" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+      </VisualBrush.Visual>
+    </VisualBrush-->
+    
+  </ResourceWrapper>
+
+  <!-- Default brush used to paint the background of a dialog -->
+  <ResourceWrapper x:Key="DialogBackgroundBrush" Value="#B0000000" />
+
+  <!-- Home screen tile opacity brush -->
+  <ResourceWrapper x:Key="HomeTileOpacityBrush">
+    <VisualBrush>
+      <VisualBrush.Visual>
+        <Rectangle Fill="#0066CC" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="0" RadiusY="0" />
+      </VisualBrush.Visual>
+    </VisualBrush>
+  </ResourceWrapper>
+
+
+  
+
+  <!-- MediaItem's opacity brush -->
+
+  <ResourceWrapper x:Key="MediaItemsFocusedBorderBrush">
+    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0"/>
+      <GradientStop Color="{ThemeResource TextColor}" Offset="0.30"/>
+      <GradientStop Color="{ThemeResource TextColor}" Offset="0.70"/>
+      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+
+
+</ResourceDictionary>

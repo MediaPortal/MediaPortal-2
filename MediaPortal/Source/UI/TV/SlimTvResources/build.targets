@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+      <PluginFiles Include="$(TargetDir)FanArtService.Interfaces.pdb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
+      <References Include="$(TargetDir)MediaPortal.LogoManager.dll" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <Resources Include="$(ProjectDir)Designs\**\*.*" />
+    </ItemGroup>
+  
+      <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(Resources)"
+          DestinationFiles="@(Resources->'$(PluginDestination)Designs\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

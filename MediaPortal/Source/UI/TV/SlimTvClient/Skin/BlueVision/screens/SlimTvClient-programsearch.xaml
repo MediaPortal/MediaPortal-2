@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_homemenu.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.ProgramSearch]"/>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvProgramSearchModel" Id="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,40,-35,-160"
+              DataContext="{Binding Source={StaticResource SlimTvProgramSearchModel}}">
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="350"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="220"/>
+        </Grid.RowDefinitions>
+           
+        <Label Grid.Row="0" Content="[SlimTvClient.ProgramLabel]" Color="{ThemeResource TextColor}" Wrap="True" Margin="10,10,10,10"/>
+        <TextBox Grid.Row="1" Margin="10,10,20,10" Text="{Binding Path=ProgramSearchText,Mode=TwoWay}" PreferredTextLength="10" SetFocusPrio="DefaultHigh"/>
+
+        <ListView Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" 
+              Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource SearchProgramListViewStyle}"
+              ItemsSource="{Binding Path=ProgramsList}"
+              SelectionChanged="{CommandStencil UpdateProgram}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="-10,10,20,0">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfo.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

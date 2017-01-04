@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="PartyMusicPlayer.MenuItem">Party music player</string>
+  <string name="PartyMusicPlayer.MenuItem.Help">Start a playlist and prevent usage of MediaPortal in mean time.</string>
   <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party music player</string>
   <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party music player</string>
   <string name="PartyMusicPlayer.ConfigScreenTitle">Party music player configuration</string>

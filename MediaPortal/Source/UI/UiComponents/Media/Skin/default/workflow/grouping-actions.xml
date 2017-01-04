@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- Action to switch the grouping -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <!--TODO: Fix grouping in Stack/WrapPanels-->
+    <!--<WorkflowContributorAction Id="377692F9-C2E5-4D30-BF27-24F12B2CD9C8"
+        Name="Media navigation->Switch grouping"
+        DisplayCategory="a5-ViewSortFilter"
+        SortOrder="a4"
+        SourceStates="*"
+        ContributorModelId="4C132A3B-81ED-4080-895A-08E9EB56BA62"/>-->
+    <!-- Sorting action -->
+  </MenuActions>
+</Workflow>

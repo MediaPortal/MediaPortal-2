@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,6 +33,7 @@ using System;
 using System.Runtime.InteropServices;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
@@ -52,7 +53,7 @@ namespace MediaPortal.UI.Players.Video
   public interface IEVRPresentCallback
   {
     /// <summary>
-    /// Callback from EVRPresenter.dll to display a DirectX surface.
+    /// Callback from EVRPresenter.dll to display a DirectX texture.
     /// </summary>
     /// <param name="cx">Video width.</param>
     /// <param name="cy">Video height.</param>

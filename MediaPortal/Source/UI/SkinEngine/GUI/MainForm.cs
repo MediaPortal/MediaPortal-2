@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common;
@@ -48,6 +49,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.Process;
+using MediaPortal.Utilities.Screens;
 using MediaPortal.Utilities.SystemAPI;
 using SharpDX.Direct3D9;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
@@ -78,11 +80,15 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private readonly AutoResetEvent _renderFinishedEvent = new AutoResetEvent(false);
     private bool _videoPlayerSuspended = false;
     private IVideoPlayerSynchronizationStrategy _videoPlayerSynchronizationStrategy = null;
+    private Size _screenSize;
+    private int _screenBpp;
     private Size _previousWindowClientSize;
     private Point _previousWindowLocation;
     private FormWindowState _previousWindowState;
     private Point _previousMousePosition;
     private ScreenMode _mode = ScreenMode.NormalWindowed;
+    private ScreenMode _previousMode = ScreenMode.NormalWindowed;
+    private bool _forceOnTop = false;
     private bool _hasFocus = false;
     private readonly ScreenManager _screenManager;
     protected bool _isScreenSaverEnabled = true;
@@ -99,6 +105,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private readonly object _reclaimDeviceSyncObj = new object();
 
     private bool _adaptToSizeEnabled;
+    private bool _disableTopMost;
 
     public MainForm(ScreenManager screenManager)
     {
@@ -122,8 +129,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
       _previousMousePosition = new Point(-1, -1);
 
-      Size desiredWindowedSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
-
       // Default screen for splashscreen is the one from where MP2 was started.
       System.Windows.Forms.Screen preferredScreen = System.Windows.Forms.Screen.FromControl(this);
       int numberOfScreens = System.Windows.Forms.Screen.AllScreens.Length;
@@ -137,16 +142,31 @@ namespace MediaPortal.UI.SkinEngine.GUI
         StartPosition = FormStartPosition.Manual;
       }
 
-      Location = new Point(preferredScreen.WorkingArea.X, preferredScreen.WorkingArea.Y);
+      // Store original desktop size
+      _screenSize = preferredScreen.Bounds.Size;
+      _screenBpp = preferredScreen.BitsPerPixel;
+
+      Size desiredWindowedSize;
+      if (appSettings.WindowPosition.HasValue && appSettings.WindowSize.HasValue)
+      {
+        desiredWindowedSize = appSettings.WindowSize.Value;
+        Location = ValidatePosition(appSettings.WindowPosition.Value, preferredScreen.WorkingArea.Size, ref desiredWindowedSize);
+      }
+      else
+      {
+        Location = new Point(preferredScreen.WorkingArea.X, preferredScreen.WorkingArea.Y);
+        desiredWindowedSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+      }
 
       _previousWindowLocation = Location;
       _previousWindowClientSize = desiredWindowedSize;
       _previousWindowState = FormWindowState.Normal;
+      _previousMode = ScreenMode.NormalWindowed;
 
-      if (appSettings.FullScreen)
+      if (appSettings.ScreenMode == ScreenMode.FullScreen)
         SwitchToFullscreen(validScreenNum);
       else
-        SwitchToWindowedSize(Location, desiredWindowedSize, false);
+        SwitchToWindowedSize(appSettings.ScreenMode, Location, desiredWindowedSize, false);
 
       SkinContext.WindowSize = ClientSize;
 
@@ -172,6 +192,23 @@ namespace MediaPortal.UI.SkinEngine.GUI
       TouchDown += MainForm_OnTouchDown;
       TouchMove += MainForm_OnTouchMove;
       TouchUp += MainForm_OnTouchUp;
+    }
+
+    private Point ValidatePosition(Point value, Size availableSize, ref Size desiredWindowedSize)
+    {
+      if (desiredWindowedSize.Width > availableSize.Width || desiredWindowedSize.Height > availableSize.Height || desiredWindowedSize.Width == 0 || desiredWindowedSize.Height == 0)
+        desiredWindowedSize = availableSize;
+
+      var res = value;
+      if (res.X < 0)
+        res.X = 0;
+      if (res.X + desiredWindowedSize.Width > availableSize.Width)
+        res.X = availableSize.Width - desiredWindowedSize.Width;
+      if (res.Y < 0)
+        res.Y = 0;
+      if (res.Y + desiredWindowedSize.Height > availableSize.Height)
+        res.Y = availableSize.Height - desiredWindowedSize.Height;
+      return res;
     }
 
     /// <summary>
@@ -246,16 +283,25 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _mode = ScreenMode.FullScreen;
     }
 
-    protected void SwitchToWindowedSize(Point location, Size clientSize, bool maximize)
+    protected void SwitchToWindowedSize(ScreenMode mode, Point location, Size clientSize, bool maximize)
     {
+      if (mode == ScreenMode.WindowedOnTop)
+      {
+        _forceOnTop = true;
+        FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      }
+      else
+      {
+        FormBorderStyle = FormBorderStyle.Sizable;
+        _forceOnTop = false;
+      }
       WindowState = FormWindowState.Normal;
-      FormBorderStyle = FormBorderStyle.Sizable;
       Location = location;
       ClientSize = clientSize;
       // We must restore the window state after having set the ClientSize/Location to make the window remember the
       // non-maximized bounds
       WindowState = maximize ? FormWindowState.Maximized : FormWindowState.Normal;
-      _mode = ScreenMode.NormalWindowed;
+      _mode = mode;
     }
 
     public void DisposeDirectX()
@@ -276,8 +322,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
         return;
       // Only store size and position if we are in windowed mode and not maximized. The size for all other modes/states
       // is obvious, only those two values are interesting to be restored on a mode switch from fullscreen to windowed.
-      _previousWindowLocation = Location;
-      _previousWindowClientSize = ClientSize;
+      AppSettings appSettings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
+      appSettings.WindowPosition = _previousWindowLocation = Location;
+      appSettings.WindowSize = _previousWindowClientSize = ClientSize;
+      ServiceRegistration.Get<ISettingsManager>().Save(appSettings);
     }
 
     public void StopUI()
@@ -319,12 +367,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected void CheckTopMost(bool force = false)
     {
 #if DEBUG
-      TopMost = false;
+      TopMost = _forceOnTop;
 #else
-      TopMost = IsFullScreen && (force || this == ActiveForm);
+      TopMost = !_disableTopMost && (_forceOnTop || IsFullScreen && (force || this == ActiveForm));
       if (force)
       {
-        SafeActivate();
+        this.SafeActivate();
         BringToFront();
       }
 #endif
@@ -429,7 +477,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void Start()
     {
-      SafeActivate();
+      this.SafeActivate();
       CheckTopMost(true);
       StartUI();
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Running");
@@ -491,7 +539,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
       if (mode == _mode)
         return;
 
-      settings.FullScreen = newFullscreen;
+      _previousMode = _mode;
+      settings.ScreenMode = mode;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
       StopUI();
@@ -506,7 +555,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
           SwitchToFullscreen(GetScreenNum());
         }
         else
-          SwitchToWindowedSize(_previousWindowLocation, _previousWindowClientSize, _previousWindowState == FormWindowState.Maximized);
+          SwitchToWindowedSize(mode, _previousWindowLocation, _previousWindowClientSize, _previousWindowState == FormWindowState.Maximized);
       }
       finally
       {
@@ -515,15 +564,30 @@ namespace MediaPortal.UI.SkinEngine.GUI
       SkinContext.WindowSize = ClientSize;
 
       Update();
-      SafeActivate();
+      this.SafeActivate();
       CheckTopMost();
 
       StartUI();
     }
 
+    public bool DisableTopMost
+    {
+      get { return _disableTopMost; }
+      set
+      {
+        _disableTopMost = value;
+        CheckTopMost();
+      }
+    }
+
     public bool IsFullScreen
     {
       get { return _mode == ScreenMode.FullScreen; }
+    }
+
+    public ScreenMode CurrentScreenMode
+    {
+      get { return _mode; }
     }
 
     public bool IsScreenSaverActive
@@ -638,6 +702,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       try
       {
         logger.Debug("SkinEngine MainForm: Stopping");
+        StoreClientBounds();
         StopUI();
         UIResourcesHelper.ReleaseUIResources();
       }
@@ -837,16 +902,17 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     protected override void WndProc(ref Message m)
     {
-      //const long WM_SIZING = 0x214;
-      //const int WMSZ_LEFT = 1;
-      //const int WMSZ_RIGHT = 2;
-      //const int WMSZ_TOP = 3;
-      //const int WMSZ_TOPLEFT = 4;
-      //const int WMSZ_TOPRIGHT = 5;
-      //const int WMSZ_BOTTOM = 6;
-      //const int WMSZ_BOTTOMLEFT = 7;
-      //const int WMSZ_BOTTOMRIGHT = 8;
+      const long WM_SIZING = 0x214;
+      const int WMSZ_LEFT = 1;
+      const int WMSZ_RIGHT = 2;
+      const int WMSZ_TOP = 3;
+      const int WMSZ_TOPLEFT = 4;
+      const int WMSZ_TOPRIGHT = 5;
+      const int WMSZ_BOTTOM = 6;
+      const int WMSZ_BOTTOMLEFT = 7;
+      const int WMSZ_BOTTOMRIGHT = 8;
       const int WM_SYSCHAR = 0x106;
+      const int WM_DISPLAYCHANGE = 0x007E;
 
       // Hande 'beep'
       if (m.Msg == WM_SYSCHAR)
@@ -859,9 +925,31 @@ namespace MediaPortal.UI.SkinEngine.GUI
         // Restore if minimized
         Restore();
         // Set active window
-        SafeActivate();
+        this.SafeActivate();
         CheckTopMost();
         return;
+      }
+
+      // Handle display changes. There are different cases which lead to this message:
+      // 1. When changing the screen resolution, wanted or unwanted (i.e. some graphic cards reset to 1024x768 during resume from standby)
+      // 2. When the refresh rate is changed, but other parameters remain the same (i.e. can happen by RefreshRateChanger plugin)
+      // In 1st case we need to reset the DX device, in 2nd this leads to interuption of workflow and is not required.
+      if (m.Msg == WM_DISPLAYCHANGE)
+      {
+        int bitDepth = m.WParam.ToInt32();
+        int screenWidth = m.LParam.ToInt32() & 0xFFFF;
+        int screenHeight = m.LParam.ToInt32() >> 16;
+        if (bitDepth != _screenBpp || screenWidth != _screenSize.Width || screenWidth != _screenSize.Width)
+        {
+          _screenSize = new Size(screenWidth, screenHeight);
+          _screenBpp = bitDepth;
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Display changed to {0}x{1}@{2}.", screenWidth, screenHeight, bitDepth);
+          GraphicsDevice.Reset();
+        }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Display changed refresh rate, size remained {0}x{1}@{2}.", screenWidth, screenHeight, bitDepth);
+        }
       }
 
       // Albert, 2010-03-13: The following code can be used to make the window always maintain a fixed aspect ratio.
@@ -870,91 +958,83 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // it out.
       // When it should be used, the field _fixed_aspect_ratio must be initialized with a sensible value, for example
       // the aspect ratio from the skin.
-      //if (m.Msg == WM_SIZING && m.HWnd == Handle)
-      //{
-      //  if (WindowState == FormWindowState.Normal)
-      //  {
-      //    Rect r = (Rect) Marshal.PtrToStructure(m.LParam, typeof(Rect));
+      if (m.Msg == WM_SIZING && m.HWnd == Handle)
+      {
+        if (WindowState == FormWindowState.Normal)
+        {
+          var fixedAspectRatio = SkinContext.SkinResources.SkinHeight / (float)SkinContext.SkinResources.SkinWidth;
+          Rect r = (Rect)Marshal.PtrToStructure(m.LParam, typeof(Rect));
 
-      //    // Calc the border offset
-      //    Size offset = new Size(Width - ClientSize.Width, Height - ClientSize.Height);
+          // Calc the border offset
+          Size offset = new Size(Width - ClientSize.Width, Height - ClientSize.Height);
 
-      //    // Calc the new dimensions.
-      //    float wid = r.Right - r.Left - offset.Width;
-      //    float hgt = r.Bottom - r.Top - offset.Height;
-      //    // Calc the new aspect ratio.
-      //    float new_aspect_ratio = hgt / wid;
+          // Calc the new dimensions.
+          float wid = r.Right - r.Left - offset.Width;
+          float hgt = r.Bottom - r.Top - offset.Height;
+          // Calc the new aspect ratio.
+          float newAspectRatio = hgt / wid;
 
-      //    // See if the aspect ratio is changing.
-      //    if (_fixed_aspect_ratio != new_aspect_ratio)
-      //    {
-      //      Int32 dragBorder = m.WParam.ToInt32();
-      //      // To decide which dimension we should preserve,
-      //      // see what border the user is dragging.
-      //      if (dragBorder == WMSZ_TOPLEFT || dragBorder == WMSZ_TOPRIGHT ||
-      //          dragBorder == WMSZ_BOTTOMLEFT || dragBorder == WMSZ_BOTTOMRIGHT)
-      //      {
-      //        // The user is dragging a corner.
-      //        // Preserve the bigger dimension.
-      //        if (new_aspect_ratio > _fixed_aspect_ratio)
-      //          // It's too tall and thin. Make it wider.
-      //          wid = hgt / _fixed_aspect_ratio;
-      //        else
-      //          // It's too short and wide. Make it taller.
-      //          hgt = wid * _fixed_aspect_ratio;
-      //      }
-      //      else if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_RIGHT)
-      //        // The user is dragging a side.
-      //        // Preserve the width.
-      //        hgt = wid * _fixed_aspect_ratio;
-      //      else if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_BOTTOM)
-      //        // The user is dragging the top or bottom.
-      //        // Preserve the height.
-      //        wid = hgt / _fixed_aspect_ratio;
-      //      // Figure out whether to reset the top/bottom
-      //      // and left/right.
-      //      // See if the user is dragging the top edge.
-      //      if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_TOPLEFT ||
-      //          dragBorder == WMSZ_TOPRIGHT)
-      //        // Reset the top.
-      //        r.Top = r.Bottom - (int)(hgt + offset.Height);
-      //      else
-      //        // Reset the bottom.
-      //        r.Bottom = r.Top + (int)(hgt + offset.Height);
-      //      // See if the user is dragging the left edge.
-      //      if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_TOPLEFT ||
-      //          dragBorder == WMSZ_BOTTOMLEFT)
-      //        // Reset the left.
-      //        r.Left = r.Right - (int)(wid + offset.Width);
-      //      else
-      //        // Reset the right.
-      //        r.Right = r.Left + (int)(wid + offset.Width);
-      //      // Update the Message object's LParam field.
-      //      Marshal.StructureToPtr(r, m.LParam, true);
-      //    }
-      //  }
-      //}
+          // See if the aspect ratio is changing.
+          if (fixedAspectRatio != newAspectRatio)
+          {
+            Int32 dragBorder = m.WParam.ToInt32();
+            // To decide which dimension we should preserve,
+            // see what border the user is dragging.
+            if (dragBorder == WMSZ_TOPLEFT || dragBorder == WMSZ_TOPRIGHT ||
+                dragBorder == WMSZ_BOTTOMLEFT || dragBorder == WMSZ_BOTTOMRIGHT)
+            {
+              // The user is dragging a corner.
+              // Preserve the bigger dimension.
+              if (newAspectRatio > fixedAspectRatio)
+                // It's too tall and thin. Make it wider.
+                wid = hgt / fixedAspectRatio;
+              else
+                // It's too short and wide. Make it taller.
+                hgt = wid * fixedAspectRatio;
+            }
+            else if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_RIGHT)
+              // The user is dragging a side.
+              // Preserve the width.
+              hgt = wid * fixedAspectRatio;
+            else if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_BOTTOM)
+              // The user is dragging the top or bottom.
+              // Preserve the height.
+              wid = hgt / fixedAspectRatio;
+            // Figure out whether to reset the top/bottom
+            // and left/right.
+            // See if the user is dragging the top edge.
+            if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_TOPLEFT ||
+                dragBorder == WMSZ_TOPRIGHT)
+              // Reset the top.
+              r.Top = r.Bottom - (int)(hgt + offset.Height);
+            else
+              // Reset the bottom.
+              r.Bottom = r.Top + (int)(hgt + offset.Height);
+            // See if the user is dragging the left edge.
+            if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_TOPLEFT ||
+                dragBorder == WMSZ_BOTTOMLEFT)
+              // Reset the left.
+              r.Left = r.Right - (int)(wid + offset.Width);
+            else
+              // Reset the right.
+              r.Right = r.Left + (int)(wid + offset.Width);
+            // Update the Message object's LParam field.
+            Marshal.StructureToPtr(r, m.LParam, true);
+          }
+        }
+      }
       // Send windows message through the system if any component needs to access windows messages
       WindowsMessaging.BroadcastWindowsMessage(ref m);
       base.WndProc(ref m);
     }
 
-    /// <summary>
-    /// Helper method to activate the form. Usually <see cref="Form.Activate"/> does all we need, but on some systems the MP2-Client's window
-    /// is not being activated. In this case we need to call native methods to force it.
-    /// </summary>
-    private void SafeActivate()
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct Rect
     {
-      if (this == ActiveForm)
-        return;
-      Activate();
-      if (this != ActiveForm)
-      {
-        ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: SafeActivate: Current form is not active one? Try to activate again...");
-        // Make Mediaportal window focused
-        if (NativeMethods.SetForegroundWindow(Handle, true))
-          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Successfully switched focus.");
-      }
+      public int Left;
+      public int Top;
+      public int Right;
+      public int Bottom;
     }
 
     protected override void OnResizeEnd(EventArgs e)
@@ -970,7 +1050,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       base.OnSizeChanged(e);
       // This method override is only necessary to capture the window state change event. All other cases aren't interesting here.
-      if (_adaptToSizeEnabled && WindowState != FormWindowState.Minimized && _previousWindowState != WindowState)
+      // MP2-529: Don't call AdaptToSize if switching to/from fullscreen, it calls Stop/StartUI but they are already being called when switching
+      // to/from fullscreen leading to a LockRecursionException
+      if (_adaptToSizeEnabled && WindowState != FormWindowState.Minimized && _previousWindowState != WindowState &&
+        _mode != ScreenMode.FullScreen && _previousMode != ScreenMode.FullScreen)
         AdaptToSize();
     }
 

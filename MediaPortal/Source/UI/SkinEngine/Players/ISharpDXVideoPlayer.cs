@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -51,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Players
     bool SetRenderDelegate(RenderDlgt dlgt);
 
     /// <summary>
-    /// Returns the render surface for the current frame. May be <c>null</c>.
+    /// Returns the render texture for the current frame. May be <c>null</c>.
     /// </summary>
     IBitmapAsset2D Surface { get; } 
 
@@ -79,5 +79,17 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// Reallocs any GUI resources.
     /// </summary>
     void ReallocGUIResources();
+  }
+
+  /// <summary>
+  /// Extended support for multiple texture planes.
+  /// </summary>
+  public interface ISharpDXMultiTexturePlayer : ISharpDXVideoPlayer
+  {
+    /// <summary>
+    /// Returns additional texture planes that will be overlayed over the original <see cref="Texture"/>.
+    /// This can be used for OSD (like BluRay player) or subtitles.
+    /// </summary>
+    Texture[] TexturePlanes { get; } 
   }
 }

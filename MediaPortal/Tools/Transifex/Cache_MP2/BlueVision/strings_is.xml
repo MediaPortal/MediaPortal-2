@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio">Hljóð</string>
+  <string name="Menu.Image">Ljósmyndir</string>
+  <string name="Menu.TV">Sjónvarp</string>
+  <string name="Menu.News">Fréttir</string>
+  <string name="Menu.Weather">Veður</string>
+  <string name="Menu.Settings">Stillingar</string>
+  <string name="Menu.Others">Annað</string>
+  <string name="Menu.Home">Home</string>
+  <string name="Movies.Title">Kvikmyndir</string>
+  <string name="Series.Title">Þættir</string>
+  <string name="Audio.Title">Hljóð</string>
+  <string name="Images.Title">Ljósmyndir</string>
+  <string name="Videos.Title">Myndbönd</string>
+  <string name="News.Title">Fréttir</string>
+  <string name="Weather.Title">Veður</string>
+  <string name="General.Title">Almennt</string>
+</resources>

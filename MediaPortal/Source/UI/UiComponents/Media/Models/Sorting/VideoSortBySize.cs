@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,11 +25,19 @@
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class VideoSortBySize : SortByTitle
   {
+    public VideoSortBySize()
+    {
+      _includeMias = new[] { VideoStreamAspect.ASPECT_ID };
+      _excludeMias = null;
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_SIZE; }
@@ -37,19 +45,50 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem item1, MediaItem item2)
     {
-      MediaItemAspect videoAspectX;
-      MediaItemAspect videoAspectY;
-      if (item1.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspectX) && item2.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspectY))
+      IList<MultipleMediaItemAspect> videoAspectsX;
+      IList<MultipleMediaItemAspect> videoAspectsY;
+      int smallestX = -1;
+      int smallestY = -1;
+      if (MediaItemAspect.TryGetAspects(item1.Aspects, VideoStreamAspect.Metadata, out videoAspectsX))
       {
-        int? x = (int?) videoAspectX.GetAttributeValue(VideoAspect.ATTR_WIDTH);
-        int? y = (int?) videoAspectX.GetAttributeValue(VideoAspect.ATTR_HEIGHT);
-        int smallestX = x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
-        x = (int?) videoAspectY.GetAttributeValue(VideoAspect.ATTR_WIDTH);
-        y = (int?) videoAspectY.GetAttributeValue(VideoAspect.ATTR_HEIGHT);
-        int smallestY = x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
-        return smallestX - smallestY;
+        foreach (MultipleMediaItemAspect videoAspect in videoAspectsX)
+        {
+          int? x = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH);
+          int? y = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT);
+          int size = x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
+          if (smallestX == -1 || size < smallestX)
+            smallestX = size;
+        }
       }
-      return base.Compare(item1, item2);
+      if (MediaItemAspect.TryGetAspects(item2.Aspects, VideoStreamAspect.Metadata, out videoAspectsY))
+      {
+        foreach (MultipleMediaItemAspect videoAspect in videoAspectsY)
+        {
+          int? x = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH);
+          int? y = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT);
+          int size = x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
+          if (smallestY == -1 || size < smallestY)
+            smallestY = size;
+        }
+      }
+      return smallestX.CompareTo(smallestY);
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_SIZE; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> videoAspect;
+      if (item.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out videoAspect))
+      {
+        int? x = (int?)videoAspect.First().GetAttributeValue(VideoStreamAspect.ATTR_WIDTH);
+        int? y = (int?)videoAspect.First().GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT);
+        return x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
+      }
+      return null;
     }
   }
 }

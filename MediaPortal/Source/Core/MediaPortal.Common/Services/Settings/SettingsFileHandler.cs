@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -61,6 +61,11 @@ namespace MediaPortal.Common.Services.Settings
     public string FilePath
     {
       get { return _filePath; }
+    }
+
+    public bool SettingsFileExists
+    {
+      get { return File.Exists(_filePath) || File.Exists(_filePath + ".bak"); }
     }
 
     #endregion

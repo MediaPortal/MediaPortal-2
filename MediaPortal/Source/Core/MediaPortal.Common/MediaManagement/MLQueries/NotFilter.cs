@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -64,8 +64,12 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("Not", typeof(NotFilter))]
     [XmlElement("Relational", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]
+    [XmlElement("RelationalUserData", typeof(RelationalUserDataFilter))]
+    [XmlElement("EmptyUserData", typeof(EmptyUserDataFilter))]
     [XmlElement("False", typeof(FalseFilter))]
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
+    [XmlElement("Relationship", typeof(RelationshipFilter))]
+    [XmlElement("FilterRelationship", typeof(FilteredRelationshipFilter))]
     public object XML_InnerFilter
     {
       get { return _innerFilter; }

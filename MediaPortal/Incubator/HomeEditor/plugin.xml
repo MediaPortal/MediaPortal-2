@@ -1,0 +1,86 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="HomeEditor"
+    PluginId="{DF6A25DF-D937-4DFF-B1BD-563641A62417}"
+    Author="Brownard"
+    Copyright="GPL"
+    Description="Customise your home screen">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2016-03-01 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/>    <!-- SkinEngine -->
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/> <!-- SkinBase -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="HomeEditor.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="31D0D607-4610-43C9-B9F1-F7E384C74EBA" Name="HomeEditorModel" ClassName="HomeEditor.Models.HomeEditorModel"/>
+    <Model Id="891A326C-DD9A-492F-9129-E8B169C54CCC" Name="AddGroupAction" ClassName="HomeEditor.Actions.AddGroupAction"/>
+    <Model Id="A26F3E44-7692-4A53-8CC5-6F77D6C9A53A" Name="AddActionAction" ClassName="HomeEditor.Actions.AddActionAction"/>
+    <Model Id="6427AA6F-8463-4C79-9C91-C21A332F7032" Name="RestoreDefaultsAction" ClassName="HomeEditor.Actions.RestoreDefaultsAction"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <WorkflowState Id="BF7E11F6-87DE-4CB6-9A94-1A738CC52710"
+        Name="HomeEditorConfig"
+        MainScreen="home_editor_config"
+        DisplayLabel="[HomeEditor.Configuration.Header]"
+        WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
+    
+    <WorkflowState Id="BE8E74DE-2008-4398-831A-626A5DC074AA"
+        Name="GroupEdit"
+        MainScreen="home_editor_group_edit"
+        DisplayLabel="[HomeEditor.Configuration.GroupEdit.Header]"
+        WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
+
+    <WorkflowState Id="0D4B781F-700D-4F23-BEE5-816D0FE2E3CB"
+        Name="GroupRemove"
+        MainScreen="home_editor_group_remove"
+        DisplayLabel="[HomeEditor.Configuration.GroupRemove.Header]"
+        WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
+    
+    <WorkflowState Id="08673705-C9E8-4E82-AFC0-AC7A94A95F32"
+        Name="ActionEdit"
+        MainScreen="home_editor_action_edit"
+        DisplayLabel="[HomeEditor.Configuration.ActionEdit.Header]"
+        WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
+    
+    <WorkflowState Id="94D9D1D3-6E96-46AC-BD9B-25D58C50913D"
+        Name="ActionRemove"
+        MainScreen="home_editor_action_remove"
+        DisplayLabel="[HomeEditor.Configuration.ActionRemove.Header]"
+        WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
+  </Register>
+  
+  <Register Location="/Resources/Skin">
+    <Resource Id="HomeEditorSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="HomeEditorLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Contents of '/Appearance' group -->
+  <Register Location="/Configuration/Settings/Appearance">
+    <CustomConfigSetting
+        Id="HomeEditorConfig"
+        Text="[HomeEditor.Configuration]"
+        HelpText="[HomeEditor.Configuration.Help]"
+        ClassName="HomeEditor.Settings.Configuration.HomeEditorConfig"
+        AdditionalData="WorkflowState=BF7E11F6-87DE-4CB6-9A94-1A738CC52710,ConfAppPanel=..."/>
+  </Register>
+
+</Plugin>

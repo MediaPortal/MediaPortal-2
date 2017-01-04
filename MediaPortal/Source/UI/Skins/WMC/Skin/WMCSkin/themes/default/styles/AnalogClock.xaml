@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors"
+    >
+  <Style x:Key="AnalogClockStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate x:Name="AnalogClockTemplate">
+          <Grid Width="54" Height="54" x:Name="AnalogClockGrid" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Grid.LayoutTransform>
+              <ScaleTransform ScaleX="5.5" ScaleY="5.5" />
+            </Grid.LayoutTransform>
+            <Canvas Width="51" Height="51">
+              <Canvas.Resources>
+                <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+              </Canvas.Resources>
+              <!--Ellipse Width="4" Height="4" Fill="{ThemeResource AnalogClockHandColor}" Canvas.Top="24" Canvas.Left="23" /-->
+              <Rectangle x:Name="HourHand" Canvas.Top="10.5" Canvas.Left="24" RadiusX="2" RadiusY="2" Fill="{ThemeResource AnalogClockHandColor}" Width="4" Height="15">
+                <Rectangle.RenderTransform>
+                  <RotateTransform x:Name="HourHand2" CenterX="2" CenterY="15" Angle="{Binding Source={StaticResource TimeModel},Path=HourAngle}"/>
+                </Rectangle.RenderTransform>
+              </Rectangle>
+              <Rectangle x:Name="MinuteHand" Canvas.Top="3" Canvas.Left="24.5" RadiusX="1" RadiusY="1" Fill="{ThemeResource AnalogClockHandColor}" Width="2" Height="22.5">
+                <Rectangle.RenderTransform>
+                  <RotateTransform CenterX="1" CenterY="22.5" Angle="{Binding Source={StaticResource TimeModel},Path=MinuteAngle}"/>
+                </Rectangle.RenderTransform>
+              </Rectangle>
+            </Canvas>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>

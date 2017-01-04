@@ -47,31 +47,30 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <Label Content="[Trakt.Username]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="0"/>
             <TextBox Text="{Binding Path=Username,Mode=TwoWay}" Margin="5" Style="{ThemeResource DefaultTextBoxStyle}" Grid.Row="0" Grid.Column="1"/>
 
-            <Label Content="[Trakt.Password]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="1"/>
-            <TextBox Text="{Binding Path=Password,Mode=TwoWay}" Margin="5" Style="{ThemeResource PasswordTextBoxStyle}" Grid.Row="1" Grid.Column="1"/>
+            <Label Content="[Trakt.PinUrl]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="1"/>
+            <Image x:Name="ItemTypeImage" Stretch="Uniform" Source="qr.png"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,6,0"
+                   Width="{ResolutionResource QRWidth}" Height="{ResolutionResource QRHeight}"
+                   />
+            <Label Content="[Trakt.PinCode]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="2"/>
+            <TextBox Text="{Binding Path=PinCode,Mode=TwoWay}" Margin="5" Style="{ThemeResource DefaultTextBoxStyle}" Grid.Row="2" Grid.Column="1"/>
 
           </Grid>
         </GroupBox>
 
-        <StackPanel IsVisible="{Binding Path=IsEnabled}" Grid.Row="2" Grid.ColumnSpan="2">
-          <Image Source="{Binding SeriesBanner}" Width="800" Margin="5" />
-          <Image Source="{Binding MoviesBanner}" Width="800" Margin="5" />
-        </StackPanel>
 
         <Label Content="{Binding Path=TestStatus}" Color="{ThemeResource EmphasisTextColor}" Grid.Row="3" Grid.ColumnSpan="2"/>
 
         <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="0">
-          <Button x:Name="Test" Content="[Trakt.TestAccount]" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command TestAccount}">
+          <Button x:Name="Test" Content="[Trakt.Authorize]" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command AuthorizeUser}">
             <Button.IsEnabled>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                <Binding Path="IsEnabled"/>
-                <Binding Path="!IsSynchronizing"/>
-              </MultiBinding>
+              <Binding Path="!IsAuthorized"/>
             </Button.IsEnabled>
           </Button>
 
@@ -85,10 +84,9 @@
           </Button>
         </StackPanel>
 
-        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+        <Button x:Name="Ok" Content="[Trakt.Close]" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
-              <Command Source="{StaticResource Model}" Path="SaveSettings"/>
               <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
             </CommandList>
           </Button.Command>

@@ -11,4 +11,7 @@
   <string name="SystemState.Logoff">Одлогуј се</string>
   <string name="SystemState.MinimizeMP">Минимизирај МедијаПортал</string>
   <string name="SystemState.ShutdownMP">Затвори МедијаПортал</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Опције за затварање програма</string>
+  <string name="SleepTimer.Start">Почетак</string>
+  <string name="SleepTimer.Stop">Стоп</string>
 </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -33,13 +34,23 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesFilterByNameScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_FILTER_BY_SERIES_NAME_MENU_ITEM,
-        Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(SeriesAspect.ATTR_SERIESNAME))
+        Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new FilterBySeriesCriterion())
     {
+      _itemMias = new[] { VideoAspect.ASPECT_ID };
+      _availableMias = Consts.NECESSARY_SERIES_MIAS;
+      if (Consts.OPTIONAL_SERIES_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_SERIES_MIAS);
     }
 
     public override AbstractFiltersScreenData<SeriesFilterItem> Derive()
     {
       return new SeriesFilterByNameScreenData();
+    }
+
+    //Special case for series screen, it can support series filters and episode filters
+    public override bool IsAvailable(AbstractScreenData parentScreen)
+    {
+      return base.IsAvailable(parentScreen) || parentScreen.ItemMias.Contains(SeriesAspect.ASPECT_ID);
     }
   }
 }

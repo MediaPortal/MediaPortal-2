@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -136,7 +136,7 @@ namespace MediaPortal.UI.Players.Video
       IInitializablePlayer player = (IInitializablePlayer) Activator.CreateInstance(playerType);
       try
       {
-        player.SetMediaItem(locator, title);
+        player.SetMediaItem(locator, title, mediaItem);
       }
       catch (Exception e)
       { // The file might be broken, so the player wasn't able to play it

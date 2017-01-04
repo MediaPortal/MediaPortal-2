@@ -18,8 +18,8 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>5eb49d55</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,15 +45,18 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommandLine, Version=1.9.71.2, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
+      <HintPath>..\..\..\Packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FreeImageNET, Version=3.15.1.0, Culture=neutral, processorArchitecture=x86">
       <HintPath>..\..\..\Packages\FreeImageNET.3.15.1\lib\net20\FreeImageNET.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Packages\MediaPortal.SharpDX.2.6.3\lib\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.D3DCompiler, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Packages\MediaPortal.SharpDX.D3DCompiler.2.6.3\lib\SharpDX.D3DCompiler.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct2D1, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
@@ -138,6 +141,7 @@
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
+    <Compile Include="Controls\ImageSources\ImageSourceWrapper.cs" />
     <Compile Include="Controls\ImageSources\ResourceAccessorTextureImageSource.cs" />
     <Compile Include="Controls\Brushes\Animation\AbstractKenBurnsEffect.cs" />
     <Compile Include="Controls\Brushes\Animation\IImageAnimator.cs" />
@@ -154,8 +158,14 @@
     <Compile Include="Controls\ImageSources\BinaryTextureImageSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSource.cs" />
     <Compile Include="Controls\IRenderBrush.cs" />
+    <Compile Include="Controls\Panels\AnimatedStackPanel.cs" />
+    <Compile Include="Controls\Panels\AnimatedWrapPanel.cs" />
+    <Compile Include="Controls\Panels\IGroupingValueProvider.cs" />
+    <Compile Include="Controls\Visuals\GroupHeaderItem.cs" />
+    <Compile Include="Controls\Panels\IGroupedItemProvider.cs" />
     <Compile Include="Controls\Panels\IVirtualizingPanel.cs" />
     <Compile Include="Controls\Panels\VirtualizingWrapPanel.cs" />
+    <Compile Include="Controls\Visuals\AnimatedScrollContentPresenter.cs" />
     <Compile Include="Controls\Visuals\BackgroundEffect.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />
@@ -175,6 +185,7 @@
     <Compile Include="Controls\Visuals\Effects\ShaderEffect.cs" />
     <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
     <Compile Include="Controls\Panels\StarRatingPanel.cs" />
+    <Compile Include="Controls\Visuals\ListViewGroupHeader.cs" />
     <Compile Include="Controls\Visuals\Star.cs" />
     <Compile Include="Controls\Visuals\Styles\EventSetter.cs" />
     <Compile Include="Controls\Visuals\Styles\SetterBaseCollection.cs" />
@@ -199,7 +210,10 @@
     <Compile Include="Controls\Visuals\TextControl.cs" />
     <Compile Include="Controls\Visuals\AbstractTextInputHandler.cs" />
     <Compile Include="Controls\Visuals\TreeView.cs" />
+    <Compile Include="Controls\Visuals\Triggers\Condition.cs" />
+    <Compile Include="Controls\Visuals\Triggers\ConditionCollection.cs" />
     <Compile Include="Controls\Visuals\Triggers\DataTrigger.cs" />
+    <Compile Include="Controls\Visuals\Triggers\MultiTrigger.cs" />
     <Compile Include="Controls\Visuals\Triggers\SoundPlayerAction.cs" />
     <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerBase.cs" />
@@ -348,9 +362,13 @@
     <Compile Include="MpfElements\Converters\expr\Variable.cs" />
     <Compile Include="MpfElements\Converters\DurationConverter.cs" />
     <Compile Include="MpfElements\Converters\MPFConverter.cs" />
+    <Compile Include="MpfElements\Converters\GetIndexMultiConverter.cs" />
+    <Compile Include="MpfElements\Converters\MultiAspectAttributeConverter.cs" />
     <Compile Include="MpfElements\Converters\PriorityBindingConverter.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
+    <Compile Include="MpfElements\Converters\StringSplitConverter.cs" />
+    <Compile Include="MpfElements\Converters\SafeFilenameConverter.cs" />
     <Compile Include="MpfElements\Converters\StringFormatConverter.cs" />
     <Compile Include="MpfElements\EventManager.cs" />
     <Compile Include="MpfElements\GlobalEventManager.cs" />
@@ -384,6 +402,7 @@
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardControl.cs" />
     <Compile Include="ScreenManagement\SuperLayerManager.cs" />
+    <Compile Include="Settings\Configuration\Appearance\SkinSounds.cs" />
     <Compile Include="Settings\Configuration\Appearance\StartupScreen.cs" />
     <Compile Include="Settings\Configuration\General\ApplicationSuspendLevel.cs" />
     <Compile Include="Settings\Configuration\Appearance\InterpolationModes.cs" />
@@ -620,8 +639,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
-    <Content Include="plugin.xml" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GUI\MainForm.resx">

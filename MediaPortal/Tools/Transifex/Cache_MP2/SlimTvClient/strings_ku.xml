@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">کاتی دەستپێکردن</string>
   <string name="SlimTvClient.ProgramEndLabel">کاتی کۆتایهاتن</string>
   <string name="SlimTvClient.EpisodeLabel">زنجیرە</string>
+  <string name="SlimTvClient.Progress">ئەنجامدان</string>
   <string name="SlimTvClient.Guide">ڕێنمایی تەلەڤزیۆن</string>
   <string name="SlimTvClient.NoProgram">داتای بەرنامە نیە.</string>
   <string name="SlimTvClient.ChooseProgramAction">فرمانی بەرنامە هەڵبژێرە...</string>
@@ -20,6 +21,8 @@
   <string name="SlimTvClient.DeleteSchedule">سڕینەوەی خشتە</string>
   <string name="SlimTvClient.CreateSchedule">خشتەی تۆمارکردن</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">تۆمارکردن بەپێی کات</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">تۆمارکردن بەپێی کات</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">(هێشتا) هیچ وەرگرێکی تەلەڤزیۆن نیە</string>
   <!--Settings-->

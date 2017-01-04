@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This screen acts as a simple base screen for each special screen which shows media items and which
+     doesn't bring in special images/controls/etc. -->
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\SimpleShowItems.xaml"
+    >
+  <Include.Resources>
+    <ResourceWrapper x:Key="Cover_Width" Resource="810"/>
+  </Include.Resources>
+
+</Include>

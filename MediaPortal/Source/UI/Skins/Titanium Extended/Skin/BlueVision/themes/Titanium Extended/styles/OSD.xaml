@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Consts,Widgets"
+    >
+  <Style x:Key="OSDContainer" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainOSDGrid" Margin="225,0,225,64" MinHeight="270">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="30"/>
+              <RowDefinition Height="80"/>
+            </Grid.RowDefinitions>
+
+            <Rectangle Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Grid.ColumnSpan="2" VerticalAlignment="Stretch" RadiusX="30" RadiusY="30" Margin="0,0,0,-30">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="{ThemeResource OSDPlayerControlBackgroundColor1}" Offset="0"/>
+                  <GradientStop Color="{ThemeResource OSDPlayerControlBackgroundColor2}" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <Path Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" x:Name="Shape_57_copy_7" Data="F1M2,663.984C2,680.552 15.431,693.984 32,693.984 32,693.984 1792.01,693.984 1792.01,693.984 1808.578,693.984 1822.01,680.552 1822.01,663.984L1822.01,670.315C1822.01,700.647 1822.01,718.961 1822.01,718.961 1822.01,735.529 1808.578,748.961 1792.01,748.961 1792.01,748.961 32,748.961 32,748.961 15.431,748.961 2,735.529 2,718.961 2,718.961 2,700.647 2,670.315z" 
+                  Height="82" Stretch="Fill" VerticalAlignment="Top">
+              <Path.Fill>
+                <SolidColorBrush Color="{ThemeResource OSDPlayerControlBackgroundColor3}"/>
+              </Path.Fill>
+            </Path>
+
+            <Control Grid.Column="1" Grid.Row="0" x:Name="OSDCoverPresenter" Margin="25,15,15,10" HorizontalAlignment="Center" VerticalAlignment="Top"
+                Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
+
+            <Control Grid.Column="0" Grid.Row="0" x:Name="OSDInfoAreaPresenter" Margin="25,15,25,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
+            
+            <Grid  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}">
+              <Control  x:Name="ControlsPresenter" Margin="10,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                     Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
+            </Grid>
+            
+            <Control Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" x:Name="ProgressPresenter" Margin="20,0,10,-10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

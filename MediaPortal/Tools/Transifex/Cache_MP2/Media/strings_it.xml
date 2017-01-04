@@ -89,7 +89,7 @@
   <string name="Media.MediaItemsHeader">Voci media</string>
   <string name="Media.VideoItemsHeader">Video</string>
   <string name="Media.AudioItemsHeader">Voci Audio</string>
-  <string name="Media.SeriesItemsHeader">Episodi</string>
+  <string name="Media.EpisodeItemsHeader">Episodi</string>
   <string name="Media.MoviesItemsHeader">Film</string>
   <string name="Media.ImageItemsHeader">Immagini</string>
   <string name="Media.SimpleSearchHeader">Ricerca semplice</string>
@@ -124,6 +124,8 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Video</string>
   <string name="Media.SeriesRootViewName">Serie</string>
+  <string name="Media.SeasonRootViewName">Stagione</string>
+  <string name="Media.EpisodeRootViewName">Episodio</string>
   <string name="Media.ImagesRootViewName">Immagini</string>
   <string name="Media.SimpleSearchViewName">Ricerca semplice</string>
   <!--General strings used in views-->
@@ -264,6 +266,7 @@
   <string name="Media.MediumList">Lista media</string>
   <string name="Media.LargeList">lista grande</string>
   <string name="Media.LargeGrid">Griglia</string>
+  <string name="Media.Watched">Visto</string>
   <string name="Media.SwitchSortingMenuItem">Seleziona</string>
   <string name="Media.SwitchSortingDialogTitle">Seleziona</string>
   <string name="Media.SortByTitle">Seleziona per titolo</string>
@@ -295,4 +298,7 @@
   <string name="Settings.Players.SkipStepList.Help">Inserisci skip steps in secondi separati da ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Strategia apertura player</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategia, come nuovi player saranno posizionati sopra quelli già aperti</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

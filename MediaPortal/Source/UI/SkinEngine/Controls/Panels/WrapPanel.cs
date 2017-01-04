@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,6 +33,8 @@ using SharpDX;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -101,6 +103,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     #region Protected fields
 
     protected AbstractProperty _orientationProperty;
+    protected AbstractProperty _loopScrollProperty;
+    protected AbstractProperty _scrollMarginProperty;
     protected float _totalHeight;
     protected float _totalWidth;
 
@@ -114,6 +118,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected int _actualFirstVisibleLineIndex = 0;
     protected int _actualLastVisibleLineIndex = -1;
     protected int _originalFirstVisibleChildIndex = 0;
+
+    //Includes additional lines that are rendered within the scroll margin
+    protected int _actualFirstRenderedLineIndex;
+    protected int _actualLastRenderedLineIndex;
+
+    protected float _pendingPhysicalOffset = 0;
+    protected float _actualPhysicalOffset = 0;
+    protected bool _forcedOpacityMask = false;
 
     #endregion
 
@@ -134,16 +146,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     void Init()
     {
       _orientationProperty = new SProperty(typeof(Orientation), Orientation.Horizontal);
+      _loopScrollProperty = new SProperty(typeof(bool), false);
+      _scrollMarginProperty = new SProperty(typeof(Thickness), new Thickness());
     }
 
     void Attach()
     {
       _orientationProperty.Attach(OnCompleteLayoutGetsInvalid);
+      _scrollMarginProperty.Attach(OnMeasureGetsInvalid);
     }
 
     void Detach()
     {
       _orientationProperty.Detach(OnCompleteLayoutGetsInvalid);
+      _scrollMarginProperty.Detach(OnMeasureGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -152,6 +168,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.DeepCopy(source, copyManager);
       WrapPanel p = (WrapPanel) source;
       Orientation = p.Orientation;
+      LoopScroll = p.LoopScroll;
+      ScrollMargin = p.ScrollMargin;
       Attach();
     }
 
@@ -168,6 +186,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _orientationProperty.SetValue(value); }
     }
 
+    public AbstractProperty LoopScrollProperty
+    {
+      get { return _loopScrollProperty; }
+    }
+
+    /// <summary>
+    /// Whether to enable looping to first/last line when scrolling
+    /// </summary>
+    public bool LoopScroll
+    {
+      get { return (bool)_loopScrollProperty.GetValue(); }
+      set { _loopScrollProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ScrollMarginProperty
+    {
+      get { return _scrollMarginProperty; }
+    }
+    
+    public Thickness ScrollMargin
+    {
+      get { return (Thickness)_scrollMarginProperty.GetValue(); }
+      set { _scrollMarginProperty.SetValue(value); }
+    }
+
     #region Layouting
 
     /// <summary>
@@ -180,16 +223,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// </remarks>
     /// <param name="lineIndex">Index to scroll to.</param>
     /// <param name="first">Make the line with the given <paramref name="lineIndex"/> the first or last shown line.</param>
-    public virtual void SetScrollIndex(int lineIndex, bool first)
+    public void SetScrollIndex(int lineIndex, bool first)
     {
+      SetScrollIndex(lineIndex, first, false);
+    }
+
+    /// <summary>
+    /// Sets the scrolling index to a value that the line with the given <paramref name="lineIndex"/> is the
+    /// first (in case <paramref name="first"/> is set to <c>true</c>) or last (<paramref name="first"/> is set to <c>false</c>)
+    /// visible line.
+    /// </summary>
+    /// <remarks>
+    /// The scroll index might be corrected by the layout system to a better value, if necessary.
+    /// </remarks>
+    /// <param name="lineIndex">Index to scroll to.</param>
+    /// <param name="first">Make the line with the given <paramref name="lineIndex"/> the first or last shown line.</param>
+    /// <param name="force">Whether the scroll should happen immediately and not be delayed/animated.</param>
+    public virtual void SetScrollIndex(double lineIndex, bool first, bool force)
+    {
+      int index = (int)lineIndex;
+      float offset = (float)(lineIndex % 1);
       lock (_renderLock)
       {
-        if (_pendingScrollIndex == lineIndex && _scrollToFirst == first ||
-            (!_pendingScrollIndex.HasValue &&
-             ((_scrollToFirst && _actualFirstVisibleLineIndex == lineIndex) ||
-              (!_scrollToFirst && _actualLastVisibleLineIndex == lineIndex))))
+        if (_pendingScrollIndex == index && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
+            (!_pendingScrollIndex.HasValue && _actualPhysicalOffset == offset &&
+             ((_scrollToFirst && _actualFirstVisibleLineIndex == index) ||
+              (!_scrollToFirst && _actualLastVisibleLineIndex == index))))
           return;
-        _pendingScrollIndex = lineIndex;
+        _pendingScrollIndex = index;
+        _pendingPhysicalOffset = offset;
         _scrollToFirst = first;
       }
       InvalidateLayout(false, true);
@@ -326,9 +388,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
         // For Orientation == vertical, this is ActualWidth, for horizontal it is ActualHeight
         float actualExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, actualSize);
+        //Determing scroll margins in scroll direction
+        float scrollMarginBefore;
+        float scrollMarginAfter;
+        GetScrollMargin(out scrollMarginBefore, out scrollMarginAfter);
         // Hint: We cannot skip the arrangement of lines above _actualFirstVisibleLineIndex or below _actualLastVisibleLineIndex
         // because the rendering and focus system also needs the bounds of the currently invisible children
-        float startPosition = 0;
+        float startPosition = scrollMarginBefore;
+
+        //Percentage of child size to offset child positions
+        float physicalOffset = _actualPhysicalOffset;
+
         // If set to true, we'll check available space from the last to first visible child.
         // That is necessary if we want to scroll a specific child to the last visible position.
         bool invertLayouting = false;
@@ -337,11 +407,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           {
             fireScrolled = true;
             int pendingSI = _pendingScrollIndex.Value;
+            physicalOffset = _actualPhysicalOffset = _pendingPhysicalOffset;
             if (_scrollToFirst)
               _actualFirstVisibleLineIndex = pendingSI;
             else
             {
               _actualLastVisibleLineIndex = pendingSI;
+              //If we have an offset then there will be part of an additional item visible
+              if (physicalOffset != 0)
+                _actualLastVisibleLineIndex++;
               invertLayouting = true;
             }
             _pendingScrollIndex = null;
@@ -359,10 +433,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // 1) Calculate scroll indices
         if (_doScroll)
         { // Calculate last visible child
-          float spaceLeft = actualExtendsInNonOrientationDirection;
+          //Substract scroll margins from avalable space, additional items in the margin will be added later
+          float spaceLeft = actualExtendsInNonOrientationDirection - scrollMarginBefore - scrollMarginAfter;
           if (invertLayouting)
           {
             CalcHelper.Bound(ref _actualLastVisibleLineIndex, 0, _arrangedLines.Count - 1);
+
+            //Allow space for partially visible items at top and bottom
+            if (physicalOffset != 0)
+            {
+              float offsetItemSize = _arrangedLines[_actualLastVisibleLineIndex].TotalExtendsInOrientationDirection;
+              spaceLeft += offsetItemSize;
+              startPosition -= offsetItemSize * physicalOffset;
+            }
+
             _actualFirstVisibleLineIndex = _actualLastVisibleLineIndex + 1;
             while (_actualFirstVisibleLineIndex > 0)
             {
@@ -389,6 +473,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           else
           {
             CalcHelper.Bound(ref _actualFirstVisibleLineIndex, 0, _arrangedLines.Count - 1);
+
+            //Allow space for partially visible items at top and bottom
+            if (physicalOffset != 0)
+            {
+              float offsetItemSize = _arrangedLines[_actualFirstVisibleLineIndex].TotalExtendsInOrientationDirection;
+              spaceLeft += offsetItemSize;
+              startPosition -= offsetItemSize * physicalOffset;
+            }
+
             _actualLastVisibleLineIndex = _actualFirstVisibleLineIndex - 1;
             while (_actualLastVisibleLineIndex < _arrangedLines.Count - 1)
             {
@@ -416,6 +509,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         {
           _actualFirstVisibleLineIndex = 0;
           _actualLastVisibleLineIndex = _arrangedLines.Count - 1;
+        }
+
+        _actualFirstRenderedLineIndex = _actualFirstVisibleLineIndex;
+        _actualLastRenderedLineIndex = _actualLastVisibleLineIndex;
+        //calculate additional lines in the scroll margin
+        float inactiveSpaceLeft = scrollMarginBefore;
+        while (_actualFirstRenderedLineIndex > 0)
+        {
+          inactiveSpaceLeft -= _arrangedLines[_actualFirstRenderedLineIndex - 1].TotalExtendsInNonOrientationDirection;
+          if (inactiveSpaceLeft + DELTA_DOUBLE < 0)
+            break;
+          _actualFirstRenderedLineIndex--;
+        }
+        inactiveSpaceLeft = scrollMarginAfter;
+        while (_actualLastRenderedLineIndex < _arrangedLines.Count - 1)
+        {
+          inactiveSpaceLeft -= _arrangedLines[_actualLastRenderedLineIndex + 1].TotalExtendsInNonOrientationDirection;
+          if (inactiveSpaceLeft + DELTA_DOUBLE < 0)
+            break;
+          _actualLastRenderedLineIndex++;
         }
 
         // 2) Calculate start position
@@ -452,11 +565,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       else
       {
-        _actualFirstVisibleLineIndex = 0;
-        _actualLastVisibleLineIndex = -1;
+        _actualFirstVisibleLineIndex = _actualFirstRenderedLineIndex = 0;
+        _actualLastVisibleLineIndex = _actualLastRenderedLineIndex = -1;
       }
       if (fireScrolled)
         InvokeScrolled();
+    }
+
+    protected void GetScrollMargin(out float widthBefore, out float widthAfter)
+    {
+      Thickness thickness = ScrollMargin ?? new Thickness();
+      if (Orientation == Orientation.Vertical)
+      {
+        widthBefore = thickness.Left;
+        widthAfter = thickness.Right;
+      }
+      else
+      {
+        widthBefore = thickness.Top;
+        widthAfter = thickness.Bottom;
+      }
     }
 
     protected void InvokeScrolled()
@@ -651,6 +779,71 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return nextElement != null && nextElement.TrySetFocus(true);
     }
 
+    /// <summary>
+    /// Focuses the first line if an item on the last line currently has focus
+    /// </summary>
+    /// <returns>true if the first line was focused</returns>
+    protected virtual bool TryLoopToFirstLine()
+    {
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+      if (visibleChildren.Count == 0)
+        return false;
+      IList<LineMeasurement> lines = new List<LineMeasurement>(_arrangedLines);
+      if (lines.Count == 0)
+        return false;
+      var lastLine = lines[lines.Count - 1];
+      for (int childIndex = lastLine.StartIndex; childIndex <= lastLine.EndIndex; childIndex++)
+      {
+        if (InVisualPath(visibleChildren[childIndex], currentElement))
+        {
+          //item on last line has focus
+          //assume first line always has at least same number of items as last line
+          //set focus to item in same position on first line
+          SetScrollIndex(0, true);
+          visibleChildren[childIndex - lastLine.StartIndex].SetFocusPrio = SetFocusPriority.Default;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Focuses the last line if the first line currently has focus
+    /// </summary>
+    /// <returns>true if the last line was focused</returns>
+    protected virtual bool TryLoopToLastLine()
+    {
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+      if (visibleChildren.Count == 0)
+        return false;
+      IList<LineMeasurement> lines = new List<LineMeasurement>(_arrangedLines);
+      if (lines.Count == 0)
+        return false;
+      var firstLine = lines[0];
+      for (int childIndex = firstLine.StartIndex; childIndex <= firstLine.EndIndex; childIndex++)
+      {
+        if (InVisualPath(visibleChildren[childIndex], currentElement))
+        {
+          //item on first line has focus
+          var lastLine = lines[lines.Count - 1];
+          //last line may have fewer items than first line
+          //set focus to item in same position or last item if less
+          int itemIndex = lastLine.StartIndex + childIndex;
+          CalcHelper.Bound(ref itemIndex, 0, visibleChildren.Count - 1);
+          SetScrollIndex(int.MaxValue, false);
+          visibleChildren[itemIndex].SetFocusPrio = SetFocusPriority.Default;
+          return true;
+        }
+      }
+      return false;
+    }
+
     #endregion
 
     #region Base overrides
@@ -665,9 +858,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           lastVisibleLine < 0 || lastVisibleLine >= numLines)
         return;
       if (index < lines[firstVisibleLine].StartIndex)
-        SetScrollIndex(index, true);
+        SetScrollIndex(index, true, true);
       else if (index > lines[lastVisibleLine].EndIndex)
-        SetScrollIndex(index, false);
+        SetScrollIndex(index, false, true);
     }
 
     public override void SaveUIState(IDictionary<string, object> state, string prefix)
@@ -682,7 +875,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       object first;
       int? iFirst;
       if (state.TryGetValue(prefix + "/FirstVisibleLine", out first) && (iFirst = first as int?).HasValue)
-        SetScrollIndex(iFirst.Value, true);
+        SetScrollIndex(iFirst.Value, true, true);
     }
 
     #endregion
@@ -691,12 +884,43 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
-      if (_actualFirstVisibleLineIndex < 0 || _actualLastVisibleLineIndex < _actualFirstVisibleLineIndex)
+      if (_actualFirstRenderedLineIndex < 0 || _actualLastRenderedLineIndex < _actualFirstRenderedLineIndex)
         return new List<FrameworkElement>();
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-      int start = _arrangedLines[_actualFirstVisibleLineIndex].StartIndex;
-      int end = _arrangedLines[_actualLastVisibleLineIndex].EndIndex;
+      int start = _arrangedLines[_actualFirstRenderedLineIndex].StartIndex;
+      int end = _arrangedLines[_actualLastRenderedLineIndex].EndIndex;
       return visibleChildren.Skip(start).Take(end - start + 1);
+    }
+
+    /// <summary>
+    /// Required to clip any items that are partially within the panel's bounds
+    /// </summary>
+    /// <param name="parentRenderContext"></param>
+    public override void Render(RenderContext parentRenderContext)
+    {
+      if (OpacityMask == null && _actualPhysicalOffset != 0)
+      {
+        SolidColorBrush brush = new SolidColorBrush { Color = Color.Black };
+        OpacityMask = brush;
+        _forcedOpacityMask = true;
+      }
+      else if (_forcedOpacityMask && _actualPhysicalOffset == 0 && OpacityMask != null)
+      {
+        OpacityMask.Dispose();
+        OpacityMask = null;
+        _opacityMaskContext.Dispose();
+        _opacityMaskContext = null;
+        _forcedOpacityMask = false;
+      }
+      base.Render(parentRenderContext);
+    }
+
+    public override void RenderOverride(RenderContext localRenderContext)
+    {
+      base.RenderOverride(localRenderContext); // Do the actual rendering
+      // After rendering our children the following line resets the RenderContext's bounds so
+      // that rendering with an OpacityMask will clip the final output correctly to our scrolled viewport.
+      localRenderContext.SetUntransformedBounds(ActualBounds);
     }
 
     #endregion
@@ -706,28 +930,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public virtual bool FocusUp()
     {
       if (Orientation == Orientation.Horizontal)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Up);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Up) || (LoopScroll && TryLoopToLastLine());
       return false;
     }
 
     public virtual bool FocusDown()
     {
       if (Orientation == Orientation.Horizontal)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Down);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Down) || (LoopScroll && TryLoopToFirstLine());
       return false;
     }
 
     public virtual bool FocusLeft()
     {
       if (Orientation == Orientation.Vertical)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Left);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Left) || (LoopScroll && TryLoopToLastLine());
       return false;
     }
 
     public virtual bool FocusRight()
     {
       if (Orientation == Orientation.Vertical)
-        return AlignedPanelMoveFocus1(MoveFocusDirection.Right);
+        return AlignedPanelMoveFocus1(MoveFocusDirection.Right) || (LoopScroll && TryLoopToFirstLine());
       return false;
     }
 

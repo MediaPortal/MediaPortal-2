@@ -8,6 +8,8 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Définir le codec utilisé lors de la lecture des flux vidéo MPEG4 (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">Codec vidéo AVC</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Définir le codec utilisé lors de la lecture des flux vidéo AVC (HDTV, Blu-ray)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">Codec Vidéo HEVC</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Réglez le codec à utiliser pour les vidéos HEVC  (HD, UHD)</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Codecs audio</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Rendu audio</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">Codec audio MPEG1 et MPG2</string>
