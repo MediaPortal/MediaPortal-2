@@ -23,6 +23,11 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
+
+    <Image Width="250" Stretch="Uniform" Source="pause.png" Opacity="0.7"
+           HorizontalAlignment="Center" VerticalAlignment="Center"
+           IsVisible="{Binding ElementName=PrimaryOSD, Path=IsPaused}" />
+
     <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
