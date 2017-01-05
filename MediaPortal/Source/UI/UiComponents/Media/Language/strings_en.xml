@@ -318,6 +318,8 @@
   <string name="Media.AudioYearLabel">Year: </string>
   <string name="Media.AudioDurationLabel">Duration: </string>
   <string name="Media.AudioGenresLabel">Genre(s): </string>
+  <string name="Media.AudioTrackLabel">Track: </string>
+  <string name="Media.AudioDiscLabel">Disc: </string>
 
   <string name="Media.AudioPlaylistHeader">Audio playlist</string>
   <string name="Media.VideoImagePlaylistHeader">Video/image playlist</string>
