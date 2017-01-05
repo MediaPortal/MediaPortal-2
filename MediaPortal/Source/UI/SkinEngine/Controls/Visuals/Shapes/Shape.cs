@@ -320,7 +320,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       lock (_resourceRenderLock)
       {
         TryDispose(ref _strokeStyle);
-        _strokeStyle = new StrokeStyle(GraphicsDevice11.Instance.Context2D1.Factory, prop);
+        if (GraphicsDevice11.Instance.Context2D1 != null)
+          _strokeStyle = new StrokeStyle(GraphicsDevice11.Instance.Context2D1.Factory, prop);
       }
     }
 
