@@ -89,7 +89,6 @@
                 <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
               </Label.Content>
             </Label>
-            </Label>
           </Grid>
 
           <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
