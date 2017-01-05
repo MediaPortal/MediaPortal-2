@@ -76,23 +76,14 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Медиа элементы</string>
   <string name="Media.LocalMediaNavigationHeader">Локальные медиа элементы</string>
-  <string name="Media.MediaItemsHeader">Медиа элементы</string>
-  <string name="Media.VideoItemsHeader">Видео</string>
-  <string name="Media.AudioItemsHeader">Аудио</string>
-  <string name="Media.EpisodeItemsHeader">Эпизоды</string>
-  <string name="Media.ImageItemsHeader">Изображения</string>
   <string name="Media.SimpleSearchHeader">Простой поиск</string>
-  <string name="Media.ChooseActorHeader">Выбрать актера</string>
-  <string name="Media.ChooseVideoGenreHeader">Выбрать жанр</string>
-  <string name="Media.ChooseVideoYearHeader">Выбрать год</string>
-  <string name="Media.ChooseSeriesHeader">Выбрать сериал</string>
-  <string name="Media.ChooseSeasonHeader">Выбрать сезон</string>
-  <string name="Media.ChooseAudioDecadeHeader">Выбрать десятилетие</string>
-  <string name="Media.ChooseAlbumHeader">Выбрать альбом</string>
-  <string name="Media.ChooseArtistHeader">Выбрать исполнителя</string>
-  <string name="Media.ChooseAudioGenreHeader">Выбрать жанр</string>
-  <string name="Media.ChooseImageYearHeader">Выбрать год</string>
-  <string name="Media.ChooseImageSizeHeader">Выбрать размер</string>
+  <string name="Media.ChooseActorHeader">Актеры</string>
+  <string name="Media.ChooseDirectorHeader">Режиссеры</string>
+  <string name="Media.ChooseImageHeader">Изображения</string>
+  <string name="Media.ChooseSeriesHeader">Сериалы</string>
+  <string name="Media.ChooseEpisodeHeader">Эпизоды</string>
+  <string name="Media.ChooseAudioHeader">Аудио</string>
+  <string name="Media.ChooseVideoHeader">Видео</string>
   <string name="Media.PlaylistsOverviewHeader">Плейлисты</string>
   <string name="Media.SavePlaylistEditNameHeader">Сохранить плейлист</string>
   <string name="Media.SavePlaylistFailedHeader">Сохранить плейлист</string>
@@ -102,6 +93,7 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Нет плейлиста</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Ошибка загрузки плейлиста</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Плейлист может быть сохранён, только если все элементы найдены на домашнем сервере</string>
+  <!--View occupation names-->
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Медиа элементы</string>
   <string name="Media.LocalMediaRootViewName">Локальные медиа элементы</string>

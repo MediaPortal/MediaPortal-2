@@ -36,8 +36,12 @@
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Όνομα: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <!--Screen headers-->
-  <string name="Media.VideoItemsHeader">Βίντεο</string>
-  <string name="Media.ImageItemsHeader">Εικόνες</string>
+  <string name="Media.ChooseActorHeader">Ηθοποιοί</string>
+  <string name="Media.ChooseDirectorHeader">Σκηνοθέτες</string>
+  <string name="Media.ChooseImageHeader">Εικόνες</string>
+  <string name="Media.ChooseSeriesHeader">Σειρές</string>
+  <string name="Media.ChooseVideoHeader">Βίντεο</string>
+  <!--View occupation names-->
   <!--View names (names for the view instances)-->
   <string name="Media.AudioRootViewName">Ήχος</string>
   <string name="Media.VideosRootViewName">Βίντεο</string>

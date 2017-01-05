@@ -3,10 +3,6 @@
     <string name="Diagnostics.Settings.Diagnostics">Diagnóstico</string>
     <string name="Diagnostics.Settings.Diagnostics.AllLogs">Habilitar registro de depuración en el cliente</string>
     <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Aumentar detalle del registro</string>
-    <string name="Diagnostics.Settings.Image.FocusSteeling">Habilitar registro de la pérdida potencial de enfoque</string>
-    <string name="Diagnostics.Settings.Image.FocusSteelingHelpText">Habilitar registro de la pérdida potencial de enfoque</string>
     <string name="Diagnostics.Settings.Collectlogs">Recoger archivos de registro</string>
-    <string name="Diagnostics.Settings.CollectlogsHelpText">Proporcionar ahora recopilación de registros</string>
     <string name="Diagnostics.Settings.ShowLogs">Mostrar registros</string>
-    <string name="Diagnostics.Settings.ShowLogsHelpText">Mostrar registros en ventanas separadas</string>
-</resources>
+    </resources>

@@ -71,8 +71,10 @@
   <string name="LocalFsResourceProvider.Description">Accéder aux fichiers locaux</string>
   <string name="RemoteResourceProvider.Name">Les ressources distantes</string>
   <string name="RemoteResourceProvider.Description">Accéder aux contenus situés sur un autre système MediaPortal 2</string>
-  <string name="RawUrlResourceProvider.Name">Url RAW</string>
-  <string name="RawUrlResourceProvider.Description">Accéder à des sources d\'URL brute5raw)</string>
+  <string name="RawUrlResourceProvider.Name">Url brute</string>
+  <string name="RawUrlResourceProvider.Description">Accéder à des sources d\'URL brute</string>
+  <string name="VirtualResourceProvider.Name">Ressources virtuel</string>
+  <string name="VirtualResourceProvider.Description">Accès aux ressources virtuel</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Aucun lecteur</string>

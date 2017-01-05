@@ -36,11 +36,13 @@
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Trenutni video</string>
   <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">Audio vizualizacija</string>
   <!--Screen headers-->
-  <string name="Media.VideoItemsHeader">Video sadržaj</string>
-  <string name="Media.EpisodeItemsHeader">Epizode</string>
-  <string name="Media.MoviesItemsHeader">Filmovi</string>
-  <string name="Media.ImageItemsHeader">Slike</string>
-  <string name="Media.ChooseImageCityHeader">Odaberite mjesto</string>
+  <string name="Media.ChooseMovieHeader">Filmovi</string>
+  <string name="Media.ChooseImageHeader">Slike</string>
+  <string name="Media.ChooseSeriesHeader">Serije</string>
+  <string name="Media.ChooseEpisodeHeader">Epizode</string>
+  <string name="Media.ChooseVideoHeader">Video</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Izvođač</string>
   <!--View names (names for the view instances)-->
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Video sadržaj</string>

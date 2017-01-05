@@ -473,8 +473,6 @@
   <string name="Settings.Media.ShowVirtual.Series">Show all known seasons and episodes</string>
 
   <!-- Secondary filters -->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

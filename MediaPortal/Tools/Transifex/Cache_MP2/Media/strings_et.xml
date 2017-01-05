@@ -86,27 +86,16 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Lehitse meediat, navigeerimine</string>
   <string name="Media.LocalMediaNavigationHeader">Kohaliku meedia vaade</string>
-  <string name="Media.MediaItemsHeader">Meedia failid</string>
-  <string name="Media.VideoItemsHeader">Videod</string>
-  <string name="Media.AudioItemsHeader">Helindid</string>
-  <string name="Media.EpisodeItemsHeader">Episoodid</string>
-  <string name="Media.MoviesItemsHeader">Filmid</string>
-  <string name="Media.ImageItemsHeader">Pildid</string>
   <string name="Media.SimpleSearchHeader">Lihtne otsing</string>
-  <string name="Media.ChooseCollectionHeader">Vali kogu</string>
-  <string name="Media.ChooseActorHeader">Vali näitleja</string>
-  <string name="Media.ChooseVideoGenreHeader">Vali žanr</string>
-  <string name="Media.ChooseVideoYearHeader">Vali aasta</string>
-  <string name="Media.ChooseSeriesHeader">Vali seeriad</string>
-  <string name="Media.ChooseSeasonHeader">Vali hooaeg</string>
-  <string name="Media.ChooseAudioDecadeHeader">Vali aastakümme</string>
-  <string name="Media.ChooseAlbumHeader">Vali album</string>
-  <string name="Media.ChooseArtistHeader">Vali esitaja</string>
-  <string name="Media.ChooseAudioGenreHeader">Vali žanr</string>
-  <string name="Media.ChooseImageYearHeader">Vali aasta</string>
-  <string name="Media.ChooseImageSizeHeader">Vali suurus</string>
-  <string name="Media.ChooseSystemHeader">Vali süsteem</string>
-  <string name="Media.ChooseVideoLanguageHeader">Vali keel</string>
+  <string name="Media.ChooseActorHeader">Näitlejad</string>
+  <string name="Media.ChooseDirectorHeader">Rezisöörid</string>
+  <string name="Media.ChooseMovieHeader">Filmid</string>
+  <string name="Media.ChooseWriterHeader">Stsenaristid</string>
+  <string name="Media.ChooseImageHeader">Pildid</string>
+  <string name="Media.ChooseSeriesHeader">Seeriad</string>
+  <string name="Media.ChooseEpisodeHeader">Episoodid</string>
+  <string name="Media.ChooseAudioHeader">Helindid</string>
+  <string name="Media.ChooseVideoHeader">Videod</string>
   <string name="Media.PlaylistsOverviewHeader">Esitusloendid</string>
   <string name="Media.SavePlaylistEditNameHeader">Salvesta esitusloend</string>
   <string name="Media.SavePlaylistFailedHeader">Salvesta esitusloend</string>
@@ -116,6 +105,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Pole esitusloendit laadimiseks</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Esitusloendi laadimise viga</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Esitusloendit saab salvestada kui kõik loendis on saadud koduserverist, (mitte eraldatud kohaliku meedia otsingust)</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Artist</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Lehitse meediat</string>
   <string name="Media.LocalMediaRootViewName">Kohalik meedia</string>

@@ -21,7 +21,7 @@
   <string name="SlimTvClient.NoProgram">Programinformation saknas.</string>
   <string name="SlimTvClient.ChooseProgramAction">Välj åtgärd...</string>
   <string name="SlimTvClient.ChooseChannelGroup">Välj kanalgrupp...</string>
-  <string name="SlimTvClient.ChannelGroupButton">Kanalgrupp...</string>
+  <string name="SlimTvClient.ChannelGroupButton">Kanalgrupp</string>
   <string name="SlimTvClient.ProgramOver">Programmet är slut</string>
   <string name="SlimTvClient.WatchNow">Titta nu</string>
   <string name="SlimTvClient.WatchFromBeginning">Se inspelningen från början</string>

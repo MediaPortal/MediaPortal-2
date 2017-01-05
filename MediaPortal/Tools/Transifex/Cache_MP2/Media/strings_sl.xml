@@ -98,32 +98,18 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Pregledovanje vsebin</string>
   <string name="Media.LocalMediaNavigationHeader">Pregledovanje lokalnih vsebin</string>
-  <string name="Media.MediaItemsHeader">Vsebine</string>
-  <string name="Media.VideoItemsHeader">Filmi</string>
-  <string name="Media.AudioItemsHeader">Audio datoteke</string>
-  <string name="Media.EpisodeItemsHeader">Epizode</string>
-  <string name="Media.MoviesItemsHeader">Filmi</string>
-  <string name="Media.ImageItemsHeader">Slike</string>
   <string name="Media.SimpleSearchHeader">Preprosto iskanje</string>
-  <string name="Media.ChooseCollectionHeader">Izberi zbirko</string>
-  <string name="Media.ChooseActorHeader">Izberi igralca</string>
-  <string name="Media.ChooseDirectorHeader">Izberite režiserja</string>
-  <string name="Media.ChooseWriterHeader">Izberite pisatelja</string>
-  <string name="Media.ChooseVideoGenreHeader">Izberi žanr</string>
-  <string name="Media.ChooseVideoYearHeader">Izberi leto</string>
-  <string name="Media.ChooseSeriesHeader">Izberi serijo</string>
-  <string name="Media.ChooseSeasonHeader">Izberi sezono</string>
-  <string name="Media.ChooseAudioDecadeHeader">Izberi desteletje</string>
-  <string name="Media.ChooseAlbumHeader">Izberi album</string>
-  <string name="Media.ChooseArtistHeader">Izberi izvajalca</string>
-  <string name="Media.ChooseAudioGenreHeader">Izberi žanr</string>
-  <string name="Media.ChooseImageYearHeader">Izberi leto</string>
-  <string name="Media.ChooseImageSizeHeader">Izberi velikost</string>
-  <string name="Media.ChooseImageCountryHeader">Izberi državo</string>
-  <string name="Media.ChooseImageStateHeader">Izberi regijo</string>
-  <string name="Media.ChooseImageCityHeader">Izberi mesto</string>
-  <string name="Media.ChooseSystemHeader">Izberi sistem</string>
-  <string name="Media.ChooseVideoLanguageHeader">Izberi jezik</string>
+  <string name="Media.ChooseActorHeader">Igralci</string>
+  <string name="Media.ChooseDirectorHeader">Režiserji</string>
+  <string name="Media.ChooseMovieHeader">Filmi</string>
+  <string name="Media.ChooseWriterHeader">Pisci</string>
+  <string name="Media.ChooseVideoGenreHeader">Žanri</string>
+  <string name="Media.ChooseImageHeader">Slike</string>
+  <string name="Media.ChooseSeriesHeader">Nanizanke</string>
+  <string name="Media.ChooseEpisodeHeader">Epizode</string>
+  <string name="Media.ChooseAudioHeader">Audio datoteke</string>
+  <string name="Media.ChooseAudioGenreHeader">Žanri</string>
+  <string name="Media.ChooseVideoHeader">Videi</string>
   <string name="Media.PlaylistsOverviewHeader">Seznami predvajanja</string>
   <string name="Media.SavePlaylistEditNameHeader">Shrani seznam predvajanja</string>
   <string name="Media.SavePlaylistFailedHeader">Shrani seznam predvajanja</string>
@@ -133,6 +119,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Ni seznama, ki bi ga lahko naložil</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Napaka pri nalaganju seznama predvajanja</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Seznam predvajanja se lahko shrani le, če so vse vsebine na njem iz strežnika in ne iz izključenega lokalnega računalnika.</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Izvajalec</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Pregleduj vsebine</string>
   <string name="Media.LocalMediaRootViewName">Lokalne vsebine</string>

@@ -98,32 +98,16 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Medyaları göster</string>
   <string name="Media.LocalMediaNavigationHeader">Yerel medyaları göster</string>
-  <string name="Media.MediaItemsHeader">Medya öğeleri</string>
-  <string name="Media.VideoItemsHeader">Videolar</string>
-  <string name="Media.AudioItemsHeader">Ses öğeleri</string>
-  <string name="Media.EpisodeItemsHeader">Bölümler</string>
-  <string name="Media.MoviesItemsHeader">Filmler</string>
-  <string name="Media.ImageItemsHeader">Resimler</string>
   <string name="Media.SimpleSearchHeader">Basit arama</string>
-  <string name="Media.ChooseCollectionHeader">Koleksiyon seçin</string>
-  <string name="Media.ChooseActorHeader">Aktör seç</string>
-  <string name="Media.ChooseDirectorHeader">Direktör seç</string>
-  <string name="Media.ChooseWriterHeader">Yazar seç</string>
-  <string name="Media.ChooseVideoGenreHeader">Tür seç</string>
-  <string name="Media.ChooseVideoYearHeader">Yıl seç</string>
-  <string name="Media.ChooseSeriesHeader">Dizi seç</string>
-  <string name="Media.ChooseSeasonHeader">Sezon seç</string>
-  <string name="Media.ChooseAudioDecadeHeader">Dönem seç</string>
-  <string name="Media.ChooseAlbumHeader">Albüm seç</string>
-  <string name="Media.ChooseArtistHeader">Artist seç</string>
-  <string name="Media.ChooseAudioGenreHeader">Tür seç</string>
-  <string name="Media.ChooseImageYearHeader">Yıl seç</string>
-  <string name="Media.ChooseImageSizeHeader">Büyüklük seç</string>
-  <string name="Media.ChooseImageCountryHeader">Ülke seçin</string>
-  <string name="Media.ChooseImageStateHeader">Eyalet seçin</string>
-  <string name="Media.ChooseImageCityHeader">Şehir seçin</string>
-  <string name="Media.ChooseSystemHeader">Sistem seç</string>
-  <string name="Media.ChooseVideoLanguageHeader">Dil seç</string>
+  <string name="Media.ChooseActorHeader">Oyuncular</string>
+  <string name="Media.ChooseDirectorHeader">Yönetmenler</string>
+  <string name="Media.ChooseMovieHeader">Filmler</string>
+  <string name="Media.ChooseWriterHeader">Yazarlar</string>
+  <string name="Media.ChooseImageHeader">Resimler</string>
+  <string name="Media.ChooseSeriesHeader">Dizi</string>
+  <string name="Media.ChooseEpisodeHeader">Bölümler</string>
+  <string name="Media.ChooseAudioHeader">Ses öğeleri</string>
+  <string name="Media.ChooseVideoHeader">Videolar</string>
   <string name="Media.PlaylistsOverviewHeader">Çalma listeleri</string>
   <string name="Media.SavePlaylistEditNameHeader">Çalma listesini kaydet</string>
   <string name="Media.SavePlaylistFailedHeader">Çalma listesini kaydet</string>
@@ -133,6 +117,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Yüklenecek çalma listesi yok</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Çalma listesi yüklenirken hata oluştu</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Çalma listesi ancak sıraya alınan tüm medya öğelerinin yerel sunucudan seçilmiş olması durumunda mümkündür ( örneğin bağlantı sağlanmamış yerel medya seçimi durumunda çalışmaz )</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Artist</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Medya öğelerine gözat</string>
   <string name="Media.LocalMediaRootViewName">Yerel medya</string>

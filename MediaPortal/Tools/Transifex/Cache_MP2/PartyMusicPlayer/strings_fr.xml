@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="PartyMusicPlayer.MenuItem">Lecteur en mode Soirée</string>
+  <string name="PartyMusicPlayer.MenuItem">Lecteur \"Mode Soirée\"</string>
   <string name="PartyMusicPlayer.MenuItem.Help">Démarrer une playlist et empêcher l\'utilisation de MediaPortal .</string>
-  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Lecteur en mode Soirée</string>
-  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Lecteur en mode Soirée</string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Lecteur \"Mode Soirée\"</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Lecteur \"Mode Soirée\"</string>
   <string name="PartyMusicPlayer.ConfigScreenTitle">Configuration du lecteur en mode Soirée</string>
   <string name="PartyMusicPlayer.Playlist">Playlist</string>
   <string name="PartyMusicPlayer.ChoosePlaylist">Choisir une playlist</string>
@@ -17,7 +17,7 @@
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Désolé, mot  passe incorrect!</string>
   <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Aucune connexion au serveur</string>
   <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Pour cette action, le serveur (Home Serveur) doit être connecté</string>
-  <string name="PartyMusicPlayer.PlayerContextName">Lecteur en mode Soirée</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Lecteur \"Mode Soirée\"</string>
   <string name="PartyMusicPlayer.AudioArtistLabel">Artiste</string>
   <string name="PartyMusicPlayer.AudioTitleLabel">Titre</string>
   <string name="PartyMusicPlayer.ShowPlaylist">Afficher la playlist</string>

@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="Diagnostics.Settings.Diagnostics">Fehlerdiagnose</string>
-    <string name="Diagnostics.Settings.Diagnostics.AllLogs">FEHLERSUCHprotokollierung auf Client aktivieren</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Fehler-Protokollierung auf Client aktivieren</string>
     <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Log-Ausführlichkeit und -Detailgrad erhöhen</string>
-    <string name="Diagnostics.Settings.Image.FocusSteeling">Aktiviere die Protokollierung von möglichem Fokusverlust</string>
-    <string name="Diagnostics.Settings.Image.FocusSteelingHelpText">Aktiviere die Protokollierung von möglichem Fokusverlust</string>
-    <string name="Diagnostics.Settings.Collectlogs">Protokolldateien sammeln</string>
-    <string name="Diagnostics.Settings.CollectlogsHelpText">Protokollsammlung jetzt bereitstellen</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">Fokusverlust protokollieren</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Diagnose von Fokusverlusten durch andere Anwendungen</string>
+    <string name="Diagnostics.Settings.Collectlogs">Protokolldateien zusammenstellen</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Startet den Log Collector um alle Log-Dateien in einem Zip-Archiv bereitzustellen</string>
     <string name="Diagnostics.Settings.ShowLogs">Logs anzeigen</string>
-    <string name="Diagnostics.Settings.ShowLogsHelpText">Logs in neuem Fenster anzeigen</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Anwendungsprotokolle in eigenem Fenster anzeigen</string>
 </resources>

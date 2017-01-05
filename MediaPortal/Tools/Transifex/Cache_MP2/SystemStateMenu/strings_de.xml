@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.General.System.SystemStateDialog">Schließen-Menü</string>
-  <string name="Settings.General.System.SystemStateDialog.Help">Sichtbarkeit und Position der Menüeinträge Herunterfahren konfigurieren</string>
-  <string name="SystemState.Configuration.Dialog.Title">Herunterfahreinträge konfigurieren</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Anzeige und Position der \"Schließen\"-Menüeinträge konfigurieren</string>
+  <string name="SystemState.Configuration.Dialog.Title">Schließen-Menü Einträge konfigurieren</string>
   <string name="SystemState.Title">Schließen-Menü</string>
   <string name="SystemState.Hibernate">Ruhezustand</string>
   <string name="SystemState.Shutdown">Herunterfahren</string>
-  <string name="SystemState.Suspend">Schlafmodus</string>
+  <string name="SystemState.Suspend">Suspend-Modus</string>
   <string name="SystemState.Restart">Neustart</string>
   <string name="SystemState.Logoff">Abmelden</string>
   <string name="SystemState.SleepTimerConfig">Sleep-Timer aktivieren</string>
@@ -14,7 +14,7 @@
   <string name="SystemState.MinimizeMP">MediaPortal minimieren</string>
   <string name="SystemState.ShutdownMP">MediaPortal schließen</string>
   <string name="SystemState.ShutdownDialogStateDisplayLabel">Schließen-Menü</string>
-  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Herunterfahrmenükonfiguration</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Schließen-Menü konfigurieren</string>
   <string name="SleepTimer.Title">Sleep-Timer</string>
   <string name="SleepTimer.Start">Anfang</string>
   <string name="SleepTimer.Stop">Stopp</string>
@@ -22,7 +22,7 @@
   <string name="SleepTimer.TimeStr">Zeit:</string>
   <string name="SleepTimer.Minutes">Min.</string>
   <string name="SleepTimer.MediaItem">Nach aktuellem Medienelement</string>
-  <string name="SleepTimer.Playlist">Nach Wiedergabeliste</string>
+  <string name="SleepTimer.Playlist">Nach aktueller Playlist</string>
   <string name="SleepTimer.ShutdownTextSingle">{0} in weniger als einer Minute</string>
   <string name="SleepTimer.ShutdownTextMulti">{0} in {1} Minuten</string>
   <string name="SleepTimer.MaxMinutes">Sleep-Timer max. Minuten:</string>

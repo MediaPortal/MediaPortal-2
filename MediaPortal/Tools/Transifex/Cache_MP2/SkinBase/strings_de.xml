@@ -73,6 +73,8 @@
   <string name="RemoteResourceProvider.Description">Zugriff auf Ressourcen, die auf anderen MediaPortal 2-Systemen gespeichert sind</string>
   <string name="RawUrlResourceProvider.Name">URL-Ressourcen</string>
   <string name="RawUrlResourceProvider.Description">Zugriff auf URL-Quellen</string>
+  <string name="VirtualResourceProvider.Name">Virtuelle Ressourcen</string>
+  <string name="VirtualResourceProvider.Description">Zugriff auf virtuelle Ressourcen</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Kein Player</string>
@@ -102,12 +104,16 @@
   <string name="Players.ChoosePlayerGeometry">Zoom-Modus</string>
   <string name="Players.ChoosePlayerEffect">Effekt</string>
   <string name="Players.ChoosePlayerSubtitle">Untertitel</string>
-  <string name="Settings.Appearance">Erscheinungsbild</string>
+  <string name="Settings.Appearance">Darstellung</string>
   <string name="Settings.Appearance.Skin">Skin</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat">Datums-Format</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datums-Format, das vom Skin verwendet wird. Es muss eine Formatangabe verwendet werden, die von der .net-DateTime-Klasse interpretiert werden kann.</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Zeitformat</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Zeit-Format, das vom Skin verwendet wird. Es muss eine Formatangabe verwendet werden, die von der .net-DateTime-Klasse interpretiert werden kann.</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat">Datum-Format</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datum-Format, das vom Skin verwendet wird. 
+
+Es muss eine Formatangabe verwendet werden, die von der .net-DateTime-Klasse interpretiert werden kann.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Zeit-Format</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Zeit-Format, das vom Skin verwendet wird. 
+
+Es muss eine Formatangabe verwendet werden, die von der .net-DateTime-Klasse interpretiert werden kann.</string>
   <string name="Settings.General">Allgemein</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
@@ -124,9 +130,9 @@
   <string name="Settings.General.Connectivity.HttpServerPort">HTTP-Serverport</string>
   <string name="Settings.General.Connectivity.HttpServerPort.Help">Setzt die Port-Nummer des HTTP-Servers</string>
   <string name="Settings.General.Connectivity.UseIPv4">IPv4 verwenden</string>
-  <string name="Settings.General.Connectivity.UseIPv4.Help">Legt fest, ob dieser Client IPv4-Verbindungen zum Server verwenden soll.</string>
+  <string name="Settings.General.Connectivity.UseIPv4.Help">Legt fest, ob dieser Client IPv4-Verbindungen zum MP2-Server verwenden soll.</string>
   <string name="Settings.General.Connectivity.UseIPv6">IPv6 verwenden</string>
-  <string name="Settings.General.Connectivity.UseIPv6.Help">Legt fest, ob dieser Client IPv6-Verbindungen zum Server verwenden soll.</string>
+  <string name="Settings.General.Connectivity.UseIPv6.Help">Legt fest, ob dieser Client IPv6-Verbindungen zum MP2-Server verwenden soll.</string>
   <string name="Settings.General.Connectivity.IPAddressBindings">IP-Adressen-Bindungen</string>
   <string name="Settings.General.Connectivity.IPAddressBindings.Help">Legt eine Liste von IP-Adressen fest, die von diesem Client für Verbindungen zum MP2-Server verwendet werden sollen.</string>
   <string name="Settings.Regional">Spracheinstellungen</string>
