@@ -57,7 +57,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <Rectangle Fill="Black" Opacity="0.5" Margin="-69,-9,-66,62" DockPanel.Dock="Center">
           <Rectangle.Effect>
-            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+            <!--<ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />-->
           </Rectangle.Effect>
         </Rectangle>
        

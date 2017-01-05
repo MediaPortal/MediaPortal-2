@@ -35,13 +35,13 @@
 
         <Rectangle Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Fill="Black" Opacity="0.5" Margin="-9,-9,5,0">
           <Rectangle.Effect>
-            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+            <!--<ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />-->
           </Rectangle.Effect>
         </Rectangle>
 
         <Rectangle Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Fill="Black" Opacity="0.5" Margin="-8,-9,-9,0">
           <Rectangle.Effect>
-            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+            <!--<ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />-->
           </Rectangle.Effect>
         </Rectangle>
  

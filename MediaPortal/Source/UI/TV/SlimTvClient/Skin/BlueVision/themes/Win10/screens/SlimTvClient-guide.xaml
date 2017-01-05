@@ -33,7 +33,7 @@
 
         <Rectangle Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Fill="Black" Opacity="0.5" Margin="-39,-9,-14,0">
           <Rectangle.Effect>
-            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+            <!--<ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />-->
           </Rectangle.Effect>
         </Rectangle>
 

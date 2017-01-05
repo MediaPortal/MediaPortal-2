@@ -18,7 +18,7 @@
 
         <Rectangle Fill="Black" Opacity="0.5" Margin="-89,-14,-84,75" DockPanel.Dock="Center" >
           <Rectangle.Effect>
-            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+            <!--<ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />-->
           </Rectangle.Effect>
         </Rectangle>
 
