@@ -48,12 +48,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
     /// <summary>
     /// GUID string for the WTV Recording metadata extractor.
     /// </summary>
-    private const string METADATAEXTRACTOR_ID_STR = "2E1493A6-4898-429C-AF56-D6D7EA2AFEF3";
+    private const string WTV_SERIES_METADATAEXTRACTOR_ID_STR = "2E1493A6-4898-429C-AF56-D6D7EA2AFEF3";
 
     /// <summary>
     /// Tve3 metadata extractor GUID.
     /// </summary>
-    public new static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
+    public new static Guid METADATAEXTRACTOR_ID = new Guid(WTV_SERIES_METADATAEXTRACTOR_ID_STR);
 
     protected static IList<MediaCategory> SERIES_MEDIA_CATEGORIES = new List<MediaCategory>();
 

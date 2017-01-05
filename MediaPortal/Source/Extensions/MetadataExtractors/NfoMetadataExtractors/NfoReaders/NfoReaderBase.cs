@@ -140,7 +140,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Properties defined in a settings class derived from <see cref="NfoMetadataExtractorSettingsBase"/> can only be accessed by the
     /// respective derived reader class.
     /// </remarks>
-    protected readonly NfoMetadataExtractorSettingsBase _settings;
+    protected NfoMetadataExtractorSettingsBase _settings;
 
     #endregion
 

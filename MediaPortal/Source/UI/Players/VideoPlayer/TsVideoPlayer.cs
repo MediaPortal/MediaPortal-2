@@ -62,7 +62,6 @@ namespace MediaPortal.UI.Players.Video
     protected SubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
     protected ITsReader _tsReader;
-    protected GraphRebuilder _graphRebuilder;
     protected ChangedMediaType _changedMediaType;
     protected string _oldVideoFormat;
     protected LocalFsResourceAccessorHelper _localFsRaHelper;
