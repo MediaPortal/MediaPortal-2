@@ -71,6 +71,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string NameId = null;
 
     public SimpleTitle SeriesName = null;
+    public SimpleTitle SeriesNameSort = new SimpleTitle();
     public string AlternateName = null;
     public string OriginalName = null;
     public int? SearchSeason = null;
@@ -170,7 +171,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(SeriesName.Text));
+      if (!SeriesNameSort.IsEmpty)
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, SeriesNameSort.Text);
+      else
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(SeriesName.Text));
       //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadataextractors
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, SeriesName.Text);
       if (!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_ORIG_SERIES_NAME, OriginalName);
@@ -251,6 +255,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, out tempString);
         SeriesName = new SimpleTitle(tempString, false);
+        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out tempString);
+        SeriesNameSort = new SimpleTitle(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, out tempString);
         Description = new SimpleTitle(tempString, false);
 
@@ -555,6 +561,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         SeriesInfo info = new SeriesInfo();
         info.CopyIdsFrom(this);
         info.SeriesName = SeriesName;
+        info.SeriesNameSort = SeriesNameSort;
         info.FirstAired = FirstAired;
         return (T)(object)info;
       }

@@ -184,6 +184,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
       string title = null;
+      string sortTitle = null;
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
@@ -210,6 +211,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           movieInfo.MovieName = title;
           /* Clear the names from unwanted strings */
           MovieNameMatcher.CleanupTitle(movieInfo);
+        }
+      }
+      if (movieInfo.MovieNameSort.IsEmpty)
+      {
+        //Try to get sort title
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, out sortTitle) && !string.IsNullOrEmpty(sortTitle))
+        {
+          movieInfo.MovieNameSort = sortTitle;
         }
       }
 

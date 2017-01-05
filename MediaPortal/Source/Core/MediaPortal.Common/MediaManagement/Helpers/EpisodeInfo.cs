@@ -110,6 +110,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the episode title.
     /// </summary>
     public SimpleTitle EpisodeName = null;
+    public SimpleTitle EpisodeNameSort = new SimpleTitle();
     /// <summary>
     /// Gets or sets the season number. A "0" value will be treated as valid season number.
     /// </summary>
@@ -227,12 +228,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       SetMetadataChanged(aspectData);
+      EpisodeName.Text = CleanString(EpisodeName.Text);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(EpisodeName.Text));
+      if (!EpisodeNameSort.IsEmpty)
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, EpisodeNameSort.Text);
+      else if (!EpisodeName.IsEmpty)
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(EpisodeName.Text));
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, IsVirtualResource(aspectData));
       MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, SeriesName.Text);
-      if (!EpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, CleanString(EpisodeName.Text));
+      if (!EpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, EpisodeName.Text);
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, SeasonNumber.Value);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
       MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers.Select(e => (object)e).ToList());
@@ -297,6 +302,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SeriesName = new SimpleTitle(tempString, false);
       MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, out tempString);
       EpisodeName = new SimpleTitle(tempString, false);
+      MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out tempString);
+      EpisodeNameSort = new SimpleTitle(tempString, false);
       MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, out tempString);
       Summary = new SimpleTitle(tempString, false);
 
@@ -532,6 +539,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.SeasonNumber = SeasonNumber;
         info.EpisodeNumbers = EpisodeNumbers;
         info.EpisodeName = EpisodeName;
+        info.EpisodeNameSort = EpisodeNameSort;
         return (T)(object)info;
       }
       return default(T);

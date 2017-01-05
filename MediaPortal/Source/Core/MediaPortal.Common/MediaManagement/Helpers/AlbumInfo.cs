@@ -68,6 +68,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string NameId = null;
 
     public string Album = null;
+    public string AlbumSort = null;
     public SimpleTitle Description = null;
     public DateTime? ReleaseDate = null;
     public int TotalTracks = 0;
@@ -151,7 +152,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Album));
+      if (!string.IsNullOrEmpty(AlbumSort))
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, AlbumSort);
+      else
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Album));
       //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadataextractors
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, Album);
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_COMPILATION, Compilation);
@@ -202,6 +206,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (aspectData.ContainsKey(AudioAlbumAspect.ASPECT_ID))
       {
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, out Album);
+        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out AlbumSort);
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_DISCID, out DiscNum);
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_NUMDISCS, out TotalDiscs);
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_NUMTRACKS, out TotalTracks);
@@ -444,6 +449,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         AlbumInfo info = new AlbumInfo();
         info.CopyIdsFrom(this);
         info.Album = Album;
+        info.AlbumSort = AlbumSort;
         info.ReleaseDate = ReleaseDate;
         return (T)(object)info;
       }

@@ -64,6 +64,7 @@
     <Compile Include="FanArtHandlers\AudioFanArtHandler.cs" />
     <Compile Include="MergeHandlers\TrackMergeHandler.cs" />
     <Compile Include="Matchers\AudioCDMatcher.cs" />
+    <Compile Include="Metadata\TempAlbumAspect.cs" />
     <Compile Include="Metadata\TempPersonAspect.cs" />
     <Compile Include="RelationshipExtractors\AudioRelationshipExtractor.cs" />
     <Compile Include="AudioMetadataExtractor.cs" />
