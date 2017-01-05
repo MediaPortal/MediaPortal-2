@@ -226,12 +226,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override int SaveFanArtImages(string id, IEnumerable<TvdbBanner> images, string mediaItemId, string name, string fanartType)
+    protected override int SaveFanArtImages(string id, IEnumerable<TvdbBanner> images, TvdbLanguage language, string mediaItemId, string name, string fanartType)
     {
       if (images == null)
         return 0;
 
-      return SaveBanners(images, _wrapper.PreferredLanguage, mediaItemId, name, fanartType);
+      return SaveBanners(images, language, mediaItemId, name, fanartType);
     }
 
     private int SaveBanners(IEnumerable<TvdbBanner> banners, TvdbLanguage language, string mediaItemId, string name, string fanartType)
