@@ -355,6 +355,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_TVDBID, out info.TvdbId);
         if (info.SeriesName.IsEmpty)
           MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_NAME, out info.SeriesName.Text);
+        if (info.SeriesNameSort.IsEmpty)
+          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_SORT_NAME, out info.SeriesNameSort.Text);
         if (string.IsNullOrEmpty(info.Certification))
           MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_CERTIFICATION, out info.Certification);
         MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_ENDED, out info.IsEnded);
@@ -388,7 +390,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       SingleMediaItemAspect seriesAspect = MediaItemAspect.GetOrCreateAspect(aspects, TempSeriesAspect.Metadata);
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_TVDBID, series.Id.HasValue ? series.Id.Value : 0);
-      seriesAspect.SetAttribute(TempSeriesAspect.ATTR_NAME, !string.IsNullOrEmpty(series.Title) ? series.Title : series.ShowTitle);
+      string title = !string.IsNullOrEmpty(series.Title) ? series.Title : series.ShowTitle;
+      seriesAspect.SetAttribute(TempSeriesAspect.ATTR_NAME, title);
+      if(!string.IsNullOrEmpty(series.SortTitle))
+        seriesAspect.SetAttribute(TempSeriesAspect.ATTR_SORT_NAME, series.SortTitle);
+      else
+        seriesAspect.SetAttribute(TempSeriesAspect.ATTR_SORT_NAME, BaseInfo.GetSortTitle(title));
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_CERTIFICATION, series.Mpaa != null && series.Mpaa.Count > 0 ? series.Mpaa.First() : null);
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_ENDED, !string.IsNullOrEmpty(series.Status) ? series.Status.Contains("End") : false);
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_PLOT, !string.IsNullOrEmpty(series.Plot) ? series.Plot : series.Outline);

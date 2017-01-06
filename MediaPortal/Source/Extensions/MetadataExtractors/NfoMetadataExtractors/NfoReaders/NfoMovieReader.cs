@@ -1289,7 +1289,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       {
         string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].Title);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
+        if (_stubs[0].SortTitle != null)
+        {
+          title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].SortTitle);
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, title);
+        }
+        else
+        {
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
+        }
         return true;
       }
       return false;
