@@ -206,6 +206,59 @@
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="CoverViewFilterItemTemplate">
+    <Grid x:Name="ItemControl" Margin="3,0,3,0" Height="{StaticResource MEDIA_COVER_HEIGHT}" Width="{StaticResource MEDIA_COVER_WIDTH}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid Grid.Row="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image x:Name="ItemTypeImage" Stretch="Uniform">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          </Image.Source>
+        </Image>
+        <Image Stretch="Uniform" Source="Container.png" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.8"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Label x:Name="ItemLabel" Opacity="1" Grid.Row="0" Grid.Column="0" Content="{Binding SimpleTitle}" Color="Black"
+               IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+               FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="15,25,15,25" />
+        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
+               IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+               Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,30,15,25" />
+      </Grid>
+
+      <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
+  </ControlTemplate>
+
   <!-- Container -->
 
   <ControlTemplate x:Key="ListViewContainerItemTemplate">
@@ -247,13 +300,13 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-25,2,-20,2" Source="Container.png"
+      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-15,2,-10,2" Source="Container.png"
              Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-45,2,-40,2" Source="Container.png"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-25,2,-15,2" Source="Container.png"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
@@ -271,7 +324,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Fill" Source="Container.png">
+      <Image Stretch="Fill" Source="Container.png">
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -280,10 +333,69 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="15,18,140,55">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
+      </Image>
       <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="Black"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,25,5,25"/>
+           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,30,5,15"/>
       <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
-           Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,15,15,25" />
+           Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,20,15,20" />
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="CoverViewContainerItemTemplate">
+    <Grid x:Name="ItemControl" Margin="3,0,3,0" Height="{StaticResource MEDIA_COVER_HEIGHT}" Width="{StaticResource MEDIA_COVER_WIDTH}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid Grid.Row="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image x:Name="ItemTypeImage" Stretch="Uniform">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          </Image.Source>
+        </Image>
+        <Image Stretch="Uniform" Source="Container.png" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.8"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Label x:Name="ItemLabel" Opacity="1" Grid.Row="0" Grid.Column="0" Content="{Binding SimpleTitle}" Color="Black"
+               IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+               FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="15,25,15,25" />
+        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
+               IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+               Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,30,15,25" />
+      </Grid>
+
+      <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -701,7 +813,7 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="CoverViewMovieCollectionItemTemplate">
+  <ControlTemplate x:Key="CoverViewMovieFilterItemTemplate">
     <Grid x:Name="ItemControl" Margin="3,0,3,0" Height="{StaticResource MEDIA_COVER_HEIGHT}" Width="{StaticResource MEDIA_COVER_WIDTH}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -1354,7 +1466,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ListViewMovieFilterItemTemplate}"/>
           <Binding Source="{StaticResource GridViewMovieFilterItemTemplate}"/>
-          <!--<Binding Source="{StaticResource CoverViewMovieFilterItemTemplate}"/>-->
+          <Binding Source="{StaticResource CoverViewMovieFilterItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -1381,7 +1493,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ListViewContainerItemTemplate}"/>
           <Binding Source="{StaticResource GridViewContainerItemTemplate}"/>
-          <!--<Binding Source="{StaticResource CoverViewContainerItemTemplate}"/>-->
+          <Binding Source="{StaticResource CoverViewContainerItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -1394,7 +1506,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ListViewFilterItemTemplate}"/>
           <Binding Source="{StaticResource GridViewFilterItemTemplate}"/>
-          <!--<Binding Source="{StaticResource CoverViewFilterItemTemplate}"/>-->
+          <Binding Source="{StaticResource CoverViewFilterItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>

@@ -44,22 +44,32 @@
                       <RowDefinition Height="Auto"/>
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Label x:Name="CurrentProgramTitleLabel" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
-                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel2}"
-                        Color="{ThemeResource TextColor}"
-                        FontFamily="DefaultBold" />
+                    
+                    <Grid IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel2}" MaxWidth="900">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <Label Grid.Column="0" x:Name="CurrentProgramTitleLabel" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
+                               FontFamily="DefaultBold" Color="{ThemeResource TextColor}"/>
+                      <Label Grid.Column="1" x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}" Scroll="Auto">
+                        <Label.Content>
+                          <Binding Source="{StaticResource SlimTvClient}" Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+                        </Label.Content>
+                      </Label>
+                    </Grid>
+
                     <Label x:Name="NextProgramTitleLabel"  Grid.Column="0" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel0}"
-                        Color="{ThemeResource TextColor}" Opacity="0.7" />
+                        Color="{ThemeResource TextColor}" Opacity="0.7"/>
+                    
                     <!-- Title lable for OSD Level 2 (next program) -->
                     <Label x:Name="NextProgramTitleLabelLevel2" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}"
-                        Color="{ThemeResource TextColor}" Opacity="1"
+                        Color="{ThemeResource TextColor}" Opacity="0.7"
                         FontFamily="DefaultBold" />
-
 
                     <!-- Current Program detailed information -->
                     <Grid Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
