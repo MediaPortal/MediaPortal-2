@@ -107,10 +107,18 @@
             </DockPanel>
 
             <StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" MaxWidth="900" Margin="20,-5,10,-5">
-              <Label x:Name="CurrentProgramTitleLabel" Grid.Column="1" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
-                     HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold"
-                     IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel0}"
-                     Color="{ThemeResource TextColor}"/>
+              <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0"
+                          IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel0}">
+                <Label x:Name="CurrentProgramTitleLabel" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold"
+                       Color="{ThemeResource TextColor}"/>
+                <Label x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold" Scroll="Auto">
+                  <Label.Content>
+                    <Binding Source="{StaticResource SlimTvClient}" Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+                  </Label.Content>
+                </Label>
+              </StackPanel>
               <Label x:Name="NextProgramTitleLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
                      HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold"
                      IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}"
