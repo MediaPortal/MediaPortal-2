@@ -91,7 +91,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
     /// <returns></returns>
     internal static LogLevel GetLogLevel()
     {
-      ILoggerConfig config = ServiceRegistration.Get<ILogger>() as ILoggerConfig;
+      ILoggerConfig config = ServiceRegistration.Get<ILoggerConfig>();
       return config != null ? config.GetLogLevel() : LogLevel.Information;
     }
 
@@ -101,7 +101,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
     /// <param name="level">desired log level</param>
     internal static void SetLogLevel(LogLevel level)
     {
-      ILoggerConfig config = ServiceRegistration.Get<ILogger>() as ILoggerConfig;
+      ILoggerConfig config = ServiceRegistration.Get<ILoggerConfig>();
       if (config != null)
         config.SetLogLevel(level);
 
