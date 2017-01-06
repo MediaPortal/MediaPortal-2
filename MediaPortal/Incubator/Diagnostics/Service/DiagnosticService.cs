@@ -23,10 +23,8 @@
 #endregion
 
 using System;
-using log4net;
-using log4net.Core;
-using log4net.Repository.Hierarchy;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 
 namespace MediaPortal.UiComponents.Diagnostics.Service
@@ -88,23 +86,21 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
     /// Retrieve log level
     /// </summary>
     /// <returns></returns>
-    internal static Level GetLogLevel()
+    internal static LogLevel GetLogLevel()
     {
-      var loggerRepository = (Hierarchy)LogManager.GetRepository();
-      var returnValue = loggerRepository.Root.Level;
-      return returnValue;
+      ILoggerConfig config = ServiceRegistration.Get<ILogger>() as ILoggerConfig;
+      return config != null ? config.GetLogLevel() : LogLevel.Information;
     }
 
     /// <summary>
     /// Set Log Level
     /// </summary>
     /// <param name="level">desired log level</param>
-    internal static void SetLogLevel(Level level)
+    internal static void SetLogLevel(LogLevel level)
     {
-      var loggerRepository = (Hierarchy)LogManager.GetRepository();
-      loggerRepository.Root.Level = level;
-      loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
-      ServiceRegistration.Get<ILogger>().Debug(string.Format("DiagnosticService: Switched LogLevel to {0}", level));
+      ILoggerConfig config = ServiceRegistration.Get<ILogger>() as ILoggerConfig;
+      if (config != null)
+        config.SetLogLevel(level);
     }
 
     #endregion Internal Methods
