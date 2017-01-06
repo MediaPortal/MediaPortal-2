@@ -22,8 +22,8 @@
 
 #endregion
 
-using log4net.Core;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Logging;
 using MediaPortal.UiComponents.Diagnostics.Service;
 
 namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
@@ -35,13 +35,13 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 
     public override void Load()
     {
-      Level activeLevel = DiagnosticsHandler.GetLogLevel();
-      _yes = activeLevel == Level.All;
+      LogLevel activeLevel = DiagnosticsHandler.GetLogLevel();
+      _yes = activeLevel == LogLevel.All;
     }
 
     public override void Save()
     {
-      Level desired = _yes ? Level.All : Level.Info;
+      LogLevel desired = _yes ? LogLevel.All : LogLevel.Information;
       DiagnosticsHandler.SetLogLevel(desired);
     }
 

@@ -31,10 +31,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Source\Core\MediaPortal.Common\References\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -94,6 +90,10 @@
     <None Include="Resources\play1.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj">
+      <Project>{8E15FBE3-F6C8-4B76-A560-F391B4124E9C}</Project>
+      <Name>ServerSettings.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>

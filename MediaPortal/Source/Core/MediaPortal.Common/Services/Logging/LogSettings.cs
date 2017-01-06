@@ -22,37 +22,14 @@
 
 #endregion
 
-using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Logging;
-using MediaPortal.UiComponents.Diagnostics.Service;
+using MediaPortal.Common.Settings;
 
-namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
+namespace MediaPortal.Common.Services.Logging
 {
-  internal class DiagnosticsSettingsFocusStealing : YesNo
+  public class LogSettings
   {
-
-    #region Public Methods
-
-    public override void Load()
-    {
-      _yes = DiagnosticsHandler.FocusStealingInstance.IsMonitoring;
-    }
-
-    public override void Save()
-    {
-      if (_yes)
-      {
-        DiagnosticsHandler.SetLogLevel(LogLevel.Debug);
-        DiagnosticsHandler.FocusStealingInstance.SubscribeToMessages();
-      }
-      else
-      {
-        DiagnosticsHandler.SetLogLevel(LogLevel.Information);
-        DiagnosticsHandler.FocusStealingInstance.UnsubscribeFromMessages();
-      }
-    }
-
-    #endregion Public Methods
-
+    [Setting(SettingScope.Global, LogLevel.Information)]
+    public LogLevel LogLevel { get; set; }
   }
 }
