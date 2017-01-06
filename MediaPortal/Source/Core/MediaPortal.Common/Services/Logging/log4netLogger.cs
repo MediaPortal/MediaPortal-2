@@ -65,7 +65,7 @@ namespace MediaPortal.Common.Services.Logging
       }
 
       // After init check for overridden settings
-      Log4NetSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<Log4NetSettings>();
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<LogSettings>();
       SetLogLevel(settings.LogLevel);
     }
 
@@ -163,12 +163,17 @@ namespace MediaPortal.Common.Services.Logging
     public void SetLogLevel(LogLevel level)
     {
       var loggerRepository = (Hierarchy)LogManager.GetRepository();
+      var oldLevel = loggerRepository.Root.Level;
       loggerRepository.Root.Level = ToLog4Net(level);
-      loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
-      ServiceRegistration.Get<ILogger>().Info("Log4NetLogger: Switched LogLevel to {0}", level);
-      Log4NetSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<Log4NetSettings>();
-      settings.LogLevel = level;
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      // Avoid duplicated saving of same value, as this could cause an endless loop inside ILoggerConfig service
+      if (oldLevel != loggerRepository.Root.Level)
+      {
+        loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
+        ServiceRegistration.Get<ILogger>().Info("Log4NetLogger: Switched LogLevel to {0}", level);
+        LogSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<LogSettings>();
+        settings.LogLevel = level;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
     }
 
     private Level ToLog4Net(LogLevel level)
@@ -200,10 +205,3 @@ namespace MediaPortal.Common.Services.Logging
 
   #endregion
 }
-
-public class Log4NetSettings
-{
-  [Setting(SettingScope.Global, LogLevel.Information)]
-  public LogLevel LogLevel { get; set; }
-}
-

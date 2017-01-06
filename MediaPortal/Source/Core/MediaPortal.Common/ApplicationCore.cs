@@ -125,6 +125,9 @@ namespace MediaPortal.Common
       logger.Debug("ApplicationCore: Registering IMessageBroker service");
       ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
 
+      logger.Debug("ApplicationCore: Registering ILoggerConfig service");
+      ServiceRegistration.Set<ILoggerConfig>(new LoggerConfig());
+
       logger.Debug("ApplicationCore: Registering IPluginManager service");
       ServiceRegistration.Set<IPluginManager>(new Services.PluginManager.PluginManager());
 
@@ -263,6 +266,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Removing IPluginManager service");
       ServiceRegistration.RemoveAndDispose<IPluginManager>();
+
+      logger.Debug("ApplicationCore: Removing ILoggerConfig service");
+      ServiceRegistration.RemoveAndDispose<ILoggerConfig>();
 
       logger.Debug("ApplicationCore: Removing IMessageBroker service");
       ServiceRegistration.RemoveAndDispose<IMessageBroker>();

@@ -25,6 +25,9 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.ServerSettings;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 
 namespace MediaPortal.UiComponents.Diagnostics.Service
@@ -101,6 +104,14 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
       ILoggerConfig config = ServiceRegistration.Get<ILogger>() as ILoggerConfig;
       if (config != null)
         config.SetLogLevel(level);
+
+      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
+      if (serverSettings != null)
+      {
+        // Forward the local settings to server
+        LogSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<LogSettings>();
+        serverSettings.Save(settings);
+      }
     }
 
     #endregion Internal Methods

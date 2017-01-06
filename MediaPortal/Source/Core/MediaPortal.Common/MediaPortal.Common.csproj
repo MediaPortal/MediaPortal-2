@@ -128,6 +128,8 @@
     <Compile Include="Services\Dokan\Native\WIN32_FIND_DATA.cs" />
     <Compile Include="Services\Dokan\Native\WIN32_FIND_STREAM_DATA.cs" />
     <Compile Include="Services\Dokan\NTStatus.cs" />
+    <Compile Include="Services\Logging\LoggerConfig.cs" />
+    <Compile Include="Services\Logging\LogSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ChangeUnfoldBlock.cs" />

@@ -90,6 +90,10 @@
     <None Include="Resources\play1.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj">
+      <Project>{8E15FBE3-F6C8-4B76-A560-F391B4124E9C}</Project>
+      <Name>ServerSettings.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
