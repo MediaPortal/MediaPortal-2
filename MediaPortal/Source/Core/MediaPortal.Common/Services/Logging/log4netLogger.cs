@@ -64,9 +64,13 @@ namespace MediaPortal.Common.Services.Logging
         log4net.Config.XmlConfigurator.Configure(stream);
       }
 
-      // After init check for overridden settings
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<LogSettings>();
-      SetLogLevel(settings.LogLevel);
+      // After init check for overridden settings. Note: SettingsManager is not available inside SlimTV integration provider.
+      var settingsManager = ServiceRegistration.Get<ISettingsManager>(false);
+      if (settingsManager != null)
+      {
+        var settings = settingsManager.Load<LogSettings>();
+        SetLogLevel(settings.LogLevel);
+      }
     }
 
     protected ILog GetLogger
