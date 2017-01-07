@@ -98,32 +98,19 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Naršyti media pasirinkimus</string>
   <string name="Media.LocalMediaNavigationHeader">Lokalios media pasirinkimas</string>
-  <string name="Media.MediaItemsHeader">Media įrašai</string>
-  <string name="Media.VideoItemsHeader">Video</string>
-  <string name="Media.AudioItemsHeader">Audio įrašai</string>
-  <string name="Media.EpisodeItemsHeader">Epizodai</string>
-  <string name="Media.MoviesItemsHeader">Filmai</string>
-  <string name="Media.ImageItemsHeader">Vaizdai</string>
   <string name="Media.SimpleSearchHeader">Paprasta paieška</string>
-  <string name="Media.ChooseCollectionHeader">Pasirinkti kolekciją</string>
-  <string name="Media.ChooseActorHeader">Pasirinkti aktorių</string>
-  <string name="Media.ChooseDirectorHeader">Pasirinkti režisierių</string>
-  <string name="Media.ChooseWriterHeader">Pasirinkti rašytoją</string>
-  <string name="Media.ChooseVideoGenreHeader">Pasirinkti žanrą</string>
-  <string name="Media.ChooseVideoYearHeader">Pasirinkti metus</string>
-  <string name="Media.ChooseSeriesHeader">Pasirinkti serijas</string>
-  <string name="Media.ChooseSeasonHeader">Pasirinkti sezoną</string>
-  <string name="Media.ChooseAudioDecadeHeader">Pasirinkti dekadą</string>
-  <string name="Media.ChooseAlbumHeader">Pasirinkti albumą</string>
-  <string name="Media.ChooseArtistHeader">Pasirinkti atlikėją</string>
-  <string name="Media.ChooseAudioGenreHeader">Pasirinkti žanrą</string>
-  <string name="Media.ChooseImageYearHeader">Pasirinkti metus</string>
-  <string name="Media.ChooseImageSizeHeader">Pasirinkti dydį</string>
-  <string name="Media.ChooseImageCountryHeader">Pasirinkti šalį</string>
-  <string name="Media.ChooseImageStateHeader">Pasirinkti valstiją</string>
-  <string name="Media.ChooseImageCityHeader">Pasirinkti miestą</string>
-  <string name="Media.ChooseSystemHeader">Pasirinkti sistemą</string>
-  <string name="Media.ChooseVideoLanguageHeader">Pasirinkite kalbą</string>
+  <string name="Media.ChooseActorHeader">Aktoriai</string>
+  <string name="Media.ChooseDirectorHeader">Rezisieriai</string>
+  <string name="Media.ChooseMovieHeader">Filmai</string>
+  <string name="Media.ChooseWriterHeader">Autoriai</string>
+  <string name="Media.ChooseVideoGenreHeader">Žanrai</string>
+  <string name="Media.ChooseImageHeader">Vaizdai</string>
+  <string name="Media.ChooseSeriesHeader">Serijos</string>
+  <string name="Media.ChooseSeasonHeader">Sezonai</string>
+  <string name="Media.ChooseEpisodeHeader">Epizodai</string>
+  <string name="Media.ChooseAudioHeader">Audio įrašai</string>
+  <string name="Media.ChooseAudioGenreHeader">Žanrai</string>
+  <string name="Media.ChooseVideoHeader">Video</string>
   <string name="Media.PlaylistsOverviewHeader">Grojaraščiai</string>
   <string name="Media.SavePlaylistEditNameHeader">Išsaugoti grojaraštį</string>
   <string name="Media.SavePlaylistFailedHeader">Išsaugoti grojaraštį</string>
@@ -133,6 +120,9 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Nėra grojaraščių</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Klaida įkeliant grojaraštį</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Grojaraštis gali būti išsaugoti tik tuomet, kai visi media įrašai  buvo įkelti iš pagrindinio serverio (t.y. ne iš atjungto lokalaus media pasirinkimo).</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Atlikėjas</string>
+  <string name="Media.ActorOccupationName">Aktorius</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Naršyti media</string>
   <string name="Media.LocalMediaRootViewName">Lokali media</string>

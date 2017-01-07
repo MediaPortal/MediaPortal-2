@@ -86,27 +86,17 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Sfoglia navigazione media</string>
   <string name="Media.LocalMediaNavigationHeader">Navigazione media locale</string>
-  <string name="Media.MediaItemsHeader">Voci media</string>
-  <string name="Media.VideoItemsHeader">Video</string>
-  <string name="Media.AudioItemsHeader">Voci Audio</string>
-  <string name="Media.EpisodeItemsHeader">Episodi</string>
-  <string name="Media.MoviesItemsHeader">Film</string>
-  <string name="Media.ImageItemsHeader">Immagini</string>
   <string name="Media.SimpleSearchHeader">Ricerca semplice</string>
-  <string name="Media.ChooseCollectionHeader">Scegli una collezione</string>
-  <string name="Media.ChooseActorHeader">Scegli un attore</string>
-  <string name="Media.ChooseVideoGenreHeader">Scegli un genere</string>
-  <string name="Media.ChooseVideoYearHeader">Scegli un anno</string>
-  <string name="Media.ChooseSeriesHeader">Scegli una serie</string>
-  <string name="Media.ChooseSeasonHeader">Scegli una stagione</string>
-  <string name="Media.ChooseAudioDecadeHeader">Scegli una decade</string>
-  <string name="Media.ChooseAlbumHeader">Scegli un album</string>
-  <string name="Media.ChooseArtistHeader">Scegli un artista</string>
-  <string name="Media.ChooseAudioGenreHeader">Scegli un genere</string>
-  <string name="Media.ChooseImageYearHeader">Scegli un anno</string>
-  <string name="Media.ChooseImageSizeHeader">Scegli una dimensione</string>
-  <string name="Media.ChooseSystemHeader">Scegli un sistema</string>
-  <string name="Media.ChooseVideoLanguageHeader">Scegli una lingua</string>
+  <string name="Media.ChooseActorHeader">Attori</string>
+  <string name="Media.ChooseDirectorHeader">Registi</string>
+  <string name="Media.ChooseMovieHeader">Film</string>
+  <string name="Media.ChooseWriterHeader">Scrittori</string>
+  <string name="Media.ChooseImageHeader">Immagini</string>
+  <string name="Media.ChooseSeriesHeader">Serie</string>
+  <string name="Media.ChooseSeasonHeader">Stagioni</string>
+  <string name="Media.ChooseEpisodeHeader">Episodi</string>
+  <string name="Media.ChooseAudioHeader">Voci Audio</string>
+  <string name="Media.ChooseVideoHeader">Filmati</string>
   <string name="Media.PlaylistsOverviewHeader">Playlist</string>
   <string name="Media.SavePlaylistEditNameHeader">Salva playlist</string>
   <string name="Media.SavePlaylistFailedHeader">Salva playlist</string>
@@ -116,6 +106,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Non ci sono playlist da caricare</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Errore caricando la playlist</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Una playlist può essere salvata solamente se tutte le voci dei media sono nel server home(es. non da media locali disconnessi)</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Artista</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Sfoglia media</string>
   <string name="Media.LocalMediaRootViewName">Media locale</string>

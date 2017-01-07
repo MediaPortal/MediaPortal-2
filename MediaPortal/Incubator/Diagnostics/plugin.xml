@@ -19,6 +19,7 @@
   <DependsOn>
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{952BF8BC-04A3-4B6D-A25E-1ED6080278F6}" CompatibleAPI="1"/> <!-- ServerSettings Client Plugin -->
   </DependsOn>
 
   <Register Location="/Services">

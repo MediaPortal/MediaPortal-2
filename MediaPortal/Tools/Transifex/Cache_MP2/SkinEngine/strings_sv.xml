@@ -62,7 +62,7 @@
   <string name="Effects.sharpen_complex">Skarpare (komplext)</string>
   <string name="Effects.zoom_blur">Zooma suddigt</string>
   <string name="PlayerControl.NoPlayer">Ingen spelare</string>
-  <string name="PlayerControl.NoMediaItem">- Inget mediaobjekt -</string>
+  <string name="PlayerControl.NoMediaItem">- Ingen media-fil -</string>
   <string name="PlayerControl.UnknownMediaItem">Okänt mediaobjekt</string>
   <string name="PlayerControl.UnknownPlayerContextName">Spelare</string>
   <string name="PlayerControl.HeaderNormal">{0}</string>

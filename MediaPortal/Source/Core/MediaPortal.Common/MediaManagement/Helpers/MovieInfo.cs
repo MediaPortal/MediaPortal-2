@@ -63,6 +63,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string NameId = null;
 
     public SimpleTitle MovieName = null;
+    public SimpleTitle MovieNameSort = new SimpleTitle();
     public string OriginalName = null;
     public DateTime? ReleaseDate = null;
     public int Runtime = 0;
@@ -160,7 +161,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(MovieName.Text));
+      if (!MovieNameSort.IsEmpty)
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, MovieNameSort.Text);
+      else
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(MovieName.Text));
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, IsVirtualResource(aspectData));
       MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, MovieName.Text);
       if(!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, OriginalName);
@@ -240,6 +244,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, out tempString);
         MovieName = new SimpleTitle(tempString, false);
+        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out tempString);
+        MovieNameSort = new SimpleTitle(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, out tempString);
         Summary = new SimpleTitle(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out tempString);

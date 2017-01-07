@@ -985,11 +985,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int index;
         lock (Children.SyncRoot)
         {
-          if (_arrangedItems == null)
+          if (_arrangedItems == null || _firstArrangedLineIndex < 0 || _firstArrangedLineIndex >= _arrangedLines.Count)
             return;
 
-          arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems);
-          index = _firstArrangedLineIndex;
+          arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems.Where(i => i != null));
+          index = _arrangedLines[_firstArrangedLineIndex].StartIndex;
         }
         state[prefix + "/ItemsStartIndex"] = index;
         state[prefix + "/NumItems"] = arrangedItemsCopy.Count;

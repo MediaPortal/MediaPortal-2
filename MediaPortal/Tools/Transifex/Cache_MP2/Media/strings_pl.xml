@@ -76,24 +76,14 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Przeglądaj w poszukiwaniu mediów</string>
   <string name="Media.LocalMediaNavigationHeader">Przeglądaj lokalne media</string>
-  <string name="Media.MediaItemsHeader">Elementy mediów</string>
-  <string name="Media.VideoItemsHeader">Wideo</string>
-  <string name="Media.AudioItemsHeader">Elementy audio</string>
-  <string name="Media.EpisodeItemsHeader">Odcinki</string>
-  <string name="Media.ImageItemsHeader">Obrazy</string>
   <string name="Media.SimpleSearchHeader">Wyszukiwanie proste</string>
-  <string name="Media.ChooseActorHeader">Wybierz aktora</string>
-  <string name="Media.ChooseVideoGenreHeader">Wybierz gatunek</string>
-  <string name="Media.ChooseVideoYearHeader">Wybierz rok</string>
-  <string name="Media.ChooseSeriesHeader">Wybierz serial</string>
-  <string name="Media.ChooseSeasonHeader">Wybierz sezon</string>
-  <string name="Media.ChooseAudioDecadeHeader">Wybierz dekadę</string>
-  <string name="Media.ChooseAlbumHeader">Wybierz album</string>
-  <string name="Media.ChooseArtistHeader">Wybierz artystę</string>
-  <string name="Media.ChooseAudioGenreHeader">Wybierz gatunek</string>
-  <string name="Media.ChooseImageYearHeader">Wybierz rok</string>
-  <string name="Media.ChooseImageSizeHeader">Wybierz rozmiar</string>
-  <string name="Media.ChooseSystemHeader">Wybierz system</string>
+  <string name="Media.ChooseActorHeader">Aktorzy</string>
+  <string name="Media.ChooseDirectorHeader">Reżyserzy</string>
+  <string name="Media.ChooseImageHeader">Obrazy</string>
+  <string name="Media.ChooseSeriesHeader">Serial</string>
+  <string name="Media.ChooseEpisodeHeader">Odcinki</string>
+  <string name="Media.ChooseAudioHeader">Elementy audio</string>
+  <string name="Media.ChooseVideoHeader">Wideo</string>
   <string name="Media.PlaylistsOverviewHeader">Listy odtwarzania</string>
   <string name="Media.SavePlaylistEditNameHeader">Zapisz listę odtwarzania</string>
   <string name="Media.SavePlaylistFailedHeader">Zapisz listę odtwarzania</string>
@@ -103,6 +93,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Brak listy odtwarzania do załadowania</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Błąd ładowania listy odtwarzania</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Lista odtwarzania może być zapisana jedynie w przypadku, gdy wszystkie elementy listy zostały pobrane z serwera (a nie np. z odłączonego lokalnego zasobu).</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Artysta</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Przeglądaj media</string>
   <string name="Media.LocalMediaRootViewName">Media lokalne</string>

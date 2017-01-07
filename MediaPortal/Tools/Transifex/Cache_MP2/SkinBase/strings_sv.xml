@@ -46,7 +46,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Hemmaservern är frånkopplad. </string>
   <string name="ServerConnection.DetachMenu">Koppla från</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Koppla från hemmaservern</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Om du kopplar från hemmaservern så kommer all data om klientens mediakällor och deras mediaobjekt att tas bort från hemmaserverns bibliotek. Du kan ansluta igen senare. Vill du verkligen koppla från hemmaservern \'{0}\' på värd \'{1}\'? </string>
+  <string name="ServerConnection.DetachConfirmDialogText">Om du kopplar från hemmaservern så kommer all data om klientens mediakällor och deras media-filer att tas bort från hemmaserverns bibliotek. Du kan ansluta igen senare. Vill du verkligen koppla från hemmaservern \'{0}\' på värd \'{1}\'? </string>
   <string name="ServerConnection.SearchForServers">Sök efter servrar</string>
   <string name="ServerConnection.DetachFromServer">Koppla från hemmaservern</string>
   <string name="ServerConnection.AttachToServerHeader">Anslut till MediaPortal 2-server</string>
@@ -73,12 +73,14 @@
   <string name="RemoteResourceProvider.Description">Åtkomst till resurser på andra MediaPortal 2-system</string>
   <string name="RawUrlResourceProvider.Name">Exakt Url</string>
   <string name="RawUrlResourceProvider.Description">Åtkomst till Uri-källor</string>
+  <string name="VirtualResourceProvider.Name">Virtuella resurser </string>
+  <string name="VirtualResourceProvider.Description">Åtkomst till virtuella resurser </string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Ingen spelare</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Det finns ingen spelare registrerad för att spela objekt \'{0}\'</string>
-  <string name="Players.ErrorPlayingMediaItemTitle">Fel vid spelning av mediaobjekt</string>
-  <string name="Players.UnableToPlayMediaItemText">Kan inte spela mediaobjekt \'{0}\'</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Det finns ingen spelare registrerad för att spela media-filen \'{0}\'</string>
+  <string name="Players.ErrorPlayingMediaItemTitle">Fel vid spelning av media-filen</string>
+  <string name="Players.UnableToPlayMediaItemText">Kan inte spela media-filen \'{0}\'</string>
   <string name="Players.ResourceNotFoundText">Resursen \'{0}\' hittades inte</string>
   <string name="Players.PlayerConfiguration">Konfigurera spelare</string>
   <string name="Players.CurrentMediaInfo">Aktuell mediainfo</string>
@@ -216,7 +218,7 @@
   <string name="SharesConfig.EditLocalShare">Redigera mediakälla på klienten</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Uppdatera mediakälla</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Mediakällans resursförsörjare och/eller sökväg har uppdaterats</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Mediabibliotekets information om mediaobjekt i den mediakällan kan uppdateras (flyttas) eller tas bort och återimporteras</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Mediabibliotekets information om media-filerna i den mediakällan kan uppdateras (flyttas) eller tas bort och återimporteras</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Vill du flytta eller ta bort och återimportera?</string>
   <string name="SharesConfig.Relocate">Flytta</string>
   <string name="SharesConfig.ReImport">Återimportera</string>

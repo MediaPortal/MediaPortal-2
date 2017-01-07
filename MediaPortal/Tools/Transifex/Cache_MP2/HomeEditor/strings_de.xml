@@ -3,7 +3,7 @@
   <string name="HomeEditor.OthersMenuItem">Extras</string>
   <string name="HomeEditor.Configuration">Hauptmenü bearbeiten</string>
   <string name="HomeEditor.Configuration.Header">Hauptmenü-Gruppen</string>
-  <string name="HomeEditor.Configuration.Help">Hauptmenü bearbeiten</string>
+  <string name="HomeEditor.Configuration.Help">Gruppen und Einträge im Hauptmenü bearbeiten, erstellen oder löschen.</string>
   <string name="HomeEditor.Configuration.Label">Hauptmenü-Gruppen</string>
   <string name="HomeEditor.Configuration.AddGroup">Gruppe hinzufügen</string>
   <string name="HomeEditor.Configuration.GroupEdit.Header">Gruppe bearbeiten</string>

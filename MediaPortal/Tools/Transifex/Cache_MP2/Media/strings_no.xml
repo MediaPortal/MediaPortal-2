@@ -96,32 +96,16 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Utforsk mediaenheter</string>
   <string name="Media.LocalMediaNavigationHeader">Lokale mediaenheter</string>
-  <string name="Media.MediaItemsHeader">Mediaelementer</string>
-  <string name="Media.VideoItemsHeader">Videoer</string>
-  <string name="Media.AudioItemsHeader">Lydelementer</string>
-  <string name="Media.EpisodeItemsHeader">Episoder</string>
-  <string name="Media.MoviesItemsHeader">Filmer</string>
-  <string name="Media.ImageItemsHeader">Bilder</string>
   <string name="Media.SimpleSearchHeader">Enkelt søk</string>
-  <string name="Media.ChooseCollectionHeader">Velg en samling</string>
-  <string name="Media.ChooseActorHeader">Velg en skuespiller</string>
-  <string name="Media.ChooseDirectorHeader">Velg regissør</string>
-  <string name="Media.ChooseWriterHeader">Velg forfatter</string>
-  <string name="Media.ChooseVideoGenreHeader">Velg en sjanger</string>
-  <string name="Media.ChooseVideoYearHeader">Velg et årstall</string>
-  <string name="Media.ChooseSeriesHeader">Velg en serie</string>
-  <string name="Media.ChooseSeasonHeader">Velg en sesong</string>
-  <string name="Media.ChooseAudioDecadeHeader">Velg tiår</string>
-  <string name="Media.ChooseAlbumHeader">Velg et album</string>
-  <string name="Media.ChooseArtistHeader">Velg en artist</string>
-  <string name="Media.ChooseAudioGenreHeader">Velg en sjanger</string>
-  <string name="Media.ChooseImageYearHeader">Velg et årstall</string>
-  <string name="Media.ChooseImageSizeHeader">Velg en størrelse</string>
-  <string name="Media.ChooseImageCountryHeader">Velg et land</string>
-  <string name="Media.ChooseImageStateHeader">Velg en stat</string>
-  <string name="Media.ChooseImageCityHeader">Velg en by</string>
-  <string name="Media.ChooseSystemHeader">Velg et system</string>
-  <string name="Media.ChooseVideoLanguageHeader">Velg språk</string>
+  <string name="Media.ChooseActorHeader">Skuespillere</string>
+  <string name="Media.ChooseDirectorHeader">Regissører</string>
+  <string name="Media.ChooseMovieHeader">Filmer</string>
+  <string name="Media.ChooseWriterHeader">Forfattere</string>
+  <string name="Media.ChooseImageHeader">Bilder</string>
+  <string name="Media.ChooseSeriesHeader">Serie</string>
+  <string name="Media.ChooseEpisodeHeader">Episoder</string>
+  <string name="Media.ChooseAudioHeader">Lydelementer</string>
+  <string name="Media.ChooseVideoHeader">Videoer</string>
   <string name="Media.PlaylistsOverviewHeader">Spilleliste</string>
   <string name="Media.SavePlaylistEditNameHeader">Lagre spilleliste</string>
   <string name="Media.SavePlaylistFailedHeader">Lagre spilleliste</string>
@@ -131,6 +115,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Ingen spilleliste lastet</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Feil ved innlasting av spilleliste</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">En spilleliste kan bare lagres dersom alle mediaelementer er hentet fra hjemmeserveren (og ikke fra frakoblede mediaenheter).</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Artist</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Utforsk media</string>
   <string name="Media.LocalMediaRootViewName">Lokalt media</string>

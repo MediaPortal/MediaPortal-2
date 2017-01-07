@@ -451,6 +451,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
             fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
             string title;
+            string sortTitle;
             string artist;
             uint? trackNo;
             GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
@@ -461,6 +462,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
             if (!string.IsNullOrEmpty(tag.Tag.Title))
               title = tag.Tag.Title;
+
+            sortTitle = BaseInfo.GetSortTitle(title);
+            if (!string.IsNullOrEmpty(tag.Tag.TitleSort))
+              sortTitle = tag.Tag.TitleSort;
+              
             IEnumerable<string> artists;
             if (tag.Tag.Performers.Length > 0)
             {
@@ -486,13 +492,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
 
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, sortTitle);
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
             }
 
             trackInfo.TrackName = title;
+            trackInfo.TrackNameSort = sortTitle;
             if (tag.Properties.AudioBitrate != 0)
               trackInfo.BitRate = (int)tag.Properties.AudioBitrate;
             if (tag.Properties.AudioChannels != 0)
@@ -500,13 +507,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             if (tag.Properties.AudioSampleRate != 0)
               trackInfo.SampleRate = (int)tag.Properties.AudioSampleRate;
             if (tag.Properties.Codecs.Count() > 0)
-              trackInfo.Encoding = GuessCodec(tag.Properties.Codecs.First().Description, fsra.ResourceName);
-            else
-              trackInfo.Encoding = GuessCodec("", fsra.ResourceName);
+              trackInfo.Encoding = tag.Properties.Codecs.First().Description;
             if (tag.Properties.Duration.TotalSeconds != 0)
               trackInfo.Duration = (long)tag.Properties.Duration.TotalSeconds;
 
             trackInfo.Album = StringUtils.TrimToNull(tag.Tag.Album);
+            if(!string.IsNullOrEmpty(tag.Tag.AlbumSort))
+            {
+              IAudioRelationshipExtractor.StoreAlbum(extractedAspectData, tag.Tag.Album, tag.Tag.AlbumSort);
+            }
+
             if (trackNo.HasValue)
               trackInfo.TrackNum = (int)trackNo.Value;
             if (tag.Tag.TrackCount != 0)
@@ -688,33 +698,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           //Store metadata for the Relationship Extractors
           if (IncludeArtistDetails)
           {
-            foreach (PersonInfo person in trackInfo.Artists)
-            {
-              MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(extractedAspectData, TempPersonAspect.Metadata);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_MBID, person.MusicBrainzId);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_NAME, person.Name);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_OCCUPATION, person.Occupation);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_FROMALBUM, false);
-            }
-            foreach (PersonInfo person in trackInfo.AlbumArtists)
-            {
-              MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(extractedAspectData, TempPersonAspect.Metadata);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_MBID, person.MusicBrainzId);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_NAME, person.Name);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_OCCUPATION, person.Occupation);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_FROMALBUM, true);
-            }
+            IAudioRelationshipExtractor.StorePersons(extractedAspectData, trackInfo.Artists, false);
+            IAudioRelationshipExtractor.StorePersons(extractedAspectData, trackInfo.AlbumArtists, true);
           }
           if (IncludeComposerDetails)
           {
-            foreach (PersonInfo person in trackInfo.Composers)
-            {
-              MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(extractedAspectData, TempPersonAspect.Metadata);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_MBID, person.MusicBrainzId);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_NAME, person.Name);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_OCCUPATION, person.Occupation);
-              personAspect.SetAttribute(TempPersonAspect.ATTR_FROMALBUM, false);
-            }
+            IAudioRelationshipExtractor.StorePersons(extractedAspectData, trackInfo.Composers, false);
           }
         }
 
@@ -772,12 +761,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
 
       return resolvedList;
-    }
-
-    private string GuessCodec(string description, string filename)
-    {
-      //string extension = DosPathHelper.GetExtension(filename).ToUpperInvariant();
-      return description;
     }
 
     #endregion

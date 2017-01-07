@@ -96,32 +96,15 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Медија навигација</string>
   <string name="Media.LocalMediaNavigationHeader">Локална медија навигација</string>
-  <string name="Media.MediaItemsHeader">Медија ставке</string>
-  <string name="Media.VideoItemsHeader">Видео</string>
-  <string name="Media.AudioItemsHeader">Аудио ставке</string>
-  <string name="Media.EpisodeItemsHeader">Епизоде</string>
-  <string name="Media.MoviesItemsHeader">Филмови</string>
-  <string name="Media.ImageItemsHeader">Слике</string>
   <string name="Media.SimpleSearchHeader">Једноставно претраживање</string>
-  <string name="Media.ChooseCollectionHeader">Одабери колекцију</string>
-  <string name="Media.ChooseActorHeader">Одабери глумца/глумицу</string>
-  <string name="Media.ChooseDirectorHeader">Одабери режисера</string>
-  <string name="Media.ChooseWriterHeader">Одабери писца</string>
-  <string name="Media.ChooseVideoGenreHeader">Одабери жанр</string>
-  <string name="Media.ChooseVideoYearHeader">Одабери годину</string>
-  <string name="Media.ChooseSeriesHeader">Одабери серију</string>
-  <string name="Media.ChooseSeasonHeader">Одабери сезону</string>
-  <string name="Media.ChooseAudioDecadeHeader">Одабери декаду</string>
-  <string name="Media.ChooseAlbumHeader">Одабери албум</string>
-  <string name="Media.ChooseArtistHeader">Одабери уметника/уметницу</string>
-  <string name="Media.ChooseAudioGenreHeader">Одабери жанр</string>
-  <string name="Media.ChooseImageYearHeader">Одабери годину</string>
-  <string name="Media.ChooseImageSizeHeader">Одабери величину</string>
-  <string name="Media.ChooseImageCountryHeader">Одабери земљу</string>
-  <string name="Media.ChooseImageStateHeader">Одабери државу</string>
-  <string name="Media.ChooseImageCityHeader">Одабери град</string>
-  <string name="Media.ChooseSystemHeader">Одабери систем</string>
-  <string name="Media.ChooseVideoLanguageHeader">Одабери језик</string>
+  <string name="Media.ChooseActorHeader">Глумци</string>
+  <string name="Media.ChooseDirectorHeader">Режисери</string>
+  <string name="Media.ChooseMovieHeader">Филмови</string>
+  <string name="Media.ChooseImageHeader">Слике</string>
+  <string name="Media.ChooseSeriesHeader">Серије</string>
+  <string name="Media.ChooseEpisodeHeader">Епизоде</string>
+  <string name="Media.ChooseAudioHeader">Аудио ставке</string>
+  <string name="Media.ChooseVideoHeader">Видео</string>
   <string name="Media.PlaylistsOverviewHeader">Плејлисте</string>
   <string name="Media.SavePlaylistEditNameHeader">Сачувај плејлисте</string>
   <string name="Media.SavePlaylistFailedHeader">Сачувај плејлисту</string>
@@ -131,6 +114,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Плејлиста није учитана</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Грешка приликом учитавања плејлисте</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Плејлиста може бити сачувана само уколико се све ставке налазе на локалном серверу (који је прикључен).</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Уметник</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Претражи медије</string>
   <string name="Media.LocalMediaRootViewName">Локални медији</string>

@@ -13,6 +13,7 @@
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <!--Display labels for workflow navigation contexts-->
   <!--Screen headers-->
+  <!--View occupation names-->
   <!--View names (names for the view instances)-->
   <string name="Media.EpisodeRootViewName">Episode</string>
   <!--General strings used in views-->

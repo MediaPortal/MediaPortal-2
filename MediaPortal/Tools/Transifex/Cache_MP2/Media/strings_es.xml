@@ -110,34 +110,19 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Navegación por la Biblioteca multimedia</string>
   <string name="Media.LocalMediaNavigationHeader">Navegación por la Biblioteca local</string>
-  <string name="Media.MediaItemsHeader">Elementos multimedia</string>
-  <string name="Media.VideoItemsHeader">Vídeos</string>
-  <string name="Media.AudioItemsHeader">Elementos de sonido</string>
-  <string name="Media.EpisodeItemsHeader">Episodes</string>
-  <string name="Media.MoviesItemsHeader">Películas</string>
-  <string name="Media.ImageItemsHeader">Imágenes</string>
   <string name="Media.SimpleSearchHeader">Búsqueda sencilla</string>
-  <string name="Media.ChooseCollectionHeader">Elige una colección</string>
-  <string name="Media.ChooseActorHeader">Elegir actor</string>
-  <string name="Media.ChooseDirectorHeader">Elegir director</string>
-  <string name="Media.ChooseWriterHeader">Elegir escritor</string>
-  <string name="Media.ChooseVideoGenreHeader">Elegir género</string>
-  <string name="Media.ChooseVideoYearHeader">Elegir año</string>
-  <string name="Media.ChooseSeriesHeader">Elegir serie</string>
-  <string name="Media.ChooseSeasonHeader">Elegir temporada</string>
-  <string name="Media.ChooseAudioDecadeHeader">Elegir década</string>
-  <string name="Media.ChooseAlbumHeader">Elegir album</string>
-  <string name="Media.ChooseArtistHeader">Elegir artista</string>
-  <string name="Media.ChooseAlbumArtistHeader">Elegir un artista de album</string>
-  <string name="Media.ChooseAudioGenreHeader">Elegir género</string>
-  <string name="Media.ChooseImageYearHeader">Elegir año</string>
-  <string name="Media.ChooseImageSizeHeader">Elegir tamaño</string>
-  <string name="Media.ChooseImageCountryHeader">Elie un país</string>
-  <string name="Media.ChooseImageStateHeader">Elige una región:</string>
-  <string name="Media.ChooseImageCityHeader">Elige una ciudad</string>
-  <string name="Media.ChooseSystemHeader">Elegir sistema</string>
-  <string name="Media.ChooseVideoLanguageHeader">Elegir idioma</string>
-  <string name="Media.ChoosePlayCountHeader">Elige un estado de visto</string>
+  <string name="Media.ChooseActorHeader">Actores:</string>
+  <string name="Media.ChooseDirectorHeader">Directores</string>
+  <string name="Media.ChooseMovieHeader">Movies</string>
+  <string name="Media.ChooseWriterHeader">Escritores</string>
+  <string name="Media.ChooseVideoGenreHeader">Géneros</string>
+  <string name="Media.ChooseImageHeader">Imágenes</string>
+  <string name="Media.ChooseSeriesHeader">Series</string>
+  <string name="Media.ChooseSeasonHeader">Seasons</string>
+  <string name="Media.ChooseEpisodeHeader">Episodes</string>
+  <string name="Media.ChooseAudioHeader">Elementos de sonido</string>
+  <string name="Media.ChooseAudioGenreHeader">Géneros</string>
+  <string name="Media.ChooseVideoHeader">Vídeos</string>
   <string name="Media.PlaylistsOverviewHeader">Listas de reproducción</string>
   <string name="Media.SavePlaylistEditNameHeader">Guardar lista de reproducción</string>
   <string name="Media.SavePlaylistFailedHeader">Guardar lista de reproducción</string>
@@ -147,6 +132,9 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Sin listas de reproducir para cargar</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Error cargando lista de reproducción</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Una lista de reproducción sólo puede grabarse si todos los elementos están en el servidor local (ej. no válido si está desconectada la navegación local)</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Artista</string>
+  <string name="Media.ActorOccupationName">Actor</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Navegación multimedia</string>
   <string name="Media.LocalMediaRootViewName">Multimedia local</string>

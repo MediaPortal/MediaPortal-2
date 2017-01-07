@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Trakt.Enable">Aufzeichnung aktivieren</string>
+  <string name="Trakt.Enable">Scrobbeln aktivieren</string>
   <string name="Trakt.Close">Schließen</string>
   <string name="Trakt.UsernamePasswordGroup">Kontodetails</string>
   <string name="Trakt.Username">Benutzername</string>
@@ -18,5 +18,5 @@
   <string name="Trakt.LoggedIn">Anmeldung erfolgreich!</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Trakt.tv einrichten</string>
-  <string name="Settings.Plugins.Trakt.TraktSetup.Help">Kontodaten für Trakt.tv-Dienst konfigurieren</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup.Help">Account-Daten für Trakt.tv eingeben</string>
 </resources>

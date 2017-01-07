@@ -82,6 +82,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       AlbumInfo cachedAlbum;
       Guid albumId;
       AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
+      UpdateAlbum(aspects, albumInfo);
       UpdatePersons(aspects, albumInfo.Artists, true);
       if (TryGetInfoFromCache(albumInfo, out cachedAlbum, out albumId))
         albumInfo = cachedAlbum;

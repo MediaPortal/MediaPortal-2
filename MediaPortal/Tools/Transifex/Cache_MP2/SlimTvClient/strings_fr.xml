@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Client TV allégé</string>
+  <string name="SlimTvClient.Title">Slim TV Client</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.Main.Help">Ici vous pouvez regarder vos émissions TV préférées, écouter la radio.</string>
   <string name="SlimTvClient.TvGuide">Guide Télé</string>
@@ -14,11 +14,14 @@
   <string name="SlimTvClient.ProgramStartLabel">Heure de début</string>
   <string name="SlimTvClient.ProgramEndLabel">Heure de fin</string>
   <string name="SlimTvClient.EpisodeLabel">Épisode</string>
+  <string name="SlimTvClient.CurrentProgram">Programme en cours</string>
+  <string name="SlimTvClient.NextProgram">Programme suivant</string>
   <string name="SlimTvClient.Progress">En cours</string>
   <string name="SlimTvClient.Guide">Guide Télé</string>
   <string name="SlimTvClient.NoProgram">Programme indisponible</string>
   <string name="SlimTvClient.ChooseProgramAction">Choisissez une action pour le programme...</string>
   <string name="SlimTvClient.ChooseChannelGroup">Choisissez un groupe de chaine</string>
+  <string name="SlimTvClient.ChannelGroupButton">Groupe de chaine </string>
   <string name="SlimTvClient.ProgramOver">Programme déjà terminé</string>
   <string name="SlimTvClient.WatchNow">Regarder le programme en cours</string>
   <string name="SlimTvClient.WatchFromBeginning">Regarder l\'enregistrement depuis le début</string>
@@ -69,6 +72,12 @@
   <string name="SlimTvClient.AutoStartTv.Help">Si activée, le dernier canal sélectionné sera affiché lors du lancement d\'une session TV</string>
   <string name="SlimTvClient.ShowSeriesInfo">Afficher les infos de la série</string>
   <string name="SlimTvClient.ShowSeriesInfo.Help">Si activé, le guide de programme affichera les informations concernant la série, l\'épisode (si disponible).</string>
+  <string name="SlimTvClient.ZapByChannelIndex">ZAP par l\'index des chaines </string>
+  <string name="SlimTvClient.ZapByChannelIndex.Help">Configurer si le zapping , doit utiliser l\'index ou les numéros</string>
+  <string name="SlimTvClient.ZapTimeout">ZAP tempo. max</string>
+  <string name="SlimTvClient.ZapTimeout.Help">Configurer le délais pour lancement de la TV</string>
+  <string name="SlimTvClient.HideAllChannelsGroup">Caché le groupe \"All Channels\"</string>
+  <string name="SlimTvClient.HideAllChannelsGroup.Help">Si activer, le groupe \"All Channels\" sera caché.</string>
   <string name="SlimTvClient.RecordingsMenuItem">Enregistrements</string>
   <string name="SlimTvClient.Recordings.Help">Ici vous trouverez une liste de vos programmes enregistrés accessible à la lecture.</string>
   <string name="SlimTvClient.RecordingsRootViewName">Enregistrements TV</string>

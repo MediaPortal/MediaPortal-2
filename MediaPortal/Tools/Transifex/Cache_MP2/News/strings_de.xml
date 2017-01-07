@@ -6,11 +6,11 @@
   <string name="News.Published">Veröffentlicht</string>
   <string name="News.ConfiguredFeeds">Konfigurierte Feeds</string>
   <string name="News.AddFeed">Newsfeed hinzufügen</string>
-  <string name="News.EnterFeedName">Geben Sie einen Namen für den Feed ein</string>
+  <string name="News.EnterFeedName">Name für den Feed eingeben</string>
   <string name="News.EnterFeedUrl">Geben Sie die URL des Feeds ein</string>
   <string name="Settings.Plugins.News">Nachrichten</string>
   <string name="Settings.Plugins.News.FeedsSetup">Feeds verwalten</string>
-  <string name="Settings.Plugins.News.FeedsSetup.Help">Einstellungen für Feeds die Daten für News sammeln</string>
-  <string name="Settings.Plugins.News.RefreshInterval">Aktualisierungsintervall</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Einstellungen für Feeds, die Daten für News sammeln</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Aktualisierungshäufigkeit</string>
   <string name="Settings.Plugins.News.RefreshInterval.Help">Feed-Daten alle ... Minute(n) laden</string>
 </resources>

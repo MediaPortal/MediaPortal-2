@@ -961,7 +961,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if(_stubs[0].Title != null)
         episodeName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].Title);
 
-      if (seriesName != null && season.HasValue && episode.HasValue && episodeName != null)
+      if (seriesName != null && season.HasValue && episode.HasValue)
       {
         string name = String.Format(EpisodeInfo.EPISODE_FORMAT_STR,
           seriesName,
@@ -969,7 +969,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           StringUtils.Join(", ", _stubs.OrderBy(e => e.Episode).Select(e => e.Episode.ToString().PadLeft(2, '0'))),
           string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray()));
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, name);
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(name));
+        if(episodeName != null)
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(episodeName));
+        else
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(name));
         return true;
       }
       return false;
