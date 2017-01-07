@@ -134,6 +134,7 @@
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
+    <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />
     <Compile Include="MediaItemActions\AddAllToPlaylist.cs" />
     <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
     <Compile Include="MediaItemActions\AbstractPlayCountAction.cs" />
