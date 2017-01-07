@@ -209,6 +209,8 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       Window mainWindow = MainWindow;
       if (mainWindow == null)
         return;
+      if (!mainWindow.IsVisible)
+        mainWindow.Show();
       mainWindow.ShowInTaskbar = true;
       mainWindow.Visibility = Visibility.Visible;
 
