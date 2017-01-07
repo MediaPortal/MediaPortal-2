@@ -21,7 +21,7 @@
           <Grid.Background>
             <VideoBrush Stream="0"/>
           </Grid.Background>
-          <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png"/>
+        <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
       </Grid>
     </ControlTemplate>
 
