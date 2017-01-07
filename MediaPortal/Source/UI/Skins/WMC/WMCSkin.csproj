@@ -78,6 +78,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\EnableBannersConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableAnimatedBackgroundConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableCertificationLogosConfiguration.cs" />
+    <Compile Include="Settings\Configuration\FanartOverlayOpacityConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableMediaItemDetailsViewConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableWatchedFlagsConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
