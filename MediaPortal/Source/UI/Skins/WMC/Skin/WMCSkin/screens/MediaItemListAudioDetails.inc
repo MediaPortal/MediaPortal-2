@@ -112,8 +112,8 @@
         </ControlTemplate>
       </media:AudioAspectWrapper.Template>
     </media:AudioAspectWrapper>
-  
-    <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="5">
+
+    <!--media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="5">
       <media:UserDataWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
@@ -126,7 +126,7 @@
            </Grid>
          </ControlTemplate>
        </media:UserDataWrapper.Template>
-     </media:UserDataWrapper>      
+     </media:UserDataWrapper-->      
   
   </WrapPanel>
 
