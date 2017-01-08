@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.OneTrueError.Settings
       ExceptionExcludedList = EXCEPTION_EXCLUDE_FILTERS;
     }
 
-    [Setting(SettingScope.Global, LogLevel.Information)]
+    [Setting(SettingScope.Global, LogLevel.Error)]
     public LogLevel MinReportLevel { get; set; }
 
     [Setting(SettingScope.Global)]
