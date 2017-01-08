@@ -44,6 +44,14 @@
       </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
+  <Storyboard x:Key="BlinkStoryboard" RepeatBehavior="Forever" >
+    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RecordingIcon" Storyboard.TargetProperty="Opacity" BeginTime="00:00:00" RepeatBehavior="Forever" FillBehavior="HoldEnd">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:01" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
   <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
     <DoubleAnimation
                                     Storyboard.TargetProperty="RenderTransform.Angle"
@@ -1394,6 +1402,29 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
+          <Grid DockPanel.Dock="Left" Height="58" Width="58">
+            <Image x:Name="RecordingIcon" Source="Recording.png" Stretch="Uniform" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image.Triggers>
+              <Trigger Property="IsEnabled" Value="True">
+                <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource BlinkStoryboard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Image.Triggers>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--Style x:Key="RecordingButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
           <DockPanel>
             <Grid DockPanel.Dock="Left" Height="58" Width="58">
               <Image x:Name="image1" Source="CP_Background.png" Stretch="Uniform" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -1419,7 +1450,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-  </Style>
+  </Style-->
 
   <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
 
