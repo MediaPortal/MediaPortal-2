@@ -15,7 +15,7 @@
     <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/> 
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <Image Stretch="Fill" Opacity="1">
+      <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}">
         <Image.Source>
           <Binding Source="Background_GridView.png"/>
         </Image.Source>

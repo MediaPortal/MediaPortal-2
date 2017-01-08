@@ -36,7 +36,34 @@
     </Image.OpacityMask>
   </Image>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0"  Grid.ColumnSpan="2" Grid.Row="1"  TextTrimming="WordEllipsis"
+  <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Column="1" Margin="-380,0,300,0"
+                            IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAgeCertificationLogos}">
+    <media:MovieAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Height="80" MaxWidth="150">
+            <Image.Source>
+              <ImageSourceWrapper Delay="0" DelayInOut="false" VerticalTextureAlignment="Bottom" HorizontalTextureAlignment="Right">
+                <ImageSourceWrapper.Source>
+                  <Binding Path="Certification" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Certification\{0}.png"/>
+                </ImageSourceWrapper.Source>
+              </ImageSourceWrapper>
+            </Image.Source>
+          </Image>
+          <!--Label FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                       Content="{Binding Path=Certification}"/-->
+        </Grid>
+      </ControlTemplate>
+    </media:MovieAspectWrapper.Template>
+  </media:MovieAspectWrapper>
+
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"  TextTrimming="WordEllipsis"
         HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
         Margin="0,30,10,10"/>
@@ -149,7 +176,7 @@
         </ControlTemplate>
       </media:UserDataWrapper.Template>
     </media:UserDataWrapper>
-    
+
   </StackPanel>
   
 </Grid>

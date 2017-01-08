@@ -36,7 +36,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Include.Resources>
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png"/>
+      <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
     </ControlTemplate>
 
     <!-- Background Manager for menu hovers -->

@@ -83,6 +83,10 @@
                         Content="{Binding Duration}" HorizontalAlignment="Center" VerticalAlignment="Center"
                         Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
+                    <!--Label Grid.Column="1" x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
+                           FontFamily="SegoeUIBold" MaxWidth="900" Margin="20,5,10,-30" Panel.ZIndex="1"
+                           HorizontalAlignment="Left" VerticalAlignment="Bottom"/-->
+                    
                   </Grid>
                   <!-- PlayerGrid -->
                 </DockPanel>
