@@ -212,6 +212,7 @@
 
   <!-- Playlists -->
   <string name="Media.ManagePlaylists">Playlists</string>
+  <string name="Media.AddSingleToPlaylist">Add to playlist</string>
   <string name="Media.AddAllToPlaylist">Add all to playlist</string>
   <string name="Media.NoItemsToAddHeader">No items to add</string>
   <string name="Media.NoItemsToAddText">There are no items in the current view</string>
