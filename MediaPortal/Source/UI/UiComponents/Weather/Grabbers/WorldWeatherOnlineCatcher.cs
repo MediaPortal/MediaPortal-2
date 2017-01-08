@@ -298,7 +298,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         while (hourlyForecasts.MoveNext())
         {
           node = hourlyForecasts.Current.SelectSingleNode("time");
-          if (node != null && node.ValueAsInt == 1300)
+          if (node != null && (node.ValueAsInt == 1200 || node.ValueAsInt == 1300))
           {
             node = hourlyForecasts.Current.SelectSingleNode("weatherCode"); // /hourly/[time='1300']/weatherCode
             if (node != null)
