@@ -70,6 +70,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Libraries\Common\Data\DownloadData.cs" />
+    <Compile Include="Libraries\Common\ExternalIPResolver.cs" />
     <Compile Include="Libraries\IOnlineMatcherService.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ChangeCollection.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Change.cs" />
