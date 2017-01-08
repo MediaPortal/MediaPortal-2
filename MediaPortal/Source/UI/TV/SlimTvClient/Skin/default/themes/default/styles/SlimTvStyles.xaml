@@ -575,7 +575,7 @@
   </DataTemplate>
 
   <!-- ChannelWithLogoAndProgramListViewStyle is used inside main screen and for miniguide -->
-  <Style x:Key="ChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <Style x:Key="ChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
     <!--<Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithLogoAndProgramDataTemplate}"/>-->
     <Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithCurrentProgramDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
