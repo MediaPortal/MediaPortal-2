@@ -57,7 +57,7 @@
     <ConfigSection
         Id="SkinSettings"
         Redundant="true"
-        Text="[WMC.Configuration.SkinSettings]"/>
+        Text="[SkinSettings.Configuration.SkinSettings]"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
