@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -166,7 +167,11 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
       {
         // Skip input devices, they have same name as output devices.
         BASS_WASAPI_DEVICEINFO deviceInfo = deviceDescriptions[i];
-        if ((deviceInfo.flags & (BASSWASAPIDeviceInfo.BASS_DEVICE_INPUT | BASSWASAPIDeviceInfo.BASS_DEVICE_DISABLED /*| BASSWASAPIDeviceInfo.BASS_DEVICE_UNPLUGGED */)) != 0)
+        bool skip = deviceInfo.IsDisabled || deviceInfo.IsUnplugged || deviceInfo.IsInput || deviceInfo.IsLoopback || deviceInfo.flags == BASSWASAPIDeviceInfo.BASS_DEVICE_UNKNOWN;
+
+        ServiceRegistration.Get<ILogger>().Debug("{5} WASAPI Device {0}: '{1}' Flags: {2} Device path: [{3}] Ch: {4}", i, deviceInfo.name, deviceInfo.flags, deviceInfo.id, deviceInfo.mixchans,
+          skip ? "Skip" : "Use ");
+        if (skip)
           continue;
 
         ListItem deviceItem = new ListItem(Consts.KEY_NAME, deviceInfo.name)
