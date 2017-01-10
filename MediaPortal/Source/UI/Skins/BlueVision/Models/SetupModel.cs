@@ -125,7 +125,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       // Save
       settingsManager.Save(settings);
 
-      var skinSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+      var skinSettings = ServiceRegistration.Get<ISettingsManager>().Load<UI.SkinEngine.Settings.SkinSettings>();
       var startupSettings = ServiceRegistration.Get<ISettingsManager>().Load<StartupSettings>();
       List<string> paths = new List<string>
       {
@@ -161,7 +161,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<UI.SkinEngine.Settings.SkinSettings>();
       return settings.Skin == "BlueVision";
     }
 
