@@ -633,6 +633,25 @@
     </Setter>
   </Style>
 
+  <Style x:Key="MenuItemContainerStyleWide" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource MenuButtonWideStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <DataTemplate x:Key="LeftMenuItemDataTemplate">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
@@ -640,6 +659,12 @@
           Color="{ThemeResource WindowHeaderColor}"/>
     </DockPanel>
   </DataTemplate>
+
+  <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MenuItemContainerStyleWide}"/>
+  </Style>
 
   <Style x:Key="LeftMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource LeftMenuItemDataTemplate}"/>
