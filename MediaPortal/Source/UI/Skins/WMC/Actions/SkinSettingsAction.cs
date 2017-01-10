@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Actions
 
     public override IResourceString DisplayTitle
     {
-      get { return LocalizationHelper.CreateResourceString("[WMC.Configuration.SkinSettings]"); }
+      get { return LocalizationHelper.CreateResourceString("[SkinSettings.Configuration.SkinSettings]"); }
     }
 
     protected override string ConfigLocation
