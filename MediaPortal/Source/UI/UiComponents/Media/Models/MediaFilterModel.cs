@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
@@ -56,13 +57,16 @@ namespace MediaPortal.UiComponents.Media.Models
       IList<WorkflowAction> actions = navigationData.GetWorkflowActions();
       if (actions == null)
         return;
+
+      string currentScreenTitle = LocalizationHelper.CreateResourceString(navigationData.CurrentScreenData?.MenuItemLabel)?.Evaluate();
       foreach (WorkflowAction action in actions)
       {
         WorkflowAction actionCopy = action;
         ListItem screenItem = new ListItem(Consts.KEY_NAME, action.DisplayTitle)
-          {
-              Command = new MethodDelegateCommand(actionCopy.Execute)
-          };
+        {
+          Command = new MethodDelegateCommand(actionCopy.Execute),
+          Selected = currentScreenTitle == action.DisplayTitle?.Evaluate()
+        };
         screenItem.AdditionalProperties[Consts.KEY_FILTER] = actionCopy;
         _filterItemsList.Add(screenItem);
       }

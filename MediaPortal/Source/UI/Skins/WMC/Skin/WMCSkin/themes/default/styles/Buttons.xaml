@@ -694,7 +694,11 @@
     </Setter>
   </Style>
 
+<<<<<<< HEAD
   <Style x:Key="ButtonWideStyle_default" TargetType="{x:Type Button}">
+=======
+  <Style x:Key="MenuButtonWideStyle" TargetType="{x:Type Button}">
+>>>>>>> a55810519436e08a5a735c1b2d084a78420f389e
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
