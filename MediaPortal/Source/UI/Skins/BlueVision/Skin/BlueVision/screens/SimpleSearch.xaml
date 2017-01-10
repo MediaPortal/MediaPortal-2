@@ -14,23 +14,56 @@
     <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource MediaNavigationModel},Path=NavigationData.CurrentScreenData}">
         <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="40"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
+          <ColumnDefinition>
+            <ColumnDefinition.Width>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} ? {1} : {2}">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                <Binding Source="1"/>
+                <Binding Source="810"/>
+              </MultiBinding>
+            </ColumnDefinition.Width>
+          </ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Label x:Name="Duration" Grid.Row="0" Content="[Media.SimpleSearchFilterMenuItem]" Color="{ThemeResource TextColor}"/>
-
-        <TextBox Grid.Column="0" Grid.Row="1"
-            Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100"/>
-        <Control Grid.Column="0" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsList.inc"/>
           </Control.TemplateControl>
         </Control>
+
+        <Grid Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+          <Grid.Width>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="1"/>
+              <Binding Source="810"/>
+            </MultiBinding>
+          </Grid.Width>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
+            <StackPanel.Margin>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} ? {1} : {2}">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                <Binding Source="-710,0,40,0"/>
+                <Binding Source="-50,0,40,0"/>
+              </MultiBinding>
+            </StackPanel.Margin>
+            <Label Content="[Media.SimpleSearchFilterMenuItem]" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
+            <TextBox Height="40" Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" Width="400" Margin="0,0,30,0"/>
+          </StackPanel>
+
+        </Grid>
+
       </Grid>
     </ControlTemplate>
 
