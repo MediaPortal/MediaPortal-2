@@ -120,6 +120,8 @@
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Time format</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Time format used in the skin. Use the format specification of the .net DateTime class.</string>
 
+  <string name="SkinSettings.Configuration.SkinSettings">Skin Settings</string>
+  
   <string name="Settings.General">General</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
