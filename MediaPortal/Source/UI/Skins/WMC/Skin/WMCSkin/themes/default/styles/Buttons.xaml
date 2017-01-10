@@ -44,6 +44,14 @@
       </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
+  <Storyboard x:Key="BlinkStoryboard" RepeatBehavior="Forever" >
+    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RecordingIcon" Storyboard.TargetProperty="Opacity" BeginTime="00:00:00" RepeatBehavior="Forever" FillBehavior="HoldEnd">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:01" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
   <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
     <DoubleAnimation
                                     Storyboard.TargetProperty="RenderTransform.Angle"
@@ -257,7 +265,7 @@
                   <GradientStop Color="#66FFFFFF" Offset="1"/>
                 </LinearGradientBrush>
               </Rectangle.Stroke>
-            </Rectangle>            
+            </Rectangle>
             <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="3.5" RadiusY="3.5" StrokeThickness="0" Margin="2">
               <Rectangle.Fill>
                 <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
@@ -631,6 +639,7 @@
     </Setter>
   </Style>
 
+  <!--- This button style is used for dialogue buttons-->
   <Style x:Key="ButtonWideStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -648,7 +657,62 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,40,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MenuButtonWideStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Image Stretch="Uniform" HorizontalAlignment="Right" Height="30" Source="Playercontrol\Current.position.PNG" IsVisible="{Binding Path=Selected}" Margin="10"/>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,45,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
             <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -1394,6 +1458,29 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
+          <Grid DockPanel.Dock="Left" Height="58" Width="58">
+            <Image x:Name="RecordingIcon" Source="Recording.png" Stretch="Uniform" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image.Triggers>
+              <Trigger Property="IsEnabled" Value="True">
+                <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource BlinkStoryboard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Image.Triggers>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--Style x:Key="RecordingButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
           <DockPanel>
             <Grid DockPanel.Dock="Left" Height="58" Width="58">
               <Image x:Name="image1" Source="CP_Background.png" Stretch="Uniform" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -1419,7 +1506,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-  </Style>
+  </Style-->
 
   <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
 

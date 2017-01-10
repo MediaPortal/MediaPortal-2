@@ -23,6 +23,7 @@
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
     <PluginReference PluginId="{E5326D7C-698F-48C2-AA15-AD6CCBD1A96F}" CompatibleAPI="2"/> <!-- SystemStateMenu plugin -->
+    <PluginReference PluginId="{B4D6171B-81CB-4813-ACBE-FD3133ADC504}" CompatibleAPI="1"/> <!-- SkinSettings plugin -->
   </DependsOn>
 
   <Register Location="/Models">
@@ -56,14 +57,14 @@
 
   <!-- Contents of '/Appearance/Skin' section -->
   <Register Location="/Configuration/Settings/Appearance/Skin">
-    <ConfigGroup
-        Id="SkinAndTheme"
+    <ConfigSection
+        Id="SkinSettings"
         Redundant="true"
-        Text="[Settings.Appearance.Skin.SkinAndTheme]"/>
+        Text="[SkinSettings.Configuration.SkinSettings]"/>
   </Register>
 
-  <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
-  <Register Location="/Configuration/Settings/Appearance/Skin/SkinAndTheme">
+  <!-- Contents of '/Appearance/Skin/SkinSettings' section -->
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
     <CustomConfigSetting
         Id="BlueVisionSetup"
         Text="[BlueVision.Configuration]"

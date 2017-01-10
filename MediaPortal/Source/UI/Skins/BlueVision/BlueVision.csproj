@@ -695,6 +695,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Incubator\SkinSettings\SkinSettings.csproj">
+      <Project>{61c5a548-5b9b-4750-b98b-8161ec95dead}</Project>
+      <Name>SkinSettings</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>

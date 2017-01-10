@@ -20,9 +20,9 @@
 
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="150"/>
 
-  <ResourceWrapper x:Key="MiniGuideHeight" Resource="500"/>
-  <ResourceWrapper x:Key="MiniGuideWidth" Resource="600"/>
-  <ResourceWrapper x:Key="MiniGuideDetailsWidth" Resource="300"/>
+  <ResourceWrapper x:Key="MiniGuideHeight" Resource="630"/>
+  <ResourceWrapper x:Key="MiniGuideWidth" Resource="610"/>
+  <ResourceWrapper x:Key="MiniGuideDetailsWidth" Resource="620"/>
 
   <ResourceWrapper x:Key="GroupButtonWidth" Resource="60"/>
   <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="360"/>
