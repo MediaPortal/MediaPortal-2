@@ -633,11 +633,11 @@
     </Setter>
   </Style>
 
-  <Style x:Key="Default_MenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+  <Style x:Key="MenuItemContainerStyleWide" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle_default}"
+          <Button Style="{ThemeResource MenuButtonWideStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
@@ -663,7 +663,7 @@
   <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource Default_MenuItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MenuItemContainerStyleWide}"/>
   </Style>
 
   <Style x:Key="LeftMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
