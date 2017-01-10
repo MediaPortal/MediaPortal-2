@@ -67,7 +67,8 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
       ListItem groupingItem = new ListItem(Consts.KEY_NAME, Consts.RES_NO_GROUPING)
       {
-        Command = new MethodDelegateCommand(() => navigationData.CurrentGrouping = null)
+        Command = new MethodDelegateCommand(() => navigationData.CurrentGrouping = null),
+        Selected = navigationData.CurrentGrouping == null
       };
       groupingItem.AdditionalProperties[Consts.KEY_GROUPING] = null;
       _groupingItemsList.Add(groupingItem);
@@ -77,7 +78,8 @@ namespace MediaPortal.UiComponents.Media.Models
         Sorting.Sorting groupingCopy = grouping;
         groupingItem = new ListItem(Consts.KEY_NAME, grouping.GroupByDisplayName)
         {
-          Command = new MethodDelegateCommand(() => navigationData.CurrentGrouping = groupingCopy)
+          Command = new MethodDelegateCommand(() => navigationData.CurrentGrouping = groupingCopy),
+          Selected = navigationData.CurrentGrouping == groupingCopy
         };
         groupingItem.AdditionalProperties[Consts.KEY_GROUPING] = groupingCopy;
         _groupingItemsList.Add(groupingItem);

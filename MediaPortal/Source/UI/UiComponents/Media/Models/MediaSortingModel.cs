@@ -70,7 +70,8 @@ namespace MediaPortal.UiComponents.Media.Models
         Sorting.Sorting sortingCopy = sorting;
         ListItem sortingItem = new ListItem(Consts.KEY_NAME, sorting.DisplayName)
         {
-          Command = new MethodDelegateCommand(() => navigationData.CurrentSorting = sortingCopy)
+          Command = new MethodDelegateCommand(() => navigationData.CurrentSorting = sortingCopy),
+          Selected = navigationData.CurrentSorting == sortingCopy
         };
         sortingItem.AdditionalProperties[Consts.KEY_SORTING] = sortingCopy;
         _sortingItemsList.Add(sortingItem);
