@@ -374,11 +374,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       EpisodeNumbers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, out collection))
-        EpisodeNumbers.AddRange(collection.Cast<object>().Select(s => Convert.ToInt32(s)));
+        EpisodeNumbers.AddRange(collection.Cast<object>().Select(Convert.ToInt32).OrderBy(e => e));
 
       DvdEpisodeNumbers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, out collection))
-        DvdEpisodeNumbers.AddRange(collection.Cast<object>().Select(s => Convert.ToDouble(s)));
+        DvdEpisodeNumbers.AddRange(collection.Cast<object>().Select(Convert.ToDouble).OrderBy(e => e));
 
       byte[] data;
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))

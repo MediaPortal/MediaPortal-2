@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
@@ -46,9 +45,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       Series = episodeInfo.SeriesName.Text;
       EpisodeName = episodeInfo.EpisodeName.Text;
       Season = episodeInfo.SeasonNumber.ToString();
-      EpisodeNumber = string.Join(", ", episodeInfo.EpisodeNumbers.OrderBy(e => e));
+      EpisodeNumber = string.Join(", ", episodeInfo.EpisodeNumbers);
       if (episodeInfo.DvdEpisodeNumbers.Count > 0)
-        DVDEpisodeNumber = string.Join(", ", episodeInfo.DvdEpisodeNumbers.OrderBy(e => e));
+        DVDEpisodeNumber = string.Join(", ", episodeInfo.DvdEpisodeNumbers);
       else
         DVDEpisodeNumber = EpisodeNumber;
 
