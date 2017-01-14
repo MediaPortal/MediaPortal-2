@@ -1922,42 +1922,73 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       Logger.Debug("Extractor {0} extracted {1} media items from media item {2}", roleExtractor.GetType().Name, extractedItems == null ? 0 : extractedItems.Count, mediaItemId);
 
+      //Try and find any extracted items already in the database.
+      //Perform all necessary reads first outside of transaction to avoid blocking the database.
+      IDictionary<Guid, IDictionary<Guid, IList<MediaItemAspect>>> existingItems = new Dictionary<Guid, IDictionary<Guid, IList<MediaItemAspect>>>();
+      IList<IDictionary<Guid, IList<MediaItemAspect>>> newItems = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      foreach (var extractedItem in extractedItems)
+      {
+        if (cancelToken.IsCancellationRequested || ShuttingDown)
+          return;
+        IDictionary<Guid, IList<MediaItemAspect>> extractedItemAspects = extractedItem.Key;
+        if (extractedItem.Value != Guid.Empty)
+        {
+          //item found in cache, just add the relationship, cached items don't need an update
+          AddRelationship(roleExtractor, extractedItem.Value, aspects, extractedItemAspects);
+          continue;
+        }
+
+        bool needsUpdate;
+        Guid? matchedMediaItemId = MatchExternalItem(roleExtractor, extractedItemAspects, linkedRoleAspectIds, out needsUpdate);
+        if (matchedMediaItemId == null)
+        {
+          //existing item not found, we'll add it in the next step
+          newItems.Add(extractedItemAspects);
+        }
+        else
+        {
+          //existing item found, add the relationship and mark it for updating in the next step if necessary
+          AddRelationship(roleExtractor, matchedMediaItemId.Value, aspects, extractedItemAspects);
+          roleExtractor.CacheExtractedItem(matchedMediaItemId.Value, extractedItem.Key);
+          //false here means the extracted item is virtual but existing item isn't so don't update
+          if (needsUpdate && !existingItems.ContainsKey(matchedMediaItemId.Value))
+            //update and reconcile as it might have changed
+            existingItems.Add(matchedMediaItemId.Value, extractedItemAspects);
+        }
+      }
+
       HashSet<Guid> updatedItems = new HashSet<Guid>();
+      //Commit all new/updated items in single transaction
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       using (ITransaction transaction = database.BeginTransaction())
       {
-        // Match the extracted aspect data to any items already in the library
-        foreach (var extractedItem in extractedItems)
+        //update all exisiting items
+        foreach (var existingItem in existingItems)
         {
-          if (cancelToken.IsCancellationRequested || ShuttingDown)
-            return;
+          UpdateMediaItem(database, transaction, existingItem.Key, existingItem.Value.Values.SelectMany(x => x));
+          updatedItems.Add(existingItem.Key);
+        }
 
-          Guid? matchedMediaItemId;
-          bool found = MatchExternalItem(database, transaction, roleExtractor, mediaItemId, aspects, extractedItem.Value, extractedItem.Key, linkedRoleAspectIds, isRefresh, cancelToken, out matchedMediaItemId);
-          if (!found)
+        //add all new items
+        foreach (var newItem in newItems)
+        {
+          Guid newMediaItemId = NewMediaItemId();
+          Logger.Debug("Adding new media item for extracted item {0}", newMediaItemId);
+          bool merged;
+          IEnumerable<MediaItemAspect> extractedAspects = newItem.Values.SelectMany(x => x);
+          newMediaItemId = AddOrUpdateMediaItem(database, transaction, Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(newMediaItemId), newMediaItemId, extractedAspects, out merged);
+          if (newMediaItemId != Guid.Empty)
           {
-            Guid newMediaItemId = NewMediaItemId();
-            Logger.Debug("Adding new media item for extracted item {0}", newMediaItemId);
-            bool merged;
-            IEnumerable<MediaItemAspect> extractedAspects = extractedItem.Key.Values.SelectMany(x => x);
-            newMediaItemId = AddOrUpdateMediaItem(database, transaction, Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(newMediaItemId), newMediaItemId, extractedAspects, out merged);
-            if (newMediaItemId != Guid.Empty)
-            {
-              AddRelationship(roleExtractor, newMediaItemId, aspects, extractedItem.Key);
-              UpdateMediaItem(database, transaction, mediaItemId, aspects.Values.SelectMany(x => x));
-              roleExtractor.CacheExtractedItem(newMediaItemId, extractedItem.Key);
-              if (!merged)
-                updatedItems.Add(newMediaItemId);
-            }
-          }
-          else if (matchedMediaItemId.HasValue)
-          {
-            updatedItems.Add(matchedMediaItemId.Value);
+            AddRelationship(roleExtractor, newMediaItemId, aspects, newItem);
+            roleExtractor.CacheExtractedItem(newMediaItemId, newItem);
+            if (!merged)
+              updatedItems.Add(newMediaItemId);
           }
         }
         transaction.Commit();
       }
-      
+
+      //reload all updated items and reconcile as they might have changed
       ICollection<MediaItem> items = GetMediaItems(null, null, updatedItems, null, GetManagedMediaItemAspectMetadata().Keys, false, null, true);
       foreach (MediaItem item in items)
       {
@@ -1966,56 +1997,43 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    private bool MatchExternalItem(ISQLDatabase database, ITransaction transaction, IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid extractedMediaItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedItem, IList<Guid> linkedRoleAspectIds, bool isRefresh, CancellationToken cancelToken, out Guid? matchedMediaItemId)
+    private Guid? MatchExternalItem(IRelationshipRoleExtractor roleExtractor, IDictionary<Guid, IList<MediaItemAspect>> extractedItem, IList<Guid> linkedRoleAspectIds, out bool needsUpdate)
     {
-      matchedMediaItemId = null;
-      if (extractedMediaItemId != Guid.Empty)
+      needsUpdate = false;
+      IFilter filter = roleExtractor.GetSearchFilter(extractedItem);
+      if (filter == null)
+        return null;
+
+      // Any potential linked item must contain all of LinkedRoleAspects
+      IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds).ToList();
+      if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
       {
-        AddRelationship(roleExtractor, extractedMediaItemId, aspects, extractedItem);
-        return true;
+        //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
+        //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
+        optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
       }
-      else
-      { 
-        // Any potential linked item must contain all of LinkedRoleAspects
-        IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds).ToList();
-        if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
+      
+      //Logger.Debug("Searching for external items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", linkedRoleAspectIds.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+      IList<MediaItem> externalItems = Search(new MediaItemQuery(linkedRoleAspectIds, optionalAspectIds, filter), false, null, true);
+      foreach (MediaItem externalItem in externalItems)
+      {
+        //Logger.Debug("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+        if (roleExtractor.TryMatch(extractedItem, externalItem.Aspects))
         {
-          //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
-          //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
-          optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
-        }
-        IFilter filter = roleExtractor.GetSearchFilter(extractedItem);
-        if (filter != null)
-        {
-          //Logger.Debug("Searching for external items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", linkedRoleAspectIds.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-          IList<MediaItem> externalItems = Search(database, transaction, new MediaItemQuery(linkedRoleAspectIds, optionalAspectIds, filter), false, null, true);
-          foreach (MediaItem externalItem in externalItems)
+          Guid matchedMediaItemId = externalItem.MediaItemId;
+          bool? isExistingVirtual = externalItem.Aspects[MediaAspect.ASPECT_ID][0].GetAttributeValue<bool?>(MediaAspect.ATTR_ISVIRTUAL);
+          if (isExistingVirtual == false)
           {
-            //Logger.Debug("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-            if (roleExtractor.TryMatch(extractedItem, externalItem.Aspects))
-            {
-              AddRelationship(roleExtractor, externalItem.MediaItemId, aspects, extractedItem);
-
-              bool? isExtractedVirtual = extractedItem[MediaAspect.ASPECT_ID][0].GetAttributeValue<bool?>(MediaAspect.ATTR_ISVIRTUAL);
-              bool? isExsistingVirtual = externalItem.Aspects[MediaAspect.ASPECT_ID][0].GetAttributeValue<bool?>(MediaAspect.ATTR_ISVIRTUAL);
-              if (isExsistingVirtual.HasValue && !isExsistingVirtual.Value && isExtractedVirtual.HasValue && isExtractedVirtual.Value)
-              {
-                roleExtractor.CacheExtractedItem(externalItem.MediaItemId, extractedItem);
-                return true; //Do not overwrite the existing real media item with a virtual one
-              }
-
-              matchedMediaItemId = externalItem.MediaItemId; //Reconcile because it might have changed
-              if (isExsistingVirtual.HasValue && !isExsistingVirtual.Value)
-                extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, isExsistingVirtual.Value); //Update virtual flag so it's not reset by the update
-              
-              UpdateMediaItem(database, transaction, externalItem.MediaItemId, extractedItem.Values.SelectMany(x => x));
-              roleExtractor.CacheExtractedItem(externalItem.MediaItemId, extractedItem);
-              return true;
-            }
+            bool? isExtractedVirtual = extractedItem[MediaAspect.ASPECT_ID][0].GetAttributeValue<bool?>(MediaAspect.ATTR_ISVIRTUAL);
+            if (isExtractedVirtual == true)
+              return matchedMediaItemId; //Do not overwrite the existing real media item with a virtual one
+            extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false); //Update virtual flag so it's not reset by the update
           }
+          needsUpdate = true;
+          return matchedMediaItemId;
         }
       }
-      return false;
+      return null;
     }
 
     private bool AddRelationship(IRelationshipRoleExtractor roleExtractor, Guid itemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects)
