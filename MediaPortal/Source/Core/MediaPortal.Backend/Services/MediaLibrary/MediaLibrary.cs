@@ -1055,23 +1055,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       else
         items = cmiq.QueryList(database, transaction);
       //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
-      IList<MediaItem> result = new List<MediaItem>(items.Count);
-      foreach (MediaItem item in items)
-      {
-        LoadUserDataForMediaItem(userProfileId, item);
-      }
+      LoadUserDataForMediaItems(database, transaction, userProfileId, items);
 
       if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
       { // The provider resource aspect was not requested and thus has to be removed from the result items
         foreach (MediaItem item in items)
-        {
           item.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
-          result.Add(item);
-        }
       }
-      else
-        result = items;
-      return result;
+      return items;
     }
 
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
@@ -1203,32 +1194,41 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private void LoadUserDataForMediaItem(Guid? userProfileId, MediaItem mediaItem)
     {
-      if (userProfileId.HasValue)
-      {
-        mediaItem.UserData.Clear();
+      LoadUserDataForMediaItems(null, null, userProfileId, new[] { mediaItem });
+    }
 
-        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-        ITransaction transaction = database.CreateTransaction();
-        try
+    private void LoadUserDataForMediaItems(ISQLDatabase database, ITransaction transaction, Guid? userProfileId, IEnumerable<MediaItem> mediaItems)
+    {
+      if (!userProfileId.HasValue)
+        return;
+
+      bool createTransaction = database == null || transaction == null;
+      if (createTransaction)
+      {
+        database = ServiceRegistration.Get<ISQLDatabase>();
+        transaction = database.CreateTransaction();
+      }
+
+      try
+      {
+        foreach (MediaItem mediaItem in mediaItems)
         {
+          mediaItem.UserData.Clear();
           int dataKeyIndex;
           int dataIndex;
           using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectAllUserMediaItemDataCommand(transaction,
             userProfileId.Value, mediaItem.MediaItemId, out dataKeyIndex, out dataIndex))
+          using (IDataReader reader = command.ExecuteReader())
           {
-            using (IDataReader reader = command.ExecuteReader())
-            {
-              while (reader.Read())
-              {
-                mediaItem.UserData.Add(database.ReadDBValue<string>(reader, dataKeyIndex), database.ReadDBValue<string>(reader, dataIndex));
-              }
-            }
+            while (reader.Read())
+              mediaItem.UserData.Add(database.ReadDBValue<string>(reader, dataKeyIndex), database.ReadDBValue<string>(reader, dataIndex));
           }
         }
-        finally
-        {
+      }
+      finally
+      {
+        if (createTransaction)
           transaction.Dispose();
-        }
       }
     }
 
