@@ -420,7 +420,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     if (_shareImportStates.ContainsKey(share.ShareId))
                     {
                       _shareImportStates[share.ShareId].IsImporting = true;
-                      _shareImportStates[share.ShareId].Progress = Convert.ToInt32(((double)progress[importJobInfo].Item2 / (double)progress[importJobInfo].Item1) * 100.0);
+                      var progressPercent = progress[importJobInfo].Item2 / (double)progress[importJobInfo].Item1 * 100.0;
+                      int progressInt = progressPercent > 100 || progressPercent < 0 ? 0 : (int)progressPercent;
+                      _shareImportStates[share.ShareId].Progress = progressInt;
                       anyProgressAvailable = true;
                     }
                   };
