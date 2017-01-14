@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.General
@@ -163,74 +162,6 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_IMAGES_VIEW_NAME = "[Media.ImagesRootViewName]";
     public const string RES_SIMPLE_SEARCH_VIEW_NAME = "[Media.SimpleSearchViewName]";
 
-    public const string RES_FILTER_BY_ARTIST_MENU_ITEM = "[Media.FilterByArtistMenuItem]";
-    public const string RES_FILTER_BY_COMPOSER_MENU_ITEM = "[Media.FilterByComposerMenuItem]";
-    public const string RES_FILTER_BY_ALBUM_ARTIST_MENU_ITEM = "[Media.FilterByAlbumArtistMenuItem]";
-    public const string RES_FILTER_BY_ALBUM_LABEL_MENU_ITEM = "[Media.FilterByAlbumLabelMenuItem]";
-    public const string RES_FILTER_BY_ALBUM_MENU_ITEM = "[Media.FilterByAlbumMenuItem]";
-    public const string RES_FILTER_BY_AUDIO_GENRE_MENU_ITEM = "[Media.FilterByAudioGenreMenuItem]";
-    public const string RES_FILTER_BY_DECADE_MENU_ITEM = "[Media.FilterByDecadeMenuItem]";
-    public const string RES_FILTER_BY_IMAGE_YEAR_MENU_ITEM = "[Media.FilterByImageYearMenuItem]";
-    public const string RES_FILTER_BY_VIDEO_YEAR_MENU_ITEM = "[Media.FilterByVideoYearMenuItem]";
-    public const string RES_FILTER_BY_VIDEO_PLAYCOUNT_MENU_ITEM = "[Media.FilterByVideoPlayCountMenuItem]";
-    public const string RES_FILTER_BY_ACTOR_MENU_ITEM = "[Media.FilterByActorMenuItem]";
-    public const string RES_FILTER_BY_CHARACTER_MENU_ITEM = "[Media.FilterByCharacterMenuItem]";
-    public const string RES_FILTER_BY_DIRECTOR_MENU_ITEM = "[Media.FilterByDirectorMenuItem]";
-    public const string RES_FILTER_BY_COMPANY_MENU_ITEM = "[Media.FilterByCompanyMenuItem]";
-    public const string RES_FILTER_BY_TV_NETWORK_MENU_ITEM = "[Media.FilterByTvNetworkMenuItem]";
-    public const string RES_FILTER_BY_WRITER_MENU_ITEM = "[Media.FilterByWriterMenuItem]";
-    public const string RES_FILTER_BY_VIDEO_GENRE_MENU_ITEM = "[Media.FilterByVideoGenreMenuItem]";
-    public const string RES_FILTER_BY_AUDIO_LANG_MENU_ITEM = "[Media.FilterByAudioLanguageMenuItem]";
-    public const string RES_FILTER_BY_SYSTEM_MENU_ITEM = "[Media.FilterBySystemMenuItem]";
-    public const string RES_FILTER_BY_IMAGE_SIZE_MENU_ITEM = "[Media.FilterByImageSizeMenuItem]";
-    public const string RES_FILTER_BY_IMAGE_COUNTRY_MENU_ITEM = "[Media.FilterByImageCountryMenuItem]";
-    public const string RES_FILTER_BY_IMAGE_STATE_MENU_ITEM = "[Media.FilterByImageStateMenuItem]";
-    public const string RES_FILTER_BY_IMAGE_CITY_MENU_ITEM = "[Media.FilterByImageCityMenuItem]";
-
-    public const string RES_FILTER_BY_MOVIES_COLLECTION_MENU_ITEM = "[Media.FilterByMoviesCollectionMenuItem]";
-    public const string RES_FILTER_BY_SERIES_NAME_MENU_ITEM = "[Media.FilterBySeriesNameMenuItem]";
-    public const string RES_FILTER_BY_SERIES_SEASON_MENU_ITEM = "[Media.FilterBySeriesSeasonMenuItem]";
-    public const string RES_FILTER_BY_SERIES_EPISODE_MENU_ITEM = "[Media.FilterBySeriesEpisodeMenuItem]";
-
-    public const string RES_SIMPLE_SEARCH_FILTER_MENU_ITEM = "[Media.SimpleSearchFilterMenuItem]";
-    public const string RES_SHOW_ALL_AUDIO_ITEMS_MENU_ITEM = "[Media.ShowAllAudioItemsMenuItem]";
-    public const string RES_SHOW_ALL_VIDEO_ITEMS_MENU_ITEM = "[Media.ShowAllVideoItemsMenuItem]";
-    public const string RES_SHOW_ALL_IMAGE_ITEMS_MENU_ITEM = "[Media.ShowAllImageItemsMenuItem]";
-    public const string RES_SHOW_ALL_MOVIES_MENU_ITEM = "[Media.ShowAllMoviesMenuItem]";
-
-    public const string RES_BROWSE_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.BrowseMediaNavigationNavbarDisplayLabel]";
-    public const string RES_LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.LocalMediaNavigationNavbarDisplayLabel]";
-    public const string RES_FILTER_ARTIST_NAVBAR_DISPLAY_LABEL = "[Media.FilterArtistNavbarDisplayLabel]";
-    public const string RES_FILTER_COMPOSER_NAVBAR_DISPLAY_LABEL = "[Media.FilterComposerNavbarDisplayLabel]";
-    public const string RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumArtistNavbarDisplayLabel]";
-    public const string RES_FILTER_ALBUM_LABEL_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumLabelNavbarDisplayLabel]";
-    public const string RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumNavbarDisplayLabel]";
-    public const string RES_FILTER_AUDIO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioGenreNavbarDisplayLabel]";
-    public const string RES_FILTER_DECADE_NAVBAR_DISPLAY_LABEL = "[Media.FilterDecadeNavbarDisplayLabel]";
-    public const string RES_FILTER_IMAGE_YEAR_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageYearNavbarDisplayLabel]";
-    public const string RES_FILTER_VIDEO_YEAR_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoYearNavbarDisplayLabel]";
-    public const string RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL = "[Media.FilterActorNavbarDisplayLabel]";
-    public const string RES_FILTER_CHARACTER_NAVBAR_DISPLAY_LABEL = "[Media.FilterCharacterNavbarDisplayLabel]";
-    public const string RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL = "[Media.FilterDirectorNavbarDisplayLabel]";
-    public const string RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL = "[Media.FilterWriterNavbarDisplayLabel]";
-    public const string RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL = "[Media.FilterCompanyNavbarDisplayLabel]";
-    public const string RES_FILTER_TV_NETWORK_NAVBAR_DISPLAY_LABEL = "[Media.FilterTvNetworkNavbarDisplayLabel]";
-    public const string RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoGenreNavbarDisplayLabel]";
-    public const string RES_FILTER_VIDEO_PLAYCOUNT_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoPlayCountDisplayLabel]";
-    public const string RES_FILTER_IMAGE_SIZE_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageSizeNavbarDisplayLabel]";
-    public const string RES_FILTER_AUDIO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioItemsNavbarDisplayLabel]";
-    public const string RES_FILTER_VIDEO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoItemsNavbarDisplayLabel]";
-    public const string RES_FILTER_IMAGE_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageItemsNavbarDisplayLabel]";
-    public const string RES_FILTER_IMAGE_COUNTRY_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageCountryNavbarDisplayLabel]";
-    public const string RES_FILTER_IMAGE_STATE_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageStateNavbarDisplayLabel]";
-    public const string RES_FILTER_IMAGE_CITY_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageCityNavbarDisplayLabel]";
-
-    public const string RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioLanguagesNavbarDisplayLabel]";
-    public const string RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL = "[Media.FilterSystemNavbarDisplayLabel]";
-    public const string RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesItemsNavbarDisplayLabel]";
-    public const string RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesSeasonNavbarDisplayLabel]";
-    public const string RES_FILTER_MOVIES_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesNavbarDisplayLabel]";
-    public const string RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesCollectionNavbarDisplayLabel]";
 
     public const string RES_VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
 
@@ -324,71 +255,101 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_LARGE_GRID = "[Media.LargeGrid]";
     public const string RES_LARGE_COVER = "[Media.CoverLayout]";
 
+    //   Common strings
+    public const string RES_COMMON_BY_TITLE_MENU_ITEM = "[Media.TitleMenuItem]";
+    public const string RES_COMMON_BY_SORT_TITLE_MENU_ITEM = "[Media.SortTitleMenuItem]";
+    public const string RES_COMMON_BY_NAME_MENU_ITEM = "[Media.NameMenuItem]";
+    public const string RES_COMMON_BY_ALBUM_TRACK_MENU_ITEM = "[Media.AlbumTrackMenuItem]";
+    public const string RES_COMMON_BY_GENRE_MENU_ITEM = "[Media.GenreMenuItem]";
+    public const string RES_COMMON_BY_ALBUM_MENU_ITEM = "[Media.AlbumMenuItem]";
+    public const string RES_COMMON_BY_TRACK_MENU_ITEM = "[Media.TrackMenuItem]";
+    public const string RES_COMMON_BY_ARTIST_MENU_ITEM = "[Media.ArtistMenuItem]";
+    public const string RES_COMMON_BY_YEAR_MENU_ITEM = "[Media.YearMenuItem]";
+    public const string RES_COMMON_BY_SIZE_MENU_ITEM = "[Media.SizeMenuItem]";
+    public const string RES_COMMON_BY_SYSTEM_MENU_ITEM = "[Media.SystemMenuItem]";
+    public const string RES_COMMON_BY_ACTOR_MENU_ITEM = "[Media.ActorMenuItem]";
+    public const string RES_COMMON_BY_DIRECTOR_MENU_ITEM = "[Media.DirectorMenuItem]";
+    public const string RES_COMMON_BY_WRITER_MENU_ITEM = "[Media.WriterMenuItem]";
+    public const string RES_COMMON_BY_DURATION_MENU_ITEM = "[Media.DurationMenuItem]";
+    public const string RES_COMMON_BY_ASPECT_RATIO_MENU_ITEM = "[Media.AspectRatioMenuItem]";
+    public const string RES_COMMON_BY_FIRST_AIRED_DATE_MENU_ITEM = "[Media.AiredDateMenuItem]";
+    public const string RES_COMMON_BY_ADDED_DATE_MENU_ITEM = "[Media.AddedDateMenuItem]";
+    public const string RES_COMMON_BY_EPISODE_MENU_ITEM = "[Media.EpisodeMenuItem]";
+    public const string RES_COMMON_BY_DVD_EPISODE_MENU_ITEM = "[Media.DVDEpisodeMenuItem]";
+    public const string RES_COMMON_BY_CHARACTER_MENU_ITEM = "[Media.CharacterMenuItem]";
+    public const string RES_COMMON_BY_COMPOSER_MENU_ITEM = "[Media.ComposerMenuItem]";
+    public const string RES_COMMON_BY_TV_NETWORK_MENU_ITEM = "[Media.TVNetworkMenuItem]";
+    public const string RES_COMMON_BY_PRODUCTION_STUDIO_MENU_ITEM = "[Media.CompanyMenuItem]";
+    public const string RES_COMMON_BY_MUSIC_LABEL_MENU_ITEM = "[Media.MusicLabelMenuItem]";
+    public const string RES_COMMON_BY_ALBUM_ARTIST_MENU_ITEM = "[Media.AlbumArtistMenuItem]";
+    public const string RES_COMMON_BY_ALBUM_LABEL_MENU_ITEM = "[Media.AlbumLabelMenuItem]";
+    public const string RES_COMMON_BY_DECADE_MENU_ITEM = "[Media.DecadeMenuItem]";
+    public const string RES_COMMON_BY_VIDEO_PLAYCOUNT_MENU_ITEM = "[Media.VideoPlayCountMenuItem]";
+    public const string RES_COMMON_BY_AUDIO_LANG_MENU_ITEM = "[Media.AudioLanguageMenuItem]";
+    public const string RES_COMMON_BY_IMAGE_COUNTRY_MENU_ITEM = "[Media.ImageCountryMenuItem]";
+    public const string RES_COMMON_BY_IMAGE_STATE_MENU_ITEM = "[Media.ImageStateMenuItem]";
+    public const string RES_COMMON_BY_IMAGE_CITY_MENU_ITEM = "[Media.ImageCityMenuItem]";
+    public const string RES_COMMON_BY_MOVIES_COLLECTION_MENU_ITEM = "[Media.MoviesCollectionMenuItem]";
+    public const string RES_COMMON_BY_SERIES_NAME_MENU_ITEM = "[Media.SeriesNameMenuItem]";
+    public const string RES_COMMON_BY_SERIES_SEASON_MENU_ITEM = "[Media.SeriesSeasonMenuItem]";
+    public const string RES_COMMON_BY_SERIES_EPISODE_MENU_ITEM = "[Media.SeriesEpisodeMenuItem]";
+
+    public const string RES_COMMON_SHOW_ALL_MENU_ITEM = "[Media.ShowAllMenuItem]";
+
+
+    // Filter
+    public const string RES_SIMPLE_SEARCH_FILTER_MENU_ITEM = "[Media.SimpleSearchFilterMenuItem]";
+
+    public const string RES_BROWSE_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.BrowseMediaNavigationNavbarDisplayLabel]";
+    public const string RES_LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.LocalMediaNavigationNavbarDisplayLabel]";
+    public const string RES_FILTER_ARTIST_NAVBAR_DISPLAY_LABEL = "[Media.FilterArtistNavbarDisplayLabel]";
+    public const string RES_FILTER_COMPOSER_NAVBAR_DISPLAY_LABEL = "[Media.FilterComposerNavbarDisplayLabel]";
+    public const string RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumArtistNavbarDisplayLabel]";
+    public const string RES_FILTER_ALBUM_LABEL_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumLabelNavbarDisplayLabel]";
+    public const string RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumNavbarDisplayLabel]";
+    public const string RES_FILTER_AUDIO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioGenreNavbarDisplayLabel]";
+    public const string RES_FILTER_DECADE_NAVBAR_DISPLAY_LABEL = "[Media.FilterDecadeNavbarDisplayLabel]";
+    public const string RES_FILTER_IMAGE_YEAR_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageYearNavbarDisplayLabel]";
+    public const string RES_FILTER_VIDEO_YEAR_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoYearNavbarDisplayLabel]";
+    public const string RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL = "[Media.FilterActorNavbarDisplayLabel]";
+    public const string RES_FILTER_CHARACTER_NAVBAR_DISPLAY_LABEL = "[Media.FilterCharacterNavbarDisplayLabel]";
+    public const string RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL = "[Media.FilterDirectorNavbarDisplayLabel]";
+    public const string RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL = "[Media.FilterWriterNavbarDisplayLabel]";
+    public const string RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL = "[Media.FilterCompanyNavbarDisplayLabel]";
+    public const string RES_FILTER_TV_NETWORK_NAVBAR_DISPLAY_LABEL = "[Media.FilterTvNetworkNavbarDisplayLabel]";
+    public const string RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoGenreNavbarDisplayLabel]";
+    public const string RES_FILTER_VIDEO_PLAYCOUNT_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoPlayCountDisplayLabel]";
+    public const string RES_FILTER_IMAGE_SIZE_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageSizeNavbarDisplayLabel]";
+    public const string RES_FILTER_AUDIO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioItemsNavbarDisplayLabel]";
+    public const string RES_FILTER_VIDEO_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoItemsNavbarDisplayLabel]";
+    public const string RES_FILTER_IMAGE_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageItemsNavbarDisplayLabel]";
+    public const string RES_FILTER_IMAGE_COUNTRY_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageCountryNavbarDisplayLabel]";
+    public const string RES_FILTER_IMAGE_STATE_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageStateNavbarDisplayLabel]";
+    public const string RES_FILTER_IMAGE_CITY_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageCityNavbarDisplayLabel]";
+
+    public const string RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioLanguagesNavbarDisplayLabel]";
+    public const string RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL = "[Media.FilterSystemNavbarDisplayLabel]";
+    public const string RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesItemsNavbarDisplayLabel]";
+    public const string RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesSeasonNavbarDisplayLabel]";
+    public const string RES_FILTER_MOVIES_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesNavbarDisplayLabel]";
+    public const string RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesCollectionNavbarDisplayLabel]";
+
+
     // Sorting
     public const string RES_SWITCH_SORTING = "[Media.SwitchSortingMenuItem]";
+    public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
+    public const string RES_SORT_BY_DATE = "[Media.SortByDate]";                         //no string defined
 
     // Grouping
     public const string RES_SWITCH_GROUPING = "[Media.SwitchGroupingMenuItem]";
+    public const string RES_NO_GROUPING = "[Media.NoGrouping]";
+    public const string RES_GROUP_BY_DATE = "[Media.GroupByDate]";
+    public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";   //no string defined
 
     // Filter
     public const string RES_SWITCH_FILTER = "[Media.SwitchFilterMenuItem]";
 
-    public const string RES_SORT_BY_TITLE = "[Media.SortByTitle]";
-    public const string RES_SORT_BY_SORT_TITLE = "[Media.SortBySortTitle]";
-    public const string RES_SORT_BY_NAME = "[Media.SortByName]";
-    public const string RES_SORT_BY_ALBUM_TRACK = "[Media.SortByAlbumTrack]";
-    public const string RES_SORT_BY_GENRE = "[Media.SortByGenre]";
-    public const string RES_SORT_BY_ALBUM = "[Media.SortByAlbum]";
-    public const string RES_SORT_BY_TRACK = "[Media.SortByTrack]";
-    public const string RES_SORT_BY_ARTIST = "[Media.SortByArtist]";
-    public const string RES_SORT_BY_YEAR = "[Media.SortByYear]";
-    public const string RES_SORT_BY_SIZE = "[Media.SortBySize]";
-    public const string RES_SORT_BY_SYSTEM = "[Media.SortBySystem]";
-    public const string RES_SORT_BY_ACTOR = "[Media.SortByActor]";
-    public const string RES_SORT_BY_DIRECTOR = "[Media.SortByDirector]";
-    public const string RES_SORT_BY_WRITER = "[Media.SortByWriter]";
-    public const string RES_SORT_BY_DURATION = "[Media.SortByDuration]";
-    public const string RES_SORT_BY_ASPECT_RATIO = "[Media.SortByAspectRatio]";
-    public const string RES_SORT_BY_FIRST_AIRED_DATE = "[Media.SortByFirstAiredDate]";
-    public const string RES_SORT_BY_DATE = "[Media.SortByDate]";
-    public const string RES_SORT_BY_ADDED_DATE = "[Media.SortByAddedDate]";
-    public const string RES_SORT_BY_EPISODE = "[Media.SortByEpisode]";
-    public const string RES_SORT_BY_DVD_EPISODE = "[Media.SortByDVDEpisode]";
-    public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
-    public const string RES_SORT_BY_CHARACTER = "[Media.SortByCharacter]";
-    public const string RES_SORT_BY_COMPOSER = "[Media.SortByComposer]";
-    public const string RES_SORT_BY_TV_NETWORK = "[Media.SortByTVNetwork]";
-    public const string RES_SORT_BY_PRODUCTION_STUDIO = "[Media.SortByProductionCompany]";
-    public const string RES_SORT_BY_MUSIC_LABEL = "[Media.SortByMusicLabel]";
 
-    public const string RES_NO_GROUPING = "[Media.NoGrouping]";
-    public const string RES_GROUP_BY_TITLE = "[Media.GroupByTitle]";
-    public const string RES_GROUP_BY_NAME = "[Media.GroupByName]";
-    public const string RES_GROUP_BY_SORT_TITLE = "[Media.GroupBySortTitle]";
-    public const string RES_GROUP_BY_ALBUM_TRACK = "[Media.GroupByAlbumTrack]";
-    public const string RES_GROUP_BY_GENRE = "[Media.GroupByGenre]";
-    public const string RES_GROUP_BY_ALBUM = "[Media.GroupByAlbum]";
-    public const string RES_GROUP_BY_TRACK = "[Media.GroupByTrack]";
-    public const string RES_GROUP_BY_ARTIST = "[Media.GroupByArtist]";
-    public const string RES_GROUP_BY_YEAR = "[Media.GroupByYear]";
-    public const string RES_GROUP_BY_SIZE = "[Media.GroupBySize]";
-    public const string RES_GROUP_BY_SYSTEM = "[Media.GroupBySystem]";
-    public const string RES_GROUP_BY_ACTOR = "[Media.GroupByActor]";
-    public const string RES_GROUP_BY_DIRECTOR = "[Media.GroupByDirector]";
-    public const string RES_GROUP_BY_WRITER = "[Media.GroupByWriter]";
-    public const string RES_GROUP_BY_DURATION = "[Media.GroupByDuration]";
-    public const string RES_GROUP_BY_ASPECT_RATIO = "[Media.GroupByAspectRatio]";
-    public const string RES_GROUP_BY_FIRST_AIRED_DATE = "[Media.GroupByFirstAiredDate]";
-    public const string RES_GROUP_BY_DATE = "[Media.GroupByDate]";
-    public const string RES_GROUP_BY_ADDED_DATE = "[Media.GroupByAddedDate]";
-    public const string RES_GROUP_BY_EPISODE = "[Media.GroupByEpisode]";
-    public const string RES_GROUP_BY_DVD_EPISODE = "[Media.GroupByDVDEpisode]";
-    public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";
-    public const string RES_GROUP_BY_CHARACTER = "[Media.GroupByCharacter]";
-    public const string RES_GROUP_BY_COMPOSER = "[Media.GroupByComposer]";
-    public const string RES_GROUP_BY_TV_NETWORK = "[Media.GroupByTVNetwork]";
-    public const string RES_GROUP_BY_PRODUCTION_STUDIO = "[Media.GroupByProductionCompany]";
-    public const string RES_GROUP_BY_MUSIC_LABEL = "[Media.GroupByMusicLabel]";
 
     // Image and video size thresholds
     /// <summary>
@@ -460,8 +421,8 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string SCREEN_FULLSCREEN_VIDEO = "FullscreenContentVideo";
     public const string SCREEN_CURRENTLY_PLAYING_VIDEO = "CurrentlyPlayingVideo";
-    public static string SCREEN_FULLSCREEN_IMAGE = "FullscreenContentImage";
-    public static string SCREEN_CURRENTLY_PLAYING_IMAGE = "CurrentlyPlayingImage";
+    public const string SCREEN_FULLSCREEN_IMAGE = "FullscreenContentImage";
+    public const string SCREEN_CURRENTLY_PLAYING_IMAGE = "CurrentlyPlayingImage";
     public const string SCREEN_FULLSCREEN_DVD = "FullscreenContentDVD";
     public const string SCREEN_CURRENTLY_PLAYING_DVD = "CurrentlyPlayingDVD";
 
@@ -496,7 +457,7 @@ namespace MediaPortal.UiComponents.Media.General
     /// Denotes the "infinite" timespan, used for <see cref="System.Threading.Timer.Change(System.TimeSpan,System.TimeSpan)"/>
     /// method, for example.
     /// </summary>
-    public readonly static TimeSpan TS_INFINITE = new TimeSpan(0, 0, 0, 0, -1);
+    public static readonly TimeSpan TS_INFINITE = new TimeSpan(0, 0, 0, 0, -1);
 
     // Accessor keys for GUI communication
     public const string KEY_NAME = "Name";

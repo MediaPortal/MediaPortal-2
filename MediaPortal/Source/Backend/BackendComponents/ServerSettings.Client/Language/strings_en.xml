@@ -19,7 +19,7 @@
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary">Online sources to use for new media</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary.Help">Select what online sources should be used during first time import of new media. Disabling online sources will improve import speed of new media but some metadata will only be available after a refresh.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData">Data to download from online sources</string>
-  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help">Select what data should be downloaded from online sources.</string>
+  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help">Select what data to download from online sources.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.MediaFanArt">Download audio details and FanArt</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Media">Download audio details only</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.FanArt">Download audio FanArt only</string>

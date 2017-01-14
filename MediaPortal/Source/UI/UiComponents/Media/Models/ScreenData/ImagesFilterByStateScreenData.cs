@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class ImagesFilterByStateScreenData : AbstractImagesFilterScreenData
   {
     public ImagesFilterByStateScreenData() :
-        base(Consts.SCREEN_IMAGE_FILTER_BY_STATE, Consts.RES_FILTER_BY_IMAGE_STATE_MENU_ITEM,
+        base(Consts.SCREEN_IMAGE_FILTER_BY_STATE, Consts.RES_COMMON_BY_IMAGE_STATE_MENU_ITEM,
         Consts.RES_FILTER_IMAGE_STATE_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(ImageAspect.ATTR_STATE))
     {
     }

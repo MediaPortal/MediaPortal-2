@@ -29,7 +29,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class AudioSortByTitle : AbstractSortByComparableObjectAttribute<string>
   {
-    public AudioSortByTitle() : base(Consts.RES_SORT_BY_TITLE, Consts.RES_GROUP_BY_TITLE, AudioAspect.ATTR_TRACKNAME)
+    public AudioSortByTitle() : base(Consts.RES_COMMON_BY_TITLE_MENU_ITEM, Consts.RES_COMMON_BY_TITLE_MENU_ITEM, AudioAspect.ATTR_TRACKNAME)
     {
       _includeMias = new[] { AudioAspect.ASPECT_ID };
     }

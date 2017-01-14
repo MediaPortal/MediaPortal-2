@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class AudioFilterByComposerScreenData : AbstractAudioFilterScreenData<ComposerFilterItem>
   {
     public AudioFilterByComposerScreenData() :
-        base(Consts.SCREEN_AUDIO_FILTER_BY_COMPOSER, Consts.RES_FILTER_BY_COMPOSER_MENU_ITEM,
+        base(Consts.SCREEN_AUDIO_FILTER_BY_COMPOSER, Consts.RES_COMMON_BY_COMPOSER_MENU_ITEM,
         Consts.RES_FILTER_COMPOSER_NAVBAR_DISPLAY_LABEL, new FilterByComposerCriterion())
     {
       _availableMias = Consts.NECESSARY_PERSON_MIAS;

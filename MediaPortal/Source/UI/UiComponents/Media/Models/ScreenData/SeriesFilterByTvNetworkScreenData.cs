@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class SeriesFilterByTvNetworkScreenData : AbstractSeriesFilterScreenData<TVNetworkFilterItem>
   {
     public SeriesFilterByTvNetworkScreenData() :
-        base(Consts.SCREEN_SERIES_FILTER_BY_NETWORK, Consts.RES_FILTER_BY_TV_NETWORK_MENU_ITEM,
+        base(Consts.SCREEN_SERIES_FILTER_BY_NETWORK, Consts.RES_COMMON_BY_TV_NETWORK_MENU_ITEM,
         Consts.RES_FILTER_TV_NETWORK_NAVBAR_DISPLAY_LABEL, new FilterByTvNetworkCriterion())
     {
       _availableMias = Consts.NECESSARY_COMPANY_MIAS;

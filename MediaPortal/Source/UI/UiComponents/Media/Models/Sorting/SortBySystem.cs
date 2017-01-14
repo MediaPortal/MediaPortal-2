@@ -30,7 +30,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortBySystem : AbstractSortByComparableObjectAttribute<string>
   {
-    public SortBySystem() : base(Consts.RES_SORT_BY_SYSTEM, String.Empty, ProviderResourceAspect.ATTR_SYSTEM_ID)
+    public SortBySystem() : base(Consts.RES_COMMON_BY_SYSTEM_MENU_ITEM, String.Empty, ProviderResourceAspect.ATTR_SYSTEM_ID)
     {
       _includeMias = new[] { ProviderResourceAspect.ASPECT_ID };
     }

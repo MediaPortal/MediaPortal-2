@@ -36,12 +36,12 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override string DisplayName
     {
-      get { return Consts.RES_SORT_BY_ARTIST; }
+      get { return Consts.RES_COMMON_BY_ARTIST_MENU_ITEM; }
     }
 
     public override string GroupByDisplayName
     {
-      get { return Consts.RES_GROUP_BY_ARTIST; }
+      get { return Consts.RES_COMMON_BY_ARTIST_MENU_ITEM; }
     }
   }
 }

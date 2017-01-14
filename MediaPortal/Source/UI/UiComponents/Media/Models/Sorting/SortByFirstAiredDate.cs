@@ -42,7 +42,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override string DisplayName
     {
-      get { return Consts.RES_SORT_BY_FIRST_AIRED_DATE; }
+      get { return Consts.RES_COMMON_BY_FIRST_AIRED_DATE_MENU_ITEM; }
     }
 
     public override int Compare(MediaItem x, MediaItem y)
@@ -60,7 +60,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override string GroupByDisplayName
     {
-      get { return Consts.RES_GROUP_BY_FIRST_AIRED_DATE; }
+      get { return Consts.RES_COMMON_BY_FIRST_AIRED_DATE_MENU_ITEM; }
     }
 
     public override object GetGroupByValue(MediaItem item)

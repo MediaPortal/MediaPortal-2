@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class AudioFilterByGenreScreenData : AbstractAudioFilterScreenData<GenreFilterItem>
   {
     public AudioFilterByGenreScreenData() :
-        base(Consts.SCREEN_AUDIO_FILTER_BY_GENRE, Consts.RES_FILTER_BY_AUDIO_GENRE_MENU_ITEM,
+        base(Consts.SCREEN_AUDIO_FILTER_BY_GENRE, Consts.RES_COMMON_BY_GENRE_MENU_ITEM,
         Consts.RES_FILTER_AUDIO_GENRE_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(GenreAspect.ATTR_ID, GenreAspect.ATTR_GENRE, Consts.NECESSARY_AUDIO_GENRE_MIAS))
     {
       _availableMias = Consts.NECESSARY_AUDIO_MIAS;

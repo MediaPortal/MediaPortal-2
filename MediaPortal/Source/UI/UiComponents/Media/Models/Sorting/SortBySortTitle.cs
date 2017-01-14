@@ -29,7 +29,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortBySortTitle : AbstractSortByComparableObjectAttribute<string>
   {
-    public SortBySortTitle() : base(Consts.RES_SORT_BY_SORT_TITLE, Consts.RES_GROUP_BY_SORT_TITLE, MediaAspect.ATTR_SORT_TITLE)
+    public SortBySortTitle() : base(Consts.RES_COMMON_BY_SORT_TITLE_MENU_ITEM, Consts.RES_COMMON_BY_SORT_TITLE_MENU_ITEM, MediaAspect.ATTR_SORT_TITLE)
     {
       _includeMias = new[] { MediaAspect.ASPECT_ID };
       _excludeMias = new[] { PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID, SeasonAspect.ASPECT_ID };

@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class AudioFilterByAlbumScreenData : AbstractFiltersScreenData<AlbumFilterItem>
   {
     public AudioFilterByAlbumScreenData() :
-        base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM, Consts.RES_FILTER_BY_ALBUM_MENU_ITEM,
+        base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM, Consts.RES_COMMON_BY_ALBUM_MENU_ITEM,
         Consts.RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL, new FilterByAlbumCriterion())
     {
       _itemMias = new Guid[] { AudioAspect.ASPECT_ID };

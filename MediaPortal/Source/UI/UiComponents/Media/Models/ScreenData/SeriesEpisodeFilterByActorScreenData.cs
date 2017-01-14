@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class SeriesEpisodeFilterByActorScreenData : AbstractVideosFilterScreenData<ActorFilterItem>
   {
     public SeriesEpisodeFilterByActorScreenData() :
-      base(Consts.SCREEN_SERIES_EPISODE_FILTER_BY_ACTOR, Consts.RES_FILTER_BY_ACTOR_MENU_ITEM,
+      base(Consts.SCREEN_SERIES_EPISODE_FILTER_BY_ACTOR, Consts.RES_COMMON_BY_ACTOR_MENU_ITEM,
         Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new FilterByActorCriterion(EpisodeAspect.ROLE_EPISODE))
     {
       _availableMias = Consts.NECESSARY_PERSON_MIAS;

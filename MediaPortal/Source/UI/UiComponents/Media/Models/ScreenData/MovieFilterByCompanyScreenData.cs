@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MovieFilterByCompanyScreenData : AbstractMovieFilterScreenData<CompanyFilterItem>
   {
     public MovieFilterByCompanyScreenData() :
-        base(Consts.SCREEN_MOVIES_FILTER_BY_COMPANY, Consts.RES_FILTER_BY_COMPANY_MENU_ITEM,
+        base(Consts.SCREEN_MOVIES_FILTER_BY_COMPANY, Consts.RES_COMMON_BY_PRODUCTION_STUDIO_MENU_ITEM,
         Consts.RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL, new FilterByCompanyCriterion(MovieAspect.ROLE_MOVIE))
     {
       _availableMias = Consts.NECESSARY_COMPANY_MIAS;
