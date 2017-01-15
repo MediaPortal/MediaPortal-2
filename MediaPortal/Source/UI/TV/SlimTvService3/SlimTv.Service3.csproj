@@ -52,7 +52,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Utils, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\Common.Utils.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\Common.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Gentle.Common">
@@ -75,11 +75,11 @@
       <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Interfaces.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="PluginBase, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\PluginBase.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\PluginBase.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SetupControls, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\SetupControls.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\SetupControls.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -92,35 +92,35 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="TvBusinessLayer, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\TvBusinessLayer.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvBusinessLayer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="TvControl, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\TvControl.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvControl.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="TVDatabase, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\TVDatabase.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TVDatabase.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="TVLibrary, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\TVLibrary.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TVLibrary.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="TvLibrary.Interfaces, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\TvLibrary.Interfaces.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvLibrary.Interfaces.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="TvLibrary.Utils, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\TvLibrary.Utils.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvLibrary.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="TvService, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\TvService.exe</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvService.exe</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="TvThumbnails, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.15.2\lib\TvThumbnails.dll</HintPath>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvThumbnails.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
