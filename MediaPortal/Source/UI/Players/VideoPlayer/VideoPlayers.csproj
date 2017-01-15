@@ -154,7 +154,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
-  <Import Project="..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.DVBSub.1.7.1\build\MediaPortal.DVBSub.targets')" />
+  <Import Project="..\..\..\..\Packages\MediaPortal.DVBSub.1.16.0\build\MediaPortal.DVBSub.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.DVBSub.1.16.0\build\MediaPortal.DVBSub.targets')" />
   <Import Project="..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets" Condition="Exists('..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets')" />
   <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
   <Import Project="..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets')" />
