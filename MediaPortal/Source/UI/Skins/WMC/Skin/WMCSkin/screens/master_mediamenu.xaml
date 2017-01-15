@@ -129,7 +129,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <Grid x:Name="FadeBackground" Background="#081643" IsVisible="False"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500,-200,-500" Opacity="0">
-            <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            <!--mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                                   MousePositionMode="Relative" Buttons="Left"
                                                   MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel}, Path=CloseMenu}">
               <mp_special_controls:UserInputCapture.IsActive>
@@ -139,7 +139,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <Binding ElementName="MainMenu" Path="!IsMouseOver" />
                 </MultiBinding>
               </mp_special_controls:UserInputCapture.IsActive>
-            </mp_special_controls:UserInputCapture>
+            </-->
           </Grid>
 
           <Grid x:Name="RightPanel" Margin="0,80,-650,-80" VerticalAlignment="Stretch"
