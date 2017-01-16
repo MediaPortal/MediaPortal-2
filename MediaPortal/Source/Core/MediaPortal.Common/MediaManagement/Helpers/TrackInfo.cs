@@ -38,6 +38,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   public class TrackInfo : BaseInfo, IComparable<TrackInfo>
   {
     /// <summary>
+    /// Contains the ids of the minimum aspects that need to be present in order to test the equality of instances of this item.
+    /// </summary>
+    public static Guid[] EQUALITY_ASPECTS = new[] { AudioAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID };
+    /// <summary>
     /// Returns the index for "Album" used in <see cref="FormatString"/>.
     /// </summary>
     public static int ALBUM_INDEX = 0;

@@ -34,6 +34,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   public class CompanyInfo : BaseInfo, IComparable<CompanyInfo>
   {
     /// <summary>
+    /// Contains the ids of the minimum aspects that need to be present in order to test the equality of instances of this item.
+    /// </summary>
+    public static Guid[] EQUALITY_ASPECTS = new[] { CompanyAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID };
+    /// <summary>
     /// Gets or sets the company IMDB id.
     /// </summary>
     public string ImdbId = null;

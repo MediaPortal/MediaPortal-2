@@ -1999,7 +1999,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         return null;
 
       // Any potential linked item must contain all of LinkedRoleAspects
-      IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds).ToList();
+      HashSet<Guid> optionalAspectIds = new HashSet<Guid>(roleExtractor.MatchAspects);
+      //make sure MediaAspect is included for checking if it's a virtual item
+      optionalAspectIds.Add(MediaAspect.ASPECT_ID);
       if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
       {
         //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.

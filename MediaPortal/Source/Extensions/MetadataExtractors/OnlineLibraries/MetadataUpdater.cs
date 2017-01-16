@@ -66,7 +66,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           Type objType = currentObj.GetType();
           if (objType.IsClass)
           {
-            FieldInfo[] fields = currentObj.GetType().GetFields();
+            FieldInfo[] fields = currentObj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
             if (fields != null)
             {
               foreach (FieldInfo field in fields)

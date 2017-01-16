@@ -64,6 +64,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return CharacterInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetCharacterSearchFilter(extractedAspects);
