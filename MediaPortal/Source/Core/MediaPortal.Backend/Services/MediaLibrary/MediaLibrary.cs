@@ -1559,7 +1559,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         pra = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ProviderResourceAspect.ASPECT_ID);
       }
 
-      Guid? mergedMediaItem = MergeWithExisting(database, transaction, mediaItemId, mediaItemAspects, pra);
+      Guid? mergedMediaItem = null;
+      if (path.BasePathSegment.ProviderId != VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        mergedMediaItem = MergeWithExisting(database, transaction, mediaItemId, mediaItemAspects, pra);
+
       if (mergedMediaItem != null)
       {
         merged = true;
