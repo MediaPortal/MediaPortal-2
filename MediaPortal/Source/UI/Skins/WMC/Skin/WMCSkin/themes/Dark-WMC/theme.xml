@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Theme Name="Dark-WMC" Version="1.0">
+  <BasedOnTheme>WMCSkin</BasedOnTheme>
+  <ShortDescription>Dark WMC</ShortDescription>
+  <Preview>images\preview.png</Preview>
+  <Author>Ge2301</Author>
+  <ThemeVersion>1.0</ThemeVersion>
+  <SkinEngine>1.0</SkinEngine>
+  <MinColorDepth>16</MinColorDepth>
+</Theme>
