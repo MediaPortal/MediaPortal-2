@@ -1785,25 +1785,41 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private bool MatchExistingItem(ISQLDatabase database, ITransaction transaction, IMediaMergeHandler mergeHandler, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, out Guid existingMediaItemId, out IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects).ToList();
-      if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
-      {
-        //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
-        //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
-        optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
-      }
       IFilter filter = mergeHandler.GetSearchFilter(extractedAspects);
       if (filter != null)
       {
+        IList<Guid> allAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects).ToList();
+        if (allAspectIds.Contains(RelationshipAspect.ASPECT_ID))
+        {
+          //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
+          //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
+          allAspectIds.Remove(RelationshipAspect.ASPECT_ID);
+        }
+
+        //For items that require merging load all aspects during the search. For other items opttmise on the assumption that a match won't be found 
+        //by requesting only the MergeHandlers match aspects, the rest of the aspects are loaded if a match is found.
+        bool loadAllAspects = mergeHandler.RequiresMerge(extractedAspects);
+        IEnumerable<Guid> optionalAspectIds = loadAllAspects ? allAspectIds : mergeHandler.MatchAspects.Where(a => a != RelationshipAspect.ASPECT_ID);
         IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, false);
         foreach (MediaItem existingItem in existingItems)
         {
           //Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
           if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
           {
-            existingMediaItemId = existingItem.MediaItemId;
-            existingAspects = existingItem.Aspects;
-            return true;
+            MediaItem matchedItem;
+            if (loadAllAspects)
+              matchedItem = existingItem;
+            else
+              //ensure all aspects are loaded
+              matchedItem = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, allAspectIds,
+                  new MediaItemIdFilter(existingItem.MediaItemId)), false, null, false).FirstOrDefault();
+
+            if (matchedItem != null)
+            {
+              existingMediaItemId = matchedItem.MediaItemId;
+              existingAspects = matchedItem.Aspects;
+              return true;
+            }
           }
         }
       }

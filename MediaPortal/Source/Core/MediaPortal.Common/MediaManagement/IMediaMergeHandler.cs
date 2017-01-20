@@ -44,6 +44,11 @@ namespace MediaPortal.Common.MediaManagement
     Guid[] MergeableAspects { get; }
 
     /// <summary>
+    /// Aspects that must be present in order to accurately match items in <see cref="TryMatch"/>  
+    /// </summary>
+    Guid[] MatchAspects { get; }
+
+    /// <summary>
     /// Get optimized filter that can be used to find a direct match to any existing media item
     /// </summary>
     /// <param name="extractedAspects"></param>

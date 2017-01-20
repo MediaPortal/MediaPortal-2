@@ -73,6 +73,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return EpisodeInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return ISeriesRelationshipExtractor.GetEpisodeSearchFilter(extractedAspects);
