@@ -129,6 +129,8 @@ namespace MediaPortal.UI.Players.Video
     protected BaseStreamInfoHandler _streamInfoAudio = null;
     protected BaseStreamInfoHandler _streamInfoSubtitles = null;
     protected BaseStreamInfoHandler _streamInfoTitles = null; // Used mostly for MKV Editions
+    protected bool _hasEdition;
+
     protected List<IAMStreamSelect> _streamSelectors = null;
     private readonly object _syncObj = new object();
 
@@ -565,9 +567,10 @@ namespace MediaPortal.UI.Players.Video
         // Release stream selectors
         ReleaseStreamSelectors();
         _streamSelectors = FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder);
+        _hasEdition = false; // To decide for stream enumerations in SetTitle
         foreach (IAMStreamSelect streamSelector in _streamSelectors)
         {
-          FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter)streamSelector));
+          FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree((IBaseFilter)streamSelector);
           int streamCount;
           streamSelector.Count(out streamCount);
 
@@ -604,8 +607,6 @@ namespace MediaPortal.UI.Players.Video
             StreamInfo currentStream = new StreamInfo(streamSelector, i, name, lcid);
             switch ((StreamGroup)groupNumber)
             {
-              case StreamGroup.Video:
-                break;
               case StreamGroup.Audio:
                 if (mediaType.majorType == MediaType.AnalogAudio || mediaType.majorType == MediaType.Audio)
                 {
@@ -628,8 +629,12 @@ namespace MediaPortal.UI.Players.Video
                   audioStreams.AddUnique(currentStream);
                 }
                 break;
+              case StreamGroup.Video: // Used for multiple video streams inside a single MKV, i.e. to have both 2D and 3D video in same file
+                titleStreams.AddUnique(currentStream, true);
+                break;
               case StreamGroup.MatroskaEdition: // This is a MKV Edition handled by Haali splitter
                 titleStreams.AddUnique(currentStream, true);
+                _hasEdition = true; // To decide for stream enumerations in SetTitle
                 break;
             }
             // Free MediaType and references
@@ -1174,8 +1179,12 @@ namespace MediaPortal.UI.Players.Video
       if (!titleStreams.EnableStream(title))
         return;
 
-      EnumerateStreams(true);
-      EnumerateChapters(true);
+      // Only enumerate after changing an edition, but not when selecting different video stream
+      if (_hasEdition)
+      {
+        EnumerateStreams(true);
+        EnumerateChapters(true);
+      }
     }
 
     public virtual string CurrentTitle
