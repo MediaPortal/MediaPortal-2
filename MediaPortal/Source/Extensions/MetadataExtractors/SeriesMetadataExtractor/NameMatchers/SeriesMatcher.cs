@@ -50,8 +50,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     private const string GROUP_YEAR = "year";
 
     /// <summary>
-    /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
-    /// if the <see cref="EpisodeInfo.AreReqiredFieldsFilled"/> is <c>true</c>.
+    /// Tries to match series by checking the <paramref name="folderOrFileLfsra"/> for known patterns. The match is only successful,
+    /// if the <see cref="EpisodeInfo.IsBaseInfoPresent"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file</param>
     /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
 
     /// <summary>
     /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
-    /// if the <see cref="EpisodeInfo.AreReqiredFieldsFilled"/> is <c>true</c>.
+    /// if the <see cref="EpisodeInfo.IsBaseInfoPresent"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileName">Full path to file</param>
     /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
@@ -71,6 +71,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     public bool MatchSeries(string folderOrFileName, EpisodeInfo episodeInfo)
     {
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>();
+
+      // General cleanup for remote mounted resources (will be a local path)
+      string remoteResourcePattern = @".*\\RemoteResources\\[A-F0-9]{8}(?:-[A-F0-9]{4}){3}-[A-F0-9]{12}\\";
+      Regex re = new Regex(remoteResourcePattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+      folderOrFileName = re.Replace(folderOrFileName, "");
 
       // First do replacements before match
       foreach (var replacement in settings.Replacements.Where(r => r.BeforeMatch))
