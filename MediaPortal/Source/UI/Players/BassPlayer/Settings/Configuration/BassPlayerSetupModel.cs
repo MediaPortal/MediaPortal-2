@@ -34,6 +34,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.SkinBase.General;
+using MediaPortal.UI.Players.BassPlayer.OutputDevices;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 
@@ -167,7 +168,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
       {
         // Skip input devices, they have same name as output devices.
         BASS_WASAPI_DEVICEINFO deviceInfo = deviceDescriptions[i];
-        bool skip = deviceInfo.IsDisabled || deviceInfo.IsUnplugged || deviceInfo.IsInput || deviceInfo.IsLoopback || deviceInfo.flags == BASSWASAPIDeviceInfo.BASS_DEVICE_UNKNOWN;
+        bool skip = !WASAPIOutputDevice.IsValidDevice(deviceInfo);
 
         ServiceRegistration.Get<ILogger>().Debug("{5} WASAPI Device {0}: '{1}' Flags: {2} Device path: [{3}] Ch: {4}", i, deviceInfo.name, deviceInfo.flags, deviceInfo.id, deviceInfo.mixchans,
           skip ? "Skip" : "Use ");
