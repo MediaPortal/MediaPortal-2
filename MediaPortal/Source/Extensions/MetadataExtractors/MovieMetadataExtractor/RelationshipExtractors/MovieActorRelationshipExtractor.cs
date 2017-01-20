@@ -164,8 +164,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> persons = aspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
-      List<string> nameList = new List<string>(persons.Cast<string>());
+      IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(VideoAspect.ATTR_ACTORS);
+      List<string> nameList = new List<string>(persons);
 
       index = nameList.IndexOf(name);
       return index >= 0;

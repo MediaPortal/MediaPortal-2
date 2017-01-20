@@ -211,13 +211,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (Rating.VoteCount.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_RATING_COUNT, Rating.VoteCount.Value);
       }
 
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
 
-      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList<object>());
+      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList());
 
-      if (Networks.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList<object>());
-      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_COMPANIES, ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList<object>());
+      if (Networks.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList());
+      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_COMPANIES, ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList());
 
       aspectData.Remove(GenreAspect.ASPECT_ID);
       foreach (GenreInfo genre in Genres.Distinct())
@@ -286,11 +286,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         Actors.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_ACTORS, out collection))
-          Actors.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ACTOR }));
+          Actors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ACTOR }));
 
         Characters.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, out collection))
-          Characters.AddRange(collection.Cast<object>().Select(s => new CharacterInfo() { Name = s.ToString() }));
+          Characters.AddRange(collection.Cast<string>().Select(s => new CharacterInfo { Name = s }));
 
         Genres.Clear();
         IList<MultipleMediaItemAspect> genreAspects;
@@ -308,15 +308,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_AWARDS, out collection))
-          Awards.AddRange(collection.Cast<object>().Select(s => s.ToString()));
+          Awards.AddRange(collection.Cast<string>().Select(s => s));
 
         Networks.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, out collection))
-          Networks.AddRange(collection.Cast<object>().Select(s => new CompanyInfo() { Name = s.ToString(), Type = CompanyAspect.COMPANY_TV_NETWORK }));
+          Networks.AddRange(collection.Cast<string>().Select(s => new CompanyInfo { Name = s, Type = CompanyAspect.COMPANY_TV_NETWORK }));
 
         ProductionCompanies.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_COMPANIES, out collection))
-          ProductionCompanies.AddRange(collection.Cast<object>().Select(s => new CompanyInfo() { Name = s.ToString(), Type = CompanyAspect.COMPANY_PRODUCTION }));
+          ProductionCompanies.AddRange(collection.Cast<string>().Select(s => new CompanyInfo { Name = s, Type = CompanyAspect.COMPANY_PRODUCTION }));
 
         DateTime dateNextEpisode;
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_AIR_DATE, out dateNextEpisode) && dateNextEpisode > DateTime.Now)

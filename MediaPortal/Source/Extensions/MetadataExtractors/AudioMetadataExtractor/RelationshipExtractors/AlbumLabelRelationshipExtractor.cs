@@ -161,8 +161,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!MediaItemAspect.TryGetAspect(aspects, AudioAlbumAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> labels = aspect.GetCollectionAttribute<object>(AudioAlbumAspect.ATTR_LABELS);
-      List<string> nameList = new List<string>(labels.Cast<string>());
+      IEnumerable<string> labels = aspect.GetCollectionAttribute<string>(AudioAlbumAspect.ATTR_LABELS);
+      List<string> nameList = new List<string>(labels);
 
       index = nameList.IndexOf(name);
       return index >= 0;

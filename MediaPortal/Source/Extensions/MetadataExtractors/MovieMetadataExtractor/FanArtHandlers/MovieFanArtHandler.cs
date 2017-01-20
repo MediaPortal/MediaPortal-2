@@ -98,9 +98,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       List<string> actors = new List<string>();
       if (MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out videoAspect))
       {
-        IEnumerable<object> actorObjects = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
+        IEnumerable<string> actorObjects = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_ACTORS);
         if(actorObjects != null)
-          actors.AddRange(actorObjects.Cast<string>());
+          actors.AddRange(actorObjects);
       }
 
       IList<MultipleMediaItemAspect> relationAspects;
