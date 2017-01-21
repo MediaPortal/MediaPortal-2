@@ -688,6 +688,7 @@
     <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemsListHeader.inc" />
     <None Include="Skin\BlueVision\screens\MediaItemAudioAlbumDetails.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemMovieCollectionDetails.inc" />
+    <Content Include="Skin\BlueVision\screens\MediaItemPersonDetails.inc" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\default\styles\Graphics.xaml">
