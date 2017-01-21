@@ -230,10 +230,21 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       foreach (var mediaItem in GetMediaItemsFromCurrentView())
       {
-        if (selectedMediaItem != null && mediaItem.MediaItemId == selectedMediaItem.MediaItemId)
+        if (selectedMediaItem != null && IsSameMediaItem(mediaItem, selectedMediaItem))
           mediaItem.Aspects[SelectionMarkerAspect.ASPECT_ID] = null;
         yield return mediaItem;
       }
+    }
+
+    /// <summary>
+    /// Helper method to check MediaItems for "identity". For MediaLibrary managed items the <see cref="MediaItem.MediaItemId"/> will be checked, otherwise the object reference.
+    /// </summary>
+    /// <param name="m1">MediaItem</param>
+    /// <param name="m2">MediaItem</param>
+    /// <returns><c>true</c> if equal</returns>
+    protected bool IsSameMediaItem(MediaItem m1, MediaItem m2)
+    {
+      return m1 == m2 || m1.MediaItemId != Guid.Empty && m1.MediaItemId == m2.MediaItemId;
     }
 
     protected IEnumerable<MediaItem> GetMediaItemsFromCurrentView()
