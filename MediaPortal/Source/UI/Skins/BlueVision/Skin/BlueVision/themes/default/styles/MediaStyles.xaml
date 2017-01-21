@@ -1470,16 +1470,6 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Margin="0,0,5,0">
-        <!--Image x:Name="ItemTypeSmall" Stretch="Uniform"
-            Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
-          <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
-             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-          </Image.Source>
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
-          </Image.IsVisible>
-        </-->
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" FallbackSource="person.png" Margin="-18,0,0,0"
             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
