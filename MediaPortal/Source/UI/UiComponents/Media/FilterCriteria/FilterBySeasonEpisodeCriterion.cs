@@ -66,7 +66,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       {
         string title;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out title);
-		// TODO: Now what? There's no values for an episode
+        // TODO: Now what? There's no values for an episode
         result.Add(new FilterValue(title,
           null,
           null,

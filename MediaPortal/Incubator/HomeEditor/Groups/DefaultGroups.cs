@@ -90,7 +90,7 @@ namespace HomeEditor.Groups
             new HomeMenuAction("[Configuration.Name]", new Guid("F6255762-C52A-4231-9E67-14C28735216E")),
             new HomeMenuAction("[SystemState.ShutdownDialogStateDisplayLabel]", new Guid("C5B14E9C-7F54-4B75-BEB0-8BE2EA1F4394")),
             new HomeMenuAction("[HomeEditor.Configuration]", new Guid("AEBAE6B5-71B3-4164-992F-296E2ACF8E5C")),
-            new HomeMenuAction("[WMC.Configuration.SkinSettings]", new Guid("0983AB07-5EC6-4F38-B657-F07FF0819A4E"))
+            new HomeMenuAction("[SkinSettings.Configuration.SkinSettings]", new Guid("0983AB07-5EC6-4F38-B657-F07FF0819A4E"))
           }
         },
       };

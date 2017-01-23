@@ -517,7 +517,6 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     /// <param name="aspects">Dictionary of MediaItemAspects.</param>
     /// <param name="mediaItemAspectMetadata">Definiton of metadata that is used for creation.</param>
-    /// <param name="value">Metadata values used for creation.</param>
     public static MultipleMediaItemAspect CreateAspect(IDictionary<Guid, IList<MediaItemAspect>> aspects, MultipleMediaItemAspectMetadata mediaItemAspectMetadata)
     {
       MultipleMediaItemAspect mediaAspect = new MultipleMediaItemAspect(mediaItemAspectMetadata);

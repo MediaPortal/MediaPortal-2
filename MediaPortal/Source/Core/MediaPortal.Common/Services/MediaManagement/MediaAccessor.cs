@@ -713,12 +713,17 @@ namespace MediaPortal.Common.Services.MediaManagement
       IDictionary<Guid, IList<MediaItemAspect>> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, importOnly);
       if (aspects == null)
         return null;
-      MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.CanonicalLocalResourcePath.Serialize());
-      return new MediaItem(Guid.Empty, aspects);
+      IList<MultipleMediaItemAspect> providerResourceAspects;
+      if (MediaItemAspect.TryGetAspects(aspects, ProviderResourceAspect.Metadata, out providerResourceAspects) && providerResourceAspects.Count > 0)
+      {
+        MultipleMediaItemAspect providerResourceAspect = providerResourceAspects.First();
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.CanonicalLocalResourcePath.Serialize());
+        return new MediaItem(Guid.Empty, aspects);
+      }
+      return null;
     }
 
     #endregion

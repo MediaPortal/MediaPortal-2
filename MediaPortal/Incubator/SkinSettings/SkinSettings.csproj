@@ -61,6 +61,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>

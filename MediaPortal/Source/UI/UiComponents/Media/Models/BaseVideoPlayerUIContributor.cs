@@ -257,7 +257,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (_titlePlayer != null)
         {
           _titles = _titlePlayer.Titles;
-          TitlesAvailable = _titles.Length > 0;
+          TitlesAvailable = _titles.Length > 1; // A selection is only meaningful if there is more than one choice
         }
         else
           _titles = EMPTY_STRING_ARRAY;

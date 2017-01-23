@@ -26,6 +26,11 @@
     <Model Id="13961014-16C4-4361-9751-8E2C585EFD44" Name="SkinSettingsModel" ClassName="SkinSettings.SkinSettingsModel"/>
   </Register>
 
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="SkinSettingsCLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
   <Builder Name="SkinSettings" ClassName="SkinSettings.SkinSettingsBuilder"/>
 
   <!--Registered settings classes can be accessed from the GUI using the SkinSettingsModel (SkinSettingsModel[MySettingsName].MySetting)-->
