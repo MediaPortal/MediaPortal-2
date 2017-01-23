@@ -128,6 +128,8 @@ namespace MediaPortal.Client.Launcher
         Device.DeviceArrival += OnDeviceArrival;
         Device.DeviceRemoval += OnDeviceRemoval;
 
+        IsAutoStartEnabled = !string.IsNullOrEmpty(WindowsAPI.GetAutostartApplicationPath(AUTOSTART_REGISTER_NAME, true));
+
         if (!mpOptions.NoIcon)
           InitTrayIcon();
 
@@ -153,28 +155,7 @@ namespace MediaPortal.Client.Launcher
 
     #region Properties
 
-    public static bool IsAutoStartEnabled
-    {
-      get { return !string.IsNullOrEmpty(WindowsAPI.GetAutostartApplicationPath(AUTOSTART_REGISTER_NAME, true)); }
-      set
-      {
-        try
-        {
-          string applicationPath = string.Format("\"{0}\"", ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
-#if DEBUG
-          applicationPath = applicationPath.Replace(".vshost", "");
-#endif
-          if (value)
-            WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
-          else
-            WindowsAPI.RemoveAutostartApplication(AUTOSTART_REGISTER_NAME, true);
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Error("Can't write autostart value to registry", ex);
-        }
-      }
-    }
+    private static bool IsAutoStartEnabled { get; set; }
 
     #endregion
 
@@ -243,12 +224,14 @@ namespace MediaPortal.Client.Launcher
             IsAutoStartEnabled = true;
             addAutostartItem.Enabled = !IsAutoStartEnabled;
             removeAutostartItem.Enabled = IsAutoStartEnabled;
+            WriteAutostartAppEntryInRegistry();
           };
           removeAutostartItem.Click += delegate(object sender, EventArgs args)
           {
             IsAutoStartEnabled = false;
             addAutostartItem.Enabled = !IsAutoStartEnabled;
             removeAutostartItem.Enabled = IsAutoStartEnabled;
+            WriteAutostartAppEntryInRegistry();
           };
 
           addAutostartItem.Enabled = !IsAutoStartEnabled;
@@ -407,6 +390,25 @@ namespace MediaPortal.Client.Launcher
       }
 
       return terminatedProcess;
+    }
+
+    private static void WriteAutostartAppEntryInRegistry()
+    {
+      try
+      {
+        string applicationPath = string.Format("\"{0}\"", ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
+#if DEBUG
+        applicationPath = applicationPath.Replace(".vshost", "");
+#endif
+        if (IsAutoStartEnabled)
+          WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
+        else
+          WindowsAPI.RemoveAutostartApplication(AUTOSTART_REGISTER_NAME, true);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Can't write autostart value to registry", ex);
+      }
     }
 
     #endregion
