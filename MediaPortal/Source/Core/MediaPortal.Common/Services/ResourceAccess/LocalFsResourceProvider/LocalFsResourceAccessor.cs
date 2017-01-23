@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -259,12 +259,16 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
     public void RegisterChangeTracker(PathChangeDelegate changeDelegate, IEnumerable<string> fileNameFilters,
         IEnumerable<MediaSourceChangeType> changeTypes)
     {
-      _provider.RegisterChangeTracker(changeDelegate, _path, fileNameFilters, changeTypes);
+      string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
+      if(!string.IsNullOrEmpty(dosPath) && (File.Exists(dosPath) || Directory.Exists(dosPath)))
+        _provider.RegisterChangeTracker(changeDelegate, dosPath, fileNameFilters, changeTypes);
     }
 
     public void UnregisterChangeTracker(PathChangeDelegate changeDelegate)
     {
-      _provider.UnregisterAll(changeDelegate);
+      string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
+      if (!string.IsNullOrEmpty(dosPath) && (File.Exists(dosPath) || Directory.Exists(dosPath)))
+        _provider.UnregisterChangeTracker(changeDelegate, dosPath);
     }
 
     public void UnregisterAll(PathChangeDelegate changeDelegate)

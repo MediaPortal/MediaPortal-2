@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -87,22 +87,25 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     public IList<FanArtImage> GetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
     {
       InitProviders();
-      foreach (IFanArtProvider fanArtProvider in _providerList)
+      foreach (FanArtProviderSource source in Enum.GetValues(typeof(FanArtProviderSource)))
       {
-        IList<IResourceLocator> fanArtImages;
-        if (fanArtProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
+        foreach (IFanArtProvider fanArtProvider in _providerList.Where(p => p.Source == source))
         {
-          IList<IResourceLocator> result = singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
-          return result.Select(f => FanArtImage.FromResource(f, maxWidth, maxHeight, mediaType, fanArtType, name)).Where(fanArtImage => fanArtImage != null).ToList();
+          IList<IResourceLocator> fanArtImages;
+          if (fanArtProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
+          {
+            IList<IResourceLocator> result = singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
+            return result.Select(f => FanArtImage.FromResource(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
+          }
         }
-      }
-      foreach (IBinaryFanArtProvider binaryProvider in _providerList.OfType<IBinaryFanArtProvider>())
-      {
-        if (binaryProvider != null)
+        foreach (IBinaryFanArtProvider binaryProvider in _providerList.OfType<IBinaryFanArtProvider>().Where(p => p.Source == source))
         {
-          IList<FanArtImage> binaryImages;
-          if (binaryProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out binaryImages))
-            return singleRandom ? GetSingleRandom(binaryImages) : binaryImages;
+          if (binaryProvider != null)
+          {
+            IList<FanArtImage> binaryImages;
+            if (binaryProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out binaryImages))
+              return singleRandom ? GetSingleRandom(binaryImages) : binaryImages;
+          }
         }
       }
       return null;

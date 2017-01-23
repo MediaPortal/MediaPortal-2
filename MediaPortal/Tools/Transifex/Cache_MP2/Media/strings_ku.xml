@@ -39,6 +39,7 @@
   <string name="Media.LocalMediaRootViewName">فایلی ناوەکی</string>
   <string name="Media.AudioRootViewName">دەنگ</string>
   <string name="Media.VideosRootViewName">ڤیدیۆ</string>
+  <string name="Media.EpisodeRootViewName">زنجیرە</string>
   <string name="Media.ImagesRootViewName">وێنە</string>
   <!--General strings used in views-->
   <!--Shown in the header of an items list-->
@@ -60,4 +61,7 @@
   <!--Audio currently playing-->
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

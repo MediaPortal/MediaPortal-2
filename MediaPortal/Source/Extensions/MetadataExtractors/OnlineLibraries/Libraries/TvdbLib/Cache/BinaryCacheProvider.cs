@@ -287,6 +287,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
       return null;
     }
 
+    public string[] GetSeriesCacheFiles(int seriesId)
+    {
+      return new[] { _rootFolder + Path.DirectorySeparatorChar + seriesId +
+                          Path.DirectorySeparatorChar + "series_" + seriesId + ".ser" };
+    }
+
     /// <summary>
     /// Saves the series to cache
     /// </summary>
@@ -563,13 +569,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// <param name="image">banner to save</param>
     /// <param name="seriesId">id of series</param>
     /// <param name="fileName">filename (will be the same name used by LoadImageFromCache)</param>
-    public void SaveToCache(Image image, int seriesId, string fileName)
+    public void SaveToCache(Image image, int seriesId, string folderName, string fileName)
     {
-      String seriesRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
-      if (Directory.Exists(seriesRoot))
+      String imageRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      if (!string.IsNullOrEmpty(folderName))
+      {
+        imageRoot = folderName;
+        if (!Directory.Exists(imageRoot))
+          Directory.CreateDirectory(imageRoot);
+      }
+      if (Directory.Exists(imageRoot))
       {
         if (image != null)
-          image.Save(seriesRoot + Path.DirectorySeparatorChar + fileName);
+          image.Save(imageRoot + Path.DirectorySeparatorChar + fileName);
       }
       else
       {
@@ -585,12 +597,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// <param name="seriesId">series id</param>
     /// <param name="fileName">filename of the image (same one as used by SaveToCache)</param>
     /// <returns>The loaded image or null if the image wasn't found</returns>
-    public Image LoadImageFromCache(int seriesId, string fileName)
+    public Image LoadImageFromCache(int seriesId, string folderName, string fileName)
     {
-      String seriesRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
-      if (Directory.Exists(seriesRoot))
+      String imageRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      if (!string.IsNullOrEmpty(folderName))
+        imageRoot = folderName;
+      if (Directory.Exists(imageRoot))
       {
-        String fName = seriesRoot + Path.DirectorySeparatorChar + fileName;
+        String fName = imageRoot + Path.DirectorySeparatorChar + fileName;
         if (File.Exists(fName))
         {
           try
@@ -612,9 +626,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// <param name="seriesId">id of series</param>
     /// <param name="fileName">name of image</param>
     /// <returns>true if image was removed successfully, false otherwise (e.g. image didn't exist)</returns>
-    public bool RemoveImageFromCache(int seriesId, string fileName)
+    public bool RemoveImageFromCache(int seriesId, string folderName, string fileName)
     {
-      String fName = string.Format("{0}{1}{2}{1}{3}", _rootFolder, Path.DirectorySeparatorChar, seriesId, fileName);
+      string imageRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      if (!string.IsNullOrEmpty(folderName))
+        imageRoot = folderName;
+      string fName = imageRoot + Path.DirectorySeparatorChar + fileName;
 
       if (File.Exists(fName))
       {//the image is cached
@@ -637,12 +654,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
 
     #endregion
 
-    #region Helpermethods
+    #region Helper methods
 
     /// <summary>
     /// Load the time when the cache was updated last
     /// </summary>
-    /// <returns>DateTime of lsat update</returns>
+    /// <returns>DateTime of last update</returns>
     private DateTime LoadLastUpdatedFromCache()
     {
       if (File.Exists(_rootFolder + Path.DirectorySeparatorChar + "lastUpdated.ser"))

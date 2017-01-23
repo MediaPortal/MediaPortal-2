@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
@@ -38,11 +39,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
   {
     private static readonly Guid[] NECESSARY_MIAS = new Guid[]
       {
-        AudioAspect.ASPECT_ID,
         ThumbnailLargeAspect.ASPECT_ID,
+      };
+    private static readonly Guid[] OPTIONAL_MIAS = new Guid[]
+      {
+        AudioAspect.ASPECT_ID,
+        AudioAlbumAspect.ASPECT_ID,
       };
 
     #region Implementation of IFanArtProvider
+
+    public FanArtProviderSource Source { get { return FanArtProviderSource.Database; } }
 
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
@@ -53,22 +60,23 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
     {
       result = null;
-      if (mediaType != FanArtMediaTypes.Album || fanArtType != FanArtTypes.Poster || string.IsNullOrEmpty(name))
+      if ((mediaType != FanArtMediaTypes.Album && mediaType != FanArtMediaTypes.Audio) || 
+        (fanArtType != FanArtTypes.Poster && fanArtType != FanArtTypes.Cover) || 
+        string.IsNullOrEmpty(name))
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
         return false;
 
-      IFilter filter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, name);
-      MediaItemQuery query = new MediaItemQuery(NECESSARY_MIAS, filter)
+      IFilter filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, new MediaItemIdFilter(new Guid(name)),
+        new RelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, new Guid(name)));
+      MediaItemQuery query = new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter)
         {
           Limit = 1, // Only one needed
-          SortInformation = new List<SortInformation> { new SortInformation(AudioAspect.ATTR_ALBUM, SortDirection.Ascending) }
         };
 
-
-      var items = mediaLibrary.Search(query, false);
+      var items = mediaLibrary.Search(query, false, null, true);
       result = new List<FanArtImage>();
       foreach (var mediaItem in items)
       {

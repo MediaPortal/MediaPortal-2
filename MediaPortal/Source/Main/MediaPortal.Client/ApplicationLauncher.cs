@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -72,6 +72,7 @@ namespace MediaPortal.Client
     private static Mutex _mutex = null;
     private static DelayedEvent _focusTimer = null;
     private static DelayedEvent _deactivatedEvent = null;
+    private static IpcServer _ipcServer;
 
     #endregion
 
@@ -157,7 +158,7 @@ namespace MediaPortal.Client
         try
         {
           // Check if user wants to override the default Application Data location.
-          ApplicationCore.RegisterVitalCoreServices(mpOptions.DataDirectory);
+          ApplicationCore.RegisterVitalCoreServices(true, mpOptions.DataDirectory);
 
 #if !DEBUG
           splashScreen = CreateSplashScreen();
@@ -223,13 +224,26 @@ namespace MediaPortal.Client
 
           ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after UI services are running
 
+          _ipcServer = new IpcServer("Client");
+          _ipcServer.CustomShutdownCallback = () =>
+          {
+            ServiceRegistration.Get<IScreenControl>().Shutdown();
+            return true;
+          };
+          try
+          {
+            _ipcServer.Open();
+          }
+          catch (Exception ipcEx)
+          {
+            logger.Error(ipcEx);
+          }
           systemStateService.SwitchSystemState(SystemState.Running, true);
 
           if (mpOptions.AutoStart)
             StartFocusKeeper();
 
           Application.Run();
-
           systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
           ServiceRegistration.IsShuttingDown = true; // Block ServiceRegistration from trying to load new services in shutdown phase
 
@@ -256,6 +270,10 @@ namespace MediaPortal.Client
         }
         finally
         {
+          if (_ipcServer != null)
+          {
+            _ipcServer.Close();
+          }
           UiExtension.DisposeUiServices();
           ApplicationCore.DisposeCoreServices();
 

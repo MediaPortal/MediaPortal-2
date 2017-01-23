@@ -12,8 +12,8 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
@@ -52,22 +52,29 @@
   </Register>
 
   <!-- Contents of '/Players' section -->
-  <Register Location="/Configuration/Settings/Players">
+  <Register Location="/Configuration/Settings/Players/">
+    <ConfigSection
+        Id="VideoPlayer"
+        Redundant="true"
+        Text="[Settings.Players.VideoPlayer]"/>
+  </Register>
+
+  <!-- Contents of '/Players/VideoPlayer/Codecs' section -->
+  <Register Location="/Configuration/Settings/Players/VideoPlayer">
     <ConfigSection
         Id="Codecs"
         Redundant="true"
         Text="[Settings.Players.Codecs]"/>
   </Register>
 
-  <!-- Contents of '/Players/Codecs' section -->
-  <Register Location="/Configuration/Settings/Players/Codecs">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs">
     <ConfigSection
         Id="VideoCodecs"
         Redundant="true"
         Text="[Settings.Players.Codecs.VideoCodecs]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs/VideoCodecs">
     <ConfigSetting
         Id="VideoMPEG2Codec"
         Text="[Settings.Players.Codecs.VideoCodecs.MPEG2]"
@@ -91,14 +98,14 @@
   </Register>
 
   <!-- Contents of '/Players/Codecs' section -->
-  <Register Location="/Configuration/Settings/Players/Codecs">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs">
     <ConfigSection
         Id="AudioCodecs"
         Redundant="true"
         Text="[Settings.Players.Codecs.AudioCodecs]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/Codecs/AudioCodecs">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs/AudioCodecs">
     <ConfigSetting
         Id="AudioCodec"
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodec]"
@@ -116,26 +123,19 @@
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodecAAC"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/Codecs">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs">
     <ConfigSection
         Id="AudioRenderer"
         Redundant="true"
         Text="[Settings.Players.Codecs.AudioRenderer]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/Codecs/AudioRenderer">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs/AudioRenderer">
     <ConfigSetting
         Id="AudioRenderer"
         Text="[Settings.Players.Codecs.AudioCodecs.AudioRenderer]"
         HelpText="[Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioRenderer"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/">
-    <ConfigSection
-        Id="VideoPlayer"
-        Redundant="true"
-        Text="[Settings.Players.VideoPlayer]"/>
   </Register>
 
   <Register Location="/Configuration/Settings/Players/VideoPlayer">
@@ -155,4 +155,5 @@
         HelpText="[Settings.Players.DVDPlayer.EnableSubtitles.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Subtitles"/>
   </Register>
+
 </Plugin>

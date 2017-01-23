@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,17 +31,20 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
+using System.IO;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
+using MediaPortal.Common.Messaging;
+using System.Threading;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for Movies.
   /// </summary>
-  public class MovieMetadataExtractor : IMetadataExtractor
+  public class MovieMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -56,14 +59,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+    public const  double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
 
     #region Protected fields and classes
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
+    private static readonly ICollection<String> IMG_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { ".jpg", ".png", ".tbn" };
+
     protected MetadataExtractorMetadata _metadata;
-    protected bool _onlyFanArt;
+    protected AsynchronousMessageQueue _messageQueue;
+    protected int _importerCount;
+    protected SettingsChangeWatcher<MovieMetadataExtractorSettings> _settingWatcher;
 
     #endregion
 
@@ -81,82 +89,305 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public MovieMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Movies metadata extractor", MetadataExtractorPriority.External, true,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
                 MovieAspect.Metadata
               });
-      _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>().OnlyFanArt;
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ImporterWorkerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+
+      _settingWatcher = new SettingsChangeWatcher<MovieMetadataExtractorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+
+      LoadSettings();
+    }
+
+    public void Dispose()
+    {
+      _messageQueue.Shutdown();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+            if (Interlocked.Increment(ref _importerCount) == 1)
+            {
+              IMediaFanArtHandler fanartHandler;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalFanArtHandlers.TryGetValue(MovieFanArtHandler.FANARTHANDLER_ID, out fanartHandler))
+                fanartHandler.ClearCache();
+            }
+            break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            if (Interlocked.Decrement(ref _importerCount) == 0)
+            {
+              IRelationshipExtractor relationshipExtractor;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.TryGetValue(MovieRelationshipExtractor.METADATAEXTRACTOR_ID, out relationshipExtractor))
+                foreach (IMovieRelationshipExtractor extractor in relationshipExtractor.RoleExtractors)
+                  extractor.ClearCache();
+            }
+            break;
+        }
+      }
+    }
+
+    #endregion
+
+    #region Settings
+
+    public static bool SkipOnlineSearches { get; private set; }
+    public static bool SkipFanArtDownload { get; private set; }
+    public static bool CacheOfflineFanArt { get; private set; }
+    public static bool CacheLocalFanArt { get; private set; }
+    public static bool IncludeActorDetails { get; private set; }
+    public static bool IncludeCharacterDetails { get; private set; }
+    public static bool IncludeDirectorDetails { get; private set; }
+    public static bool IncludeProductionCompanyDetails { get; private set; }
+    public static bool IncludeWriterDetails { get; private set; }
+    public static bool OnlyLocalMedia { get; private set; }
+
+    private void LoadSettings()
+    {
+      SkipOnlineSearches = _settingWatcher.Settings.SkipOnlineSearches;
+      SkipFanArtDownload = _settingWatcher.Settings.SkipFanArtDownload;
+      CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
+      CacheLocalFanArt = _settingWatcher.Settings.CacheLocalFanArt;
+      IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
+      IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
+      IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
+      IncludeProductionCompanyDetails = _settingWatcher.Settings.IncludeProductionCompanyDetails;
+      IncludeWriterDetails = _settingWatcher.Settings.IncludeWriterDetails;
+      OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
     }
 
     #endregion
 
     #region Private methods
 
-    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
-      string title;
+      string title = null;
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
-        return false;
+      if (extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
+        return false; //Subtitles can only be imported not refreshed
 
-      MovieInfo movieInfo = new MovieInfo
-        {
-          MovieName = title,
-        };
+      bool refresh = false;
+      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+        refresh = true;
 
-      // Allow the online lookup to choose best matching language for metadata
-      ICollection<string> movieLanguages;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, out movieLanguages) && movieLanguages.Count > 0)
-        movieInfo.Languages.AddRange(movieLanguages);
-
-      // Try to use an existing TMDB id for exact mapping
-      int tmdbId;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, out tmdbId) ||
-          MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
-        movieInfo.MovieDbId = tmdbId;
-
-      // Try to use an existing IMDB id for exact mapping
-      string imdbId;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
-          pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
-          MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
-        movieInfo.ImdbId = imdbId;
-
-      // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
-      foreach (string path in pathsToTest)
+      MovieInfo movieInfo = new MovieInfo();
+      if (refresh)
       {
-        MovieInfo dummy = new MovieInfo { MovieName = path };
-        if (NamePreprocessor.MatchTitleYear(dummy))
+        movieInfo.FromMetadata(extractedAspectData);
+      }
+
+      if (movieInfo.MovieName.IsEmpty)
+      {
+        //Try to get title
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
+          !string.IsNullOrEmpty(title) && !lfsra.ResourceName.StartsWith(title, StringComparison.InvariantCultureIgnoreCase))
         {
-          movieInfo.MovieName = dummy.MovieName;
-          movieInfo.Year = dummy.Year;
-          break;
+          movieInfo.MovieName = title;
+          /* Clear the names from unwanted strings */
+          MovieNameMatcher.CleanupTitle(movieInfo);
         }
       }
 
-      // When searching movie title, the year can be relevant for multiple titles with same name but different years
-      DateTime recordingDate;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-        movieInfo.Year = recordingDate.Year;
-
-      if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
+      if (movieInfo.MovieDbId == 0)
       {
-        if (!_onlyFanArt)
-          movieInfo.SetMetadata(extractedAspectData);
-        if (_onlyFanArt && movieInfo.MovieDbId > 0)
-          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, movieInfo.MovieDbId);
-        if (_onlyFanArt && movieInfo.CollectionMovieDbId > 0)
-          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_ID, movieInfo.CollectionMovieDbId);
-        return true;
+        // Try to use an existing TMDB id for exact mapping
+        string tmdbId;
+        if (MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
+          movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+      }
+
+      if (string.IsNullOrEmpty(movieInfo.ImdbId))
+      {
+        // Try to use an existing IMDB id for exact mapping
+        string imdbId = null;
+        if (pathsToTest.Any(path => MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId)))
+          movieInfo.ImdbId = imdbId;
+        else if (pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)))
+          movieInfo.ImdbId = imdbId;
+      }
+
+      if (!movieInfo.IsBaseInfoPresent)
+      {
+        // Also test the full path year. This is useful if the path contains the real name and year.
+        foreach (string path in pathsToTest)
+        {
+          if (MovieNameMatcher.MatchTitleYear(path, movieInfo))
+            break;
+        }
+        //Fall back to MediaAspect.ATTR_TITLE
+        if (movieInfo.MovieName.IsEmpty && !string.IsNullOrEmpty(title))
+          movieInfo.MovieName = title;
+
+        /* Clear the names from unwanted strings */
+        MovieNameMatcher.CleanupTitle(movieInfo);
+      }
+
+      if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
+      {
+        // When searching movie title, the year can be relevant for multiple titles with same name but different years
+        DateTime recordingDate;
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+          movieInfo.ReleaseDate = recordingDate;
+      }
+
+      // Allow the online lookup to choose best matching language for metadata
+      IList<MultipleMediaItemAspect> audioAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+      {
+        foreach (MultipleMediaItemAspect aspect in audioAspects)
+        {
+          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+          if (!string.IsNullOrEmpty(language))
+            movieInfo.Languages.Add(language);
+        }
+      }
+
+      if (importOnly)
+      {
+        MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
+        MP4Matcher.ExtractFromTags(lfsra, movieInfo);
+      }
+
+      if (SkipOnlineSearches && !SkipFanArtDownload)
+      {
+        MovieInfo tempInfo = movieInfo.Clone();
+        OnlineMatcherService.Instance.FindAndUpdateMovie(tempInfo, importOnly);
+        movieInfo.CopyIdsFrom(tempInfo);
+        movieInfo.HasChanged = tempInfo.HasChanged;
+      }
+      else if (!SkipOnlineSearches)
+      {
+        OnlineMatcherService.Instance.FindAndUpdateMovie(movieInfo, importOnly);
+      }
+
+      //Send it to the videos section
+      if (!SkipOnlineSearches && !movieInfo.HasExternalId)
+        return false;
+
+      if (importOnly)
+      {
+        //Create custom collection (overrides online collection)
+        MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+        string collectionName;
+        if (string.IsNullOrEmpty(collectionInfo.NameId) && CollectionFolderHasFanArt(lfsra, out collectionName))
+        {
+          collectionInfo = new MovieCollectionInfo();
+          collectionInfo.CollectionName = collectionName;
+          if (!collectionInfo.CollectionName.IsEmpty)
+          {
+            movieInfo.CollectionName = collectionInfo.CollectionName;
+            movieInfo.CopyIdsFrom(collectionInfo); //Reset ID's
+            movieInfo.HasChanged = true;
+          }
+        }
+      }
+      movieInfo.AssignNameId();
+
+      if (refresh)
+      {
+        if ((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_ACTOR) && movieInfo.Actors.Count > 0) ||
+          (IncludeCharacterDetails && !BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ROLE_CHARACTER) && movieInfo.Characters.Count > 0) ||
+          (IncludeDirectorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_DIRECTOR) && movieInfo.Directors.Count > 0) ||
+          (IncludeWriterDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_WRITER) && movieInfo.Writers.Count > 0) ||
+          (IncludeProductionCompanyDetails && !BaseInfo.HasRelationship(extractedAspectData, CompanyAspect.ROLE_COMPANY) && movieInfo.ProductionCompanies.Count > 0))
+        {
+          movieInfo.HasChanged = true;
+        }
+      }
+
+      if (!movieInfo.HasChanged && !importOnly)
+        return false;
+
+      movieInfo.SetMetadata(extractedAspectData);
+
+      return movieInfo.IsBaseInfoPresent;
+    }
+
+    private bool CollectionFolderHasFanArt(ILocalFsResourceAccessor lfsra, out string collectionName)
+    {
+      collectionName = null;
+
+      // File based access
+      try
+      {
+        using (lfsra.EnsureLocalFileSystemAccess())
+        {
+          string collectionMediaItemDirectoryPath;
+          if (Directory.GetParent(lfsra.LocalFileSystemPath) != null && Directory.GetParent(Directory.GetParent(lfsra.LocalFileSystemPath).FullName) != null)
+          {
+            DirectoryInfo dir = Directory.GetParent(Directory.GetParent(lfsra.LocalFileSystemPath).FullName);
+            collectionMediaItemDirectoryPath = dir.FullName;
+            collectionName = dir.Name;
+          }
+          else
+            return false;
+
+          var potentialFanArtFiles = GetPotentialFanArtFiles(collectionMediaItemDirectoryPath);
+
+          if ((from potentialFanArtFile in potentialFanArtFiles
+               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+               where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "movieset-poster"
+               select potentialFanArtFile).Count() > 0)
+            return true;
+
+          if ((from potentialFanArtFile in potentialFanArtFiles
+               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+               where potentialFanArtFileNameWithoutExtension == "banner" || potentialFanArtFileNameWithoutExtension == "movieset-banner"
+               select potentialFanArtFile).Count() > 0)
+            return true;
+
+          if ((from potentialFanArtFile in potentialFanArtFiles
+               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+               where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart" || potentialFanArtFileNameWithoutExtension == "movieset-fanart"
+               select potentialFanArtFile).Count() > 0)
+            return true;
+
+          string fanArtFolder = Path.Combine(collectionMediaItemDirectoryPath, "ExtraFanArt");
+          if (Directory.Exists(fanArtFolder))
+            if (GetPotentialFanArtFiles(fanArtFolder).Count() > 0)
+              return true;
+        }
+      }
+      catch
+      {
       }
       return false;
+    }
+
+    private List<string> GetPotentialFanArtFiles(string folderName)
+    {
+      var result = new List<string>();
+      if (!Directory.Exists(folderName))
+        return result;
+      foreach (var file in Directory.GetFiles(folderName))
+        if (IMG_EXTENSIONS.Contains(Path.GetExtension(file)))
+          result.Add(file);
+      return result;
     }
 
     #endregion
@@ -168,17 +399,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
-        if (forceQuickMode)
-          return false;
-
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData);
+          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData, importOnly);
       }
       catch (Exception e)
       {

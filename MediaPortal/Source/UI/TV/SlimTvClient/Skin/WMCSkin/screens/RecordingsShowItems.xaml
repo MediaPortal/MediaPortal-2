@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: This screen should be adapted to match its special function, i.e. add images etc. -->
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_mediamenu.xaml"
+    >
+  <Include.Resources>
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.RecordingsMenuItem]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!---Media Items in Gridview + Coverview-->
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsList.inc"/>
+          </Control.TemplateControl>
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
+          </Control.IsVisible>
+        </Control>
+
+        <!---Media Items in Listview-->
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="30,-50,-10,-210">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsList.inc"/>
+          </Control.TemplateControl>
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
+          </Control.IsVisible>
+        </Control>
+
+        <!---Space for Listview Details-->
+        <Grid Grid.Column="1" Width="1000" Height="900">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
+          </Grid.IsVisible>
+          
+          <!---Listview Details-->
+          <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\MediaItemListRecordingDetails.inc"/>
+            </Control.TemplateControl>
+          </Control>
+
+          <!--Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\MultiListDetails.inc"/>
+            </Control.TemplateControl>
+          </-->
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Alternative_Footer_Template">
+      <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <!---Gridview and Coverview Details-->
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemRecordingDetails.inc"/>
+          </Control.TemplateControl>
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
+          </Control.IsVisible>
+        </Control>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

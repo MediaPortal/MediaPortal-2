@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -171,8 +171,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       object obj = null;
       try
       {
-        if (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
-            Equals(triggerValue, obj))
+        if ((triggerValue == null && checkValue == null) || (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
+            Equals(triggerValue, obj)))
           ExecuteTriggerStartActions();
         else
           ExecuteTriggerEndActions();

@@ -16,6 +16,10 @@
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
 
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+    </ItemGroup>
+
     <ItemGroup>
       <ReferencesTarget Include="$(TargetDir)SlimTv.Interfaces.dll" />
       <ReferencesTarget Include="$(TargetDir)SlimTv.Integration.MP2.dll" />

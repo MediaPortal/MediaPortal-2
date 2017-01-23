@@ -7,21 +7,20 @@
     Description="Metadata extractor to detect and lookup Movie information">
 
   <Version
-    PluginVersion="1.0"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
-    CurrentAPI="1"/>
+    PluginVersion="1.1"
+    ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
+    CurrentAPI="2"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}" CompatibleAPI="1"/> <!-- MediaInfoPlugin -->
     <PluginReference PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}" CompatibleAPI="1"/> <!-- MatroskaLib -->
-    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="1"/> <!-- OnlineLibraries -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
   </DependsOn>
 
   <Runtime>
     <Assembly FileName="MovieMetadataExtractor.dll"/>
-    <Assembly FileName="FanArtService.Interfaces.dll"/>
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">
@@ -30,4 +29,21 @@
         ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieMetadataExtractor"/>
   </Register>
 
+  <Register Location="/Media/RelationshipExtractors">
+    <Instance
+        Id="MovieRelationshipExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieRelationshipExtractor"/>
+  </Register>
+
+  <Register Location="/Media/MergeHandlers">
+    <Instance
+        Id="MovieMergeHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieMergeHandler"/>
+  </Register>
+
+  <Register Location="/Media/FanArtHandlers">
+    <Instance
+        Id="MovieFanArtHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieFanArtHandler"/>
+  </Register>
 </Plugin>

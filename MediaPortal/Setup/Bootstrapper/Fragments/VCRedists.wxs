@@ -59,10 +59,28 @@
   </Fragment>
 
   <Fragment>
+    <util:FileSearch Id="MFC140_Version_x86"
+                 Variable="MFC140_Version_x86" Path="[SystemFolder64]mfc140.dll"
+                 Result="version"/>
+
+    <PackageGroup Id="redist_vc140">
+      <ExePackage Id="VC2015_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
+                  Name="vcredist140_x86.exe"
+                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist140_x86.exe"
+                  InstallCommand="/passive /norestart"
+                  InstallCondition="(NOT MFC140_Version_x86 >= v14.0.24215.0) OR NOT MFC140_Version_x86"
+                  Protocol="burn">
+        <RemotePayload Description="Microsoft Visual C++ 2015 Redistributable (x86) - 14.0.24215" ProductName="Microsoft Visual C++ 2015 Redistributable (x86) - 14.0.24215" Size="14456872" Version="14.0.24215.0" Hash="72211BD2E7DFC91EA7C8FAC549C49C0543BA791B"/>
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+
+  <Fragment>
     <PackageGroup Id="redist">
       <PackageGroupRef Id="redist_vc90"/>
       <PackageGroupRef Id="redist_vc100"/>
       <PackageGroupRef Id="redist_vc120"/>
+      <PackageGroupRef Id="redist_vc140"/>
     </PackageGroup>
   </Fragment>
 

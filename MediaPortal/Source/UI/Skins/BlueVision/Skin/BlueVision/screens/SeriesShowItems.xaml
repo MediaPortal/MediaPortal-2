@@ -6,6 +6,7 @@
     Source="screens\SimpleShowItems.xaml"
     >
   <Include.Resources>
-    <ResourceWrapper x:Key="Cover_Width" Resource="810"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.ChooseEpisodeHeader]"/>
+    <ResourceWrapper x:Key="Cover_Width" Resource="860"/>
   </Include.Resources>
 </Include>

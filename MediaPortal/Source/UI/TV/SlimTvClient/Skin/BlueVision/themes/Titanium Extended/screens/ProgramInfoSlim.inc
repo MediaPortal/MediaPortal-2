@@ -43,9 +43,12 @@
     <Label x:Name="Program" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="15,0,0,0"
         Content="{Binding CurrentProgram.Title}"
         Color="{ThemeResource TextColor}"/>
-
-    <Label x:Name="SeriesLabel" Grid.Column="5" Grid.Row="1" Content="{Binding [Series]}"
-       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+    <Label x:Name="SeriesLabel" Grid.Column="5" Grid.Row="1" Color="{ThemeResource TextColor}" Margin="5,0,0,0"
+           IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}">
+      <Label.Content>
+        <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+      </Label.Content>
+    </Label>
 
     <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
            Wrap="True" Scroll="Auto" Opacity="0.6"

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -458,6 +458,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         if (success)
         {
           channels = channelList.Cast<IChannel>().ToList();
+          foreach(var channel in channels)
+            _channelCache[channel.ChannelId] = channel;
           return true;
         }
         return false;

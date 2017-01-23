@@ -98,7 +98,6 @@
 
   <Storyboard x:Key="FocusedButtonWideStoryboard_Media" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Media"/>
-    <!--StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/-->
   </Storyboard>
 
   <Storyboard x:Key="FocusedMenuButtonWideStoryboard" FillBehavior="HoldEnd">
@@ -557,9 +556,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle x:Name="ButtonControlRectangle"
-              Opacity="0" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-            Margin="-6,0,36,0" Stroke="#213848" StrokeThickness="0">
+          <Rectangle x:Name="ButtonControlRectangle" HorizontalAlignment="Stretch"
+                     Opacity="0" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
+                     Margin="0,0,0,0" Stroke="#213848" StrokeThickness="0">
             <Rectangle.Fill>
               <LinearGradientBrush>
                 <LinearGradientBrush.GradientStops>
@@ -610,7 +609,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="1,0,411,0">
+          <Grid x:Name="GrowControl" Margin="0,0,0,0" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -622,18 +621,6 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <!--Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-8,0,35,0">
-              <Border.Background>
-                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                  <LinearGradientBrush.GradientStops>
-                    <GradientStop Color="#00333333" Offset="0"  />
-                    <GradientStop Color="#99333333" Offset="0.1"  />
-                    <GradientStop Color="#99333333" Offset="0.9"  />
-                    <GradientStop Color="#00333333" Offset="1"  />
-                  </LinearGradientBrush.GradientStops>
-                </LinearGradientBrush>
-              </Border.Background>
-            </Border-->
             <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>

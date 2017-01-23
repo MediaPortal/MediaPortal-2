@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,12 +27,13 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -93,13 +94,19 @@ namespace MediaPortal.UiComponents.Media.Views
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return;
+
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
       try
       {
         MediaItemQuery query = new MediaItemQuery(_necessaryMIATypeIds, _optionalMIATypeIds, _filter)
         {
           Limit = Consts.MAX_NUM_ITEMS_VISIBLE
         };
-        mediaItems = cd.Search(query, true);
+        mediaItems = cd.Search(query, true, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
       }
       catch (UPnPRemoteException e)
       {

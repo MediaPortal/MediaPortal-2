@@ -96,6 +96,10 @@
       <Project>{11fd64f0-97c0-40b5-8aaa-1e56255d3ef7}</Project>
       <Name>AudioMetadataExtractor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
+      <Name>OnlineLibraries</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

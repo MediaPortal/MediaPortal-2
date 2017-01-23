@@ -21,10 +21,7 @@
           FontFamily="DefaultBold"/>
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1"
-        Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
-        HorizontalAlignment="Stretch"
-        Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-        Margin="-10,0,5,25"
-        Color="{ThemeResource TextColor}"/>
-
+         TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
+         Margin="-10,0,35,25" Color="{ThemeResource TextColor}"/>
 </Grid>

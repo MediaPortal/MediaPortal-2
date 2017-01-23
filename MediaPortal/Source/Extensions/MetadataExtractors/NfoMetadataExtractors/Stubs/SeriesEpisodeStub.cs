@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -79,6 +79,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// </summary>
     /// <example>1</example>
     public int? Episode { get; set; }
+
+    /// <summary>
+    /// Number of the DVD episode
+    /// </summary>
+    /// <example>1</example>
+    public decimal? DvdEpisode { get; set; }
 
     /// <summary>
     /// Number of the season the episode belongs to (in DVD order)

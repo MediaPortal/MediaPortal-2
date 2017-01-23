@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -76,7 +76,7 @@ namespace MediaPortal.Common.ResourceAccess
   /// this parameter contains the old file path.</param>
   /// <param name="changeType">Type of the change.</param>
   public delegate void PathChangeDelegate(
-      IResourceAccessor resourceAccessor, string oldPath, MediaSourceChangeType changeType);
+      IResourceAccessor resourceAccessor, IResourceAccessor oldResourceAccessor, MediaSourceChangeType changeType);
 
   /// <summary>
   /// Additional interface which can be implemented by resource accessors if they are capable of detecting

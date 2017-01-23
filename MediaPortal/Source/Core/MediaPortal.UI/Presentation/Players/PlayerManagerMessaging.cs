@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UI.Presentation.Players
 {
@@ -38,7 +39,7 @@ namespace MediaPortal.UI.Presentation.Players
     public const string CHANNEL = "PlayerManager";
 
     public const string KEY_RESUME_STATE = "PlayerResumeState";
-    public const string KEY_MEDIAITEM_ID = "MediaItemId";
+    public const string KEY_MEDIAITEM = "MediaItem";
 
     // Message type
     public enum MessageType
@@ -165,11 +166,11 @@ namespace MediaPortal.UI.Presentation.Players
     /// <param name="psc">Player slot controller of the player which is involved.</param>
     /// <param name="mediaItemId">ID of media item that was played.</param>
     /// <param name="resumeState">Resume state.</param>
-    public static void SendPlayerResumeStateMessage(IPlayerSlotController psc, Guid mediaItemId, IResumeState resumeState)
+    public static void SendPlayerResumeStateMessage(IPlayerSlotController psc, MediaItem mediaItem, IResumeState resumeState)
     {
       SystemMessage msg = new SystemMessage(MessageType.PlayerResumeState);
       msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
-      msg.MessageData[KEY_MEDIAITEM_ID] = mediaItemId;
+      msg.MessageData[KEY_MEDIAITEM] = mediaItem;
       msg.MessageData[KEY_RESUME_STATE] = resumeState;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

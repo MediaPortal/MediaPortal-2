@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
@@ -32,6 +33,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -40,11 +42,26 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   /// </summary>
   public class SimpleMLFilterCriterion : MLFilterCriterion
   {
-    protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
+    protected MediaItemAspectMetadata.AttributeSpecification _keyAttributeType = null;
+    protected MediaItemAspectMetadata.AttributeSpecification _valueAttributeType = null;
+    protected IEnumerable<Guid> _necessaryMIATypeIds = null;
 
     public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType)
     {
-      _attributeType = attributeType;
+      _valueAttributeType = attributeType;
+    }
+
+    public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType, IEnumerable<Guid> necessaryMIATypeIds)
+    {
+      _valueAttributeType = attributeType;
+      _necessaryMIATypeIds = necessaryMIATypeIds;
+    }
+
+    public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, IEnumerable<Guid> necessaryMIATypeIds)
+    {
+      _keyAttributeType = keyAttributeType;
+      _valueAttributeType = valueAttributeType;
+      _necessaryMIATypeIds = necessaryMIATypeIds;
     }
 
     #region Base overrides
@@ -54,19 +71,61 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
-      HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true);
+
+      if (_necessaryMIATypeIds != null)
+        necessaryMIATypeIds = _necessaryMIATypeIds;
+      HomogenousMap valueGroups = null;
+      HomogenousMap valueKeys = null;
+      if (_keyAttributeType != null)
+      {
+        Tuple<HomogenousMap, HomogenousMap> values = cd.GetKeyValueGroups(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, 
+          ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+        valueGroups = values.Item1;
+        valueKeys = values.Item2;
+      }
+      else
+      {
+        valueGroups = cd.GetValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, 
+          ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+      }
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)
       {
-        string name = GetDisplayName(group.Key);
-        if (name == string.Empty)
-          numEmptyEntries += (int) group.Value;
+        if (_keyAttributeType != null)
+        {
+          string name = GetDisplayName(group.Key);
+          if (name == string.Empty)
+            numEmptyEntries += (int)group.Value;
+          else
+          {
+            IFilter queryFilter = new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key);
+            if (filter != null)
+              queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
+            result.Add(new FilterValue(valueKeys[group.Key], name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
+          }
+        }
         else
-          result.Add(new FilterValue(name, new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), null, (int) group.Value, this));
+        {
+          string name = GetDisplayName(group.Key);
+          if (name == string.Empty)
+            numEmptyEntries += (int)group.Value;
+          else
+          {
+            IFilter queryFilter = new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key);
+            if (filter != null)
+              queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
+            result.Add(new FilterValue(name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
+          }
+        }
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
+      {
+        IFilter queryFilter = new EmptyFilter(_valueAttributeType);
+        if (filter != null)
+          queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, numEmptyEntries, this));
+      }
       return result;
     }
 
@@ -80,8 +139,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
-      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None,
-          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter);
+
+      if (_necessaryMIATypeIds != null)
+        necessaryMIATypeIds = _necessaryMIATypeIds.ToList();
+      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None,
+          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (MLQueryResultGroup group in valueGroups)
@@ -94,7 +156,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           result.Add(new FilterValue(name, null, group.AdditionalFilter, group.NumItemsInGroup, this));
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_valueAttributeType), null, numEmptyEntries, this));
       return result;
     }
 

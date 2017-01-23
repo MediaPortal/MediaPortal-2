@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -300,10 +300,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       bool isSeries = false;
       foreach (IProgram program in _programs)
       {
+        IChannel channel;
+        if (!_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+          channel = null;
         // Use local variable, otherwise delegate argument is not fixed
         ProgramProperties programProperties = new ProgramProperties();
         IProgram currentProgram = program;
-        programProperties.SetProgram(currentProgram);
+        programProperties.SetProgram(currentProgram, channel);
 
         if (ProgramComparer.Instance.Equals(_selectedProgram, program))
         {
@@ -317,8 +320,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         };
         item.AdditionalProperties["PROGRAM"] = currentProgram;
         item.Selected = _lastProgramId == program.ProgramId; // Restore focus
-        IChannel channel;
-        if (_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+        if (channel != null)
           item.SetLabel("ChannelName", channel.Name);
 
         _programsList.Add(item);

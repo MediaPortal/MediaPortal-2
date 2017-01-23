@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">Novice</string>
+  <string name="News.Title.Help">Beri svoje najljubše novičarske strani</string>
   <string name="News.FeedsStateDisplayLabel">Novice</string>
   <string name="News.Published">Objavljeno</string>
   <string name="News.ConfiguredFeeds">Nastavljeni viri</string>

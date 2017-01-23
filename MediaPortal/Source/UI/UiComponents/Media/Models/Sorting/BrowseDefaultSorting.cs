@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -35,20 +36,31 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     protected IComparer<MediaItem> _videoComparer = new SortByTitle();
     protected IComparer<MediaItem> _imageComparer = new SortByTitle();
 
+    public BrowseDefaultSorting()
+    {
+      _includeMias = null;
+      _excludeMias = null;
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORTING_BROWSE_DEFAULT; }
     }
 
+    public override string GroupByDisplayName
+    {
+      get { return String.Empty; }
+    }
+
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect aspectX;
-      MediaItemAspect aspectY;
+      SingleMediaItemAspect aspectX;
+      SingleMediaItemAspect aspectY;
 
       // Check audio
-      if (!x.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspectX))
+      if (!MediaItemAspect.TryGetAspect(x.Aspects, AudioAspect.Metadata, out aspectX))
         aspectX = null;
-      if (!y.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspectY))
+      if (!MediaItemAspect.TryGetAspect(y.Aspects, AudioAspect.Metadata, out aspectY))
         aspectY = null;
       if (aspectX != null && aspectY != null)
         // Both are audio items - compare to each other
@@ -59,9 +71,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       // None of them is an audio item
 
       // Check video
-      if (!x.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out aspectX))
+      if (!MediaItemAspect.TryGetAspect(x.Aspects, VideoAspect.Metadata, out aspectX))
         aspectX = null;
-      if (!y.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out aspectY))
+      if (!MediaItemAspect.TryGetAspect(y.Aspects, VideoAspect.Metadata, out aspectY))
         aspectY = null;
       if (aspectX != null && aspectY != null)
         // Both are vido items - compare to each other
@@ -72,9 +84,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       // None of them is a video item
 
       // Check image
-      if (!x.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out aspectX))
+      if (!MediaItemAspect.TryGetAspect(x.Aspects, ImageAspect.Metadata, out aspectX))
         aspectX = null;
-      if (!y.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out aspectY))
+      if (!MediaItemAspect.TryGetAspect(y.Aspects, ImageAspect.Metadata, out aspectY))
         aspectY = null;
       if (aspectX != null && aspectY != null)
         // Both are image items - compare to each other
@@ -91,6 +103,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     protected int CompareDifferentTypes(MediaItemAspect aspectX, MediaItemAspect aspectY)
     {
       return aspectX != null ? 1 : -1;
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      return null;
     }
   }
 }

@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{5B27EB95-B829-40F4-B445-0225CA206F85}</ProjectGuid>
@@ -53,6 +53,7 @@
     <Compile Include="ClientCommunication\ClientManagerMessaging.cs" />
     <Compile Include="ClientCommunication\IClientManager.cs" />
     <Compile Include="ClientCommunication\IClientController.cs" />
+    <Compile Include="ClientCommunication\IServerStateService.cs" />
     <Compile Include="Database\DatabaseSubSchemaManager.cs" />
     <Compile Include="Database\IDatabaseManager.cs" />
     <Compile Include="Database\ISQLDatabase.cs" />
@@ -82,11 +83,17 @@
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledMediaItemQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledCountItemsQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\BindVarNamespace.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\RelationshipCompiledFilter.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\InverseRelationshipCompiledFilter.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\RelationshipQueryBuilder.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\InverseRelationshipQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\RequestedAttribute.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\ComplexAttributeQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\Namespace.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\QueryAttribute.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\MainQueryBuilder.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\MultipleMIAQueryBuilder.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\MIAQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\TableJoin.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\TableQueryData.cs" />
     <Compile Include="BackendServer\Settings\BackendServerSettings.cs" />

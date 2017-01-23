@@ -105,7 +105,7 @@
   <string name="Media.MediaItemsHeader">Media emner</string>
   <string name="Media.VideoItemsHeader">Videoer</string>
   <string name="Media.AudioItemsHeader">Lyd emner</string>
-  <string name="Media.SeriesItemsHeader">Episoder</string>
+  <string name="Media.EpisodeItemsHeader">Afsnit</string>
   <string name="Media.MoviesItemsHeader">Film</string>
   <string name="Media.ImageItemsHeader">Billeder</string>
   <string name="Media.SimpleSearchHeader">Simpel søgning</string>
@@ -146,6 +146,8 @@
   <string name="Media.AudioRootViewName">Lyd</string>
   <string name="Media.VideosRootViewName">Videoer</string>
   <string name="Media.SeriesRootViewName">Serier</string>
+  <string name="Media.SeasonRootViewName">Sæson</string>
+  <string name="Media.EpisodeRootViewName">Afsnit</string>
   <string name="Media.ImagesRootViewName">Billeder</string>
   <string name="Media.SimpleSearchViewName">Simpel søgning</string>
   <!--General strings used in views-->
@@ -339,4 +341,7 @@
   <string name="Settings.Players.SkipStepList.Help">Indtast skip trin i sekunder adskilt af ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Åbn afspiller planlægning</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Planlæg hvordan nyåbnede afspiller vil blive placeret bland allerede åbne afspillere</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

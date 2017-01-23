@@ -10,13 +10,13 @@
   <string name="Trakt.SyncMovies">Filme werden synchronisiert...</string>
   <string name="Trakt.SyncSeries">Serien werden synchronisiert...</string>
   <string name="Trakt.SyncFinished">Synchronisierung abgeschlossen!</string>
-  <string name="Trakt.MediaLibraryNotConnected">Der Server ist gerade nicht verbunden, keine Synchronisation möglich!</string>
+  <string name="Trakt.MediaLibraryNotConnected">Der Server ist nicht verbunden, keine Synchronisation möglich!</string>
   <string name="Trakt.WrongToken">Token nicht verfügbar</string>
-  <string name="Trakt.EmptyUsername">Bitte Nutzernamen eingeben</string>
+  <string name="Trakt.EmptyUsername">Bitte Benutzername eingeben</string>
   <string name="Trakt.NotAuthorized">Zuerst autorisieren!</string>
   <string name="Trakt.CheckPin">Anmeldung bei Trakt nicht möglich, falsche Pin?</string>
   <string name="Trakt.LoggedIn">Anmeldung erfolgreich!</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Trakt.tv einrichten</string>
-  <string name="Settings.Plugins.Trakt.TraktSetup.Help">Legt Konto für Trakt.tv fest</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup.Help">Kontodaten für Trakt.tv-Dienst konfigurieren</string>
 </resources>

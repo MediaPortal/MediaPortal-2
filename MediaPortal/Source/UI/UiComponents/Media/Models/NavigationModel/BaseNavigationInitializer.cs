@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -52,10 +52,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected string _mediaNavigationMode;
     protected Guid _mediaNavigationRootState;
     protected Guid[] _necessaryMias;
+    protected Guid[] _optionalMias;
     protected AbstractScreenData _defaultScreen;
     protected ICollection<AbstractScreenData> _availableScreens;
     protected Sorting.Sorting _defaultSorting;
     protected ICollection<Sorting.Sorting> _availableSortings;
+    protected Sorting.Sorting _defaultGrouping;
+    protected ICollection<Sorting.Sorting> _availableGroupings;
     protected AbstractItemsScreenData.PlayableItemCreatorDelegate _genericPlayableItemCreatorDelegate;
     protected ViewSpecification _customRootViewSpecification;
     protected IEnumerable<string> _restrictedMediaCategories = null;
@@ -70,8 +73,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       // Create a generic delegate that knows all kind of our inbuilt media item types.
       _genericPlayableItemCreatorDelegate = mi =>
       {
-        if (mi.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
-          return new SeriesItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+        if (mi.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+          return new EpisodeItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
           return new MovieItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
@@ -123,10 +126,15 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
       }
 
-      IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
+      IEnumerable<Guid> optionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
+      if(_optionalMias != null)
+      {
+        optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias);
+        optionalMIATypeIDs = optionalMIATypeIDs.Except(_necessaryMias);
+      }
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(_viewName, _filter, _necessaryMias, skinDependentOptionalMIATypeIDs, true)
+        new MediaLibraryQueryViewSpecification(_viewName, _filter, _necessaryMias, optionalMIATypeIDs, true, null)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
         };
@@ -138,11 +146,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       NavigationData.LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
 
       Sorting.Sorting nextSortingMode = _availableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting) ?? _defaultSorting;
+      Sorting.Sorting nextGroupingMode = _availableGroupings == null || String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : _availableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping) ?? _defaultGrouping;
 
       navigationData = new NavigationData(null, _viewName, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, nextScreen, _availableScreens, nextSortingMode)
+        MediaNavigationRootState, rootViewSpecification, nextScreen, _availableScreens, nextSortingMode, nextGroupingMode)
       {
         AvailableSortings = _availableSortings,
+        AvailableGroupings = _availableGroupings,
         LayoutType = nextScreenConfig.LayoutType,
         LayoutSize = nextScreenConfig.LayoutSize
       };

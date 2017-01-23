@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,7 +23,9 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
@@ -121,13 +123,13 @@ namespace MediaPortal.UPnPRenderer.Players
 
     public bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
-      string resourcePath;
+      List<string> resourcePaths;
       string title;
-      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, out resourcePath)
+      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, out resourcePaths)
         || !MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_TITLE, out title))
         return false;
 
-      ResourcePath rp = ResourcePath.Deserialize(resourcePath);
+      ResourcePath rp = ResourcePath.Deserialize(resourcePaths.First());
       if (rp.LastPathSegment.ProviderId != RawUrlResourceProvider.RAW_URL_RESOURCE_PROVIDER_ID)
         return false;
 

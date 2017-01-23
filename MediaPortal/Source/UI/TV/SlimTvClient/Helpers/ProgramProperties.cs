@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -216,7 +216,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       IsSeriesScheduled = recordingStatus == RecordingStatus.SeriesScheduled;
     }
 
-    public void SetProgram(IProgram program)
+    public void SetProgram(IProgram program, IChannel channel = null)
     {
       IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
       if (recordingStatus != null)
@@ -225,10 +225,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       }
       try
       {
-        IChannel channel;
-        IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
-        if (program != null && channelAndGroupInfo != null && channelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+        if (channel != null)
           ChannelName = channel.Name;
+        else if (program != null)
+        {
+          IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
+          if (channelAndGroupInfo != null && channelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+            ChannelName = channel.Name;
+        }
 
         _settingProgram = true;
         IProgramSeries series = program as IProgramSeries;

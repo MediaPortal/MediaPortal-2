@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -135,9 +135,16 @@ namespace MediaPortal.UI.Services.Players
       if (playerContext.CurrentMediaItem == null)
         return;
 
-      IResumeState resumeState;
-      if (resumablePlayer.GetResumeState(out resumeState))
-        PlayerManagerMessaging.SendPlayerResumeStateMessage(this, playerContext.CurrentMediaItem.MediaItemId, resumeState);
+      try
+      {
+        IResumeState resumeState;
+        if (resumablePlayer.GetResumeState(out resumeState))
+          PlayerManagerMessaging.SendPlayerResumeStateMessage(this, playerContext.CurrentMediaItem, resumeState);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error getting resume state from player '{0}'", e, resumablePlayer);
+      }
     }
 
     protected void CheckActive()

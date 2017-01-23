@@ -10,8 +10,16 @@
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
+    <ControlTemplate x:Key="Header_Text_Template">
+      <Label x:Name="SelectedItem"
+             Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
+             VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="32" FontFamily="DefaultBold"
+             Color="{ThemeResource TextColor}">
+      </Label>
+    </ControlTemplate>
+
     <ControlTemplate x:Key="Menu_Button_Dummy">
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,8,0"
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="0"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               IsEnabled="False">
       </Button>
@@ -77,7 +85,7 @@
             <Border Grid.Row="0" Grid.Column="0" Background="#F6333333" BorderThickness="0">
               <Label Content="[Movies.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             </Border>
-            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource LatestMovieItemsListListViewStyle}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -206,6 +206,7 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string KEY_EXPANSION = "Expansion";
     public const string KEY_SYSTEM_SHARES = "SystemShares";
     public const string KEY_IS_IMPORTING = "IsImporting";
+    public const string KEY_IMPORTING_PROGRESS = "ImportingProgress";
     public const string KEY_IS_CONNECTED = "IsConnected";
     public const string KEY_REIMPORT_ENABLED = "ReImportEnabled";
 

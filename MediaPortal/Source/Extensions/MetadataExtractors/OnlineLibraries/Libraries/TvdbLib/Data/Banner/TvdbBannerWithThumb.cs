@@ -98,11 +98,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
           try
           {
             Image img = null;
-            String cacheName = CreateCacheName(ThumbPath, true);
+            String cacheName = CreateCacheName(Id, ThumbPath);
 
             if (CacheProvider != null && CacheProvider.Initialised)
             {//try to load the image from cache first
-              img = CacheProvider.LoadImageFromCache(SeriesId, cacheName);
+              img = CacheProvider.LoadImageFromCache(SeriesId, CachePath, cacheName);
             }
 
             if (img == null)
@@ -111,7 +111,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 
               if (img != null && CacheProvider != null && CacheProvider.Initialised)
               {//store the image to cache
-                CacheProvider.SaveToCache(img, SeriesId, cacheName);
+                CacheProvider.SaveToCache(img, SeriesId, CachePath, cacheName);
               }
             }
 
@@ -178,10 +178,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
           LoadThumb(null);
         if (!saveToCache && ThumbPath != null && !ThumbPath.Equals(""))
         {//we don't want the image in cache -> if we already cached it it should be deleted
-          String cacheName = CreateCacheName(ThumbPath, true);
+          String cacheName = CreateCacheName(Id, ThumbPath);
           if (CacheProvider != null && CacheProvider.Initialised)
           {//try to load the image from cache first
-            CacheProvider.RemoveImageFromCache(SeriesId, cacheName);
+            CacheProvider.RemoveImageFromCache(SeriesId, CachePath, cacheName);
           }
         }
       }

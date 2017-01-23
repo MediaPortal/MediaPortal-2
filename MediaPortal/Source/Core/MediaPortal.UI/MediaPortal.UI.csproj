@@ -137,9 +137,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Presentation\Screens\IScreenManager.cs" />
     <Compile Include="RemovableMedia\RemovableMediaMessaging.cs" />
+    <Compile Include="ServerCommunication\IServerStateManager.cs" />
     <Compile Include="ServerCommunication\ServerCommunicationHelper.cs" />
     <Compile Include="ServerCommunication\IServerConnectionManager.cs" />
     <Compile Include="ServerCommunication\ServerConnectionMessaging.cs" />
+    <Compile Include="ServerCommunication\ServerStateMessaging.cs" />
     <Compile Include="ServerCommunication\Settings\FrontendServerSettings.cs" />
     <Compile Include="ServerCommunication\Settings\ServerConnectionSettings.cs" />
     <Compile Include="Services\FrontendServer\FrontendServer.cs" />

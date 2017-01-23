@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,6 +27,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   public class BindVarNamespace
   {
     protected int _bindVarCounter = 0;
+
+    public int BindVarCounter
+    {
+      get { return _bindVarCounter; }
+      set { _bindVarCounter = value; }
+    }
 
     public string CreateNewBindVarName(string prefix)
     {

@@ -38,6 +38,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Model x:Key="HomeServerModel" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
     <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
     <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+    <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
     <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
       <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FooterPanel" Storyboard.TargetProperty="RenderTransform.Y">
         <SplineDoubleKeyFrame KeyTime="00:00:00" Value="200"/>
@@ -94,8 +95,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" Grid.Column="0"
           IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}"/>
 
-      <Control x:Name="NotificationControl" Margin="0,-10,20,-20" Grid.Column="0" Style="{ThemeResource NotificationControlStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+      <StackPanel Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
 
+        <Control x:Name="NotificationControl" Margin="0,-10,20,-20"  Style="{ThemeResource NotificationControlStyle}" />
+
+        <!--Recording Indicator-->
+        <StackPanel Orientation="Horizontal"
+                    DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                    IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+          <Image x:Name="RecordingIndicator" Width="50" Height="50" Margin="0,-10,20,-20"
+               Stretch="Uniform" Source="Recording_Active.png"
+               IsVisible="{Binding IsRecording}"/>
+        </StackPanel>
+      </StackPanel>
     </Grid>
     <!-- HeaderPanel -->
 
@@ -105,36 +117,31 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="470"/>
+        <ColumnDefinition Width="540"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="360"/>
+        <ColumnDefinition Width="330"/>
         <ColumnDefinition Width="150"/>
       </Grid.ColumnDefinitions>
 
-      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"></Control>
-      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
-      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
+      <!-- Power button -->
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="75,0,0,0"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+          Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+        <Button.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Trigger.Setters>
+              <Setter Property="Opacity" Value="2"/>
+            </Trigger.Setters>
+          </Trigger>
+        </Button.Triggers>
+      </Button>
 
-
-      <StackPanel Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Center" Orientation="Vertical">
-        <Label x:Name="SelectedItem"
-                Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
-                VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
-                Color="{ThemeResource TextColor}">
-        </Label>
-        <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-8,0,0">
-          <Control.TemplateControl>
-            <Include Source="screens\MediaItemsListHeader.inc"/>
-          </Control.TemplateControl>
-        </Control>
-      </StackPanel>
+      <Control x:Name="HeaderControl" Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Top"
+               Template="{DynamicResource ResourceKey=Header_Text_Template}">
+      </Control>
 
       <!-- Main Menu Group tabs -->
-      <!-- use custom ListView to modify focus behavior -->
-
-      <!--Image Source="Menu_Background.png" Grid.Row="0" Grid.Column="1" Opacity="0.25" Stretch="Fill" Height="90" Margin="15,-5,15,-5"
-               VerticalAlignment="Center" HorizontalAlignment="Center"/-->
-
       <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="1"
                                VerticalAlignment="Center" HorizontalAlignment="Center"
                                HomeMenuModel="{StaticResource MenuModel}" Margin="-5,8,-5,-8"
@@ -155,28 +162,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
       </StackPanel>
 
-      <!-- Power button -->
-      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="3" Margin="10,-20,50,-20"
-          HorizontalAlignment="Center" VerticalAlignment="Center"
-          IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-          Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-        <Button.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.Setters>
-              <Setter Property="Opacity" Value="2"/>
-            </Trigger.Setters>
-          </Trigger>
-        </Button.Triggers>
-      </Button>
-
-
-      <!--/StackPanel-->
+      <!-- Menu button -->
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+               x:Name="MenuButtonDummy" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"></Control>
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+               x:Name="MenuButtonDummyConfig" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+               x:Name="MenuButtonPlaceholder" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
 
       <Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" />
     </Grid>
-
-    <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-    <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,17,115,-3"/>
 
     <Image Source="shadow_bottom.png" Margin="-115,0,-115,0" Grid.Row="3" VerticalAlignment="Top" />
 
@@ -235,6 +230,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     </Grid>
     <!-- FooterPanel -->
+
+    <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
+    <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,17,115,-3"/>
 
   </Grid>
 </Screen>

@@ -10,8 +10,8 @@
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
-  <ItemGroup>
-    <References Include="$(TargetDir)ffmpeg.exe" />
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
   </ItemGroup>
 
   <Target Name="AfterBuild">

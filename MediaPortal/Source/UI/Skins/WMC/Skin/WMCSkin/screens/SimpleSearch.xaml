@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_mediamenu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header_Text resource has to be added by including screen -->
+
+    <Model x:Key="MediaNavigationModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource MediaNavigationModel},Path=NavigationData.CurrentScreenData}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!--Loads MediaItemList and adjusts margin according to layout-->
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsList.inc"/>
+          </Control.TemplateControl>
+          <Control.Margin>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="40,-50,0,-210"/>
+              <Binding Source="0"/>
+            </MultiBinding>
+          </Control.Margin>
+        </Control>
+
+        <!---Space for Listview Details-->
+        <Grid Grid.Column="1" Width="1000" Height="900">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
+          </Grid.IsVisible>
+
+          <!---Listview Details-->
+          <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\MultiListDetails.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </Grid>
+
+        <!---Search field for Grid- and Coverview-->
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Height="55" Width="300"
+                    VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,-120,40,5">
+          <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100" 
+                   HorizontalAlignment="Stretch"/>
+          <Image x:Name="searchsymbol" Source="Topmenu\search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                 Stretch="Uniform" Height="40" Margin="0,0,8,0"/>
+          <Grid.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
+          </Grid.IsVisible>
+          <Grid.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="searchsymbol" Property="Opacity" Value="1"/>
+            </Trigger>
+          </Grid.Triggers>
+        </Grid>
+
+        <!---Search field for Listview-->
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Height="55" Width="300"
+                    VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,-20,40,5">
+          <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100" 
+                   HorizontalAlignment="Stretch"/>
+          <Image x:Name="searchsymbol2" Source="Topmenu\search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                 Stretch="Uniform" Height="40" Margin="0,0,8,0"/>
+          <Grid.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
+          </Grid.IsVisible>
+          <Grid.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="searchsymbol2" Property="Opacity" Value="1"/>
+            </Trigger>
+          </Grid.Triggers>
+        </Grid>
+
+        <!---Don't delete, it's necessary! Is just shifted with margins out of screen to make it invisible-->
+        <Control Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" 
+                 VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,-150,0">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsListHeader.inc"/>
+          </Control.TemplateControl>
+        </Control>
+
+      </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Alternative_Footer_Template">
+      <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <!---Gridview and Coverview Details-->
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MultiDetails.inc"/>
+          </Control.TemplateControl>
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
+          </Control.IsVisible>
+        </Control>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

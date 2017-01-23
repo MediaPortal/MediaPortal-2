@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -329,7 +329,7 @@ namespace UPnP.Infrastructure.Dv
               DvDevice rootDevice;
               lock (_serverData.SyncObj)
                 if (config.RootDeviceDescriptionPathsToRootDevices.TryGetValue(pathAndQuery, out rootDevice))
-                  description = rootDevice.BuildRootDeviceDescription(_serverData, config, culture);
+                  description = rootDevice.BuildRootDeviceDescription(request, _serverData, config, culture);
                 else if (config.SCPDPathsToServices.TryGetValue(pathAndQuery, out service))
                   description = service.BuildSCPDDocument(config, _serverData);
               if (description != null)

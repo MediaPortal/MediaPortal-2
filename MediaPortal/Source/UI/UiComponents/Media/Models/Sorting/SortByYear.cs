@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
@@ -35,6 +37,19 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_YEAR; }
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_YEAR; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      var dt = (DateTime?) base.GetGroupByValue(item);
+      if (!dt.HasValue)
+        return null;
+      return dt.Value.Year;
     }
   }
 }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -115,21 +115,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       UpdateGuiProperties();
       _programsList.Clear();
-      if (CurrentChannel != null)
+      IChannel channel = CurrentChannel;
+      if (channel != null)
       {
-        if (_tvHandler.ProgramInfo.GetPrograms(CurrentChannel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24), out _programs))
+        if (_tvHandler.ProgramInfo.GetPrograms(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24), out _programs))
         {
           foreach (IProgram program in _programs)
           {
             // Use local variable, otherwise delegate argument is not fixed
             ProgramProperties programProperties = new ProgramProperties();
             IProgram currentProgram = program;
-            programProperties.SetProgram(currentProgram);
+            programProperties.SetProgram(currentProgram, channel);
 
             ProgramListItem item = new ProgramListItem(programProperties)
-                              {
-                                Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
-                              };
+            {
+              Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
+            };
             item.AdditionalProperties["PROGRAM"] = currentProgram;
 
             _programsList.Add(item);

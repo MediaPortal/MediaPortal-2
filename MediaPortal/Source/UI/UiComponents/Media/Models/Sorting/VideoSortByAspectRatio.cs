@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class VideoSortByAspectRatio : AbstractSortByComparableValueAttribute<float>
   {
-    public VideoSortByAspectRatio() : base(Consts.RES_SORT_BY_ASPECT_RATIO, VideoAspect.ATTR_ASPECTRATIO) {}
+    public VideoSortByAspectRatio() : base(Consts.RES_SORT_BY_ASPECT_RATIO, Consts.RES_GROUP_BY_ASPECT_RATIO, VideoStreamAspect.ATTR_ASPECTRATIO)
+    {
+      _includeMias = new[] { VideoStreamAspect.ASPECT_ID };
+    }
   }
 }

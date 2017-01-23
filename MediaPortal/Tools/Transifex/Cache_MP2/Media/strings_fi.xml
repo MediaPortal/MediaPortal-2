@@ -103,7 +103,7 @@
   <string name="Media.MediaItemsHeader">Media kohteet</string>
   <string name="Media.VideoItemsHeader">Videot</string>
   <string name="Media.AudioItemsHeader">Audio kohteet</string>
-  <string name="Media.SeriesItemsHeader">Jaksot</string>
+  <string name="Media.EpisodeItemsHeader">Jaksot</string>
   <string name="Media.MoviesItemsHeader">Elokuvat</string>
   <string name="Media.ImageItemsHeader">Kuvat</string>
   <string name="Media.SimpleSearchHeader">Yksinkertainen haku</string>
@@ -143,6 +143,7 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Videot</string>
   <string name="Media.SeriesRootViewName">Sarjat</string>
+  <string name="Media.EpisodeRootViewName">Jakso</string>
   <string name="Media.ImagesRootViewName">Kuvat</string>
   <string name="Media.SimpleSearchViewName">Yksinkertainen haku</string>
   <!--General strings used in views-->
@@ -335,4 +336,7 @@
   <string name="Settings.Players.SkipStepList.Help">Syötä hypyn pituus sekunteina eroteltuna pilkulla,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Avaa soittimen toimintasuunnitelma</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Toimintasuunnitelma, kuinka juuri avatut soittimet asetellaan jo avattujen soittimien kanssa</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,6 +33,7 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Services.Players.Builders;
 using MediaPortal.UI.Services.Players.Settings;
 
 namespace MediaPortal.UI.Services.Players
@@ -104,7 +105,7 @@ namespace MediaPortal.UI.Services.Players
     /// <summary>
     /// Maps player builder plugin item ids to player builders.
     /// </summary>
-    internal IDictionary<string, IPlayerBuilder> _playerBuilders = new Dictionary<string, IPlayerBuilder>();
+    internal IDictionary<string, PlayerBuilderWrapper> _playerBuilders = new Dictionary<string, PlayerBuilderWrapper>();
     protected int _volume = 100;
     protected bool _isMuted = false;
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -227,10 +228,10 @@ namespace MediaPortal.UI.Services.Players
     protected void LoadPlayerBuilder(string playerBuilderId)
     {
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      IPlayerBuilder playerBuilder;
+      PlayerBuilderWrapper playerBuilder;
       try
       {
-        playerBuilder = pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
+        playerBuilder = pluginManager.RequestPluginItem<PlayerBuilderWrapper>(PLAYERBUILDERS_REGISTRATION_PATH,
                 playerBuilderId, _playerBuilderPluginItemStateTracker);
         if (playerBuilder == null)
         {
@@ -259,7 +260,7 @@ namespace MediaPortal.UI.Services.Players
     {
       ICollection<IPlayerBuilder> builders;
       lock (_syncObj)
-        builders = new List<IPlayerBuilder>(_playerBuilders.Values);
+        builders = new List<IPlayerBuilder>(_playerBuilders.Values.OrderByDescending(w => w.Priority).ThenBy(w => w.Id).Select(w => w.PlayerBuilder));
       exceptions = new List<Exception>();
       foreach (IPlayerBuilder playerBuilder in builders)
       {

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Wetter</string>
-  <string name="Weather.WeatherSetupStateDisplayLabel">Wettereinrichtung</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Wetter-Einrichtung</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Ort auswählen</string>
   <!--Dialog state, doesn't appear at the UI-->
@@ -9,11 +9,11 @@
   <string name="Weather.Title.Help">Aktuelle Wetterinformationen und Vorhersage.</string>
   <string name="Weather.ChooseLocation">Standort auswählen</string>
   <string name="Weather.Refresh">Aktualisieren</string>
-  <string name="Weather.Updating">Aktualisierungsvorgang...</string>
+  <string name="Weather.Updating">Aktualisieren...</string>
   <string name="Weather.Weather">Wetter</string>
   <string name="Weather.NoData">Keine Daten</string>
   <string name="Weather.Temp">Temperatur</string>
-  <string name="Weather.TempFeel">Gefühlt wie</string>
+  <string name="Weather.TempFeel">Gefühlt</string>
   <string name="Weather.UVIndex">UV-Index</string>
   <string name="Weather.Wind">Wind</string>
   <string name="Weather.Humidity">Luftfeuchtigkeit</string>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaItemAspectModelBuilder", "MediaItemAspectModelBuilder\MediaItemAspectModelBuilder.csproj", "{634C0633-0C9D-4408-B2CB-AA026AAF4A28}"
 EndProject
@@ -18,6 +18,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tve3RecordingMetadataExtractor", "..\..\Source\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj", "{BD0AD1E7-48A9-404E-9C82-291CE3B41657}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineLibraries", "..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj", "{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Interfaces", "..\..\Source\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj", "{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaInfoLib", "..\..\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj", "{7280C551-DCE2-46B7-943E-8C0D90CDC22C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +72,18 @@ Global
 		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}.Release|x86.Build.0 = Release|x86
 		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}.Test|x86.ActiveCfg = Release|x86
 		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}.Test|x86.Build.0 = Release|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Debug|x86.ActiveCfg = Debug|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Debug|x86.Build.0 = Debug|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Release|x86.ActiveCfg = Release|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Release|x86.Build.0 = Release|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Test|x86.ActiveCfg = Release|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Test|x86.Build.0 = Release|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Debug|x86.ActiveCfg = Debug|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Debug|x86.Build.0 = Debug|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Release|x86.ActiveCfg = Release|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Release|x86.Build.0 = Release|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Test|x86.ActiveCfg = Release|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Test|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,5 +95,6 @@ Global
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
 		{BD0AD1E7-48A9-404E-9C82-291CE3B41657} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
 		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
 	EndGlobalSection
 EndGlobal

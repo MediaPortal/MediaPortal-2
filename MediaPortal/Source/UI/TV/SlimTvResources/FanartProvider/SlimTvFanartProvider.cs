@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -39,6 +39,7 @@ using MediaPortal.LogoManager.ChannelManagerService;
 using MediaPortal.LogoManager.Design;
 using MediaPortal.Plugins.SlimTv.SlimTvResources.Settings;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
 {
@@ -55,6 +56,8 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
       var currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       _country = new RegionInfo(currentCulture.LCID);
     }
+
+    public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
 
     /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.

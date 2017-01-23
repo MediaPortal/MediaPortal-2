@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Consts,Brushes"
+    >
+
+  <!-- *************************** Play control graphics ****************************** -->
+  <ControlTemplate x:Key="AudioActiveControlTemplate">
+    <Path x:Name="Audio" Fill="{ThemeResource PlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
+        Width="18" Height="18" Margin="8,5,12,5"
+        Data="F1 M0.0,5.0 L3.0,5 3.0,13 0.0,13 z M3.0,6.0 L10.0,2 10.0,16 3.0,12.0 3.0,6.0 z M10.0,0.5 L12.0,0.5 12.0,17.5 10.0,17.5 z"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="AudioInactiveControlTemplate">
+    <Path x:Name="Audio" Fill="{ThemeResource InactivePlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
+        Width="18" Height="18" Margin="8,5,12,5"
+        Data="F1 M0.0,5.0 L3.0,5 3.0,13 0.0,13 z M3.0,6.0 L10.0,2 10.0,16 3.0,12.0 3.0,6.0 z M10.0,0.5 L12.0,0.5 12.0,17.5 10.0,17.5 z"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="MuteOnOffControlTemplate">
+		<Path x:Name="MuteOff" Fill="{ThemeResource PlayControlsMuteOffCrossColor}" Stretch="Fill"
+        Width="30" Height="30" Margin="4,0,4,0"
+		    Data="F1 M0,10 C0,20 20,20 20,10 C20,0 0,0 0,10 L2,10 C2,2 18,2 18,10 C18,18 2,18 2,10 L0,10 z M4,15 L15,4 17,6 6,17 4,15 z"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PlayControlTemplate">
+    <Path x:Name="Play" Fill="{ThemeResource PlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
+        Width="{ThemeResource OSDControlWidth}" Height="{ThemeResource OSDControlWidth}" Margin="{ThemeResource OSDControlMargin}"
+        Data="F1 M0.5,0.0 L11.5,11.5 0.5,22.0 z"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PauseControlTemplate">
+    <Path x:Name="Pause" Fill="{ThemeResource PlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
+        Width="{ThemeResource OSDControlWidth}" Height="{ThemeResource OSDControlWidth}" Margin="{ThemeResource OSDControlMargin}"
+        Data="F1 M0.0,0.5 L6,0.5 6,21.5 0.0,21.5 0.0,0.5 z M11.0,0.5 L17.0,0.5 17.0,21.5 11.0,21.5 11.0,0.5 z"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="StopControlTemplate">
+    <Rectangle x:Name="Stop" Fill="{ThemeResource PlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
+        Width="{ThemeResource OSDControlWidth}" Height="{ThemeResource OSDControlWidth}" Margin="{ThemeResource OSDControlMargin}"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="ForwardControlTemplate">
+    <Path x:Name="Forward" Fill="{ThemeResource PlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
+        Width="{ThemeResource OSDControlWidth}" Height="{ThemeResource OSDControlWidth}" Margin="{ThemeResource OSDControlMargin}"
+        Data="F1 M0.0,0.5 L7.5,9 0.0,17.5 0.0,0.5 z M7.5,0.5 L15,9 7.5,17.5 7.5,0.5 z"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="RewindControlTemplate">
+    <Path x:Name="Rewind" Fill="{ThemeResource PlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
+        Width="{ThemeResource OSDControlWidth}" Height="{ThemeResource OSDControlWidth}" Margin="{ThemeResource OSDControlMargin}"
+        Data="F1 M0.0,0.5 L7.5,9 0.0,17.5 0.0,0.5 z M7.5,0.5 L15,9 7.5,17.5 7.5,0.5 z"
+        RenderTransformOrigin="0.5,0.5">
+      <Path.RenderTransform>
+        <RotateTransform Angle="180"/>
+      </Path.RenderTransform>
+    </Path>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SkipForwardControlTemplate">
+    <Path x:Name="SkipForward" Fill="{ThemeResource PlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
+        Width="{ThemeResource OSDControlWidth}" Height="{ThemeResource OSDControlWidth}" Margin="{ThemeResource OSDControlMargin}"
+        Data="F1 M0.0,0.5 L7.5,9 0.0,17.5 0.0,0.5 z M7.5,0.5 L13.5,0.5 13.5,17.5 7.5,17.5 7.5,0.5 z"/>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SkipBackControlTemplate">
+    <Path x:Name="SkipBack" Fill="{ThemeResource PlayControlsFillBrush}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
+        Width="{ThemeResource OSDControlWidth}" Height="{ThemeResource OSDControlWidth}" Margin="{ThemeResource OSDControlMargin}"
+        Data="F1 M0.0,0.5 L7.5,9 0.0,17.5 0.0,0.5 z M7.5,0.5 L13.5,0.5 13.5,17.5 7.5,17.5 7.5,0.5 z"
+        RenderTransformOrigin="0.5,0.5">
+      <Path.RenderTransform>
+        <RotateTransform Angle="180"/>
+      </Path.RenderTransform>
+    </Path>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PowerControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="P" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="WindowCloseControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="X" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="WindowMinimizeControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="M" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SuspendControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="H" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="NavigateBackControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Path x:Name="Play" Fill="{ThemeResource WindowButtonColor}" Stretch="Fill" Stroke="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,5,5"
+          Data="F1 M22.0,0.0 L11,11.5 22.0,22.0 z"/>
+    </Grid>
+  </ControlTemplate>
+
+    <!-- Star shape for rating control -->
+
+    <!-- Unselected stars-->
+    <ControlTemplate x:Key="StarPolygonTemplate">
+        <Canvas x:Name="star" Margin="1,0,2,0">
+            <Path Width="18" Height="18" Stretch="Fill" Opacity="0.1" Fill="{ThemeResource StarRatingSelectedColor}" Data="F1M15.5,1.001C15.5,1.001 20.279,9.8 20.279,9.8 20.279,9.8 29.998,11.695 29.998,11.695 29.998,11.695 23.232,19.029 23.232,19.029 23.232,19.029 24.46,28.999 24.46,28.999 24.46,28.999 15.5,24.732 15.5,24.732 15.5,24.732 6.539,28.999 6.539,28.999 6.539,28.999 7.768,19.029 7.768,19.029 7.768,19.029 1.002,11.695 1.002,11.695 1.002,11.695 10.721,9.8 10.721,9.8 10.721,9.8 15.5,1.001 15.5,1.001"/>
+        </Canvas>
+    </ControlTemplate>
+    <!-- Selected stars-->
+    <ControlTemplate x:Key="StarPolygonSelectedTemplate">
+        <Canvas x:Name="star" Margin="1,0,2,0">
+            <Path Width="18" Height="18" Stretch="Fill" Fill="{ThemeResource StarRatingSelectedColor}" Data="F1M15.5,1.001C15.5,1.001 20.279,9.8 20.279,9.8 20.279,9.8 29.998,11.695 29.998,11.695 29.998,11.695 23.232,19.029 23.232,19.029 23.232,19.029 24.46,28.999 24.46,28.999 24.46,28.999 15.5,24.732 15.5,24.732 15.5,24.732 6.539,28.999 6.539,28.999 6.539,28.999 7.768,19.029 7.768,19.029 7.768,19.029 1.002,11.695 1.002,11.695 1.002,11.695 10.721,9.8 10.721,9.8 10.721,9.8 15.5,1.001 15.5,1.001"/>
+        </Canvas>
+    </ControlTemplate>
+
+</ResourceDictionary>

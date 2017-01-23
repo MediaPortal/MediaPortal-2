@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,9 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
+using System.Collections.Generic;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
@@ -38,9 +41,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
     public override bool IsAvailable(MediaItem mediaItem)
     {
-      int playCount;
-      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out playCount))
-        return false;
+      int playCount = 0;
+      if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
+        playCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
       if (!IsManagedByMediaLibrary(mediaItem) || !AppliesForPlayCount(playCount))
         return false;
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
@@ -53,17 +56,36 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return false;
-
-      var rl = mediaItem.GetResourceLocator();
-
-      Guid parentDirectoryId;
-      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, out parentDirectoryId))
+      
+      IList<MultipleMediaItemAspect> pras;
+      if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
         return false;
 
-      MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, GetNewPlayCount());
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      cd.AddOrUpdateMediaItem(parentDirectoryId, rl.NativeSystemId, rl.NativeResourcePath, mediaItem.Aspects.Values);
+      int playCount = GetNewPlayCount();
+      int playPercentage = playCount > 0 ? 100 : 0;
+      
+      if (playCount > 0)
+      {
+        cd.NotifyPlayback(mediaItem.MediaItemId, true);
+      }
 
+      if (userProfile.HasValue)
+      {
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
+          UserDataKeysKnown.KEY_PLAY_COUNT, playCount.ToString());
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
+          UserDataKeysKnown.KEY_PLAY_PERCENTAGE, (playCount > 0 ? 100 : 0).ToString());
+      }
+
+      //Also update media item locally so changes are reflected in GUI without reloading
+      MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, playCount);
+      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = playCount.ToString();
+      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
       changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
       return true;
     }

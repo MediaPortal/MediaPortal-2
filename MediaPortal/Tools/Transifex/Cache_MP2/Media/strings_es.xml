@@ -113,7 +113,7 @@
   <string name="Media.MediaItemsHeader">Elementos multimedia</string>
   <string name="Media.VideoItemsHeader">Vídeos</string>
   <string name="Media.AudioItemsHeader">Elementos de sonido</string>
-  <string name="Media.SeriesItemsHeader">Episodios</string>
+  <string name="Media.EpisodeItemsHeader">Episodes</string>
   <string name="Media.MoviesItemsHeader">Películas</string>
   <string name="Media.ImageItemsHeader">Imágenes</string>
   <string name="Media.SimpleSearchHeader">Búsqueda sencilla</string>
@@ -155,6 +155,8 @@
   <string name="Media.AudioRootViewName">Sonido</string>
   <string name="Media.VideosRootViewName">Vídeos</string>
   <string name="Media.SeriesRootViewName">Series</string>
+  <string name="Media.SeasonRootViewName">Season</string>
+  <string name="Media.EpisodeRootViewName">Episode</string>
   <string name="Media.ImagesRootViewName">Imágenes</string>
   <string name="Media.SimpleSearchViewName">Búsqueda simple</string>
   <!--General strings used in views-->
@@ -349,4 +351,7 @@
   <string name="Settings.Players.SkipStepList.Help">Introduce los salto em segundos separados por ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Estrategia para abrir reproductores</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estrategia, cómo los reproductores recién abiertos se posicionarán entre los reproductores que ya están abiertos</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

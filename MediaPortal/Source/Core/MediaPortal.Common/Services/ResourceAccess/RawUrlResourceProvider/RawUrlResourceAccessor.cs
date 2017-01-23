@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,7 +48,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.RawUrlResourceProvider
 
     public ResourcePath CanonicalLocalResourcePath
     {
-      get { return ResourcePath.BuildBaseProviderPath(RawUrlResourceProvider.RAW_URL_RESOURCE_PROVIDER_ID, RawUrlResourceProvider.ToProviderResourcePath(_rawUrl).Serialize()); }
+      get { return RawUrlResourceProvider.ToProviderResourcePath(_rawUrl); }
     }
 
     public IResourceAccessor Clone()

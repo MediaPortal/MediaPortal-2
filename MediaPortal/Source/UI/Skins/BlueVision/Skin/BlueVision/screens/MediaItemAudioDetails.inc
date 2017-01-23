@@ -4,8 +4,14 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails"
-  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+  x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+  <Grid.Resources>
+    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
+  </Grid.Resources>
+  
   <Grid.RowDefinitions>
     <RowDefinition Height="190"/>
   </Grid.RowDefinitions>
@@ -13,12 +19,11 @@
     <ColumnDefinition Width="1650"/>
     <ColumnDefinition Width="100"/>
   </Grid.ColumnDefinitions>
-
   
   <WrapPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0">
 
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:MediaAspectWrapper.Template>
+    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
@@ -28,11 +33,11 @@
             <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
-                Content="{Binding Title}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding TrackName}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
+      </media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
 
     <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:AudioAspectWrapper.Template>
@@ -130,8 +135,15 @@
             </Grid.ColumnDefinitions>            
             <Label x:Name="GenresLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioGenresLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1"
-                Content="{Binding Genres}" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Genre" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}"
+                   Grid.Row="0" Grid.Column="1">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+                  <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+                  <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+                </MultiBinding>
+              </Label.Content>
+            </Label>
           </Grid>
         </ControlTemplate>
       </media:AudioAspectWrapper.Template>
@@ -209,34 +221,4 @@
     </media:MediaAspectWrapper>
 
   </WrapPanel>
-
-  <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:MediaAspectWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="0" Grid.Column="1">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="32" Margin="0,8,0,0" Grid.Row="0" Grid.Column="0"  >
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding Path="PlayCount"/>
-                <Binding Source=""/>
-                <Binding Source="unheard_icon.png"/>
-              </MultiBinding>
-            </Image.Source>
-          </Image>
-         </Grid>
-      </ControlTemplate>
-    </media:MediaAspectWrapper.Template>
-  </media:MediaAspectWrapper>
-
-          
-
-  <!--Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5"
-      Width="380" Height="560"
-      Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/-->
-
-
-
 </Grid>

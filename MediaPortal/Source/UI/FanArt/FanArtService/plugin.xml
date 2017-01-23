@@ -8,16 +8,16 @@
     AutoActivate="true">
 
   <Version
-    PluginVersion="1.1"
-    ReleaseDate="2015-11-20 01:00:00 GMT+01:00"
-    CurrentAPI="2"/>
+    PluginVersion="1.2"
+    ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
+    CurrentAPI="3"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="HttpServer" CompatibleAPI="1" />
     <CoreDependency Name="UPnP" CompatibleAPI="1" />
-    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="1"/> <!-- OnlineLibraries -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
   </DependsOn>
 
   <Runtime>
@@ -29,8 +29,8 @@
   <!-- We use our own local name here to avoid circular references to FanArtService -->
   <Builder Name="FanartProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers.FanartProviderBuilder"/>
   <Register Location="/Fanart/Providers">
-    <FanartProviderBuilder Id="{C9D5883D-99C6-4607-8B22-EF5DB2CFBE7B}" MediaTypes="Album" ClassName="MediaPortal.Extensions.UserServices.FanArtService.AlbumThumbs"/>
-    <FanartProviderBuilder Id="{D2D15B97-18F2-4224-8204-67C890403FDA}" MediaTypes="Album" ClassName="MediaPortal.Extensions.UserServices.FanArtService.MediaItemThumbs"/>
+    <FanartProviderBuilder Id="{C9D5883D-99C6-4607-8B22-EF5DB2CFBE7B}" MediaTypes="Audio" ClassName="MediaPortal.Extensions.UserServices.FanArtService.AlbumThumbs"/>
+    <FanartProviderBuilder Id="{D2D15B97-18F2-4224-8204-67C890403FDA}" MediaTypes="Movies,Series,Audio" ClassName="MediaPortal.Extensions.UserServices.FanArtService.MediaItemThumbs"/>
   </Register>
 
 </Plugin>

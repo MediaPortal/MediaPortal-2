@@ -75,6 +75,9 @@
     <Compile Include="Network\Netbios\NbNsResourceRecordBase.cs" />
     <Compile Include="Network\Netbios\NbNsStatistics.cs" />
     <Compile Include="Network\Netbios\NbPacketSegmentBase.cs" />
+    <Compile Include="Process\Ipc.cs" />
+    <Compile Include="Process\IpcClient.cs" />
+    <Compile Include="Process\IpcServer.cs" />
     <Compile Include="Process\ProcessExecutionResult.cs" />
     <Compile Include="Screens\FormExtensions.cs" />
     <Compile Include="Security\SafeProcessHandle.cs" />

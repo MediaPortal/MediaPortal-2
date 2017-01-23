@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,6 +30,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
@@ -116,6 +117,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void SelectGroup()
     {
+      ChannelGroupList.Clear();
+      for (int index = 0; index < ChannelContext.Instance.ChannelGroups.Count; index++)
+      {
+        var channelGroup = ChannelContext.Instance.ChannelGroups[index];
+        int groupIndex = index;
+        ListItem channel = new ListItem(Consts.KEY_NAME, channelGroup.Name)
+        {
+          Command = new MethodDelegateCommand(() => ChannelContext.Instance.ChannelGroups.SetIndex(groupIndex)),
+          Selected = groupIndex == ChannelContext.Instance.ChannelGroups.CurrentIndex
+        };
+        ChannelGroupList.Add(channel);
+      }
+      ChannelGroupList.FireChange();
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseGroup");
     }
 

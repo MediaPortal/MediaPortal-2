@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -55,6 +55,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// </summary>
     [Setting(SettingScope.Global)]
     public HashSet<string> SeriesNfoFileNames { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Actor details will be created.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeActorDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Character details will be created.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeCharacterDetails { get; set; }
 
     #endregion
   }

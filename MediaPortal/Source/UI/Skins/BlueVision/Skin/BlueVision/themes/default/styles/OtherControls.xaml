@@ -33,6 +33,136 @@
 
   <!-- ***************************** ScrollViewer styles ********************************* -->
 
+  <Style x:Key="GradientScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid" Margin="0">
+            <Grid.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0">
+                    <Rectangle.Fill>
+                      <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
+                        <GradientStop Color="#00000000" Offset="0"/>
+                        <GradientStop Color="#FF000000" Offset="0.12"/>
+                        <GradientStop Color="#FF000000" Offset="0.72"/>
+                        <GradientStop Color="#00000000" Offset="0.84"/>
+                      </LinearGradientBrush>
+                    </Rectangle.Fill>
+                  </Rectangle>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Grid.OpacityMask>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="GradientCoverScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid" Margin="-45,0,0,0">
+            <Grid.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0">
+                    <Rectangle.Fill>
+                      <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
+                        <GradientStop Color="#00000000" Offset="0"/>
+                        <GradientStop Color="#FF000000" Offset="0.15"/>
+                        <GradientStop Color="#FF000000" Offset="0.83"/>
+                        <GradientStop Color="#00000000" Offset="0.98"/>
+                      </LinearGradientBrush>
+                    </Rectangle.Fill>
+                  </Rectangle>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Grid.OpacityMask>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="GradientListScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid" Margin="0,-50,0,-50">
+            <!--The negative margin is necessary and needs to be compensated in the 
+            ScrollContentPresenter to avoid graphic errors with grow effect-->
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="50" Margin="0,50,0,50"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="Transparent" Offset="0.07"/>
+                <GradientStop Color="Black" Offset="0.3"/>
+                <GradientStop Color="Black" Offset="0.7"/>
+                <GradientStop Color="Transparent" Offset="0.93"/>
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="GradientGridScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid" Margin="0,-50,0,-50">
+            <!--The negative margin is necessary and needs to be compensated in the 
+            ScrollContentPresenter to avoid graphic errors with grow effect-->
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="50" Margin="0,50,0,50"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="Transparent" Offset="0.08"/>
+                <GradientStop Color="Black" Offset="0.3"/>
+                <GradientStop Color="Black" Offset="0.7"/>
+                <GradientStop Color="Transparent" Offset="0.9"/>
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="LeftSideScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
     <Setter Property="Template">
       <Setter.Value>
@@ -225,7 +355,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -253,11 +383,32 @@
   <!-- Implicit default style for ProgressBar controls -->
   <Style BasedOn="{ThemeResource DefaultProgressBarStyle}" TargetType="{x:Type ProgressBar}"/>
 
+  <Style x:Key="PercentageProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="6" RadiusY="6"      
+                       Fill="{ThemeResource PercentageBarBackgroundColor}"/>
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" 
+                       VerticalAlignment="Stretch" RadiusX="6" RadiusY="6" Fill="{ThemeResource PercentageBarFillColor}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="OSDProgressBarStyle" TargetType="{x:Type ProgressBar}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -286,7 +437,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -378,8 +529,16 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource PopupMenuButtonWideStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                <!-- Consider the item's enabled state -->
+                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsEnabled"/>
+                <!-- In combination with the parent ListView's enabled state -->
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type ListView}}" Path="IsEnabled"/>
+              </MultiBinding>
+            </Button.IsEnabled>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -661,7 +820,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16" 
+          <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,10,10" 
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}">
           </Button>
@@ -672,7 +831,7 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="63" Height="63" Stretch="Fill" Margin="7,0,7,0">
+    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="67" Height="67" Stretch="Fill" Margin="5,0,5,0">
       <Image.Source>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
           <Binding Path="AdditionalProperties[Id]"/>
@@ -879,7 +1038,7 @@
 
         <ProgressBar x:Name="ProgressBar" Grid.ColumnSpan="3" Grid.Row="2" Height="22" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
                 Style="{ThemeResource PlayerControlsProgressBarStyle}"
-                Value="{Binding Path=PercentPlayed}" IsVisible="{Binding IsPlayerPresent}" />
+                Value="{Binding Path=PercentPlayed, Mode=TwoWay}" IsVisible="{Binding IsPlayerPresent}" />
 
         <Control Template="{ThemeResource PlayerControlButtons}" Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Center"/>
 

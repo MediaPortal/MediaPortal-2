@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -68,16 +68,25 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public ArgusRecordingSeriesMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Argus recordings series metadata extractor", MetadataExtractorPriority.Extended, false,
-        SERIES_MEDIA_CATEGORIES, new[] { SeriesAspect.Metadata });
+        SERIES_MEDIA_CATEGORIES, new[]
+        {
+          MediaAspect.Metadata,
+          VideoAspect.Metadata,
+          EpisodeAspect.Metadata,
+        });
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
         IResourceAccessor metaFileAccessor;
-        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
+        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
+          return false;
+        if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+          return false;
 
+        // Handle series information
         Argus.Recording recording;
         using (metaFileAccessor)
         {
@@ -85,16 +94,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
             recording = (Argus.Recording)GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
-        // Handle series information
-        SeriesInfo seriesInfo = GetSeriesFromTags(recording);
-        if (seriesInfo.IsCompleteMatch)
+        EpisodeInfo episodeInfo = GetSeriesFromTags(recording);
+        if (episodeInfo.IsBaseInfoPresent)
         {
-          if (!forceQuickMode)
-            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
-
-          seriesInfo.SetMetadata(extractedAspectData);
+          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
+          if (episodeInfo.IsBaseInfoPresent)
+            episodeInfo.SetMetadata(extractedAspectData);
         }
-        return true;
+        return episodeInfo.IsBaseInfoPresent;
       }
       catch (Exception e)
       {
@@ -167,17 +174,17 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Argus.Recording)));
     }
 
-    public SeriesInfo GetSeriesFromTags(Argus.Recording recording)
+    public EpisodeInfo GetSeriesFromTags(Argus.Recording recording)
     {
-      SeriesInfo seriesInfo = new SeriesInfo { Series = recording.Title };
+      EpisodeInfo episodeInfo = new EpisodeInfo { SeriesName = recording.Title };
 
       if (recording.SeriesNumber.HasValue)
-        seriesInfo.SeasonNumber = recording.SeriesNumber.Value;
+        episodeInfo.SeasonNumber = recording.SeriesNumber.Value;
 
       if (recording.EpisodeNumber.HasValue)
-        seriesInfo.EpisodeNumbers.Add(recording.EpisodeNumber.Value);
+        episodeInfo.EpisodeNumbers.Add(recording.EpisodeNumber.Value);
 
-      if (!seriesInfo.IsCompleteMatch)
+      if (!episodeInfo.IsBaseInfoPresent)
       {
         // Check for formatted display value, i.e.:
         // <EpisodeNumberDisplay>1.4</EpisodeNumberDisplay>
@@ -188,13 +195,21 @@ namespace MediaPortal.Extensions.MetadataExtractors
           {
             int val;
             if (int.TryParse(parts[0], out val))
-              seriesInfo.SeasonNumber = val;
+              episodeInfo.SeasonNumber = val;
             if (int.TryParse(parts[1], out val))
-              seriesInfo.EpisodeNumbers.Add(val);
+              episodeInfo.EpisodeNumbers.Add(val);
           }
         }
       }
-      return seriesInfo;
+
+      if (!string.IsNullOrEmpty(recording.Category))
+      {
+        episodeInfo.Genres.Add(new GenreInfo { Name = recording.Category });
+        OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episodeInfo.Genres);
+      }
+
+      episodeInfo.HasChanged = true;
+      return episodeInfo;
     }
 
     #region IMetadataExtractor implementation
@@ -204,12 +219,15 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
         IResourceAccessor metaFileAccessor;
-        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
+        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
+          return false;
+        if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
+          return false;
 
         Argus.Recording recording;
         using (metaFileAccessor)
@@ -218,9 +236,32 @@ namespace MediaPortal.Extensions.MetadataExtractors
             recording = (Argus.Recording)GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, recording.Title);
+        // Force MimeType
+        IList<MultipleMediaItemAspect> providerAspects;
+        MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerAspects);
+        foreach (MultipleMediaItemAspect aspect in providerAspects)
+        {
+          aspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/arg");
+        }
 
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new[] { recording.Category });
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ISDVD, false);
+
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, recording.Title);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(recording.Title));
+
+        if (!string.IsNullOrEmpty(recording.Category))
+        {
+          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = recording.Category } });
+          OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+
+          if (genreList.Count > 0)
+          {
+            MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+            genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
+            genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
+          }
+        }
 
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, recording.Description);
 
@@ -252,7 +293,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return false;
     }
 
-    protected static bool CanExtract(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, out IResourceAccessor metaFileAccessor)
+    protected static bool CanExtract(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, out IResourceAccessor metaFileAccessor)
     {
       metaFileAccessor = null;
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;

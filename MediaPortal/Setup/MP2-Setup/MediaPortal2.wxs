@@ -29,8 +29,6 @@
     <PropertyRef Id="PropertiesFile" />
     <PropertyRef Id="AddRemovePropertiesFile" />
     <PropertyRef Id="LaunchConditionsFile" />
-    <PropertyRef Id="DokanFile" />
-    <PropertyRef Id="VCRedistFile" />
 
     <!--
     Source media for the installation.
@@ -52,9 +50,6 @@
           <Component Id="EmptyComponent_WindowsInstallerBugWorkaround" KeyPath="yes" Guid="4D1E4904-0FB1-44B3-82E1-CFE5F01E6AC3"/>
         </Directory>
 
-        <Directory Id="DokanFolder" Name="Dokan">
-          <Directory Id="DokanLibraryFolder" Name="DokanLibrary"/>
-        </Directory>
       </Directory>
 
       <Directory Id="CommonAppDataFolder">
@@ -132,7 +127,7 @@
 
     <!-- User Interface -->
     <WixVariable Id="WixUILicenseRtf"
-                 Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\Release\Docs\MediaPortal License.rtf" />
+                 Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\$(var.Configuration)\Docs\MediaPortal License.rtf" />
     <WixVariable Id="WixUIBannerBmp"
                  Value="Resources\MPBanner.jpg" />
     <WixVariable Id="WixUIDialogBmp"
@@ -148,23 +143,14 @@
     </InstallUISequence>
 
     <InstallExecuteSequence>
+      <!-- Stop all MP2 processes -->
+      <Custom Action="StopProcesses" Before="ReadCustomPathsFromExistingPathsFile"/>
+
       <!-- Reads custom paths which maybe have been changed by the user in a former installation -->
       <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="PrepareXmlPathVariables">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
 
       <Custom Action="PrepareXmlPathVariables" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
-
-      <!-- Uninstall Dokan during installation, if dokan is out of date -->
-      <Custom Action="CA_UninstallDokan" After="InstallFiles">
-        NOT Installed AND DOKANINSTALLED AND
-        NOT (
-        (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64)
-        )
-      </Custom>
-      <!-- Install Dokan, if correct version is not installed yet -->
-      <Custom Action="CA_InstallDokan" After="CA_UninstallDokan">
-        NOT (Installed OR (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64))
-      </Custom>
 
       <Custom Action="InstallLAVFilters" After="InstallFiles">
         <![CDATA[(REINSTALL OR NOT Installed) AND &LAVFilters>=3]]>

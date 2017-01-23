@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -47,6 +47,18 @@ namespace MediaPortal.Common.Services.MediaManagement
       // Metadata extractor related messages. The param will contain the id of the metadata extractor.
       MetadataExtractorAdded,
       MetadataExtractorRemoved,
+
+      // Relationship extractor related messages. The param will contain the id of the metadata extractor.
+      RelationshipExtractorAdded,
+      RelationshipExtractorRemoved,
+
+      // Merge handler related messages. The param will contain the id of the merge handler.
+      MergeHandlerAdded,
+      MergeHandlerRemoved,
+
+      // FanArt handler related messages. The param will contain the id of the FanArt handler.
+      FanArtHandlerAdded,
+      FanArtHandlerRemoved,
     }
 
     // Message data
@@ -74,6 +86,30 @@ namespace MediaPortal.Common.Services.MediaManagement
       SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[PARAM] = metadataExtractorId;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a message concerning a metadata extractor.
+    /// </summary>
+    /// <param name="messageType">Type of the message to send.</param>
+    /// <param name="relationshipExtractorId">Relationship extractor which is affected.</param>
+    public static void SendRelationshipExtractorMessage(MessageType messageType, Guid relationshipExtractorId)
+    {
+        SystemMessage msg = new SystemMessage(messageType);
+        msg.MessageData[PARAM] = relationshipExtractorId;
+        ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a message concerning a merge handler.
+    /// </summary>
+    /// <param name="messageType">Type of the message to send.</param>
+    /// <param name="relationshipExtractorId">Merge handler which is affected.</param>
+    public static void SendMergeHandlerMessage(MessageType messageType, Guid mergeHandlerId)
+    {
+        SystemMessage msg = new SystemMessage(messageType);
+        msg.MessageData[PARAM] = mergeHandlerId;
+        ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

@@ -7,10 +7,20 @@
     xmlns:bv="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
     >
   <Include.Resources>
+    
+    <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+    
+    <ControlTemplate x:Key="Header_Text_Template">
+      <Label x:Name="SelectedItem"
+                Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
+                VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
+                Color="{ThemeResource TextColor}">
+      </Label>
+    </ControlTemplate>
 
     <ControlTemplate x:Key="Menu_Button_Dummy">
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="60,18,0,-62"
-              HorizontalAlignment="Center" VerticalAlignment="Center"
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}"
+              HorizontalAlignment="Right" VerticalAlignment="Center"
               IsEnabled="False">
       </Button>
     </ControlTemplate>
@@ -77,7 +87,7 @@
             <Border Grid.Row="0" Grid.Column="0" Background="Transparent" BorderThickness="0">
               <Label Content="[Movies.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             </Border>
-            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource LatestMovieItemsListListViewStyle}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>

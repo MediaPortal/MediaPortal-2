@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -39,6 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT;
       _viewName = Consts.RES_MOVIES_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
+      _optionalMias = Consts.OPTIONAL_MOVIES_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
@@ -46,15 +47,17 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     {
       base.Prepare();
 
-      _defaultScreen = new VideosFilterByGenreScreenData();
+      _defaultScreen = new MovieFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
           new MoviesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new MovieFilterByCollectionScreenData(),
           new VideosFilterByPlayCountScreenData(),
-          new VideosFilterByActorScreenData(),
-          new VideosFilterByDirectorScreenData(),
-          new VideosFilterByWriterScreenData(),
+          new MovieFilterByActorScreenData(),
+          new MovieFilterByCharacterScreenData(),
+          new MovieFilterByDirectorScreenData(),
+          new MovieFilterByWriterScreenData(),
+          new MovieFilterByCompanyScreenData(),
           _defaultScreen,
           new VideosFilterByYearScreenData(),
           new VideosFilterBySystemScreenData(),
@@ -65,6 +68,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _availableSortings = new List<Sorting.Sorting>
         {
           _defaultSorting,
+          new SortBySortTitle(),
+          new SortByName(),
           new SortByYear(),
           new VideoSortByFirstGenre(),
           new VideoSortByDuration(),
@@ -73,6 +78,26 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new VideoSortByFirstWriter(),
           new VideoSortBySize(),
           new VideoSortByAspectRatio(),
+          new SortByAddedDate(),
+          new SortBySystem(),
+        };
+
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new SortByTitle(),
+          new SortBySortTitle(),
+          new SortByName(),
+          new SortByYear(),
+          new VideoSortByFirstGenre(),
+          new VideoSortByDuration(),
+          new VideoSortByFirstActor(),
+          new VideoSortByFirstDirector(),
+          new VideoSortByFirstWriter(),
+          new VideoSortBySize(),
+          new VideoSortByAspectRatio(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
     }

@@ -13,15 +13,15 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <CoreDependency Name="UPnP" CompatibleAPI="1" />
     <PluginReference PluginId="{87316CE6-904A-48D3-90F0-BBEF3E9D007C}" CompatibleAPI="1"/> <!-- AudioCDResourceProvider -->
     <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}" CompatibleAPI="1"/> <!-- BassLibraries -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
-    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="1"/> <!-- Media -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="2"/> <!-- Media -->
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/> <!-- SkinBase -->
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
     

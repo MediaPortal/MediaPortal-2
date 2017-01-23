@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">Diagnostics</string>
+    <string name="Diagnostics.Settings.Collectlogs">Récupérer des fichiers logs</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Afficher les fichiers logs maintenant</string>
+    <string name="Diagnostics.Settings.ShowLogs">Afficher les fichiers logs</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Afficher les fichiers logs dans une fenêtre séparée</string>
+</resources>

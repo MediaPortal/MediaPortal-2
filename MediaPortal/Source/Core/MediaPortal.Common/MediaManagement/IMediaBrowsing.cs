@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -36,10 +36,11 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="path">Path of the media item.</param>
     /// <param name="necessaryRequestedMIATypeIDs">Necessary MIA ids the returned item must support.</param>
     /// <param name="optionalRequestedMIATypeIDs">Optional MIA ids the returned item can support.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <returns>Loaded media item.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
     MediaItem LoadLocalItem(ResourcePath path,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null);
 
     /// <summary>
     /// Loads the media items in the directory with the given <paramref name="parentDirectoryId"/>.
@@ -47,12 +48,22 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="parentDirectoryId">Id of the directory whose contents should be loaded.</param>
     /// <param name="necessaryRequestedMIATypeIDs">Necessary MIA ids the returned items must support.</param>
     /// <param name="optionalRequestedMIATypeIDs">Optional MIA ids the returned items can support.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Collection of media items.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
     IList<MediaItem> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null);
+        IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
+
+    /// <summary>
+    /// Finds media items that have updated metadata available.
+    /// </summary>
+    /// <param name="necessaryRequestedMIATypeIDs">Necessary MIA ids the returned items must support.</param>
+    /// <param name="optionalRequestedMIATypeIDs">Optional MIA ids the returned items can support.</param>
+    /// <returns>Collection of media items.</returns>
+    /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
+    IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
 
     /// <summary>
     /// Loads the creation dates of all managed MIAs in the MediaLibrary
@@ -60,5 +71,10 @@ namespace MediaPortal.Common.MediaManagement
     /// <returns>Dictionary with MIA IDs as keys and the respective creation dates as values</returns>
     IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates();
 
+    /// <summary>
+    /// Loads all managed MIA types from the MediaLibrary
+    /// </summary>
+    /// <returns>Collection with MIA IDs</returns>
+    ICollection<Guid> GetAllManagedMediaItemAspectTypes();
   }
 }

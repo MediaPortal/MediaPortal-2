@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
@@ -32,6 +34,12 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortByDate : SortByTitle
   {
+    public SortByDate()
+    {
+      _includeMias = new[] { MediaAspect.ASPECT_ID };
+      _excludeMias = null;
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_DATE; }
@@ -39,15 +47,30 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect mediaAspectX;
-      MediaItemAspect mediaAspectY;
-      if (x.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspectX) && y.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspectY))
+      SingleMediaItemAspect mediaAspectX;
+      SingleMediaItemAspect mediaAspectY;
+      if (MediaItemAspect.TryGetAspect(x.Aspects, MediaAspect.Metadata, out mediaAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, MediaAspect.Metadata, out mediaAspectY))
       {
         DateTime? recordingTimeX = (DateTime?) mediaAspectX.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
         DateTime? recordingTimeY = (DateTime?) mediaAspectY.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
         return ObjectUtils.Compare(recordingTimeX, recordingTimeY);
       }
       return base.Compare(x, y);
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_SORT_BY_DATE; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> mediaAspect;
+      if (item.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+      {
+        return mediaAspect.First().GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      }
+      return base.GetGroupByValue(item);
     }
   }
 }

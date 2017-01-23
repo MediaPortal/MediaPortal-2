@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -65,7 +65,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     protected ICollection<UserProfile> GetProfiles(Guid? profileId, string name)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         int profileIdIndex;
@@ -119,6 +119,11 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     public Guid CreateProfile(string profileName)
     {
+      //Profile might already exist.
+      UserProfile existingProfile;
+      if (GetProfileByName(profileName, out existingProfile))
+        return existingProfile.ProfileId;
+
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       Guid profileId = Guid.NewGuid();
@@ -184,7 +189,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public bool GetUserPlaylistData(Guid profileId, Guid playlistId, string key, out string data)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         int dataIndex;
@@ -238,7 +243,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public bool GetUserMediaItemData(Guid profileId, Guid mediaItemId, string key, out string data)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         int dataIndex;
@@ -300,7 +305,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public bool GetUserAdditionalData(Guid profileId, string key, out string data)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         int dataIndex;

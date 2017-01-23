@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,13 +29,136 @@ using System.Linq;
 using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.Players.Video.Interfaces;
+using MediaPortal.UI.Players.Video.Subtitles;
 
 namespace MediaPortal.UI.Players.Video.Tools
 {
+  public class TsReaderStreamInfoHandler : BaseStreamInfoHandler
+  {
+    private const int NO_STREAM_INDEX = -1;
+    private readonly ISubtitleStream _subtitleStream;
+    public TsReaderStreamInfoHandler(ISubtitleStream subtitleStream)
+    {
+      if (subtitleStream == null)
+        return;
+
+      int count = 0;
+      _subtitleStream = subtitleStream;
+      subtitleStream.GetSubtitleStreamCount(ref count);
+      if (count > 0)
+      {
+        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.NO_SUBTITLES, 0);
+        AddUnique(subStream);
+      }
+      for (int i = 0; i < count; ++i)
+      {
+        //FIXME: language should be passed back also as LCID
+        SubtitleLanguage language = new SubtitleLanguage();
+        subtitleStream.GetSubtitleStreamLanguage(i, ref language);
+        int lcid = BaseDXPlayer.LookupLcidFromName(language.lang);
+        // Note: the "type" is no longer considered in MP1 code as well, so I guess DVBSub3 only supports Bitmap subs at all.
+        string name = language.lang;
+        StreamInfo subStream = new StreamInfo(null, i, name, lcid);
+        AddUnique(subStream);
+      }
+    }
+
+    public override bool EnableStream(string selectedStream)
+    {
+      if (_subtitleStream == null)
+        return false;
+
+      // Do not enumerate raw stream names again, as they were made unique (adding counters)
+      for (int i = 0; i < Count; ++i)
+      {
+        string subtitleTrackName = this[i].Name;
+        if (subtitleTrackName.Equals(selectedStream))
+        {
+          if (this[i].StreamIndex != NO_STREAM_INDEX)
+          {
+            ServiceRegistration.Get<ILogger>().Debug("TsReaderStreamInfoHandler: Enable stream '{0}'", selectedStream);
+            _subtitleStream.SetSubtitleStream(i);
+            lock (_syncObj)
+              _currentStream = this[i];
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    public bool DisableSubs
+    {
+      get { return _currentStream == null || _currentStream.StreamIndex == NO_STREAM_INDEX; }
+    }
+  }
+
+  public class MpcStreamInfoHandler : BaseStreamInfoHandler
+  {
+    public MpcStreamInfoHandler()
+    {
+      var subtitleCount = MpcSubtitles.GetCount();
+      for (int i = 0; i < subtitleCount; ++i)
+      {
+        string subtitleTrackName = MpcSubtitles.GetTrackName(i);
+        int lcid = BaseDXPlayer.LookupLcidFromName(subtitleTrackName);
+        StreamInfo subStream = new StreamInfo(null, i, subtitleTrackName, lcid);
+        AddUnique(subStream);
+      }
+      AddUnique(new StreamInfo(null, subtitleCount+1, "No subtitles", 0));
+    }
+
+    public override bool EnableStream(string selectedStream)
+    {
+      // Do not enumerate raw stream names again, as they were made unique (adding counters)
+      for (int i = 0; i < Count; ++i)
+      {
+        string subtitleTrackName = this[i].Name;
+        if (subtitleTrackName.Equals(selectedStream))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("MpcStreamInfoHandler: Enable stream '{0}'", selectedStream);
+          MpcSubtitles.SetCurrent(i);
+          lock (_syncObj)
+            _currentStream = this[i];
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
   /// <summary>
   /// StreamInfoHandler contains list of StreamInfo objects of same kind (audio, video, subtitles). 
   /// </summary>
-  public class StreamInfoHandler : IEnumerable<StreamInfo>
+  public class StreamInfoHandler : BaseStreamInfoHandler
+  {
+    /// <summary>
+    /// Enables a selected stream name by calling it associated StreamSelector.
+    /// </summary>
+    /// <param name="selectedStream"></param>
+    public override bool EnableStream(string selectedStream)
+    {
+      StreamInfo streamInfo;
+      lock (_syncObj)
+        streamInfo = FindStream(selectedStream);
+
+      if (streamInfo == null || streamInfo.StreamSelector == null)
+        return false;
+
+      ServiceRegistration.Get<ILogger>().Debug("StreamInfoHandler: Enable stream '{0}'", selectedStream);
+      streamInfo.StreamSelector.Enable(streamInfo.StreamIndex, AMStreamSelectEnableFlags.Enable);
+
+      lock (_syncObj)
+        _currentStream = streamInfo;
+      return true;
+    }
+  }
+
+  /// <summary>
+  /// StreamInfoHandler contains list of StreamInfo objects of same kind (audio, video, subtitles). 
+  /// </summary>
+  public abstract class BaseStreamInfoHandler : IEnumerable<StreamInfo>
   {
     protected readonly object _syncObj = new object();
 
@@ -98,9 +221,9 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     #region Variables
 
-    private readonly List<StreamInfo> _streamInfos = new List<StreamInfo>();
-    private StreamInfo _currentStream = null;
-    private string[] _streamNamesCache = null;
+    protected readonly List<StreamInfo> _streamInfos = new List<StreamInfo>();
+    protected StreamInfo _currentStream = null;
+    protected string[] _streamNamesCache = null;
 
     #endregion
 
@@ -192,22 +315,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// Enables a selected stream name by calling it associated StreamSelector.
     /// </summary>
     /// <param name="selectedStream"></param>
-    public bool EnableStream(string selectedStream)
-    {
-      StreamInfo streamInfo;
-      lock (_syncObj)
-        streamInfo = FindStream(selectedStream);
-
-      if (streamInfo == null || streamInfo.StreamSelector == null)
-        return false;
-
-      ServiceRegistration.Get<ILogger>().Debug("StreamInfoHandler: Enable stream '{0}'", selectedStream);
-      streamInfo.StreamSelector.Enable(streamInfo.StreamIndex, AMStreamSelectEnableFlags.Enable);
-      
-      lock (_syncObj)
-        _currentStream = streamInfo;
-      return true;
-    }
+    public abstract bool EnableStream(string selectedStream);
 
     /// <summary>
     /// Finds a stream by it's name.
@@ -230,7 +338,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       lock (_syncObj)
         return _streamInfos.Find(s => s.LCID == lcid);
     }
-    
+
     /// <summary>
     /// Finds the first stream by name part. This can be used to find "English" in "S: [English]" or "A: [English] (MP3 2ch)".
     /// </summary>
@@ -249,7 +357,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     public StreamInfo FindForcedStream()
     {
       lock (_syncObj)
-        return _streamInfos.Find(s => s.IsAutoSubtitle == true);
+        return _streamInfos.Find(s => s.IsAutoSubtitle);
     }
 
     #endregion

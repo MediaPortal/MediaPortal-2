@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,18 +25,40 @@
 using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Utilities;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  public abstract class AbstractSortByComparableValueAttribute<T> : Sorting where T : struct , IComparable<T>
+  public abstract class AbstractSortByComparableValueAttribute<T> : Sorting where T : struct, IComparable<T>
   {
     protected string _displayName;
-    protected MediaItemAspectMetadata.AttributeSpecification _sortAttr;
+    protected string _groupByDisplayName;
+    protected IEnumerable<MediaItemAspectMetadata.SingleAttributeSpecification> _sortAttrs;
+    protected IEnumerable<MediaItemAspectMetadata.MultipleAttributeSpecification> _sortMultiAttrs;
 
-    protected AbstractSortByComparableValueAttribute(string displayName, MediaItemAspectMetadata.AttributeSpecification sortAttr)
+    protected AbstractSortByComparableValueAttribute(string displayName, string groupByDisplayName, MediaItemAspectMetadata.SingleAttributeSpecification sortAttr)
+    : this(displayName, groupByDisplayName, new[] { sortAttr })
+    {
+    }
+
+    protected AbstractSortByComparableValueAttribute(string displayName, string groupByDisplayName, IEnumerable<MediaItemAspectMetadata.SingleAttributeSpecification> sortAttrs)
     {
       _displayName = displayName;
-      _sortAttr = sortAttr;
+      _groupByDisplayName = groupByDisplayName;
+      _sortAttrs = sortAttrs;
+    }
+
+    protected AbstractSortByComparableValueAttribute(string displayName, string groupByDisplayName, MediaItemAspectMetadata.MultipleAttributeSpecification sortAttr)
+    : this(displayName, groupByDisplayName, new[] { sortAttr })
+    {
+    }
+
+    protected AbstractSortByComparableValueAttribute(string displayName, string groupByDisplayName, IEnumerable<MediaItemAspectMetadata.MultipleAttributeSpecification> sortAttrs)
+    {
+      _displayName = displayName;
+      _groupByDisplayName = groupByDisplayName;
+      _sortMultiAttrs = sortAttrs;
     }
 
     public override string DisplayName
@@ -46,16 +68,51 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect aspectX;
-      MediaItemAspect aspectY;
-      Guid aspectId = _sortAttr.ParentMIAM.AspectId;
-      if (x.Aspects.TryGetValue(aspectId, out aspectX) && y.Aspects.TryGetValue(aspectId, out aspectY))
+      MediaItemAspect aspectX = null;
+      MediaItemAspect aspectY = null;
+      MediaItemAspectMetadata.AttributeSpecification attrX = null;
+      MediaItemAspectMetadata.AttributeSpecification attrY = null;
+      if (_sortAttrs != null)
       {
-        T? valX = (T?) aspectX.GetAttributeValue(_sortAttr);
-        T? valY = (T?) aspectY.GetAttributeValue(_sortAttr);
-        return ObjectUtils.Compare(valX, valY);
+        attrX = GetAttributeSpecification(x, _sortAttrs, out aspectX);
+        attrY = GetAttributeSpecification(y, _sortAttrs, out aspectY);
       }
-      return 0;
+      else if (_sortMultiAttrs != null)
+      {
+        attrX = GetAttributeSpecification(x, _sortMultiAttrs, out aspectX);
+        attrY = GetAttributeSpecification(y, _sortMultiAttrs, out aspectY);
+      }
+
+      T? valX = null;
+      T? valY = null;
+      if (attrX != null)
+      {
+        valX = (T?)aspectX.GetAttributeValue(attrX);
+      }
+      if (attrY != null)
+      {
+        valX = (T?)aspectX.GetAttributeValue(attrX);
+      }
+      return ObjectUtils.Compare(valX, valY);
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return _groupByDisplayName; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      MediaItemAspect aspect = null;
+      MediaItemAspectMetadata.AttributeSpecification attr = null;
+      if (_sortAttrs != null)
+        attr = GetAttributeSpecification(item, _sortAttrs, out aspect);
+      else if (_sortMultiAttrs != null)
+        attr = GetAttributeSpecification(item, _sortMultiAttrs, out aspect);
+
+      if (attr != null)
+        return aspect.GetAttributeValue(attr);
+      return null;
     }
   }
 }

@@ -17,12 +17,12 @@
   </Runtime>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
-    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="1"/> <!-- OnlineLibraries -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
   </DependsOn>
 
   <Register Location="/Models">

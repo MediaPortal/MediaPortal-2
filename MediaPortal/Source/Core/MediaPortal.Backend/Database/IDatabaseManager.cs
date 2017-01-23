@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,7 +49,7 @@ namespace MediaPortal.Backend.Database
     string DummyTableName { get; }
 
     /// <summary>
-    /// Starts the database manager. This must be done after the database service is verf�gbar (i.e. after the database plugin
+    /// Starts the database manager. This must be done after the database service is available (i.e. after the database plugin
     /// was started).
     /// </summary>
     void Startup();

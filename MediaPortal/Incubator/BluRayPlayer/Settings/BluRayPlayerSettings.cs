@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,10 +34,28 @@ namespace MediaPortal.UI.Players.Video.Settings
   [XmlInclude(typeof(CodecInfo))]
   public class BluRayPlayerSettings
   {
+    private CodecInfo _vc1Codec;
+
     /// <summary>
     /// Gets or sets the preferred VC1 codec.
     /// </summary>
     [Setting(SettingScope.User)]
-    public CodecInfo VC1Codec { get; set; }
+    public CodecInfo VC1Codec
+    {
+      get { return _vc1Codec ?? VideoSettings.DEFAULT_VIDEO_CODEC; }
+      set { _vc1Codec = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the value for parental rating.
+    /// </summary>
+    [Setting(SettingScope.User, 99)]
+    public int ParentalControl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the region code for BD discs.
+    /// </summary>
+    [Setting(SettingScope.User, "B")]
+    public string RegionCode { get; set; }
   }
 }
