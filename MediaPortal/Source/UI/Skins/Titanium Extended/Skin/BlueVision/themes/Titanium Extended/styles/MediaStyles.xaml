@@ -2118,6 +2118,155 @@
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="GridViewPersonFilterItemTemplate">
+    <Grid x:Name="ItemControl" Margin="30,4,-20,4">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource MEDIA_AUDIO_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource MEDIA_AUDIO_HEIGHT}"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="ItemTypeImage" Stretch="UniformToFill" Margin="1">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+        <Image.OpacityMask >
+          <ImageBrush ImageSource="music_filmstrip_mask.png"/>
+        </Image.OpacityMask>
+      </Image>
+      <Image Stretch="Fill" Margin="1" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+             Source="music_background_mask.png" Opacity="0.85">
+      </Image>
+      <Image Stretch="Uniform" Source="person.png" Margin="0,0,0,25"
+             IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Grid Width="{StaticResource MEDIA_AUDIO_WIDTH}" VerticalAlignment="Bottom">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="{ThemeResource SmallFontSize}"
+             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5"/>
+      </Grid>
+      <Image Source="music_thumb_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="-5"
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="ListViewPersonFilterItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Margin="0,0,5,0">
+        <Image x:Name="ItemTypeMedium" Stretch="Uniform" FallbackSource="person.png" Margin="-18,0,0,0"
+            Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          </Image.Source>
+          <Image.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
+          </Image.IsVisible>
+          <Image.OpacityMask >
+            <ImageBrush ImageSource="music_filmstrip_mask.png"/>
+          </Image.OpacityMask>
+        </Image>
+        <Image x:Name="ItemTypeLarge" Stretch="Uniform" FallbackSource="person.png" Margin="-35,0,0,0"
+            Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          </Image.Source>
+          <Image.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+          </Image.IsVisible>
+          <Image.OpacityMask >
+            <ImageBrush ImageSource="music_filmstrip_mask.png"/>
+          </Image.OpacityMask>
+        </Image>
+      </DockPanel>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="DefaultBold"
+             Color="{ThemeResource TextColor}">
+      </Label>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="CoverViewPersonFilterItemTemplate">
+    <Grid x:Name="ItemControl" Margin="-4,-10,-3,10">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource COVERVIEW_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="{StaticResource COVERVIEW_WIDTH}"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="thumb" Stretch="UniformToFill" Grid.Row="1">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
+        <Image.OpacityMask >
+          <ImageBrush ImageSource="music_filmstrip_mask.png"/>
+        </Image.OpacityMask>
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Image Grid.Row="1" Stretch="Fill" Margin="0" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+       Source="music_background_mask.png" Opacity="0.85">
+      </Image>
+      <Image Grid.Row="1" Width="{StaticResource COVERVIEW_WIDTH}" Margin="0,0,0,25"
+             Source="person.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Grid Grid.Row="1" Width="{StaticResource MEDIA_COVER_WIDTH}" VerticalAlignment="Bottom">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5"/>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
+
   <!-- Specific media navigation data templates -->
   <DataTemplate DataType="{x:Type navitems:SeriesFilterItem}">
     <Control>
@@ -2183,7 +2332,6 @@
       </Control.Template>
     </Control>
   </DataTemplate>
-
 
   <DataTemplate DataType="{x:Type navitems:ContainerItem}">
     <Control>
@@ -2258,6 +2406,71 @@
           <Binding Source="{StaticResource ListViewImageItemTemplate}"/>
           <Binding Source="{StaticResource GridViewImageItemTemplate}"/>
           <Binding Source="{StaticResource CoverViewImageItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type navitems:ArtistFilterItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewPersonFilterItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type navitems:ActorFilterItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewPersonFilterItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type navitems:ComposerFilterItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewPersonFilterItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type navitems:CharacterFilterItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewPersonFilterItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type navitems:WriterFilterItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewPersonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewPersonFilterItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>

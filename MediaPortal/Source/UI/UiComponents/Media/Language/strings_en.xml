@@ -286,6 +286,11 @@
   <string name="Media.VideoActorsLabel">Actor(s): </string>
   <string name="Media.VideoStoryPlotLabel">Story plot: </string>
 
+  <!-- Person currently playing -->
+  <string name="Media.DateBorn">Date of birth: </string>
+  <string name="Media.DateDied">Date of death: </string>
+  <string name="Media.Origin">Origin: </string>
+
   <!-- Series currently playing -->
   <string name="Media.SeriesTitleLabel">Series: </string>
   <string name="Media.SeriesSeasonLabel">Season: </string>
