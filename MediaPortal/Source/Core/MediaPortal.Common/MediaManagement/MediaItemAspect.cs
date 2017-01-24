@@ -679,8 +679,8 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="aspectData">Dictionary of aspect data to be written to.</param>
     /// <param name="attributeSpecification">Type of the attribute to write.</param>
     /// <param name="value">Value to be set.</param>
-    public static void SetCollectionAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
-        MediaItemAspectMetadata.SingleAttributeSpecification attributeSpecification, IEnumerable value)
+    public static void SetCollectionAttribute<T>(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+        MediaItemAspectMetadata.SingleAttributeSpecification attributeSpecification, IEnumerable<T> value)
     {
       SingleMediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
       aspect.SetCollectionAttribute(attributeSpecification, value);
