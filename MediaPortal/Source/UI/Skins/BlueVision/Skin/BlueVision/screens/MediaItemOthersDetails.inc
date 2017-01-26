@@ -19,7 +19,7 @@
           Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
           Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
 
-  <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,0,0,5" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+  <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,0,0,5" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}">
     <StackPanel Orientation="Horizontal">
       <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding NumItems}"
              Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="0.6"/>
