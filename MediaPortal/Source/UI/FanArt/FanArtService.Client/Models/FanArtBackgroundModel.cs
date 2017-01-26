@@ -58,6 +58,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     protected AbstractProperty _itemDescriptionProperty;
     protected AbstractProperty _mediaItemProperty;
     protected AbstractProperty _imageSourceProperty;
+    protected AbstractProperty _numItemsProperty;
 
     protected AsynchronousMessageQueue _messageQueue = null;
     protected readonly object _syncObj = new object();
@@ -74,6 +75,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       _itemDescriptionProperty = new WProperty(typeof(string), string.Empty);
       _mediaItemProperty = new WProperty(typeof(MediaItem), null);
       _imageSourceProperty = new WProperty(typeof(ImageSource), null);
+      _numItemsProperty = new WProperty(typeof(int?), null);
       SetFanArtType();
       SetImageSource();
       SubscribeToMessages();
@@ -232,6 +234,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       set { _imageSourceProperty.SetValue(value); }
     }
 
+    public AbstractProperty NumItemsProperty
+    {
+      get { return _numItemsProperty; }
+    }
+
+    public int? NumItems
+    {
+      get { return (int?)_numItemsProperty.GetValue(); }
+      set { _numItemsProperty.SetValue(value); }
+    }
+
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
       SelectedItem = e.FirstAddedItem as ListItem;
@@ -272,6 +285,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     private void SetFanArtType()
     {
+      // Applies only to container Items
+      NumItems = null;
       PlayableMediaItem playableMediaItem = SelectedItem as PlayableMediaItem;
       if (playableMediaItem != null)
       {
@@ -442,6 +457,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         MediaItem = filterItem.MediaItem;
         SimpleTitle = filterItem.SimpleTitle;
         ItemDescription = string.Empty;
+        NumItems = filterItem.NumItems;
+        return;
+      }
+      ContainerItem containerItem = SelectedItem as ContainerItem;
+      if (containerItem != null)
+      {
+        MediaItem = containerItem.FirstMediaItem;
+        SimpleTitle = containerItem.SimpleTitle;
+        ItemDescription = string.Empty;
+        NumItems = containerItem.NumItems;
         return;
       }
       FanArtMediaType = FanArtMediaTypes.Undefined;
