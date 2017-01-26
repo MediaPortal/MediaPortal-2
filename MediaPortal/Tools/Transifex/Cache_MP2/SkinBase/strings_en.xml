@@ -45,6 +45,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Detach from server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">HomeServer</string>
   <string name="ServerConnection.AttachedText.Before">This MediaPortal 2 client is currently attached to home server</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Currently, this MediaPortal 2 client is not attached to a home server.</string>
   <string name="ServerConnection.HomeServerIsConnected">The home server is currently connected.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">The home server is currently disconnected.</string>
@@ -115,9 +116,9 @@
   <string name="Settings.Appearance">Appearance</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Date format</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Date format used in the skin. Use the format specification of the .net DateTime class.</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Date format used in the skin. Use 'd' for "1/14/2017" or 'D' for "Saturday, 1/14/2017".</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Time format</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Time format used in the skin. Use the format specification of the .net DateTime class.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Time format used in the skin. Use 't' for "11:50" or 'T' for "11:50:37".</string>
 
   <string name="Settings.General">General</string>
   <string name="Settings.General.System">System</string>

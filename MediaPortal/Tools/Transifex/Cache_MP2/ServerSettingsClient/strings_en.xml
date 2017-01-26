@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources name="ServerSettingsClient" project="MP2">
   <string name="Settings.ServerSettings">Server settings</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Resource mounting drive letter</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configures the drive letter for mounting remote resources on server.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Network credentials</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configures username and password to access network resources from server.</string>
   <string name="Settings.ServerSettings.UseCredentials">Use username and password to access network</string>
@@ -15,11 +13,11 @@
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Run at hour of day (24h base)</string>
   <string name="Settings.ServerSettings.AudioMDESettings">Audio import settings</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable">Online sources to allow during import</string>
-  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable.Help">Select what online sources should be allowed during import. Disallowing online sources will improve import speed but some metadata might become unavailable.</string>
+  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable.Help">Select which online sources to use during import. Disabling online sources will improve import speed but some metadata might then not be available.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary">Online sources to use for new media</string>
-  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary.Help">Select what online sources should be used during first time import of new media. Disabling online sources will improve import speed of new media but some metadata will only be available after a refresh.</string>
+  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary.Help">Select which online sources to use during first time import of new media. Disabling online sources will improve import speed of new media but some metadata will only be available after a refresh.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData">Data to download from online sources</string>
-  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help">Select what data should be downloaded from online sources.</string>
+  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help">Select what data to download from online sources.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.MediaFanArt">Download audio details and FanArt</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Media">Download audio details only</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.FanArt">Download audio FanArt only</string>
@@ -35,7 +33,7 @@
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOfflineLocal">Cache FanArt on a local share</string>
   <string name="Settings.ServerSettings.MovieMDESettings">Movie import settings</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable">Online sources to allow during import</string>
-  <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable.Help">Select what online sources should be allowed during import. Disallowing online sources will improve import speed but some metadata might become unavailable.</string>
+  <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable.Help">Select what online sources should be allowed during import. Disabling online sources will improve import speed but some metadata might not be available.</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary">Online sources to use for new media</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary.Help">Select what online sources should be used during first time import of new media. Disabling online sources will improve import speed of new media but some metadata will only be available after a refresh.</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData">Data to download from online sources</string>
@@ -57,7 +55,7 @@
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOfflineLocal">Cache FanArt on a local share</string>
   <string name="Settings.ServerSettings.SeriesMDESettings">Series import settings</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable">Online sources to allow during import</string>
-  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable.Help">Select what online sources should be allowed during import. Disallowing online sources will improve import speed but some metadata might become unavailable.</string>
+  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable.Help">Select what online sources should be allowed during import. Disabling online sources will improve import speed but some metadata might not be available.</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary">Online sources to use for new media</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary.Help">Select what online sources should be used during first time import of new media. Disabling online sources will improve import speed of new media but some metadata will only be available after a refresh.</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData">Data to download from online sources</string>
@@ -67,7 +65,7 @@
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.FanArt">Download series FanArt only</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.None">Download nothing</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter">Filters to populate during import</string>
-  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Help">Select what filters should be populated during import. Disabling filters will improve import speed.</string>
+  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Help">Select filters to be populated during import. Disabling filters will improve import speed.</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Actors">Populate actor filter</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Characters">Populate character filter</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Directors">Populate director filter</string>

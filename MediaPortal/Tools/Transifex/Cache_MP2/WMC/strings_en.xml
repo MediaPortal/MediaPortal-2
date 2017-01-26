@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="WMC.Configuration.SkinSettings">Skin Settings</string>
   <string name="WMC.Configuration.EnableFanart">Enable Fanart</string>
   <string name="WMC.Configuration.EnableFanart.Help">Whether to display background fanart.</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity">Fanart Visibility</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity.Help">Adjust the opacity of the background fanart overlay. A lower value increases the visibility of fanart (default is 1.0).</string>
   <string name="WMC.Configuration.EnableWatchedFlags">Enable Watched Flags</string>
   <string name="WMC.Configuration.EnableWatchedFlags.Help">Whether to display watched icons in the selected views.</string>
   <string name="WMC.Configuration.EnableWatchedFlags.ListView">List View</string>
   <string name="WMC.Configuration.EnableWatchedFlags.GridView">Grid View</string>
-  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Cover View</string>  
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Cover View</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos">Enable Age Certification Logos</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Whether to display age certification logos in media screens.</string>
   <string name="WMC.Configuration.EnableBanners">Show Banners</string>
   <string name="WMC.Configuration.EnableBanners.Help">Whether to show banners in grid view instead of covers.</string>
   <string name="WMC.Configuration.EnableBanners.Movies">Movies</string>
