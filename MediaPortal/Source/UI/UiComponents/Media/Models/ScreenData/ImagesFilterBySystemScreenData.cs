@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class ImagesFilterBySystemScreenData : AbstractImagesFilterScreenData
   {
     public ImagesFilterBySystemScreenData() :
-        base(Consts.SCREEN_IMAGE_FILTER_BY_SYSTEM, Consts.RES_FILTER_BY_SYSTEM_MENU_ITEM,
+        base(Consts.SCREEN_IMAGE_FILTER_BY_SYSTEM, Consts.RES_COMMON_BY_SYSTEM_MENU_ITEM,
         Consts.RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL, new FilterBySystemCriterion())
     {
     }

@@ -125,6 +125,11 @@ file_filter=Cache_MP2\SkinHelper\strings_<lang>.xml
 source_file=Cache_MP2\SkinHelper\strings_en.xml
 source_lang=en
 type=ANDROID
+[MP2.SkinSettings]
+file_filter=Cache_MP2\SkinSettings\strings_<lang>.xml
+source_file=Cache_MP2\SkinSettings\strings_en.xml
+source_lang=en
+type=ANDROID
 [MP2.SlimTvClient]
 file_filter=Cache_MP2\SlimTvClient\strings_<lang>.xml
 source_file=Cache_MP2\SlimTvClient\strings_en.xml

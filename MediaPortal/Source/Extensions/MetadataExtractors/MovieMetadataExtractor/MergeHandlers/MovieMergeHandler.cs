@@ -74,6 +74,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return MovieInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return IMovieRelationshipExtractor.GetMovieSearchFilter(extractedAspects);

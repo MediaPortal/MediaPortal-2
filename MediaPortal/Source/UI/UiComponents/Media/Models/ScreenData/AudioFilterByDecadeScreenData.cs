@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class AudioFilterByDecadeScreenData : AbstractAudioFilterScreenData<FilterItem>
   {
     public AudioFilterByDecadeScreenData() :
-        base(Consts.SCREEN_AUDIO_FILTER_BY_DECADE, Consts.RES_FILTER_BY_DECADE_MENU_ITEM,
+        base(Consts.SCREEN_AUDIO_FILTER_BY_DECADE, Consts.RES_COMMON_BY_DECADE_MENU_ITEM,
         Consts.RES_FILTER_DECADE_NAVBAR_DISPLAY_LABEL, new FilterByDecadeCriterion())
     {
       _availableMias = new[] { MediaAspect.ASPECT_ID };

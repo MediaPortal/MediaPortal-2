@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class VideoSortByDuration : AbstractSortByComparableValueAttribute<long>
   {
-    public VideoSortByDuration() : base(Consts.RES_SORT_BY_DURATION, Consts.RES_GROUP_BY_DURATION, VideoStreamAspect.ATTR_DURATION)
+    public VideoSortByDuration() : base(Consts.RES_COMMON_BY_DURATION_MENU_ITEM, Consts.RES_COMMON_BY_DURATION_MENU_ITEM, VideoStreamAspect.ATTR_DURATION)
     {
       _includeMias = new[] { VideoStreamAspect.ASPECT_ID };
     }

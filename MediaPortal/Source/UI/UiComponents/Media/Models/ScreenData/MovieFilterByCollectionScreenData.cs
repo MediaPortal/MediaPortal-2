@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MovieFilterByCollectionScreenData : AbstractMovieFilterScreenData<MovieFilterItem>
   {
     public MovieFilterByCollectionScreenData() :
-      base(Consts.SCREEN_MOVIES_FILTER_BY_COLLECTION, Consts.RES_FILTER_BY_MOVIES_COLLECTION_MENU_ITEM,
+      base(Consts.SCREEN_MOVIES_FILTER_BY_COLLECTION, Consts.RES_COMMON_BY_MOVIES_COLLECTION_MENU_ITEM,
         Consts.RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL, new FilterByMovieCollectionCriterion())
     {
       _availableMias = Consts.NECESSARY_MOVIE_COLLECTION_MIAS;

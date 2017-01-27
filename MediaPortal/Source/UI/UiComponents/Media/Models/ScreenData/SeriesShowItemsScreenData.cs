@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class SeriesShowItemsScreenData : AbstractItemsScreenData
   {
     public SeriesShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.SCREEN_SERIES_SHOW_ITEMS, Consts.RES_SHOW_ALL_VIDEO_ITEMS_MENU_ITEM,
+        base(Consts.SCREEN_SERIES_SHOW_ITEMS, Consts.RES_COMMON_SHOW_ALL_MENU_ITEM,
         Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
       _itemMias = new Guid[] { VideoAspect.ASPECT_ID };

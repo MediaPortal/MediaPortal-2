@@ -54,6 +54,11 @@ namespace MediaPortal.Common.MediaManagement
     Guid[] LinkedRoleAspects { get; }
 
     /// <summary>
+    /// Aspects that must be present in order to accurately match items in <see cref="TryMatch"/>  
+    /// </summary>
+    Guid[] MatchAspects { get; }
+
+    /// <summary>
     /// Specifies whether or not this relation should be built. A relationship should not be 
     /// built if it creates the inverse of an already existing relationship.
     /// E.g. If Series -> Episode exists don't create Episode -> Series.
