@@ -59,10 +59,11 @@ namespace MediaPortal.UI.Presentation.Models
       _updateInterval = updateInterval;
       ISystemStateService systemStateService = ServiceRegistration.Get<ISystemStateService>();
       if (startAtOnce)
+      {
         if (systemStateService.CurrentState == SystemState.Running)
           StartTimer();
-        else
-          SubscribeToMessages();
+        SubscribeToMessages();
+      }
     }
 
     /// <summary>
