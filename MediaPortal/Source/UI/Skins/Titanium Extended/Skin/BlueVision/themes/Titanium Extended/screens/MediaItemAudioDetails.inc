@@ -22,6 +22,36 @@
   </Grid.Resources>
 
   <StackPanel Grid.Column="1" Margin="30">
+
+    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,5"
+                      DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
+                             Maximum="10" VerticalAlignment="Center">
+              <StarRatingPanel.Value>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}">
+                  <Binding Path="TotalRating"/>
+                </MultiBinding>
+              </StarRatingPanel.Value>
+              <StarRatingPanel.LayoutTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1.6" ScaleY="1.5"/>
+                </TransformGroup>
+              </StarRatingPanel.LayoutTransform>
+            </StarRatingPanel>
+            <Label x:Name="RatingCountLabel" Color="{ThemeResource EmphasisTextColor}" VerticalAlignment="Center" Margin="15,0,5,0"
+                   IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label.Content>
+                <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
+              </Label.Content>
+            </Label>
+          </StackPanel>
+        </ControlTemplate>
+      </media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
+    
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>
         <ControlTemplate>
