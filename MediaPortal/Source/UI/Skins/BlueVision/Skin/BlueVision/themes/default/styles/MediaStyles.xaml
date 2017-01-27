@@ -1281,10 +1281,10 @@
           </Image.Source>
         </Image>
         <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="#FF50575c" 
-              IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+              IsVisible="{Binding ElementName=ItemTypeAudio, Path=!HasImage}">
         </Border>
         <Image Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Source="Audio.png" Margin="10"
-               IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+               IsVisible="{Binding ElementName=ItemTypeAudio, Path=!HasImage}">
         </Image>
       </Grid>
     </Grid>
