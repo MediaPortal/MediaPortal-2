@@ -1164,7 +1164,13 @@
             </VisualBrush.Visual>
           </VisualBrush>
         </Grid.OpacityMask>
-        <Image x:Name="ItemTypeAudio" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="Audio.png">
+        <Image x:Name="ItemTypeAudio" Stretch="Fill" Source="{Binding MediaItem}">
+        </Image>
+        <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="#FF50575c" 
+              IsVisible="{Binding ElementName=ItemTypeAudio, Path=!HasImage}">
+        </Border>
+        <Image Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Source="Audio.png" Margin="10"
+               IsVisible="{Binding ElementName=ItemTypeAudio, Path=!HasImage}">
         </Image>
       </Grid>
     </Grid>
@@ -1268,14 +1274,18 @@
           </VisualBrush>
         </Grid.OpacityMask>
         <Image x:Name="ItemTypeAudio" Stretch="Fill"
-               HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}"
-               FallbackSource="Audio.png" >
+               HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                       fanart:MaxWidth="{StaticResource MEDIA_AUDIO_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_AUDIO_HEIGHT}"/>
           </Image.Source>
         </Image>
-
+        <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="#FF50575c" 
+              IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+        </Border>
+        <Image Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Source="Audio.png" Margin="10"
+               IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+        </Image>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1526,7 +1536,7 @@
           </VisualBrush>
         </Image.OpacityMask>
       </Image>
-      <Border Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
+      <Border Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" 
               Height="{StaticResource MEDIA_COVER_WIDTH}" Width="{StaticResource MEDIA_COVER_WIDTH}"
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Background="#BF666666">
       </Border>
