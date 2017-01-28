@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using System;
 using System.Linq;
 using System.Net;
@@ -33,12 +35,10 @@ namespace WakeOnLan.Client.Helpers
 {
   public class WakeOnLanHelper
   {
-    public const int DEFAULT_PING_TIMEOUT = 5000;
-
     /// <summary>
     /// Determines whether the specified <paramref name="hwAddress"/> appears to be valid.
     /// </summary>
-    /// <param name="hwAddress">Byte array containing the hardware address.</param>
+    /// <param name="hwAddress">Byte array containing the hardware (MAC) address.</param>
     /// <returns></returns>
     public static bool IsValidHardwareAddress(byte[] hwAddress)
     {
@@ -46,13 +46,49 @@ namespace WakeOnLan.Client.Helpers
     }
 
     /// <summary>
-    /// Asynchronously pings the specified computer using the default timeout and returns whether the ping was successful.
+    /// Asynchronously tries to wake the server with the given <paramref name="hwAddress"/>. If the server does not wake this
+    /// method resends the WOL packet until either the server wakes or <paramref name="wakeTimeout"/> is reached.
     /// </summary>
-    /// <param name="hostNameOrAddress">The host name or IP address of the computer to ping.</param>
-    /// <returns>True if a response was received from the specified computer.</returns>
-    public static async Task<bool> PingAsync(string hostNameOrAddress)
+    /// <param name="hostNameOrAddress">The hostname or IP address of the server, used to ping the server to verify whether it is awake.</param>
+    /// <param name="hwAddress">The hardware (MAC) address of the server.</param>
+    /// <param name="port">The UDP port to send the WOL packet to.</param>
+    /// <param name="pingTimeout">The time in ms to wait for a ping response from the server.</param>
+    /// <param name="wakeTimeout">The total time in ms to spend trying to wake the server. </param>
+    /// <returns></returns>
+    public static async Task<bool> WakeServer(string hostNameOrAddress, byte[] hwAddress, int port, int pingTimeout, int wakeTimeout)
     {
-      return await PingAsync(hostNameOrAddress, DEFAULT_PING_TIMEOUT);
+      if (!IsValidHardwareAddress(hwAddress))
+        throw new ArgumentException(
+            "Invalid hardware address.",
+            "hwAddress",
+            null);
+
+      //See if the server is already awake
+      if (await PingAsync(hostNameOrAddress, pingTimeout))
+      {
+        ServiceRegistration.Get<ILogger>().Debug("WakeOnLanHelper: Server is already awake");
+        return true;
+      }
+
+      //Create the magic packet
+      byte[] magicPacket = CreateMagicPacket(hwAddress);
+
+      DateTime startTime = DateTime.Now;
+      while ((DateTime.Now - startTime).TotalMilliseconds < wakeTimeout)
+      {
+        //Send the magic packet
+        await SendWOLPacketAsync(magicPacket, port);
+
+        //See if the server is now awake
+        if (await PingAsync(hostNameOrAddress, pingTimeout))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("WakeOnLanHelper: Successfully woke server");
+          return true;
+        }
+        //Retry until the timeout is reached
+      }
+      ServiceRegistration.Get<ILogger>().Warn("WakeOnLanHelper: Failed to wake server within timeout of {0}ms", wakeTimeout);
+      return false;
     }
 
     /// <summary>
@@ -61,7 +97,7 @@ namespace WakeOnLan.Client.Helpers
     /// <param name="hostNameOrAddress">The host name or IP address of the computer to ping.</param>
     /// <param name="timeout">The maximum number of milliseconds to wait for a response.</param>
     /// <returns>True if a response was received from the specified computer.</returns>
-    public static async Task<bool> PingAsync(string hostNameOrAddress, int timeout)
+    protected static async Task<bool> PingAsync(string hostNameOrAddress, int timeout)
     {
       using (Ping ping = new Ping())
         return (await ping.SendPingAsync(hostNameOrAddress, timeout)).Status == IPStatus.Success;
@@ -71,43 +107,41 @@ namespace WakeOnLan.Client.Helpers
     /// Asynchronously sends a Wake-On-LAN 'magic' packet to the computer with the specified hardware address.
     /// </summary>
     /// <param name="hwAddress">The hardware address of the computer to wake.</param>
-    public static async Task SendWOLPacketAsync(byte[] hwAddress)
+    protected static async Task SendWOLPacketAsync(byte[] magicPacket, int port)
     {
-      if (!IsValidHardwareAddress(hwAddress))
-        throw new ArgumentException(
-            "Invalid hardware address.",
-            "hwAddress",
-            null);
-
       // WOL 'magic' packet is sent over UDP.
       using (UdpClient client = new UdpClient())
       {
-        // Send to: 255.255.255.0:40000 over UDP.
-        client.Connect(IPAddress.Broadcast, 40000);
-
-        // Two parts to a 'magic' packet:
-        //     First is 0xFFFFFFFFFFFF,
-        //     Second is 16 * MACAddress.
-        byte[] packet = new byte[17 * 6];
-
-        // Set to: 0xFFFFFFFFFFFF.
-        for (int i = 0; i < 6; i++)
-        {
-          packet[i] = 0xFF;
-        }
-
-        // Set to: 16 * MACAddress
-        for (int i = 1; i <= 16; i++)
-        {
-          for (int j = 0; j < 6; j++)
-          {
-            packet[i * 6 + j] = hwAddress[j];
-          }
-        }
+        // Send to: 255.255.255.0 over UDP.
+        client.Connect(IPAddress.Broadcast, port);
 
         // Send WOL 'magic' packet.
-        await client.SendAsync(packet, packet.Length);
+        await client.SendAsync(magicPacket, magicPacket.Length);
       }
+    }
+
+    /// <summary>
+    /// Creates a WOL 'magic' packet from the specified <paramref name="hwAddress"/>.
+    /// </summary>
+    /// <param name="hwAddress">The hardware (MAC) address of the server to wake.</param>
+    /// <returns></returns>
+    protected static byte[] CreateMagicPacket(byte[] hwAddress)
+    {
+      // Two parts to a 'magic' packet:
+      //     First is 0xFFFFFFFFFFFF,
+      //     Second is 16 * MACAddress.
+      byte[] packet = new byte[17 * 6];
+
+      // Set to: 0xFFFFFFFFFFFF.
+      for (int i = 0; i < 6; i++)
+        packet[i] = 0xFF;
+
+      // Set to: 16 * MACAddress
+      for (int i = 1; i <= 16; i++)
+        for (int j = 0; j < 6; j++)
+          packet[i * 6 + j] = hwAddress[j];
+
+      return packet;
     }
   }
 }

@@ -56,6 +56,8 @@ namespace WakeOnLan.Client
 
     public void Activated(PluginRuntime pluginRuntime)
     {
+      //Try to get the server address immediately in case we miss the connected message
+      UpdateSavedServerAddress();
       SubscribeToMessages();
       DoWakeServer();
     }
@@ -152,39 +154,24 @@ namespace WakeOnLan.Client
     /// <returns></returns>
     protected async Task WakeServerAsync()
     {
-      WakeOnLanAddress wolAddress;
-      if (!TryGetWakeOnLanAddress(out wolAddress))
+      var sm = ServiceRegistration.Get<ISettingsManager>();
+      var settings = sm.Load<WakeOnLanSettings>();
+      WakeOnLanAddress wolAddress = settings.ServerWakeOnLanAddress;
+      if (wolAddress == null || !WakeOnLanHelper.IsValidHardwareAddress(wolAddress.HardwareAddress))
       {
         ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: No address stored for the server yet");
         return;
       }
+
+      ServiceRegistration.Get<ILogger>().Info("WakeOnLanHelper: Waking server at {0} using port {1}", wolAddress.IPAddress, settings.Port);
       try
       {
-        bool isServerAwake = await WakeOnLanHelper.PingAsync(wolAddress.IPAddress);
-        if (!isServerAwake)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: Waking server");
-          await WakeOnLanHelper.SendWOLPacketAsync(wolAddress.HardwareAddress);
-        }
-        else
-          ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: Server is already awake");
+        await WakeOnLanHelper.WakeServer(wolAddress.IPAddress, wolAddress.HardwareAddress, settings.Port, settings.PingTimeout, settings.WakeTimeout);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("WakeOnLanClient: Error waking server", ex);
       }
-    }
-
-    /// <summary>
-    /// Tries to load the server address from settings.
-    /// </summary>
-    /// <param name="wolAddress"></param>
-    /// <returns></returns>
-    protected bool TryGetWakeOnLanAddress(out WakeOnLanAddress wolAddress)
-    {
-      var sm = ServiceRegistration.Get<ISettingsManager>();
-      wolAddress = sm.Load<WakeOnLanSettings>().ServerWakeOnLanAddress;
-      return wolAddress != null && WakeOnLanHelper.IsValidHardwareAddress(wolAddress.HardwareAddress);
     }
 
     #endregion
@@ -233,6 +220,10 @@ namespace WakeOnLan.Client
           ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: Could not get server IP address, UPnPControlPoint not found");
           return false;
         }
+
+        if (cp.Connection == null)
+          //Don't log here, the server isn't connected (yet), we'll retry getting the address when it connects.
+          return false;
 
         ServerDescriptor serverDescriptor = ServerDescriptor.GetMPBackendServerDescriptor(cp.Connection.RootDescriptor);
         if (serverDescriptor == null)
