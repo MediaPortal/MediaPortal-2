@@ -206,7 +206,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           //If currentVS is the base view it's possible that it has a filter that is incompatible with _filterCriterion.
           //This is the case if a plugin has added a base filter to exclude certain items, e.g. TV excludes recordings
           //and the new filter filters by a different media type, e.g. series'. Ignore the base filter in this case.
-          IFilter currentFilter = currentVS.CanCombineFilters(_itemMias) ? currentVS.Filter : null;
+          IFilter currentFilter = (_navigationData.Parent != null && IsAvailable(_navigationData.Parent.CurrentScreenData)) ||
+            currentVS.CanCombineFilters(_itemMias) ? currentVS.Filter : null;
           ICollection<FilterValue> fv = _clusterFilter == null ?
               _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentFilter) : null;
           
