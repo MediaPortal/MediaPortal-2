@@ -34,6 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
   {
     protected IEnumerable<MediaItemAspectMetadata.SingleAttributeSpecification> _attrs;
     protected IEnumerable<MediaItemAspectMetadata.MultipleAttributeSpecification> _multiAttrs;
+    protected bool _preSortAttributes = true;
 
     protected AbstractSortByFirstComparableAttribute(MediaItemAspectMetadata.SingleAttributeSpecification attr)
     {
@@ -87,7 +88,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         if (collectionX != null)
         {
           List<string> valuesX = new List<string>(collectionX);
-          valuesX.Sort();
+          if (_preSortAttributes)
+            valuesX.Sort();
           firstValueX = valuesX.FirstOrDefault();
         }
       }
@@ -105,7 +107,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
           }
           if (valuesX.Count > 0)
           {
-            valuesX.Sort();
+            if (_preSortAttributes)
+              valuesX.Sort();
             firstValueX = valuesX.FirstOrDefault();
           }
         }
@@ -117,7 +120,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         if (collectionY != null)
         {
           List<string> valuesY = new List<string>(collectionY);
-          valuesY.Sort();
+          if (_preSortAttributes)
+            valuesY.Sort();
           firstValueY = valuesY.FirstOrDefault();
         }
       }
@@ -135,7 +139,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
           }
           if (valuesY.Count > 0)
           {
-            valuesY.Sort();
+            if (_preSortAttributes)
+              valuesY.Sort();
             firstValueY = valuesY.FirstOrDefault();
           }
         }
@@ -160,7 +165,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
           if (valueColl != null)
           {
             List<string> values = new List<string>(valueColl);
-            values.Sort();
+            if (_preSortAttributes)
+              values.Sort();
             return values.FirstOrDefault();
           }
         }
@@ -178,7 +184,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
             }
             if (values.Count > 0)
             {
-              values.Sort();
+              if (_preSortAttributes)
+                values.Sort();
               return values.FirstOrDefault();
             }
           }
