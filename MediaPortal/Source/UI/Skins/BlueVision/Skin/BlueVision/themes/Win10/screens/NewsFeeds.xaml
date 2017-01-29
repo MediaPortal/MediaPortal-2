@@ -59,6 +59,7 @@
           </StackPanel>
         </DockPanel>
 
+        <!-- Footer -->
         <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-80,710,-70,-720">
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="200">
             <Grid.ColumnDefinitions>
