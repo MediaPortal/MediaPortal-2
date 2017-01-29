@@ -118,6 +118,25 @@ namespace MediaPortal.Common.ResourceAccess
       return ResourcePath.BuildBaseProviderPath(LOCAL_FS_RESOURCE_PROVIDER_ID, providerPath);
     }
 
+    /// <summary>
+    /// Helper method to avoid exceptions when reading file write times from some sources (i.e. NAS devices that return out-of-range times).
+    /// </summary>
+    /// <param name="dosPath">Path to file</param>
+    /// <returns>File write date or <see cref="DateTime.MinValue"></see></returns>
+    public static DateTime GetSafeLastWriteTime(string dosPath)
+    {
+      try
+      {
+        if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath) && !Directory.Exists(dosPath))
+          return DateTime.MinValue;
+        return File.GetLastWriteTime(dosPath);
+      }
+      catch (Exception)
+      {
+        return DateTime.MinValue;
+      }
+    }
+
     #endregion
   }
 }

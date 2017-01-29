@@ -461,11 +461,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               artist = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(artist.ToLowerInvariant());
 
             if (!string.IsNullOrEmpty(tag.Tag.Title))
-              title = tag.Tag.Title;
+              title = tag.Tag.Title.Trim();
 
             sortTitle = BaseInfo.GetSortTitle(title);
             if (!string.IsNullOrEmpty(tag.Tag.TitleSort))
-              sortTitle = tag.Tag.TitleSort;
+              sortTitle = tag.Tag.TitleSort.Trim();
               
             IEnumerable<string> artists;
             if (tag.Tag.Performers.Length > 0)
@@ -475,7 +475,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 artists = PatchID3v23Enumeration(artists);
             }
             else
-              artists = artist == null ? null : new string[] { artist };
+              artists = artist == null ? null : new string[] { artist.Trim() };
             if (tag.Tag.Track != 0)
               trackNo = tag.Tag.Track;
 
@@ -511,10 +511,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             if (tag.Properties.Duration.TotalSeconds != 0)
               trackInfo.Duration = (long)tag.Properties.Duration.TotalSeconds;
 
-            trackInfo.Album = StringUtils.TrimToNull(tag.Tag.Album);
+            trackInfo.Album = !string.IsNullOrEmpty(tag.Tag.Album) ? tag.Tag.Album.Trim() : null;
             if(!string.IsNullOrEmpty(tag.Tag.AlbumSort))
             {
-              IAudioRelationshipExtractor.StoreAlbum(extractedAspectData, tag.Tag.Album, tag.Tag.AlbumSort);
+              IAudioRelationshipExtractor.StoreAlbum(extractedAspectData, tag.Tag.Album, tag.Tag.AlbumSort.Trim());
             }
 
             if (trackNo.HasValue)
@@ -549,7 +549,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               {
                 trackInfo.Artists.Add(new PersonInfo()
                 {
-                  Name = artistName,
+                  Name = artistName.Trim(),
                   Occupation = PersonAspect.OCCUPATION_ARTIST
                 });
               }
@@ -571,7 +571,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               {
                 trackInfo.AlbumArtists.Add(new PersonInfo()
                 {
-                  Name = artistName,
+                  Name = artistName.Trim(),
                   Occupation = PersonAspect.OCCUPATION_ARTIST
                 });
               }
@@ -593,7 +593,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               {
                 trackInfo.Composers.Add(new PersonInfo()
                 {
-                  Name = composerName,
+                  Name = composerName.Trim(),
                   Occupation = PersonAspect.OCCUPATION_COMPOSER
                 });
               }
@@ -604,7 +604,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               IEnumerable<string> genres = tag.Tag.Genres;
               if ((tag.TagTypes & TagTypes.Id3v2) != 0)
                 genres = PatchID3v23Enumeration(genres);
-              trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s }).ToList();
+              trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
               OnlineMatcherService.Instance.AssignMissingMusicGenreIds(trackInfo.Genres);
             }
 

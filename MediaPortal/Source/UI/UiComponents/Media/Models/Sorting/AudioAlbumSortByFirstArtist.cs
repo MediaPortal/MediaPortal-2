@@ -32,6 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public AudioAlbumSortByFirstArtist() : base(AudioAlbumAspect.ATTR_ARTISTS)
     {
       _includeMias = new[] { AudioAlbumAspect.ASPECT_ID };
+      _preSortAttributes = false;
     }
 
     public override string DisplayName

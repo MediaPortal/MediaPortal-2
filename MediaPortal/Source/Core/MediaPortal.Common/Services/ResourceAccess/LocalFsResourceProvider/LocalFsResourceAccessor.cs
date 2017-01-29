@@ -84,11 +84,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       get
       {
         string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
-        if (string.IsNullOrEmpty(dosPath))
-          return DateTime.MinValue;
-        if (!File.Exists(dosPath) && !Directory.Exists(dosPath))
-          return DateTime.MinValue;
-        return File.GetLastWriteTime(dosPath);
+        return LocalFsResourceProviderBase.GetSafeLastWriteTime(dosPath);
       }
     }
 
