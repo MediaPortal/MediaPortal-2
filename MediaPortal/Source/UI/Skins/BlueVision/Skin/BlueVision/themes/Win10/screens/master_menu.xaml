@@ -120,8 +120,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Grid.Triggers>
               <MultiTrigger>
                 <MultiTrigger.Conditions>
-                  <Condition Property="IsKeyboardFocusWithin" Value="False" />
                   <Condition Property="IsMouseOver" Value="False" />
+                  <Condition Binding="{Binding ElementName=MainListMenu, Path=CurrentItem}" Value="{x:Null}" />
+                  <Condition Binding="{Binding ElementName=MenuShowButton, Path=HasFocus}" Value="False" />
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                   <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
@@ -202,8 +203,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Grid.Triggers>
               <MultiTrigger>
                 <MultiTrigger.Conditions>
-                  <Condition Property="IsKeyboardFocusWithin" Value="False" />
                   <Condition Property="IsMouseOver" Value="False" />
+                  <Condition Binding="{Binding ElementName=TopMenu, Path=CurrentItem}" Value="{x:Null}" />
+                  <Condition Binding="{Binding ElementName=MenuShowTopButton, Path=HasFocus}" Value="False" />
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                   <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>

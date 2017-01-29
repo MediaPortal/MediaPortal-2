@@ -35,6 +35,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Button x:Name="PrevGroupButton" Grid.Column="0" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
               Command="{Command PrevGroup}" VerticalAlignment="Center"/>
@@ -56,6 +57,7 @@
         <Grid x:Name="Channels" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top">
           <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>

@@ -1398,7 +1398,7 @@
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
-      <Border Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
+      <Border Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" 
               Height="{StaticResource AUDIO_COVERFLOW}" Width="{StaticResource AUDIO_COVERFLOW}"
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Background="#BF666666">
       </Border>
