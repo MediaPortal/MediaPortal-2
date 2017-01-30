@@ -789,8 +789,16 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" 
-             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
+      <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0" VerticalAlignment="Center">
+        <media:SeriesAspectWrapper.Template>
+          <ControlTemplate>
+            <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                     Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}">
+            </Label>
+          </ControlTemplate>
+        </media:SeriesAspectWrapper.Template>
+      </media:SeriesAspectWrapper>
+
       <Image x:Name="ItemTypeSmall" Stretch="Uniform"
              FallbackSource="defaultVideo.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
