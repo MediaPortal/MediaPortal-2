@@ -95,6 +95,11 @@
         Text="[Settings.Players.Codecs.VideoCodecs.HEVC]"
         HelpText="[Settings.Players.Codecs.VideoCodecs.HEVC.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoHEVCCodec"/>
+    <ConfigSetting
+            Id="Splitter"
+            Text="[Settings.Players.Codecs.VideoCodecs.Splitter]"
+            HelpText="[Settings.Players.Codecs.VideoCodecs.Splitter.Help]"
+            ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Splitter"/>
   </Register>
 
   <!-- Contents of '/Players/Codecs' section -->
