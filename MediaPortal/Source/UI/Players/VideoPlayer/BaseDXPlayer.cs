@@ -533,6 +533,11 @@ namespace MediaPortal.UI.Players.Video
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_HEVC, clsid);
           }
 
+          if (settings.Splitter != null)
+          {
+            pc.SetPreferredClsid(Guid.Empty, settings.Splitter.GetCLSID());
+          }
+
           if (settings.AudioCodecLATMAAC != null)
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_LATM_AAC_AUDIO, settings.AudioCodecLATMAAC.GetCLSID());
 
