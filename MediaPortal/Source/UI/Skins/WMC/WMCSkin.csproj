@@ -689,6 +689,129 @@
       <Generator>MSBuild:Compile</Generator>
     </Content>
     <Content Include="Skin\WMCSkin\skin.xml" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Background.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Background_EPG.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Background_GridView.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Background_ListView.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\0.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\1.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\10.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\100.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\11.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\12.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\13.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\14.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\15.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\16.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\17.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\18.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\19.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\2.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\20.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\21.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\22.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\23.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\24.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\25.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\26.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\27.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\28.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\29.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\3.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\30.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\31.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\32.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\33.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\34.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\35.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\36.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\37.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\38.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\39.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\4.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\40.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\41.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\42.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\43.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\44.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\45.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\46.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\47.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\48.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\49.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\5.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\50.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\51.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\52.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\53.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\54.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\55.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\56.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\57.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\58.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\59.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\6.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\60.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\61.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\62.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\63.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\64.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\65.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\66.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\67.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\68.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\69.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\7.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\70.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\71.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\72.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\73.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\74.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\75.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\76.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\77.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\78.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\79.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\8.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\80.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\81.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\82.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\83.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\84.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\85.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\86.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\87.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\88.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\89.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\9.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\90.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\91.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\92.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\93.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\94.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\95.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\96.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\97.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\98.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\CircularBar\99.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Effects\Layer1.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Effects\Layer2.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Effects\Layer3.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Effects\Layer4.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Effects\Layer5.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Effects\Layer6.png" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\preview.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\theme.xml" />
     <Content Include="Skin\WMCSkin\themes\default\images\FilterLarge.png" />
     <Content Include="Skin\WMCSkin\themes\default\images\FilterSmall.png" />
     <Content Include="Skin\WMCSkin\themes\default\images\VideoLarge.png" />
@@ -917,6 +1040,16 @@
     <Content Include="Skin\WMCSkin\screens\FullscreenContentImage.xaml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\styles\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\WMCSkin\themes\Dark-WMC\fonts\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

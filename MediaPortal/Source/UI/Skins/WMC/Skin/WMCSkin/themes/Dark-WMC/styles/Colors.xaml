@@ -5,33 +5,31 @@
     >
 
   <ResourceWrapper x:Key="MenuTextForeground" Resource="White"/> 
-  <ResourceWrapper x:Key="MenuTextBackground" Resource="#FF4b76a0"/>
+  <ResourceWrapper x:Key="MenuTextBackground" Resource="#FF757575"/>
   <ResourceWrapper x:Key="SlideMenuUnfocusedColor" Resource="#66000000"/>
 
-  <ResourceWrapper x:Key="MediaItemOfflineColor" Resource="#FF475671"/>
-  <ResourceWrapper x:Key="MediaItemUnwatchedColor" Resource="#FFa4bcd2"/>
-  <ResourceWrapper x:Key="MediaItemWatchedColor" Resource="#FF5383b1"/>
+  <ResourceWrapper x:Key="MediaItemOfflineColor" Resource="#FF5c5c5c"/>
+  <ResourceWrapper x:Key="MediaItemUnwatchedColor" Resource="#FFbbbbbb"/>
+  <ResourceWrapper x:Key="MediaItemWatchedColor" Resource="#FF828282"/>
   <ResourceWrapper x:Key="MediaItemFocussedColor" Resource="White"/>
 
-  <ResourceWrapper x:Key="MediaItemBackgroundColor1" Resource="#F2447da7"/>
-  <ResourceWrapper x:Key="MediaItemBackgroundColor2" Resource="#F2124273"/>
-
-
+  <ResourceWrapper x:Key="MediaItemBackgroundColor1" Resource="#F2647887"/>
+  <ResourceWrapper x:Key="MediaItemBackgroundColor2" Resource="#F22f4256"/>
+  
   <!-- ************************** Black theme colors ****************************** -->
 
   <ResourceWrapper x:Key="BackgroundGradientLightColor" Resource="#FF505050"/>
-
   <ResourceWrapper x:Key="BackgroundGradientDarkColor" Resource="#FF101010"/>
 
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient1Color" Resource="#B04CE64F"/>
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient2Color" Resource="#B078FF7B"/>
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient3Color" Resource="#B05BC05D"/>
 
-  <ResourceWrapper x:Key="WindowHeaderColor" Resource="#FF4b76a0"/>
+  <ResourceWrapper x:Key="WindowHeaderColor" Resource="#FF757575"/>
 
-  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F2447da7"/>
-  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F2124273"/>
-  <ResourceWrapper x:Key="DialogBackgroundFadeColor" Resource="#081643"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F26f7579"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F23d4247"/>
+  <ResourceWrapper x:Key="DialogBackgroundFadeColor" Resource="#222328"/>
 
   <ResourceWrapper x:Key="DialogBorderColor">
     <ResourceWrapper.Resource>
@@ -45,7 +43,7 @@
 
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#00000000"/>
-  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF4b76a0"/>
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF757575"/>
 
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
 
@@ -63,7 +61,7 @@
   <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#B0E0E0E0"/>
   <ResourceWrapper x:Key="ButtonGradientLightColor" Resource="#FF505050"/>
   <ResourceWrapper x:Key="ButtonGradientDarkColor" Resource="#FF303030"/>
-  <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF6B94AF"/>
+  <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF8d8d8d"/>
   <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FF959595"/>
   <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FF606060"/>
   <ResourceWrapper x:Key="HighlightButtonStrokeColor" Resource="#FF6F99B7"/>

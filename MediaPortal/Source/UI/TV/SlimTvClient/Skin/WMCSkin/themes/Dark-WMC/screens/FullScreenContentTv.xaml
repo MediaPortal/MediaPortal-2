@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    x:Name="FullscreenLayoutTv"
+    Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"
+    >   <!-- DataContext model = SlimTvClient -->
+  <Grid x:Name="FullscreenLayoutGrid">
+    <Grid.Resources>
+      <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
+    </Grid.Resources>
+    <Grid.Background>
+      <VideoBrush Stream="0"/>
+    </Grid.Background>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="50"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
+        IsVisible="{Binding !IsOSDVisible}"/>
+    </Grid>
+    <!-- BackgroundPipLayoutGrid -->
+    <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
+      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      IsVisible="{Binding IsOSDVisible}">
+      <!--Control x:Name="WindowButtons" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+        <Control.TemplateControl>
+          <Include Source="screens\FSCWindowButtons.inc"/>
+        </Control.TemplateControl>
+      </-->
+      <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+                                         Style="{ThemeResource PrimarySlimTvOSDStyle}"
+                                         VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+    </DockPanel>
+
+    <!-- All KeyBindings are included from shared resource -->
+    <Include Source="screens\FullscreenTvKeybindings.inc"/>
+  </Grid>
+</Screen>
