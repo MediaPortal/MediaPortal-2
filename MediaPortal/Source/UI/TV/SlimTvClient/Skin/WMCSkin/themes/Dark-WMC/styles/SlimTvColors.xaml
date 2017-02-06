@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#FF9CB9D5"/>
+  <ResourceWrapper x:Key="ProgramLabelNoFocus" Resource="#FF9b9ea1"/>
+
+  <!-- Program guide colors -->
+  <ResourceWrapper x:Key="ProgramChannelBaseFill" Resource="#D9000000"/>
+  <ResourceWrapper x:Key="ProgramBaseFill" Resource="#D9252628"/>
+  <ResourceWrapper x:Key="ProgramRunningFill" Resource="#A0134763"/> 
+  <ResourceWrapper x:Key="ProgramScheduledFill" Resource="#A0FF0000"/>
+  
+  <ResourceWrapper x:Key="MiniguideDetailBackground" Resource="#A0000000"/>
+
+</ResourceDictionary>

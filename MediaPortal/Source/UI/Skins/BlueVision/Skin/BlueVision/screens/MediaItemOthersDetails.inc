@@ -15,9 +15,9 @@
   </Grid.ColumnDefinitions>
 
   <Label x:Name="MediaItemName" Grid.Row="0"
-          HorizontalAlignment="Stretch"
-          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-          Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
+         IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"
+         DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Content="{Binding SimpleTitle}"
+         HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
 
   <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,0,0,5" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}">
     <StackPanel Orientation="Horizontal">

@@ -15,10 +15,11 @@
   </Grid.ColumnDefinitions>
 
   <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-         DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Content="{Binding SimpleTitle}"/>
+         DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Content="{Binding SimpleTitle}"
+         IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"/>
     
   <StackPanel Orientation="Vertical" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,0,0,5">
-    <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+    <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}">
       <StackPanel Orientation="Horizontal">
         <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding NumItems}"
                Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>

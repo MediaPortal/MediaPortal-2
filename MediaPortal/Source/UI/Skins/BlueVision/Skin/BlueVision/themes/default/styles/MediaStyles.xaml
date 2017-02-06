@@ -159,13 +159,13 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-25,2,-20,2" Source="Container.png"
+      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-15,2,-10,2" Source="Container.png"
              Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-45,2,-40,2" Source="Container.png"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-25,2,-15,2" Source="Container.png"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>

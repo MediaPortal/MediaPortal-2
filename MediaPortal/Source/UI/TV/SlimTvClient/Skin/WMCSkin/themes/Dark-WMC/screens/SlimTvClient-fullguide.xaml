@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Controls;assembly=SlimTv.Client"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+    <tv:SlimTvGuideTimeFormatConverter x:Key="SlimTvGuideTimeFormatConverter" />
+
+    <!-- Appearance of the background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <ControlTemplate.Resources>
+        <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      </ControlTemplate.Resources>
+      <Grid>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
+        </Grid>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+          <Grid.Background>
+            <VideoBrush Stream="0"/>
+          </Grid.Background>
+          <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_EPG_Overlay.png"/>
+        </Grid>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableFanart}">
+          <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}" Margin="30,0,30,-180">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="EpgTimeGrid" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="50,10,0,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Grid Grid.Column="0" Margin="-40,0,0,0" VerticalAlignment="Center">
+            <Grid.Resources>
+              <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation=" Horizontal">
+              <Button x:Name="ScrollBackwardButton" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
+                      Command="{Command ScrollBackward}" VerticalAlignment="Center"/>
+              <Label Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                 Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
+                 VerticalAlignment="Center" Margin="1,0,1,0" Opacity="1.2"/>
+              <Button x:Name="ScrollForwardButton" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
+                      Command="{Command ScrollForward}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+
+          <Label Grid.Column="1" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
+                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.25">
+                <Binding Path="GuideStartTime"/>
+                <Binding Path="VisibleHours" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Grid.Column="2" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
+                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.5">
+                <Binding Path="GuideStartTime"/>
+                <Binding Path="VisibleHours" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Grid.Column="3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
+                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.75">
+                <Binding Path="GuideStartTime"/>
+                <Binding Path="VisibleHours" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+        </Grid>
+
+        <Grid VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" Margin="0,0,20,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="SearchButton" Grid.Column="0" Style="{ThemeResource SearchButtonStyle}" Margin="1,0,1,0" 
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}"
+                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
+          <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0" VerticalAlignment="Center"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          <Grid.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="False"/>
+                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="SearchLabel" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
+            </MultiTrigger>
+          </Grid.Triggers>
+        </Grid>
+
+        <Grid Margin="20,-70,20,0" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+        </Grid>
+
+        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Style="{ThemeResource EpgGridStyle}" Margin="0,0,0,20"/>
+
+        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="2" Margin="0,-20,0,0" HorizontalAlignment="Right">
+          <!--Label x:Name="Date" FontSize="{ThemeResource SmallFontSize}"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+          <Label Content="  "/-->
+          <Label x:Name="Time" FontSize="{ThemeResource SmallFontSize}"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
+        </StackPanel>
+        
+        <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+                   Style="{ThemeResource ContentGroupBoxStyle}" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,0,-5">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfoSlim.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </GroupBox>
+        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
+        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <!--KeyBinding Key="Escape" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/-->
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>
