@@ -233,6 +233,8 @@
   <string name="SharesConfig.Relocate">Relocate</string>
   <string name="SharesConfig.ReImport">ReImport</string>
   <string name="SharesConfig.ManualPathInput">Manual input</string>
+  <string name="SharesConfig.UseShareWatcher">Share watcher:</string>
+  <string name="SharesConfig.UseShareWatcher.Help">Monitors the source for changes and automatically updates the media library</string>
 
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 client</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
