@@ -1042,11 +1042,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Skin\WMCSkin\themes\Dark-WMC\styles\Colors.xaml">
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\styles\Colors.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Page>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\WMCSkin\themes\Dark-WMC\fonts\" />

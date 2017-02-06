@@ -13,11 +13,12 @@
   <ResourceWrapper x:Key="MediaItemWatchedColor" Resource="#FF828282"/>
   <ResourceWrapper x:Key="MediaItemFocussedColor" Resource="White"/>
 
-
+  <ResourceWrapper x:Key="MediaItemBackgroundColor1" Resource="#F2647887"/>
+  <ResourceWrapper x:Key="MediaItemBackgroundColor2" Resource="#F22f4256"/>
+  
   <!-- ************************** Black theme colors ****************************** -->
 
   <ResourceWrapper x:Key="BackgroundGradientLightColor" Resource="#FF505050"/>
-
   <ResourceWrapper x:Key="BackgroundGradientDarkColor" Resource="#FF101010"/>
 
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient1Color" Resource="#B04CE64F"/>
@@ -26,9 +27,9 @@
 
   <ResourceWrapper x:Key="WindowHeaderColor" Resource="#FF757575"/>
 
-  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#EFB0B0B0"/>
-
-  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#EF909090"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F26f7579"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F23d4247"/>
+  <ResourceWrapper x:Key="DialogBackgroundFadeColor" Resource="#222328"/>
 
   <ResourceWrapper x:Key="DialogBorderColor">
     <ResourceWrapper.Resource>

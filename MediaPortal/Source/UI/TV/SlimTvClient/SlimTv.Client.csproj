@@ -198,6 +198,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\MediaItemListRecordingDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\MediaItemRecordingDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\ProgramInfo.inc" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\ProgramInfoMain.inc" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\ProgramInfoSchedule.inc" />
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\ProgramInfoSlim.inc" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogChooseGroup.xaml">
@@ -527,6 +537,56 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\SlimTvClient-miniguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\styles\SlimTvColors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\FullScreenContentTv.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\RecordingsShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\SlimTvClient-extschedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\SlimTvClient-fullguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\SlimTvClient-guide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\SlimTvClient-main.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\SlimTvClient-miniguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\SlimTvClient-programsearch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\screens\SlimTvClient-schedulelist.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

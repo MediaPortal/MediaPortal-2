@@ -1026,8 +1026,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -1159,8 +1159,8 @@
                 IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -1190,8 +1190,8 @@
                 IsVisible="{Binding ElementName=thumb2, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -1245,8 +1245,8 @@
                 IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -1385,8 +1385,8 @@
                 IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -1416,8 +1416,8 @@
                 IsVisible="{Binding ElementName=thumb2, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -1473,8 +1473,8 @@
                 IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -1588,8 +1588,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -1641,8 +1641,8 @@
                 IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -1768,8 +1768,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -1798,8 +1798,8 @@
               IsVisible="{Binding ElementName=thumb2, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -1853,8 +1853,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -1983,8 +1983,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2013,8 +2013,8 @@
               IsVisible="{Binding ElementName=thumb2, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -2070,8 +2070,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2177,8 +2177,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -2228,8 +2228,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="#F2447da7" Offset="0"/>
-              <GradientStop Color="#F2124273" Offset="1"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -2370,8 +2370,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2420,8 +2420,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2540,8 +2540,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2592,8 +2592,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2725,8 +2725,8 @@
               Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2885,8 +2885,8 @@
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
