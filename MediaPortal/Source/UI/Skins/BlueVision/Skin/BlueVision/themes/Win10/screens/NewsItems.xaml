@@ -27,7 +27,7 @@
         <!-- Items -->
         <ListView x:Name="newsitems" Margin="-75,0,-85,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsItemsContainerStyle}" DockPanel.Dock="Center"
-              ItemsSource="{Binding Path=SelectedFeed.Items}">
+              ItemsSource="{Binding Path=SelectedFeed.Items}" SetFocusPrio="RestoreState">
           <ListView.Resources>
             <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
             <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"

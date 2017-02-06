@@ -45,11 +45,10 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="177"/>
       </Grid.RowDefinitions>
-      <Border x:Name="BackgroundBorder" Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.25" Margin="0">
+      <Border x:Name="BackgroundBorder" Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="#454545" Margin="0">
         <Border.Triggers>
           <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
             <Setter TargetName="BackgroundBorder" Property="Background" Value="#003366"/>
-            <Setter TargetName="BackgroundBorder" Property="Opacity" Value="0.7"/>
           </DataTrigger>
         </Border.Triggers>
       </Border>
@@ -68,11 +67,10 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Border x:Name="BackgroundBorder" Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.25" Margin="0">
+      <Border x:Name="BackgroundBorder" Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="#454545" Margin="0">
         <Border.Triggers>
           <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
             <Setter TargetName="BackgroundBorder" Property="Background" Value="#003366"/>
-            <Setter TargetName="BackgroundBorder" Property="Opacity" Value="0.7"/>
           </DataTrigger>
         </Border.Triggers>
       </Border>
