@@ -44,7 +44,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public const string SUBSCHEMA_NAME = "MediaLibrary";
 
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
-    public const int EXPECTED_SCHEMA_VERSION_MINOR = 1;
+    public const int EXPECTED_SCHEMA_VERSION_MINOR = 2;
 
     internal const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
     internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
@@ -142,37 +142,39 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public static IDbCommand SelectSharesCommand(ITransaction transaction, out int shareIdIndex, out int systemIdIndex,
-        out int baseResourcePathIndex, out int shareNameIndex)
+        out int baseResourcePathIndex, out int shareNameIndex, out int useWatcherIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SHARE_ID, SYSTEM_ID, BASE_RESOURCE_PATH, NAME FROM SHARES";
+      result.CommandText = "SELECT SHARE_ID, SYSTEM_ID, BASE_RESOURCE_PATH, NAME, WATCHER FROM SHARES";
 
       shareIdIndex = 0;
       systemIdIndex = 1;
       baseResourcePathIndex = 2;
       shareNameIndex = 3;
+      useWatcherIndex = 4;
       return result;
     }
 
     public static IDbCommand SelectShareByIdCommand(ITransaction transaction, Guid shareId, out int systemIdIndex,
-        out int baseResourcePathIndex, out int shareNameIndex)
+        out int baseResourcePathIndex, out int shareNameIndex, out int useWatcherIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SYSTEM_ID, BASE_RESOURCE_PATH, NAME FROM SHARES WHERE SHARE_ID=@SHARE_ID";
+      result.CommandText = "SELECT SYSTEM_ID, BASE_RESOURCE_PATH, NAME, WATCHER FROM SHARES WHERE SHARE_ID=@SHARE_ID";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "SHARE_ID", shareId, typeof(Guid));
 
       systemIdIndex = 0;
       baseResourcePathIndex = 1;
       shareNameIndex = 2;
+      useWatcherIndex = 3;
       return result;
     }
 
     public static IDbCommand SelectSharesBySystemCommand(ITransaction transaction, string systemId,
-        out int shareIdIndex, out int systemIdIndex, out int baseResourcePathIndex, out int shareNameIndex)
+        out int shareIdIndex, out int systemIdIndex, out int baseResourcePathIndex, out int shareNameIndex, out int useWatcherIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SHARE_ID, SYSTEM_ID, BASE_RESOURCE_PATH, NAME FROM SHARES WHERE SYSTEM_ID=@SYSTEM_ID";
+      result.CommandText = "SELECT SHARE_ID, SYSTEM_ID, BASE_RESOURCE_PATH, NAME, WATCHER FROM SHARES WHERE SYSTEM_ID=@SYSTEM_ID";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "SYSTEM_ID", systemId, typeof(string));
 
@@ -180,19 +182,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       systemIdIndex = 1;
       baseResourcePathIndex = 2;
       shareNameIndex = 3;
+      useWatcherIndex = 4;
       return result;
     }
 
     public static IDbCommand InsertShareCommand(ITransaction transaction, Guid shareId, string systemId,
-        ResourcePath baseResourcePath, string shareName)
+        ResourcePath baseResourcePath, string shareName, bool useWatcher)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO SHARES (SHARE_ID, NAME, SYSTEM_ID, BASE_RESOURCE_PATH) VALUES (@SHARE_ID, @NAME, @SYSTEM_ID, @BASE_RESOURCE_PATH)";
+      result.CommandText = "INSERT INTO SHARES (SHARE_ID, NAME, SYSTEM_ID, BASE_RESOURCE_PATH, WATCHER) VALUES (@SHARE_ID, @NAME, @SYSTEM_ID, @BASE_RESOURCE_PATH, @WATCHER)";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "SHARE_ID", shareId, typeof(Guid));
       database.AddParameter(result, "NAME", shareName, typeof(string));
       database.AddParameter(result, "SYSTEM_ID", systemId, typeof(string));
       database.AddParameter(result, "BASE_RESOURCE_PATH", baseResourcePath.Serialize(), typeof(string));
+      database.AddParameter(result, "WATCHER", useWatcher ? 1 : 0, typeof(int));
       return result;
     }
 
@@ -228,15 +232,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public static IDbCommand UpdateShareCommand(ITransaction transaction, Guid shareId, ResourcePath baseResourcePath,
-        string shareName)
+        string shareName, bool useWatcher)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "UPDATE SHARES set NAME=@NAME, BASE_RESOURCE_PATH=@BASE_RESOURCE_PATH WHERE SHARE_ID=@SHARE_ID";
+      result.CommandText = "UPDATE SHARES set NAME=@NAME, BASE_RESOURCE_PATH=@BASE_RESOURCE_PATH, WATCHER=@WATCHER WHERE SHARE_ID=@SHARE_ID";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "NAME", shareName, typeof(string));
       database.AddParameter(result, "BASE_RESOURCE_PATH", baseResourcePath.Serialize(), typeof(string));
+      database.AddParameter(result, "WATCHER", useWatcher ? 1 : 0, typeof(int));
       database.AddParameter(result, "SHARE_ID", shareId, typeof(Guid));
-
       return result;
     }
 

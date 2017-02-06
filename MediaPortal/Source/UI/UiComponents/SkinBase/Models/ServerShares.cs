@@ -121,7 +121,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      Share share = Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, MediaCategories);
+      Share share = Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, UseShareWatcher, MediaCategories);
       contentDirectory.RegisterShare(share);
       _serverSharesCache = null;
     }

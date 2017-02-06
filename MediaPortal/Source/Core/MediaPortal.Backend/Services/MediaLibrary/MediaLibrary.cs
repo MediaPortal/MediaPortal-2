@@ -502,16 +502,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       int systemIdIndex;
       int pathIndex;
       int shareNameIndex;
+      int useWatcherIndex;
+
       ISQLDatabase database = transaction.Database;
       Share share;
-      using (IDbCommand command = MediaLibrary_SubSchema.SelectShareByIdCommand(transaction, shareId, out systemIdIndex, out pathIndex, out shareNameIndex))
+      using (IDbCommand command = MediaLibrary_SubSchema.SelectShareByIdCommand(transaction, shareId, out systemIdIndex, out pathIndex, out shareNameIndex, out useWatcherIndex))
       using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
       {
         if (!reader.Read())
           return null;
         share = new Share(shareId, database.ReadDBValue<string>(reader, systemIdIndex), ResourcePath.Deserialize(
             database.ReadDBValue<string>(reader, pathIndex)),
-            database.ReadDBValue<string>(reader, shareNameIndex), null);
+            database.ReadDBValue<string>(reader, shareNameIndex),
+            database.ReadDBValue<int>(reader, useWatcherIndex) == 1, null);
       }
       // Init share categories later to avoid opening new result sets inside reader loop (issue with MySQL)
       ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
@@ -2968,6 +2971,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IDictionary<Guid, Share> shares = GetShares(_localSystemId);
       foreach (Share share in shares.Values)
       {
+        if (!share.UseShareWatcher)
+        {
+          Logger.Info("MediaLibrary: Share watcher not enabled for path {0}", share.BaseResourcePath);
+          continue;
+        }
         try
         {
           ShareWatcher watcher = null;
@@ -2979,7 +2987,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             Logger.Debug("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
             Logger.Warn("MediaLibrary: Share watcher cannot be used for path {0}", share.BaseResourcePath);
-            return;
+            continue;
           }
           _shareWatchers.Add(share.ShareId, watcher);
           _shareDeleteSync.Add(share.BaseResourcePath, new object());
@@ -3026,7 +3034,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 share.SystemId, share.BaseResourcePath);
         }
         using (IDbCommand command = MediaLibrary_SubSchema.InsertShareCommand(transaction, share.ShareId, share.SystemId,
-            share.BaseResourcePath, share.Name))
+            share.BaseResourcePath, share.Name, share.UseShareWatcher))
           command.ExecuteNonQuery();
 
         foreach (string mediaCategory in share.MediaCategories)
@@ -3050,12 +3058,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public Guid CreateShare(string systemId, ResourcePath baseResourcePath, string shareName,
+    public Guid CreateShare(string systemId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories)
     {
       Guid shareId = Guid.NewGuid();
       Logger.Info("MediaLibrary: Creating new share '{0}'", shareId);
-      Share share = new Share(shareId, systemId, baseResourcePath, shareName, mediaCategories);
+      Share share = new Share(shareId, systemId, baseResourcePath, shareName, useShareWatcher, mediaCategories);
       RegisterShare(share);
       return shareId;
     }
@@ -3131,7 +3139,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
+    public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       Logger.Info("MediaLibrary: Updating share '{0}': Setting name '{1}', base resource path '{2}' and media categories '{3}'",
@@ -3145,7 +3153,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Share originalShare = GetShare(transaction, shareId);
 
-        using (IDbCommand command = MediaLibrary_SubSchema.UpdateShareCommand(transaction, shareId, baseResourcePath, shareName))
+        using (IDbCommand command = MediaLibrary_SubSchema.UpdateShareCommand(transaction, shareId, baseResourcePath, shareName, useShareWatcher))
           command.ExecuteNonQuery();
 
         // Update media categories
@@ -3202,13 +3210,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         int systemIdIndex;
         int pathIndex;
         int shareNameIndex;
+        int shareWatcherIndex;
         IDbCommand command;
         if (string.IsNullOrEmpty(systemId))
+        {
           command = MediaLibrary_SubSchema.SelectSharesCommand(transaction, out shareIdIndex,
-              out systemIdIndex, out pathIndex, out shareNameIndex);
+            out systemIdIndex, out pathIndex, out shareNameIndex,  out shareWatcherIndex);
+        }
         else
           command = MediaLibrary_SubSchema.SelectSharesBySystemCommand(transaction, systemId, out shareIdIndex,
-              out systemIdIndex, out pathIndex, out shareNameIndex);
+              out systemIdIndex, out pathIndex, out shareNameIndex, out shareWatcherIndex);
         IDictionary<Guid, Share> result = new Dictionary<Guid, Share>();
         try
         {
@@ -3219,7 +3230,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               Guid shareId = database.ReadDBValue<Guid>(reader, shareIdIndex);
               result.Add(shareId, new Share(shareId, database.ReadDBValue<string>(reader, systemIdIndex),
                   ResourcePath.Deserialize(database.ReadDBValue<string>(reader, pathIndex)),
-                  database.ReadDBValue<string>(reader, shareNameIndex), null));
+                  database.ReadDBValue<string>(reader, shareNameIndex),
+                  database.ReadDBValue<int>(reader, shareWatcherIndex) == 1, null));
             }
           }
           // Init share categories later to avoid opening new result sets inside reader loop (issue with MySQL)

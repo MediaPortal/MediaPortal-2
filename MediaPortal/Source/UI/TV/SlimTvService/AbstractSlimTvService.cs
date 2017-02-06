@@ -316,7 +316,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
           var folderPath = LocalFsResourceProviderBase.ToProviderPath(folderTypes.Key);
           var mediaCategories = folderTypes.Value.Select(mc => mc.CategoryName);
           Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, folderPath),
-            string.Format("Recordings ({0})", cnt), mediaCategories);
+            string.Format("Recordings ({0})", cnt), 
+            // Important: don't monitor recording sources by ShareWatcher, we manage them during recording start / end events!
+            false, 
+            mediaCategories);
 
           mediaLibrary.RegisterShare(sd);
           cnt++;

@@ -587,7 +587,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
           string[] mediaCategories = new[] { DefaultMediaCategories.Audio.ToString() };
           Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsResourceProviderId, folderPath),
-              MY_MUSIC_SHARE_NAME_RESOURE, mediaCategories);
+              MY_MUSIC_SHARE_NAME_RESOURE, true, mediaCategories);
           result.Add(sd);
         }
 
@@ -596,7 +596,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
           string[] mediaCategories = new[] { DefaultMediaCategories.Video.ToString() };
           Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsResourceProviderId, folderPath),
-              MY_VIDEOS_SHARE_NAME_RESOURCE, mediaCategories);
+              MY_VIDEOS_SHARE_NAME_RESOURCE, true, mediaCategories);
           result.Add(sd);
         }
 
@@ -605,7 +605,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
           string[] mediaCategories = new[] { DefaultMediaCategories.Image.ToString() };
           Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsResourceProviderId, folderPath),
-              MY_PICTURES_SHARE_NAME_RESOURCE, mediaCategories);
+              MY_PICTURES_SHARE_NAME_RESOURCE, true, mediaCategories);
           result.Add(sd);
         }
       }
