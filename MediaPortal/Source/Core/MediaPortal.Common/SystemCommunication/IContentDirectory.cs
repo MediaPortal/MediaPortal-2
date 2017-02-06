@@ -83,6 +83,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="shareId">Id of the share to be changed.</param>
     /// <param name="baseResourcePath">Lookup path for the provider resource chain in the share's system.</param>
     /// <param name="shareName">Name of the share.</param>
+    /// <param name="useShareWatcher">Indicates if changes on share should be monitored by a share watcher.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
@@ -90,7 +91,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library.</param>
     /// <returns>Number of relocated or removed media items.</returns>
-    int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
+    int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
 
 
