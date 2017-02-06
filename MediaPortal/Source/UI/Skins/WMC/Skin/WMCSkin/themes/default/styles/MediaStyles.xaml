@@ -886,8 +886,8 @@
       <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="0,1.5,0,0">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#FF447da7" Offset="0"/>
-            <GradientStop Color="#FF124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -1024,8 +1024,8 @@
       <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="0,1.5,0,0">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#FF447da7" Offset="0"/>
-            <GradientStop Color="#FF124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -1647,8 +1647,8 @@
       <Border Grid.Row="1"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="1">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#FF447da7" Offset="0"/>
-            <GradientStop Color="#FF124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2235,8 +2235,8 @@
       <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="1">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#FF447da7" Offset="0"/>
-            <GradientStop Color="#FF124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2722,8 +2722,8 @@
               BorderThickness="0" Margin="0">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#FF447da7" Offset="0"/>
-            <GradientStop Color="#FF124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
         <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="7"/>
@@ -2815,8 +2815,8 @@
               Margin="0,1.5,0,0" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#FF447da7" Offset="0"/>
-            <GradientStop Color="#FF124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
@@ -2979,8 +2979,8 @@
               Margin="0,1.5,0,0" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#FF447da7" Offset="0"/>
-            <GradientStop Color="#FF124273" Offset="1"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
       </Border>
