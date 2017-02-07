@@ -82,33 +82,47 @@
               </Image.Source>
             </Image>
 
-            <DockPanel Grid.Column="1" Grid.Row="0" LastChildFill="true" Margin="0">
+            <DockPanel Grid.Column="1" Grid.Row="0" LastChildFill="true" Margin="20,0,0,0">
               <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="110"/>
+                  <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="110"/>
+                  <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                   <RowDefinition Height="Auto"/>
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Image Grid.Column="0" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Width="140" Height="70" Margin="-20,0,-20,0"/>
-                <Label x:Name="StartTimeLabel" Grid.Column="0" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9"
+                <Label x:Name="StartTimeLabel" Grid.Column="0" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
                        Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                        HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                <Image Grid.Column="0" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Height="70" Margin="-30,0,-30,0" Panel.ZIndex="100">
+                  <Image.Width>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+60">
+                      <Binding Source="{Binding ElementName=StartTimeLabel, Path=ActualWidth}"/>
+                    </MultiBinding>
+                  </Image.Width>
+                </Image>
+
                 <ProgressBar Grid.Row="0" Grid.Column="1" x:Name="ProgressBar" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                              Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress, Mode=TwoWay}" Style="{ThemeResource TVPlayerControlsProgressBarStyle}"/>
-                <Image Grid.Column="2" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Width="140" Height="70" Margin="-20,0,-20,0"/>
-                <Label x:Name="EndTimeLabel" Grid.Column="2" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9"
+
+                <Label x:Name="EndTimeLabel" Grid.Column="2" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
                        Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Image Grid.Column="2" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Height="70" Margin="-30,0,-30,0" Panel.ZIndex="100">
+                  <Image.Width>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+60">
+                      <Binding Source="{Binding ElementName=EndTimeLabel, Path=ActualWidth}"/>
+                    </MultiBinding>
+                  </Image.Width>
+                </Image>
               </Grid>
             </DockPanel>
 
             <StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" MaxWidth="900" Margin="20,-5,750,-5" Panel.ZIndex="1">
               <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0"
-                          IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel0}">
+                          IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel1}">
                 <Label x:Name="CurrentProgramTitleLabel" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
                        HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold"
                        Color="{ThemeResource TextColor}"/>
