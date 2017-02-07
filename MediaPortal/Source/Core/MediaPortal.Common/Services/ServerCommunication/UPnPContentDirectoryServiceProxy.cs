@@ -141,7 +141,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
       action.InvokeAction(inParameters);
     }
 
-    public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
+    public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       CpAction action = GetAction("X_MediaPortal_UpdateShare");
@@ -150,6 +150,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
             MarshallingHelper.SerializeGuid(shareId),
             baseResourcePath.Serialize(),
             shareName,
+            useShareWatcher,
             StringUtils.Join(",", mediaCategories)
         };
       string relocationModeStr;

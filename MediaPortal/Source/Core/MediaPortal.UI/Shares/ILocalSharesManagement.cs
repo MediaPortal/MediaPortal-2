@@ -70,11 +70,12 @@ namespace MediaPortal.UI.Shares
     /// </summary>
     /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="shareName">Name of the new share.</param>
+    /// <param name="useShareWatcher">Indicates if changes on share should be monitored by a share watcher.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the new share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
     /// <returns>Descriptor of the new share.</returns>
-    Share RegisterShare(ResourcePath baseResourcePath, string shareName, IEnumerable<string> mediaCategories);
+    Share RegisterShare(ResourcePath baseResourcePath, string shareName, bool useShareWatcher, IEnumerable<string> mediaCategories);
 
     /// <summary>
     /// Removes the local share with the specified id. This will invalidate all references to this share; the share
@@ -91,6 +92,7 @@ namespace MediaPortal.UI.Shares
     /// <param name="shareId">Id of the share to be changed.</param>
     /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="shareName">Name of the share.</param>
+    /// <param name="useShareWatcher">Indicates if changes on share should be monitored by a share watcher.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
@@ -98,7 +100,7 @@ namespace MediaPortal.UI.Shares
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.ClearAndReImport"/>,
     /// all media items from the specified share will be removed from the media library or the local media items cache.</param>
     /// <returns>Changed share descriptor.</returns>
-    Share UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
+    Share UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
 
     /// <summary>

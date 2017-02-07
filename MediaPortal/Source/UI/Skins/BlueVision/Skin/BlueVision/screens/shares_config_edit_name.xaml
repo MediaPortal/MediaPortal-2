@@ -20,22 +20,35 @@
       <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
-          <RowDefinition Height="*"/>
+          <RowDefinition Height="80"/>
           <RowDefinition Height="Auto"/>
-          <RowDefinition Height="120"/>
+          <RowDefinition Height="80"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Content="[SharesConfig.EditShareName]" Color="{ThemeResource TextColor}" Wrap="True"/>
+        <Label Grid.Row="0" Content="[SharesConfig.EditShareName]" Color="{ThemeResource TextColor}" Wrap="True" Grid.ColumnSpan="2"/>
         <TextBox Grid.Row="2" Margin="0,10,0,0"
-            Text="{Binding Path=ShareProxy.ShareName,Mode=TwoWay}" PreferredTextLength="30"/>
+            Text="{Binding Path=ShareProxy.ShareName,Mode=TwoWay}" PreferredTextLength="30" Grid.ColumnSpan="2"/>
         <Label Content="{Binding ShareProxy.InvalidShareHint}" Color="{ThemeResource ErrorTextColor}" Wrap="True"
             Grid.Row="3"
-            IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter},Path=ShareProxy.InvalidShareHint}"/>
-        <Grid Grid.Row="5" Margin="10,10,10,0">
+            IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter},Path=ShareProxy.InvalidShareHint}" Grid.ColumnSpan="2"/>
+
+        <!-- Share watcher -->
+        <Label Content="[SharesConfig.UseShareWatcher]" Color="{ThemeResource TextColor}" Wrap="True" Grid.Row="4" />
+        <CheckBox x:Name="CheckUseShareWatcher" Margin="40,0,0,0"
+                Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                IsChecked="{Binding Path=ShareProxy.UseShareWatcher,Mode=TwoWay}" />
+
+        <Label Content="[SharesConfig.UseShareWatcher.Help]" Margin="0,20,0,0"  Color="{ThemeResource TextColor}" Wrap="True" Grid.Row="5" Grid.ColumnSpan="2"/>
+        <!-- End share watcher -->
+
+        <Grid Grid.Row="7" Margin="10,10,10,0" Grid.ColumnSpan="2">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
