@@ -320,7 +320,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IImportResultHandler _importResultHandler;
     protected AsynchronousMessageQueue _messageQueue;
     protected bool _shutdown = false;
-    protected Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
+    protected readonly Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
     protected Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
     protected List<RelationshipHierarchy> _hierarchies = new List<RelationshipHierarchy>();
     protected object _shareImportSync = new object();
@@ -340,7 +340,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       _importResultHandler = new ImportResultHandler(this);
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-            ImporterWorkerMessaging.CHANNEL
+            ImporterWorkerMessaging.CHANNEL,
+            ContentDirectoryMessaging.CHANNEL
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -353,6 +354,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
+      if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
+            UpdateShareWatchers();
+            break;
+        }
+      }
+
       if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
       {
         ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType) message.MessageType;
@@ -2966,53 +2978,71 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Shares management
 
+    private void UpdateShareWatchers()
+    {
+      lock (_syncObj)
+      {
+        Logger.Info("MediaLibrary: Share configuration changed, updating watchers");
+        DeInitShareWatchers();
+        InitShareWatchers();
+      }
+    }
+
     private void InitShareWatchers()
     {
-      IDictionary<Guid, Share> shares = GetShares(_localSystemId);
-      foreach (Share share in shares.Values)
+      lock (_syncObj)
       {
-        if (!share.UseShareWatcher)
+        IDictionary<Guid, Share> shares = GetShares(_localSystemId);
+        foreach (Share share in shares.Values)
         {
-          Logger.Info("MediaLibrary: Share watcher not enabled for path {0}", share.BaseResourcePath);
-          continue;
-        }
-        try
-        {
-          ShareWatcher watcher = null;
+          // Needs to be created for all shares
+          _shareDeleteSync[share.BaseResourcePath]= new object();
+
+          if (!share.UseShareWatcher)
+          {
+            Logger.Info("MediaLibrary: Share watcher not enabled for path {0}", share.BaseResourcePath);
+            continue;
+          }
           try
           {
-            watcher = new ShareWatcher(share, this, false);
+            ShareWatcher watcher = null;
+            try
+            {
+              watcher = new ShareWatcher(share, this, false);
+            }
+            catch (Exception e)
+            {
+              Logger.Debug("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
+              Logger.Warn("MediaLibrary: Share watcher cannot be used for path {0}", share.BaseResourcePath);
+              continue;
+            }
+            _shareWatchers.Add(share.ShareId, watcher);
           }
           catch (Exception e)
           {
-            Logger.Debug("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
-            Logger.Warn("MediaLibrary: Share watcher cannot be used for path {0}", share.BaseResourcePath);
-            continue;
+            Logger.Error("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
           }
-          _shareWatchers.Add(share.ShareId, watcher);
-          _shareDeleteSync.Add(share.BaseResourcePath, new object());
-        }
-        catch (Exception e)
-        {
-          Logger.Error("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
         }
       }
     }
 
     private void DeInitShareWatchers()
     {
-      try
+      lock (_syncObj)
       {
-        foreach (Guid shareId in _shareWatchers.Keys)
+        try
         {
-          _shareWatchers[shareId].Dispose();
+          foreach (Guid shareId in _shareWatchers.Keys)
+          {
+            _shareWatchers[shareId].Dispose();
+          }
+          _shareWatchers.Clear();
         }
-        _shareWatchers.Clear();
-      }
-      catch (Exception e)
-      {
-        Logger.Error("MediaLibrary: Error initializing shares", e);
-        throw;
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error initializing shares", e);
+          throw;
+        }
       }
     }
 
