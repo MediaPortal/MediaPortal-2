@@ -148,13 +148,13 @@
     <WorkflowState Id="5764A810-F298-4a20-BF84-F03D16F775B1"
         Name="VideoCurrentlyPlaying"
         DisplayLabel="[Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel]"
-        Temporary="false"
+        Temporary="true"
         WorkflowModel="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/> <!-- Workflow model = Video player model -->
 
     <WorkflowState Id="882C1142-8028-4112-A67D-370E6E483A33"
         Name="VideoFullscreenContent"
         DisplayLabel="[Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel]"
-        Temporary="false"
+        Temporary="true"
         WorkflowModel="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/> <!-- Workflow model = Video player model -->
 
     <WorkflowState Id="4596B758-CE2B-4e31-9CB9-6C30215831ED"
