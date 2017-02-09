@@ -535,7 +535,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, Color4 color,
         bool wrap, TextTrimming textTrimming, bool fade, float zOrder, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, Matrix finalTransform)
     {
-      if (!IsAllocated || wrap != _lastWrap || _lastTextTrimming != textTrimming || _textChanged || (wrap && textBox.Width != _lastTextBoxWidth))
+      if (!IsAllocated || wrap != _lastWrap || _lastTextTrimming != textTrimming || _textChanged || ((wrap || textTrimming != TextTrimming.None) && textBox.Width != _lastTextBoxWidth))
       {
         Allocate(textBox.Width, textBox.Height, wrap, textTrimming);
         if (!IsAllocated)
