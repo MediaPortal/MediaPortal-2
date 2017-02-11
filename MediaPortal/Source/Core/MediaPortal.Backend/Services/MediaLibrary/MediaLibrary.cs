@@ -3003,6 +3003,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             Logger.Info("MediaLibrary: Share watcher not enabled for path {0}", share.BaseResourcePath);
             continue;
           }
+
+          // This should never happen, as the share ID is unique. But error reports show duplicate keys when adding a watcher?
+          if (_shareWatchers.ContainsKey(share.ShareId))
+            continue;
+
           try
           {
             ShareWatcher watcher = null;
@@ -3076,8 +3081,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         TryScheduleLocalShareImport(share);
 
-        ShareWatcher watcher = new ShareWatcher(share, this, false);
-        _shareWatchers.Add(share.ShareId, watcher);
+        lock(_syncObj)
+          if (share.UseShareWatcher)
+          {
+            ShareWatcher watcher = new ShareWatcher(share, this, false);
+            _shareWatchers.Add(share.ShareId, watcher);
+          }
         _shareDeleteSync.Add(share.BaseResourcePath, new object());
       }
       catch (Exception e)
@@ -3119,8 +3128,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           transaction.Commit();
 
-          _shareWatchers[shareId].Dispose();
-          _shareWatchers.Remove(shareId);
+          // ShareWatcher is optional
+          if (_shareWatchers.ContainsKey(shareId))
+          {
+            _shareWatchers[shareId].Dispose();
+            _shareWatchers.Remove(shareId);
+          }
 
           ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
         }
@@ -3152,11 +3165,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         transaction.Commit();
 
-        foreach (Guid shareId in _shareWatchers.Keys)
+        lock (_syncObj)
         {
-          _shareWatchers[shareId].Dispose();
+          foreach (Guid shareId in _shareWatchers.Keys)
+          {
+            _shareWatchers[shareId].Dispose();
+          }
+          _shareWatchers.Clear();
         }
-        _shareWatchers.Clear();
         _shareDeleteSync.Clear();
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
