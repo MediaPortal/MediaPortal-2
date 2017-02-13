@@ -29,6 +29,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 using UPnP.Infrastructure;
 using UPnP.Infrastructure.Utils;
@@ -119,7 +120,8 @@ namespace WakeOnLan.Server
       {
         byte[] hwAddress = ni.GetPhysicalAddress().GetAddressBytes();
         foreach (var ua in ni.GetIPProperties().UnicastAddresses.Where(ua => ips.Contains(ua.Address)))
-          addresses.Add(new WakeOnLanAddress() { IPAddress = ua.Address.ToString(), HardwareAddress = hwAddress });
+          //IPv6 addresses can contain an additional scope id which is only meaningful to the server so create a 'clean' IP address from the address bytes
+          addresses.Add(new WakeOnLanAddress() { IPAddress = new IPAddress(ua.Address.GetAddressBytes()).ToString(), HardwareAddress = hwAddress });
       }
       SaveHardwareAddresses(addresses);
     }
