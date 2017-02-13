@@ -277,7 +277,25 @@ namespace WakeOnLan.Client
     protected bool IsValidAddress(WakeOnLanAddress wolAddress, IPAddress serverAddress)
     {
       IPAddress ipAddress;
-      return IPAddress.TryParse(wolAddress.IPAddress, out ipAddress) && ipAddress.Equals(serverAddress) && WakeOnLanHelper.IsValidHardwareAddress(wolAddress.HardwareAddress);
+      return IPAddress.TryParse(wolAddress.IPAddress, out ipAddress) && AddressesAreEqual(serverAddress, ipAddress) && WakeOnLanHelper.IsValidHardwareAddress(wolAddress.HardwareAddress);
+    }
+
+    /// <summary>
+    /// Determines whether two IP addresses are equal by comparing their address bytes.
+    /// </summary>
+    /// <param name="address">Address to compare.</param>
+    /// <param name="other">Address to compare to.</param>
+    /// <returns>True if the address bytes are equal</returns>
+    protected bool AddressesAreEqual(IPAddress address, IPAddress other)
+    {
+      byte[] addressBytes = address.GetAddressBytes();
+      byte[] otherBytes = other.GetAddressBytes();
+      if (addressBytes.Length != otherBytes.Length)
+        return false;
+      for (int i = 0; i < addressBytes.Length; i++)
+        if (addressBytes[i] != otherBytes[i])
+          return false;
+      return true;
     }
 
     /// <summary>
