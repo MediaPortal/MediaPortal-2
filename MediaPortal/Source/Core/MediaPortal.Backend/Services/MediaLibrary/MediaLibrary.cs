@@ -3023,8 +3023,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
             catch (Exception e)
             {
-              Logger.Debug("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
-              Logger.Warn("MediaLibrary: Share watcher cannot be used for path {0}", share.BaseResourcePath);
+              Logger.Warn("MediaLibrary: Share watcher cannot be used for path {0}", e, share.BaseResourcePath);
               continue;
             }
             _shareWatchers.Add(share.ShareId, watcher);
@@ -3051,7 +3050,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
         catch (Exception e)
         {
-          Logger.Error("MediaLibrary: Error initializing shares", e);
+          Logger.Error("MediaLibrary: Error when removing share watchers", e);
           throw;
         }
       }
@@ -3086,13 +3085,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
 
         TryScheduleLocalShareImport(share);
-
-        lock(_syncObj)
-          if (share.UseShareWatcher)
-          {
-            ShareWatcher watcher = new ShareWatcher(share, this, false);
-            _shareWatchers.Add(share.ShareId, watcher);
-          }
       }
       catch (Exception e)
       {
@@ -3131,13 +3123,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           transaction.Commit();
 
-          // ShareWatcher is optional
-          if (_shareWatchers.ContainsKey(shareId))
-          {
-            _shareWatchers[shareId].Dispose();
-            _shareWatchers.Remove(shareId);
-          }
-
           ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
         }
         catch (Exception e)
@@ -3168,16 +3153,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         DeleteAllMediaItemsUnderPath(transaction, systemId, null, true);
 
         transaction.Commit();
-
-        lock (_syncObj)
-        {
-          foreach (Guid shareId in _shareWatchers.Keys)
-          {
-            _shareWatchers[shareId].Dispose();
-          }
-          _shareWatchers.Clear();
-          _shareDeleteSync.Clear();
-        }
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
