@@ -91,7 +91,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       }
       if (attrY != null)
       {
-        valX = (T?)aspectX.GetAttributeValue(attrX);
+        valY = (T?)aspectY.GetAttributeValue(attrY);
       }
       return ObjectUtils.Compare(valX, valY);
     }

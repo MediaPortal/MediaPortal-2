@@ -22,8 +22,10 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
@@ -32,6 +34,23 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public AudioSortByTrack() : base(Consts.RES_COMMON_BY_TRACK_MENU_ITEM, Consts.RES_COMMON_BY_TRACK_MENU_ITEM, AudioAspect.ATTR_TRACK)
     {
       _includeMias = new[] { AudioAspect.ASPECT_ID };
+    }
+
+    public override int Compare(MediaItem x, MediaItem y)
+    {
+      SingleMediaItemAspect audioAspectX;
+      SingleMediaItemAspect audioAspectY;
+      if (MediaItemAspect.TryGetAspect(x.Aspects, AudioAspect.Metadata, out audioAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, AudioAspect.Metadata, out audioAspectY))
+      {
+        //Sort by disc number
+        int? discIdX = (int?)audioAspectX.GetAttributeValue(AudioAspect.ATTR_DISCID);
+        int? discIdY = (int?)audioAspectY.GetAttributeValue(AudioAspect.ATTR_DISCID);
+        int res = ObjectUtils.Compare(discIdX, discIdY);
+        if (res != 0)
+          return res;
+      }
+      //Sort by track
+      return base.Compare(x, y);
     }
   }
 }
