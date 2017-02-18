@@ -67,7 +67,8 @@
   <string name="Media.ImageFilterSmall">Small</string>
   <string name="Media.ImageFilterMedium">Medium</string>
   <string name="Media.ImageFilterBig">Big</string>
-
+  <string name="Media.DiscNumberFilter">Disc {0}</string>
+  
   <string name="Media.SwitchToBrowseMLView">To server view</string>
   <string name="Media.SwitchToLocalMediaView">To local view</string>
   <string name="Media.SwitchToBrowseShareView">To folder view</string>

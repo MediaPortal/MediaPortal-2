@@ -114,6 +114,7 @@
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByDiscNumberCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByTvNetworkCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCompanyCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByMusicLabelCriterion.cs" />

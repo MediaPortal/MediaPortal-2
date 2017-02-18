@@ -22,28 +22,26 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
-using System.Linq;
 
-namespace MediaPortal.UiComponents.Media.Models.ScreenData
+namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class AudioFilterByDiscNumberScreenData : AbstractAudioFilterScreenData<GenreFilterItem>
+  public class FilterByDiscNumberCriterion : SimpleMLFilterCriterion
   {
-    public AudioFilterByDiscNumberScreenData() :
-        base(Consts.SCREEN_AUDIO_FILTER_BY_DISC_NUMBER, Consts.RES_COMMON_BY_DISC_NUMBER_MENU_ITEM,
-        Consts.RES_FILTER_AUDIO_DISC_NUMBER_NAVBAR_DISPLAY_LABEL, new FilterByDiscNumberCriterion(AudioAspect.ATTR_DISCID))
+    public FilterByDiscNumberCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType)
+      : base(attributeType)
     {
-      _availableMias = Consts.NECESSARY_AUDIO_MIAS;
-      if (Consts.OPTIONAL_AUDIO_MIAS != null)
-        _availableMias = _availableMias.Union(Consts.OPTIONAL_AUDIO_MIAS);
     }
 
-    public override AbstractFiltersScreenData<GenreFilterItem> Derive()
+    #region Base overrides
+
+    protected override string GetDisplayName(object groupKey)
     {
-      return new AudioFilterByDiscNumberScreenData();
+      return LocalizationHelper.CreateResourceString(Consts.RES_DISC_NUMBER_FILTER).Evaluate(groupKey.ToString());
     }
+
+    #endregion
   }
 }

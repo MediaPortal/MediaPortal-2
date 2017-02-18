@@ -171,6 +171,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_IMAGE_FILTER_SMALL = "[Media.ImageFilterSmall]";
     public const string RES_IMAGE_FILTER_MEDIUM = "[Media.ImageFilterMedium]";
     public const string RES_IMAGE_FILTER_BIG = "[Media.ImageFilterBig]";
+    public const string RES_DISC_NUMBER_FILTER = "[Media.DiscNumberFilter]";
 
     public const string RES_MORE_THAN_MAX_ITEMS_HINT = "[Media.MoreThanMaxItemsHint]";
     public const string RES_MORE_THAN_MAX_ITEMS_BROWSE_HINT = "[Media.MoreThanMaxItemsBrowseHint]";
