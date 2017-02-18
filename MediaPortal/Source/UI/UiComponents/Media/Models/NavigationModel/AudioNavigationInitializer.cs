@@ -57,6 +57,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new AudioFilterByAlbumArtistScreenData(),
           new AudioFilterByAlbumScreenData(),
           new AudioFilterByAlbumLabelScreenData(),
+          new AudioFilterByDiscNumberScreenData(),
           new AudioFilterByGenreScreenData(),
           new AudioFilterByDecadeScreenData(),
           new AudioFilterBySystemScreenData(),

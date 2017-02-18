@@ -206,6 +206,7 @@
     <Compile Include="Models\ScreenData\AudioFilterByAlbumLabelScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumArtistScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByComposerScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByDiscNumberScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
@@ -590,6 +591,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\MovieFilterByGenre.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByDiscNumber.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

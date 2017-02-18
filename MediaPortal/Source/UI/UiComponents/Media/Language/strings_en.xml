@@ -30,6 +30,7 @@
   <string name="Media.GenreMenuItem">Genre</string>
   <string name="Media.YearMenuItem">Year</string>
   <string name="Media.DecadeMenuItem">Decade</string>
+  <string name="Media.DiscNumberMenuItem">Disc</string>
   <string name="Media.SizeMenuItem">Size</string>
   <string name="Media.SystemMenuItem">System</string>
   <string name="Media.ActorMenuItem">Actor</string>
@@ -81,6 +82,7 @@
   <string name="Media.FilterAlbumLabelNavbarDisplayLabel">Music Label: {0}</string>
   <string name="Media.FilterAlbumNavbarDisplayLabel">Album: {0}</string>
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre: {0}</string>
+  <string name="Media.FilterAudioDiscNumberNavbarDisplayLabel">Disc: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Decade: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Actor: {0}</string>
   <string name="Media.FilterCharacterNavbarDisplayLabel">Character: {0}</string>
@@ -166,6 +168,7 @@
   <string name="Media.ChooseAlbumArtistHeader">Album artists</string>
   <string name="Media.ChooseAlbumLabelHeader">Music labels</string>
   <string name="Media.ChooseAudioGenreHeader">Genres</string>
+  <string name="Media.ChooseDiscNumberHeader">Discs</string>
   <string name="Media.ChooseImageYearHeader">Years</string>
   <string name="Media.ChooseImageSizeHeader">Sizes</string>
   <string name="Media.ChooseImageCountryHeader">Countries</string>
