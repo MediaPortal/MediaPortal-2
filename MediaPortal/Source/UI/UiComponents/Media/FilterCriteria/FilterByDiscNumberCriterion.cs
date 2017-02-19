@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     protected override string GetDisplayName(object groupKey)
     {
-      return LocalizationHelper.CreateResourceString(Consts.RES_DISC_NUMBER_FILTER).Evaluate(groupKey.ToString());
+      return groupKey != null ? LocalizationHelper.CreateResourceString(Consts.RES_DISC_NUMBER_FILTER).Evaluate(groupKey.ToString()) : "";
     }
 
     #endregion
