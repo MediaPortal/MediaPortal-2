@@ -215,7 +215,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           PlayableMediaItem existingItem = _items.OfType<PlayableMediaItem>().FirstOrDefault(pmi => pmi.MediaItem.Equals(mediaItem));
           if (existingItem != null)
           {
+            int oldIndex = _items.IndexOf(existingItem);
             _items.Remove(existingItem);
+
+            // Restore focus on same position of old item
+            SetSelectedIndex(oldIndex);
+
             _currentTotalNumItems--;
             changed = true;
           }
@@ -234,6 +239,22 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         _items.FireChange();
         Display_Normal(_items.Count, _currentTotalNumItems);
       }
+    }
+
+    /// <summary>
+    /// Sets the "Selected" indicator to the MediaItem which is in the position of the last index. If there are less items in collection than the index, the last item is selected.
+    /// </summary>
+    /// <param name="oldIndex">Old item index</param>
+    protected void SetSelectedIndex(int oldIndex)
+    {
+      if (oldIndex < 0 || _items.Count == 0)
+        return;
+
+      if (oldIndex >= _items.Count)
+        oldIndex = _items.Count - 1;
+
+      for (int i = 0; i < _items.Count; i++)
+        _items[i].Selected = i == oldIndex;
     }
 
     /// <summary>
@@ -340,7 +361,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           ServiceRegistration.Get<ILogger>().Warn("AbstractItemsScreenData: Error creating items list", e);
           Display_ItemsInvalid();
         }
-      RebuildView:
+        RebuildView:
         bool dirty;
         lock (_syncObj)
           if (_listDirty)

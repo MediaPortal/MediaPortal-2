@@ -71,8 +71,8 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
               return true;
 
             cd.DeleteMediaItemOrPath(rl.NativeSystemId, rl.NativeResourcePath, true);
-            return true;
           }
+          return true;
         }
       }
       return false;
