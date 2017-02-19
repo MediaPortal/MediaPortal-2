@@ -22,6 +22,9 @@
 
 #endregion
 
+using System;
+using System.Net;
+using System.Xml.Linq;
 using CustomActions;
 using Xunit;
 using Moq;
@@ -37,7 +40,8 @@ namespace Tests
       var mockHelper = new Mock<IRunnerHelper>();
       string splitterKey = @"CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32";
       mockHelper.Setup(s => s.GetPathForRegistryKey(splitterKey)).Returns(string.Empty);
-
+      string minorOnlineVersion = "69";
+      mockHelper.Setup(s => s.LoadXmlDocument(It.IsAny<string>())).Returns(LavFiltersMetadataFile("0", minorOnlineVersion, "0", "0"));
       // Act
       var runner = new CustomActionRunner(mockHelper.Object);
       bool isInstalled = runner.IsLavFiltersAlreadyInstalled();
@@ -51,11 +55,14 @@ namespace Tests
     {
       // Arrange
       var mockHelper = new Mock<IRunnerHelper>();
+      string minorOnlineVersion = "69";
+      mockHelper.Setup(s => s.LoadXmlDocument(It.IsAny<string>())).Returns(LavFiltersMetadataFile("0", minorOnlineVersion, "0", "0"));
       string splitterKey = @"CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32";
       string fileName = "LavSplitter.ax";
       mockHelper.Setup(s => s.GetPathForRegistryKey(splitterKey)).Returns(fileName);
       mockHelper.Setup(s => s.GetFileMajorVersion(fileName)).Returns(0);
-      mockHelper.Setup(s => s.GetFileMinorVersion(fileName)).Returns(66);
+      int localMinorVersion = 66;
+      mockHelper.Setup(s => s.GetFileMinorVersion(fileName)).Returns(localMinorVersion);
       mockHelper.Setup(s => s.GetFileBuildVersion(fileName)).Returns(0);
       mockHelper.Setup(s => s.GetFilePrivateVersion(fileName)).Returns(0);
 
@@ -72,11 +79,14 @@ namespace Tests
     {
       // Arrange
       var mockHelper = new Mock<IRunnerHelper>();
+      string minorVersion = "69";
+      mockHelper.Setup(s => s.LoadXmlDocument(It.IsAny<string>())).Returns(LavFiltersMetadataFile("0", minorVersion, "0", "0"));
       string splitterKey = @"CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32";
       string fileName = "LavSplitter.ax";
       mockHelper.Setup(s => s.GetPathForRegistryKey(splitterKey)).Returns(fileName);
       mockHelper.Setup(s => s.GetFileMajorVersion(fileName)).Returns(0);
-      mockHelper.Setup(s => s.GetFileMinorVersion(fileName)).Returns(69);
+      int localMinorVersion = 70;
+      mockHelper.Setup(s => s.GetFileMinorVersion(fileName)).Returns(localMinorVersion);
       mockHelper.Setup(s => s.GetFileBuildVersion(fileName)).Returns(0);
       mockHelper.Setup(s => s.GetFilePrivateVersion(fileName)).Returns(0);
 
@@ -148,6 +158,19 @@ namespace Tests
 
       // Assert
       Assert.Equal(false, isInstalled);
+    }
+
+    private XDocument LavFiltersMetadataFile(string major, string minor, string build, string priv)
+    {
+      return new XDocument(
+        new XDeclaration("1.0", "UTF-8", "yes"),
+        new XElement("LAVFilters",
+          new XElement("Version",
+            new XElement("Major", major),
+            new XElement("Minor", minor),
+            new XElement("Build", build),
+            new XElement("Private", priv)))
+      );
     }
   }
 }
