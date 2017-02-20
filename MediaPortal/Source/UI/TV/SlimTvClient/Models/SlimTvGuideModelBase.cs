@@ -43,6 +43,8 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -58,6 +60,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected AbstractProperty _groupNameProperty = null;
     protected AbstractProperty _currentProgramProperty = null;
+    protected AbstractProperty _showChannelNamesProperty = null;
+    protected AbstractProperty _showChannelNumbersProperty = null;
+    protected AbstractProperty _showChannelLogosProperty = null;
+
+    protected SettingsChangeWatcher<SlimTvClientSettings> _settings = null;
 
     public struct TvExtension
     {
@@ -116,6 +123,57 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty CurrentProgramProperty
     {
       get { return _currentProgramProperty; }
+    }
+
+    /// <summary>
+    /// Exposes whether channel names should be shown by the skin.
+    /// </summary>
+    public bool ShowChannelNames
+    {
+      get { return (bool)_showChannelNamesProperty.GetValue(); }
+      protected set { _showChannelNamesProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes whether channel names should be shown by the skin.
+    /// </summary>
+    public AbstractProperty ShowChannelNamesProperty
+    {
+      get { return _showChannelNamesProperty; }
+    }
+
+    /// <summary>
+    /// Exposes whether channel numbers should be shown by the skin.
+    /// </summary>
+    public bool ShowChannelNumbers
+    {
+      get { return (bool)_showChannelNumbersProperty.GetValue(); }
+      protected set { _showChannelNumbersProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes whether channel numbers should be shown by the skin.
+    /// </summary>
+    public AbstractProperty ShowChannelNumbersProperty
+    {
+      get { return _showChannelNumbersProperty; }
+    }
+
+    /// <summary>
+    /// Exposes whether channel logos should be shown by the skin.
+    /// </summary>
+    public bool ShowChannelLogos
+    {
+      get { return (bool)_showChannelLogosProperty.GetValue(); }
+      protected set { _showChannelLogosProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes whether channel logos should be shown by the skin.
+    /// </summary>
+    public AbstractProperty ShowChannelLogosProperty
+    {
+      get { return _showChannelLogosProperty; }
     }
 
     // this overload is used by MultiChannelGuide in got focus trigger
@@ -272,6 +330,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         _groupNameProperty = new WProperty(typeof(string), String.Empty);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
+        _showChannelNamesProperty = new WProperty(typeof(bool), true);
+        _showChannelNumbersProperty = new WProperty(typeof(bool), true);
+        _showChannelLogosProperty = new WProperty(typeof(bool), true);
+        InitSettingsWatcher();
 
         BuildExtensions();
 
@@ -331,6 +393,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             break;
         }
       }
+    }
+
+    void InitSettingsWatcher()
+    {
+      if (_settings != null)
+        return;
+      _settings = new SettingsChangeWatcher<SlimTvClientSettings>();
+      UpdatePropertiesFromSettings(_settings.Settings);
+      _settings.SettingsChanged = OnSettingsChanged;
+    }
+
+    protected void OnSettingsChanged(object sender, EventArgs e)
+    {
+      UpdatePropertiesFromSettings(_settings.Settings);
+    }
+
+    protected void UpdatePropertiesFromSettings(SlimTvClientSettings settings)
+    {
+      ShowChannelNames = settings.EpgShowChannelNames;
+      ShowChannelNumbers = settings.EpgShowChannelNumbers;
+      ShowChannelLogos = settings.EpgShowChannelLogos;
     }
 
     #endregion
