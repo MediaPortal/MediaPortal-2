@@ -149,9 +149,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         try
         {
-          if(!_parent._shareDeleteSync.ContainsKey(path))
-            _parent._shareDeleteSync.Add(path, new object());
-          lock (_parent._shareDeleteSync[basePath])
+          lock (_parent.GetResourcePathLock(basePath))
           {
             return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, updatedAspects, true, isRefresh, cancelToken);
           }
@@ -320,8 +318,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IImportResultHandler _importResultHandler;
     protected AsynchronousMessageQueue _messageQueue;
     protected bool _shutdown = false;
-    protected Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
-    protected Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
+    protected readonly Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
+    // Should be accessed only by GetResourcePathLock
+    private readonly Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
     protected List<RelationshipHierarchy> _hierarchies = new List<RelationshipHierarchy>();
     protected object _shareImportSync = new object();
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
@@ -340,7 +339,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       _importResultHandler = new ImportResultHandler(this);
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-            ImporterWorkerMessaging.CHANNEL
+            ImporterWorkerMessaging.CHANNEL,
+            ContentDirectoryMessaging.CHANNEL
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -353,6 +353,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
+      if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
+            UpdateShareWatchers();
+            break;
+        }
+      }
+
       if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
       {
         ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType) message.MessageType;
@@ -481,6 +492,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Protected methods
 
+    protected object GetResourcePathLock(ResourcePath path)
+    {
+      lock (_syncObj)
+      {
+        if (!_shareDeleteSync.ContainsKey(path))
+          _shareDeleteSync.Add(path, new object());
+        return _shareDeleteSync[path];
+      }
+    }
+
     protected MediaItemQuery BuildLoadItemQuery(string systemId, ResourcePath path)
     {
       return new MediaItemQuery(new List<Guid>(), new List<Guid>(),
@@ -502,16 +523,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       int systemIdIndex;
       int pathIndex;
       int shareNameIndex;
+      int useWatcherIndex;
+
       ISQLDatabase database = transaction.Database;
       Share share;
-      using (IDbCommand command = MediaLibrary_SubSchema.SelectShareByIdCommand(transaction, shareId, out systemIdIndex, out pathIndex, out shareNameIndex))
+      using (IDbCommand command = MediaLibrary_SubSchema.SelectShareByIdCommand(transaction, shareId, out systemIdIndex, out pathIndex, out shareNameIndex, out useWatcherIndex))
       using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
       {
         if (!reader.Read())
           return null;
         share = new Share(shareId, database.ReadDBValue<string>(reader, systemIdIndex), ResourcePath.Deserialize(
             database.ReadDBValue<string>(reader, pathIndex)),
-            database.ReadDBValue<string>(reader, shareNameIndex), null);
+            database.ReadDBValue<string>(reader, shareNameIndex),
+            database.ReadDBValue<int>(reader, useWatcherIndex) == 1, null);
       }
       // Init share categories later to avoid opening new result sets inside reader loop (issue with MySQL)
       ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
@@ -2963,48 +2987,72 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Shares management
 
+    private void UpdateShareWatchers()
+    {
+      lock (_syncObj)
+      {
+        Logger.Info("MediaLibrary: Share configuration changed, updating watchers");
+        DeInitShareWatchers();
+        InitShareWatchers();
+      }
+    }
+
     private void InitShareWatchers()
     {
-      IDictionary<Guid, Share> shares = GetShares(_localSystemId);
-      foreach (Share share in shares.Values)
+      lock (_syncObj)
       {
-        try
+        IDictionary<Guid, Share> shares = GetShares(_localSystemId);
+        foreach (Share share in shares.Values)
         {
-          ShareWatcher watcher = null;
+          if (!share.UseShareWatcher)
+          {
+            Logger.Info("MediaLibrary: Share watcher not enabled for path {0}", share.BaseResourcePath);
+            continue;
+          }
+
+          // This should never happen, as the share ID is unique. But error reports show duplicate keys when adding a watcher?
+          if (_shareWatchers.ContainsKey(share.ShareId))
+            continue;
+
           try
           {
-            watcher = new ShareWatcher(share, this, false);
+            ShareWatcher watcher = null;
+            try
+            {
+              watcher = new ShareWatcher(share, this, false);
+            }
+            catch (Exception e)
+            {
+              Logger.Warn("MediaLibrary: Share watcher cannot be used for path {0}", e, share.BaseResourcePath);
+              continue;
+            }
+            _shareWatchers.Add(share.ShareId, watcher);
           }
           catch (Exception e)
           {
-            Logger.Debug("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
-            Logger.Warn("MediaLibrary: Share watcher cannot be used for path {0}", share.BaseResourcePath);
-            return;
+            Logger.Error("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
           }
-          _shareWatchers.Add(share.ShareId, watcher);
-          _shareDeleteSync.Add(share.BaseResourcePath, new object());
-        }
-        catch (Exception e)
-        {
-          Logger.Error("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
         }
       }
     }
 
     private void DeInitShareWatchers()
     {
-      try
+      lock (_syncObj)
       {
-        foreach (Guid shareId in _shareWatchers.Keys)
+        try
         {
-          _shareWatchers[shareId].Dispose();
+          foreach (Guid shareId in _shareWatchers.Keys)
+          {
+            _shareWatchers[shareId].Dispose();
+          }
+          _shareWatchers.Clear();
         }
-        _shareWatchers.Clear();
-      }
-      catch (Exception e)
-      {
-        Logger.Error("MediaLibrary: Error initializing shares", e);
-        throw;
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error when removing share watchers", e);
+          throw;
+        }
       }
     }
 
@@ -3026,7 +3074,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 share.SystemId, share.BaseResourcePath);
         }
         using (IDbCommand command = MediaLibrary_SubSchema.InsertShareCommand(transaction, share.ShareId, share.SystemId,
-            share.BaseResourcePath, share.Name))
+            share.BaseResourcePath, share.Name, share.UseShareWatcher))
           command.ExecuteNonQuery();
 
         foreach (string mediaCategory in share.MediaCategories)
@@ -3037,10 +3085,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
 
         TryScheduleLocalShareImport(share);
-
-        ShareWatcher watcher = new ShareWatcher(share, this, false);
-        _shareWatchers.Add(share.ShareId, watcher);
-        _shareDeleteSync.Add(share.BaseResourcePath, new object());
       }
       catch (Exception e)
       {
@@ -3050,12 +3094,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public Guid CreateShare(string systemId, ResourcePath baseResourcePath, string shareName,
+    public Guid CreateShare(string systemId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories)
     {
       Guid shareId = Guid.NewGuid();
       Logger.Info("MediaLibrary: Creating new share '{0}'", shareId);
-      Share share = new Share(shareId, systemId, baseResourcePath, shareName, mediaCategories);
+      Share share = new Share(shareId, systemId, baseResourcePath, shareName, useShareWatcher, mediaCategories);
       RegisterShare(share);
       return shareId;
     }
@@ -3066,9 +3110,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       Share share = GetShare(shareId);
       TryCancelLocalImportJobs(share);
 
-      if (!_shareDeleteSync.ContainsKey(share.BaseResourcePath))
-        _shareDeleteSync.Add(share.BaseResourcePath, new object());
-      lock (_shareDeleteSync[share.BaseResourcePath])
+      lock (GetResourcePathLock(share.BaseResourcePath))
       {
         ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
         ITransaction transaction = database.BeginTransaction();
@@ -3081,9 +3123,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           transaction.Commit();
 
-          _shareWatchers[shareId].Dispose();
-          _shareWatchers.Remove(shareId);
-
           ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
         }
         catch (Exception e)
@@ -3093,7 +3132,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           throw;
         }
       }
-      _shareDeleteSync.Remove(share.BaseResourcePath);
+      lock (_syncObj)
+        _shareDeleteSync.Remove(share.BaseResourcePath);
     }
 
     public void RemoveSharesOfSystem(string systemId)
@@ -3114,13 +3154,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         transaction.Commit();
 
-        foreach (Guid shareId in _shareWatchers.Keys)
-        {
-          _shareWatchers[shareId].Dispose();
-        }
-        _shareWatchers.Clear();
-        _shareDeleteSync.Clear();
-
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
       catch (Exception e)
@@ -3131,7 +3164,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
+    public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       Logger.Info("MediaLibrary: Updating share '{0}': Setting name '{1}', base resource path '{2}' and media categories '{3}'",
@@ -3145,7 +3178,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Share originalShare = GetShare(transaction, shareId);
 
-        using (IDbCommand command = MediaLibrary_SubSchema.UpdateShareCommand(transaction, shareId, baseResourcePath, shareName))
+        using (IDbCommand command = MediaLibrary_SubSchema.UpdateShareCommand(transaction, shareId, baseResourcePath, shareName, useShareWatcher))
           command.ExecuteNonQuery();
 
         // Update media categories
@@ -3202,13 +3235,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         int systemIdIndex;
         int pathIndex;
         int shareNameIndex;
+        int shareWatcherIndex;
         IDbCommand command;
         if (string.IsNullOrEmpty(systemId))
+        {
           command = MediaLibrary_SubSchema.SelectSharesCommand(transaction, out shareIdIndex,
-              out systemIdIndex, out pathIndex, out shareNameIndex);
+            out systemIdIndex, out pathIndex, out shareNameIndex,  out shareWatcherIndex);
+        }
         else
           command = MediaLibrary_SubSchema.SelectSharesBySystemCommand(transaction, systemId, out shareIdIndex,
-              out systemIdIndex, out pathIndex, out shareNameIndex);
+              out systemIdIndex, out pathIndex, out shareNameIndex, out shareWatcherIndex);
         IDictionary<Guid, Share> result = new Dictionary<Guid, Share>();
         try
         {
@@ -3219,7 +3255,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               Guid shareId = database.ReadDBValue<Guid>(reader, shareIdIndex);
               result.Add(shareId, new Share(shareId, database.ReadDBValue<string>(reader, systemIdIndex),
                   ResourcePath.Deserialize(database.ReadDBValue<string>(reader, pathIndex)),
-                  database.ReadDBValue<string>(reader, shareNameIndex), null));
+                  database.ReadDBValue<string>(reader, shareNameIndex),
+                  database.ReadDBValue<int>(reader, shareWatcherIndex) == 1, null));
             }
           }
           // Init share categories later to avoid opening new result sets inside reader loop (issue with MySQL)

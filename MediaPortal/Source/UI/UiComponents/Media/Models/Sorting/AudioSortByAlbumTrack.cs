@@ -31,7 +31,7 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  public class AudioSortByAlbumTrack : SortByTitle
+  public class AudioSortByAlbumTrack : AudioSortByTrack
   {
     public AudioSortByAlbumTrack()
     {
@@ -55,11 +55,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         int res = string.Compare(albumX, albumY);
         if (res != 0)
           return res;
-        int? trackX = (int?) audioAspectX.GetAttributeValue(AudioAspect.ATTR_TRACK);
-        int? trackY = (int?) audioAspectY.GetAttributeValue(AudioAspect.ATTR_TRACK);
-        return ObjectUtils.Compare(trackX, trackY);
       }
-      // Fallback if the items to be compared are no audio items: Compare by title
+      // Fallback if album comparison is equal: Compare by track
       return base.Compare(x, y);
     }
 

@@ -151,7 +151,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
         return;
       }
 
-      if (!Login())
+      if (!TraktHandler.Login(PinCode))
         return;
 
       if (string.IsNullOrEmpty(Username))
@@ -163,8 +163,6 @@ namespace MediaPortal.UiComponents.Trakt.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
-      // temp. fix to disable the authorize button, when the user already is authorized
-      IsAuthorized = true;
       settings.IsAuthorized = IsAuthorized;
       settings.EnableTrakt = IsEnabled;
       settings.Username = Username;
@@ -192,30 +190,6 @@ namespace MediaPortal.UiComponents.Trakt.Models
         IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
         threadPool.Add(SyncMediaToTrakt_Async, ThreadPriority.BelowNormal);
       }
-    }
-
-    private bool Login()
-    {
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      TraktSettings settings = settingsManager.Load<TraktSettings>();
-
-      TraktLogger.Info("Exchanging {0} for access-token...", PinCode.Length == 8 ? "pin-code" : "refresh-token");
-      var response = TraktAuth.GetOAuthToken(PinCode.Length == 8 ? PinCode : settings.TraktOAuthToken);
-      if (response == null || string.IsNullOrEmpty(response.AccessToken))
-      {
-        TestStatus = "[Trakt.CheckPin]";
-        TraktLogger.Error("Unable to login to trakt, wrong pin?");
-        PinCode = string.Empty;
-        return false;
-      }
-
-      TestStatus = "[Trakt.LoggedIn]";
-      settings.TraktOAuthToken = response.RefreshToken;
-      settingsManager.Save(settings);
-
-      TraktLogger.Info("Successfully logged in!");
-
-      return true;
     }
 
     public void SyncMediaToTrakt_Async()
@@ -972,11 +946,11 @@ namespace MediaPortal.UiComponents.Trakt.Models
     /// </summary>
     private string GetVideoMediaType(MediaItem mediaItem)
     {
-      List<bool> isDvd;
+      bool isDvd;
 
       MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_ISDVD, out isDvd);
 
-      if (isDvd.First())
+      if (isDvd)
         return TraktMediaType.dvd.ToString();
 
       return TraktMediaType.digital.ToString();
@@ -1091,13 +1065,24 @@ namespace MediaPortal.UiComponents.Trakt.Models
       //Clear the PIN Code textbox
       PinCode = string.Empty;
 
+      if (!string.IsNullOrEmpty(settings.TraktOAuthToken))
+      {
+        if (TraktHandler.Login(settings.TraktOAuthToken))
+        {
+          TestStatus = "[Trakt.LoggedIn]";
+        }
+      }
+
       // initialise the last sync activities 
       if (settings.LastSyncActivities == null) settings.LastSyncActivities = new TraktLastSyncActivities();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // settingsManager.Save(TRAKT_SETTINGS);
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      TraktSettings settings = settingsManager.Load<TraktSettings>();
+      settings.EnableTrakt = IsEnabled;
+      settingsManager.Save(settings);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

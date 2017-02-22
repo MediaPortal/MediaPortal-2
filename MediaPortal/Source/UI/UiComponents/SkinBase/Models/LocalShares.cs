@@ -84,7 +84,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public override void AddShare()
     {
       ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      sharesManagement.RegisterShare(ChoosenResourcePath, ShareName, MediaCategories);
+      sharesManagement.RegisterShare(ChoosenResourcePath, ShareName, UseShareWatcher, MediaCategories);
     }
 
     protected static IBaseResourceProvider GetResourceProvider(Guid resourceProviderId)
@@ -208,7 +208,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public override void UpdateShare(RelocationMode relocationMode)
     {
       ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      sharesManagement.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, GetMediaCategoriesCleanedUp(), relocationMode);
+      sharesManagement.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, UseShareWatcher, GetMediaCategoriesCleanedUp(), relocationMode);
     }
 
     public override void ReImportShare()

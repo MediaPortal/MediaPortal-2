@@ -114,6 +114,7 @@
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByDiscNumberCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByTvNetworkCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCompanyCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByMusicLabelCriterion.cs" />
@@ -181,6 +182,9 @@
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\ArtistFilterItem.cs" />
+    <Compile Include="Models\Navigation\SeriesGenreFilterItem.cs" />
+    <Compile Include="Models\Navigation\MovieGenreFilterItem.cs" />
+    <Compile Include="Models\Navigation\AudioGenreFilterItem.cs" />
     <Compile Include="Models\Navigation\ComposerFilterItem.cs" />
     <Compile Include="Models\Navigation\GenreFilterItem.cs" />
     <Compile Include="Models\Navigation\VideoStreamItem.cs" />
@@ -206,6 +210,7 @@
     <Compile Include="Models\ScreenData\AudioFilterByAlbumLabelScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumArtistScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByComposerScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByDiscNumberScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
@@ -590,6 +595,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\MovieFilterByGenre.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByDiscNumber.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

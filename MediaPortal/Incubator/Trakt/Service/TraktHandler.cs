@@ -207,7 +207,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
         return;
       }
 
-      if (!Login())
+      if (!Login(settings.TraktOAuthToken))
       {
         return;
       }
@@ -248,13 +248,13 @@ namespace MediaPortal.UiComponents.Trakt.Service
       TraktLogger.Info("Can't post stop scrobble, scrobbledata lost");
     }
 
-    private bool Login()
+    internal static bool Login(string key)
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
-      TraktLogger.Info("Exchanging refresh-token for access-token");
-      var response = TraktAuth.GetOAuthToken(settings.TraktOAuthToken);
+      var response = TraktAuth.GetOAuthToken(key);
+
       if (response == null || string.IsNullOrEmpty(response.AccessToken))
       {
         TraktLogger.Error("Unable to login to trakt");

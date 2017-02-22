@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_COMMON_BY_SERIES_NAME_MENU_ITEM,
         Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new FilterBySeriesCriterion())
     {
-      _itemMias = new[] { VideoAspect.ASPECT_ID };
+      _filteredMias = new[] { VideoAspect.ASPECT_ID };
       _availableMias = Consts.NECESSARY_SERIES_MIAS;
       if (Consts.OPTIONAL_SERIES_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_SERIES_MIAS);
@@ -48,9 +48,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     }
 
     //Special case for series screen, it can support series filters and episode filters
-    public override bool IsAvailable(AbstractScreenData parentScreen)
+    public override bool CanFilter(AbstractScreenData parentScreen)
     {
-      return base.IsAvailable(parentScreen) || parentScreen.ItemMias.Contains(SeriesAspect.ASPECT_ID);
+      return base.CanFilter(parentScreen) || parentScreen.FilteredMias.Contains(SeriesAspect.ASPECT_ID);
     }
   }
 }
