@@ -26,6 +26,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Xml.Linq;
 using Microsoft.Win32;
 
 namespace CustomActions
@@ -99,6 +100,12 @@ namespace CustomActions
       request.Timeout = 15000; // use 15 seconds - default is 100 seconds
       request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
       return request;
+    }
+
+    /// <inheritdoc />
+    public XDocument LoadXmlDocument(string uri)
+    {
+      return XDocument.Load(uri);
     }
   }
 }

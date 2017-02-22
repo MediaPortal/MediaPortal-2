@@ -24,13 +24,23 @@
 
 using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Schema;
 
 namespace CustomActions
 {
   public class CustomActionRunner
   {
-    private const string LAV_FILTERS_FILE_NAME = "LAVFilters.exe";
     private readonly IRunnerHelper _runnerHelper;
+
+    private const string LAV_SPLITTER_REGISTRY_PATH = @"CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32";
+    private const string LAV_FILTERS_FILE_NAME = "LAVFilters.exe";
+    private const string LAV_FILTERS_URL = "http://install.team-mediaportal.com/MP2/install/LAVFilters.exe";
+    private const string LAV_FILTERS_METADATA_FILE = "http://install.team-mediaportal.com/MP2/install/metadata/LAVFilters.xml";
+    private const string LAV_FILTERS_XSD_FILE = "CustomActions.LAVFilters.xsd";
 
     public CustomActionRunner(IRunnerHelper runnerHelper)
     {
@@ -39,10 +49,9 @@ namespace CustomActions
 
     public bool IsLavFiltersAlreadyInstalled()
     {
-      string lavSplitterRegistryPath = @"CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32"; // LAV Splitter
-      Version onlineVersion = new Version(0, 69, 0, 0); // major, minor, build, private
+      Version onlineVersion = GetOnlineVersion();
 
-      string splitterPath = _runnerHelper.GetPathForRegistryKey(lavSplitterRegistryPath);
+      string splitterPath = _runnerHelper.GetPathForRegistryKey(LAV_SPLITTER_REGISTRY_PATH);
       if (string.IsNullOrEmpty(splitterPath) && !_runnerHelper.Exists(splitterPath))
       {
         return false;
@@ -53,9 +62,8 @@ namespace CustomActions
 
     public bool IsLavFiltersDownloaded()
     {
-      string downloadedUrl = "http://install.team-mediaportal.com/MP2/install/LAVFilters.exe";
       string tempLAVFileName = Path.Combine(Path.GetTempPath(), LAV_FILTERS_FILE_NAME);
-      _runnerHelper.DownloadFileAndReleaseResources(downloadedUrl, tempLAVFileName);
+      _runnerHelper.DownloadFileAndReleaseResources(LAV_FILTERS_URL, tempLAVFileName);
 
       return _runnerHelper.Exists(tempLAVFileName);
     }
@@ -67,6 +75,38 @@ namespace CustomActions
       string tempLAVFileName = Path.Combine(Path.GetTempPath(), LAV_FILTERS_FILE_NAME);
 
       return _runnerHelper.Start(tempLAVFileName, arg, waitToComplete);
+    }
+
+    private Version GetOnlineVersion()
+    {
+      Stream xsdFile = Assembly.GetExecutingAssembly().GetManifestResourceStream(LAV_FILTERS_XSD_FILE);
+      XDocument metadataFile = _runnerHelper.LoadXmlDocument(LAV_FILTERS_METADATA_FILE);
+      bool isMetaFileValid = IsValidXml(metadataFile, xsdFile);
+
+      if (!isMetaFileValid)
+      {
+        throw new Exception("Metadata file not valid!");
+      }
+
+      int major = (int)metadataFile.Descendants("Major").First();
+      int minor = (int)metadataFile.Descendants("Minor").First();
+      int build = (int)metadataFile.Descendants("Build").First();
+      int priv = (int)metadataFile.Descendants("Private").First();
+
+      return new Version(major, minor, build, priv);
+    }
+
+    private bool IsValidXml(XDocument xmlFile, Stream xsdFile)
+    {
+      XmlSchemaSet schemas = new XmlSchemaSet();
+      schemas.Add(null, XmlReader.Create(new StreamReader(xsdFile)));
+      bool result = true;
+      xmlFile.Validate(schemas, (sender, e) =>
+      {
+        result = false;
+      });
+
+      return result;
     }
 
     private bool IsEqualOrHigherVersion(string pathToFile, Version onlineVersion)
