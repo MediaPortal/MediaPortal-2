@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM, Consts.RES_COMMON_BY_ALBUM_MENU_ITEM,
         Consts.RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL, new FilterByAlbumCriterion())
     {
-      _itemMias = new Guid[] { AudioAspect.ASPECT_ID };
+      _filteredMias = new Guid[] { AudioAspect.ASPECT_ID };
       _availableMias = Consts.NECESSARY_ALBUM_MIAS;
       if (Consts.OPTIONAL_ALBUM_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_ALBUM_MIAS);
@@ -49,9 +49,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     }
 
     //Special case for album screen, it can support album filters and track filters
-    public override bool IsAvailable(AbstractScreenData parentScreen)
+    public override bool CanFilter(AbstractScreenData parentScreen)
     {
-      return base.IsAvailable(parentScreen) || parentScreen.ItemMias.Contains(AudioAlbumAspect.ASPECT_ID);
+      return base.CanFilter(parentScreen) || parentScreen.FilteredMias.Contains(AudioAlbumAspect.ASPECT_ID);
     }
   }
 }

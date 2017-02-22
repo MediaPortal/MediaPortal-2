@@ -35,7 +35,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_SERIES_SHOW_ITEMS, Consts.RES_COMMON_SHOW_ALL_MENU_ITEM,
         Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
-      _itemMias = new Guid[] { VideoAspect.ASPECT_ID };
+      _filteredMias = new Guid[] { VideoAspect.ASPECT_ID };
       _availableMias = Consts.NECESSARY_EPISODE_MIAS;
       if (Consts.OPTIONAL_EPISODE_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_EPISODE_MIAS);

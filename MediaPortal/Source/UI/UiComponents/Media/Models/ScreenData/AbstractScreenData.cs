@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _listHintProperty = null;
     protected NavigationData _navigationData = null;
     protected IItemsFilter _filter;
-    protected IEnumerable<Guid> _itemMias;
+    protected IEnumerable<Guid> _filteredMias;
     protected IEnumerable<Guid> _availableMias;
 
     protected object _syncObj = new object();
@@ -280,9 +280,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// <summary>
     /// Returns the minimum mias that are guaranteed to be present in the items displayed by this screen.
     /// </summary>
-    public IEnumerable<Guid> ItemMias
+    public IEnumerable<Guid> FilteredMias
     {
-      get { return _itemMias; }
+      get { return _filteredMias; }
     }
 
     /// <summary>
@@ -304,16 +304,16 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public abstract void UpdateItems();
 
     /// <summary>
-    /// Whether this screen can handle items shown by the <paramref name="parentScreen"/>.
-    /// The default implementation checks whether at least one of the <see cref="ItemMias"/> is present in the <paramref name="parentScreen"/>'s <see cref="ItemMias"/>
-    /// or whether <see cref="ItemMias"/> is null on this or the parent screen.
+    /// Whether this screen can filter items shown by the <paramref name="parentScreen"/>.
+    /// The default implementation checks whether at least one of the <see cref="FilteredMias"/> is present in the <paramref name="parentScreen"/>'s <see cref="FilteredMias"/>
+    /// or whether <see cref="FilteredMias"/> is null on this or the parent screen.
     /// Can be overriden in derived classes.
     /// </summary>
     /// <param name="parentScreen">The screen that is currently shown.</param>
     /// <returns>True if this screen can handle items shown by the <paramref name="parentScreen"/></returns>
-    public virtual bool IsAvailable(AbstractScreenData parentScreen)
+    public virtual bool CanFilter(AbstractScreenData parentScreen)
     {
-      return _itemMias == null || parentScreen == null || parentScreen.ItemMias == null || _itemMias.Intersect(parentScreen.ItemMias).Count() > 0;
+      return _filteredMias == null || parentScreen == null || parentScreen.FilteredMias == null || _filteredMias.Intersect(parentScreen.FilteredMias).Count() > 0;
     }
 
     /// <summary>
