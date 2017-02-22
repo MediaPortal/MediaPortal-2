@@ -182,6 +182,9 @@
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\ArtistFilterItem.cs" />
+    <Compile Include="Models\Navigation\SeriesGenreFilterItem.cs" />
+    <Compile Include="Models\Navigation\MovieGenreFilterItem.cs" />
+    <Compile Include="Models\Navigation\AudioGenreFilterItem.cs" />
     <Compile Include="Models\Navigation\ComposerFilterItem.cs" />
     <Compile Include="Models\Navigation\GenreFilterItem.cs" />
     <Compile Include="Models\Navigation\VideoStreamItem.cs" />
