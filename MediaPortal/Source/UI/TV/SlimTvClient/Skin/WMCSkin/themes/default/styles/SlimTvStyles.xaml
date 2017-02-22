@@ -965,7 +965,6 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="HeaderWidth" Value="{ThemeResource MultiGuideHeaderWidth}" />
     <Setter Property="HeaderTemplate">
       <Setter.Value>
         <ControlTemplate>
