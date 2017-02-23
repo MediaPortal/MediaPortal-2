@@ -131,7 +131,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
       Log.Debug("BASS: Try to init WASAPI with a samplerate of {0} and {1} channels", _inputStream.SampleRate, _inputStream.Channels);
 
-      float buffer = BassPlayerSettings.Defaults.PlaybackBufferSizeMilliSecs;
+      float buffer = (float)BassPlayerSettings.Defaults.PlaybackBufferSizeMilliSecs / 1000;
 
       bool result = BassWasapi.BASS_WASAPI_Init(_deviceNo, _inputStream.SampleRate, _inputStream.Channels, _flags, buffer, 0f, _streamWriteProcDelegate, IntPtr.Zero);
 
