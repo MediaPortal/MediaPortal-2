@@ -987,7 +987,7 @@
                 </TransformGroup>
               </Grid.RenderTransform>
               <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="DefaultBold"
-                     Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" Margin="5,0,0,0">
+                     Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" Margin="5,0,0,0" MinWidth="50">
                 <Label.IsVisible>
                   <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
                 </Label.IsVisible>
@@ -1004,11 +1004,16 @@
                 </Image.IsVisible>
               </Image>
 
-              <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Opacity="0.5" Margin="5,0,0,0"
+              <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Opacity="0.5" Margin="5,0,0,0" ScrollDelay="0"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
                 <Label.IsVisible>
                   <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
                 </Label.IsVisible>
+                <Label.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
+                  </DataTrigger>
+                </Label.Triggers>
               </Label>
             </Grid>
           </Button>
