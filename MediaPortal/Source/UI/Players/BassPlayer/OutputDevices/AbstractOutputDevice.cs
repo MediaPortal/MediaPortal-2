@@ -111,7 +111,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
     public TimeSpan Latency
     {
-      get { return _deviceInfos[_deviceNo].Latency + Controller.GetSettings().DirectSoundBufferSize; }
+      get { return _deviceInfos[_deviceNo].Latency + TimeSpan.FromMilliseconds(Controller.GetSettings().DirectSoundBufferSizeMilliSecs); }
     }
 
     /// <summary>
