@@ -18,7 +18,7 @@
 
     <ResourceWrapper x:Key="DynamicMultiGuideHeaderWidth" EnableBindings="True">
       <ResourceWrapper.Resource>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? 90 : 0) + ({1} ? 90 : 0) + ({2} ? 200 : 0)">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? 90 : 0) + ({1} ? 110 : 0) + ({2} ? 200 : 0)">
           <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
           <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
           <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
@@ -39,10 +39,10 @@
           <Grid.Background>
             <VideoBrush Stream="0"/>
           </Grid.Background>
-          <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
+          <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_epg.png"/>
         </Grid>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableFanart}">
-          <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_epg.png"/>
+          <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
         </Grid>
       </Grid>
     </ControlTemplate>

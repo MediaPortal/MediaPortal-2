@@ -987,14 +987,14 @@
                 </TransformGroup>
               </Grid.RenderTransform>
               <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="DefaultBold"
-                     Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" Margin="5,0,0,0" MinWidth="50">
+                     Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" Margin="5,-2,0,-2" MinWidth="50">
                 <Label.IsVisible>
                   <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
                 </Label.IsVisible>
               </Label>
 
               <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,0,0,0"
-                     Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}" MaxWidth="90">
+                     Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
                 <Image.Source>
                   <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
                                             fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
