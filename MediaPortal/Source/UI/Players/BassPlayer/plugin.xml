@@ -79,6 +79,14 @@
         Id="CrossFading"
         Redundant="true"
         Text="[Settings.Players.Rendering.CrossFading]"/>
+    <ConfigGroup
+        Id="Buffer"
+        Redundant="true"
+        Text="[Settings.Players.Rendering.Buffer]"/>
+    <ConfigGroup
+        Id="Playback"
+        Redundant="true"
+        Text="[Settings.Players.Rendering.Playback]"/>
   </Register>
 
   <Register Location="/Configuration/Settings/Players/AudioPlayer/CrossFading">
@@ -92,5 +100,31 @@
         Text="[Settings.Players.Rendering.CrossFading.CrossFadeDuration]"
         HelpText="[Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help]"
         ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.CrossFadeDuration"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/AudioPlayer/Buffer">
+    <ConfigSetting
+        Id="PlaybackBufferSize"
+        Text="[Settings.Players.Rendering.Buffer.PlaybackBufferSize]"
+        HelpText="[Settings.Players.Rendering.Buffer.PlaybackBufferSize.Help]"
+        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.PlaybackBufferSize"/>
+    <ConfigSetting
+        Id="DirectSoundBufferSize"
+        Text="[Settings.Players.Rendering.Buffer.DirectSoundBufferSize]"
+        HelpText="[Settings.Players.Rendering.Buffer.DirectSoundBufferSize.Help]"
+        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.DirectSoundBufferSize"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/AudioPlayer/Playback">
+    <ConfigSetting
+        Id="SeekIncrementSeconds"
+        Text="[Settings.Players.Rendering.Playback.SeekIncrementSeconds]"
+        HelpText="[Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help]"
+        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.SeekIncrementSeconds"/>
+    <ConfigSetting
+        Id="SongTransitionMode"
+        Text="[Settings.Players.Rendering.Playback.SongTransitionMode]"
+        HelpText="[Settings.Players.Rendering.Playback.SongTransitionMode.Help]"
+        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.SongTransitionMode"/>
   </Register>
 </Plugin>

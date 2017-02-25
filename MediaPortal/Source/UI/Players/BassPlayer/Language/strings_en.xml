@@ -11,10 +11,24 @@
 
   <string name="Settings.Players.Rendering">Rendering</string>
   <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
+  <string name="Settings.Players.Rendering.Buffer">Buffer</string>
+  <string name="Settings.Players.Rendering.Playback">Playback</string>
 
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading enabled</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Determines if MediaPortal should cross-fade songs, if possible</string>
 
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Cross fade duration</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Time to cross-fade in seconds</string>
+
+  <string name="Settings.Players.Rendering.Buffer.PlaybackBufferSize">Playback buffer size</string>
+  <string name="Settings.Players.Rendering.Buffer.PlaybackBufferSize.Help">Playback buffer size help text...</string>
+  
+  <string name="Settings.Players.Rendering.Buffer.DirectSoundBufferSize">Direct sound playback buffer size</string>
+  <string name="Settings.Players.Rendering.Buffer.DirectSoundBufferSize.Help">Direct sound playback buffer size help text...</string>
+
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Seek increment seconds</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Seek increment seconds help text...</string>
+
+  <string name="Settings.Players.Rendering.Playback.SongTransitionMode">Song Transition Mode</string>
+  <string name="Settings.Players.Rendering.Playback.SongTransitionMode.Help">Song transition mode help text...</string>
 </resources>

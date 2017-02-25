@@ -93,6 +93,10 @@
     <Compile Include="Settings\Configuration\BassPlayerSetupModel.cs" />
     <Compile Include="Settings\Configuration\CrossFadeDuration.cs" />
     <Compile Include="Settings\Configuration\CrossFadingEnabled.cs" />
+    <Compile Include="Settings\Configuration\DirectSoundBufferSize.cs" />
+    <Compile Include="Settings\Configuration\PlaybackBufferSize.cs" />
+    <Compile Include="Settings\Configuration\SeekIncrementSeconds.cs" />
+    <Compile Include="Settings\Configuration\SongTransitionMode.cs" />
     <Compile Include="Utils\AudioRingBuffer.cs" />
     <Compile Include="Utils\BassStreamFader.cs" />
     <Compile Include="Utils\URLUtils.cs" />
@@ -146,4 +150,3 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
-
