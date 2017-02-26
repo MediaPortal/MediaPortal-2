@@ -14,6 +14,14 @@
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1.04"/>
   <ResourceWrapper x:Key="PosterZoomCoefficient" Resource="1.1"/>
 
+  <Storyboard x:Key="BlinkStoryboard" RepeatBehavior="Forever">
+    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RecordingIcon" Storyboard.TargetProperty="Opacity" BeginTime="00:00:00" RepeatBehavior="Forever" FillBehavior="HoldEnd">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:01" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
   <!-- Base storyboard which shows an animation when a button has focus -->
   <Storyboard x:Key="FocusedButtonStoryboard_Base" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
@@ -977,6 +985,29 @@
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="RecordingButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid DockPanel.Dock="Left" Height="58" Width="58">
+            <Image x:Name="RecordingIcon" Source="Recording.png" Stretch="Uniform" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource BlinkStoryboard}"/>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </Image.Triggers>
+            </Image>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

@@ -99,14 +99,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <Control x:Name="NotificationControl" Margin="0,-10,20,-20"  Style="{ThemeResource NotificationControlStyle}" />
 
-        <!--Recording Indicator-->
-        <StackPanel Orientation="Horizontal"
+        <!--Recording Indicator>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,0,30,-30"
                     DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-          <Image x:Name="RecordingIndicator" Width="50" Height="50" Margin="0,-10,20,-20"
-               Stretch="Uniform" Source="Recording_Active.png"
-               IsVisible="{Binding IsRecording}"/>
-        </StackPanel>
+          <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}"/>
+        </StackPanel-->
       </StackPanel>
     </Grid>
     <!-- HeaderPanel -->
@@ -155,9 +153,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <!-- Time & Date -->
       <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="-70,-5,5,0" VerticalAlignment="Center">
-        <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
-                FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold" 
-                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
+                        DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+            <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="20,-5,0,-15"/>
+          </StackPanel>
+          <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
+                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        </StackPanel>
+        
         <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
       </StackPanel>
