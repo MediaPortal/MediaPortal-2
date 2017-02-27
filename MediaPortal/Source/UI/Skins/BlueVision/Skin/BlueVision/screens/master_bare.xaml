@@ -144,7 +144,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </bvm:GroupMenuListView>
 
       <!-- Time & Date -->
-      <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="-70,-5,5,0" VerticalAlignment="Center">
+      <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="-70,-5,10,0" VerticalAlignment="Center">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
                       DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
@@ -152,12 +152,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <!--Label Content="... importing" FontSize="{ThemeResource SmallerFontSize}" Margin="10,-5,0,-10" IsVisible="{Binding IsImporting}"
                    Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/-->
             <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" VerticalAlignment="Center" 
-                    HorizontalAlignment="Left" Margin="5,-5,20,-10"/>
+                    HorizontalAlignment="Left" Margin="5,-5,0,-10"/>
           </StackPanel>
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
                       DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
                       IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-            <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="20,-5,0,-15"/>
+            <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-4,0,-16"/>
           </StackPanel>
           <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
                    Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
