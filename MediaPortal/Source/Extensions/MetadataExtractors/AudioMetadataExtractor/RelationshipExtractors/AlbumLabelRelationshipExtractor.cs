@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return GetCompanySearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -91,7 +91,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       if (CheckCacheContains(albumInfo))
         return false;
-       
+
       int count = 0;
       if (!AudioMetadataExtractor.SkipOnlineSearches)
       {
@@ -116,7 +116,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       AddToCheckCache(albumInfo);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       foreach (CompanyInfo company in albumInfo.MusicLabels)
       {
         company.AssignNameId();
@@ -128,9 +128,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           Guid existingId;
           if (TryGetIdFromCache(company, out existingId))
-            extractedLinkedAspects.Add(companyAspects, existingId);
+            extractedLinkedAspects.Add(new RelationshipItem(companyAspects, existingId));
           else
-            extractedLinkedAspects.Add(companyAspects, Guid.Empty);
+            extractedLinkedAspects.Add(new RelationshipItem(companyAspects, Guid.Empty));
         }
       }
       return extractedLinkedAspects.Count > 0;

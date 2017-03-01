@@ -112,6 +112,7 @@
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
     <Compile Include="MediaManagement\RelationshipHierarchy.cs" />
     <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
+    <Compile Include="MediaManagement\RelationshipItem.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
     <Compile Include="Services\Dokan\DokanFileInfo.cs" />

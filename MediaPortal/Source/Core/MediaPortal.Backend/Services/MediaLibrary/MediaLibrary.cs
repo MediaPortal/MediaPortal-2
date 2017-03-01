@@ -1957,8 +1957,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (roleAspectIds.Except(aspects.Keys).Any())
         return;
 
-      IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedItems;
-      if (!roleExtractor.TryExtractRelationships(aspects, out extractedItems, !isRefresh))
+      IList<RelationshipItem> extractedItems;
+      if (!roleExtractor.TryExtractRelationships(aspects, !isRefresh, out extractedItems))
       {
         Logger.Debug("Extractor {0} extracted {1} media items from media item {2}", roleExtractor.GetType().Name, 0, mediaItemId);
         return;
@@ -1975,16 +1975,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (cancelToken.IsCancellationRequested || ShuttingDown)
             return;
 
-          IDictionary<Guid, IList<MediaItemAspect>> extractedItemAspects = extractedItem.Key;
-          if (extractedItem.Value != Guid.Empty)
+          IDictionary<Guid, IList<MediaItemAspect>> extractedItemAspects = extractedItem.Aspects;
+          Guid extractedItemId = extractedItem.MediaItemId;
+          if (!extractedItem.HasChanged && extractedItemId != Guid.Empty)
           {
             //item found in cache, just add the relationship, cached items don't need an update
-            AddRelationship(roleExtractor, extractedItem.Value, aspects, extractedItemAspects);
+            AddRelationship(roleExtractor, extractedItem.MediaItemId, aspects, extractedItemAspects);
             continue;
           }
 
           bool needsUpdate;
-          Guid? matchedMediaItemId = MatchExternalItem(database, transaction, roleExtractor, extractedItemAspects, linkedRoleAspectIds, out needsUpdate);
+          Guid? matchedMediaItemId = MatchExternalItem(database, transaction, roleExtractor, extractedItemAspects, extractedItemId, linkedRoleAspectIds, out needsUpdate);
           if (matchedMediaItemId.HasValue)
           {
             //existing item found, add the relationship and mark it for updating if necessary
@@ -2034,10 +2035,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    private Guid? MatchExternalItem(ISQLDatabase database, ITransaction transaction, IRelationshipRoleExtractor roleExtractor, IDictionary<Guid, IList<MediaItemAspect>> extractedItem, IList<Guid> linkedRoleAspectIds, out bool needsUpdate)
+    private Guid? MatchExternalItem(ISQLDatabase database, ITransaction transaction, IRelationshipRoleExtractor roleExtractor, IDictionary<Guid, IList<MediaItemAspect>> extractedItem, Guid extractedItemId, IList<Guid> linkedRoleAspectIds, out bool needsUpdate)
     {
       needsUpdate = false;
-      IFilter filter = roleExtractor.GetSearchFilter(extractedItem);
+      IFilter filter = extractedItemId != Guid.Empty ? new MediaItemIdFilter(extractedItemId) : roleExtractor.GetSearchFilter(extractedItem);
       if (filter == null)
         return null;
 
