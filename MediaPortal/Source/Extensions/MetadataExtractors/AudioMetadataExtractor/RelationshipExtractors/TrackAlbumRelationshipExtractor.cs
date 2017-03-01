@@ -73,7 +73,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return GetAlbumSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -83,16 +83,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       if (CheckCacheContains(trackInfo))
         return false;
+      
+      IList<Guid> linkedIds;
+      Guid albumId = BaseInfo.TryGetLinkedIds(aspects, LinkedRole, out linkedIds) ? linkedIds[0] : Guid.Empty;
 
       AlbumInfo cachedAlbum;
-      Guid albumId;
+      Guid cachedId;
       AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
       UpdateAlbum(aspects, albumInfo);
       UpdatePersons(aspects, albumInfo.Artists, true);
-      if (TryGetInfoFromCache(albumInfo, out cachedAlbum, out albumId))
+      if (TryGetInfoFromCache(albumInfo, out cachedAlbum, out cachedId))
+      {
         albumInfo = cachedAlbum;
+        if (albumId == Guid.Empty)
+          albumId = cachedId;
+      }
       else if (!AudioMetadataExtractor.SkipOnlineSearches)
+      {
         OnlineMatcherService.Instance.UpdateAlbum(albumInfo, false, importOnly);
+      }
 
       if (!BaseInfo.HasRelationship(aspects, LinkedRole))
         albumInfo.HasChanged = true; //Force save if no relationship exists
@@ -102,7 +111,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       AddToCheckCache(trackInfo);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       albumInfo.SetMetadata(albumAspects);
 
@@ -126,9 +135,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
 
       if (albumId != Guid.Empty)
-        extractedLinkedAspects.Add(albumAspects, albumId);
+        extractedLinkedAspects.Add(new RelationshipItem(albumAspects, albumId, albumInfo.HasChanged));
       else
-        extractedLinkedAspects.Add(albumAspects, Guid.Empty);
+        extractedLinkedAspects.Add(new RelationshipItem(albumAspects, Guid.Empty));
       return true;
     }
 

@@ -85,10 +85,10 @@ namespace MediaPortal.Common.MediaManagement
     /// from a group of aspects with Role to another group of aspects Linked Role
     /// </summary>
     /// <param name="aspects"></param>
-    /// <param name="extractedLinkedAspects"></param>
     /// <param name="importOnly"></param>
+    /// <param name="extractedLinkedAspects"></param>
     /// <returns></returns>
-    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly);
+    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects);
 
     /// <summary>
     /// Part 2 of the relationship building - if the extract was successful

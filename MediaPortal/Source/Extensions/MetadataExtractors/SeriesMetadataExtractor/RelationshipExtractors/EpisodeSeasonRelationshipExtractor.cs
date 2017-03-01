@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return GetSeasonSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -105,7 +105,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       AddToCheckCache(episodeInfo);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seasonInfo.SetMetadata(seasonAspects);
 
@@ -119,9 +119,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       if (seasonId != Guid.Empty)
-        extractedLinkedAspects.Add(seasonAspects, seasonId);
+        extractedLinkedAspects.Add(new RelationshipItem(seasonAspects, seasonId));
       else
-        extractedLinkedAspects.Add(seasonAspects, Guid.Empty);
+        extractedLinkedAspects.Add(new RelationshipItem(seasonAspects, Guid.Empty));
       return true;
     }
 
