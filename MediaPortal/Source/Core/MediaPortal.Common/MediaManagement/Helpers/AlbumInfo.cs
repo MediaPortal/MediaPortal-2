@@ -381,6 +381,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    /// <summary>
+    /// If album volume info is present, determines whether both albums represent the same volume.
+    /// </summary>
+    /// <param name="other">The album to match against.</param>
+    /// <returns><c>true</c> if the volumes match or no volume info is present.</returns>
+    public bool AlbumVolumesAreEqual(AlbumInfo other)
+    {
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album))
+      {
+        Match match = _albumNumber.Match(Album);
+        if (match.Success)
+        {
+          string searchNumber = match.Groups["number"].Value;
+          match = _albumNumber.Match(other.Album);
+          if (match.Success && searchNumber != match.Groups["number"].Value)
+            return false;
+        }
+      }
+      return true;
+    }
+
     #endregion
 
     #region Overrides
@@ -405,6 +426,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       AlbumInfo other = obj as AlbumInfo;
       if (other == null) return false;
 
+      //For albums, the name is likely to have come from a tag so ensure that names are similar in addition
+      //to the checks below, so that if a user has 2 albums in different qualities, deliberately tagged differently
+      //they don't get merged into the same album.
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && !MatchNames(Album, other.Album))
+        return false;
+
       if (AudioDbId > 0 && other.AudioDbId > 0)
         return AudioDbId == other.AudioDbId;
       if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId))
@@ -421,29 +448,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(ItunesId, other.ItunesId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
         return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && MatchNames(Album, other.Album) &&
-        ReleaseDate.HasValue && other.ReleaseDate.HasValue && ReleaseDate.Value == other.ReleaseDate.Value)
-        return true;
-      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album))
-      {
-        Match match = _albumNumber.Match(Album);
-        if (match.Success)
-        {
-          string searchNumber = match.Groups["number"].Value;
-          match = _albumNumber.Match(other.Album);
-          if (match.Success)
-          {
-            //Make sure "Album vol. 23" is not mistaken for "Album vol. 22"
-            if (searchNumber != match.Groups["number"].Value)
-            {
-              return false;
-            }
-          }
-        }
-        return MatchNames(Album, other.Album);
-      }
+      if (ReleaseDate.HasValue && other.ReleaseDate.HasValue &&
+        (Artists == null || Artists.Count == 0 || other.Artists == null || other.Artists.Count == 0 || Artists[0].Equals(other.Artists[0])))
+        return ReleaseDate.Value == other.ReleaseDate.Value;
 
-      return false;
+      return AlbumVolumesAreEqual(other);
     }
 
     public override T CloneBasicInstance<T>()
