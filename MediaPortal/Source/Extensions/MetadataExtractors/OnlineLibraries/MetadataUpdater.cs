@@ -238,75 +238,48 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return changed;
     }
 
-    public static bool SetOrUpdateString(ref SimpleTitle currentString, string newString, bool isDefaultLanguage)
+    public static bool SetOrUpdateString(ref SimpleTitle currentString, string newString, bool isDefaultLanguage, bool overwriteShorterStrings = true)
     {
       if (string.IsNullOrEmpty(newString))
         return false;
 
-      if (currentString.Text == null || currentString.IsEmpty)
-      {
-        currentString = new SimpleTitle(newString.Trim(), isDefaultLanguage);
-        return true;
-      }
+      newString = newString.Trim();
       //Avoid overwriting strings in the correct language with that of the default language
-      if(currentString.DefaultLanguage && !isDefaultLanguage)
+      if (currentString.IsEmpty || (currentString.DefaultLanguage && !isDefaultLanguage))
       {
-        currentString = new SimpleTitle(newString.Trim(), isDefaultLanguage);
+        currentString = new SimpleTitle(newString, isDefaultLanguage);
         return true;
       }
-      else if (currentString.DefaultLanguage == true)
+      else if (overwriteShorterStrings && currentString.DefaultLanguage && currentString.Text.Length <= newString.Length)
       {
-        if(currentString.Text.Length <= newString.Trim().Length)
-        {
-          currentString = new SimpleTitle(newString.Trim(), isDefaultLanguage);
-          return true;
-        }
+        currentString = new SimpleTitle(newString, isDefaultLanguage);
+        return true;
       }
       return false;
     }
 
-    public static bool SetOrUpdateString(ref string currentString, string newString)
+    public static bool SetOrUpdateString(ref string currentString, string newString, bool overwriteShorterStrings = true)
     {
       if (string.IsNullOrEmpty(newString))
         return false;
 
-      if (string.IsNullOrEmpty(currentString))
+      newString = newString.Trim();
+      if (string.IsNullOrEmpty(currentString) || (overwriteShorterStrings && currentString.Length < newString.Length))
       {
-        currentString = newString.Trim();
-        return true;
-      }
-      if (currentString.Length < newString.Trim().Length)
-      {
-        currentString = newString.Trim();
+        currentString = newString;
         return true;
       }
       return false;
     }
 
-    public static bool SetOrUpdateString(ref string currentString, SimpleTitle newString)
+    public static bool SetOrUpdateString(ref string currentString, SimpleTitle newString, bool overwriteShorterStrings = true)
     {
-      if (newString.IsEmpty)
-        return false;
-
-      if (string.IsNullOrEmpty(currentString))
-      {
-        currentString = newString.Text.Trim();
-        return true;
-      }
-      if (currentString.Length < newString.Text.Trim().Length)
-      {
-        currentString = newString.Text.Trim();
-        return true;
-      }
-      return false;
+      return SetOrUpdateString(ref currentString, newString.Text, overwriteShorterStrings);
     }
 
-    public static bool SetOrUpdateString(ref SimpleTitle currentString, SimpleTitle newString)
+    public static bool SetOrUpdateString(ref SimpleTitle currentString, SimpleTitle newString, bool overwriteShorterStrings = true)
     {
-      if (newString.IsEmpty)
-        return false;
-
-      return SetOrUpdateString(ref currentString, newString.Text, newString.DefaultLanguage);
+      return SetOrUpdateString(ref currentString, newString.Text, newString.DefaultLanguage, overwriteShorterStrings);
     }
 
     public static bool SetOrUpdateId<T>(ref T currentId, T newId)
