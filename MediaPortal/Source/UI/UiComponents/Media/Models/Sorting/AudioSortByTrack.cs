@@ -45,12 +45,21 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         //Sort by disc number
         int? discIdX = (int?)audioAspectX.GetAttributeValue(AudioAspect.ATTR_DISCID);
         int? discIdY = (int?)audioAspectY.GetAttributeValue(AudioAspect.ATTR_DISCID);
-        int res = ObjectUtils.Compare(discIdX, discIdY);
+        int res = CompareDiscNumbers(discIdX, discIdY);
         if (res != 0)
           return res;
       }
       //Sort by track
       return base.Compare(x, y);
+    }
+
+    protected int CompareDiscNumbers(int? discIdX, int? discIdY)
+    {
+      //Treat empty or 0 disc number as equal to disc number 1 when sorting
+      if ((discIdX.HasValue && discIdX.Value == 1 && (!discIdY.HasValue || discIdY.Value == 0)) ||
+        (discIdY.HasValue && discIdY.Value == 1 && (!discIdX.HasValue || discIdX.Value == 0)))
+        return 0;
+      return ObjectUtils.Compare(discIdX, discIdY);
     }
   }
 }
