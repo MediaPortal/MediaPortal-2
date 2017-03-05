@@ -89,9 +89,9 @@ namespace MediaPortal.UI.Players.Video
         {
           player.SetMediaItem(locator, title);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-          LogError("Error playing media item '{0}'", locator);
+          ServiceRegistration.Get<ILogger>().Warn("Error playing media item '{0}'", ex, locator);
           player.Dispose();
           return null;
         }
