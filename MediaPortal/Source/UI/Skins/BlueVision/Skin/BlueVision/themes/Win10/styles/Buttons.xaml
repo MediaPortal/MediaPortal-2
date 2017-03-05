@@ -919,10 +919,10 @@
         <ControlTemplate TargetType="{x:Type CheckBox}">
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Opacity="{ThemeResource PlayerControlButtonOpacity}">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="72"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
+              <RowDefinition Height="72"/>
             </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TransformGroup>
@@ -1000,6 +1000,24 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+  </Style>
+
+  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="VolUpButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource VolUpControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="VolDownButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource VolDownControlTemplate}" />
+    </Style.Resources>
   </Style>
 
   <!-- audio mute dark control style -->
@@ -1138,12 +1156,6 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-  </Style>
-
-  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle_FocusFrame}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
-    </Style.Resources>
   </Style>
 
   <Style x:Key="PowerButtonStyle" TargetType="{x:Type Button}">

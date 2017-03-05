@@ -82,27 +82,10 @@
     </LinearGradientBrush>
   </ResourceWrapper>
 
-  <!--ResourceWrapper x:Key="ScrollBarBackgroundXColor" Resource="#FFCCCCCC" /-->
-  <ResourceWrapper x:Key="ScrollBarBackgroundXColor">
-    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-      <GradientStop Color="#00404040" Offset="0"/>
-      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.30"/>
-      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.70"/>
-      <GradientStop Color="#00404040" Offset="1"/>
-    </LinearGradientBrush>
-  </ResourceWrapper>
-
+  <ResourceWrapper x:Key="ScrollBarBackgroundXColor" Resource="#CCFFFFFF" />
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#666666" />
   <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF0066CC" />
   <ResourceWrapper x:Key="OSDProgressBarFillColor" Resource="#FF0066CC" />
-
-  <!--ResourceWrapper x:Key="OSDProgressBarFillColor">
-    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-      <GradientStop Color="#00404040" Offset="0"/>
-      <GradientStop Color="#FF4780A0" Offset="0.60"/>
-      <GradientStop Color="#FF4780A0" Offset="1"/>
-    </LinearGradientBrush>
-  </ResourceWrapper-->
 
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
   <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource=""/>
