@@ -61,7 +61,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Characters", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
-    /// Set to <c>true</c> if this video item represents a DVD.
+    /// Set to <c>true</c> if this video item represents a disc image, like DVD or BluRay.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISDVD =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsDVD", typeof(bool), Cardinality.Inline, false);

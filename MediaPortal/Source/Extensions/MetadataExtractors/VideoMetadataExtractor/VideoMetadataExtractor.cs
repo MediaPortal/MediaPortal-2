@@ -369,7 +369,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       public void UpdateMetadata(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, ILocalFsResourceAccessor lfsra, int partNum, int partSet)
       {
         //VideoAspect required to mark this media item as a video
-        MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
+        SingleMediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
+        videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, IsDVD);
+
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _title);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(_title));
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
@@ -383,9 +385,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, lfsra.CanonicalLocalResourcePath.Serialize());
 
         int streamId = 0;
-        MultipleMediaItemAspect videoAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
-        videoAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-        videoAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamId++);
+        MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+        videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+        videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamId++);
 
         string stereoscopic = null;
         Match match = REGEXP_STEREOSCOPICFILE.Match(lfsra.LocalFileSystemPath);
@@ -452,74 +454,74 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           if (((double)_width.Value / (float)_height.Value >= 2.5) && (_width.Value >= full3DSBSMinWidth)) // we have Full HD SBS 
           {
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SBS);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SBS);
             _width = _width.Value / 2;
             _ar = (float)_width.Value / (float)_height.Value;
           }
           else if (((double)_width.Value / (float)_height.Value <= 1.5) && (_height.Value >= full3DTABMinHeight)) // we have Full HD TAB
           {
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_TAB);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_TAB);
             _height = _height.Value / 2;
             _ar = (float)_width.Value / (float)_height.Value;
           }
           else if (stereoscopic == VideoStreamAspect.TYPE_SBS || stereoscopic == VideoStreamAspect.TYPE_HSBS)
           {
             //Cannot be full SBS because of resolution
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HSBS);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HSBS);
             _width = _width.Value / 2;
             _ar = (float)_width.Value / (float)_height.Value;
           }
           else if (stereoscopic == VideoStreamAspect.TYPE_TAB || stereoscopic == VideoStreamAspect.TYPE_HTAB)
           {
             //Cannot be full TAB because of resolution
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HTAB);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HTAB);
             _height = _height.Value / 2;
             _ar = (float)_width.Value / (float)_height.Value;
           }
           else if(stereoscopic != null)
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
           else if (_height.Value > 2000)
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
           else if (_height.Value > 700)
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
           else
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
         }
         else if (_height.HasValue)
         {
           if (stereoscopic != null)
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
           else if (_height.Value > 2000)
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
           else if (_height.Value > 700)
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
           else
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
         }
         else
         {
           if (stereoscopic != null)
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
         }
 
         if (_ar.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, _ar.Value);
+          videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, _ar.Value);
         if (_frameRate.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_FPS, _frameRate.Value);
+          videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, _frameRate.Value);
         if (_width.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_WIDTH, _width.Value);
+          videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, _width.Value);
         if (_height.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, _height.Value);
+          videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, _height.Value);
         // MediaInfo returns milliseconds, we need seconds
         if (_playTime.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, _playTime.Value / 1000);
+          videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_DURATION, _playTime.Value / 1000);
         if (_vidBitRate.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value / 1000); // We store kbit/s
+          videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value / 1000); // We store kbit/s
 
-        videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));
-        videoAspect.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, _audioStreamCount);
-        videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, partNum);
-        videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, partSet);
+        videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));
+        videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, _audioStreamCount);
+        videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, partNum);
+        videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, partSet);
 
         for (int i = 0; i < _audioStreamCount; i++)
         {
