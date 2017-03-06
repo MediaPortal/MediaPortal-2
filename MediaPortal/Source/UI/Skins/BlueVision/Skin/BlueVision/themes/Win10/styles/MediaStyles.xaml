@@ -1986,16 +1986,16 @@
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="150"/>
                   </Grid.RowDefinitions>
 
-
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                        FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="DefaultBold"
+                        FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="DefaultBold" Grid.Row="1"
                         Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
-                  <media:MediaAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="0" Grid.Column="1" Margin="15,-5,0,0">
+                  <media:MediaAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.Column="1" Margin="15,-5,0,0">
                     <media:MediaAspectWrapper.Template>
                       <ControlTemplate>
                         <Label x:Name="Year" FontSize="{ThemeResource SmallerFontSize}"
@@ -2005,7 +2005,7 @@
                     </media:MediaAspectWrapper.Template>
                   </media:MediaAspectWrapper>
 
-                  <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                  <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                     <media:VideoAspectWrapper.Template>
                       <ControlTemplate>
                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
