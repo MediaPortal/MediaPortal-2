@@ -397,11 +397,30 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
     }
 
+    /// <summary>
+    /// Sets the guide time viewport to current time.
+    /// </summary>
+    protected void SetCurrentViewTime()
+    {
+      GuideStartTime = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      VisibleHours = settings.EpgVisibleHours;
+      _bufferStartTime = _bufferEndTime = DateTime.MinValue;
+    }
+
     public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       base.Reactivate(oldContext, newContext);
+      // Check if the time viewport is left already, then set it to current time.
+      bool timeChanged = false;
+      if (DateTime.Now >= GuideEndTime)
+      {
+        SetCurrentViewTime();
+        timeChanged = true;
+      }
+
       // Only recreate content if group was changed in mean time
-      if (_bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex)
+      if (timeChanged || _bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex)
       {
         UpdateChannels();
         UpdatePrograms();
@@ -412,10 +431,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.EnterModelContext(oldContext, newContext);
       // Init viewport to start with current time.
-      GuideStartTime = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
-      VisibleHours = settings.EpgVisibleHours;
-      _bufferStartTime = _bufferEndTime = DateTime.MinValue;
+      SetCurrentViewTime();
       UpdateChannels();
       UpdatePrograms();
     }

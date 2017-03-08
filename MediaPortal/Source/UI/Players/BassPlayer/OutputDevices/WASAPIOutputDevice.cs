@@ -342,6 +342,16 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     }
 
     /// <summary>
+    /// Checks if the given <paramref name="deviceInfo"/> represents a valid, currently available output device.
+    /// </summary>
+    /// <param name="deviceInfo">Device info</param>
+    /// <returns><c>true</c> if valid.</returns>
+    public static bool IsValidDevice(BASS_WASAPI_DEVICEINFO deviceInfo)
+    {
+      return !(deviceInfo.IsDisabled || deviceInfo.IsUnplugged || deviceInfo.IsInput || deviceInfo.IsLoopback || deviceInfo.flags == BASSWASAPIDeviceInfo.BASS_DEVICE_UNKNOWN);
+    }
+
+    /// <summary>
     /// Gets the device number for the selected DirectSound device.
     /// </summary>
     /// <returns>Number of the device to be used for the BASS player.</returns>
@@ -358,11 +368,13 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
         BASS_WASAPI_DEVICEINFO[] deviceDescriptions = BassWasapi.BASS_WASAPI_GetDeviceInfos();
         for (int i = 0; i < deviceDescriptions.Length; i++)
         {
+          var deviceInfo = deviceDescriptions[i];
+
           // Skip input devices, they have same name as output devices.
-          if ((deviceDescriptions[i].flags & (BASSWASAPIDeviceInfo.BASS_DEVICE_INPUT | BASSWASAPIDeviceInfo.BASS_DEVICE_DISABLED | BASSWASAPIDeviceInfo.BASS_DEVICE_UNPLUGGED)) != 0)
+          if (!IsValidDevice(deviceInfo))
             continue;
 
-          if (deviceDescriptions[i].name == deviceName)
+          if (deviceInfo.name == deviceName)
           {
             deviceNo = i;
             found = true;

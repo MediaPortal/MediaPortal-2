@@ -475,7 +475,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
       foreach (var s in allSeries)
       {
         TvdbSearchResult res = new TvdbSearchResult { Id = s.Id, ImdbId = s.IMDB_ID };
-        if (!s.FirstAired.Equals("")) res.FirstAired = DateTime.Parse(s.FirstAired);
+        if (!s.FirstAired.Equals("")) res.FirstAired = DateTime.Parse(s.FirstAired, System.Globalization.CultureInfo.InvariantCulture);
         if (!s.Language.Equals("")) res.Language = TvDbUtils.ParseLanguage(s.Language);
         res.SeriesName = s.SeriesName;
         res.Overview = s.Overview;

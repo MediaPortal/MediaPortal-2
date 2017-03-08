@@ -66,6 +66,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return EpisodeInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetEpisodeSearchFilter(extractedAspects);
@@ -148,8 +153,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!season.HasValue)
         return false;
 
-      IEnumerable<object> episodes = linkedAspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE);
-      List<int> episodeList = new List<int>(episodes.Cast<int>());
+      IEnumerable<int> episodes = linkedAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+      List<int> episodeList = new List<int>(episodes);
 
       index = season.Value * 1000 + episodeList.First();
       return index >= 0;

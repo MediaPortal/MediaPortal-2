@@ -61,17 +61,21 @@ namespace MediaPortal.Common
     /// Creates vital core service instances and registers them in <see cref="ServiceRegistration"/>. The optional <paramref name="dataDirectory"/> argument can
     /// be used to startup the application using a custom directory for data storage.
     /// </summary>
+    /// <param name="paths"><c>true</c> if the <paramref name="dataDirectory"/> should be set as <c>DATA</c> path</param>
     /// <param name="dataDirectory">Path to custom data directory</param>
     public static void RegisterVitalCoreServices(bool paths, string dataDirectory = null)
     {
+      // Insert a dummy while loading the path manager to break circular dependency of logger and path manager. This should not
+      // be considered as a hack - simply the logger needs a path managed by the path manager and I don't want to remove log
+      // output from the path manager only to prevent the dependency. Maybe we have a better solution in the future.
+      ServiceRegistration.Set<ILogger>(new NoLogger());
+
+      // First register settings manager to allow the logger to access settings already
+      ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
+
       ILogger logger = null;
       if (paths)
       {
-        // Insert a dummy while loading the path manager to break circular dependency of logger and path manager. This should not
-        // be considered as a hack - simply the logger needs a path managed by the path manager and I don't want to remove log
-        // output from the path manager only to prevent the dependency. Maybe we have a better solution in the future.
-        ServiceRegistration.Set<ILogger>(new NoLogger());
-
         Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
         pathManager.InitializeDefaults();
         if (!string.IsNullOrEmpty(dataDirectory))
@@ -99,8 +103,7 @@ namespace MediaPortal.Common
       logger.Debug("ApplicationCore: Registering ILogger service");
       ServiceRegistration.Set<ILogger>(logger);
 
-      logger.Debug("ApplicationCore: Registering ISettingsManager service");
-      ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
+      logger.Debug("ApplicationCore: Registered ISettingsManager service");
     }
 
     /// <summary>
@@ -121,6 +124,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Registering IMessageBroker service");
       ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
+
+      logger.Debug("ApplicationCore: Registering ILoggerConfig service");
+      ServiceRegistration.Set<ILoggerConfig>(new LoggerConfig());
 
       logger.Debug("ApplicationCore: Registering IPluginManager service");
       ServiceRegistration.Set<IPluginManager>(new Services.PluginManager.PluginManager());
@@ -260,6 +266,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Removing IPluginManager service");
       ServiceRegistration.RemoveAndDispose<IPluginManager>();
+
+      logger.Debug("ApplicationCore: Removing ILoggerConfig service");
+      ServiceRegistration.RemoveAndDispose<ILoggerConfig>();
 
       logger.Debug("ApplicationCore: Removing IMessageBroker service");
       ServiceRegistration.RemoveAndDispose<IMessageBroker>();

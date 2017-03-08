@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class VideosFilterByPlayCountScreenData : AbstractVideosFilterScreenData<FilterItem>
   {
     public VideosFilterByPlayCountScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_PLAYCOUNT, Consts.RES_FILTER_BY_VIDEO_PLAYCOUNT_MENU_ITEM,
+        base(Consts.SCREEN_VIDEOS_FILTER_BY_PLAYCOUNT, Consts.RES_COMMON_BY_VIDEO_PLAYCOUNT_MENU_ITEM,
         Consts.RES_FILTER_VIDEO_PLAYCOUNT_NAVBAR_DISPLAY_LABEL, new FilterByPlayCountCriterion())
     {
       _availableMias = Consts.NECESSARY_VIDEO_MIAS;

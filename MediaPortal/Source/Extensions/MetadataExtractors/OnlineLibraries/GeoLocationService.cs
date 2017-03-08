@@ -162,30 +162,42 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns>If lookup is successful.</returns>
     public bool TryLookup(out GeoCoordinate coordinates, out CivicAddress address)
     {
-      try
-      {
-        if (NetworkConnectionTracker.IsNetworkConnected)
-          foreach (ICoordinateResolver coordinateResolverService in GetCoordinateResolverServices())
-            if (coordinateResolverService.TryResolveCoordinates(out coordinates))
-            {
-              if (GetFromCache(coordinates, out address))
-                return true;
+      coordinates = null;
+      address = null;
+      if (!NetworkConnectionTracker.IsNetworkConnected)
+        return false;
 
-              foreach (IAddressResolver civicResolverService in GetCivicResolverServices())
+      foreach (ICoordinateResolver coordinateResolverService in GetCoordinateResolverServices())
+      {
+        try
+        {
+          if (coordinateResolverService.TryResolveCoordinates(out coordinates))
+          {
+            if (GetFromCache(coordinates, out address))
+              return true;
+
+            foreach (IAddressResolver civicResolverService in GetCivicResolverServices())
+            {
+              try
+              {
                 if (civicResolverService.TryResolveCivicAddress(coordinates, out address))
                 {
                   _locationCache[coordinates] = address;
                   return true;
                 }
+              }
+              catch (Exception ex)
+              {
+                ServiceRegistration.Get<ILogger>().Error("Error while executing IAddressResolver {0}.", ex, civicResolverService.GetType().Name);
+              }
             }
+          }
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Error while executing ICoordinateResolver {0}.", ex, coordinateResolverService.GetType().Name);
+        }
       }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("Error while executing reverse geocoding.", ex);
-      }
-
-      coordinates = null;
-      address = null;
       return false;
     }
 

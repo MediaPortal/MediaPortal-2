@@ -277,7 +277,9 @@
     </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemsListHeader.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemVideoDetails.inc" />
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MultiDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MultiDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\sounds\click.wav" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\sounds\navigate.wav" />
@@ -306,13 +308,21 @@
     <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemEpisodeDetails.inc">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemPersonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemPersonDetailsCover.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeasonDetails.inc">
       <SubType>Designer</SubType>
     </None>
     <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemEpisodeDetailsCover.inc" />
     <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeasonDetailsCover.inc" />
     <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeriesDetailsCover.inc" />
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MultiDetailsCover.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MultiDetailsCover.inc">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">

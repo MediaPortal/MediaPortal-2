@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MovieFilterByDirectorScreenData : AbstractMovieFilterScreenData<DirectorFilterItem>
   {
     public MovieFilterByDirectorScreenData() :
-        base(Consts.SCREEN_MOVIES_FILTER_BY_DIRECTOR, Consts.RES_FILTER_BY_DIRECTOR_MENU_ITEM,
+        base(Consts.SCREEN_MOVIES_FILTER_BY_DIRECTOR, Consts.RES_COMMON_BY_DIRECTOR_MENU_ITEM,
         Consts.RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL, new FilterByDirectorCriterion(MovieAspect.ROLE_MOVIE))
     {
       _availableMias = Consts.NECESSARY_PERSON_MIAS;

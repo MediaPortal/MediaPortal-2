@@ -318,5 +318,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         personAspect.SetAttribute(TempPersonAspect.ATTR_FROMALBUM, forAlbum);
       }
     }
+
+    public static void StoreAlbum(IDictionary<Guid, IList<MediaItemAspect>> aspects, string albumName, string albumSortName)
+    {
+      SingleMediaItemAspect personAspect = MediaItemAspect.GetOrCreateAspect(aspects, TempAlbumAspect.Metadata);
+      personAspect.SetAttribute(TempAlbumAspect.ATTR_NAME, albumName);
+      personAspect.SetAttribute(TempAlbumAspect.ATTR_SORT_NAME, albumSortName);
+    }
+
+    public static void UpdateAlbum(IDictionary<Guid, IList<MediaItemAspect>> aspects, AlbumInfo album)
+    {
+      if (aspects.ContainsKey(TempAlbumAspect.ASPECT_ID))
+      {
+        SingleMediaItemAspect albumAspect;
+        if (MediaItemAspect.TryGetAspect(aspects, TempAlbumAspect.Metadata, out albumAspect))
+        {
+          string sortName = albumAspect.GetAttributeValue<string>(TempAlbumAspect.ATTR_SORT_NAME);
+          if (!string.IsNullOrEmpty(sortName))
+            album.AlbumSort = sortName;
+        }
+      }
+    }
   }
 }

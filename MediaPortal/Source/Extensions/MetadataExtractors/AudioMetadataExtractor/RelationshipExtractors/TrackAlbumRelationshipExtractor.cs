@@ -63,6 +63,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return AlbumInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetAlbumSearchFilter(extractedAspects);
@@ -82,6 +87,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       AlbumInfo cachedAlbum;
       Guid albumId;
       AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
+      UpdateAlbum(aspects, albumInfo);
       UpdatePersons(aspects, albumInfo.Artists, true);
       if (TryGetInfoFromCache(albumInfo, out cachedAlbum, out albumId))
         albumInfo = cachedAlbum;

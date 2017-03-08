@@ -30,22 +30,59 @@
           <!-- Updating Overlay -->
           <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
                  Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource HugeFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-          <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-20,625,0,-625" >
-            <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
-              <Label Color="{ThemeResource TextColor}" Content="{Binding Path=Items.Count}" DataContext="{Binding ElementName=newslist,Path=CurrentItem}"
-                     VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
+
+        <!-- Actual Item / Total items -->
+        <DockPanel DockPanel.Dock="Top" VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" IsVisible="{Binding IsItemsValid}" Margin="13,-85,25,-10">
+          <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Top">
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="newslist" Path="CurrentItem"/>
+                  <Binding ElementName="newslist" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold"/>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold">
+              <Label.Content>
+                <Binding ElementName="newslist" Path="ItemsSource.Count" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+        </DockPanel>
+
+        <!-- Footer -->
+        <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-40,700,-40,-700">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="200">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="420"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Label Grid.ColumnSpan="2" DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+                   Content="{Binding Title}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextTrimming="WordEllipsis"/>
+            <Label Grid.Column="1" Grid.Row="1" DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                   Content="{Binding Description}" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextTrimming="WordEllipsis"/>
+
+            <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+              <StackPanel Orientation="Horizontal" DataContext="{Binding ElementName=newslist,Path=CurrentItem}">
+                <Label Color="{ThemeResource TextColor}" Content="{Binding Path=Items.Count}"
+                       VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
+                <Label Color="{ThemeResource TextColor}" Content="[News.Title]" Margin="10,0,0,0"
+                       IsVisible="{Binding Path=Items.Count, Converter={StaticResource ReferenceToBoolConverter}}"/>
+              </StackPanel>
+
               <Label Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newslist,Path=CurrentItem}"
-                     Content="{Binding Path=LastUpdated, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" HorizontalAlignment="Right" VerticalAlignment="Stretch" />
-            </StackPanel>  
-            
-            <StackPanel DockPanel.Dock="Left" Orientation="Vertical" Margin="0,0,40,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-              <Label DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
-                     Content="{Binding Title}" Margin="0" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-              <Label DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" Opacity="0.7"
-                     Content="{Binding Description}" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="150"
-                     Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" />
-            </StackPanel>           
-          </DockPanel>      
+                     Content="{Binding Path=LastUpdated, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" 
+                     HorizontalAlignment="Left" VerticalAlignment="Stretch" />
+            </StackPanel>
+          </Grid>
+        </DockPanel>
+        
       </DockPanel>
     </ControlTemplate>
 

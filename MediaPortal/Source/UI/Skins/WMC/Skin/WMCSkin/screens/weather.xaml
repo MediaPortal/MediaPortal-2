@@ -15,7 +15,7 @@
     <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/> 
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <Image Stretch="Fill" Opacity="1">
+      <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}">
         <Image.Source>
           <Binding Source="Background_GridView.png"/>
         </Image.Source>
@@ -44,13 +44,13 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Image Margin="0,50,20,-50" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+          <Image Margin="0,70,20,-70" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
           <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           DataContext="{Binding Source={StaticResource Model}}">
             <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Center" VerticalAlignment="Stretch">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="1000"/>
                 <ColumnDefinition Width="180"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -70,8 +70,8 @@
                 <StackPanel x:Name="Temperatures" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding CurrentLocation}">
                   <Label x:Name="Temperature" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}"
                          Content="{Binding CurrentLocation.Condition.Temperature}"/>
-                  <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}"
-                         Content="{Binding CurrentLocation.Name}" Height="100"/>
+                  <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Margin="0,0,0,30"
+                         Content="{Binding CurrentLocation.Name}" Wrap="True" Width="750"/>
                 </StackPanel>
               </StackPanel>
 

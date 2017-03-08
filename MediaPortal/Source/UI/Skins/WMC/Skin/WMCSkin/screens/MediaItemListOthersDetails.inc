@@ -33,20 +33,20 @@
   </Image>
 
   <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0,0,20,0" VerticalAlignment="Stretch">
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:MediaAspectWrapper.Template>
-        <ControlTemplate>
-          <StackPanel Orientation="Horizontal">
-            <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Wrap="True"
-                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" TextTrimming="WordEllipsis">
-              <Label.Content>
-                <Binding Path="Title"/>
-              </Label.Content>
-            </Label>
-          </StackPanel>
-        </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
+
+    <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+       DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Content="{Binding SimpleTitle}"
+       IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}">
+        <StackPanel Orientation="Horizontal">
+          <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding NumItems}"
+                 Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
+          <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.MediaItemsHeader]"
+                 Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"
+                 IsVisible="{Binding Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"/>
+        </StackPanel>
+      </StackPanel>
 
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>

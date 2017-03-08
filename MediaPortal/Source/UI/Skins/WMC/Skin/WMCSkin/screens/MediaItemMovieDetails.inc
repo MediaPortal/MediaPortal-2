@@ -140,5 +140,30 @@
       </ControlTemplate>
     </media:UserDataWrapper.Template>
   </media:UserDataWrapper>
+
+  <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="1" Margin="-140,0,140,0"
+                            IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAgeCertificationLogos}">
+    <media:MovieAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Height="80" MaxWidth="150">
+            <Image.Source>
+              <ImageSourceWrapper Delay="0" DelayInOut="false" VerticalTextureAlignment="Bottom" HorizontalTextureAlignment="Right">
+                <ImageSourceWrapper.Source>
+                  <Binding Path="Certification" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Certification\{0}.png"/>
+                </ImageSourceWrapper.Source>
+              </ImageSourceWrapper>
+            </Image.Source>
+          </Image>
+        </Grid>
+      </ControlTemplate>
+    </media:MovieAspectWrapper.Template>
+  </media:MovieAspectWrapper>
   
 </Grid>

@@ -423,6 +423,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       {
         // The fanart service is expected to return "not found", this is no error to log
         "/FanartService",
+        // Webradio plugin uses own repository and many stations don't have own logos
+        "/Webradio/Logos/"
       };
 
       public AsyncWebLoadOperation(Uri uri, AsyncOperationFinished finishCallback)

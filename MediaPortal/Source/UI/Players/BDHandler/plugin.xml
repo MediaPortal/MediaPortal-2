@@ -19,7 +19,7 @@
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration Model -->
-    <PluginReference PluginId="{FE6076A1-8C38-416C-8129-A80942FCFB68}" CompatibleAPI="1"/> <!-- BluRayMetadataExtractor -->
+    <PluginReference PluginId="{FE6076A1-8C38-416C-8129-A80942FCFB68}" CompatibleAPI="2"/> <!-- BluRayMetadataExtractor -->
   </DependsOn>
 
   <Runtime>

@@ -36,11 +36,13 @@
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                      Content="{Binding Path=DeathDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
             </StackPanel>
-            <Label Content="{Binding Occupation}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
-            <Label Content="{Binding Origin}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
+            <!--Label Content="{Binding Occupation}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"
+                   IsVisible="{Binding Path=Occupation,Converter={StaticResource ReferenceToBoolConverter}}"/-->
+            <Label Content="{Binding Origin}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"
+                   IsVisible="{Binding Path=Origin,Converter={StaticResource ReferenceToBoolConverter}}"/>
           </StackPanel>   
           <Label Grid.Row="1" Grid.Column="1" Content="{Binding Biography}" TextTrimming="WordEllipsis" Wrap="True" Opacity="1.3"
-                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="10,0,5,35"/>
+                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="10,0,5,25"/>
         </Grid>
       </ControlTemplate>
     </media:PersonAspectWrapper.Template>

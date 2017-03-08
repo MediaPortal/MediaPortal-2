@@ -686,10 +686,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
           string title = tag.Title;
           if (!string.IsNullOrEmpty(title))
-          {
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
-          }
+          title = tag.TitleSort;
+          if (!string.IsNullOrEmpty(title))
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, title);
 
           int year = (int)tag.Year;
           if (year != 0)

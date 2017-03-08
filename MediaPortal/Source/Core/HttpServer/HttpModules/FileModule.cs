@@ -185,7 +185,7 @@ namespace HttpServer.HttpModules
           {
             // Fixed by Albert, Team Mediaportal
             //DateTime lastRequest = DateTime.Parse(request.Headers["if-Modified-Since"]);
-            DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
+            DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"], System.Globalization.CultureInfo.InvariantCulture);
             if (lastRequest.CompareTo(File.GetLastWriteTime(path)) <= 0)
               response.Status = HttpStatusCode.NotModified;
           }

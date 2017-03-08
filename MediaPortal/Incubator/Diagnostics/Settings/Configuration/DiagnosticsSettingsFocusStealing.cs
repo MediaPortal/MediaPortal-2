@@ -22,8 +22,8 @@
 
 #endregion
 
-using log4net.Core;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Logging;
 using MediaPortal.UiComponents.Diagnostics.Service;
 
 namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
@@ -42,12 +42,12 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
     {
       if (_yes)
       {
-        DiagnosticsHandler.SetLogLevel(Level.Debug);
+        DiagnosticsHandler.SetLogLevel(LogLevel.Debug);
         DiagnosticsHandler.FocusStealingInstance.SubscribeToMessages();
       }
       else
       {
-        DiagnosticsHandler.SetLogLevel(Level.Info);
+        DiagnosticsHandler.SetLogLevel(LogLevel.Information);
         DiagnosticsHandler.FocusStealingInstance.UnsubscribeFromMessages();
       }
     }

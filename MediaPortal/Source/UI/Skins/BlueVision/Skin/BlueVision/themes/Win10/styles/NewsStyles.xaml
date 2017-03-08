@@ -43,32 +43,37 @@
         <ColumnDefinition Width="291"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="186"/>
+        <RowDefinition Height="177"/>
       </Grid.RowDefinitions>
-      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0"> </Border>
-      <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center"
-               MaxWidth="{ResolutionResource NewsItemLogoWidth}">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.7"/>
-          </MultiBinding>
-        </Image.Opacity>
+      <Border x:Name="BackgroundBorder" Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="#454545" Margin="0">
+        <Border.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="BackgroundBorder" Property="Background" Value="#003366"/>
+          </DataTrigger>
+        </Border.Triggers>
+      </Border>
+      <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="20"
+             VerticalAlignment="Center" HorizontalAlignment="Center">
       </Image>
     </Grid>
   </DataTemplate>
 
   <!-- Style for a single news item -->
   <DataTemplate x:Key="NewsItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="1" Width="291" Height="186" >
+    <Grid Margin="1" Width="291" Height="177" >
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0"> </Border>
+      <Border x:Name="BackgroundBorder" Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="#454545" Margin="0">
+        <Border.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="BackgroundBorder" Property="Background" Value="#003366"/>
+          </DataTrigger>
+        </Border.Triggers>
+      </Border>
       <DockPanel Grid.Row="0" Grid.Column="0">
         <Grid DockPanel.Dock="Center">
           <Grid.ColumnDefinitions>
@@ -91,12 +96,18 @@
             </Image.Opacity>
           </Image>
         </Grid>
-
-      <Image DockPanel.Dock="Center" Stretch="Fill" Margin="1"
-       Source="News.png" IsVisible="{Binding ElementName=thumb, Path=!HasImage}" />
-      <Label DockPanel.Dock="Bottom" x:Name="ItemLabel" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
-             VerticalAlignment="Bottom" Wrap="False" Scroll="Auto" Margin="20,90,20,20" HorizontalAlignment="Center"
-             FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=Title}" Color="Black" />
+        <Image DockPanel.Dock="Top" Source="D675D9BA-A27B-44B9-BC6B-8CF2DC7D220F.png" Margin="20,10,10,10" Height="35" Width="35"
+               IsVisible="{Binding ElementName=thumb, Path=!HasImage}" HorizontalAlignment="Left" Stretch="Fill"/>
+        <Label DockPanel.Dock="Bottom" x:Name="ItemLabel" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+               VerticalAlignment="Center" Wrap="True" Margin="20,10,20,20" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" Scroll="None" ScrollDelay="0"
+               FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=Title}" Color="White">
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+              <Setter TargetName="ItemLabel" Property="TextTrimming" Value="None"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
       </DockPanel>   
     </Grid>
   </DataTemplate>
@@ -126,8 +137,22 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,0,-100" HorizontalAlignment="Center">
-          </VirtualizingWrapPanel>
+          <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="False"
+                             Margin="0,0,0,-6">
+            <AnimatedWrapPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier"/>
+              </Storyboard>
+            </AnimatedWrapPanel.Resources>
+            <AnimatedWrapPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedWrapPanel.Triggers>
+          </AnimatedWrapPanel>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -136,12 +161,26 @@
   <!-- ListView style for all news items -->
   <Style x:Key="NewsItemsContainerStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource NewsItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource NewsItemButtonStyle}" />
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource NewsItemButtonStyle}"/>
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,0,-100" HorizontalAlignment="Center">
-          </VirtualizingWrapPanel>
+          <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="False"
+                             Margin="0,0,0,-6">
+            <AnimatedWrapPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier"/>
+              </Storyboard>
+            </AnimatedWrapPanel.Resources>
+            <AnimatedWrapPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedWrapPanel.Triggers>
+          </AnimatedWrapPanel>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

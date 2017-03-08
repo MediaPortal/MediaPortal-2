@@ -18,7 +18,6 @@
 using System;
 using System.Diagnostics;
 using System.Security.Principal;
-using System.Windows;
 using MediaPortal.Common;
 using MediaPortal.ServiceMonitor.ViewModel;
 
@@ -35,17 +34,17 @@ namespace MediaPortal.ServiceMonitor.Utilities
 
     public static bool StartService()
     {
-      return RunUacServiceHandler("--command=StartService");
+      return RunUacServiceHandler("-m --command=StartService");
     }
 
     public static bool StopService()
     {
-      return RunUacServiceHandler("--command=StopService");
+      return RunUacServiceHandler("-m --command=StopService");
     }
 
     public static bool RestartService()
     {
-      return RunUacServiceHandler("--command=RestartService");
+      return RunUacServiceHandler("-m --command=RestartService");
     }
 
     public static bool RunUacServiceHandler(string parameters)

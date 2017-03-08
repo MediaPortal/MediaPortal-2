@@ -92,30 +92,16 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Navigasi ramban media</string>
   <string name="Media.LocalMediaNavigationHeader">Navigasi media lokal</string>
-  <string name="Media.MediaItemsHeader">Item media</string>
-  <string name="Media.VideoItemsHeader">Video</string>
-  <string name="Media.AudioItemsHeader">Item audio</string>
-  <string name="Media.EpisodeItemsHeader">Episode</string>
-  <string name="Media.MoviesItemsHeader">Film</string>
-  <string name="Media.ImageItemsHeader">Gambar</string>
   <string name="Media.SimpleSearchHeader">Cari praktis</string>
-  <string name="Media.ChooseCollectionHeader">Pilih koleksi</string>
-  <string name="Media.ChooseActorHeader">Pilih aktor</string>
-  <string name="Media.ChooseVideoGenreHeader">Pilih genre</string>
-  <string name="Media.ChooseVideoYearHeader">Pilih tahun</string>
-  <string name="Media.ChooseSeriesHeader">Pilih serial</string>
-  <string name="Media.ChooseSeasonHeader">Pilih musim</string>
-  <string name="Media.ChooseAudioDecadeHeader">Pilih dekade</string>
-  <string name="Media.ChooseAlbumHeader">Pilih album</string>
-  <string name="Media.ChooseArtistHeader">Pilih artis</string>
-  <string name="Media.ChooseAudioGenreHeader">Pilih genre</string>
-  <string name="Media.ChooseImageYearHeader">Pilih tahun</string>
-  <string name="Media.ChooseImageSizeHeader">Pilih ukuran</string>
-  <string name="Media.ChooseImageCountryHeader">Pilih negara</string>
-  <string name="Media.ChooseImageStateHeader">Pilih provinsi</string>
-  <string name="Media.ChooseImageCityHeader">Pilih kota</string>
-  <string name="Media.ChooseSystemHeader">Pilih sistem</string>
-  <string name="Media.ChooseVideoLanguageHeader">Pilih bahasa</string>
+  <string name="Media.ChooseActorHeader">Aktor</string>
+  <string name="Media.ChooseDirectorHeader">Sutradara</string>
+  <string name="Media.ChooseMovieHeader">Film</string>
+  <string name="Media.ChooseWriterHeader">Penulis</string>
+  <string name="Media.ChooseImageHeader">Gambar</string>
+  <string name="Media.ChooseSeriesHeader">Serial</string>
+  <string name="Media.ChooseEpisodeHeader">Episode</string>
+  <string name="Media.ChooseAudioHeader">Item audio</string>
+  <string name="Media.ChooseVideoHeader">Video</string>
   <string name="Media.PlaylistsOverviewHeader">Daftar lagu</string>
   <string name="Media.SavePlaylistEditNameHeader">Simpan daftar main</string>
   <string name="Media.SavePlaylistFailedHeader">Simpan daftar main</string>
@@ -125,6 +111,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Tidak ada daftar main untuk dimuat</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Masalah memuat daftar main</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Sebuah daftar main hanya dapat disimpan bila semua item media di-query dari server pusat (contoh tidak dengan memutuskan navigasi media lokal)</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Artis</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Ramban media</string>
   <string name="Media.LocalMediaRootViewName">Media lokal</string>

@@ -94,32 +94,16 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Skoða val á miðlum</string>
   <string name="Media.LocalMediaNavigationHeader">Staðbundið val á miðlum</string>
-  <string name="Media.MediaItemsHeader">Miðlun</string>
-  <string name="Media.VideoItemsHeader">Myndbönd</string>
-  <string name="Media.AudioItemsHeader">Hljóðaskrár</string>
-  <string name="Media.EpisodeItemsHeader">Þættir</string>
-  <string name="Media.MoviesItemsHeader">Kvikmyndir</string>
-  <string name="Media.ImageItemsHeader">Ljósmyndir</string>
   <string name="Media.SimpleSearchHeader">Einföld leit</string>
-  <string name="Media.ChooseCollectionHeader">Veljið safn</string>
-  <string name="Media.ChooseActorHeader">Veljið leikara</string>
-  <string name="Media.ChooseDirectorHeader">Veljið leikstjóra</string>
-  <string name="Media.ChooseWriterHeader">Veljið handritshöfund</string>
-  <string name="Media.ChooseVideoGenreHeader">Veljið flokkun</string>
-  <string name="Media.ChooseVideoYearHeader">Veljið ár</string>
-  <string name="Media.ChooseSeriesHeader">Veljið sjónvarpsseríu</string>
-  <string name="Media.ChooseSeasonHeader">Veljið þáttaröð</string>
-  <string name="Media.ChooseAudioDecadeHeader">Veljið áratug</string>
-  <string name="Media.ChooseAlbumHeader">Veljið plötu</string>
-  <string name="Media.ChooseArtistHeader">Veljið flytjanda</string>
-  <string name="Media.ChooseAudioGenreHeader">Veljið flokkun</string>
-  <string name="Media.ChooseImageYearHeader">Veljið ár</string>
-  <string name="Media.ChooseImageSizeHeader">Veljið stærð</string>
-  <string name="Media.ChooseImageCountryHeader">Veljið land</string>
-  <string name="Media.ChooseImageStateHeader">Veljið ríki</string>
-  <string name="Media.ChooseImageCityHeader">Veljið borg</string>
-  <string name="Media.ChooseSystemHeader">Veljið kerfi</string>
-  <string name="Media.ChooseVideoLanguageHeader">Veljið tungumál</string>
+  <string name="Media.ChooseActorHeader">Leikarar</string>
+  <string name="Media.ChooseDirectorHeader">Leikstjórar</string>
+  <string name="Media.ChooseMovieHeader">Kvikmyndir</string>
+  <string name="Media.ChooseWriterHeader">Handritshöfundar</string>
+  <string name="Media.ChooseImageHeader">Ljósmyndir</string>
+  <string name="Media.ChooseSeriesHeader">Þættir</string>
+  <string name="Media.ChooseEpisodeHeader">Þættir</string>
+  <string name="Media.ChooseAudioHeader">Hljóðaskrár</string>
+  <string name="Media.ChooseVideoHeader">Myndbönd</string>
   <string name="Media.PlaylistsOverviewHeader">Spilunarlistar</string>
   <string name="Media.SavePlaylistEditNameHeader">Vista spilunarlista</string>
   <string name="Media.SavePlaylistFailedHeader">Vista spilunarlista</string>
@@ -128,6 +112,8 @@
   <string name="Media.PlaylistDetailsHeader">Ýtarupplýsingar spilunarlista</string>
   <string name="Media.PlaylistLoadNoPlaylistText">Enginn spilunarlisti til spilunar</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Villa við að sækja spilunarlista</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Flytjandi</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Vafra um miðilsskrár</string>
   <string name="Media.LocalMediaRootViewName">Staðtengd miðilsskrá</string>

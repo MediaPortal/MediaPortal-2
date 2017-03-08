@@ -38,6 +38,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   public class AlbumInfo : BaseInfo
   {
     /// <summary>
+    /// Contains the ids of the minimum aspects that need to be present in order to accurately test the equality of instances of this item.
+    /// </summary>
+    public static Guid[] EQUALITY_ASPECTS = new[] { AudioAlbumAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID };
+    /// <summary>
     /// Returns the index for "Album" used in <see cref="FormatString"/>.
     /// </summary>
     public static int ALBUM_INDEX = 0;
@@ -68,6 +72,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string NameId = null;
 
     public string Album = null;
+    public string AlbumSort = null;
     public SimpleTitle Description = null;
     public DateTime? ReleaseDate = null;
     public int TotalTracks = 0;
@@ -151,7 +156,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Album));
+      if (!string.IsNullOrEmpty(AlbumSort))
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, AlbumSort);
+      else
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Album));
       //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadataextractors
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, Album);
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_COMPILATION, Compilation);
@@ -176,11 +184,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (Rating.VoteCount.HasValue) MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_RATING_COUNT, Rating.VoteCount.Value);
       }
 
-      if (Artists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_ARTISTS, Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
+      if (Artists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_ARTISTS, Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
 
-      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList<object>());
+      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList());
 
-      if (MusicLabels.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, MusicLabels.Where(l => !string.IsNullOrEmpty(l.Name)).Select(l => l.Name).ToList<object>());
+      if (MusicLabels.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, MusicLabels.Where(l => !string.IsNullOrEmpty(l.Name)).Select(l => l.Name).ToList());
 
       aspectData.Remove(GenreAspect.ASPECT_ID);
       foreach (GenreInfo genre in Genres.Distinct())
@@ -202,6 +210,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (aspectData.ContainsKey(AudioAlbumAspect.ASPECT_ID))
       {
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, out Album);
+        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out AlbumSort);
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_DISCID, out DiscNum);
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_NUMDISCS, out TotalDiscs);
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_NUMTRACKS, out TotalTracks);
@@ -236,15 +245,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         IEnumerable collection;
         Artists.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_ARTISTS, out collection))
-          Artists.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ARTIST }));
+          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST }));
 
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_AWARDS, out collection))
-          Awards.AddRange(collection.Cast<object>().Select(s => s.ToString()));
+          Awards.AddRange(collection.Cast<string>());
 
         MusicLabels.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, out collection))
-          MusicLabels.AddRange(collection.Cast<object>().Select(s => new CompanyInfo() { Name = s.ToString(), Type = CompanyAspect.COMPANY_MUSIC_LABEL }));
+          MusicLabels.AddRange(collection.Cast<string>().Select(s => new CompanyInfo { Name = s, Type = CompanyAspect.COMPANY_MUSIC_LABEL }));
 
         Genres.Clear();
         IList<MultipleMediaItemAspect> genreAspects;
@@ -288,7 +297,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         IEnumerable collection;
         Artists.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, out collection))
-          Artists.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ARTIST }));
+          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST }));
 
         return true;
       }
@@ -444,6 +453,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         AlbumInfo info = new AlbumInfo();
         info.CopyIdsFrom(this);
         info.Album = Album;
+        info.AlbumSort = AlbumSort;
         info.ReleaseDate = ReleaseDate;
         return (T)(object)info;
       }

@@ -565,7 +565,8 @@ namespace MediaPortal.Common.Services.FileEventNotification
         return true;
       try
       {
-        return new DriveInfo(path).DriveFormat == "NTFS";
+        DriveInfo info = new DriveInfo(path);
+        return info.DriveFormat == "NTFS" || info.DriveFormat == "CoveFS";
       }
       catch (ArgumentException)
       {

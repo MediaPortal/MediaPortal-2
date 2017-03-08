@@ -1,8 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="Diagnostics.Settings.Diagnostics">Diagnostics</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Activer les logs \"DEBUG\" du Client </string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Augmenter le niveau des logs</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">Activer le log d\'un potentiel perte de focus</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Activer le log d\'un potentiel perte de focus</string>
     <string name="Diagnostics.Settings.Collectlogs">Récupérer des fichiers logs</string>
-    <string name="Diagnostics.Settings.CollectlogsHelpText">Afficher les fichiers logs maintenant</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Exécuter le \"collecteur de log\" pour collecter tout les fichier logs dans un fichier zip</string>
     <string name="Diagnostics.Settings.ShowLogs">Afficher les fichiers logs</string>
-    <string name="Diagnostics.Settings.ShowLogsHelpText">Afficher les fichiers logs dans une fenêtre séparée</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Afficher les logs dans une fenêtre isolée</string>
 </resources>

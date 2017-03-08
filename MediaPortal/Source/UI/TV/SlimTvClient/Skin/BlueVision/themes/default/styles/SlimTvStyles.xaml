@@ -31,7 +31,7 @@
                 <Image x:Name="ChannelLogo" Stretch="Uniform" Width="180" Margin="10" VerticalAlignment="Top">
                   <Image.Source>
                     <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
-                                fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                                              fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                   </Image.Source>
                 </Image>
               </ControlTemplate>
@@ -48,11 +48,20 @@
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label x:Name="CurrentProgramTitleLabel" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
-                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel2}"
-                        Color="{ThemeResource TextColor}"
-                        FontFamily="DefaultBold" />
+                    <Grid DataContext="{Binding Source={StaticResource SlimTvClient}}" IsVisible="{Binding !IsOSDLevel2}" MaxWidth="900">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <Label Grid.Column="0" x:Name="CurrentProgramTitleLabel" Content="{Binding Path=CurrentProgram.Title}" Scroll="Auto"
+                               FontFamily="DefaultBold" Color="{ThemeResource TextColor}"/>
+                      <Label Grid.Column="1" x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}" Scroll="Auto"
+                             IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}">
+                        <Label.Content>
+                          <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+                        </Label.Content>
+                      </Label>
+                    </Grid>
 
                     <Label x:Name="NextProgramTitleLabel"  Grid.Column="0" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -65,7 +74,6 @@
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}"
                         Color="{ThemeResource NextProgramLabelColor}"
                         FontFamily="DefaultBold" />
-
 
                     <!-- Current Program detailed information -->
                     <Grid Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -832,7 +840,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -1053,8 +1061,8 @@
   <DataTemplate x:Key="ExtScheduleItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="630"/>
-        <ColumnDefinition Width="630"/>
+        <ColumnDefinition Width="510"/>
+        <ColumnDefinition Width="750"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
@@ -1065,16 +1073,16 @@
       <Border x:Name="Item3" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="#66000000" BorderThickness="0" Margin="2,-5,-2,-5"/>
 
-      <Border x:Name="Item2_record" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="2,-5,2,-5"/>
-      <Border x:Name="Item3_record" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="2,-5,-2,-5"/>
-
       <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,2,-5"/>
       <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="2,-5,2,-5"/>
       <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="2,-5,-2,-5"/>
+
+      <Border x:Name="Item2_record" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="2,-5,2,-5"/>
+      <Border x:Name="Item3_record" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="2,-5,-2,-5"/>
 
       <StackPanel Orientation="Horizontal" Grid.Column="0" x:Name="Channel">

@@ -230,7 +230,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
             }
             else
             {
-              cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.MediaCategories, relocationMode);
+              cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.UseShareWatcher, share.MediaCategories, relocationMode);
               switch (relocationMode)
               {
                 case RelocationMode.ClearAndReImport:
@@ -432,7 +432,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
             }
             else if (settings.CachedSharesUpdates.TryGetValue(localShare.ShareId, out relocationMode))
             {
-              cd.UpdateShare(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.MediaCategories,
+              cd.UpdateShare(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.UseShareWatcher, localShare.MediaCategories,
                   relocationMode);
               switch (relocationMode)
               {

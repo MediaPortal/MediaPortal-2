@@ -255,8 +255,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     #region IReusablePlayer members
 
-    public event RequestNextItemDlgt NextItemRequest;
-
     public override bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
       string mimeType;

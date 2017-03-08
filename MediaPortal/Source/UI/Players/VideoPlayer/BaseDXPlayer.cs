@@ -506,6 +506,17 @@ namespace MediaPortal.UI.Players.Video
         IAMPluginControl pc = new DirectShowPluginControl() as IAMPluginControl;
         if (pc != null)
         {
+          // Set black list of codecs to ignore, they are known to cause issues like hangs and crashes
+          // MPEG Audio Decoder
+          if (settings.DisabledCodecs != null && settings.DisabledCodecs.Any())
+          {
+            foreach (var disabledCodec in settings.DisabledCodecs)
+            {
+              ServiceRegistration.Get<ILogger>().Info("{0}: Disable codec '{1}'", PlayerTitle, disabledCodec.Name);
+              pc.SetDisabled(disabledCodec.GetCLSID(), true);
+            }
+          }
+
           if (settings.Mpeg2Codec != null)
             pc.SetPreferredClsid(MediaSubType.Mpeg2Video, settings.Mpeg2Codec.GetCLSID());
 
@@ -520,6 +531,11 @@ namespace MediaPortal.UI.Players.Video
             DsGuid clsid = settings.HEVCCodec.GetCLSID();
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_HVC1, clsid);
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_HEVC, clsid);
+          }
+
+          if (settings.Splitter != null)
+          {
+            pc.SetPreferredClsid(Guid.Empty, settings.Splitter.GetCLSID());
           }
 
           if (settings.AudioCodecLATMAAC != null)

@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class SeriesFilterByNameScreenData : AbstractFiltersScreenData<SeriesFilterItem>
   {
     public SeriesFilterByNameScreenData() :
-        base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_FILTER_BY_SERIES_NAME_MENU_ITEM,
+        base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_COMMON_BY_SERIES_NAME_MENU_ITEM,
         Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new FilterBySeriesCriterion())
     {
       _itemMias = new[] { VideoAspect.ASPECT_ID };

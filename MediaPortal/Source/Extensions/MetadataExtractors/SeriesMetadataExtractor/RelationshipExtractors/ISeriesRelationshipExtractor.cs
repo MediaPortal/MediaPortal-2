@@ -289,7 +289,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
             IEnumerable collection = episodeAspect.GetCollectionAttribute(EpisodeAspect.ATTR_EPISODE);
             List<int> episodeNumbers = new List<int>();
             if (collection != null)
-              episodeNumbers.AddRange(collection.Cast<object>().Select(s => Convert.ToInt32(s)));
+              episodeNumbers.AddRange(collection.Cast<int>());
             if (seasonNumber.HasValue)
             {
               episodeFilters[seriesFilter] = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, episodeFilters[seriesFilter],

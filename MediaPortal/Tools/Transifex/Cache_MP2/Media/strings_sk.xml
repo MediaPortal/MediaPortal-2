@@ -98,32 +98,18 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Navigácia prezeraním médií</string>
   <string name="Media.LocalMediaNavigationHeader">Navigácia lokálnymi médiami</string>
-  <string name="Media.MediaItemsHeader">Položky médií</string>
-  <string name="Media.VideoItemsHeader">Videá</string>
-  <string name="Media.AudioItemsHeader">Audio položky</string>
-  <string name="Media.EpisodeItemsHeader">Epizódy</string>
-  <string name="Media.MoviesItemsHeader">Filmy</string>
-  <string name="Media.ImageItemsHeader">Fotky</string>
   <string name="Media.SimpleSearchHeader">Jednoduché hľadanie</string>
-  <string name="Media.ChooseCollectionHeader">Vybrať zbierku</string>
-  <string name="Media.ChooseActorHeader">Vyberte si herca</string>
-  <string name="Media.ChooseDirectorHeader">Vyberte režiséra</string>
-  <string name="Media.ChooseWriterHeader">Vyberte autora</string>
-  <string name="Media.ChooseVideoGenreHeader">Vyberte si žáner</string>
-  <string name="Media.ChooseVideoYearHeader">Vyberte si rok</string>
-  <string name="Media.ChooseSeriesHeader">Vyberte si seriál</string>
-  <string name="Media.ChooseSeasonHeader">Vyberte si sezónu</string>
-  <string name="Media.ChooseAudioDecadeHeader">Vyberte si dekádu</string>
-  <string name="Media.ChooseAlbumHeader">Vyberte si album</string>
-  <string name="Media.ChooseArtistHeader">Vyberte si umelca</string>
-  <string name="Media.ChooseAudioGenreHeader">Vyberte si žáner</string>
-  <string name="Media.ChooseImageYearHeader">Vyberte si rok</string>
-  <string name="Media.ChooseImageSizeHeader">Vyberte si veľkosť</string>
-  <string name="Media.ChooseImageCountryHeader">Vyberte si krajinu</string>
-  <string name="Media.ChooseImageStateHeader">Vyberte si štát</string>
-  <string name="Media.ChooseImageCityHeader">Vyberte si mesto</string>
-  <string name="Media.ChooseSystemHeader">Vyberte si systém</string>
-  <string name="Media.ChooseVideoLanguageHeader">Vyberte jazyk</string>
+  <string name="Media.ChooseActorHeader">Herci</string>
+  <string name="Media.ChooseDirectorHeader">Režiséri</string>
+  <string name="Media.ChooseMovieHeader">Filmy</string>
+  <string name="Media.ChooseWriterHeader">Scenáristi</string>
+  <string name="Media.ChooseVideoGenreHeader">Žánre</string>
+  <string name="Media.ChooseImageHeader">Fotky</string>
+  <string name="Media.ChooseSeriesHeader">Seriály</string>
+  <string name="Media.ChooseEpisodeHeader">Epizódy</string>
+  <string name="Media.ChooseAudioHeader">Audio položky</string>
+  <string name="Media.ChooseAudioGenreHeader">Žánre</string>
+  <string name="Media.ChooseVideoHeader">Videá</string>
   <string name="Media.PlaylistsOverviewHeader">Playlisty</string>
   <string name="Media.SavePlaylistEditNameHeader">Uložiť playlist</string>
   <string name="Media.SavePlaylistFailedHeader">Uložiť playlist</string>
@@ -133,6 +119,9 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Žiadny playlist na načítanie</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Chyba načítania playlistu</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Playlist môže byť uložený len ak sú všetky položky z domáceho servera (teda napr. nie z odpojeného lokálneho média)</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Umelec</string>
+  <string name="Media.ActorOccupationName">Herec</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Prezerať médiá</string>
   <string name="Media.LocalMediaRootViewName">Lokálne médiá</string>

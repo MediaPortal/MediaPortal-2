@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="WMC.Configuration.SkinSettings">Paramètres du thème</string>
-  <string name="WMC.Configuration.EnableFanart">Activer les Fanarts</string>
+  <string name="WMC.Configuration.EnableFanart">Activer FanArt</string>
   <string name="WMC.Configuration.EnableFanart.Help">Indique s\'il faut afficher un fanart en fond d\'cran</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Activer les drappeaux \"vu\"</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Afficher les icônes \"vu\" dans les vues sélectionnées.</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">Liste</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Grille</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Affiche</string>  
+  <string name="WMC.Configuration.EnableBanners">Afficher les bannières</string>
+  <string name="WMC.Configuration.EnableBanners.Help">Afficher les bannières dans la vue par grille au lieux des affiches.</string>
+  <string name="WMC.Configuration.EnableBanners.Movies">Films</string>
+  <string name="WMC.Configuration.EnableBanners.Series">Séries</string>
+  <string name="WMC.Configuration.EnableBanners.Seasons">Saisons</string>
+  <string name="WMC.Configuration.EnableAnimatedBackground">Activer les arrières plans animés</string>
+  <string name="WMC.Configuration.EnableAnimatedBackground.Help">Activer l\'animation Aurora dans la page d\'acceuil </string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView">Activer l\'affichage des détails du média</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Afficher les infos du média, au lieu de le lire directement.</string>
 </resources>

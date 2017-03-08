@@ -13,8 +13,13 @@
   <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">गीत-सूची</string>
   <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel">गीत-सूचियाँ</string>
   <!--Screen headers-->
-  <string name="Media.VideoItemsHeader">वीडियो</string>
+  <string name="Media.ChooseActorHeader">अभिनेताओं</string>
+  <string name="Media.ChooseDirectorHeader">निदेशक</string>
+  <string name="Media.ChooseWriterHeader">लेखकों</string>
+  <string name="Media.ChooseVideoHeader">वीडियो</string>
   <string name="Media.PlaylistsOverviewHeader">गीत-सूचियाँ</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">कलाकार</string>
   <!--View names (names for the view instances)-->
   <string name="Media.VideosRootViewName">वीडियो</string>
   <string name="Media.EpisodeRootViewName">एपिसोड</string>

@@ -65,6 +65,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return PersonInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetPersonSearchFilter(extractedAspects);
@@ -163,8 +168,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> persons = aspect.GetCollectionAttribute<object>(AudioAspect.ATTR_ARTISTS);
-      List<string> nameList = new List<string>(persons.Cast<string>());
+      IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ARTISTS);
+      List<string> nameList = new List<string>(persons);
 
       index = nameList.IndexOf(name);
       return index >= 0;

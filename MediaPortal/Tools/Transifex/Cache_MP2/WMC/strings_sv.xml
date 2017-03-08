@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="WMC.Configuration.SkinSettings">Inställningar för skinn</string>
-  <string name="WMC.Configuration.EnableFanart">Aktivera fanart</string>
+  <string name="WMC.Configuration.EnableFanart">Aktivera Fanart</string>
   <string name="WMC.Configuration.EnableFanart.Help">Om fanart ska visas i bakgrunden</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Aktivera sedd-markeringar</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Välj om ikoner som visar om en film/TV-program har setts eller inte ska visas på utvalda sidor.</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">Lista</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Rutnät</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Omslag</string>  
+  <string name="WMC.Configuration.EnableBanners">Visa banners</string>
+  <string name="WMC.Configuration.EnableBanners.Help">Ska banners visas istället för omslag i rutnät</string>
+  <string name="WMC.Configuration.EnableBanners.Movies">Filmer</string>
+  <string name="WMC.Configuration.EnableBanners.Series">TV-serier</string>
+  <string name="WMC.Configuration.EnableBanners.Seasons">Säsonger</string>
+  <string name="WMC.Configuration.EnableAnimatedBackground">Aktivera rörliga bakgrunder</string>
+  <string name="WMC.Configuration.EnableAnimatedBackground.Help">Ska en bakgrund av norrsken visas på startsidan</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView">Aktivera visning av information om media-filerna.</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Ska information om media-filerna visas i stället för att spela upp media direkt.</string>
 </resources>

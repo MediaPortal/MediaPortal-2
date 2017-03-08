@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Skin Name="default" Version="1.0">
-  <ShortDescription>Simple default skin for MP2</ShortDescription>
+  <ShortDescription>Default</ShortDescription>
   <UsageNote>This is the MediaPortal 2 standard skin. It can be used for any aspect ratio and resolution.</UsageNote>
   <Preview>images\preview.png</Preview>
   <Author>Team MediaPortal</Author>

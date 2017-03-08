@@ -85,26 +85,13 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Média navigáció böngészése</string>
   <string name="Media.LocalMediaNavigationHeader">Helyi média navigáció</string>
-  <string name="Media.MediaItemsHeader">Média elemek</string>
-  <string name="Media.VideoItemsHeader">Videók</string>
-  <string name="Media.AudioItemsHeader">Audió elemek</string>
-  <string name="Media.EpisodeItemsHeader">Epizódok</string>
-  <string name="Media.MoviesItemsHeader">Filmek</string>
-  <string name="Media.ImageItemsHeader">Képek</string>
   <string name="Media.SimpleSearchHeader">Egyszerű keresés</string>
-  <string name="Media.ChooseActorHeader">Színész kiválasztása</string>
-  <string name="Media.ChooseVideoGenreHeader">Műfaj kiválasztása</string>
-  <string name="Media.ChooseVideoYearHeader">Év kiválasztása</string>
-  <string name="Media.ChooseSeriesHeader">Sorozat kiválastása</string>
-  <string name="Media.ChooseSeasonHeader">Évad kiválasztása</string>
-  <string name="Media.ChooseAudioDecadeHeader">Évtized kiválasztása</string>
-  <string name="Media.ChooseAlbumHeader">Album kiválasztása</string>
-  <string name="Media.ChooseArtistHeader">Előadó kiválasztása</string>
-  <string name="Media.ChooseAudioGenreHeader">Műfaj kiválasztása</string>
-  <string name="Media.ChooseImageYearHeader">Év kiválasztása</string>
-  <string name="Media.ChooseImageSizeHeader">Méret kiválasztása</string>
-  <string name="Media.ChooseSystemHeader">Rendszer kiválasztása</string>
-  <string name="Media.ChooseVideoLanguageHeader">Válasszon nyelvet</string>
+  <string name="Media.ChooseMovieHeader">Filmek</string>
+  <string name="Media.ChooseImageHeader">Képek</string>
+  <string name="Media.ChooseSeriesHeader">Sorozatok</string>
+  <string name="Media.ChooseEpisodeHeader">Epizódok</string>
+  <string name="Media.ChooseAudioHeader">Audió elemek</string>
+  <string name="Media.ChooseVideoHeader">Videók</string>
   <string name="Media.PlaylistsOverviewHeader">Lejátszási listák</string>
   <string name="Media.SavePlaylistEditNameHeader">Lejátszási lista mentése</string>
   <string name="Media.SavePlaylistFailedHeader">Lejátszási lista mentése</string>
@@ -113,6 +100,7 @@
   <string name="Media.PlaylistDetailsHeader">Lejátszási lista részletek</string>
   <string name="Media.PlaylistLoadNoPlaylistText">Nincs betölthető lejátszási lista</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Hiba történt a lejátszási lista betöltésekor</string>
+  <!--View occupation names-->
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Média tallózása</string>
   <string name="Media.LocalMediaRootViewName">Helyi média</string>

@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MovieFilterByWriterScreenData : AbstractMovieFilterScreenData<WriterFilterItem>
   {
     public MovieFilterByWriterScreenData() :
-        base(Consts.SCREEN_MOVIES_FILTER_BY_WRITER, Consts.RES_FILTER_BY_WRITER_MENU_ITEM,
+        base(Consts.SCREEN_MOVIES_FILTER_BY_WRITER, Consts.RES_COMMON_BY_WRITER_MENU_ITEM,
         Consts.RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL, new FilterByWriterCriterion(MovieAspect.ROLE_MOVIE))
     {
       _availableMias = Consts.NECESSARY_PERSON_MIAS;

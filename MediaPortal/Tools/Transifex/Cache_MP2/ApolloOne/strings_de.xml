@@ -2,7 +2,7 @@
 <resources>
   <string name="Menu.Audio">Audio</string>
   <string name="Menu.Image">Bilder</string>
-  <string name="Menu.MediaHub">Medienzentrum</string>
+  <string name="Menu.MediaHub">Medien-Hub</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Nachrichten</string>
   <string name="Menu.Weather">Wetter</string>

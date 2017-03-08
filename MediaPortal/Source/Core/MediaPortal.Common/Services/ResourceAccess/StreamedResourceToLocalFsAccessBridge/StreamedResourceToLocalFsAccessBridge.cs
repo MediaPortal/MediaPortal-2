@@ -190,9 +190,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
     {
       get
       {
-        if (!File.Exists(_localFsPath) && !Directory.Exists(_localFsPath))
-          return DateTime.MinValue;
-        return File.GetLastWriteTime(_localFsPath);
+        return LocalFsResourceProviderBase.GetSafeLastWriteTime(_localFsPath);
       }
     }
 

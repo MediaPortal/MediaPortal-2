@@ -137,6 +137,7 @@ namespace MediaPortal.Server
 
           mediaAccessor.Initialize();
 
+          logger.Info("Switching to running state");
           _systemStateService.SwitchSystemState(SystemState.Running, true);
           BackendExtension.ActivateImporterWorker();
             // To be done after default media item aspect types are present and when the system is running (other plugins might also install media item aspect types)

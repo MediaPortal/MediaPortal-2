@@ -39,6 +39,7 @@ namespace MediaPortal.Mock
     public Guid[] RoleAspects { get; set; }
     public Guid LinkedRole { get; set; }
     public Guid[] LinkedRoleAspects { get; set; }
+    public Guid[] MatchAspects { get; set; }
 
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
@@ -157,7 +158,7 @@ namespace MediaPortal.Mock
     }
 
     public void AddRelationship(
-      Guid role, Guid[] roleAspectIds, Guid linkedRole, Guid[] linkedRoleAspectIds, 
+      Guid role, Guid[] roleAspectIds, Guid linkedRole, Guid[] linkedRoleAspectIds, Guid[] matchAspectIds,
       string source, string type, string id, 
       ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData, Func<IDictionary<Guid, IList<MediaItemAspect>>, IDictionary<Guid, IList<MediaItemAspect>>, bool> matcher,
       int index)
@@ -168,6 +169,7 @@ namespace MediaPortal.Mock
         RoleAspects = roleAspectIds,
         LinkedRole = linkedRole,
         LinkedRoleAspects = linkedRoleAspectIds,
+        MatchAspects = matchAspectIds,
         ExternalSource = source,
         ExternalType = type,
         ExternalId = id,

@@ -31,7 +31,7 @@ using OneTrueError.Client;
 
 namespace MediaPortal.Plugins.OneTrueError
 {
-  public class ErrorLogWrapper : ILogger
+  public class ErrorLogWrapper : ILogger, ILoggerConfig
   {
     private readonly ILogger _logger;
     private SettingsChangeWatcher<ErrorReportingServiceSettings> _settings = new SettingsChangeWatcher<ErrorReportingServiceSettings>();
@@ -168,5 +168,17 @@ namespace MediaPortal.Plugins.OneTrueError
     }
 
     #endregion
+
+    public LogLevel GetLogLevel()
+    {
+      ILoggerConfig loggerConfig = _logger as ILoggerConfig;
+      return loggerConfig != null ? loggerConfig.GetLogLevel() : LogLevel.Information;
+    }
+
+    public void SetLogLevel(LogLevel level)
+    {
+      ILoggerConfig loggerConfig = _logger as ILoggerConfig;
+      if (loggerConfig != null) loggerConfig.SetLogLevel(level);
+    }
   }
 }

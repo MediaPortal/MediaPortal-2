@@ -409,7 +409,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           ServiceRegistration.Get<ILogger>().Warn("Image: Image source '{0}' is not supported", warnSource);
 
         // Remember if we already wrote a warning to the log to avoid log flooding
-        _formerWarnURI = uriSource;
+        _formerWarnURI = warnSource;
       }
       return null;
     }

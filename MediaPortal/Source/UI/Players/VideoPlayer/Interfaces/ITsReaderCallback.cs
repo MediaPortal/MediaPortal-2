@@ -109,12 +109,12 @@ namespace MediaPortal.UI.Players.Video.Interfaces
     int SetRelaxedMode(int relaxedReading);
 
     [PreserveSig]
-    int OnZapping(int info);
+    void OnZapping(int info);
 
     [PreserveSig]
-    int OnGraphRebuild(ChangedMediaType info);
+    void OnGraphRebuild(ChangedMediaType info);
 
     [PreserveSig]
-    int SetMediaPosition(long mediaPos);
+    void SetMediaPosition(long mediaPos);
   }
 }

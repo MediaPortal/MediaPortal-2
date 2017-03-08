@@ -804,9 +804,11 @@ namespace UPnP.Infrastructure.CP.SSDP
             dlnaVersion = upnpVersionTokens.FirstOrDefault(t => t.StartsWith(UPnPVersion.DLNA_VERSION_PREFIX, StringComparison.InvariantCultureIgnoreCase)) ?? string.Empty;
           rootEntry = GetOrCreateRootEntry(deviceUUID, location, upnpVersion, osVersion,
               productVersion, expirationTime, config, httpVersion, searchPort, out rootEntryAdded);
-          if (bi != null && rootEntry.BootID > bootID)
-            // Invalid message
-            return false;
+
+          // Morpheus_xx, 2017/01: this check seems to discard many messages and it's not clear if this is a valid way to handle this. It's temporary commented for testing.
+          //if (bi != null && rootEntry.BootID > bootID)
+          //  // Invalid message
+          //  return false;
           uint currentConfigId = rootEntry.GetConfigID(remoteEndPoint);
           if (currentConfigId != 0 && currentConfigId != configID)
             fireConfigurationChanged = true;

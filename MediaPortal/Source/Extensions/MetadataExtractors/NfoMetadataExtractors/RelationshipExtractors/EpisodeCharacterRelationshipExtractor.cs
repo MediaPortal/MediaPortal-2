@@ -64,6 +64,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return CharacterInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetCharacterSearchFilter(extractedAspects);
@@ -136,8 +141,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> actors = aspect.GetCollectionAttribute<object>(VideoAspect.ATTR_CHARACTERS);
-      List<string> nameList = new List<string>(actors.Cast<string>());
+      IEnumerable<string> actors = aspect.GetCollectionAttribute<string>(VideoAspect.ATTR_CHARACTERS);
+      List<string> nameList = new List<string>(actors);
 
       index = nameList.IndexOf(name);
       return index >= 0;
