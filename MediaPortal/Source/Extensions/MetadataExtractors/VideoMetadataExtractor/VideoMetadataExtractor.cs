@@ -1242,11 +1242,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               if (lfsra != null)
               {
                 result.UpdateMetadata(extractedAspectData, lfsra, -1, 0);
-
-                ExtractMatroskaTags(lfsra, extractedAspectData, importOnly);
-                ExtractMp4Tags(lfsra, extractedAspectData, importOnly);
-                ExtractThumbnailData(lfsra, extractedAspectData, importOnly);
-
+                try
+                {
+                  ExtractMatroskaTags(lfsra, extractedAspectData, importOnly);
+                  ExtractMp4Tags(lfsra, extractedAspectData, importOnly);
+                  ExtractThumbnailData(lfsra, extractedAspectData, importOnly);
+                }
+                catch (Exception ex)
+                {
+                  ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+                }
                 UpdateSetName(lfsra, extractedAspectData, -1);
               }
               return true;
@@ -1299,11 +1304,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                   if (lfsra != null)
                   {
                     result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet);
-
-                    ExtractMatroskaTags(lfsra, extractedAspectData, importOnly);
-                    ExtractMp4Tags(lfsra, extractedAspectData, importOnly);
-                    ExtractThumbnailData(lfsra, extractedAspectData, importOnly);
-
+                    try
+                    {
+                      ExtractMatroskaTags(lfsra, extractedAspectData, importOnly);
+                      ExtractMp4Tags(lfsra, extractedAspectData, importOnly);
+                      ExtractThumbnailData(lfsra, extractedAspectData, importOnly);
+                    }
+                    catch (Exception ex)
+                    {
+                      ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+                    }
                     UpdateSetName(lfsra, extractedAspectData, multipart);
 
                     //Initial add of all subtitles because they might have been skipped
