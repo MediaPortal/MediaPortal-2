@@ -22,30 +22,35 @@
 
 #endregion
 
-using MediaPortal.Common.Settings;
-using WakeOnLan.Common;
+using System.Runtime.InteropServices;
 
-namespace WakeOnLan.Client.Settings
+namespace WakeOnLan.Common.NetworkInformation
 {
-  public class WakeOnLanSettings
+  [StructLayout(LayoutKind.Sequential)]
+  public struct MIB_IPNET_ROW2
   {
-    public const int DEFAULT_PORT = 1234;
-    public const int DEFAULT_WAKE_TIMEOUT = 10000;
-    public const int DEFAULT_PING_TIMEOUT = 1000;
+    [MarshalAs(UnmanagedType.Struct)]
+    public SOCKADDR_INET Address;
 
-    [Setting(SettingScope.Global)]
-    public WakeOnLanAddress ServerWakeOnLanAddress { get; set; }
+    [MarshalAs(UnmanagedType.U4)]
+    public uint InterfaceIndex;
 
-    [Setting(SettingScope.Global, DEFAULT_PORT)]
-    public int Port { get; set; }
+    [MarshalAs(UnmanagedType.U8)]
+    public ulong InterfaceLuid;
 
-    [Setting(SettingScope.Global, DEFAULT_WAKE_TIMEOUT)]
-    public int WakeTimeout { get; set; }
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+    public byte[] PhysicalAddress;
 
-    [Setting(SettingScope.Global, DEFAULT_PING_TIMEOUT)]
-    public int PingTimeout { get; set; }
+    [MarshalAs(UnmanagedType.U4)]
+    public uint PhysicalAddressLength;
 
-    [Setting(SettingScope.Global, true)]
-    public bool AutoAssign { get; set; }
+    [MarshalAs(UnmanagedType.U4)]
+    public NL_NEIGHBOR_STATE State;
+
+    [MarshalAs(UnmanagedType.U4)]
+    public uint Flags;
+
+    [MarshalAs(UnmanagedType.U4)]
+    public uint LastReachable;
   }
 }

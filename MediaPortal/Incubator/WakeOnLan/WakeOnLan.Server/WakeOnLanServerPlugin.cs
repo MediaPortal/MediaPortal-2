@@ -22,34 +22,17 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Runtime;
-using MediaPortal.Common.Settings;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using UPnP.Infrastructure;
-using UPnP.Infrastructure.Utils;
-using WakeOnLan.Interfaces;
 
 namespace WakeOnLan.Server
 {
   public class WakeOnLanServerPlugin : IPluginStateTracker
   {
-    #region Protected Members
-
-    protected AsynchronousMessageQueue _messageQueue;
-
-    #endregion
-
     #region IPluginStateTracker
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      SubscribeToMessages();
+      //TODO: Add support for waking remote shares
     }
 
     public void Continue()
@@ -69,69 +52,6 @@ namespace WakeOnLan.Server
 
     public void Stop()
     {
-      UnsubscribeFromMessages();
-    }
-
-    #endregion
-
-    #region Message Handling
-
-    protected void SubscribeToMessages()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    protected virtual void UnsubscribeFromMessages()
-    {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
-    }
-
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == SystemMessaging.CHANNEL)
-      {
-        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
-        switch (messageType)
-        {
-          case SystemMessaging.MessageType.SystemStateChanged:
-            SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
-            if (newState == SystemState.Running)
-              UpdateHardwareAddresses();
-            break;
-        }
-      }
-    }
-
-    #endregion
-
-    #region Settings
-
-    protected void UpdateHardwareAddresses()
-    {
-      var ips = NetworkHelper.GetUPnPEnabledIPAddresses(UPnPConfiguration.IP_ADDRESS_BINDINGS);
-      var nis = NetworkInterface.GetAllNetworkInterfaces();
-      List<WakeOnLanAddress> addresses = new List<WakeOnLanAddress>();
-      foreach (var ni in nis)
-      {
-        byte[] hwAddress = ni.GetPhysicalAddress().GetAddressBytes();
-        foreach (var ua in ni.GetIPProperties().UnicastAddresses.Where(ua => ips.Contains(ua.Address)))
-          //IPv6 addresses can contain an additional scope id which is only meaningful to the server so create a 'clean' IP address from the address bytes
-          addresses.Add(new WakeOnLanAddress() { IPAddress = new IPAddress(ua.Address.GetAddressBytes()).ToString(), HardwareAddress = hwAddress });
-      }
-      SaveHardwareAddresses(addresses);
-    }
-
-    protected void SaveHardwareAddresses(List<WakeOnLanAddress> addresses)
-    {
-      var sm = ServiceRegistration.Get<ISettingsManager>();
-      var settings = sm.Load<WakeOnLanServerSettings>();
-      settings.WakeOnLanAddresses = addresses;
-      sm.Save(settings);
     }
 
     #endregion

@@ -225,7 +225,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakeOnLan.Client", "..\Incu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WakeOnLan", "WakeOnLan", "{B9CFC9D5-27AF-4A57-B8CC-2B6221B77C61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakeOnLan.Interfaces", "..\Incubator\WakeOnLan\WakeOnLan.Interfaces\WakeOnLan.Interfaces.csproj", "{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakeOnLan.Common", "..\Incubator\WakeOnLan\WakeOnLan.Common\WakeOnLan.Common.csproj", "{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

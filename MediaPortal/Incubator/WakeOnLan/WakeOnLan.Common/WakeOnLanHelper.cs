@@ -31,7 +31,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace WakeOnLan.Client.Helpers
+namespace WakeOnLan.Common
 {
   public class WakeOnLanHelper
   {

@@ -22,14 +22,17 @@
 
 #endregion
 
-using MediaPortal.Common.Settings;
-using System.Collections.Generic;
-
-namespace WakeOnLan.Interfaces
+namespace WakeOnLan.Common.NetworkInformation
 {
-  public class WakeOnLanServerSettings
+  public enum NL_NEIGHBOR_STATE
   {
-    [Setting(SettingScope.Global)]
-    public List<WakeOnLanAddress> WakeOnLanAddresses { get; set; }
+    NlnsUnreachable,
+    NlnsIncomplete,
+    NlnsProbe,
+    NlnsDelay,
+    NlnsStale,
+    NlnsReachable,
+    NlnsPermanent,
+    NlnsMaximum,
   }
 }

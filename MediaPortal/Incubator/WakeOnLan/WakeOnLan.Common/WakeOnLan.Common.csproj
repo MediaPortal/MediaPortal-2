@@ -7,8 +7,8 @@
     <ProjectGuid>{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WakeOnLan.Interfaces</RootNamespace>
-    <AssemblyName>WakeOnLan.Interfaces</AssemblyName>
+    <RootNamespace>WakeOnLan.Common</RootNamespace>
+    <AssemblyName>WakeOnLan.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -41,8 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetworkInformation\MIB_IPNET_ROW2.cs" />
+    <Compile Include="NetworkInformation\MIB_IPNET_TABLE2.cs" />
+    <Compile Include="NetworkInformation\NativeMethods.cs" />
+    <Compile Include="NetworkInformationHelper.cs" />
+    <Compile Include="NetworkInformation\NL_NEIGHBOR_STATE.cs" />
+    <Compile Include="NetworkInformation\SOCKADDR_INET.cs" />
     <Compile Include="WakeOnLanAddress.cs" />
-    <Compile Include="WakeOnLanServerSettings.cs" />
+    <Compile Include="WakeOnLanHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +57,7 @@
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

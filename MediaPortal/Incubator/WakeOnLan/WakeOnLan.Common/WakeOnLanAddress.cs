@@ -22,30 +22,11 @@
 
 #endregion
 
-using MediaPortal.Common.Settings;
-using WakeOnLan.Common;
-
-namespace WakeOnLan.Client.Settings
+namespace WakeOnLan.Common
 {
-  public class WakeOnLanSettings
+  public class WakeOnLanAddress
   {
-    public const int DEFAULT_PORT = 1234;
-    public const int DEFAULT_WAKE_TIMEOUT = 10000;
-    public const int DEFAULT_PING_TIMEOUT = 1000;
-
-    [Setting(SettingScope.Global)]
-    public WakeOnLanAddress ServerWakeOnLanAddress { get; set; }
-
-    [Setting(SettingScope.Global, DEFAULT_PORT)]
-    public int Port { get; set; }
-
-    [Setting(SettingScope.Global, DEFAULT_WAKE_TIMEOUT)]
-    public int WakeTimeout { get; set; }
-
-    [Setting(SettingScope.Global, DEFAULT_PING_TIMEOUT)]
-    public int PingTimeout { get; set; }
-
-    [Setting(SettingScope.Global, true)]
-    public bool AutoAssign { get; set; }
+    public string IPAddress { get; set; }
+    public byte[] HardwareAddress { get; set; }
   }
 }

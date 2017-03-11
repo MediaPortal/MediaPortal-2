@@ -22,11 +22,21 @@
 
 #endregion
 
-namespace WakeOnLan.Interfaces
+using System;
+using System.Runtime.InteropServices;
+
+namespace WakeOnLan.Common.NetworkInformation
 {
-  public class WakeOnLanAddress
+  public static class NativeMethods
   {
-    public string IPAddress { get; set; }
-    public byte[] HardwareAddress { get; set; }
+    [DllImport("iphlpapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern int GetIpNetTable2(
+            ushort Family,
+            [Out] out IntPtr Table);
+
+    [DllImport("Iphlpapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern int ResolveIpNetEntry2(
+            [In, Out] ref MIB_IPNET_ROW2 Row,
+            [In, Out] ref SOCKADDR_INET SourceAddress);
   }
 }

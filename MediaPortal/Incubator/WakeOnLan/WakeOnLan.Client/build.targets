@@ -8,7 +8,7 @@
   <Target Name="AfterBuild">
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-      <PluginFiles Include="$(TargetDir)WakeOnLan.Interfaces.dll" />
+      <PluginFiles Include="$(TargetDir)WakeOnLan.Common.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
 

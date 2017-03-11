@@ -30,16 +30,12 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
-using MediaPortal.Plugins.ServerSettings;
 using MediaPortal.UI.ServerCommunication;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using WakeOnLan.Client.Helpers;
 using WakeOnLan.Client.Settings;
-using WakeOnLan.Interfaces;
+using WakeOnLan.Common;
 
 namespace WakeOnLan.Client
 {
@@ -183,25 +179,33 @@ namespace WakeOnLan.Client
     /// </summary>
     protected void UpdateSavedServerAddress()
     {
-      IPAddress serverAddress;
-      if (!TryGetServerIPAddress(out serverAddress))
-        return;
-
-      if (IPAddress.IsLoopback(serverAddress))
+      try
       {
-        ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: Not configuring wake on lan for loopback address '{0}', server is located on the same machine", serverAddress);
-        SaveWakeOnLanAddress(null);
-        return;
-      }
+        IPAddress localAddress;
+        IPAddress serverAddress;
+        if (!TryGetServerIPAddress(out localAddress, out serverAddress))
+          return;
 
-      WakeOnLanAddress wolAddress;
-      if (TryMatchWakeOnLanAddress(serverAddress, out wolAddress))
-      {
-        ServiceRegistration.Get<ILogger>().Info("WakeOnLanClient: Updating server hardware address for IP address '{0}'", serverAddress);
-        SaveWakeOnLanAddress(wolAddress);
-        return;
+        if (IPAddress.IsLoopback(serverAddress))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: Not configuring wake on lan for loopback address '{0}', server is located on the same machine", serverAddress);
+          SaveWakeOnLanAddress(null);
+          return;
+        }
+
+        byte[] macAddress;
+        if (NetworkInformationHelper.TryGetRemoteHardwareAddress(localAddress, serverAddress, out macAddress))
+        {
+          ServiceRegistration.Get<ILogger>().Info("WakeOnLanClient: Updating server hardware address for IP address '{0}'", serverAddress);
+          SaveWakeOnLanAddress(new WakeOnLanAddress() { IPAddress = serverAddress.ToString(), HardwareAddress = macAddress });
+          return;
+        }
+        ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: Unable to determine hardware address for IP address '{0}'", serverAddress);
       }
-      ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: Unable to determine hardware address for IP address '{0}'", serverAddress);
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("WakeOnLanClient: Error determining server hardware address", ex);
+      }
     }
 
     /// <summary>
@@ -209,93 +213,37 @@ namespace WakeOnLan.Client
     /// </summary>
     /// <param name="serverAddress">If successful, contains the IP address of the server.</param>
     /// <returns></returns>
-    protected bool TryGetServerIPAddress(out IPAddress serverAddress)
+    protected bool TryGetServerIPAddress(out IPAddress localAddress, out IPAddress serverAddress)
     {
+      localAddress = null;
       serverAddress = null;
-      try
+
+      var cp = ServiceRegistration.Get<IServerConnectionManager>().ControlPoint;
+      if (cp == null)
       {
-        var cp = ServiceRegistration.Get<IServerConnectionManager>().ControlPoint;
-        if (cp == null)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: Could not get server IP address, UPnPControlPoint not found");
-          return false;
-        }
-
-        if (cp.Connection == null)
-          //Don't log here, the server isn't connected (yet), we'll retry getting the address when it connects.
-          return false;
-
-        ServerDescriptor serverDescriptor = ServerDescriptor.GetMPBackendServerDescriptor(cp.Connection.RootDescriptor);
-        if (serverDescriptor == null)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: Could not get server IP address, unable to verify UPnP root descriptor");
-          return false;
-        }
-
-        SystemName preferredLink = serverDescriptor.GetPreferredLink();
-        if (IPAddress.TryParse(preferredLink.Address, out serverAddress))
-        {
-          ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: Got server IP address '{0}' for '{1}'", serverAddress, preferredLink.HostName);
-          return true;
-        }
+        ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: Could not get server IP address, UPnPControlPoint not found");
+        return false;
       }
-      catch (Exception ex)
+
+      if (cp.Connection == null)
+        //Don't log here, the server isn't connected (yet), we'll retry getting the address when it connects.
+        return false;
+
+      ServerDescriptor serverDescriptor = ServerDescriptor.GetMPBackendServerDescriptor(cp.Connection.RootDescriptor);
+      if (serverDescriptor == null)
       {
-        ServiceRegistration.Get<ILogger>().Error("WakeOnLanClient: Error getting server IP address", ex);
+        ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: Could not get server IP address, unable to verify UPnP root descriptor");
+        return false;
+      }
+
+      SystemName preferredLink = serverDescriptor.GetPreferredLink();
+      if (IPAddress.TryParse(preferredLink.Address, out serverAddress))
+      {
+        localAddress = cp.Connection.RootDescriptor.SSDPRootEntry.PreferredLink.Endpoint.EndPointIPAddress;
+        ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: Got server IP address '{0}' for '{1}', local address '{2}'", serverAddress, preferredLink.HostName, localAddress);
+        return true;
       }
       return false;
-    }
-
-    /// <summary>
-    /// Tries to match a hardware address from settings to the provided <paramref name="serverAddress"/>.
-    /// </summary>
-    /// <param name="serverAddress">The IP address of the server.</param>
-    /// <param name="wolAddress">If successful, the matching WakeOnLanAddress setting for the <paramref name="serverAddress"/>.</param>
-    /// <returns></returns>
-    protected bool TryMatchWakeOnLanAddress(IPAddress serverAddress, out WakeOnLanAddress wolAddress)
-    {
-      wolAddress = null;
-      var ssm = ServiceRegistration.Get<IServerSettingsClient>();
-      var settings = ssm.Load<WakeOnLanServerSettings>();
-      List<WakeOnLanAddress> addresses = settings.WakeOnLanAddresses;
-      if (addresses == null || addresses.Count == 0)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: Unable to determine server hardware address, no addresses found in settings");
-        return false;
-      }
-      wolAddress = addresses.FirstOrDefault(a => IsValidAddress(a, serverAddress));
-      return wolAddress != null;
-    }
-
-    /// <summary>
-    /// Determines whether the provided <paramref name="wolAddress"/> matches the provided <paramref name="serverAddress"/>
-    /// and contains a valid hardware address.
-    /// </summary>
-    /// <param name="wolAddress">IP/Hardware address combination</param>
-    /// <param name="serverAddress">Known IP address of the server</param>
-    /// <returns></returns>
-    protected bool IsValidAddress(WakeOnLanAddress wolAddress, IPAddress serverAddress)
-    {
-      IPAddress ipAddress;
-      return IPAddress.TryParse(wolAddress.IPAddress, out ipAddress) && AddressesAreEqual(serverAddress, ipAddress) && WakeOnLanHelper.IsValidHardwareAddress(wolAddress.HardwareAddress);
-    }
-
-    /// <summary>
-    /// Determines whether two IP addresses are equal by comparing their address bytes.
-    /// </summary>
-    /// <param name="address">Address to compare.</param>
-    /// <param name="other">Address to compare to.</param>
-    /// <returns>True if the address bytes are equal</returns>
-    protected bool AddressesAreEqual(IPAddress address, IPAddress other)
-    {
-      byte[] addressBytes = address.GetAddressBytes();
-      byte[] otherBytes = other.GetAddressBytes();
-      if (addressBytes.Length != otherBytes.Length)
-        return false;
-      for (int i = 0; i < addressBytes.Length; i++)
-        if (addressBytes[i] != otherBytes[i])
-          return false;
-      return true;
     }
 
     /// <summary>

@@ -14,7 +14,7 @@
 
   <Runtime>
     <Assembly FileName="WakeOnLan.Server.dll"/>
-    <Assembly FileName="WakeOnLan.Interfaces.dll"/>
+    <Assembly FileName="WakeOnLan.Common.dll"/>
     <PluginStateTracker ClassName="WakeOnLan.Server.WakeOnLanServerPlugin"/>
   </Runtime>
   
