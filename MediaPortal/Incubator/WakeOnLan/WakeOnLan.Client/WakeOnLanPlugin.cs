@@ -31,6 +31,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.Utilities.Network;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -45,6 +46,10 @@ namespace WakeOnLan.Client
 
     protected AsynchronousMessageQueue _messageQueue;
     protected bool _suspended;
+    protected readonly object _addressUpdateSync = new object();
+    protected readonly object _wolSendSync = new object();
+    protected bool _isUpdatingAddress;
+    protected bool _isSendingWol;
 
     #endregion
 
@@ -52,10 +57,15 @@ namespace WakeOnLan.Client
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      //Try to get the server address immediately in case we miss the connected message
-      UpdateSavedServerAddress();
       SubscribeToMessages();
-      DoWakeServer();
+      Task.Run(InitAsync);
+    }
+
+    protected async Task InitAsync()
+    {
+      //Try to get the server address immediately in case we miss the connected message
+      UpdateServerAddress();
+      await WakeServerAsync();
     }
 
     public void Continue()
@@ -106,7 +116,7 @@ namespace WakeOnLan.Client
         {
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
-            UpdateSavedServerAddress();
+            UpdateServerAddress();
             break;
         }
       }
@@ -150,24 +160,56 @@ namespace WakeOnLan.Client
     /// <returns></returns>
     protected async Task WakeServerAsync()
     {
-      var sm = ServiceRegistration.Get<ISettingsManager>();
-      var settings = sm.Load<WakeOnLanSettings>();
-      WakeOnLanAddress wolAddress = settings.ServerWakeOnLanAddress;
-      if (wolAddress == null || !WakeOnLanHelper.IsValidHardwareAddress(wolAddress.HardwareAddress))
+      lock (_wolSendSync)
       {
-        ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: No address stored for the server yet");
-        return;
+        if (_isSendingWol)
+          //wol request already in progress
+          return;
+        _isSendingWol = true;
       }
 
-      ServiceRegistration.Get<ILogger>().Info("WakeOnLanHelper: Waking server at {0} using port {1}", wolAddress.IPAddress, settings.Port);
       try
       {
+        var sm = ServiceRegistration.Get<ISettingsManager>();
+        var settings = sm.Load<WakeOnLanSettings>();
+        WakeOnLanAddress wolAddress = settings.ServerWakeOnLanAddress;
+        if (wolAddress == null || !WakeOnLanHelper.IsValidHardwareAddress(wolAddress.HardwareAddress))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: No address stored for the server yet");
+          return;
+        }
+
+        //Wait for the network connection to become available, can be delayed if we have just woken from sleep
+        if (!await WaitForNetworkConnection(settings.NetworkConnectedTimeout))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: No network connection found within timeout {0}ms", settings.NetworkConnectedTimeout);
+          return;
+        }
+
+        ServiceRegistration.Get<ILogger>().Info("WakeOnLanHelper: Waking server at {0} using port {1}", wolAddress.IPAddress, settings.Port);
         await WakeOnLanHelper.WakeServer(wolAddress.IPAddress, wolAddress.HardwareAddress, settings.Port, settings.PingTimeout, settings.WakeTimeout);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("WakeOnLanClient: Error waking server", ex);
       }
+      finally
+      {
+        lock (_wolSendSync)
+          _isSendingWol = false;
+      }
+    }
+
+    protected async Task<bool> WaitForNetworkConnection(int timeout)
+    {
+      DateTime start = DateTime.Now;
+      while (!NetworkUtils.IsNetworkAvailable(null, false))
+      {
+        if ((DateTime.Now - start).TotalMilliseconds > timeout)
+          return false;
+        await Task.Delay(2000);
+      }
+      return true;
     }
 
     #endregion
@@ -177,8 +219,16 @@ namespace WakeOnLan.Client
     /// <summary>
     /// Tries to match an IP/hardware address from server settings to the current server connection and saves the hardware address to settings.
     /// </summary>
-    protected void UpdateSavedServerAddress()
+    protected void UpdateServerAddress()
     {
+      lock (_addressUpdateSync)
+      {
+        if (_isUpdatingAddress)
+          //Address updating already in progress
+          return;
+        _isUpdatingAddress = true;
+      }
+
       try
       {
         IPAddress localAddress;
@@ -205,6 +255,11 @@ namespace WakeOnLan.Client
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("WakeOnLanClient: Error determining server hardware address", ex);
+      }
+      finally
+      {
+        lock (_addressUpdateSync)
+          _isUpdatingAddress = false;
       }
     }
 

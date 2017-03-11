@@ -32,6 +32,7 @@ namespace WakeOnLan.Client.Settings
     public const int DEFAULT_PORT = 1234;
     public const int DEFAULT_WAKE_TIMEOUT = 10000;
     public const int DEFAULT_PING_TIMEOUT = 1000;
+    public const int DEFAULT_NETWORK_CONNECTED_TIMEOUT = 20000;
 
     [Setting(SettingScope.Global)]
     public WakeOnLanAddress ServerWakeOnLanAddress { get; set; }
@@ -45,7 +46,7 @@ namespace WakeOnLan.Client.Settings
     [Setting(SettingScope.Global, DEFAULT_PING_TIMEOUT)]
     public int PingTimeout { get; set; }
 
-    [Setting(SettingScope.Global, true)]
-    public bool AutoAssign { get; set; }
+    [Setting(SettingScope.Global, DEFAULT_NETWORK_CONNECTED_TIMEOUT)]
+    public int NetworkConnectedTimeout { get; set; }
   }
 }
