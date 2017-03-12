@@ -32,12 +32,13 @@ namespace MediaPortal.Common.MediaManagement
   public class RelationshipHierarchy
   {
     public RelationshipHierarchy(Guid childRole, MediaItemAspectMetadata.AttributeSpecification childCountAttribute, 
-      Guid parentRole, MediaItemAspectMetadata.AttributeSpecification parentCountAttribute)
+      Guid parentRole, MediaItemAspectMetadata.AttributeSpecification parentCountAttribute, bool updatePlayPercentage)
     {
       ChildRole = childRole;
       ChildCountAttribute = childCountAttribute;
       ParentRole = parentRole;
       ParentCountAttribute = parentCountAttribute;
+      UpdatePlayPercentage = updatePlayPercentage;
     }
 
     /// <summary>
@@ -59,5 +60,10 @@ namespace MediaPortal.Common.MediaManagement
     /// Specifies the parent attribute to update with the number of available children.
     /// </summary>
     public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute { get; private set; }
+
+    /// <summary>
+    /// Specifies if the parent play percentage should be updated after children playback.
+    /// </summary>
+    public bool UpdatePlayPercentage { get; private set; }
   }
 }

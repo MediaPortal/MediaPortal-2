@@ -786,19 +786,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return affectedRows;
     }
 
+    //Combined delete optimized for large amounts of media items
     protected int DeleteAllMediaItemsUnderPathCombined(ITransaction transaction, string systemId, ResourcePath basePath, bool inclusive)
     {
-      //Delete media items
-      //Optimize
-
-      //Update media item non-virtual parents
-      //Update media item parent user data
-      //Delete media item virtual parents
-      //Delete media item parent user data
-      //Delete fanart
-      //Clean collection tables
-      //Delete orphans
-
       string providerAspectTable = _miaManagement.GetMIATableName(ProviderResourceAspect.Metadata);
       string systemIdAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID);
       string pathAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
@@ -1014,7 +1004,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string childCollectionReverseSql = " LEFT OUTER JOIN {0} NM ON NM." +
                   MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn;
 
-          //Prepare other sqls
+          //Prepare main sqls
           string selectMarkedItems = "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
             " FROM " + mediaAspectTable +
             " WHERE " + virtualAttribute + " = 2";
@@ -1029,7 +1019,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string updateVirtualSql = "UPDATE " + mediaAspectTable +
             " SET " + virtualAttribute + " = 0" +
             " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ID";
-          string updateParentChildCountSql = "UPDATE {0} SET {1} = {2}" +
+          string updateParentChildCountSql = "UPDATE {0} SET {1} = @DATA_VALUE" +
             " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ID";
           string selectUserProfilesSql = "SELECT " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME +
             " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
@@ -1057,7 +1047,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
             ")";
           string updateWatchPctSql = "UPDATE " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-            " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = {0}" +
+            " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = @DATA_VALUE" +
             " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
             " AND " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
             " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY";
@@ -1066,7 +1056,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           parentParam = database.AddParameter(command, "PARENT_ID", Guid.Empty, typeof(Guid));
           roleParam = database.AddParameter(command, "ROLE_ID", Guid.Empty, typeof(Guid));
           parentRoleParam = database.AddParameter(command, "PARENT_ROLE_ID", Guid.Empty, typeof(Guid));
-
+          itemParam = database.AddParameter(command, "ITEM_ID", Guid.Empty, typeof(Guid));
+          var dataParam = database.AddParameter(command, "DATA_VALUE", 0, typeof(int));
+          var dataKeyParam = database.AddParameter(command, "USER_DATA_KEY", "", typeof(string));
+          var userParam = database.AddParameter(command, "USER_PROFILE_ID", Guid.Empty, typeof(Guid));
           //Check parents
           foreach (Guid parentId in affectedParents)
           {
@@ -1125,8 +1118,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               if (allChildsAreVirtual == true)
               {
-                //Logger.Info("MediaLibrary: Delete parent {0}", parentId);
-
                 //Mark childs for deletion
                 if (hierarchy.ChildCountAttribute != null && hierarchy.ChildCountAttribute.IsCollectionAttribute && hierarchy.ChildCountAttribute.Cardinality == Cardinality.ManyToMany)
                 {
@@ -1151,7 +1142,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   while (reader.Read())
                   {
                     DeleteFanArt(database.ReadDBValue<Guid>(reader, 0));
-                    //Logger.Info("MediaLibrary: Delete child {0}", database.ReadDBValue<Guid>(reader, 0));
                   }
                 }
 
@@ -1163,6 +1153,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.CommandText = deleteChildsSql;
                 command.ExecuteNonQuery();
 
+                //Delete parent fanart
+                DeleteFanArt(parentId);
+
                 //Delete parent relations
                 command.CommandText = deleteParentRelationsSql;
                 command.ExecuteNonQuery();
@@ -1170,12 +1163,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 //Delete parent item
                 command.CommandText = deleteParentSql;
                 command.ExecuteNonQuery();
-
-                //Delete parent fanart
-                DeleteFanArt(parentId);
               }
               else
               {
+                dataParam.Value = availableCount;
+
                 //Set parent virtual flag
                 command.CommandText = updateVirtualSql;
                 command.ExecuteNonQuery();
@@ -1184,9 +1176,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 {
                   //Set parent child count
                   command.CommandText = string.Format(updateParentChildCountSql, _miaManagement.GetMIATableName(hierarchy.ParentCountAttribute.ParentMIAM),
-                    _miaManagement.GetMIAAttributeColumnName(hierarchy.ParentCountAttribute), availableCount);
+                    _miaManagement.GetMIAAttributeColumnName(hierarchy.ParentCountAttribute));
                   command.ExecuteNonQuery();
                 }
+
+                if (!hierarchy.UpdatePlayPercentage)
+                  continue;
 
                 //Find user profiles
                 List<Guid> userDataParent = new List<Guid>();
@@ -1200,12 +1195,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 }
 
                 //Update parents
-                command.Parameters.Clear();
-                database.AddParameter(command, "ITEM_ID", parentId, typeof(Guid));
-                database.AddParameter(command, "PARENT_ROLE_ID", hierarchy.ParentRole, typeof(Guid));
-                database.AddParameter(command, "ROLE_ID", hierarchy.ChildRole, typeof(Guid));
-                var dataKeyParam = database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
-                var userParam = database.AddParameter(command, "USER_PROFILE_ID", Guid.Empty, typeof(Guid));
+                itemParam.Value = parentId;
+                parentRoleParam.Value = hierarchy.ParentRole;
+                roleParam.Value = hierarchy.ChildRole;
                 foreach (Guid userId in userDataParent)
                 {
                   //Find children
@@ -1222,18 +1214,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                       if (childVirtual == false)
                       {
                         nonVirtualChildCount++;
-                      }
-                      int playCount = 0;
-                      if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount))
-                      {
-                        if (playCount > 0)
-                          watchedCount++;
-                      }
-                      else //Prefer user play count but use overall play count if not available
-                      {
-                        int? totalPlayCount = database.ReadDBValue<int?>(reader, 2);
-                        if (totalPlayCount.HasValue && totalPlayCount.Value > 0)
-                          watchedCount++;
+
+                        //Only non-virtual items can be counted as watched
+                        int playCount = 0;
+                        if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount))
+                        {
+                          if (playCount > 0)
+                            watchedCount++;
+                        }
+                        else //Prefer user play count but use overall play count if not available
+                        {
+                          int? totalPlayCount = database.ReadDBValue<int?>(reader, 2);
+                          if (totalPlayCount.HasValue && totalPlayCount.Value > 0)
+                            watchedCount++;
+                        }
                       }
                     }
                   }
@@ -1243,7 +1237,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
                   if (watchPercentage >= 100)
                     watchPercentage = 100;
-                  command.CommandText = string.Format(updateWatchPctSql, watchPercentage);
+                  dataParam.Value = watchPercentage;
+                  command.CommandText = updateWatchPctSql;
                   command.ExecuteNonQuery();
                 }
               }
@@ -1270,7 +1265,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           //Delete media items
           command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
           " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
-          command.ExecuteNonQuery();
+          affectedRows += command.ExecuteNonQuery();
         }
 
         //Delete orphan Fanart
@@ -1293,7 +1288,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           while (reader.Read())
           {
             DeleteFanArt(database.ReadDBValue<Guid>(reader, 0));
-            //Logger.Info("MediaLibrary: Delete orphan {0}", database.ReadDBValue<Guid>(reader, 0));
           }
         }
 
@@ -1301,7 +1295,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         command.Parameters.Clear();
         command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
           " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + orphanMediaItems + ")";
-        command.ExecuteNonQuery();
+        affectedRows += command.ExecuteNonQuery();
 
         //Clean collection tables
         _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
@@ -3032,6 +3026,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           foreach (RelationshipHierarchy hierarchy in _hierarchies)
           {
+            if (!hierarchy.UpdatePlayPercentage)
+              continue;
+
             command.Parameters.Clear();
             database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
             database.AddParameter(command, "PARENT_ROLE_ID", hierarchy.ParentRole, typeof(Guid));
@@ -3106,18 +3103,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   if (childVirtual == false)
                   {
                     nonVirtualChildCount++;
-                  }
-                  int playCount = 0;
-                  if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount))
-                  {
-                    if (playCount > 0)
-                      watchedCount++;
-                  }
-                  else //Prefer user play count but use overall play count if not available
-                  {
-                    int? totalPlayCount = database.ReadDBValue<int?>(reader, 2);
-                    if (totalPlayCount.HasValue && totalPlayCount.Value > 0)
-                      watchedCount++;
+
+                    //Only non-virtual items can be counted as watched
+                    int playCount = 0;
+                    if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount))
+                    {
+                      if (playCount > 0)
+                        watchedCount++;
+                    }
+                    else //Prefer user play count but use overall play count if not available
+                    {
+                      int? totalPlayCount = database.ReadDBValue<int?>(reader, 2);
+                      if (totalPlayCount.HasValue && totalPlayCount.Value > 0)
+                        watchedCount++;
+                    }
                   }
                 }
               }
@@ -3170,6 +3169,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             string childRoleColumn = null;
             foreach (RelationshipHierarchy hierarchy in _hierarchies)
             {
+              if (!hierarchy.UpdatePlayPercentage)
+                continue;
+
               parentId = null;
               parentId = null;
               parentIdColumn = null;
@@ -3209,11 +3211,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     if (childVirtual == false)
                     {
                       nonVirtualChildCount++;
-                    }
-                    int playCount = 0;
-                    if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount) && playCount > 0)
-                    {
-                      watchedCount++;
+
+                      int playCount = 0;
+                      if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount) && playCount > 0)
+                      {
+                        watchedCount++;
+                      }
                     }
                   }
                 }
@@ -3599,9 +3602,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         TryScheduleLocalShareImport(share);
 
-        ShareWatcher watcher = new ShareWatcher(share, this, false);
-        _shareWatchers.Add(share.ShareId, watcher);
-        _shareDeleteSync.Add(share.BaseResourcePath, new object());
+        lock (_syncObj)
+        {
+          ShareWatcher watcher = new ShareWatcher(share, this, false);
+          _shareWatchers.Add(share.ShareId, watcher);
+          _shareDeleteSync.Add(share.BaseResourcePath, new object());
+        }
       }
       catch (Exception e)
       {
@@ -3644,8 +3650,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           transaction.Commit();
 
-          _shareWatchers[shareId].Dispose();
-          _shareWatchers.Remove(shareId);
+          lock (_syncObj)
+          {
+            if (_shareWatchers.ContainsKey(shareId))
+            {
+              _shareWatchers[shareId].Dispose();
+              _shareWatchers.Remove(shareId);
+            }
+          }
 
           ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
         }
@@ -3679,13 +3691,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         DeleteAllMediaItemsUnderPathCombined(transaction, systemId, null, true);
 
         transaction.Commit();
-
-        foreach (Guid shareId in _shareWatchers.Keys)
+        lock (_syncObj)
         {
-          _shareWatchers[shareId].Dispose();
+          foreach (Guid shareId in _shareWatchers.Keys)
+          {
+            _shareWatchers[shareId].Dispose();
+          }
+          _shareWatchers.Clear();
+          _shareDeleteSync.Clear();
         }
-        _shareWatchers.Clear();
-        _shareDeleteSync.Clear();
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
