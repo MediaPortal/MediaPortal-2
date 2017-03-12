@@ -73,8 +73,8 @@ namespace WakeOnLan.Common
       //Create the magic packet
       byte[] magicPacket = CreateMagicPacket(hwAddress);
 
-      DateTime startTime = DateTime.Now;
-      while ((DateTime.Now - startTime).TotalMilliseconds < wakeTimeout)
+      DateTime end = DateTime.Now.AddMilliseconds(wakeTimeout);
+      do
       {
         //Send the magic packet
         await SendWOLPacketAsync(magicPacket, port);
@@ -86,7 +86,8 @@ namespace WakeOnLan.Common
           return true;
         }
         //Retry until the timeout is reached
-      }
+      } while (DateTime.Now < end);
+
       ServiceRegistration.Get<ILogger>().Warn("WakeOnLanHelper: Failed to wake server within timeout of {0}ms", wakeTimeout);
       return false;
     }

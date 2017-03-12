@@ -182,7 +182,7 @@ namespace WakeOnLan.Client
         //Wait for the network connection to become available, can be delayed if we have just woken from sleep
         if (!await WaitForNetworkConnection(settings.NetworkConnectedTimeout))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WakeOnLanClient: No network connection found within timeout {0}ms", settings.NetworkConnectedTimeout);
+          ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: No network connection found within timeout {0}ms", settings.NetworkConnectedTimeout);
           return;
         }
 
@@ -202,14 +202,17 @@ namespace WakeOnLan.Client
 
     protected async Task<bool> WaitForNetworkConnection(int timeout)
     {
-      DateTime start = DateTime.Now;
-      while (!NetworkUtils.IsNetworkAvailable(null, false))
+      if (NetworkUtils.IsNetworkAvailable(null, false))
+        return true;
+
+      DateTime end = DateTime.Now.AddMilliseconds(timeout);
+      while (DateTime.Now < end)
       {
-        if ((DateTime.Now - start).TotalMilliseconds > timeout)
-          return false;
         await Task.Delay(2000);
+        if (NetworkUtils.IsNetworkAvailable(null, false))
+          return true;
       }
-      return true;
+      return false;
     }
 
     #endregion
@@ -217,7 +220,7 @@ namespace WakeOnLan.Client
     #region Address Updating
 
     /// <summary>
-    /// Tries to match an IP/hardware address from server settings to the current server connection and saves the hardware address to settings.
+    /// Tries to resolve the hardware address of the server.
     /// </summary>
     protected void UpdateServerAddress()
     {
