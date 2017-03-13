@@ -344,7 +344,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 posterPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder"
+                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "cover"
                     select potentialFanArtFile);
 
                 logoPaths.AddRange(
@@ -426,7 +426,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 posterPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder"
+                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "cover"
                     select potentialFanArtFile);
 
                 bannerPaths.AddRange(
@@ -528,7 +528,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 thumbPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == mediaItemFileName + "-thumb"
+                    where potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileName + "-thumb") || potentialFanArtFileNameWithoutExtension == "thumb"
                     select potentialFanArtFile);
               }
             }

@@ -295,6 +295,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           var collectionMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
 
           //Movie fanart
+          var thumbPaths = new List<ResourcePath>();
           var fanArtPaths = new List<ResourcePath>();
           var posterPaths = new List<ResourcePath>();
           var bannerPaths = new List<ResourcePath>();
@@ -329,10 +330,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
                 var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
 
+                thumbPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-thumb") || potentialFanArtFileNameWithoutExtension == "thumb"
+                    select potentialFanArtFile);
+
                 posterPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" ||
+                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "cover" ||
                     potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-poster")
                     select potentialFanArtFile);
 
@@ -376,6 +383,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
               SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, movieMediaItemId.Value, movieTitle);
+            foreach (ResourcePath thumbPath in thumbPaths)
+              SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, movieMediaItemId.Value, movieTitle);
           }
 
           //Collection fanart
@@ -396,7 +405,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 posterPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder"
+                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "cover"
                     select potentialFanArtFile);
 
                 bannerPaths.AddRange(
