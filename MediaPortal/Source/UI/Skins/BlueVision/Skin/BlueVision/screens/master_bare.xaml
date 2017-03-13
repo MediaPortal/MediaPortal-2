@@ -149,8 +149,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
                       DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                       IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-            <!--Label Content="... importing" FontSize="{ThemeResource SmallerFontSize}" Margin="10,-5,0,-10" IsVisible="{Binding IsImporting}"
-                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/-->
+            <Label Content="{Binding Progress}" FontSize="{ThemeResource SmallerFontSize}" Margin="10,-5,0,-10" IsVisible="{Binding IsImporting}"
+                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
             <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" VerticalAlignment="Center" 
                     HorizontalAlignment="Left" Margin="5,-5,0,-10"/>
           </StackPanel>
