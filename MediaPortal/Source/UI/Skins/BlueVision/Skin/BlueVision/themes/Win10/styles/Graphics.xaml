@@ -98,7 +98,31 @@
       </Border>
     </Grid>
   </ControlTemplate>
-  
+
+  <ControlTemplate x:Key="VolUpControlTemplate">
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\VolUpButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
+               Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="VolDownControlTemplate">
+    <Grid Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\VolDownButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
+               Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
   <ControlTemplate x:Key="SkipForwardControlTemplate">
     <Grid x:Name="GrowControl" Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
       <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
@@ -118,6 +142,18 @@
           <SolidColorBrush Color="#333333"/>
         </Border.Background>
         <Image Source="PlayerControls.Large\SkipBackButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
+               Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="NavigateBackControlTemplate">
+    <Grid x:Name="GrowControl" Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\BackButton.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
                Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
       </Border>
     </Grid>
@@ -232,22 +268,6 @@
           HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
   </ControlTemplate>
-
-  <ControlTemplate x:Key="NavigateBackControlTemplate">
-    <Grid Width="72" Height="72" Margin="0" VerticalAlignment="Center">
-      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center">
-        <Border.Background>
-          <SolidColorBrush Color="#333333"/>
-        </Border.Background>
-        <Path x:Name="Play" Fill="{ThemeResource WindowButtonColor}" Width="30" Height="30" Stretch="Fill" Stroke="{ThemeResource WindowButtonColor}"
-              HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"
-              Data="F1 M22.0,0.0 L11,11.5 22.0,22.0 z"/>
-      </Border>
-    </Grid>
-  </ControlTemplate>
-
-
-  <!-- Star shape for rating control -->
   
   <!-- Unselected stars-->
   <ControlTemplate x:Key="StarPolygonTemplate">

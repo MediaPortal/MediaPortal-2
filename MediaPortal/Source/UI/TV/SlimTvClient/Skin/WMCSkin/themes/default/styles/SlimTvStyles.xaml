@@ -965,15 +965,16 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="HeaderWidth" Value="{ThemeResource MultiGuideHeaderWidth}" />
     <Setter Property="HeaderTemplate">
       <Setter.Value>
         <ControlTemplate>
           <Button Style="{ThemeResource ProgramGuideChannelButtonStyle}" Command="{Binding Command}" Margin="0,0,2,0">
             <Grid x:Name="ChannelHeader" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
               <Grid.ColumnDefinitions>
+                <!-- Channel Number -->
+                <ColumnDefinition Width="Auto"/>
                 <!-- Channel Logo -->
-                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="Auto"/>
                 <!-- Channel Name -->
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -985,14 +986,35 @@
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
                 </TransformGroup>
               </Grid.RenderTransform>
-              <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Stretch="Uniform" Margin="5,0,5,0" Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
+              <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="DefaultBold"
+                     Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" Margin="5,-2,0,-2" MinWidth="50">
+                <Label.IsVisible>
+                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
+                </Label.IsVisible>
+              </Label>
+
+              <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,0,0,0"
+                     Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
                 <Image.Source>
-                  <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" 
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
                                             fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                 </Image.Source>
+                <Image.IsVisible>
+                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
+                </Image.IsVisible>
               </Image>
-              <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"/>
+
+              <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Opacity="0.5" Margin="5,0,0,0" ScrollDelay="0"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+                <Label.IsVisible>
+                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+                </Label.IsVisible>
+                <Label.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
+                  </DataTrigger>
+                </Label.Triggers>
+              </Label>
             </Grid>
           </Button>
         </ControlTemplate>

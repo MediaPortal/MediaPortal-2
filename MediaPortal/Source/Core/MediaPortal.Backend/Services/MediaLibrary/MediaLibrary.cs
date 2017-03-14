@@ -465,6 +465,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           importing |= shareSate.IsImporting;
           if (shareSate.Progress >= 0)
           {
+            if (!progress.HasValue)
+              progress = 0;
             progress += shareSate.Progress;
             count++;
           }

@@ -139,6 +139,7 @@
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SlimTvClientModel.cs" />
+    <Compile Include="Settings\Configuration\EpgVisibleChannelInfoSetting.cs" />
     <Compile Include="Settings\Configuration\ZapByChannelIndex.cs" />
     <Compile Include="Settings\Configuration\ZapTimeout.cs" />
     <Compile Include="Settings\Configuration\HideAllChannelsGroup.cs" />

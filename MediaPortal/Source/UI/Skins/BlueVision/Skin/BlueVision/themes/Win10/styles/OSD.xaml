@@ -11,39 +11,135 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,0">
+          <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="150"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="200"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="250"/>
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="InfoControlPanel" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default">
               <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="180"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
-
               <Grid.RowDefinitions>
-                <RowDefinition Height="140"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="70"/>
+                <RowDefinition Height="250"/>
               </Grid.RowDefinitions>
-
-              <Border Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="-40,-20,-40,0" Background="#E0000000"/>
-              <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Margin="-40,-20,-40,40" Background="#E0000000"/>
-
-                <Control Grid.Column="0" Grid.Row="2" Grid.RowSpan="3" x:Name="OSDCoverPresenter" Margin="0,0,40,0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                  Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
-
-              <Control Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Grid.RowSpan="2" x:Name="OSDInfoAreaPresenter" Margin="0,10,0,0"
+              <Grid.RenderTransform>
+                <TranslateTransform Y="250"/>
+              </Grid.RenderTransform>
+              
+              <Grid.Resources>
+                <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+                <Storyboard x:Key="InfoSlideInStoryboard" FillBehavior="HoldEnd">
+                  <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="InfoControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="250"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                  </DoubleAnimationUsingKeyFrames>
+                </Storyboard>
+                <Storyboard x:Key="InfoSlideOutStoryboard" FillBehavior="HoldEnd">
+                  <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="InfoControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="250"/>
+                  </DoubleAnimationUsingKeyFrames>
+                </Storyboard>
+              </Grid.Resources>
+              
+              <Grid.Triggers>
+                <DataTrigger Binding="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" Value="True">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard x:Name="InfoSlideIn_BeginStoryboard" Storyboard="{StaticResource InfoSlideInStoryboard}"/>
+                  </DataTrigger.EnterActions>
+                  <DataTrigger.ExitActions>
+                    <BeginStoryboard Storyboard="{StaticResource InfoSlideOutStoryboard}"/>
+                    <StopStoryboard BeginStoryboardName="InfoSlideIn_BeginStoryboard"/>
+                  </DataTrigger.ExitActions>
+                </DataTrigger>
+              </Grid.Triggers>
+              
+              <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <LinearGradientBrush.GradientStops>
+                      <GradientStop Color="#00000000" Offset="0"  />
+                      <GradientStop Color="#CC000000" Offset="0.05"  />
+                      <GradientStop Color="#E6000000" Offset="1"  />
+                    </LinearGradientBrush.GradientStops>
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+              <Control x:Name="OSDCoverPresenter" Margin="0,10,20,10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
+              <Control Grid.Column="1" x:Name="OSDInfoAreaPresenter" Margin="0,10,0,0"
                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
-
-              <Control Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
-
-              <Grid  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,300,0" SetFocusPrio="Default">
-                <!--IsVisible="{Binding ShowMouseControls}"-->
-                  <Control  x:Name="ControlsPresenter" HorizontalAlignment="Stretch"
-                       Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
-              </Grid>
             </Grid>
+
+            <Grid x:Name="PlayerControlPanel" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="90"/>
+                <RowDefinition Height="30"/>
+              </Grid.RowDefinitions>
+              <Grid.RenderTransform>
+                <TranslateTransform Y="-120"/>
+              </Grid.RenderTransform>
+              
+              <Grid.Resources>
+                <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+                <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+                  <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PlayerControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-120"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                  </DoubleAnimationUsingKeyFrames>
+                </Storyboard>
+                <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
+                  <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PlayerControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-120"/>
+                  </DoubleAnimationUsingKeyFrames>
+                </Storyboard>
+              </Grid.Resources>
+              
+              <Grid.Triggers>
+                <DataTrigger Binding="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" Value="True">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                  </DataTrigger.EnterActions>
+                  <DataTrigger.ExitActions>
+                    <BeginStoryboard Storyboard="{StaticResource SlideOutStoryboard}"/>
+                    <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
+                  </DataTrigger.ExitActions>
+                </DataTrigger>
+              </Grid.Triggers>
+
+              <Border Margin="-40,-20,-40,0" Grid.RowSpan="2">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <LinearGradientBrush.GradientStops>
+                      <GradientStop Color="#CC000000" Offset="0"  />
+                      <GradientStop Color="#CC000000" Offset="0.95"  />
+                      <GradientStop Color="#00000000" Offset="1"  />
+                    </LinearGradientBrush.GradientStops>
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+
+              <Control x:Name="ControlsPresenter" HorizontalAlignment="Stretch"
+                       Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
+              <Control Grid.Row="1" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,-2,0,2"
+                       Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
+            </Grid>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

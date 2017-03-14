@@ -38,6 +38,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Model x:Key="HomeServerModel" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
     <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
     <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+    <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
     <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
       <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FooterPanel" Storyboard.TargetProperty="RenderTransform.Y">
         <SplineDoubleKeyFrame KeyTime="00:00:00" Value="200"/>
@@ -173,9 +174,24 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!-- Time & Date -->
       <Border Height="74" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Margin="-10,-20,0,20" >
         <StackPanel HorizontalAlignment="Right" Margin="10,0,10,0" VerticalAlignment="Center">
-          <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
-                FontSize="32" FontFamily="DefaultBold"
-                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
+                        DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
+                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+              <!--Label Content="... importing" FontSize="{ThemeResource SmallerFontSize}" Margin="10,-5,0,-10" IsVisible="{Binding IsImporting}"
+                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/-->
+              <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" VerticalAlignment="Center" 
+                      HorizontalAlignment="Left" Margin="5,-6,0,-9"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
+                        DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+              <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-4,0,-16"/>
+            </StackPanel>
+            <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="32" FontFamily="DefaultBold"
+                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>            
+          </StackPanel>
+
           <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
         </StackPanel>

@@ -16,6 +16,16 @@
     <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
     <tv:SlimTvGuideTimeFormatConverter x:Key="SlimTvGuideTimeFormatConverter" />
 
+    <ResourceWrapper x:Key="DynamicMultiGuideHeaderWidth" EnableBindings="True">
+      <ResourceWrapper.Resource>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? 90 : 0) + ({1} ? 110 : 0) + ({2} ? 200 : 0)">
+          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
+          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
+          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+        </MultiBinding>
+      </ResourceWrapper.Resource>
+    </ResourceWrapper>
+    
     <!-- Appearance of the background -->
     <ControlTemplate x:Key="FanArtBackground_Template">
       <ControlTemplate.Resources>
@@ -29,7 +39,7 @@
           <Grid.Background>
             <VideoBrush Stream="0"/>
           </Grid.Background>
-          <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
+          <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_epg.png"/>
         </Grid>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableFanart}">
           <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
@@ -42,7 +52,7 @@
       <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
             DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}" Margin="30,0,30,-180">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
+          <ColumnDefinition Width="{StaticResource DynamicMultiGuideHeaderWidth}"/>
           <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -139,7 +149,7 @@
           </Grid.RowDefinitions>
         </Grid>
 
-        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Style="{ThemeResource EpgGridStyle}" Margin="0,0,0,20"/>
+        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" HeaderWidth="{StaticResource DynamicMultiGuideHeaderWidth}"  Style="{ThemeResource EpgGridStyle}" Margin="0,0,0,20"/>
 
         <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="2" Margin="0,-20,0,0" HorizontalAlignment="Right">
           <!--Label x:Name="Date" FontSize="{ThemeResource SmallFontSize}"

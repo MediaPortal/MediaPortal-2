@@ -13,6 +13,15 @@
   <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1"/>
 
+  <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+    <DoubleAnimation
+                                    Storyboard.TargetProperty="RenderTransform.Angle"
+                                    From="0"
+                                    To="360"
+                                    Duration="0:0:2"
+                                    RepeatBehavior="Forever" />
+  </Storyboard>
+
   <!-- Base storyboard which shows an animation when a button has focus -->
   <Storyboard x:Key="FocusedButtonStoryboard_Base" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
@@ -910,10 +919,10 @@
         <ControlTemplate TargetType="{x:Type CheckBox}">
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Opacity="{ThemeResource PlayerControlButtonOpacity}">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="72"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
+              <RowDefinition Height="72"/>
             </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TransformGroup>
@@ -991,6 +1000,24 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+  </Style>
+
+  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="VolUpButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource VolUpControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="VolDownButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource VolDownControlTemplate}" />
+    </Style.Resources>
   </Style>
 
   <!-- audio mute dark control style -->
@@ -1131,12 +1158,6 @@
     </Setter>
   </Style>
 
-  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle_FocusFrame}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
-    </Style.Resources>
-  </Style>
-
   <Style x:Key="PowerButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -1171,7 +1192,34 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
+  <Style x:Key="ImportingButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid DockPanel.Dock="Left" Height="36" Width="36">
+            <Image x:Name="RecordingIcon" Source="Importing.png" Stretch="Uniform" Margin="5" 
+                   HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.49,0.49">
+              <Image.RenderTransform>
+                <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
+              </Image.RenderTransform>
+              <Image.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </Image.Triggers>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="MenuButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
