@@ -110,7 +110,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                       potentialFanArtFileNameWithoutExtension == "thumb"
                 select potentialFanArtFile);
 
-            if (fanArtType == FanArtTypes.Poster || (fanArtPaths.Count == 0 && fanArtType == FanArtTypes.Thumbnail))
+            if (fanArtType == FanArtTypes.Poster)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
