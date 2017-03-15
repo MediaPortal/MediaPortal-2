@@ -194,7 +194,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
           new GenreMapping(SeriesGenre.MYSTERY, new SerializableRegex(@"Mystery", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.ROMANCE, new SerializableRegex(@"Romance", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.SCIENCE_FICTION, new SerializableRegex(@"Science Fiction|Science-Fiction|Sci-Fi", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.MYSTERY, new SerializableRegex(@"Mystery", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.THRILLER, new SerializableRegex(@"Thriller|Disaster|Suspense", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.WAR, new SerializableRegex(@"War", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.WESTERN, new SerializableRegex(@"Western", RegexOptions.IgnoreCase)),
