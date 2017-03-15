@@ -297,7 +297,7 @@ namespace MediaPortal.Common.Services.Dokan
     {
       lock (_syncObj)
       {
-        FileHandle handle = (FileHandle) info.Context;
+        FileHandle handle = info.Context as FileHandle;
         if (handle != null)
         {
           handle.Cleanup();
@@ -309,7 +309,7 @@ namespace MediaPortal.Common.Services.Dokan
     {
       lock (_syncObj)
       {
-        FileHandle handle = (FileHandle) info.Context;
+        FileHandle handle = info.Context as FileHandle;
         if (handle != null)
         {
           handle.Resource.RemoveFileHandle(handle);
@@ -320,7 +320,7 @@ namespace MediaPortal.Common.Services.Dokan
 
     public NtStatus ReadFile(string filename, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info)
     {
-      FileHandle handle = (FileHandle) info.Context;
+      FileHandle handle = info.Context as FileHandle;
       Stream stream;
       bytesRead = 0;
       lock (_syncObj)
@@ -373,7 +373,7 @@ namespace MediaPortal.Common.Services.Dokan
       lock (_syncObj)
       {
         fileinfo = new FileInformation();
-        FileHandle handle = (FileHandle)info.Context;
+        FileHandle handle = info.Context as FileHandle;
         if (handle == null)
         {
           return DokanResult.FileNotFound;
@@ -408,7 +408,7 @@ namespace MediaPortal.Common.Services.Dokan
       files = new List<FileInformation>();
       lock (_syncObj)
       {
-        FileHandle handle = (FileHandle)info.Context;
+        FileHandle handle = info.Context as FileHandle;
         VirtualBaseDirectory directory = handle == null ? null : handle.Resource as VirtualBaseDirectory;
         if (directory == null)
         {

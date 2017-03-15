@@ -41,11 +41,13 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net">
-      <HintPath>..\..\..\..\Packages\BASS.NET.2.4.10.3\lib\net40\Bass.Net.dll</HintPath>
+    <Reference Include="Bass.Net, Version=2.4.12.5, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\BASS.NET.2.4.12.5\lib\net45\Bass.Net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="BassRegistration">
-      <HintPath>..\..\..\..\Packages\BassRegistration.1.0.0.2\lib\net45\BassRegistration.dll</HintPath>
+    <Reference Include="BassRegistration, Version=2.4.12.5, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\BassRegistration.2.4.12.5\lib\net45\BassRegistration.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -93,6 +95,10 @@
     <Compile Include="Settings\Configuration\BassPlayerSetupModel.cs" />
     <Compile Include="Settings\Configuration\CrossFadeDuration.cs" />
     <Compile Include="Settings\Configuration\CrossFadingEnabled.cs" />
+    <Compile Include="Settings\Configuration\DirectSoundBufferSize.cs" />
+    <Compile Include="Settings\Configuration\PlaybackBufferSize.cs" />
+    <Compile Include="Settings\Configuration\SeekIncrementSeconds.cs" />
+    <Compile Include="Settings\Configuration\SongTransitionMode.cs" />
     <Compile Include="Utils\AudioRingBuffer.cs" />
     <Compile Include="Utils\BassStreamFader.cs" />
     <Compile Include="Utils\URLUtils.cs" />
@@ -146,4 +152,3 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
-

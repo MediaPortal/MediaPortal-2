@@ -429,6 +429,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.TotalDiscs = TotalDiscs;
         info.TotalTracks = TotalTracks;
         info.Compilation = Compilation;
+        info.ReleaseDate = ReleaseDate;
+        info.Genres.AddRange(Genres);
         info.Languages.AddRange(Languages);
         info.Artists.AddRange(AlbumArtists);
         info.LastChanged = LastChanged;

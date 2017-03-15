@@ -35,7 +35,7 @@ namespace AssemblyInfoHelper
     private const string MAJOR_VERSION = "2.1"; // 2.1 relates to MIA rework
     private static readonly Regex RE_REPLACE_ADDITIONAL = new Regex("(AssemblyInformationalVersion\\(\").*(\")", RegexOptions.Multiline);
     private static readonly Regex RE_REPLACE_VERSION_NUMBER = new Regex("(Assembly.*Version\\(\")([^\"]*)(\")", RegexOptions.Multiline);
-    private static readonly Regex RE_REPLACE_YEAR_COPY = new Regex("(AssemblyCopyright\\(\"Copyright � Team MediaPortal 2007 - )\\d{4}(\")", RegexOptions.Multiline);
+    private static readonly Regex RE_REPLACE_YEAR_COPY = new Regex("(AssemblyCopyright\\(\"Copyright © Team MediaPortal 2007 - )\\d{4}(\")", RegexOptions.Multiline);
 
     static void Main(string[] args)
     {

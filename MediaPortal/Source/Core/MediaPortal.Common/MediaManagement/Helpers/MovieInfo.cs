@@ -200,7 +200,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (Rating.VoteCount.HasValue) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, Rating.VoteCount.Value);
       }
 
-      MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_ISDVD, false);
       if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
       if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
       if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());

@@ -22,6 +22,9 @@
 
 #endregion
 
+using System;
+using System.Xml.Linq;
+
 namespace CustomActions
 {
   /// <summary>
@@ -70,6 +73,13 @@ namespace CustomActions
     /// <param name="address">The addres from where downalod the file</param>
     /// <param name="fileName">The file location</param>
     void DownloadFileAndReleaseResources(string address, string fileName);
+
+    /// <summary>
+    /// Creates a new System.Xml.Linq.XDocument from a file.
+    /// </summary>
+    /// <param name="uri">A URI string that references the file to load into a new System.Xml.Linq.XDocument</param>
+    /// <returns>An System.Xml.Linq.XDocument that contains the contents of the specified file.</returns>
+    XDocument LoadXmlDocument(string uri);
 
     /// <summary>
     /// Determines whether the specified file exists.

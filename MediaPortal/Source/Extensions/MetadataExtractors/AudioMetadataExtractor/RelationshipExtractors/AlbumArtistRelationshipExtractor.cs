@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return GetPersonSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -115,7 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       AddToCheckCache(albumInfo);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       foreach (PersonInfo person in albumInfo.Artists)
       {
         person.AssignNameId();
@@ -127,9 +127,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           Guid existingId;
           if (TryGetIdFromCache(person, out existingId))
-            extractedLinkedAspects.Add(personAspects, existingId);
+            extractedLinkedAspects.Add(new RelationshipItem(personAspects, existingId));
           else
-            extractedLinkedAspects.Add(personAspects, Guid.Empty);
+            extractedLinkedAspects.Add(new RelationshipItem(personAspects, Guid.Empty));
         }
       }
       return extractedLinkedAspects.Count > 0;

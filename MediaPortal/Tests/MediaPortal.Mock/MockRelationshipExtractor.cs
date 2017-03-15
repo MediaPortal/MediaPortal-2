@@ -41,17 +41,17 @@ namespace MediaPortal.Mock
     public Guid[] LinkedRoleAspects { get; set; }
     public Guid[] MatchAspects { get; set; }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       string id;
       MockCore.ShowMediaAspects(aspects, MockCore.Library.GetManagedMediaItemAspectMetadata());
       if (MediaItemAspect.TryGetExternalAttribute(aspects, ExternalSource, ExternalType, out id) && ExternalId == id)
       {
         ServiceRegistration.Get<ILogger>().Debug("Matched {0} / {1} / {2} / {3} / {4}", Role, LinkedRole, ExternalSource, ExternalType, ExternalId);
-        extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+        extractedLinkedAspects = new List<RelationshipItem>();
         foreach (IDictionary<Guid, IList<MediaItemAspect>> data in Data)
         {
-          extractedLinkedAspects.Add(data, Guid.Empty);
+          extractedLinkedAspects.Add(new RelationshipItem(data, Guid.Empty));
         }
         return true;
       }

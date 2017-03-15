@@ -42,7 +42,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     private string _cachePath;
 
     public const int MAX_LEVENSHTEIN_DIST = 4;
-    private static readonly Regex ALBUM_NUMBER_REGEX = new Regex(@"(?<number>\d+)$", RegexOptions.IgnoreCase);
 
     private enum AudioValueToCheck
     {
@@ -1278,7 +1277,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    protected virtual bool TestTrackMatch(TrackInfo trackSearch, ref List<TrackInfo> tracks)
+    public virtual bool TestTrackMatch(TrackInfo trackSearch, ref List<TrackInfo> tracks)
     {
       if (tracks.Count == 1)
       {
@@ -1760,23 +1759,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public static int GetLevenshteinDistance(AlbumInfo albumOnline, AlbumInfo albumSearch)
     {
-      if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album))
+      if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album) || !albumOnline.AlbumVolumesAreEqual(albumSearch))
         return MAX_LEVENSHTEIN_DIST + 1;
-
-      Match match = ALBUM_NUMBER_REGEX.Match(albumSearch.Album);
-      if (match.Success)
-      {
-        string searchNumber = match.Groups["number"].Value;
-        match = ALBUM_NUMBER_REGEX.Match(albumOnline.Album);
-        if (match.Success)
-        {
-          //Make sure "Album vol. 23" is not mistaken for "Album vol. 22"
-          if (searchNumber != match.Groups["number"].Value)
-          {
-            return MAX_LEVENSHTEIN_DIST + 1;
-          }
-        }
-      }
 
       string cleanedName = RemoveCharacters(albumSearch.Album);
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(albumOnline.Album), cleanedName);
@@ -1876,24 +1860,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public static bool NamesAreMostlyEqual(AlbumInfo albumOnline, AlbumInfo albumSearch)
     {
-      if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album))
-        return false;
-
-      Match match = ALBUM_NUMBER_REGEX.Match(albumSearch.Album);
-      if (match.Success)
-      {
-        string searchNumber = match.Groups["number"].Value;
-        match = ALBUM_NUMBER_REGEX.Match(albumOnline.Album);
-        if (match.Success)
-        {
-          //Make sure "Album vol. 23" is not mistaken for "Album vol. 22"
-          if (searchNumber != match.Groups["number"].Value)
-          {
-            return false;
-          }
-        }
-      }
-
+      if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album) || !albumOnline.AlbumVolumesAreEqual(albumSearch))
+        return false;      
       return BaseInfo.MatchNames(albumOnline.Album, albumSearch.Album);
     }
 

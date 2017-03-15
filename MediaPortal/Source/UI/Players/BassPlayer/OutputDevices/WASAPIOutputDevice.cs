@@ -25,7 +25,6 @@
 using System;
 using System.Linq;
 using MediaPortal.Extensions.BassLibraries;
-using MediaPortal.UI.Players.BassPlayer.Settings;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;
 using Un4seen.Bass;
@@ -131,7 +130,10 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
       Log.Debug("BASS: Try to init WASAPI with a samplerate of {0} and {1} channels", _inputStream.SampleRate, _inputStream.Channels);
 
-      bool result = BassWasapi.BASS_WASAPI_Init(_deviceNo, _inputStream.SampleRate, _inputStream.Channels, _flags, 0.5f, 0f, _streamWriteProcDelegate, IntPtr.Zero);
+      
+      float buffer = (float)Controller.GetSettings().PlaybackBufferSizeMilliSecs / 1000;
+
+      bool result = BassWasapi.BASS_WASAPI_Init(_deviceNo, _inputStream.SampleRate, _inputStream.Channels, _flags, buffer, 0f, _streamWriteProcDelegate, IntPtr.Zero);
 
       BASSError? bassInitErrorCode = result ? null : new BASSError?(Bass.BASS_ErrorGetCode());
 
@@ -182,7 +184,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
         AttachStream();
       }
 
-      int ms = Convert.ToInt32(Controller.GetSettings().DirectSoundBufferSize.TotalMilliseconds);
+      int ms = Convert.ToInt32(Controller.GetSettings().DirectSoundBufferSizeMilliSecs);
 
       if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_BUFFER, ms))
         throw new BassLibraryException("BASS_SetConfig");
@@ -192,7 +194,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
         throw new BassLibraryException("BASS_SetConfig");
 
       if (passThrough)
-        _fader = new BassStreamFader(_inputStream, Controller.GetSettings().FadeDuration);
+        _fader = new BassStreamFader(_inputStream, TimeSpan.FromMilliseconds(Controller.GetSettings().FadeDurationMilliSecs));
 
       ResetState();
     }
@@ -360,7 +362,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       string deviceName = Controller.GetSettings().WASAPIDevice;
       int deviceNo = BassConstants.BassDefaultDevice;
 
-      if (String.IsNullOrEmpty(deviceName) || deviceName == BassPlayerSettings.Defaults.WASAPIDevice)
+      if (String.IsNullOrEmpty(deviceName) || deviceName == Controller.GetSettings().WASAPIDevice)
         Log.Info("Initializing default WASAPI device");
       else
       {

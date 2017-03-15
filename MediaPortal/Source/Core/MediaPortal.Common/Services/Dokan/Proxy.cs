@@ -718,7 +718,7 @@ namespace Dokan
       try
       {
         NtStatus result = _operations.GetFileSecurity(rawFileName, out sec, sect, rawFileInfo);
-        if (result == DokanResult.Success /*&& sec != null*/)
+        if (result == DokanResult.Success && sec != null)
         {
           var buffer = sec.GetSecurityDescriptorBinaryForm();
           rawSecurityDescriptorLengthNeeded = (uint)buffer.Length;

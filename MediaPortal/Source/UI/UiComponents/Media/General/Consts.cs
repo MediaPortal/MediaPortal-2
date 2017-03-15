@@ -171,6 +171,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_IMAGE_FILTER_SMALL = "[Media.ImageFilterSmall]";
     public const string RES_IMAGE_FILTER_MEDIUM = "[Media.ImageFilterMedium]";
     public const string RES_IMAGE_FILTER_BIG = "[Media.ImageFilterBig]";
+    public const string RES_DISC_NUMBER_FILTER = "[Media.DiscNumberFilter]";
 
     public const string RES_MORE_THAN_MAX_ITEMS_HINT = "[Media.MoreThanMaxItemsHint]";
     public const string RES_MORE_THAN_MAX_ITEMS_BROWSE_HINT = "[Media.MoreThanMaxItemsBrowseHint]";
@@ -265,6 +266,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_COMMON_BY_TRACK_MENU_ITEM = "[Media.TrackMenuItem]";
     public const string RES_COMMON_BY_ARTIST_MENU_ITEM = "[Media.ArtistMenuItem]";
     public const string RES_COMMON_BY_YEAR_MENU_ITEM = "[Media.YearMenuItem]";
+    public const string RES_COMMON_BY_DISC_NUMBER_MENU_ITEM = "[Media.DiscNumberMenuItem]";
     public const string RES_COMMON_BY_SIZE_MENU_ITEM = "[Media.SizeMenuItem]";
     public const string RES_COMMON_BY_SYSTEM_MENU_ITEM = "[Media.SystemMenuItem]";
     public const string RES_COMMON_BY_ACTOR_MENU_ITEM = "[Media.ActorMenuItem]";
@@ -308,6 +310,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_ALBUM_LABEL_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumLabelNavbarDisplayLabel]";
     public const string RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumNavbarDisplayLabel]";
     public const string RES_FILTER_AUDIO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioGenreNavbarDisplayLabel]";
+    public const string RES_FILTER_AUDIO_DISC_NUMBER_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioDiscNumberNavbarDisplayLabel]";
     public const string RES_FILTER_DECADE_NAVBAR_DISPLAY_LABEL = "[Media.FilterDecadeNavbarDisplayLabel]";
     public const string RES_FILTER_IMAGE_YEAR_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageYearNavbarDisplayLabel]";
     public const string RES_FILTER_VIDEO_YEAR_NAVBAR_DISPLAY_LABEL = "[Media.FilterVideoYearNavbarDisplayLabel]";
@@ -373,6 +376,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_AUDIO_FILTER_BY_ALBUM = "AudioFilterByAlbum";
     public const string SCREEN_AUDIO_FILTER_BY_GENRE = "AudioFilterByGenre";
     public const string SCREEN_AUDIO_FILTER_BY_DECADE = "AudioFilterByDecade";
+    public const string SCREEN_AUDIO_FILTER_BY_DISC_NUMBER = "AudioFilterByDiscNumber";
     public const string SCREEN_AUDIO_FILTER_BY_SYSTEM = "AudioFilterBySystem";
     public const string SCREEN_AUDIO_SIMPLE_SEARCH = "AudioSimpleSearch";
     public const string SCREEN_VIDEOS_SHOW_ITEMS = "VideoShowItems";

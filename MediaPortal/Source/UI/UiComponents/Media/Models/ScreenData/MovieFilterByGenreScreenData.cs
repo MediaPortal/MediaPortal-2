@@ -30,7 +30,7 @@ using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MovieFilterByGenreScreenData : AbstractMovieFilterScreenData<GenreFilterItem>
+  public class MovieFilterByGenreScreenData : AbstractMovieFilterScreenData<MovieGenreFilterItem>
   {
     public MovieFilterByGenreScreenData() :
         base(Consts.SCREEN_MOVIES_FILTER_BY_GENRE, Consts.RES_COMMON_BY_GENRE_MENU_ITEM,
@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         _availableMias = _availableMias.Union(Consts.OPTIONAL_MOVIES_MIAS);
     }
 
-    public override AbstractFiltersScreenData<GenreFilterItem> Derive()
+    public override AbstractFiltersScreenData<MovieGenreFilterItem> Derive()
     {
       return new MovieFilterByGenreScreenData();
     }

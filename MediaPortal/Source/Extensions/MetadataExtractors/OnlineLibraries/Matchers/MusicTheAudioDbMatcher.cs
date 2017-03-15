@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -82,6 +83,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         ServiceRegistration.Get<ILogger>().Error("MusicTheAudioDbMatcher: Error initializing wrapper", ex);
       }
       return false;
+    }
+
+    #endregion
+
+    #region Overrides
+
+    public override bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
+    {
+      if (!Init())
+        return false;
+
+      //Try and find the album and match the track against the album tracks as the track name search can be a bit hit and miss.
+      //This should also improve performance as this search will be cached for other tracks in the same album whereas a track name
+      //search won't be
+      //TODO: Handle this better in the wrapper.
+      if (trackInfo.AudioDbId == 0 && string.IsNullOrEmpty(trackInfo.MusicBrainzId))
+        FindTrackFromAlbum(trackInfo, importOnly);
+      return base.FindAndUpdateTrack(trackInfo, importOnly);
+    }
+
+    protected void FindTrackFromAlbum(TrackInfo trackInfo, bool importOnly)
+    {
+      AlbumInfo album = trackInfo.CloneBasicInstance<AlbumInfo>();
+      if (!UpdateAlbum(album, true, importOnly))
+        return;
+      List<TrackInfo> tracks = new List<TrackInfo>(album.Tracks);
+      if (_wrapper.TestTrackMatch(trackInfo, ref tracks))
+        trackInfo.AudioDbId = tracks[0].AudioDbId;
     }
 
     #endregion

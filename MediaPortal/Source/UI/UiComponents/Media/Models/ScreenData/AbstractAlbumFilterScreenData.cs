@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractAlbumFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
         MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion)
     {
-      _itemMias = new[] { AudioAlbumAspect.ASPECT_ID };
+      _filteredMias = new[] { AudioAlbumAspect.ASPECT_ID };
     }
   }
 }

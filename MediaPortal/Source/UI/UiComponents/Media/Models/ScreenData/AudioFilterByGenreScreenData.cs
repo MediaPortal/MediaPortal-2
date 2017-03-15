@@ -30,7 +30,7 @@ using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class AudioFilterByGenreScreenData : AbstractAudioFilterScreenData<GenreFilterItem>
+  public class AudioFilterByGenreScreenData : AbstractAudioFilterScreenData<AudioGenreFilterItem>
   {
     public AudioFilterByGenreScreenData() :
         base(Consts.SCREEN_AUDIO_FILTER_BY_GENRE, Consts.RES_COMMON_BY_GENRE_MENU_ITEM,
@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         _availableMias = _availableMias.Union(Consts.OPTIONAL_AUDIO_MIAS);
     }
 
-    public override AbstractFiltersScreenData<GenreFilterItem> Derive()
+    public override AbstractFiltersScreenData<AudioGenreFilterItem> Derive()
     {
       return new AudioFilterByGenreScreenData();
     }

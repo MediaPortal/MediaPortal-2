@@ -78,9 +78,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       _controller = controller;
       _silence = new Silence();
 
-      BassPlayerSettings settings = Controller.GetSettings();
-
-      _bufferSize = settings.PlaybackBufferSize;
+      _bufferSize = TimeSpan.FromMilliseconds(Controller.GetSettings().PlaybackBufferSizeMilliSecs);
 
       _streamWriteProcDelegate = OutputStreamWriteProc;
       _vizRawStreamWriteProcDelegate = VizRawStreamWriteProc;

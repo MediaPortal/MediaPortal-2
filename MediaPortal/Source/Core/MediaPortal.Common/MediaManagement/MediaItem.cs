@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -123,18 +124,32 @@ namespace MediaPortal.Common.MediaManagement
     public int ActiveResourceLocatorIndex { get; set; }
 
     /// <summary>
-    /// Returns the maximum zero-based index of available resource locators. For single media this will be always <c>0</c>.
-    /// If no <see cref="ProviderResourceAspect"/> is available, the result is <c>-1</c>.
+    /// Gets the primary resources of current MediaItem (presents physical parts of multi-file items) that can be used to start playback.
+    /// Secondary resources (like subtitles) are not considered here.
     /// </summary>
-    public int MaximumResourceLocatorIndex
+    public IList<MultipleMediaItemAspect> PrimaryResources
     {
       get
       {
         IList<MultipleMediaItemAspect> providerAspects;
         if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
-          return -1;
+          return new List<MultipleMediaItemAspect>();
 
-        return providerAspects.Count - 1;
+        // Consider only primary resources (physical main parts), but not extra resources (like subtitles)
+        return providerAspects.Where(pra => pra.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY)).ToList();
+      }
+    }
+
+    /// <summary>
+    /// Returns the maximum zero-based index of available primary resource locators. For single media this will be always <c>0</c>.
+    /// If no <see cref="ProviderResourceAspect"/> is available, the result is <c>-1</c>.
+    /// Note: extra resources like subtitles are not considered here.
+    /// </summary>
+    public int MaximumResourceLocatorIndex
+    {
+      get
+      {
+        return PrimaryResources.Count - 1;
       }
     }
 
@@ -144,11 +159,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
     public virtual IResourceLocator GetResourceLocator()
     {
-      IList<MultipleMediaItemAspect> providerAspects;
-      if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
-        return null;
-
-      var aspect = providerAspects[ActiveResourceLocatorIndex];
+      var aspect = PrimaryResources[ActiveResourceLocatorIndex];
       string systemId = (string)aspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
       string resourceAccessorPath = (string)aspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
