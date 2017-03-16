@@ -67,7 +67,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       _extractors.Add(new MovieCollectionMovieRelationshipExtractor());
 
       _hierarchies = new List<RelationshipHierarchy>();
-      _hierarchies.Add(new RelationshipHierarchy(MovieAspect.ROLE_MOVIE, MovieAspect.ATTR_MOVIE_NAME, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieCollectionAspect.ATTR_AVAILABLE_MOVIES));
+      _hierarchies.Add(new RelationshipHierarchy(MovieAspect.ROLE_MOVIE, MovieAspect.ATTR_MOVIE_NAME, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieCollectionAspect.ATTR_AVAILABLE_MOVIES, true));
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()

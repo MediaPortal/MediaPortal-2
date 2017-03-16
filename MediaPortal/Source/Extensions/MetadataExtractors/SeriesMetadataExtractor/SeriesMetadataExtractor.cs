@@ -220,11 +220,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       // If there was no complete match, yet, try to get extended information out of matroska files)
       if (!episodeInfo.IsBaseInfoPresent || !episodeInfo.HasExternalId)
       {
-        MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-        if (matroskaMatcher.MatchSeries(lfsra, episodeInfo))
+        try
         {
-          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
-            episodeInfo.SeriesName, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.IsBaseInfoPresent);
+          MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
+          if (matroskaMatcher.MatchSeries(lfsra, episodeInfo))
+          {
+            ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
+              episodeInfo.SeriesName, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.IsBaseInfoPresent);
+          }
+        }
+        catch(Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Exception reading matroska tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
         }
       }
 

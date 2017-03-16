@@ -66,7 +66,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       _extractors.Add(new AlbumTrackRelationshipExtractor());
 
       _hierarchies = new List<RelationshipHierarchy>();
-      _hierarchies.Add(new RelationshipHierarchy(AudioAspect.ROLE_TRACK, AudioAspect.ATTR_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS));
+      _hierarchies.Add(new RelationshipHierarchy(AudioAspect.ROLE_TRACK, AudioAspect.ATTR_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS, true));
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()
