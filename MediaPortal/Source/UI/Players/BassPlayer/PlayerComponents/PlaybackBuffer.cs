@@ -137,19 +137,29 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 
       _inputStream = stream;
 
-      _buffer = new AudioRingBuffer(stream.SampleRate, stream.Channels, _bufferSize);
-      _streamEnded = false;
-      _buffer.ResetPointers();
+      // If a Mixer has been created before, e.g. because of UpDownMixing,
+      // use the mixer as output stream instead of using a Ringbuffer
+      if (stream.BassInfo.ctype == BASSChannelType.BASS_CTYPE_STREAM_MIXER)
+      {
+        _outputStream = stream;
+      }
+      else
+      {
+        _buffer = new AudioRingBuffer(stream.SampleRate, stream.Channels, _bufferSize);
+        _streamEnded = false;
+        _buffer.ResetPointers();
 
-      CreateOutputStream();
+        CreateOutputStream();
+
+        // Ensure prebuffering
+        _updateThreadFinished.Reset();
+
+        StartBufferUpdateThread();
+        _updateThreadFinished.WaitOne();
+      }
+
       CreateVizStream();
       _inputStreamInitialized = true;
-
-      // Ensure prebuffering
-      _updateThreadFinished.Reset();
-
-      StartBufferUpdateThread();
-      _updateThreadFinished.WaitOne();
     }
 
     /// <summary>
