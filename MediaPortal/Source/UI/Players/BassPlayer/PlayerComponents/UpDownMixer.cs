@@ -126,7 +126,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
         {
             Log.Info("BASS: Found a 3 channel file. Set upmixing with LFE, LR, RR set to silent");
             _mixingMatrix = CreateThreeDotZeroUpMixMatrix();
-            outputChannels = 4;
+            outputChannels = 6;
             break;
         }
 
