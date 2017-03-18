@@ -63,6 +63,7 @@
     <Compile Include="Controller.cs" />
     <Compile Include="InputSources\BassFsCDTrackInputSource.cs" />
     <Compile Include="Interfaces\ITagSource.cs" />
+    <Compile Include="Models\BassPlayerPlaybackBufferSetupModel.cs" />
     <Compile Include="OutputDevices\AbstractOutputDevice.cs" />
     <Compile Include="OutputDevices\WASAPIOutputDevice.cs" />
     <Compile Include="Settings\BassPlayerSettings.cs" />
@@ -92,8 +93,11 @@
     <Compile Include="Models\BassPlayerSongTransitionSetupModel.cs" />
     <Compile Include="Settings\Configuration\BassPlayerCustomSetting.cs" />
     <Compile Include="Models\BassPlayerSetupModel.cs" />
+    <Compile Include="Settings\Configuration\DirectSoundBufferSize.cs" />
+    <Compile Include="Settings\Configuration\PlaybackBufferCustomSettings.cs" />
     <Compile Include="Settings\Configuration\CrossFadeDuration.cs" />
-    <Compile Include="Settings\Configuration\CrossFadingEnabled.cs" />
+    <Compile Include="Settings\Configuration\PlaybackBufferSize.cs" />
+    <Compile Include="Settings\Configuration\SeekIncrementSeconds.cs" />
     <Compile Include="Settings\Configuration\SongTransitionCustomSettings.cs" />
     <Compile Include="Utils\AudioRingBuffer.cs" />
     <Compile Include="Utils\BassStreamFader.cs" />
@@ -151,8 +155,10 @@
     <Content Include="Skin\default\screens\BassPlayerSongTransitionSetup.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\default\screens\BassPlayerPlaybackBufferSetup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
-

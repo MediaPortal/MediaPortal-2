@@ -2,7 +2,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_dialog_bare.xaml"
+    Source="screens\master_configuration_entry.xaml"
     >
 <Include.Resources>
     <Model x:Key="Model" Id="33BA5457-F2C1-4CD6-A443-9E150C90100E"/>
@@ -40,15 +40,15 @@
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Path=IsCrossFadingMode}">
 
         <DockPanel LastChildFill="False" DockPanel.Dock="Center"  HorizontalAlignment="Center">
-        <Button Style="{ThemeResource ArrowButtonLeftStyle}" Width="30" Height="30" Margin="0,0,0,2"
+        <Button Style="{ThemeResource ArrowButtonUpStyle}" Width="30" Height="30" Margin="0,0,0,2"
                     IsEnabled="{Binding Source={StaticResource Model},Path=IsUpEnabled}"
                     Command="{Command Source={StaticResource Model},Path=Up}" />
 
-        <TextBox x:Name="NumberSelectContent" Margin="0,0,0,0" Width="80"
+        <TextBox x:Name="Cross fade value" Margin="0,0,0,0" Width="80"
                     Text="{Binding Source={StaticResource Model},Path=CrossFadeDuration,Mode=TwoWay}"
                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-        <Button Style="{ThemeResource ArrowButtonRightStyle}" Width="30" Height="30"
+        <Button Style="{ThemeResource ArrowButtonDownStyle}" Width="30" Height="30"
                     IsEnabled="{Binding Source={StaticResource Model},Path=IsDownEnabled}"
                     Command="{Command Source={StaticResource Model},Path=Down}"/>
 

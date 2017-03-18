@@ -24,14 +24,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
-using MediaPortal.UiComponents.Configuration.ConfigurationControllers;
 using MediaPortal.UI.Players.BassPlayer.Settings;
-using MediaPortal.UI.Players.BassPlayer.Settings.Configuration;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Configuration.ConfigurationControllers;
+using MediaPortal.UI.Players.BassPlayer.Settings.Configuration;
 
 namespace MediaPortal.UI.Players.BassPlayer.Models
 {
@@ -62,9 +63,9 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
       get { return _isCrossFadingModeProperty; }
     }
 
-    public AbstractProperty IsCrossFadeDurationProperty
+    public AbstractProperty CrossFadeDurationProperty
     {
-      get { return _crossFadeDurationPropery; }
+      get { return _numberSelectController.ValueProperty; }
     }
 
     public bool IsNormalMode
@@ -105,11 +106,11 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
       _numberSelectController.Down();
     }
 
-    //public string CrossFadeDuration
-    //{
-    //  get { return ""; }
-    //  set { }
-    //}
+    public double CrossFadeDuration
+    {
+      get { return double.Parse(_numberSelectController.Value, CultureInfo.InvariantCulture); }
+      set { _numberSelectController.Value = Convert.ToString(value, CultureInfo.InvariantCulture); }
+    }
 
     public BassPlayerSongTransitionSetupModel()
     {
@@ -137,6 +138,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
         settings.SongTransitionMode = PlaybackMode.CrossFading;
       }
 
+      settings.CrossFadeDurationSecs = CrossFadeDuration;
       settingsManager.Save(settings);
     }
 
@@ -148,8 +150,10 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
       IsCrossFadingMode = settings.SongTransitionMode == PlaybackMode.CrossFading;
 
       CrossFadeDuration crossFadeDuration = new CrossFadeDuration();
+      crossFadeDuration.Load();
       _numberSelectController = new NumberSelectController();
       _numberSelectController.Initialize(crossFadeDuration);
+      CrossFadeDuration = settings.CrossFadeDurationSecs;
     }
 
     #region IWorkflowModel implementation

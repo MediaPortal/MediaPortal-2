@@ -28,7 +28,8 @@
 
   <Register Location="/Models">
     <Model Id="0EB2A664-5CA1-4B1E-B661-527004D6019B" Name="BassPlayerSetupModel" ClassName="MediaPortal.UI.Players.BassPlayer.Models.BassPlayerSetupModel"/>
-      <Model Id="33BA5457-F2C1-4CD6-A443-9E150C90100E" Name="BassPlayerSongTransitionSetupModel" ClassName="MediaPortal.UI.Players.BassPlayer.Models.BassPlayerSongTransitionSetupModel"/>
+    <Model Id="33BA5457-F2C1-4CD6-A443-9E150C90100E" Name="BassPlayerSongTransitionSetupModel" ClassName="MediaPortal.UI.Players.BassPlayer.Models.BassPlayerSongTransitionSetupModel"/>
+    <Model Id="1EA86870-CB4D-4B24-AEC1-13D018C92410" Name="BassPlayerPlaybackBufferSetupModel" ClassName="MediaPortal.UI.Players.BassPlayer.Models.BassPlayerPlaybackBufferSetupModel"/>
   </Register>
 
   <Register Location="/Players/Builders">
@@ -50,10 +51,15 @@
         DisplayLabel="[Settings.Players.BassPlayer.Setup]"
         WorkflowModel="0EB2A664-5CA1-4B1E-B661-527004D6019B"/> <!-- BassPlayer config model -->
     <DialogState Id="D12CA7A1-C145-4B1D-A85E-BF6734F29A6B"
-    Name="BassPlayerSetup"
-    DialogScreen="BassPlayerSongTransitionSetup"
-    DisplayLabel="[Settings.Players.BassPlayer.Setup.SongTransitionMode]"
-    WorkflowModel="33BA5457-F2C1-4CD6-A443-9E150C90100E"/>
+        Name="BassPlayerSetup"
+        DialogScreen="BassPlayerSongTransitionSetup"
+        DisplayLabel="[Settings.Players.BassPlayer.Setup.SongTransitionMode]"
+        WorkflowModel="33BA5457-F2C1-4CD6-A443-9E150C90100E"/>
+    <DialogState Id="3AE90F95-1E6D-4C84-AC1E-63F2ED065DD8"
+        Name="BassPlayerSetup"
+        DialogScreen="BassPlayerPlaybackBufferSetup"
+        DisplayLabel="[Settings.Players.BassPlayer.Setup.PlaybackBuffer]"
+        WorkflowModel="1EA86870-CB4D-4B24-AEC1-13D018C92410"/>
   </Register>
 
     <!-- Root Sections -->
@@ -86,23 +92,25 @@
            HelpText="[Settings.Players.BassPlayer.SongTransitionMode.Help]"
            ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.SongTransitionCustomSettings"
            AdditionalData="WorkflowState=D12CA7A1-C145-4B1D-A85E-BF6734F29A6B,ConfAppPanel=..."/>
+    <CustomConfigSetting
+          Id="BassPlayerPlaybackBufferSetup"
+          Text="[Settings.Players.BassPlayer.PlaybackBuffer.Setup]"
+          HelpText="[Settings.Players.BassPlayer.PlaybackBuffer.Help]"
+          ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.PlaybackBufferCustomSettings"
+          AdditionalData="WorkflowState=3AE90F95-1E6D-4C84-AC1E-63F2ED065DD8,ConfAppPanel=..."/>
  
     <ConfigGroup
-        Id="CrossFading"
-        Redundant="true"
-        Text="[Settings.Players.Rendering.CrossFading]"/>
+         Id="Playback"
+         Redundant="true"
+         Text="[Settings.Players.Rendering.Playback]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/AudioPlayer/CrossFading">
+  <Register Location="/Configuration/Settings/Players/AudioPlayer/Playback">
     <ConfigSetting
-        Id="CrossFadingEnabled"
-        Text="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled]"
-        HelpText="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help]"
-        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.CrossFadingEnabled"/>
-    <ConfigSetting
-        Id="CrossFadeDuration"
-        Text="[Settings.Players.Rendering.CrossFading.CrossFadeDuration]"
-        HelpText="[Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help]"
-        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.CrossFadeDuration"/>
+        Id="SeekIncrementSeconds"
+        Text="[Settings.Players.Rendering.Playback.SeekIncrementSeconds]"
+        HelpText="[Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help]"
+        ClassName="MediaPortal.UI.Players.BassPlayer.Settings.Configuration.SeekIncrementSeconds"/>
   </Register>
+  
 </Plugin>
