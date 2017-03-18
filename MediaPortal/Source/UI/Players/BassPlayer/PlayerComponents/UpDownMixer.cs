@@ -115,6 +115,8 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
     /// </summary>
     private void CheckForUpDownMixing()
     {
+      var outputChannels = 2;
+
       // Note: Currently only the special case of creating a Mixing matrix for 3.0 or 5.0 files
       // is implemented. If the team decides for a general Up- / Downmixing to be implemnted,
       // then the code form MP1 shall be ported.
@@ -124,6 +126,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
         {
             Log.Info("BASS: Found a 3 channel file. Set upmixing with LFE, LR, RR set to silent");
             _mixingMatrix = CreateThreeDotZeroUpMixMatrix();
+            outputChannels = 4;
             break;
         }
 
@@ -131,6 +134,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
         {
             Log.Info("BASS: Found a 4 channel file. Set upmixing with Center and LFE set to silent");
             _mixingMatrix = CreateFourDotZeroUpMixMatrix();
+            outputChannels = 4; // Quadrophonic should stay with four channels
             break;
         }
 
@@ -138,13 +142,14 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
         {
             Log.Info("BASS: Found a 5 channel file. Set upmixing with LFE set to silent");
             _mixingMatrix = CreateFiveDotZeroUpMixMatrix();
+            outputChannels = 6;
             break;
         }
       }
 
       if (_mixingMatrix != null)
       {
-        CreateMixer(_inputStream.Channels + 1);
+        CreateMixer(outputChannels);
       }
     }
 
