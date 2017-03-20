@@ -133,6 +133,7 @@ namespace HttpServer
     {
       Check.Require(logWriter, "logWriter");
       _components = new ComponentProvider();
+      _logWriter = logWriter;
       _components.AddInstance<ILogWriter>(logWriter);
       _requestQueue = new RequestQueue(ProcessRequestWrapper);
     }
@@ -150,6 +151,7 @@ namespace HttpServer
       Check.Require(decoderProvider, "decoderProvider");
       Check.Require(logWriter, "logWriter");
       _components = new ComponentProvider();
+      _logWriter = logWriter;
       _components.AddInstance<FormDecoderProvider>(decoderProvider);
       _requestQueue = new RequestQueue(ProcessRequestWrapper);
     }
@@ -172,7 +174,7 @@ namespace HttpServer
       _components.AddInstance<FormDecoderProvider>(sessionStore);
       _components.AddInstance<IHttpSessionStore>(sessionStore);
       if (logWriter != null)
-        _components.AddInstance<ILogWriter>(logWriter);
+	      _logWriter = logWriter;
       _requestQueue = new RequestQueue(ProcessRequestWrapper);
     }
 
