@@ -36,13 +36,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// </summary>
   public class MetadataUpdater
   {
-    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing)
+    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, bool overwriteShorterStrings = true)
     {
       bool itemAdded;
-      return SetOrUpdateList(currentList, newList, addMissing, out itemAdded);
+      return SetOrUpdateList(currentList, newList, addMissing, out itemAdded, overwriteShorterStrings);
     }
 
-    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, out bool itemWasAdded)
+    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, out bool itemWasAdded, bool overwriteShorterStrings = true)
     {
       itemWasAdded = false;
       bool changed = false;
@@ -82,28 +82,28 @@ namespace MediaPortal.Extensions.OnlineLibraries
                 {
                   string currentVal = (string)field.GetValue(currentObj);
                   string newVal = (string)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is string)
                 {
                   SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
                   string newVal = (string)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is string && field.GetValue(newObj) is SimpleTitle)
                 {
                   string currentVal = (string)field.GetValue(currentObj);
                   SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is SimpleTitle)
                 {
                   SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
                   SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleRating && field.GetValue(newObj) is SimpleRating)
