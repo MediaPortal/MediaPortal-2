@@ -1,4 +1,4 @@
-set MB="%ProgramFiles(x86)%\MSBUILD\12.0\Bin\MSBUILD.exe"
+set MB="%ProgramFiles(x86)%\MSBUILD\14.0\Bin\MSBUILD.exe"
 
 %MB% RestorePackages.targets /target:RestoreBuildPackages
 
