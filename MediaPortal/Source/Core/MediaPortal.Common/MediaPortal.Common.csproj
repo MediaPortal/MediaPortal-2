@@ -131,6 +131,7 @@
     <Compile Include="Services\Dokan\NTStatus.cs" />
     <Compile Include="Services\Logging\LoggerConfig.cs" />
     <Compile Include="Services\Logging\LogSettings.cs" />
+    <Compile Include="Services\Logging\MediaPortalPatternLayout.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ChangeUnfoldBlock.cs" />
