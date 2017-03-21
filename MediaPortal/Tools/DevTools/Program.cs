@@ -24,7 +24,6 @@
 
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Messaging;
@@ -48,12 +47,101 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using UPnP.Infrastructure;
+using ILogger = MediaPortal.Common.Logging.ILogger;
 
 namespace MediaPortal.DevTools
 {
+  internal class UPnPLoggerDelegate : UPnP.Infrastructure.ILogger
+  {
+    public void Debug(string format, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Debug(format, args);
+    }
+
+    public void Debug(string format, Exception ex, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Debug(format, ex, args);
+    }
+
+    public void Info(string format, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Info(format, args);
+    }
+
+    public void Info(string format, Exception ex, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Info(format, ex, args);
+    }
+
+    public void Warn(string format, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Warn(format, args);
+    }
+
+    public void Warn(string format, Exception ex, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Warn(format, ex, args);
+    }
+
+    public void Error(string format, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Error(format, args);
+    }
+
+    public void Error(string format, Exception ex, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Error(format, ex, args);
+    }
+
+    public void Error(Exception ex)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Error(ex);
+    }
+
+    public void Critical(string format, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Critical(format, args);
+    }
+
+    public void Critical(string format, Exception ex, params object[] args)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Critical(format, ex, args);
+    }
+
+    public void Critical(Exception ex)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Critical(ex);
+    }
+  }
+
   class Program
   {
-    private static ILogger _logger = null;
+    private static ILogger _logger;
 
     private static void Exit(int code)
     {
@@ -99,6 +187,7 @@ namespace MediaPortal.DevTools
         ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_DevTools/config");
         ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_DevTools/log");
         ServiceRegistration.Set(_logger = new Log4NetLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>")));
+        UPnPConfiguration.LOGGER = new UPnPLoggerDelegate();
 
         if (direct)
         {
@@ -107,7 +196,7 @@ namespace MediaPortal.DevTools
             string file = argList[2];
             if (!File.Exists(file))
             {
-              Console.Error.WriteLine("Datastore {0} does not exist", argList[2]);
+              _logger.Error("Datastore {0} does not exist", argList[2]);
               Exit(1);
             }
 
@@ -174,7 +263,7 @@ namespace MediaPortal.DevTools
                   segment = new ProviderPathSegment(NetworkNeighborhoodResourceProvider.NETWORK_NEIGHBORHOOD_RESOURCE_PROVIDER_ID, "/" + path, true);
                 else
                 {
-                  Console.Error.WriteLine("Invalid media source type {0}", type);
+                  _logger.Error("Invalid media source type {0}", type);
                   Exit(1);
                 }
 
@@ -315,13 +404,14 @@ namespace MediaPortal.DevTools
       IList<MediaItem> items = client.GetContentDirectory().Search(new MediaItemQuery(null, registration.LocallyKnownMediaItemAspectTypes.Keys, filter), true, null, true);
       foreach (MediaItem item in items)
       {
-        Console.WriteLine("\nItem {0}:", item.MediaItemId);
+        _logger.Info("");
+        _logger.Info("Item {0}:", item.MediaItemId);
         foreach (Guid mia in item.Aspects.Keys)
         {
           MediaItemAspectMetadata metadata = registration.LocallyKnownMediaItemAspectTypes[mia];
           foreach (MediaItemAspect aspect in item.Aspects[mia])
           {
-            Console.WriteLine(" {0}:", metadata.Name);
+            _logger.Info(" {0}:", metadata.Name);
             int count = 0;
             string sb = " ";
             foreach (MediaItemAspectMetadata.AttributeSpecification spec in aspect.Metadata.AttributeSpecifications.Values)
@@ -351,7 +441,7 @@ namespace MediaPortal.DevTools
                 count++;
               }
             }
-            Console.WriteLine(sb);
+            _logger.Info(sb);
           }
         }
       }
@@ -442,12 +532,12 @@ namespace MediaPortal.DevTools
           else if (resourcePath.BasePathSegment.ProviderId == RemoteResourceProvider.REMOTE_RESOURCE_PROVIDER_ID)
             providerName = "REMOTE";
 
-          Console.WriteLine("Serialising {0} : name={1}, provider={2} path={3}, categories=[{4}]", source.ShareId, source.Name, providerName, path, categories);
+          _logger.Info("Serialising {0} : name={1}, provider={2} path={3}, categories=[{4}]", source.ShareId, source.Name, providerName, path, categories);
           source.Serialize(writer);
         }
         writer.WriteEndElement();
         var xml = sww.ToString(); // Your XML
-        Console.WriteLine("XML:\n{0}", xml);
+        _logger.Info("XML:\n{0}", xml);
       }
     }
   }
