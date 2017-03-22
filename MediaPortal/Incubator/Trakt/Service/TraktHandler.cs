@@ -37,6 +37,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Authentication;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
+using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.Players;
 using TraktSettings = MediaPortal.UiComponents.Trakt.Settings.TraktSettings;
 
@@ -154,7 +155,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
       {
         Movie = new TraktMovie
         {
-          Ids = new TraktMovieId { Imdb = GetImdbId(mediaItem), Tmdb = GetTmdbId(mediaItem) },
+          Ids = new TraktMovieId { Imdb = GetMovieImdbId(mediaItem), Tmdb = GetMovieTmdbId(mediaItem) },
           Title = GetMovieTitle(mediaItem),
           Year = GetVideoYear(mediaItem)
         },
@@ -173,7 +174,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
           Ids = new TraktEpisodeId
           {
             Tvdb = GetTvdbId(mediaItem),
-            Imdb = GetImdbId(mediaItem)
+            Imdb = GetSeriesImdbId(mediaItem)
           },
           Title = GetSeriesTitle(mediaItem),
           Season = GetSeasonIndex(mediaItem),
@@ -184,7 +185,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
           Ids = new TraktShowId
           {
             Tvdb = GetTvdbId(mediaItem),
-            Imdb = GetImdbId(mediaItem)
+            Imdb = GetSeriesImdbId(mediaItem)
           },
           Title = GetSeriesTitle(mediaItem),
           Year = GetVideoYear(mediaItem)
@@ -305,7 +306,15 @@ namespace MediaPortal.UiComponents.Trakt.Service
       return intList.FirstOrDefault();
     }
 
-    internal static string GetImdbId(MediaItem mediaItem)
+    internal static string GetMovieImdbId(MediaItem mediaItem)
+    {
+      string id;
+      return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out id) ?
+        id :
+        null;
+    }
+
+    internal static string GetSeriesImdbId(MediaItem mediaItem)
     {
       string id;
       return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out id) ?
@@ -313,11 +322,20 @@ namespace MediaPortal.UiComponents.Trakt.Service
         null;
     }
 
-    internal static int? GetTmdbId(MediaItem mediaItem)
+    internal static int? GetSeriesTmdbId(MediaItem mediaItem)
     {
       string id;
       int tmdbId;
       return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id) && int.TryParse(id, out tmdbId) ?
+        (int?)tmdbId :
+        null;
+    }
+
+    internal static int? GetMovieTmdbId(MediaItem mediaItem)
+    {
+      string id;
+      int tmdbId;
+      return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out id) && int.TryParse(id, out tmdbId) ?
         (int?)tmdbId :
         null;
     }
