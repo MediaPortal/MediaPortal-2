@@ -167,35 +167,35 @@ namespace MediaPortal.Extensions.OnlineLibraries
                   }
                   else if (listElementType == typeof(string))
                   {
-                    changed |= SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(PersonInfo))
                   {
-                    changed |= SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(CompanyInfo))
                   {
-                    changed |= SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(CharacterInfo))
                   {
-                    changed |= SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(SeasonInfo))
                   {
-                    changed |= SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(EpisodeInfo))
                   {
-                    changed |= SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(MovieInfo))
                   {
-                    changed |= SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(TrackInfo))
                   {
-                    changed |= SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else
                   {
