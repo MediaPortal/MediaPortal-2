@@ -60,6 +60,11 @@ namespace MediaPortal.Common.Services.Logging
       if (loggerConfig != null) loggerConfig.SetLogLevel(level);
     }
 
+    public void RegisterLogWrapper(string relativeFilename)
+    {
+      MediaPortalPatternLayout.RegisterLogWrapper(relativeFilename);
+    }
+
     public void Dispose()
     {
       if (_settings != null)

@@ -38,6 +38,11 @@ namespace MediaPortal.Common.Services.Logging
 {
   public class Log4NetLogger : ILogger, ILoggerConfig
   {
+    static Log4NetLogger()
+    {
+      MediaPortalPatternLayout.RegisterLogWrapper(@"\Source\Core\MediaPortal.Common\Services\Logging\log4netLogger.cs");
+    }
+
     /// <summary>
     /// Creates a new <see cref="Log4NetLogger"/> instance and initializes it with the given parameters.
     /// </summary>
@@ -178,6 +183,11 @@ namespace MediaPortal.Common.Services.Logging
         settings.LogLevel = level;
         ServiceRegistration.Get<ISettingsManager>().Save(settings);
       }
+    }
+
+    public void RegisterLogWrapper(string relativeFilename)
+    {
+      MediaPortalPatternLayout.RegisterLogWrapper(relativeFilename);
     }
 
     private Level ToLog4Net(LogLevel level)

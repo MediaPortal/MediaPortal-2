@@ -40,5 +40,7 @@ namespace MediaPortal.Common.Logging
     /// </summary>
     /// <param name="level">New log level</param>
     void SetLogLevel(LogLevel level);
+
+    void RegisterLogWrapper(string relativeFilename);
   }
 }

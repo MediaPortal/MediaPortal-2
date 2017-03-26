@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using log4net.Core;
 using log4net.Layout;
 using log4net.Layout.Pattern;
@@ -26,14 +29,57 @@ namespace MediaPortal.Common.Services.Logging
       AddConverter("M", typeof(MPMethodLocationPatternConverter));
       AddConverter("method", typeof(MPMethodLocationPatternConverter));
     }
+
+    private static readonly List<string> LOG_WRAPPERS = new List<string>();
+
+    public static void RegisterLogWrapper(string logger)
+    {
+      LOG_WRAPPERS.Add(logger);
+    }
+
+    /*
+     * Find the first stack element that isn't one of the known log wrappers
+     */
+    internal static StackFrame GetOuterStackFrame(LoggingEvent loggingEvent)
+    {
+      StackFrame lastKnown = loggingEvent.LocationInformation.StackFrames[0];
+      StackFrame[] stackFrames = loggingEvent.LocationInformation.StackFrames;
+      foreach (StackFrame stackFrame in stackFrames)
+      {
+        if (stackFrame.GetFileName() != null)
+        {
+          if (LOG_WRAPPERS.All(x => stackFrame.GetFileName().IndexOf(x) == -1))
+            return stackFrame;
+          lastKnown = stackFrame;
+        }
+      }
+
+      return lastKnown;
+    }
+
+    /*
+     * Find the path prefix (assuming everything is in the same root directory)
+     */
+    internal static int GetFullPathOffset(LoggingEvent loggingEvent)
+    {
+      foreach (string logWrapper in LOG_WRAPPERS)
+      {
+        int offset = loggingEvent.LocationInformation.StackFrames[0].GetFileName().IndexOf(logWrapper);
+        if (offset >= 0)
+          return offset + 1;
+      }
+
+      return 0;
+    }
   }
 
   internal sealed class MPTypeNamePatternConverter : PatternLayoutConverter
   {
     protected override void Convert(TextWriter writer, LoggingEvent loggingEvent)
     {
-      if (loggingEvent.LocationInformation.StackFrames[1].GetMethod().DeclaringType != null)
-        writer.Write(loggingEvent.LocationInformation.StackFrames[1].GetMethod().DeclaringType.FullName);
+      StackFrame stackFrame = MediaPortalPatternLayout.GetOuterStackFrame(loggingEvent);
+      if (stackFrame.GetMethod().DeclaringType != null)
+        writer.Write(stackFrame.GetMethod().DeclaringType.FullName);
     }
   }
 
@@ -41,13 +87,8 @@ namespace MediaPortal.Common.Services.Logging
   {
     protected override void Convert(TextWriter writer, LoggingEvent loggingEvent)
     {
-      string filename = loggingEvent.LocationInformation.StackFrames[0].GetFileName();
-      int strip = filename.LastIndexOf(@"\Source\Core\MediaPortal.Common\Services\Logging\log4netLogger.cs");
-      if (strip < filename.Length - 1)
-      {
-        strip++;
-      }
-      writer.Write(loggingEvent.LocationInformation.StackFrames[1].GetFileName().Substring(strip));
+      string filename = MediaPortalPatternLayout.GetOuterStackFrame(loggingEvent).GetFileName();
+      writer.Write(filename.Substring(MediaPortalPatternLayout.GetFullPathOffset(loggingEvent)));
     }
   }
 
@@ -55,7 +96,7 @@ namespace MediaPortal.Common.Services.Logging
   {
     protected override void Convert(TextWriter writer, LoggingEvent loggingEvent)
     {
-      writer.Write(loggingEvent.LocationInformation.StackFrames[1].GetFileLineNumber());
+      writer.Write(MediaPortalPatternLayout.GetOuterStackFrame(loggingEvent).GetFileLineNumber());
     }
   }
 
@@ -63,7 +104,7 @@ namespace MediaPortal.Common.Services.Logging
   {
     protected override void Convert(TextWriter writer, LoggingEvent loggingEvent)
     {
-      writer.Write(loggingEvent.LocationInformation.StackFrames[1].GetMethod().Name);
+      writer.Write(MediaPortalPatternLayout.GetOuterStackFrame(loggingEvent).GetMethod().Name);
     }
   }
 }

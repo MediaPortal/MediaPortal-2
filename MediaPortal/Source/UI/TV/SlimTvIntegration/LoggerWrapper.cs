@@ -24,12 +24,18 @@
 
 using System;
 using MediaPortal.Common;
-using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
+using MediaPortal.Common.Logging;
+using ILogger = Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.ILogger;
 
 namespace MediaPortal.Plugins.SlimTv.Integration
 {
   class LoggerWrapper: ILogger
   {
+    static LoggerWrapper()
+    {
+      ServiceRegistration.Get<ILoggerConfig>().RegisterLogWrapper(@"Source\UI\TV\SlimTvIntegration\LoggerWrapper.cs");
+    }
+
     private readonly Common.Logging.ILogger _logger;
 
     public LoggerWrapper ()
