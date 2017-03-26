@@ -29,14 +29,17 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Authentication;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
+using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.Players;
 using TraktSettings = MediaPortal.UiComponents.Trakt.Settings.TraktSettings;
 
@@ -51,6 +54,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
     private TraktScrobbleEpisode _dataEpisode = new TraktScrobbleEpisode();
     private TimeSpan _duration;
     private double _progress;
+    private MediaItem currentPlayingMediaItem;
 
     public TraktHandler()
     {
@@ -135,17 +139,39 @@ namespace MediaPortal.UiComponents.Trakt.Service
       if (pmc == null)
         return;
 
-      var mediaItem = pc.CurrentMediaItem;
-
       _duration = pmc.Duration;
-      bool isMovie = mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
-      bool isSeries = mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
 
-      if (isMovie)
-        _dataMovie = CreateMovieData(mediaItem);
+      if (IsMovie(pc.CurrentMediaItem))
+      {
+        Guid movieMediaItemId = pc.CurrentMediaItem.MediaItemId;
+        currentPlayingMediaItem = GetMediaItem(movieMediaItemId, new Guid[] { MediaAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, MovieAspect.ASPECT_ID });
+        _dataMovie = CreateMovieData(currentPlayingMediaItem);
+      }
 
-      if (isSeries)
-        _dataEpisode = CreateEpisodeData(mediaItem);
+      if (IsSeries(pc.CurrentMediaItem))
+      {
+        Guid seriesMediaItemId = pc.CurrentMediaItem.MediaItemId;
+        currentPlayingMediaItem = GetMediaItem(seriesMediaItemId, new Guid[] { MediaAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID });
+        _dataEpisode = CreateEpisodeData(currentPlayingMediaItem);
+      }
+    }
+
+    private bool IsMovie(MediaItem item)
+    {
+      return item.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
+    }
+
+    private bool IsSeries(MediaItem item)
+    {
+      return item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID);
+    }
+
+    private MediaItem GetMediaItem(Guid filter, Guid[] aspects)
+    {
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+    
+      return cd?.Search(new MediaItemQuery(aspects, new Guid[] { }, new MediaItemIdFilter(filter)), false, null, true).First();
     }
 
     private TraktScrobbleMovie CreateMovieData(MediaItem mediaItem)
@@ -154,7 +180,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
       {
         Movie = new TraktMovie
         {
-          Ids = new TraktMovieId { Imdb = GetImdbId(mediaItem), Tmdb = GetTmdbId(mediaItem) },
+          Ids = new TraktMovieId { Imdb = GetMovieImdbId(mediaItem), Tmdb = GetMovieTmdbId(mediaItem) },
           Title = GetMovieTitle(mediaItem),
           Year = GetVideoYear(mediaItem)
         },
@@ -173,7 +199,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
           Ids = new TraktEpisodeId
           {
             Tvdb = GetTvdbId(mediaItem),
-            Imdb = GetImdbId(mediaItem)
+            Imdb = GetSeriesImdbId(mediaItem)
           },
           Title = GetSeriesTitle(mediaItem),
           Season = GetSeasonIndex(mediaItem),
@@ -184,7 +210,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
           Ids = new TraktShowId
           {
             Tvdb = GetTvdbId(mediaItem),
-            Imdb = GetImdbId(mediaItem)
+            Imdb = GetSeriesImdbId(mediaItem)
           },
           Title = GetSeriesTitle(mediaItem),
           Year = GetVideoYear(mediaItem)
@@ -212,14 +238,14 @@ namespace MediaPortal.UiComponents.Trakt.Service
         return;
       }
 
-      if (_dataMovie.Movie != null)
+      if (_dataMovie.Movie != null && IsMovie(currentPlayingMediaItem))
       {
         _dataMovie.Progress = 0;
         var response = TraktAPI.StartMovieScrobble(_dataMovie);
         TraktLogger.LogTraktResponse(response);
         return;
       }
-      if (_dataEpisode != null)
+      if (_dataEpisode != null && IsSeries(currentPlayingMediaItem))
       {
         _dataEpisode.Progress = 0;
         var response = TraktAPI.StartEpisodeScrobble(_dataEpisode);
@@ -231,14 +257,14 @@ namespace MediaPortal.UiComponents.Trakt.Service
 
     private void StopScrobble()
     {
-      if (_dataMovie.Movie != null)
+      if (_dataMovie.Movie != null && IsMovie(currentPlayingMediaItem))
       {
         _dataMovie.Progress = _progress;
         var response = TraktAPI.StopMovieScrobble(_dataMovie);
         TraktLogger.LogTraktResponse(response);
         return;
       }
-      if (_dataEpisode != null)
+      if (_dataEpisode != null && IsSeries(currentPlayingMediaItem))
       {
         _dataEpisode.Progress = _progress;
         var response = TraktAPI.StopEpisodeScrobble(_dataEpisode);
@@ -305,7 +331,15 @@ namespace MediaPortal.UiComponents.Trakt.Service
       return intList.FirstOrDefault();
     }
 
-    internal static string GetImdbId(MediaItem mediaItem)
+    internal static string GetMovieImdbId(MediaItem mediaItem)
+    {
+      string id;
+      return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out id) ?
+        id :
+        null;
+    }
+
+    internal static string GetSeriesImdbId(MediaItem mediaItem)
     {
       string id;
       return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out id) ?
@@ -313,11 +347,20 @@ namespace MediaPortal.UiComponents.Trakt.Service
         null;
     }
 
-    internal static int? GetTmdbId(MediaItem mediaItem)
+    internal static int? GetSeriesTmdbId(MediaItem mediaItem)
     {
       string id;
       int tmdbId;
       return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id) && int.TryParse(id, out tmdbId) ?
+        (int?)tmdbId :
+        null;
+    }
+
+    internal static int? GetMovieTmdbId(MediaItem mediaItem)
+    {
+      string id;
+      int tmdbId;
+      return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out id) && int.TryParse(id, out tmdbId) ?
         (int?)tmdbId :
         null;
     }

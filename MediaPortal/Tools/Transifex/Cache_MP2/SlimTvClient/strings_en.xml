@@ -81,6 +81,11 @@
   <string name="SlimTvClient.EpgNumberOfRows.Help">Defines the number of rows (channels) shown in EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours">Number of hours in EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Defines the number of hours (programs) shown in EPG</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo">Visible channel information in EPG</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.Help">Configure whether to display channel name, logo and number in the EPG.</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Channel name</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Channel number</string>  
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelLogo">Channel logo</string>
   <string name="SlimTvClient.AutoStartTv">Automatically start TV</string>
   <string name="SlimTvClient.AutoStartTv.Help">If enabled, the last selected channel will be started when entering TV home</string>
   <string name="SlimTvClient.ShowSeriesInfo">Show series infos</string>

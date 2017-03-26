@@ -225,11 +225,20 @@ namespace HttpServer
       if (_listener != null)
         throw new InvalidOperationException("Listener has already been started.");
 
-      _listener = new TcpListener(_address, _port);
-      _listener.Start(backlog);
-      _port = LocalEndpoint.Port;
-      Interlocked.Increment(ref _pendingAccepts);
-      _listener.BeginAcceptSocket(OnAccept, null);
+      try
+      {
+        _listener = new TcpListener(_address, _port);
+        _listener.Start(backlog);
+        _port = LocalEndpoint.Port;
+        Interlocked.Increment(ref _pendingAccepts);
+        _listener.BeginAcceptSocket(OnAccept, null);
+      }
+      catch
+      {
+        //MP2-632: Set the shutdown event on exception to avoid a deadlock when stopping
+        _shutdownEvent.Set();
+        throw;
+      }
     }
 
 
