@@ -77,7 +77,8 @@
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Path=UseWASAPI}">
 
           <StackPanel>
-            <CheckBox Content="[Settings.Players.BassPlayer.Setup.WASAPI.Exclusive]" Margin="5" IsChecked="{Binding Path=EnableWASAPIExclusive,Mode=TwoWay}"/>
+            <CheckBox Content="[Settings.Players.BassPlayer.Setup.WASAPI.Exclusive]" FontSize="{ThemeResource SmallFontSize}" 
+                      Margin="2" IsChecked="{Binding Path=EnableWASAPIExclusive,Mode=TwoWay}"/>
 
             <ListView x:Name="WASAPIDeviceList"
               Style="{ThemeResource GroupedSingleMarkableListViewStyle}"
