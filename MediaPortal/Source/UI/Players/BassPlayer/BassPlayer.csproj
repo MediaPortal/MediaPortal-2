@@ -65,6 +65,7 @@
     <Compile Include="Controller.cs" />
     <Compile Include="InputSources\BassFsCDTrackInputSource.cs" />
     <Compile Include="Interfaces\ITagSource.cs" />
+    <Compile Include="Models\BassPlayerPlaybackBufferSetupModel.cs" />
     <Compile Include="OutputDevices\AbstractOutputDevice.cs" />
     <Compile Include="OutputDevices\WASAPIOutputDevice.cs" />
     <Compile Include="Settings\BassPlayerSettings.cs" />
@@ -91,14 +92,15 @@
     <Compile Include="PlayerComponents\VSTProcessor.cs" />
     <Compile Include="PlayerComponents\WinAmpDSPProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Models\BassPlayerSongTransitionSetupModel.cs" />
     <Compile Include="Settings\Configuration\BassPlayerCustomSetting.cs" />
-    <Compile Include="Settings\Configuration\BassPlayerSetupModel.cs" />
-    <Compile Include="Settings\Configuration\CrossFadeDuration.cs" />
-    <Compile Include="Settings\Configuration\CrossFadingEnabled.cs" />
+    <Compile Include="Models\BassPlayerSetupModel.cs" />
     <Compile Include="Settings\Configuration\DirectSoundBufferSize.cs" />
+    <Compile Include="Settings\Configuration\PlaybackBufferCustomSettings.cs" />
+    <Compile Include="Settings\Configuration\CrossFadeDuration.cs" />
     <Compile Include="Settings\Configuration\PlaybackBufferSize.cs" />
     <Compile Include="Settings\Configuration\SeekIncrementSeconds.cs" />
-    <Compile Include="Settings\Configuration\SongTransitionMode.cs" />
+    <Compile Include="Settings\Configuration\SongTransitionCustomSettings.cs" />
     <Compile Include="Utils\AudioRingBuffer.cs" />
     <Compile Include="Utils\BassStreamFader.cs" />
     <Compile Include="Utils\URLUtils.cs" />
@@ -131,6 +133,10 @@
       <Name>MediaPortal.Utilities</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\Configuration\Configuration.csproj">
+      <Project>{9665887D-BEBF-4051-9151-7F189356682C}</Project>
+      <Name>Configuration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
       <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
       <Name>SkinBase</Name>
@@ -146,6 +152,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\BassPlayerSetup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\BassPlayerSongTransitionSetup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\BassPlayerPlaybackBufferSetup.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

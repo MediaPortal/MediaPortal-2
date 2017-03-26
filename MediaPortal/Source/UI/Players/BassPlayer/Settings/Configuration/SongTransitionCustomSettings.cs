@@ -26,18 +26,6 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
 {
-  public class PlaybackBufferSize : LimitedNumberSelect
-  {
-    #region Base overrides
-
-    public override void Load()
-    {
-      _type = NumberType.Integer;
-      _step = 1;
-      _lowerLimit = 0;
-      _upperLimit = 300;
-      _value = SettingsManager.Load<BassPlayerSettings>().PlaybackBufferSizeMilliSecs;
-    }
-    #endregion
-  }
+  public class SongTransitionCustomSettings : CustomConfigSetting
+  {}
 }

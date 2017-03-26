@@ -26,7 +26,7 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
 {
-  public class DirectSoundBufferSize : LimitedNumberSelect
+  public class DirectSoundBuffer : LimitedNumberSelect
   {
     #region Base overrides
 
@@ -39,13 +39,6 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
       _value = SettingsManager.Load<BassPlayerSettings>().DirectSoundBufferSizeMilliSecs;
     }
 
-    public override void Save()
-    {
-      BassPlayerSettings settings = SettingsManager.Load<BassPlayerSettings>();
-      settings.DirectSoundBufferSizeMilliSecs = (int)_value;
-      SettingsManager.Save(settings);
-    }
-
-   #endregion
+    #endregion
   }
 }
