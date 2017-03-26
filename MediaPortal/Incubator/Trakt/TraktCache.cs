@@ -82,7 +82,6 @@ namespace MediaPortal.UiComponents.Trakt
 
     private static DateTime LastFollowerRequest = new DateTime();
 
-    
 
     #region Sync
 
@@ -96,7 +95,7 @@ namespace MediaPortal.UiComponents.Trakt
     {
       try
       {
-        TraktLogger.Info("Started reuesh of tv show user data from trakt.tv");
+        TraktLogger.Info("Started refresh of tv show user data from trakt.tv");
 
         // clear the last time(s) we did anything online
         ClearLastActivityCache();
@@ -250,6 +249,7 @@ namespace MediaPortal.UiComponents.Trakt
 
       // save new activity time for next time
       SETTINGS.LastSyncActivities.Movies.Watched = lastSyncActivities.Movies.Watched;
+      SaveSettings(SETTINGS);
 
       return onlineItems;
     }
@@ -314,6 +314,7 @@ namespace MediaPortal.UiComponents.Trakt
 
       // save new activity time for next time
       SETTINGS.LastSyncActivities.Movies.Collection = lastSyncActivities.Movies.Collection;
+      SaveSettings(SETTINGS);
 
       return onlineItems;
     }
@@ -470,6 +471,7 @@ namespace MediaPortal.UiComponents.Trakt
 
       // save new activity time for next time
       SETTINGS.LastSyncActivities.Episodes.Collection = lastSyncActivities.Episodes.Collection;
+      SaveSettings(SETTINGS);
 
       return _CollectedEpisodes;
     }
@@ -559,6 +561,7 @@ namespace MediaPortal.UiComponents.Trakt
 
       // save new activity time for next time
       SETTINGS.LastSyncActivities.Episodes.Watched = lastSyncActivities.Episodes.Watched;
+      SaveSettings(SETTINGS);
 
       return _WatchedEpisodes;
     }
@@ -2064,7 +2067,6 @@ namespace MediaPortal.UiComponents.Trakt
           {
             TraktLogger.Info("Getting current user last activity times from trakt.tv");
             _LastSyncActivities = TraktAPI.GetLastSyncActivities();
-            SETTINGS.LastSyncActivities = _LastSyncActivities;
           }
           return _LastSyncActivities;
         }
@@ -4048,5 +4050,11 @@ namespace MediaPortal.UiComponents.Trakt
     }
 
     #endregion
+
+    private static void SaveSettings(TraktSettings settings)
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      settingsManager.Save(settings);
+    }
   }
 }
