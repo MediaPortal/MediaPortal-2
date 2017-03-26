@@ -62,7 +62,6 @@ namespace MediaPortal.UiComponents.Trakt.Models
     #region Protected fields
 
     protected readonly AbstractProperty _isEnabledProperty = new WProperty(typeof(bool), false);
-    protected readonly AbstractProperty _isAuthorizedProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _isSynchronizingProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _usermameProperty = new WProperty(typeof(string), null);
     protected readonly AbstractProperty _passwordProperty = new WProperty(typeof(string), null);
@@ -83,17 +82,6 @@ namespace MediaPortal.UiComponents.Trakt.Models
     {
       get { return (bool)_isEnabledProperty.GetValue(); }
       set { _isEnabledProperty.SetValue(value); }
-    }
-
-    public AbstractProperty IsAuthorizedProperty
-    {
-      get { return _isAuthorizedProperty; }
-    }
-
-    public bool IsAuthorized
-    {
-      get { return (bool)_isAuthorizedProperty.GetValue(); }
-      set { _isAuthorizedProperty.SetValue(value); }
     }
 
     public AbstractProperty IsSynchronizingProperty
@@ -165,7 +153,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
-      settings.IsAuthorized = IsAuthorized;
+      TestStatus = "[Trakt.LoggedIn]";
       settings.EnableTrakt = IsEnabled;
       settings.Username = Username;
       settingsManager.Save(settings);
@@ -1202,23 +1190,29 @@ namespace MediaPortal.UiComponents.Trakt.Models
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
       IsEnabled = settings.EnableTrakt;
-      IsAuthorized = settings.IsAuthorized;
 
       //Clear the PIN Code textbox
       PinCode = string.Empty;
 
       if (!string.IsNullOrEmpty(settings.TraktOAuthToken))
       {
-        if (TraktHandler.Login(settings.TraktOAuthToken))
-        {
-          TestStatus = "[Trakt.LoggedIn]";
-        }
+        TestStatus = TraktHandler.Login(settings.TraktOAuthToken) ? "[Trakt.LoggedIn]" : "[Trakt.UnableLogin]";
       }
 
       // initialise the last sync activities 
       if (settings.LastSyncActivities == null)
       {
-        settings.LastSyncActivities = new TraktLastSyncActivities();
+          settings.LastSyncActivities = new TraktLastSyncActivities
+          {
+              All = string.Empty,
+              Episodes = new TraktLastSyncActivities.EpisodeActivities { Collection = string.Empty, Comment = string.Empty, PausedAt = string.Empty, Rating = string.Empty, Watched = string.Empty, Watchlist = string.Empty },
+              Movies = new TraktLastSyncActivities.MovieActivities { Watchlist = string.Empty, PausedAt = string.Empty, Rating = string.Empty, Comment = string.Empty, Watched = string.Empty, Collection = string.Empty },
+              Shows = new TraktLastSyncActivities.ShowActivities { Comment = string.Empty, Watchlist = string.Empty, Rating = string.Empty },
+              Seasons = new TraktLastSyncActivities.SeasonActivities { Watchlist = string.Empty, Comment = string.Empty, Rating = string.Empty },
+              Comments = new TraktLastSyncActivities.CommentActivities { LikedAt = string.Empty },
+              Lists = new TraktLastSyncActivities.ListActivities { Comment = string.Empty, LikedAt = string.Empty, UpdatedAt = string.Empty }
+          };
+        settingsManager.Save(settings);
       }
     }
 

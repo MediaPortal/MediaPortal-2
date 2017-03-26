@@ -286,6 +286,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
         TraktLogger.Error("Unable to login to trakt");
         return false;
       }
+      settings.IsAuthorized = true;
       settings.TraktOAuthToken = response.RefreshToken;
       settingsManager.Save(settings);
       TraktLogger.Info("Successfully logged in");
