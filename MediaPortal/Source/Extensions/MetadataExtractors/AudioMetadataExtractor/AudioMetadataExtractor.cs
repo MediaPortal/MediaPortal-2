@@ -656,6 +656,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           }
         }
 
+        //Determine compilation
+        if (!trackInfo.Compilation)
+        {
+          if (trackInfo.AlbumArtists.Count > 0 &&
+              (trackInfo.AlbumArtists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+              trackInfo.AlbumArtists[0].Name.Equals("VA", StringComparison.InvariantCultureIgnoreCase)))
+          {
+            trackInfo.Compilation = true;
+          }
+          else
+          {
+            //Look for itunes compilation folder
+            var mediaItemPath = mediaItemAccessor.CanonicalLocalResourcePath;
+            var artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+            if (artistMediaItemDirectoryPath.FileName.IndexOf("Compilation", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            {
+              trackInfo.Compilation = true;
+            }
+          }
+        }
+
         if (!refresh)
         {
           //Check artists

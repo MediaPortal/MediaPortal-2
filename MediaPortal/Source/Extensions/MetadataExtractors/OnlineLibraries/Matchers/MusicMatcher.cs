@@ -906,7 +906,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
 
           if (albumInfo.Artists.Count > 0 && !albumInfo.Compilation &&
-              albumInfo.Artists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            (albumInfo.Artists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+            albumInfo.Artists[0].Name.Equals("VA", StringComparison.InvariantCultureIgnoreCase)))
           {
             albumInfo.Compilation = true;
             albumInfo.HasChanged = true;
