@@ -1051,6 +1051,20 @@ namespace MediaPortal.UI.Services.Workflow
       get { return _menuActions; }
     }
 
+    public bool TryExecuteAction(Guid actionId)
+    {
+      WorkflowAction action;
+      if (!MenuStateActions.TryGetValue(actionId, out action))
+        return false;
+
+      if (action.IsEnabled(CurrentNavigationContext) && action.IsVisible(CurrentNavigationContext))
+      {
+        action.Execute();
+        return true;
+      }
+      return false;
+    }
+
     public Stack<NavigationContext> NavigationContextStack
     {
       get { return _navigationContextStack; }

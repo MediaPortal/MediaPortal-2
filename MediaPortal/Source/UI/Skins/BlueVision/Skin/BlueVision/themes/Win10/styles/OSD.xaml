@@ -41,14 +41,14 @@
                 <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
                 <Storyboard x:Key="InfoSlideInStoryboard" FillBehavior="HoldEnd">
                   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="InfoControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
-                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="250"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="255"/>
                     <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
                   </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
                 <Storyboard x:Key="InfoSlideOutStoryboard" FillBehavior="HoldEnd">
                   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="InfoControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
                     <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="250"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="255"/>
                   </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
               </Grid.Resources>

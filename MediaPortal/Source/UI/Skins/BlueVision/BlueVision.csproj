@@ -1084,6 +1084,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\master_bare_players.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\CurrentlyPlayingAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="Skin\BlueVision\themes\Win10\screens\SimpleFilterItems.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
