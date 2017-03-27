@@ -203,16 +203,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </StackPanel>
       </Border>
 
-      <Control x:Name="MenuButtonDummy" Grid.Row="0" Grid.Column="4" Margin="10,0,60,30"
-               HorizontalAlignment="Center" VerticalAlignment="Center"
-               Template="{DynamicResource ResourceKey=Menu_Button_Dummy}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"></Control>
-      <Control x:Name="MenuButtonDummyConfig" Grid.Row="0" Grid.Column="4" Margin="10,0,60,30"
-               HorizontalAlignment="Center" VerticalAlignment="Center"
-               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
-      <Control x:Name="MenuButtonPlaceholder" Grid.Row="0" Grid.Column="4" Margin="10,0,60,30"
-               HorizontalAlignment="Center" VerticalAlignment="Center"
-               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
-
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="10,0,60,30"
+              HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="False">
+      </Button>
+      
     </Grid>
 
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->

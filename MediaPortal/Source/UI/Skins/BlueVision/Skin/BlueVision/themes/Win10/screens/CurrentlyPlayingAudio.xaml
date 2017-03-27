@@ -17,13 +17,6 @@
       </Label>
     </ControlTemplate>
 
-    <ControlTemplate x:Key="Menu_Button_Dummy">
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="0"
-              HorizontalAlignment="Center" VerticalAlignment="Center"
-              IsEnabled="False">
-      </Button>
-    </ControlTemplate>
-
     <ControlTemplate x:Key="FanArtBackground_Template">
       <ControlTemplate.Resources>
         <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
