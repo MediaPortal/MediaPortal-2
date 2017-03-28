@@ -273,15 +273,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && Occupation == other.Occupation)
         return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Occupation == other.Occupation)
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && StrictMatchNames(Name, other.Name) && Occupation == other.Occupation)
         return true;
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && MatchNames(Name, other.AlternateName) && Occupation == other.Occupation)
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && StrictMatchNames(Name, other.AlternateName) && Occupation == other.Occupation)
         return true;
 
       return false;
     }
 
-    public bool MatchArtistNames(string name1, string name2)
+    public bool StrictMatchNames(string name1, string name2)
     {
       //Artist and composer names can consist of multiple names which can cause false positives so matching should be more strict
       if (Occupation == PersonAspect.OCCUPATION_ARTIST || Occupation == PersonAspect.OCCUPATION_COMPOSER)
