@@ -273,19 +273,21 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && Occupation == other.Occupation)
         return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Occupation == other.Occupation && 
-        Occupation != PersonAspect.OCCUPATION_ARTIST && Occupation != PersonAspect.OCCUPATION_COMPOSER)
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Occupation == other.Occupation)
         return true;
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && MatchNames(Name, other.AlternateName) && Occupation == other.Occupation &&
-        Occupation != PersonAspect.OCCUPATION_ARTIST && Occupation != PersonAspect.OCCUPATION_COMPOSER)
-        return true;
-      //Artist and composer names can consist of multiple names which can cause false positives so matching should be more strict
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name, 0.75) && Occupation == other.Occupation)
-        return true; 
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && MatchNames(Name, other.AlternateName, 0.75) && Occupation == other.Occupation)
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && MatchNames(Name, other.AlternateName) && Occupation == other.Occupation)
         return true;
 
       return false;
+    }
+
+    public bool MatchArtistNames(string name1, string name2)
+    {
+      //Artist and composer names can consist of multiple names which can cause false positives so matching should be more strict
+      if (Occupation == PersonAspect.OCCUPATION_ARTIST || Occupation == PersonAspect.OCCUPATION_COMPOSER)
+        return CompareNames(name1, name2, 0.8);
+
+      return CompareNames(name1, name2, 0.62);
     }
 
     public int CompareTo(PersonInfo other)

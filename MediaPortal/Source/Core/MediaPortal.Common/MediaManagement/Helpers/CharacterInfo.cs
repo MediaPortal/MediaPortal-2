@@ -309,10 +309,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return true;
       if (!string.IsNullOrEmpty(ActorName) && !string.IsNullOrEmpty(other.ActorName) &&
         MatchNames(ActorName, other.ActorName) && !string.IsNullOrEmpty(Name) &&
-        !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name, 0.55))
+        !string.IsNullOrEmpty(other.Name) && LaxMatchNames(Name, other.Name))
         return true; //More lax comparison if actor is the same
 
       return false;
+    }
+
+    public bool LaxMatchNames(string name1, string name2)
+    {
+      return CompareNames(name1, name2, 0.55);
     }
 
     public int CompareTo(CharacterInfo other)
