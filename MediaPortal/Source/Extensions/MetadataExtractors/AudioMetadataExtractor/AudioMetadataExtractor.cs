@@ -500,16 +500,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
             trackInfo.TrackName = title;
             trackInfo.TrackNameSort = sortTitle;
+            if (tag.Properties.Codecs.Count() > 0)
+              trackInfo.Encoding = tag.Properties.Codecs.First().Description;
+            if (tag.Properties.Duration.TotalSeconds != 0)
+              trackInfo.Duration = (long)tag.Properties.Duration.TotalSeconds;
             if (tag.Properties.AudioBitrate != 0)
               trackInfo.BitRate = (int)tag.Properties.AudioBitrate;
             if (tag.Properties.AudioChannels != 0)
               trackInfo.Channels = (int)tag.Properties.AudioChannels;
             if (tag.Properties.AudioSampleRate != 0)
               trackInfo.SampleRate = (int)tag.Properties.AudioSampleRate;
-            if (tag.Properties.Codecs.Count() > 0)
-              trackInfo.Encoding = tag.Properties.Codecs.First().Description;
-            if (tag.Properties.Duration.TotalSeconds != 0)
-              trackInfo.Duration = (long)tag.Properties.Duration.TotalSeconds;
 
             trackInfo.Album = !string.IsNullOrEmpty(tag.Tag.Album) ? tag.Tag.Album.Trim() : null;
             if(!string.IsNullOrEmpty(tag.Tag.AlbumSort))
