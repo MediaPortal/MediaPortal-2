@@ -118,7 +118,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
       string artistName = null;
       var mediaItemPath = mediaIteamLocator.NativeResourcePath;
+      var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
       var artistMediaItemyPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+      if (albumMediaItemDirectoryPath.FileName.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase))
+      {
+        //Probably a CD folder
+        albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+        artistMediaItemyPath = ResourcePathHelper.Combine(mediaItemPath, "../../../");
+      }
       if (mediaType == FanArtMediaTypes.Artist && (fanArtType == FanArtTypes.Undefined || fanArtType == FanArtTypes.Thumbnail))
       {
         SingleMediaItemAspect audioAspect;
@@ -150,7 +157,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       {
         if (!string.IsNullOrEmpty(artistName)) //Only one artist was found
         {
-          var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
           var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
           var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
 

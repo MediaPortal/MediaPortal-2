@@ -669,7 +669,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           {
             //Look for itunes compilation folder
             var mediaItemPath = mediaItemAccessor.CanonicalLocalResourcePath;
+            var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
             var artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+            if (albumMediaItemDirectoryPath.FileName.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase))
+            {
+              //Probably a CD folder
+              artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../../");
+            }
             if (artistMediaItemDirectoryPath.FileName.IndexOf("Compilation", StringComparison.InvariantCultureIgnoreCase) >= 0)
             {
               trackInfo.Compilation = true;
