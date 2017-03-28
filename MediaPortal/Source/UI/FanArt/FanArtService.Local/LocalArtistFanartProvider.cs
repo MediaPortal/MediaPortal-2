@@ -120,9 +120,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       var mediaItemPath = mediaIteamLocator.NativeResourcePath;
       var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
       var artistMediaItemyPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
-      if (albumMediaItemDirectoryPath.FileName.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase))
+      int discNo = 0;
+      int albumNo = 0;
+      string album = null;
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAspect.ATTR_ALBUM, out album) && album != null &&
+        (albumMediaItemDirectoryPath.FileName.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase) && !album.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase)) ||
+        (int.TryParse(albumMediaItemDirectoryPath.FileName, out discNo) && int.TryParse(album, out albumNo) && discNo != albumNo))
       {
-        //Probably a CD folder
+        //Probably a CD folder so try next parent
         albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
         artistMediaItemyPath = ResourcePathHelper.Combine(mediaItemPath, "../../../");
       }

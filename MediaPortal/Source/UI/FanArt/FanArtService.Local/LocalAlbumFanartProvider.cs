@@ -41,7 +41,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
   public class LocalAlbumFanartProvider : IFanArtProvider
   {
-    private readonly static Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID };
+    private readonly static Guid[] NECESSARY_MIAS = { AudioAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
     private readonly static ICollection<String> EXTENSIONS = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".png", ".tbn" };
 
     public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
@@ -84,9 +84,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       else if (mediaType == FanArtMediaTypes.Audio)
       {
         //Might be a request for track cover which doesn't exist. Album cover is used instead.
-        necessaryMias.Add(AudioAspect.ASPECT_ID);
         filter = new MediaItemIdFilter(mediaItemId);
       }
+      else
+        return false;
 
       MediaItemQuery mediaQuery = new MediaItemQuery(necessaryMias, filter);
       mediaQuery.Limit = 1;
@@ -106,6 +107,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       {
         var mediaItemPath = mediaIteamLocator.NativeResourcePath;
         var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
+        int discNo = 0;
+        int albumNo = 0;
+        string album = null;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAspect.ATTR_ALBUM, out album) && album != null &&
+        (mediaItemDirectoryPath.FileName.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase) && !album.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase)) ||
+        (int.TryParse(mediaItemDirectoryPath.FileName, out discNo) && int.TryParse(album, out albumNo) && discNo != albumNo))
+        {
+          //Probably a CD folder so try next parent
+          mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+        }
         var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
         var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
 
