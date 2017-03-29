@@ -36,7 +36,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Include.Resources>
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png"/>
+      <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
     </ControlTemplate>
 
     <!-- Background Manager for menu hovers -->
@@ -59,6 +59,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.RowDefinitions>
         <Grid.Resources>
           <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+          <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
         </Grid.Resources>
         <Grid.Triggers>
           <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableMainMenuAnimations}" Value="True">
@@ -101,7 +102,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <StopStoryboard BeginStoryboardName="BeginFadeAnimation" />
               </DataTrigger.ExitActions>
             </DataTrigger>
-            
+
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableSubMenuAnimations}" Value="True"/>
@@ -151,7 +152,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                  IsVisible="{Binding Source={StaticResource MouseModel},Path=!IsMouseUsed}"
                  Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="11,-1,0,18"/>
         </Grid>
-        
+
         <!--<Rectangle x:Name="HoverGrid" Margin="0,200,8,120" RadiusX="25" RadiusY="25" HorizontalAlignment="Right" Width="440" Height="250" StrokeThickness="2"
             Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3">
           <Rectangle.Stroke>
@@ -193,9 +194,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}"/>
         <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}"/>
 
+        <DockPanel Grid.Row="1" LastChildFill="False" Margin="-290,0,10,-140"
+                   IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+
+          <Button DockPanel.Dock="Left" VerticalAlignment="Bottom" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=Right}">
+            <Image Stretch="Uniform" Height="50" Source="Right_Menu.PNG"/>
+          </Button>
+          <Button DockPanel.Dock="Right" VerticalAlignment="Bottom" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=Left}">
+            <Image Stretch="Uniform" Height="50" Source="Left_Menu.PNG"/>
+          </Button>
+        </DockPanel>
+
       </Grid>
-
     </ControlTemplate>
-
   </Include.Resources>
 </Include>

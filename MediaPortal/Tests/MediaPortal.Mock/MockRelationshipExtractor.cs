@@ -39,18 +39,19 @@ namespace MediaPortal.Mock
     public Guid[] RoleAspects { get; set; }
     public Guid LinkedRole { get; set; }
     public Guid[] LinkedRoleAspects { get; set; }
+    public Guid[] MatchAspects { get; set; }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       string id;
       MockCore.ShowMediaAspects(aspects, MockCore.Library.GetManagedMediaItemAspectMetadata());
       if (MediaItemAspect.TryGetExternalAttribute(aspects, ExternalSource, ExternalType, out id) && ExternalId == id)
       {
         ServiceRegistration.Get<ILogger>().Debug("Matched {0} / {1} / {2} / {3} / {4}", Role, LinkedRole, ExternalSource, ExternalType, ExternalId);
-        extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+        extractedLinkedAspects = new List<RelationshipItem>();
         foreach (IDictionary<Guid, IList<MediaItemAspect>> data in Data)
         {
-          extractedLinkedAspects.Add(data, Guid.Empty);
+          extractedLinkedAspects.Add(new RelationshipItem(data, Guid.Empty));
         }
         return true;
       }
@@ -157,7 +158,7 @@ namespace MediaPortal.Mock
     }
 
     public void AddRelationship(
-      Guid role, Guid[] roleAspectIds, Guid linkedRole, Guid[] linkedRoleAspectIds, 
+      Guid role, Guid[] roleAspectIds, Guid linkedRole, Guid[] linkedRoleAspectIds, Guid[] matchAspectIds,
       string source, string type, string id, 
       ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspectData, Func<IDictionary<Guid, IList<MediaItemAspect>>, IDictionary<Guid, IList<MediaItemAspect>>, bool> matcher,
       int index)
@@ -168,6 +169,7 @@ namespace MediaPortal.Mock
         RoleAspects = roleAspectIds,
         LinkedRole = linkedRole,
         LinkedRoleAspects = linkedRoleAspectIds,
+        MatchAspects = matchAspectIds,
         ExternalSource = source,
         ExternalType = type,
         ExternalId = id,

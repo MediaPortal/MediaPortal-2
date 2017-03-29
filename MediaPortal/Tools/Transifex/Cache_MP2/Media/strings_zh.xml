@@ -98,32 +98,16 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">浏览媒体向导</string>
   <string name="Media.LocalMediaNavigationHeader">本地媒体向导</string>
-  <string name="Media.MediaItemsHeader">媒体项</string>
-  <string name="Media.VideoItemsHeader">视频</string>
-  <string name="Media.AudioItemsHeader">音频项</string>
-  <string name="Media.EpisodeItemsHeader">集</string>
-  <string name="Media.MoviesItemsHeader">电影</string>
-  <string name="Media.ImageItemsHeader">图片</string>
   <string name="Media.SimpleSearchHeader">简单搜索</string>
-  <string name="Media.ChooseCollectionHeader">选择一个选集</string>
-  <string name="Media.ChooseActorHeader">选择艺人</string>
-  <string name="Media.ChooseDirectorHeader">选择导演</string>
-  <string name="Media.ChooseWriterHeader">选择作者</string>
-  <string name="Media.ChooseVideoGenreHeader">选择流派</string>
-  <string name="Media.ChooseVideoYearHeader">选择年份</string>
-  <string name="Media.ChooseSeriesHeader">选择系列</string>
-  <string name="Media.ChooseSeasonHeader">选择季</string>
-  <string name="Media.ChooseAudioDecadeHeader">选择年代</string>
-  <string name="Media.ChooseAlbumHeader">选择专辑</string>
-  <string name="Media.ChooseArtistHeader">选择艺术家</string>
-  <string name="Media.ChooseAudioGenreHeader">选择流派</string>
-  <string name="Media.ChooseImageYearHeader">选择年份</string>
-  <string name="Media.ChooseImageSizeHeader">选择大小</string>
-  <string name="Media.ChooseImageCountryHeader">选择国家</string>
-  <string name="Media.ChooseImageStateHeader">选择省份、州</string>
-  <string name="Media.ChooseImageCityHeader">选择城市</string>
-  <string name="Media.ChooseSystemHeader">选择系统</string>
-  <string name="Media.ChooseVideoLanguageHeader">选择语言</string>
+  <string name="Media.ChooseActorHeader">演员</string>
+  <string name="Media.ChooseDirectorHeader">导演</string>
+  <string name="Media.ChooseMovieHeader">电影</string>
+  <string name="Media.ChooseWriterHeader">编剧</string>
+  <string name="Media.ChooseImageHeader">图片</string>
+  <string name="Media.ChooseSeriesHeader">系列</string>
+  <string name="Media.ChooseEpisodeHeader">集</string>
+  <string name="Media.ChooseAudioHeader">音频项</string>
+  <string name="Media.ChooseVideoHeader">视频</string>
   <string name="Media.PlaylistsOverviewHeader">播放列表</string>
   <string name="Media.SavePlaylistEditNameHeader">保存播放列表</string>
   <string name="Media.SavePlaylistFailedHeader">保存播放列表</string>
@@ -133,6 +117,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">无播放列表加载</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">加载播放列表错误</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">只有都来自于本地服务器媒体文件的播放列表才能被保存(即不是从本地媒体导航断开)</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">艺术家</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">浏览媒体</string>
   <string name="Media.LocalMediaRootViewName">本地媒体</string>

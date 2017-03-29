@@ -45,6 +45,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Name", 100, Cardinality.Inline, false);
 
     /// <summary>
+    /// Series sort name.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SORT_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SortName", 100, Cardinality.Inline, false);
+
+    /// <summary>
     /// Series TV network.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STATION =
@@ -102,6 +108,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "TempSeriesItem", new[] {
             ATTR_NAME,
+            ATTR_SORT_NAME,
             ATTR_STATION,
             ATTR_TVDBID,
             ATTR_GENRES,

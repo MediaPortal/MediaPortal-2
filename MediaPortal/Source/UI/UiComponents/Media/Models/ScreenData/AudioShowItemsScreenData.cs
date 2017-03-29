@@ -32,10 +32,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class AudioShowItemsScreenData : AbstractItemsScreenData
   {
     public AudioShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.SCREEN_AUDIO_SHOW_ITEMS, Consts.RES_SHOW_ALL_AUDIO_ITEMS_MENU_ITEM,
+        base(Consts.SCREEN_AUDIO_SHOW_ITEMS, Consts.RES_COMMON_SHOW_ALL_MENU_ITEM,
         Consts.RES_FILTER_AUDIO_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
-      _itemMias = new Guid[] { AudioAspect.ASPECT_ID };
+      _filteredMias = new Guid[] { AudioAspect.ASPECT_ID };
       _availableMias = Consts.NECESSARY_AUDIO_MIAS;
       if (Consts.OPTIONAL_AUDIO_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_AUDIO_MIAS);

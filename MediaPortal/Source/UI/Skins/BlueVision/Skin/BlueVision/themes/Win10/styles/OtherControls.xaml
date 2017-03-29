@@ -494,25 +494,23 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid" Margin="0,0,35,0" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
+          <Grid x:Name="ProgressBarGrid" Margin="0,0,0,0" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                       Height="3"
-                       Fill="{ThemeResource ScrollBarBackgroundXColor}"/>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch"
+                       Height="10" Fill="{ThemeResource ScrollBarBackgroundXColor}"/>
             <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left"
-                       Height="3"
-                       Fill="{ThemeResource OSDProgressBarFillColor}"/>
-            <StackPanel Orientation="Horizontal">
+                       Height="10" Fill="{ThemeResource OSDProgressBarFillColor}"/>
+            <!--StackPanel Orientation="Horizontal">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
               <Rectangle x:Name="ScrollBarYKnob" Width="18" Height="18"
                     Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
                     Fill="{ThemeResource ScrollBarKnobBackgroundColor}"/>
-            </StackPanel>
+            </-->
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -539,8 +537,7 @@
             <StackPanel Orientation="Horizontal">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
               <Rectangle x:Name="ScrollBarYKnob" Width="18" Height="18"
-                    Stroke="#A0626262" RadiusX="9" RadiusY="9"
-                    Fill="#D3D4D6"/>
+                         Stroke="#A0626262" RadiusX="9" RadiusY="9" Fill="#D3D4D6"/>
             </StackPanel>
           </Grid>
         </ControlTemplate>

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.ComponentModel;
 using System.Windows;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -60,6 +61,13 @@ namespace MediaPortal.ServiceMonitor.View
     private void OnClosed(object sender, EventArgs e)
     {
       SaveSettings();
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+      // We don't want to close the window, just minimize to tray
+      e.Cancel = true;
+      WindowState = WindowState.Minimized;
     }
 
     #endregion

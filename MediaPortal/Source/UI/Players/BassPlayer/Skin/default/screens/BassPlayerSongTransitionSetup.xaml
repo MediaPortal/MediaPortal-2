@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_entry.xaml"
+    >
+  <Include.Resources>
+    <Model x:Key="Model" Id="33BA5457-F2C1-4CD6-A443-9E150C90100E"/>
+
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.Players.BassPlayer.SongTransitionMode.Setup]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" MinWidth="500">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+          <RadioButton x:Name="Normal" Content="[Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode]" GroupName="SongModeButtons"
+            IsChecked="{Binding Path=IsNormalMode,Mode=TwoWay}" Margin="10,0,0,0"
+            SetFocus="{Binding Path=IsNormalMode,Mode=OneTime}">
+          </RadioButton>
+          <RadioButton x:Name="Gapless" Content="[Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode]" GroupName="SongModeButtons"
+            IsChecked="{Binding Path=IsGaplessMode,Mode=TwoWay}" Margin="10,0,0,0"
+            SetFocus="{Binding Path=IsGaplessMode,Mode=OneTime}">
+          </RadioButton>
+          <RadioButton x:Name="CrossFading " Content="[Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading]" GroupName="SongModeButtons"
+            IsChecked="{Binding Path=IsCrossFadingMode,Mode=TwoWay}" Margin="10,0,0,0"
+            SetFocus="{Binding Path=IsCrossFadingMode,Mode=OneTime}">
+          </RadioButton>
+
+          <GroupBox x:Name="Crossfade duration" Header="[Settings.Players.Rendering.CrossFading.CrossFadeDuration]" Margin="10" 
+               Style="{ThemeResource ContentGroupBoxStyle}" 
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Path=IsCrossFadingMode}">
+
+            <DockPanel LastChildFill="False" HorizontalAlignment="Center">
+              <Button Style="{ThemeResource ArrowButtonUpStyle}" Width="30" Height="30" Margin="0,0,0,2"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=IsUpEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=Up}" />
+
+              <TextBox x:Name="Cross fade value" Margin="0,0,0,0" Width="80"
+                    Text="{Binding Source={StaticResource Model},Path=CrossFadeDuration,Mode=TwoWay}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+              <Button Style="{ThemeResource ArrowButtonDownStyle}" Width="30" Height="30"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=IsDownEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=Down}"/>
+
+            </DockPanel>
+          </GroupBox>
+
+          <Label x:Name="ErrorText" Grid.Column="0" Grid.Row="1" Margin="10,20,10,10" Wrap="true" HorizontalAlignment="Center"
+                 Color="{ThemeResource ErrorTextColor}" Content="{Binding Source={StaticResource Model},Path=ValueErrorText}"/>
+
+          <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                 IsEnabled="{Binding Source={StaticResource Model},Path=IsValidValue}">
+            <Button.Command>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="SaveSettings"/>
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+              </CommandList>
+            </Button.Command>
+          </Button>
+
+        </StackPanel>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

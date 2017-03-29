@@ -65,12 +65,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return SeasonInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetSeasonSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -100,7 +105,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       AddToCheckCache(episodeInfo);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seasonInfo.SetMetadata(seasonAspects);
 
@@ -114,9 +119,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       if (seasonId != Guid.Empty)
-        extractedLinkedAspects.Add(seasonAspects, seasonId);
+        extractedLinkedAspects.Add(new RelationshipItem(seasonAspects, seasonId));
       else
-        extractedLinkedAspects.Add(seasonAspects, Guid.Empty);
+        extractedLinkedAspects.Add(new RelationshipItem(seasonAspects, Guid.Empty));
       return true;
     }
 
@@ -144,15 +149,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!MediaItemAspect.TryGetAspect(aspects, EpisodeAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> indexes = aspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE);
+      IEnumerable<int> indexes = aspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
       if (indexes == null)
         return false;
 
-      IList<object> episodeNums = indexes.ToList();
+      IList<int> episodeNums = indexes.ToList();
       if (episodeNums.Count == 0)
         return false;
 
-      index = Int32.Parse(episodeNums.First().ToString());
+      index = episodeNums.First();
       return index > 0;
     }
 

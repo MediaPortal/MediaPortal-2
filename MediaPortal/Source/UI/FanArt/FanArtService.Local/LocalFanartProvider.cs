@@ -106,17 +106,18 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
                 where /* Allow same file name only for non-images, otherwise each image would be its own thumbnail */
                       potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension && !EXTENSIONS.Contains(mediaItemExtension) ||
-                      potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-thumb")
+                      potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-thumb") ||
+                      potentialFanArtFileNameWithoutExtension == "thumb"
                 select potentialFanArtFile);
 
-            if (fanArtType == FanArtTypes.Poster || (fanArtPaths.Count == 0 && fanArtType == FanArtTypes.Thumbnail))
+            if (fanArtType == FanArtTypes.Poster)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
                 where /* Allow same file name only for non-images, otherwise each image would be its own thumbnail */
                       potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension && !EXTENSIONS.Contains(mediaItemExtension) ||
                       potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-poster") ||
-                      potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder"
+                      potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "cover"
                 select potentialFanArtFile);
 
             if (fanArtType == FanArtTypes.Logo)

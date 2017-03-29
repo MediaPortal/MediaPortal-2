@@ -76,9 +76,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _extractors.Add(new SeriesEpisodeRelationshipExtractor());
 
       _hierarchies = new List<RelationshipHierarchy>();
-      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_EPISODES));
-      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_AVAILABLE_EPISODES));
-      _hierarchies.Add(new RelationshipHierarchy(SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_SEASONS));
+      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_EPISODES, true));
+      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_AVAILABLE_EPISODES, true));
+      _hierarchies.Add(new RelationshipHierarchy(SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_SEASONS, false));
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()

@@ -64,6 +64,6 @@
         SortOrder="a"
         SourceStates="B285DC02-AA8C-47F2-8795-0B13B6E66306"
         ContributorModelId="762EC648-AA64-42A4-9401-59FDB2FBF18C"
-        DisplayTitle="[WMC.Configuration.SkinSettings]"/>    <!-- Skin Settings -->
+        DisplayTitle="[SkinSettings.Configuration.SkinSettings]"/>    <!-- Skin Settings -->
   </MenuActions>
 </Workflow>

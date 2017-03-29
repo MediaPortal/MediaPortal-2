@@ -64,7 +64,6 @@ namespace MediaPortal.UI.Players.Video
     protected SubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
     protected ITsReader _tsReader;
-    protected GraphRebuilder _graphRebuilder;
     protected ChangedMediaType _changedMediaType;
     protected string _oldVideoFormat;
     protected LocalFsResourceAccessorHelper _localFsRaHelper;
@@ -246,6 +245,7 @@ namespace MediaPortal.UI.Players.Video
       // This is a special workaround for enumerating streams the first time: the callback happens before _initialized is set usually set to true (in AddFileSource).
       _initialized = true;
 
+      EnumerateStreams(true); // Force re-enumerating of audio streams before selecting new stream
       SetPreferredAudio(true);
       return 0;
     }

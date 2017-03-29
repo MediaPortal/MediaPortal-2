@@ -65,12 +65,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return CompanyInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetTvNetworkSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -111,7 +116,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       AddToCheckCache(seriesInfo);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       foreach (CompanyInfo company in seriesInfo.Networks)
       {
         company.AssignNameId();
@@ -123,9 +128,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         {
           Guid existingId;
           if (TryGetIdFromCache(company, out existingId))
-            extractedLinkedAspects.Add(companyAspects, existingId);
+            extractedLinkedAspects.Add(new RelationshipItem(companyAspects, existingId));
           else
-            extractedLinkedAspects.Add(companyAspects, Guid.Empty);
+            extractedLinkedAspects.Add(new RelationshipItem(companyAspects, Guid.Empty));
         }
       }
       return extractedLinkedAspects.Count > 0;
@@ -161,8 +166,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!MediaItemAspect.TryGetAspect(aspects, SeriesAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> actors = aspect.GetCollectionAttribute<object>(SeriesAspect.ATTR_NETWORKS);
-      List<string> nameList = new List<string>(actors.Cast<string>());
+      IEnumerable<string> actors = aspect.GetCollectionAttribute<string>(SeriesAspect.ATTR_NETWORKS);
+      List<string> nameList = new List<string>(actors);
 
       index = nameList.IndexOf(name);
       return index >= 0;

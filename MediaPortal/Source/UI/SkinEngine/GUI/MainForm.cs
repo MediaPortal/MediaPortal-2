@@ -276,11 +276,20 @@ namespace MediaPortal.UI.SkinEngine.GUI
           System.Windows.Forms.Screen.PrimaryScreen :
           System.Windows.Forms.Screen.AllScreens[screenNum];
       WindowState = FormWindowState.Normal;
+      FormBorderStyle = FormBorderStyle.None;
+      _mode = ScreenMode.FullScreen;
+      SetScreenSize(screen);
+    }
+
+    private void SetScreenSize(System.Windows.Forms.Screen screen)
+    {
+      if (_mode != ScreenMode.FullScreen)
+        return;
+
+      ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Set screen size to {0} (Mode: {1})", screen.Bounds.Size, _mode);
       Rectangle rect = screen.Bounds;
       Location = rect.Location;
       ClientSize = rect.Size;
-      FormBorderStyle = FormBorderStyle.None;
-      _mode = ScreenMode.FullScreen;
     }
 
     protected void SwitchToWindowedSize(ScreenMode mode, Point location, Size clientSize, bool maximize)
@@ -943,8 +952,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
         {
           _screenSize = new Size(screenWidth, screenHeight);
           _screenBpp = bitDepth;
+
           ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Display changed to {0}x{1}@{2}.", screenWidth, screenHeight, bitDepth);
-          GraphicsDevice.Reset();
+          SetScreenSize(System.Windows.Forms.Screen.FromControl(this));
+          AdaptToSize(); // Also recreates the DX device
         }
         else
         {

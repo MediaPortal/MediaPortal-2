@@ -39,6 +39,9 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings
     [Setting(SettingScope.User, true)]
     public bool EnableFanart { get; set; }
 
+    [Setting(SettingScope.User, 1.0)]
+    public double FanartOverlayOpacity { get; set; }
+
     [Setting(SettingScope.User, true)]
     public bool EnableListWatchedFlags { get; set; }
 
@@ -62,5 +65,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings
 
     [Setting(SettingScope.User, false)]
     public bool EnableMediaItemDetailsView { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool EnableAgeCertificationLogos { get; set; }
   }
 }

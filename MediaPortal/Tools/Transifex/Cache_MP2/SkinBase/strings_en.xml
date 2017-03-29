@@ -116,9 +116,9 @@
   <string name="Settings.Appearance">Appearance</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Date format</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Date format used in the skin. Use the format specification of the .net DateTime class.</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Date format used in the skin. Use 'd' for "1/14/2017" or 'D' for "Saturday, 1/14/2017".</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Time format</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Time format used in the skin. Use the format specification of the .net DateTime class.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Time format used in the skin. Use 't' for "11:50" or 'T' for "11:50:37".</string>
 
   <string name="Settings.General">General</string>
   <string name="Settings.General.System">System</string>
@@ -233,6 +233,8 @@
   <string name="SharesConfig.Relocate">Relocate</string>
   <string name="SharesConfig.ReImport">ReImport</string>
   <string name="SharesConfig.ManualPathInput">Manual input</string>
+  <string name="SharesConfig.UseShareWatcher">Share watcher:</string>
+  <string name="SharesConfig.UseShareWatcher.Help">Monitors the source for changes and automatically updates the media library</string>
 
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 client</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>

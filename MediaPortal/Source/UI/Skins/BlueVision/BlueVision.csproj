@@ -688,6 +688,7 @@
     <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemsListHeader.inc" />
     <None Include="Skin\BlueVision\screens\MediaItemAudioAlbumDetails.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemMovieCollectionDetails.inc" />
+    <Content Include="Skin\BlueVision\screens\MediaItemPersonDetails.inc" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\default\styles\Graphics.xaml">
@@ -695,6 +696,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Incubator\SkinSettings\SkinSettings.csproj">
+      <Project>{61c5a548-5b9b-4750-b98b-8161ec95dead}</Project>
+      <Name>SkinSettings</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
@@ -1079,6 +1084,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\master_bare_players.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\CurrentlyPlayingAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="Skin\BlueVision\themes\Win10\screens\SimpleFilterItems.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

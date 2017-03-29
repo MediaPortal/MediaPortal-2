@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="Diagnostics.Settings.Diagnostics">Diagnostics</string>
-    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Enable DEBUG logging on Client</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Enable DEBUG logging</string>
     <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Increase logs verbosity</string>
     <string name="Diagnostics.Settings.Image.FocusStealing">Enable logging of potential focus stealing</string>
     <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Enable logging of potential focus stealing</string>

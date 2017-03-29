@@ -36,8 +36,8 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
-              Content="[System.Back]" IsEnabled="false"/>
+          <!--<Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
+              Content="[System.Back]" IsEnabled="false"/>-->
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding IsResourceProviderSelected}"
               Command="{Command Source={StaticResource Model},Path=SelectResourceProviderAndContinue}"/>

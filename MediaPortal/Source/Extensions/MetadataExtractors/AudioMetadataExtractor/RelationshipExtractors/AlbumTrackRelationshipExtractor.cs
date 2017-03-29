@@ -65,12 +65,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return TrackInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetTrackSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -103,7 +108,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       AddToCheckCache(albumInfo);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       for (int i = 0; i < albumInfo.Tracks.Count; i++)
       {
         TrackInfo trackInfo = albumInfo.Tracks[i];
@@ -114,7 +119,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         MediaItemAspect.SetAttribute(trackAspects, MediaAspect.ATTR_ISVIRTUAL, true);
 
         if (trackAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(trackAspects, Guid.Empty);
+          extractedLinkedAspects.Add(new RelationshipItem(trackAspects, Guid.Empty));
       }
       return extractedLinkedAspects.Count > 0;
     }

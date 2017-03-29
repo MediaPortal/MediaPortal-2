@@ -1,29 +1,29 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Utilities.MenuItem">Werkzeuge</string>
-  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Werkzeuge</string>
-  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Wiedergabelisten-Import</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Tools</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Playlist-Import</string>
   <string name="Utilities.MainScreenTitle">Werkzeuge</string>
-  <string name="Utilities.PlaylistImport">Wiedergabelisten-Import</string>
-  <string name="Utilities.PlaylistImportScreenTitle">Wiedergabelisten-Import</string>
-  <string name="Utilities.ImportPlaylistFile">Wiedergabelistendatei importieren</string>
+  <string name="Utilities.PlaylistImport">Playlist-Import</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Playlist-Import</string>
+  <string name="Utilities.ImportPlaylistFile">Importiere Playlist-Datei</string>
   <string name="Utilities.ChoosePlaylistFile">Datei auswählen</string>
   <string name="Utilities.ChooseImportFileDialogHeader">Importdatei auswählen</string>
-  <string name="Utilities.EditPlaylistName">Geben Sie den Namen der neuen Wiedergabeliste ein</string>
+  <string name="Utilities.EditPlaylistName">Geben Sie den Namen der neuen Playlist ein</string>
   <string name="Utilities.LocationOfShareContainingItems">Datenverzeichnis, das die Mediadateien enthält</string>
   <string name="Utilities.LocalShareLocation">Lokale Freigabe</string>
   <string name="Utilities.ServerShareLocation">Serverfreigabe</string>
-  <string name="Utilities.StartPlaylistImport">Wiedergabelistenimport starten</string>
+  <string name="Utilities.StartPlaylistImport">Import starten</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Erfolgreich</string>
   <string name="Utilities.NoItemsWereImportedSkippingSaveText">Es wurden keine Elemente importiert. Abspeichern wird übersprungen.</string>
-  <string name="Utilities.PlaylistSavedSuccessfullyText">Wiedergabeliste \'{0}\' wurde erfolgreich gespeichert.</string>
-  <string name="Utilities.PlaylistSaveFailedTitle">Speichern der Wiedergabeliste fehlgeschlagen</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Playlist \'{0}\' wurde erfolgreich gespeichert.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Speichern der Playlist fehlgeschlagen</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Fortschritt</string>
-  <string name="Utilities.ImportPlaylistProgressHeaderText">Wiedergabeliste wird importiert</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Playlist wird importiert</string>
   <string name="Utilities.ImportPlaylistProgressText">{0}/{1}, {2} übersprungen</string>
   <string name="Utilities.StopImportPlaylistButton">Stopp</string>
-  <string name="Utilities.PlaylistNameExists">Wiedergabelisten-Name ist bereits vorhanden</string>
+  <string name="Utilities.PlaylistNameExists">Playlist-Name ist bereits vorhanden</string>
   <string name="Utilities.ImportFileInvalid">Ungültige Importdatei</string>
-  <string name="Utilities.PlaylistNameIsEmpty">Wiedergabelisten-Name ist leer</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Playlist-Name ist leer</string>
   <string name="Utilities.ServerNotConnected">Der Server ist nicht verbunden</string>
 </resources>

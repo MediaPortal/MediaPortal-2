@@ -118,9 +118,17 @@
             </Image>
           </StackPanel>
 
-          <Label x:Name="Program" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontFamily="DefaultBold"
-                    Content="{Binding Path=SelectedCurrentProgram.Title}" Margin="0,0,0,0" 
-                    Color="{ThemeResource TextColor}"/>
+          <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0">
+            <Label x:Name="Program" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+             Content="{Binding SelectedCurrentProgram.Title}" Margin="0,0,0,0"
+             Color="{ThemeResource TextColor}"/>
+            <Label x:Name="SeriesLabel" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Opacity="0.6"
+             IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label.Content>
+                <Binding Path="SelectedCurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+              </Label.Content>
+            </Label>
+          </StackPanel>
 
           <Label Grid.Row="1" Grid.Column="0" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                  Wrap="True" Scroll="Auto"

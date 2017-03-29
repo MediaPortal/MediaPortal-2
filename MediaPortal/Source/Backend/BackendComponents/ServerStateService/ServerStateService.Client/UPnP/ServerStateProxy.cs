@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Common.Threading;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.ServerStateService.Interfaces;
 using MediaPortal.Plugins.ServerStateService.Interfaces.UPnP;
@@ -67,15 +68,21 @@ namespace MediaPortal.Plugins.ServerStateService.Client.UPnP
     private void OnStateVariableChanged(CpStateVariable stateVariable, object newValue)
     {
       if (stateVariable.Name == Consts.STATE_PENDING_SERVER_STATES)
-        GetStates();
+        //Calling GetStates on the callback thread seems to cause a timeout/possible deadlock
+        //during startup in some cases so call on a different thread.
+        ServiceRegistration.Get<IThreadPool>().Add(GetStates);
     }
 
     protected void GetStates()
     {
       try
       {
+        uint cacheKey;
+        lock (_syncObj)
+          cacheKey = _currentCacheKey;
+
         CpAction action = GetAction(Consts.ACTION_GET_STATES);
-        IList<object> inParameters = new List<object> { _currentCacheKey };
+        IList<object> inParameters = new List<object> { cacheKey };
         IList<object> outParameters = action.InvokeAction(inParameters);
         var states = ServerStateSerializer.Deserialize<List<ServerState>>((string)outParameters[0]);
         if (states == null || states.Count == 0)
@@ -84,7 +91,12 @@ namespace MediaPortal.Plugins.ServerStateService.Client.UPnP
         var updatedStates = new Dictionary<Guid, object>();
         lock (_syncObj)
         {
-          _currentCacheKey = (uint)outParameters[1];
+          uint newCacheKey = (uint)outParameters[1];
+          //Due to threading the update might be being done out of order. e.g. a different thread has already updated with newer states.
+          //Check if the current key has been modified and whether our key is newer.
+          if (_currentCacheKey != cacheKey && newCacheKey <= _currentCacheKey)
+            return;
+          _currentCacheKey = newCacheKey;
           foreach (ServerState state in states)
           {
             object stateObject = state.DeserializeState();

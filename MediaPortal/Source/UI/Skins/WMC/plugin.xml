@@ -57,7 +57,7 @@
     <ConfigSection
         Id="SkinSettings"
         Redundant="true"
-        Text="[WMC.Configuration.SkinSettings]"/>
+        Text="[SkinSettings.Configuration.SkinSettings]"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
@@ -69,10 +69,22 @@
         ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableFanartConfiguration"/>
     
     <ConfigSetting
+        Id="FanartOverlayOpacity"
+        Text="[WMC.Configuration.FanartOverlayOpacity]"
+        HelpText="[WMC.Configuration.FanartOverlayOpacity.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.FanartOverlayOpacityConfiguration"/>
+    
+    <ConfigSetting
         Id="EnableWatchedFlags"
         Text="[WMC.Configuration.EnableWatchedFlags]"
         HelpText="[WMC.Configuration.EnableWatchedFlags.Help]"
         ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableWatchedFlagsConfiguration"/>
+    
+    <ConfigSetting
+        Id="EnableAgeCertificationLogos"
+        Text="[WMC.Configuration.EnableAgeCertificationLogos]"
+        HelpText="[WMC.Configuration.EnableAgeCertificationLogos.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableAgeCertificationLogosConfiguration"/>
 
     <ConfigSetting
         Id="EnableBanners"

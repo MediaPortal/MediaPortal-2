@@ -34,6 +34,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   public class PersonInfo : BaseInfo, IComparable<PersonInfo>
   {
     /// <summary>
+    /// Contains the ids of the minimum aspects that need to be present in order to test the equality of instances of this item.
+    /// </summary>
+    public static Guid[] EQUALITY_ASPECTS = new[] { PersonAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID };
+    /// <summary>
     /// Gets or sets the person IMDB id.
     /// </summary>
     public string ImdbId = null;
@@ -269,7 +273,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && Occupation == other.Occupation)
         return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Occupation == other.Occupation)
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Occupation == other.Occupation && 
+        Occupation != PersonAspect.OCCUPATION_ARTIST && Occupation != PersonAspect.OCCUPATION_COMPOSER)
+        return true;
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && MatchNames(Name, other.AlternateName) && Occupation == other.Occupation &&
+        Occupation != PersonAspect.OCCUPATION_ARTIST && Occupation != PersonAspect.OCCUPATION_COMPOSER)
+        return true;
+      //Artist and composer names can consist of multiple names which can cause false positives so matching should be more strict
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name, 0.75) && Occupation == other.Occupation)
+        return true; 
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && MatchNames(Name, other.AlternateName, 0.75) && Occupation == other.Occupation)
         return true;
 
       return false;

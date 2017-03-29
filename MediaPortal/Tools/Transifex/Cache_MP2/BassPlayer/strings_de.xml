@@ -3,7 +3,7 @@
   <string name="Settings.Players">Player</string>
   <string name="Settings.Players.AudioPlayer">Audio-Player</string>
   <string name="Settings.Players.BassPlayer.Setup">Ausgabegerät konfigurieren</string>
-  <string name="Settings.Players.BassPlayer.Setup.Help">Konfiguriert das BassPlayer-Ausgabegerät und Optionen</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">BassPlayer-Ausgabegerät und Optionen konfigurieren</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exklusiver Modus</string>

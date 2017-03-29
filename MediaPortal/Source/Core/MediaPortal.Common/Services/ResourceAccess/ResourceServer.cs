@@ -120,7 +120,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         }
         catch (SocketException e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server ({0})", addressType, e);
+          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server ({0})", e, addressType);
         }
       }
     }

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Schedules]"/>
+
+    <!-- SlimTvScheduleManagement model -->
+    <Model x:Key="SlimTvScheduleManagement" Id="7610403A-4488-47A4-8C27-FD1FE833E52B"/>
+
+    <!-- Appearance of the background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <ControlTemplate.Resources>
+        <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      </ControlTemplate.Resources>
+      <Grid>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
+        </Grid>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+          <Grid.Background>
+            <VideoBrush Stream="0"/>
+          </Grid.Background>
+          <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_EPG_Overlay.png"/>
+        </Grid>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableFanart}">
+          <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,0,30,-180"
+            DataContext="{Binding Source={StaticResource SlimTvScheduleManagement}}">
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="0" Margin="0,-20,10,20">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <CheckBox Grid.Column="0" x:Name="EnableSeriesModeCheckbox" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
+                    IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}"
+                    Content="{Binding}" VerticalAlignment="Center" />
+          <Label x:Name="switchlabel" Grid.Column="1" Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource MenuTextBackground}" Opacity="1.1" 
+                 FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="0,6,5,4" Height="50"/>
+          <Grid.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="switchlabel" Property="Color" Value="{ThemeResource TextColor}"/>
+            </Trigger>
+          </Grid.Triggers>
+        </Grid>
+
+        <!--StackPanel Orientation="Horizontal" Grid.Row="0">
+          <CheckBox x:Name="EnableSeriesModeCheckbox" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
+                    IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}"
+                    Content="{Binding}" VerticalAlignment="Center" />
+          <Label Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource TextColor}" Margin="5" VerticalAlignment="Center"/>
+        </-->
+
+        <ListView x:Name="ScheduleList" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
+              Margin="0,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ScheduleListViewStyle}"
+              ItemsSource="{Binding Path=SchedulesList}"
+              SelectionChanged="{CommandStencil UpdateSchedule}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <DockPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false"
+                   IsVisible="{Binding IsItemsValid}" Grid.Column="2" Grid.Row="1">
+          <StackPanel DockPanel.Dock="Right" Margin="0,10,5,-10" Orientation="Horizontal">
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="ScheduleList" Path="CurrentItem"/>
+                  <Binding ElementName="ScheduleList" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource MenuTextBackground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
+                 Opacity="1.2"/>
+            <Label Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" Opacity="1.2">
+              <Label.Content>
+                <Binding ElementName="ScheduleList" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+        </DockPanel>
+
+        <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Header="[SlimTvClient.ScheduleDetails]" 
+                   Style="{ThemeResource ContentGroupBoxStyle}">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfoSchedule.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </GroupBox>
+
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

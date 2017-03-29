@@ -247,6 +247,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_Name);
 
+      // Used to hold names for several objects
+      // ReSharper disable once InconsistentNaming - Following UPnP standards variable naming convention.
+      DvStateVariable A_ARG_TYPE_UseShareWatcher = new DvStateVariable("A_ARG_TYPE_UseShareWatcher", new DvStandardDataType(UPnPStandardDataType.Boolean))
+          {
+            SendEvents = false
+          };
+      AddStateVariable(A_ARG_TYPE_UseShareWatcher);
+
       // CSV of media category strings
       // ReSharper disable once InconsistentNaming - Following UPnP standards variable naming convention.
       DvStateVariable A_ARG_TYPE_MediaCategoryEnumeration = new DvStateVariable("A_ARG_TYPE_MediaCategoryEnumeration", new DvStandardDataType(UPnPStandardDataType.String))
@@ -569,6 +577,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("BaseResourcePath", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
             new DvArgument("ShareName", A_ARG_TYPE_Name, ArgumentDirection.In),
+            new DvArgument("UseShareWatcher", A_ARG_TYPE_UseShareWatcher, ArgumentDirection.In),
             new DvArgument("MediaCategories", A_ARG_TYPE_MediaCategoryEnumeration, ArgumentDirection.In),
             new DvArgument("RelocateMediaItems", A_ARG_TYPE_MediaItemRelocationMode, ArgumentDirection.In),
           },
@@ -1332,8 +1341,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       ResourcePath baseResourcePath = ResourcePath.Deserialize((string) inParams[1]);
       string shareName = (string) inParams[2];
-      string[] mediaCategories = ((string) inParams[3]).Split(',');
-      string relocateMediaItemsStr = (string) inParams[4];
+      bool useShareWatcher = (bool) inParams[3];
+      string[] mediaCategories = ((string) inParams[4]).Split(',');
+      string relocateMediaItemsStr = (string) inParams[5];
       RelocationMode relocationMode;
       UPnPError error = ParseRelocationMode("RelocateMediaItems", relocateMediaItemsStr, out relocationMode);
       if (error != null)
@@ -1342,7 +1352,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         return error;
       }
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-      int numAffected = mediaLibrary.UpdateShare(shareId, baseResourcePath, shareName, mediaCategories, relocationMode);
+      int numAffected = mediaLibrary.UpdateShare(shareId, baseResourcePath, shareName, useShareWatcher, mediaCategories, relocationMode);
       outParams = new List<object> {numAffected};
       return null;
     }

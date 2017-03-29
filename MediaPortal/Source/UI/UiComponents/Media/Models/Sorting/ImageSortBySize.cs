@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override string DisplayName
     {
-      get { return Consts.RES_SORT_BY_SIZE; }
+      get { return Consts.RES_COMMON_BY_SIZE_MENU_ITEM; }
     }
 
     public override int Compare(MediaItem item1, MediaItem item2)
@@ -62,7 +62,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override string GroupByDisplayName
     {
-      get { return Consts.RES_GROUP_BY_SIZE; }
+      get { return Consts.RES_COMMON_BY_SIZE_MENU_ITEM; }
     }
 
     public override object GetGroupByValue(MediaItem item)

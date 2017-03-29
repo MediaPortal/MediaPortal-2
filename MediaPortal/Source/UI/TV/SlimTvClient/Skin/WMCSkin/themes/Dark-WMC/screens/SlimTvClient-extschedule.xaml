@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvExtScheduleGuide" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,0,30,-180"
+            DataContext="{Binding Source={StaticResource SlimTvExtScheduleGuide}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                    Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,20">
+          <Grid Margin="0,5,40,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="DonotRecordButton" Grid.Column="0" Style="{ThemeResource DoNotRecordButtonStyle}" Margin="1,0,1,0" 
+                    Command="{Command CancelSchedule}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Label x:Name="NotRecordLabel" Grid.Column="1" Content="[SlimTvClient.DontRecordProgram]" Margin="5,0,5,0" VerticalAlignment="Center"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="IsMouseOver" Value="False"/>
+                  <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="NotRecordLabel" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                <Binding Path="IsSingleRecordingScheduled"/>
+                <Binding Path="IsSeriesRecordingScheduled"/>
+              </MultiBinding>
+            </Grid.IsVisible>
+          </Grid>
+
+          <Grid Margin="0,5,40,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="SingleRecordButton" Grid.Column="0" Style="{ThemeResource SingleRecordButtonStyle}" Margin="1,0,1,0" 
+                    Command="{Command RecordSingleProgram}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Label x:Name="SingleRecordLabel" Grid.Column="1" Content="[SlimTvClient.RecordProgram]" Margin="5,0,5,0" VerticalAlignment="Center"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="IsMouseOver" Value="False"/>
+                  <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="SingleRecordLabel" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!{0} || {1}">
+                <Binding Path="IsSingleRecordingScheduled"/>
+                <Binding Path="IsSeriesRecordingScheduled"/>
+              </MultiBinding>
+            </Grid.IsVisible>
+          </Grid>
+
+          <Grid Margin="0,5,20,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="SeriesRecordButton" Grid.Column="0" Style="{ThemeResource SeriesRecordButtonStyle}" Margin="1,0,1,0" 
+                    Command="{Command RecordSeries}" VerticalAlignment="Center" HorizontalAlignment="Center">
+              <!--Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
+                  <Binding Path="IsSingleRecordingScheduled"/>
+                  <Binding Path="IsSeriesRecordingScheduled"/>
+                </MultiBinding>
+              </Button.IsEnabled-->
+            </Button>
+            <Label x:Name="SeriesRecordLabel" Grid.Column="1" Content="[SlimTvClient.RecordSeries]" Margin="5,0,5,0" VerticalAlignment="Center"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="IsMouseOver" Value="False"/>
+                  <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="SeriesRecordLabel" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!{0} || {1}">
+                <Binding Path="IsSingleRecordingScheduled"/>
+                <Binding Path="IsSeriesRecordingScheduled"/>
+              </MultiBinding>
+            </Grid.IsVisible>
+          </Grid>
+        </StackPanel>
+
+
+          <!--Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}" Margin="10"
+                Content="[SlimTvClient.DontRecordProgram]"
+                Command="{Command CancelSchedule}">
+          <Button.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+              <Binding Path="IsSingleRecordingScheduled"/>
+              <Binding Path="IsSeriesRecordingScheduled"/>
+            </MultiBinding>
+          </Button.IsVisible>
+        </-->
+
+        <ListView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
+              Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource SingleProgramGuideListViewStyle}"
+              ItemsSource="{Binding Path=ProgramsList}"
+              SelectionChanged="{CommandStencil UpdateProgram}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+                   Style="{ThemeResource ContentGroupBoxStyle}">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfo.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </GroupBox>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

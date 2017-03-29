@@ -50,7 +50,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid.Resources>
 
     <Control x:Name="FanArtBackground" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
-               Template="{DynamicResource ResourceKey=FanArtBackground_Template}"/>
+             Template="{DynamicResource ResourceKey=FanArtBackground_Template}"/>
 
     <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                LastChildFill="True">
@@ -76,9 +76,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
                        HorizontalAlignment="Left" VerticalAlignment="Center"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
-                        DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                        DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-              <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}"/>
+              <Label FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,0,0"
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <Label.IsVisible>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
+                    <Binding Path="Progress"/>
+                  </MultiBinding>
+                </Label.IsVisible>
+                <Label.Content>
+                  <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
+                </Label.Content>
+              </Label>
+              <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
+                        DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
+                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+              <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
             </StackPanel>
             <mp_special_controls:PlayerControl Style="{ThemeResource CPPlayerControlStyle}" VerticalAlignment="Center"
                   AutoVisibility="True" HorizontalAlignment="Left">

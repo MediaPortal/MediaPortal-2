@@ -69,12 +69,9 @@
 
         <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="0">
           <Button x:Name="Test" Content="[Trakt.Authorize]" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command AuthorizeUser}">
-            <Button.IsEnabled>
-              <Binding Path="!IsAuthorized"/>
-            </Button.IsEnabled>
           </Button>
 
-          <Button x:Name="Sync" Content="Sync to Trakt" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command SyncMediaToTrakt}">
+          <Button x:Name="Sync" Content="[Trakt.Sync]" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command SyncMediaToTrakt}">
             <Button.IsEnabled>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                 <Binding Path="IsEnabled"/>

@@ -41,7 +41,7 @@
   <string name="SlimTvClient.ChooseScheduleType">Wähle die Art der Serienaufnahme</string>
   <string name="SlimTvClient.DeleteScheduleType">Wie soll Aufnahmeplan gelöscht werden?</string>
   <string name="SlimTvClient.DeleteSingle">Einzelne Sendung löschen</string>
-  <string name="SlimTvClient.DeleteFullSchedule">Gesamte Serienaufnahme löschen</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Gesamte Serien-Aufnahmeplan löschen</string>
   <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Einzelne Sendung löschen</string>
   <string name="SlimTvClient.ScheduleRecordingType_Once">Einmalig</string>
   <string name="SlimTvClient.ScheduleRecordingType_Daily">Täglich</string>
@@ -69,12 +69,12 @@
   <string name="SlimTvClient.EpgNumberOfHours">Anzahl der Stunden im EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Legt die Anzahl der angezeigten Stunden (Programme) im EPG fest</string>
   <string name="SlimTvClient.AutoStartTv">TV automatisch starten</string>
-  <string name="SlimTvClient.AutoStartTv.Help">Wenn aktiviert, wird bei der Auswahl der TV-Funktion der zuletzt aktive Sender gestartet.</string>
-  <string name="SlimTvClient.ShowSeriesInfo">Serieninformationen anzeigen</string>
-  <string name="SlimTvClient.ShowSeriesInfo.Help">Wenn aktiviert zeigt das Programm Serien und Episoden Informationen, sofern verfügbar</string>
+  <string name="SlimTvClient.AutoStartTv.Help">Wenn aktiviert wird bei der Auswahl der TV-Funktion der zuletzt aktive Sender gestartet.</string>
+  <string name="SlimTvClient.ShowSeriesInfo">Serien-informationen anzeigen</string>
+  <string name="SlimTvClient.ShowSeriesInfo.Help">Wenn aktiviert, zeigt der Guide verfügbare Serien- und Episoden-Informationen an</string>
   <string name="SlimTvClient.ZapByChannelIndex">Sender nach Kanalindex wechseln</string>
   <string name="SlimTvClient.ZapByChannelIndex.Help">Bestimmt ob der Kanalwechsel die Indexnummer oder die logische Kanalnummer benutzt.</string>
-  <string name="SlimTvClient.ZapTimeout">Senderwechsel-Zeitüberschreitung</string>
+  <string name="SlimTvClient.ZapTimeout">Senderwechsel-Timeout</string>
   <string name="SlimTvClient.ZapTimeout.Help">Bestimmt die Verzögerung bis zum Kanalwechsel</string>
   <string name="SlimTvClient.HideAllChannelsGroup">\"All Channels\"-Gruppe ausblenden</string>
   <string name="SlimTvClient.HideAllChannelsGroup.Help">Wenn aktiv wird die \"Alle Kanäle\"-Gruppe versteckt.</string>

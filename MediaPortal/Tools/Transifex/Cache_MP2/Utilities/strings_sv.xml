@@ -10,12 +10,12 @@
   <string name="Utilities.ChoosePlaylistFile">Välj fil</string>
   <string name="Utilities.ChooseImportFileDialogHeader">Välj fil att importera</string>
   <string name="Utilities.EditPlaylistName">Redigera namnet på den nya spellistan</string>
-  <string name="Utilities.LocationOfShareContainingItems">Plats där den utdelade mappen, som innehåller media objekten, finns </string>
+  <string name="Utilities.LocationOfShareContainingItems">Plats där den utdelade mappen, som innehåller media-filerna, finns </string>
   <string name="Utilities.LocalShareLocation">Lokal mapp</string>
   <string name="Utilities.ServerShareLocation">Utdelad mapp på servern</string>
   <string name="Utilities.StartPlaylistImport">Börja importera spellista</string>
   <string name="Utilities.PlaylistSavedSuccessfullyTitle">Lyckades</string>
-  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Inga objekt importerade. </string>
+  <string name="Utilities.NoItemsWereImportedSkippingSaveText">Inga media-filer importerade. </string>
   <string name="Utilities.PlaylistSavedSuccessfullyText">Lyckades spara spellistan \'{0}\'.</string>
   <string name="Utilities.PlaylistSaveFailedTitle">Misslyckades spara spellistan.</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Status</string>

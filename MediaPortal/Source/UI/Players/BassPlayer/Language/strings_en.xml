@@ -9,12 +9,22 @@
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exclusive mode</string>
 
-  <string name="Settings.Players.Rendering">Rendering</string>
-  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Song transition mode</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Set pause/cross-fade time when changing tracks</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normal</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Gapless</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Cross-fading</string>
 
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading enabled</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Determines if MediaPortal should cross-fade songs, if possible</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Playback buffer</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Buffer time in ms [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
+  
+  <string name="Settings.Players.Rendering">Rendering</string>
 
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Cross fade duration</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Time to cross-fade in seconds</string>
+
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Seek increment seconds</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Seek increment seconds help text...</string>
 </resources>

@@ -11,7 +11,12 @@
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
 
+    <ItemGroup>
+      <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
   </Target>
 
 </Project>

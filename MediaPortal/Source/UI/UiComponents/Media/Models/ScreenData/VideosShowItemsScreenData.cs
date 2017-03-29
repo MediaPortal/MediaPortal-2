@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class VideosShowItemsScreenData : AbstractItemsScreenData
   {
     public VideosShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.SCREEN_VIDEOS_SHOW_ITEMS, Consts.RES_SHOW_ALL_VIDEO_ITEMS_MENU_ITEM,
+        base(Consts.SCREEN_VIDEOS_SHOW_ITEMS, Consts.RES_COMMON_SHOW_ALL_MENU_ITEM,
         Consts.RES_FILTER_VIDEO_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
       _availableMias = Consts.NECESSARY_VIDEO_MIAS;

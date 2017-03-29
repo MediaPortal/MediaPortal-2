@@ -63,7 +63,6 @@ namespace MediaPortal.UI.Players.Video
     protected IBaseFilter _subtitleFilter;
     protected IBDReader _bdReader;
     protected BluRayOSDRenderer _osdRenderer;
-    protected GraphRebuilder _graphRebuilder;
 
     protected readonly DeviceEx _device = SkinContext.Device;
 

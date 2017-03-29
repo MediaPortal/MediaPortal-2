@@ -98,32 +98,18 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">סייר במדיה</string>
   <string name="Media.LocalMediaNavigationHeader">סייר במדיה מקומית</string>
-  <string name="Media.MediaItemsHeader">פריטי מדיה</string>
-  <string name="Media.VideoItemsHeader">וידאו</string>
-  <string name="Media.AudioItemsHeader">פריטי אודיו</string>
-  <string name="Media.EpisodeItemsHeader">פרקים</string>
-  <string name="Media.MoviesItemsHeader">סרטים</string>
-  <string name="Media.ImageItemsHeader">תמונות</string>
   <string name="Media.SimpleSearchHeader">חיפוש פשוט</string>
-  <string name="Media.ChooseCollectionHeader">בחר אוסף</string>
-  <string name="Media.ChooseActorHeader">בחר שחקן</string>
-  <string name="Media.ChooseDirectorHeader">בחר במאי</string>
-  <string name="Media.ChooseWriterHeader">בחר כותב</string>
-  <string name="Media.ChooseVideoGenreHeader">בחר סגנון</string>
-  <string name="Media.ChooseVideoYearHeader">בחר שנה</string>
-  <string name="Media.ChooseSeriesHeader">בחר סדרה</string>
-  <string name="Media.ChooseSeasonHeader">בחר עונה</string>
-  <string name="Media.ChooseAudioDecadeHeader">בחר עשור</string>
-  <string name="Media.ChooseAlbumHeader">בחר אלבום</string>
-  <string name="Media.ChooseArtistHeader">בחר אמן</string>
-  <string name="Media.ChooseAudioGenreHeader">בחר סגנון</string>
-  <string name="Media.ChooseImageYearHeader">בחר שנה</string>
-  <string name="Media.ChooseImageSizeHeader">בחר גודל</string>
-  <string name="Media.ChooseImageCountryHeader">בחר ארץ</string>
-  <string name="Media.ChooseImageStateHeader">בחר מדינה</string>
-  <string name="Media.ChooseImageCityHeader">בחר עיר</string>
-  <string name="Media.ChooseSystemHeader">מחר מערכת</string>
-  <string name="Media.ChooseVideoLanguageHeader">בחר שפה</string>
+  <string name="Media.ChooseActorHeader">שחקנים</string>
+  <string name="Media.ChooseDirectorHeader">במאים</string>
+  <string name="Media.ChooseMovieHeader">סרטים</string>
+  <string name="Media.ChooseWriterHeader">כותבים</string>
+  <string name="Media.ChooseVideoGenreHeader">סגנונות</string>
+  <string name="Media.ChooseImageHeader">תמונות</string>
+  <string name="Media.ChooseSeriesHeader">סדרה</string>
+  <string name="Media.ChooseEpisodeHeader">פרקים</string>
+  <string name="Media.ChooseAudioHeader">פריטי אודיו</string>
+  <string name="Media.ChooseAudioGenreHeader">סגנונות</string>
+  <string name="Media.ChooseVideoHeader">סרטים</string>
   <string name="Media.PlaylistsOverviewHeader">רשימות השמעה</string>
   <string name="Media.SavePlaylistEditNameHeader">שמור רשימת ניגון</string>
   <string name="Media.SavePlaylistFailedHeader">שמור רשימת ניגון</string>
@@ -133,6 +119,9 @@
   <string name="Media.PlaylistLoadNoPlaylistText">אין רשימת ניגון לטעינה</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">שגיאה בטעינת רשימת ניגון</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">ניתן לשמור רשימת ניגון רק אם פריטי המדיה נמשכו משרת המדיה הביתית (לא מהתקן חיצוני)</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">אמן</string>
+  <string name="Media.ActorOccupationName">שחקן</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">דפדף במדיה</string>
   <string name="Media.LocalMediaRootViewName">מדיה מקומית</string>

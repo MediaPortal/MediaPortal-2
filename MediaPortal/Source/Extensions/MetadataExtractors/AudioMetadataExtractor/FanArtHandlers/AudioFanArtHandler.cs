@@ -100,9 +100,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       List<string> artists = new List<string>();
       if (MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out audioAspect))
       {
-        IEnumerable<object> artistObjects = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_ARTISTS);
+        IEnumerable<string> artistObjects = audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ARTISTS);
         if (artistObjects != null)
-          artists.AddRange(artistObjects.Cast<string>());
+          artists.AddRange(artistObjects);
       }
 
       IList<MultipleMediaItemAspect> relationAspects;

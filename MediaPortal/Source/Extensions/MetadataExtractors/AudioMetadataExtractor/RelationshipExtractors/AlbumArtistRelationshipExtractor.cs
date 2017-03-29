@@ -65,12 +65,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return PersonInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetPersonSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -110,7 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       AddToCheckCache(albumInfo);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       foreach (PersonInfo person in albumInfo.Artists)
       {
         person.AssignNameId();
@@ -122,9 +127,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           Guid existingId;
           if (TryGetIdFromCache(person, out existingId))
-            extractedLinkedAspects.Add(personAspects, existingId);
+            extractedLinkedAspects.Add(new RelationshipItem(personAspects, existingId));
           else
-            extractedLinkedAspects.Add(personAspects, Guid.Empty);
+            extractedLinkedAspects.Add(new RelationshipItem(personAspects, Guid.Empty));
         }
       }
       return extractedLinkedAspects.Count > 0;
@@ -160,8 +165,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!MediaItemAspect.TryGetAspect(aspects, AudioAlbumAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> persons = aspect.GetCollectionAttribute<object>(AudioAlbumAspect.ATTR_ARTISTS);
-      List<string> nameList = new List<string>(persons.Cast<string>());
+      IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(AudioAlbumAspect.ATTR_ARTISTS);
+      List<string> nameList = new List<string>(persons);
 
       index = nameList.IndexOf(name);
       return index >= 0;

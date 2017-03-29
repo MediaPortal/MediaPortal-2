@@ -96,32 +96,16 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Exploració dels media</string>
   <string name="Media.LocalMediaNavigationHeader">Exploració dels media locals</string>
-  <string name="Media.MediaItemsHeader">Elements media</string>
-  <string name="Media.VideoItemsHeader">Vídeos</string>
-  <string name="Media.AudioItemsHeader">Elements audio</string>
-  <string name="Media.EpisodeItemsHeader">Episodis</string>
-  <string name="Media.MoviesItemsHeader">Pel·lícules</string>
-  <string name="Media.ImageItemsHeader">Imatges</string>
   <string name="Media.SimpleSearchHeader">Cerca senzilla</string>
-  <string name="Media.ChooseCollectionHeader">Trieu una col·lecció</string>
-  <string name="Media.ChooseActorHeader">Trieu un actor</string>
-  <string name="Media.ChooseDirectorHeader">Trieu un director</string>
-  <string name="Media.ChooseWriterHeader">Trieu un escriptor</string>
-  <string name="Media.ChooseVideoGenreHeader">Trieu un gènere</string>
-  <string name="Media.ChooseVideoYearHeader">Trieu un any</string>
-  <string name="Media.ChooseSeriesHeader">Trieu una sèrie</string>
-  <string name="Media.ChooseSeasonHeader">Trieu una temporada</string>
-  <string name="Media.ChooseAudioDecadeHeader">Trieu una dècada</string>
-  <string name="Media.ChooseAlbumHeader">Trieu un àlbum</string>
-  <string name="Media.ChooseArtistHeader">Trieu un artista</string>
-  <string name="Media.ChooseAudioGenreHeader">Trieu un gènere</string>
-  <string name="Media.ChooseImageYearHeader">Trieu un any</string>
-  <string name="Media.ChooseImageSizeHeader">Trieu una mida</string>
-  <string name="Media.ChooseImageCountryHeader">Trieu un país</string>
-  <string name="Media.ChooseImageStateHeader">Trieu un estat</string>
-  <string name="Media.ChooseImageCityHeader">Trieu una ciutat</string>
-  <string name="Media.ChooseSystemHeader">Trieu un sistema</string>
-  <string name="Media.ChooseVideoLanguageHeader">Trieu un idioma</string>
+  <string name="Media.ChooseActorHeader">Actors</string>
+  <string name="Media.ChooseDirectorHeader">Directors</string>
+  <string name="Media.ChooseMovieHeader">Pel·lícules</string>
+  <string name="Media.ChooseWriterHeader">Escrit per</string>
+  <string name="Media.ChooseImageHeader">Imatges</string>
+  <string name="Media.ChooseSeriesHeader">Sèries</string>
+  <string name="Media.ChooseEpisodeHeader">Episodis</string>
+  <string name="Media.ChooseAudioHeader">Elements audio</string>
+  <string name="Media.ChooseVideoHeader">Vídeos</string>
   <string name="Media.PlaylistsOverviewHeader">Llistes</string>
   <string name="Media.SavePlaylistEditNameHeader">Desa la llista</string>
   <string name="Media.SavePlaylistFailedHeader">Desa la llista</string>
@@ -131,6 +115,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">No hi han llistes per carregar</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">S\'ha produït un error en carregar la llista</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Només es pot desar una llista si tots els elements s\'han posat a la cua des del servidor d\'inici (p. ex. no per l\'exploració desconnectada dels media locals).</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Artista</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Explora media</string>
   <string name="Media.LocalMediaRootViewName">Media local</string>

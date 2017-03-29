@@ -65,12 +65,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return SeriesInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetSeriesSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -89,7 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
       OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(seriesInfo.Genres);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seriesInfo.SetMetadata(seriesAspects);
 
@@ -108,7 +113,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       StorePersons(seriesAspects, seriesInfo.Actors, true);
       StoreCharacters(seriesAspects, seriesInfo.Characters, true);
 
-      extractedLinkedAspects.Add(seriesAspects, Guid.Empty);
+      extractedLinkedAspects.Add(new RelationshipItem(seriesAspects, Guid.Empty));
       return true;
     }
 
@@ -129,8 +134,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!season.HasValue)
         return false;
 
-      IEnumerable<object> episodes = linkedAspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE);
-      List<int> episodeList = new List<int>(episodes.Cast<int>());
+      IEnumerable<int> episodes = linkedAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+      List<int> episodeList = new List<int>(episodes);
 
       index = season.Value * 1000 + episodeList.First();
       return index >= 0;

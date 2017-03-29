@@ -64,8 +64,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Border.BorderBrush>
       <Border.Background>
         <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-          <GradientStop Color="#F2447da7" Offset="0"/>
-          <GradientStop Color="#F2124273" Offset="1"/>
+          <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}" Offset="0"/>
+          <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
         </LinearGradientBrush>
       </Border.Background>
 

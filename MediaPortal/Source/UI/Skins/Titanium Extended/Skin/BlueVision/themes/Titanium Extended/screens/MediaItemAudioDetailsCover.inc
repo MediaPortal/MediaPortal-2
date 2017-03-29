@@ -11,44 +11,44 @@
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
   </Grid.Resources>
 
-  <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:MediaAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="80"/>
-              <ColumnDefinition Width="1670"/>
-              <ColumnDefinition Width="200"/>
-            </Grid.ColumnDefinitions>
+  <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+    <media:AudioAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="1670"/>
+            <ColumnDefinition Width="200"/>
+          </Grid.ColumnDefinitions>
 
-            <Label Grid.Row="0" Grid.Column="1" x:Name="Title" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                  Content="{Binding Title}" Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="-20,0,20,0"
-                  HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+          <Label Grid.Row="0" Grid.Column="1" x:Name="Title" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                Content="{Binding TrackName}" Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="-20,0,20,0"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
 
-            <!--StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
-              <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyBlackTemplate}"
-                                           Maximum="10" Value="{Binding TotalRating}" Margin="0,2,0,-2">
-                <StarRatingPanel.LayoutTransform>
-                  <TransformGroup>
-                    <ScaleTransform ScaleX="1.65" ScaleY="1.5"/>
-                  </TransformGroup>
-                </StarRatingPanel.LayoutTransform>
-              </StarRatingPanel>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+            <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyBlackTemplate}"
+                             Maximum="10" Value="{Binding TotalRating}" Margin="0,2,0,-2">
+              <StarRatingPanel.LayoutTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1.65" ScaleY="1.5"/>
+                </TransformGroup>
+              </StarRatingPanel.LayoutTransform>
+            </StarRatingPanel>
+            <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0"
+                   IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label.Content>
+                <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
+              </Label.Content>
+            </Label>
+          </StackPanel>
 
-              <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0">
-                <Label.Content>
-                  <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
-                </Label.Content>
-              </Label>
-            </StackPanel-->
-           
-          </Grid>  
-        </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
+        </Grid>
+      </ControlTemplate>
+    </media:AudioAspectWrapper.Template>
+  </media:AudioAspectWrapper>
 
 </Grid>
 

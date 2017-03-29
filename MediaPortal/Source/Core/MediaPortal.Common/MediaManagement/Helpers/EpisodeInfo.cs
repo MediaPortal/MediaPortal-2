@@ -42,6 +42,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   public class EpisodeInfo : BaseInfo, IComparable<EpisodeInfo>
   {
     /// <summary>
+    /// Contains the ids of the minimum aspects that need to be present in order to test the equality of instances of this item.
+    /// </summary>
+    public static Guid[] EQUALITY_ASPECTS = new[] { EpisodeAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID };
+    /// <summary>
     /// Returns the index for "Series" used in <see cref="FormatString"/>.
     /// </summary>
     public static int SERIES_INDEX = 0;
@@ -110,6 +114,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the episode title.
     /// </summary>
     public SimpleTitle EpisodeName = null;
+    public SimpleTitle EpisodeNameSort = new SimpleTitle();
     /// <summary>
     /// Gets or sets the season number. A "0" value will be treated as valid season number.
     /// </summary>
@@ -227,16 +232,20 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       SetMetadataChanged(aspectData);
+      EpisodeName.Text = CleanString(EpisodeName.Text);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(EpisodeName.Text));
+      if (!EpisodeNameSort.IsEmpty)
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, EpisodeNameSort.Text);
+      else if (!EpisodeName.IsEmpty)
+        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(EpisodeName.Text));
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, IsVirtualResource(aspectData));
       MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, SeriesName.Text);
-      if (!EpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, CleanString(EpisodeName.Text));
+      if (!EpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, EpisodeName.Text);
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, SeasonNumber.Value);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
-      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers.Select(e => (object)e).ToList());
-      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers.Select(e => (object)e).ToList());
+      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers);
+      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
 
       if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_EPISODE, ImdbId);
       if (TvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_EPISODE, TvdbId.ToString());
@@ -264,10 +273,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_ISDVD, false);
       if (!Summary.IsEmpty) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, CleanString(Summary.Text));
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
-      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
-      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
+      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
 
       aspectData.Remove(GenreAspect.ASPECT_ID);
       foreach (GenreInfo genre in Genres.Distinct())
@@ -297,6 +306,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SeriesName = new SimpleTitle(tempString, false);
       MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, out tempString);
       EpisodeName = new SimpleTitle(tempString, false);
+      MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out tempString);
+      EpisodeNameSort = new SimpleTitle(tempString, false);
       MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, out tempString);
       Summary = new SimpleTitle(tempString, false);
 
@@ -337,19 +348,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       IEnumerable collection;
       Actors.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_ACTORS, out collection))
-        Actors.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ACTOR }));
+        Actors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ACTOR }));
 
       Directors.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, out collection))
-        Directors.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_DIRECTOR }));
+        Directors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_DIRECTOR }));
 
       Writers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_WRITERS, out collection))
-        Writers.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_WRITER }));
+        Writers.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_WRITER }));
 
       Characters.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, out collection))
-        Characters.AddRange(collection.Cast<object>().Select(s => new CharacterInfo() { Name = s.ToString() }));
+        Characters.AddRange(collection.Cast<string>().Select(s => new CharacterInfo { Name = s }));
 
       Genres.Clear();
       IList<MultipleMediaItemAspect> genreAspects;
@@ -367,11 +378,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       EpisodeNumbers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, out collection))
-        EpisodeNumbers.AddRange(collection.Cast<object>().Select(s => Convert.ToInt32(s)));
+        EpisodeNumbers.AddRange(collection.Cast<int>());
 
       DvdEpisodeNumbers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, out collection))
-        DvdEpisodeNumbers.AddRange(collection.Cast<object>().Select(s => Convert.ToDouble(s)));
+        DvdEpisodeNumbers.AddRange(collection.Cast<double>());
 
       byte[] data;
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
@@ -532,6 +543,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.SeasonNumber = SeasonNumber;
         info.EpisodeNumbers = EpisodeNumbers;
         info.EpisodeName = EpisodeName;
+        info.EpisodeNameSort = EpisodeNameSort;
         return (T)(object)info;
       }
       return default(T);

@@ -139,6 +139,7 @@
     <Content Include="Skin\default\images\internet-icon.png" />
     <Content Include="Skin\default\images\movie_track.png" />
     <Content Include="Skin\default\images\network-icon.png" />
+    <Content Include="Skin\default\images\pause.png" />
     <Content Include="Skin\default\images\picture-icon.png" />
     <Content Include="Skin\default\images\process.png" />
     <Content Include="Skin\default\images\server-attach-icon.png" />

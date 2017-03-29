@@ -100,32 +100,18 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Selaa medianavigointi</string>
   <string name="Media.LocalMediaNavigationHeader">Paikallinen medianavigointi</string>
-  <string name="Media.MediaItemsHeader">Media kohteet</string>
-  <string name="Media.VideoItemsHeader">Videot</string>
-  <string name="Media.AudioItemsHeader">Audio kohteet</string>
-  <string name="Media.EpisodeItemsHeader">Jaksot</string>
-  <string name="Media.MoviesItemsHeader">Elokuvat</string>
-  <string name="Media.ImageItemsHeader">Kuvat</string>
   <string name="Media.SimpleSearchHeader">Yksinkertainen haku</string>
-  <string name="Media.ChooseCollectionHeader">Valitse kokoelma</string>
-  <string name="Media.ChooseActorHeader">Valitse näyttelijä</string>
-  <string name="Media.ChooseDirectorHeader">Valitse ohjaaja</string>
-  <string name="Media.ChooseWriterHeader">Valitse käsikirjoittaja</string>
-  <string name="Media.ChooseVideoGenreHeader">Valitse lajityyppi</string>
-  <string name="Media.ChooseVideoYearHeader">Valitse vuosi</string>
-  <string name="Media.ChooseSeriesHeader">Valitse sarja</string>
-  <string name="Media.ChooseSeasonHeader">Valitse kausi</string>
-  <string name="Media.ChooseAudioDecadeHeader">Valitse vuosikymmen</string>
-  <string name="Media.ChooseAlbumHeader">Valitse albumi</string>
-  <string name="Media.ChooseArtistHeader">Valitse laulaja</string>
-  <string name="Media.ChooseAudioGenreHeader">Valitse lajityyppi</string>
-  <string name="Media.ChooseImageYearHeader">Valitse vuosi</string>
-  <string name="Media.ChooseImageSizeHeader">Valitse koko</string>
-  <string name="Media.ChooseImageCountryHeader">Valitse maa</string>
-  <string name="Media.ChooseImageStateHeader">Valitse osavaltio</string>
-  <string name="Media.ChooseImageCityHeader">Valitse kaupunki</string>
-  <string name="Media.ChooseSystemHeader">Valitse järjestelmä</string>
-  <string name="Media.ChooseVideoLanguageHeader">Valitse kieli</string>
+  <string name="Media.ChooseActorHeader">Näyttelijät</string>
+  <string name="Media.ChooseDirectorHeader">Ohjaajat</string>
+  <string name="Media.ChooseMovieHeader">Elokuvat</string>
+  <string name="Media.ChooseWriterHeader">Kirjoittajat</string>
+  <string name="Media.ChooseVideoGenreHeader">Tyylilajit</string>
+  <string name="Media.ChooseImageHeader">Kuvat</string>
+  <string name="Media.ChooseSeriesHeader">Sarjat</string>
+  <string name="Media.ChooseEpisodeHeader">Jaksot</string>
+  <string name="Media.ChooseAudioHeader">Audio kohteet</string>
+  <string name="Media.ChooseAudioGenreHeader">Tyylilajit</string>
+  <string name="Media.ChooseVideoHeader">Videot</string>
   <string name="Media.PlaylistsOverviewHeader">Soittolistat</string>
   <string name="Media.SavePlaylistEditNameHeader">Tallenna soittolista</string>
   <string name="Media.SavePlaylistFailedHeader">Tallenna soittolista</string>
@@ -135,6 +121,9 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Ei ladattavia soittolistoja</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Virhe soittolistan lataamisessa</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Soittolista voidaan tallentaa vain, jos kaikki tiedostot on haettu kotipalvelimelta (eli ei irtikytketyn paikallisen mediakohteiden navigoinnin kautta).</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Esittäjä</string>
+  <string name="Media.ActorOccupationName">Näyttelijä</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Selaa media</string>
   <string name="Media.LocalMediaRootViewName">Paikallinen media</string>

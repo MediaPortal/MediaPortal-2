@@ -84,8 +84,8 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
         throw new BassLibraryException("BASS_Init", bassInitErrorCode.Value);
 
       CollectDeviceInfo(_deviceNo);
-
-      int ms = Convert.ToInt32(Controller.GetSettings().DirectSoundBufferSize.TotalMilliseconds);
+      
+      int ms = Convert.ToInt32(Controller.GetSettings().DirectSoundBufferSizeMilliSecs);
 
       if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_BUFFER, ms))
         throw new BassLibraryException("BASS_SetConfig");
@@ -148,7 +148,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       _outputStream = BassStream.Create(handle);
 
       if (passThrough)
-        _fader = new BassStreamFader(_inputStream, Controller.GetSettings().FadeDuration);
+        _fader = new BassStreamFader(_inputStream, TimeSpan.FromMilliseconds(Controller.GetSettings().FadeDurationMilliSecs));
 
       ResetState();
     }
@@ -230,7 +230,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       string deviceName = Controller.GetSettings().DirectSoundDevice;
       int deviceNo = BassConstants.BassDefaultDevice;
 
-      if (String.IsNullOrEmpty(deviceName) || deviceName == BassPlayerSettings.Defaults.DirectSoundDevice)
+      if (String.IsNullOrEmpty(deviceName) || deviceName == Controller.GetSettings().DirectSoundDevice)
         Log.Info("Initializing default DirectSound device");
       else
       {

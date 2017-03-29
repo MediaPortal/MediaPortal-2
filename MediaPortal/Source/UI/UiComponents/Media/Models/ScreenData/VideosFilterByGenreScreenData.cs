@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class VideosFilterByGenreScreenData : AbstractVideosFilterScreenData<GenreFilterItem>
   {
     public VideosFilterByGenreScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_GENRE, Consts.RES_FILTER_BY_VIDEO_GENRE_MENU_ITEM,
+        base(Consts.SCREEN_VIDEOS_FILTER_BY_GENRE, Consts.RES_COMMON_BY_GENRE_MENU_ITEM,
         Consts.RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(GenreAspect.ATTR_ID, GenreAspect.ATTR_GENRE, Consts.NECESSARY_VIDEO_GENRE_MIAS))
     {
       _availableMias = Consts.NECESSARY_VIDEO_MIAS;

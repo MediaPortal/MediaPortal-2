@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="WMC.Configuration.SkinSettings">Configuración Skin</string>
-  <string name="WMC.Configuration.EnableFanart">Habilitar fanart</string>
   <string name="WMC.Configuration.EnableFanart.Help">Si se desea mostrar fanart de fondo.</string>
-</resources>
+  <string name="WMC.Configuration.EnableBanners.Movies">Movies</string>
+  <string name="WMC.Configuration.EnableBanners.Series">Series</string>
+  <string name="WMC.Configuration.EnableBanners.Seasons">Seasons</string>
+  </resources>

@@ -106,9 +106,8 @@ namespace MediaPortal.UiComponents.Media.Views
 
     public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter, IEnumerable<Guid> filteredMias)
     {
-      bool combine = filteredMias == null || _filteredMias == null || filteredMias.Intersect(_filteredMias).Count() > 0;
       IFilter combinedFilter;
-      if (_filter == null || !combine)
+      if (_filter == null || !CanCombineFilters(filteredMias))
         combinedFilter = filter;
       else
       {
@@ -136,6 +135,11 @@ namespace MediaPortal.UiComponents.Media.Views
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
       return cd.Search(_query, _onlyOnline, userProfile, ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs));
+    }
+
+    public bool CanCombineFilters(IEnumerable<Guid> filteredMias)
+    {
+      return filteredMias == null || _filteredMias == null || filteredMias.Intersect(_filteredMias).Count() > 0;
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class VideosFilterByYearScreenData : AbstractVideosFilterScreenData<FilterItem>
   {
     public VideosFilterByYearScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_YEAR, Consts.RES_FILTER_BY_VIDEO_YEAR_MENU_ITEM,
+        base(Consts.SCREEN_VIDEOS_FILTER_BY_YEAR, Consts.RES_COMMON_BY_YEAR_MENU_ITEM,
         Consts.RES_FILTER_VIDEO_YEAR_NAVBAR_DISPLAY_LABEL, new FilterByYearCriterion())
     {
       _availableMias = Consts.NECESSARY_VIDEO_MIAS;

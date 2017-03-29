@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class SeriesFilterBySeasonScreenData : AbstractVideosFilterScreenData<SeasonFilterItem>
   {
     public SeriesFilterBySeasonScreenData() :
-      base(Consts.SCREEN_SERIES_FILTER_BY_SEASON, Consts.RES_FILTER_BY_SERIES_SEASON_MENU_ITEM,
+      base(Consts.SCREEN_SERIES_FILTER_BY_SEASON, Consts.RES_COMMON_BY_SERIES_SEASON_MENU_ITEM,
         Consts.RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL, new FilterBySeriesSeasonCriterion())
     {
       _availableMias = Consts.NECESSARY_SEASON_MIAS;

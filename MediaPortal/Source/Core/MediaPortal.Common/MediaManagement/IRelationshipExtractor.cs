@@ -54,6 +54,11 @@ namespace MediaPortal.Common.MediaManagement
     Guid[] LinkedRoleAspects { get; }
 
     /// <summary>
+    /// Aspects that must be present in order to accurately match items in <see cref="TryMatch"/>  
+    /// </summary>
+    Guid[] MatchAspects { get; }
+
+    /// <summary>
     /// Specifies whether or not this relation should be built. A relationship should not be 
     /// built if it creates the inverse of an already existing relationship.
     /// E.g. If Series -> Episode exists don't create Episode -> Series.
@@ -80,10 +85,10 @@ namespace MediaPortal.Common.MediaManagement
     /// from a group of aspects with Role to another group of aspects Linked Role
     /// </summary>
     /// <param name="aspects"></param>
-    /// <param name="extractedLinkedAspects"></param>
     /// <param name="importOnly"></param>
+    /// <param name="extractedLinkedAspects"></param>
     /// <returns></returns>
-    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly);
+    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects);
 
     /// <summary>
     /// Part 2 of the relationship building - if the extract was successful

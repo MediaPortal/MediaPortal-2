@@ -11,7 +11,10 @@
   <!--For example: "Artist: R.E.M."-->
   <!--Display labels for workflow navigation contexts-->
   <!--Screen headers-->
-  <string name="Media.VideoItemsHeader">Видеа</string>
+  <string name="Media.ChooseActorHeader">Актьори</string>
+  <string name="Media.ChooseDirectorHeader">Режисьори</string>
+  <string name="Media.ChooseVideoHeader">Видеа</string>
+  <!--View occupation names-->
   <!--View names (names for the view instances)-->
   <string name="Media.VideosRootViewName">Видеа</string>
   <!--General strings used in views-->

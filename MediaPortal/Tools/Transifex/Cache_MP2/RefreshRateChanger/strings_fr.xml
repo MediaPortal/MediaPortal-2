@@ -4,4 +4,7 @@
   <string name="RefreshRateChanger.IsEnabled.Help">Si activée, le taux de rafraîchissement de l\'écran peut être modifié pour correspondre au nombre d\'images affichées par seconde .</string>
   <string name="RefreshRateChanger.NoChangeForRate">Exclure des taux de rafraîchissement</string>
   <string name="RefreshRateChanger.NoChangeForRate.Help">Exclure des fréquences de la liste des taux de rafraîchissement . Entrez les valeurs sous forme d\'entiers séparés par des virgules (ex 23,25,50).</string>
+  <string name="RefreshRateChanger.RateMappings">Mappages de taux de rafraîchissement</string>
+  <string name="RefreshRateChanger.RateMappings.Help">Remplacer les mappages par défaut.
+Format: fps:Hz; fps:Hz (i.e. \"23:24\": pour une vidéo de fps=23.976 modification du rafraichissement à 24Hz).</string>
 </resources>

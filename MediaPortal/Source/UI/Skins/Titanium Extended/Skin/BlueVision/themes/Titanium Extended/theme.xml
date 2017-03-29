@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Theme Name="Titanium Extended" Version="1.0">
   <BasedOnTheme>default</BasedOnTheme>
-  <ShortDescription>Titanium Extended Theme</ShortDescription>
+  <ShortDescription>Titanium Extended</ShortDescription>
   <Preview>images\preview.jpg</Preview>
   <Author>Ge2301</Author>
   <ThemeVersion>1.0</ThemeVersion>

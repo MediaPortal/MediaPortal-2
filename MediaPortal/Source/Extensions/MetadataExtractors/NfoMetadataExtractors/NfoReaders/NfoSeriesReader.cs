@@ -81,12 +81,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
     #endregion
 
-    #region Private fields
-
-    private readonly NfoSeriesMetadataExtractorSettings _settings;
-
-    #endregion
-
     #region Ctor
 
     /// <summary>

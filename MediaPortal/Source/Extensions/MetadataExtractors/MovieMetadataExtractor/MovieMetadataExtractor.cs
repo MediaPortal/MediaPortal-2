@@ -184,6 +184,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
       string title = null;
+      string sortTitle = null;
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
@@ -212,23 +213,45 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           MovieNameMatcher.CleanupTitle(movieInfo);
         }
       }
+      if (movieInfo.MovieNameSort.IsEmpty)
+      {
+        //Try to get sort title
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, out sortTitle) && !string.IsNullOrEmpty(sortTitle))
+        {
+          movieInfo.MovieNameSort = sortTitle;
+        }
+      }
 
       if (movieInfo.MovieDbId == 0)
       {
-        // Try to use an existing TMDB id for exact mapping
-        string tmdbId;
-        if (MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
-          movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+        try
+        {
+          // Try to use an existing TMDB id for exact mapping
+          string tmdbId;
+          if (MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
+            movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading TMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+        }
       }
 
       if (string.IsNullOrEmpty(movieInfo.ImdbId))
       {
-        // Try to use an existing IMDB id for exact mapping
-        string imdbId = null;
-        if (pathsToTest.Any(path => MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId)))
-          movieInfo.ImdbId = imdbId;
-        else if (pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)))
-          movieInfo.ImdbId = imdbId;
+        try
+        {
+          // Try to use an existing IMDB id for exact mapping
+          string imdbId = null;
+          if (pathsToTest.Any(path => MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId)))
+            movieInfo.ImdbId = imdbId;
+          else if (pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)))
+            movieInfo.ImdbId = imdbId;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading IMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+        }
       }
 
       if (!movieInfo.IsBaseInfoPresent)
@@ -269,8 +292,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       if (importOnly)
       {
-        MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
-        MP4Matcher.ExtractFromTags(lfsra, movieInfo);
+        try
+        {
+          MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
+          MP4Matcher.ExtractFromTags(lfsra, movieInfo);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+        }
       }
 
       if (SkipOnlineSearches && !SkipFanArtDownload)

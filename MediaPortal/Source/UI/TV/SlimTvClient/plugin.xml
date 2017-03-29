@@ -172,6 +172,11 @@
         HelpText="[SlimTvClient.EpgNumberOfHours.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgNumberOfHoursSetting"/>
     <ConfigSetting
+        Id="EpgVisibleChannelInfoSetting"
+        Text="[SlimTvClient.EpgVisibleChannelInfo]"
+        HelpText="[SlimTvClient.EpgVisibleChannelInfo.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgVisibleChannelInfoSetting"/>
+    <ConfigSetting
         Id="ZapByChannelIndex"
         Text="[SlimTvClient.ZapByChannelIndex]"
         HelpText="[SlimTvClient.ZapByChannelIndex.Help]"

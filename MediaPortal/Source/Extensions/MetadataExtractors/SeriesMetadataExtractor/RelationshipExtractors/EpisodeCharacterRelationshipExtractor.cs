@@ -65,12 +65,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public Guid[] MatchAspects
+    {
+      get { return CharacterInfo.EQUALITY_ASPECTS; }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetCharacterSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -114,7 +119,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       AddToCheckCache(episodeInfo);
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      extractedLinkedAspects = new List<RelationshipItem>();
       foreach (CharacterInfo character in episodeInfo.Characters)
       {
         character.AssignNameId();
@@ -126,9 +131,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         {
           Guid existingId;
           if (TryGetIdFromCache(character, out existingId))
-            extractedLinkedAspects.Add(characterAspects, existingId);
+            extractedLinkedAspects.Add(new RelationshipItem(characterAspects, existingId));
           else
-            extractedLinkedAspects.Add(characterAspects, Guid.Empty);
+            extractedLinkedAspects.Add(new RelationshipItem(characterAspects, Guid.Empty));
         }
       }
       return extractedLinkedAspects.Count > 0;
@@ -164,8 +169,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> actors = aspect.GetCollectionAttribute<object>(VideoAspect.ATTR_CHARACTERS);
-      List<string> nameList = new List<string>(actors.Cast<string>());
+      IEnumerable<string> actors = aspect.GetCollectionAttribute<string>(VideoAspect.ATTR_CHARACTERS);
+      List<string> nameList = new List<string>(actors);
 
       index = nameList.IndexOf(name);
       return index >= 0;

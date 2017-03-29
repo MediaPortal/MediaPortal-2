@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class ImagesFilterByYearScreenData : AbstractImagesFilterScreenData
   {
     public ImagesFilterByYearScreenData() :
-        base(Consts.SCREEN_IMAGE_FILTER_BY_YEAR, Consts.RES_FILTER_BY_IMAGE_YEAR_MENU_ITEM,
+        base(Consts.SCREEN_IMAGE_FILTER_BY_YEAR, Consts.RES_COMMON_BY_YEAR_MENU_ITEM,
         Consts.RES_FILTER_IMAGE_YEAR_NAVBAR_DISPLAY_LABEL, new FilterByYearCriterion())
     {
     }

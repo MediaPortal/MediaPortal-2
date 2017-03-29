@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MovieFilterByCharacterScreenData : AbstractMovieFilterScreenData<CharacterFilterItem>
   {
     public MovieFilterByCharacterScreenData() :
-        base(Consts.SCREEN_MOVIES_FILTER_BY_CHARACTER, Consts.RES_FILTER_BY_CHARACTER_MENU_ITEM,
+        base(Consts.SCREEN_MOVIES_FILTER_BY_CHARACTER, Consts.RES_COMMON_BY_CHARACTER_MENU_ITEM,
         Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new FilterByCharacterCriterion(MovieAspect.ROLE_MOVIE))
     {
       _availableMias = Consts.NECESSARY_CHARACTER_MIAS;

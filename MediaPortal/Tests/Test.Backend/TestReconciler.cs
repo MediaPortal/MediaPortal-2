@@ -151,7 +151,8 @@ namespace Test.Backend
       ServiceRegistration.Get<ILogger>().Debug("Season:");
       MockCore.ShowMediaAspects(seasonAspects, MockCore.Library.GetManagedMediaItemAspectMetadata());
 
-      extractor.AddRelationship(EpisodeAspect.ROLE_EPISODE, new[] { EpisodeAspect.ASPECT_ID }, SeasonAspect.ROLE_SEASON, new[] { SeasonAspect.ASPECT_ID }, externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId, new List<IDictionary<Guid, IList<MediaItemAspect>>>() { seasonAspects }, EpisodeSeasonMatcher, episode);
+      Guid[] matchAspects = new[] { SeasonAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID };
+      extractor.AddRelationship(EpisodeAspect.ROLE_EPISODE, new[] { EpisodeAspect.ASPECT_ID }, SeasonAspect.ROLE_SEASON, new[] { SeasonAspect.ASPECT_ID }, matchAspects, externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId, new List<IDictionary<Guid, IList<MediaItemAspect>>>() { seasonAspects }, EpisodeSeasonMatcher, episode);
 
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       MediaItemAspect.SetAttribute(seriesAspects, SeasonAspect.ATTR_SERIES_NAME, seriesName);
@@ -160,7 +161,8 @@ namespace Test.Backend
       ServiceRegistration.Get<ILogger>().Debug("Series:");
       MockCore.ShowMediaAspects(seriesAspects, MockCore.Library.GetManagedMediaItemAspectMetadata());
 
-      extractor.AddRelationship(SeasonAspect.ROLE_SEASON, new[] { SeasonAspect.ASPECT_ID }, SeriesAspect.ROLE_SERIES, new[] { SeriesAspect.ASPECT_ID }, externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId, new List<IDictionary<Guid, IList<MediaItemAspect>>>() { seriesAspects }, null, season);
+      matchAspects = new[] { SeriesAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID };
+      extractor.AddRelationship(SeasonAspect.ROLE_SEASON, new[] { SeasonAspect.ASPECT_ID }, SeriesAspect.ROLE_SERIES, new[] { SeriesAspect.ASPECT_ID }, matchAspects, externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId, new List<IDictionary<Guid, IList<MediaItemAspect>>>() { seriesAspects }, null, season);
 
       MockDBUtils.AddReader(1, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
 

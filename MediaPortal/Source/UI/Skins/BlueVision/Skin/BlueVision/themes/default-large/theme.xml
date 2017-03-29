@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Theme Name="default-large" Version="1.0">
   <BasedOnTheme>default</BasedOnTheme>
-  <ShortDescription>Default-large Theme</ShortDescription>
+  <ShortDescription>Default-large</ShortDescription>
   <Preview>images\preview.jpg</Preview>
   <Author>Team MediaPortal</Author>
   <ThemeVersion>1.0</ThemeVersion>

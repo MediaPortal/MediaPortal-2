@@ -7,7 +7,7 @@
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Wetter</string>
   <string name="Weather.Title.Help">Aktuelle Wetterinformationen und Vorhersage.</string>
-  <string name="Weather.ChooseLocation">Standort auswählen</string>
+  <string name="Weather.ChooseLocation">Ort wählen</string>
   <string name="Weather.Refresh">Aktualisieren</string>
   <string name="Weather.Updating">Aktualisieren...</string>
   <string name="Weather.Weather">Wetter</string>
@@ -46,7 +46,7 @@
   <string name="Weather.Windy">Windig</string>
   <string name="Weather.Drizzle">Sprühregen</string>
   <string name="Weather.Freezing">Gefrierend</string>
-  <string name="Weather.NA">N/V</string>
+  <string name="Weather.NA">k.A.</string>
   <string name="Weather.Mist">Nebel</string>
   <string name="Weather.Low">niedrigste</string>
   <string name="Weather.High">höchste</string>
@@ -85,5 +85,5 @@
   <string name="WeatherSetup.RemoveCity">Stadt entfernen</string>
   <string name="WeatherSetup.Detect">Erkennen</string>
   <string name="WeatherSetup.DetectionFailed">Erkennung fehlgeschlagen</string>
-  <string name="WeatherSetup.DetectionFailedMessage">Automatische Erkennung Ihres Orts ist fehlgeschlagen.</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Automatische Erkennung Ihres Orts fehlgeschlagen.</string>
 </resources>

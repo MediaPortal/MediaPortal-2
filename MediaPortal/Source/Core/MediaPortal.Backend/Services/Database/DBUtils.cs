@@ -54,8 +54,8 @@ namespace MediaPortal.Backend.Services.Database
   /// </summary>
   public abstract class DBUtils
   {
-    public static DateTime MIN_DB_DATETIME = DateTime.Parse("1900-01-01");
-    public static DateTime MAX_DB_DATETIME = DateTime.Parse("2079-06-06");
+    public static DateTime MIN_DB_DATETIME = new DateTime(1900, 1, 1);
+    public static DateTime MAX_DB_DATETIME = new DateTime(2079, 6, 6);
 
     protected static IDictionary<Type, DbType> SIMPLEDOTNETTYPE2DBTYPE = new Dictionary<Type, DbType>();
     static DBUtils()

@@ -204,6 +204,21 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return relationshipFound;
     }
 
+    public static bool TryGetLinkedIds(IDictionary<Guid, IList<MediaItemAspect>> aspectData, Guid linkedRole, out IList<Guid> linkedIds)
+    {
+      IList<MultipleMediaItemAspect> relationships;
+      if (MediaItemAspect.TryGetAspects(aspectData, RelationshipAspect.Metadata, out relationships))
+      {
+        linkedIds = new List<Guid>();
+        foreach (MultipleMediaItemAspect relationship in relationships)
+          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == linkedRole)
+            linkedIds.Add(relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ID));
+        return linkedIds.Count > 0;
+      }
+      linkedIds = null;
+      return false;
+    }
+
     public static int CountRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspectData, Guid linkedRole)
     {
       int count = 0;

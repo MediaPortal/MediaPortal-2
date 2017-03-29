@@ -98,32 +98,18 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Blader door media navigatie</string>
   <string name="Media.LocalMediaNavigationHeader">Lokale media navigatie</string>
-  <string name="Media.MediaItemsHeader">Media-items</string>
-  <string name="Media.VideoItemsHeader">Video\'s</string>
-  <string name="Media.AudioItemsHeader">Audio items</string>
-  <string name="Media.EpisodeItemsHeader">Afleveringen</string>
-  <string name="Media.MoviesItemsHeader">Films</string>
-  <string name="Media.ImageItemsHeader">Afbeeldingen</string>
   <string name="Media.SimpleSearchHeader">Eenvoudig zoeken</string>
-  <string name="Media.ChooseCollectionHeader">Kies een collectie</string>
-  <string name="Media.ChooseActorHeader">Selecteer een acteur</string>
-  <string name="Media.ChooseDirectorHeader">Kies een regisseur</string>
-  <string name="Media.ChooseWriterHeader">Kies een schrijver</string>
-  <string name="Media.ChooseVideoGenreHeader">Selecteer een genre</string>
-  <string name="Media.ChooseVideoYearHeader">Selecteer een jaar</string>
-  <string name="Media.ChooseSeriesHeader">Selecteer een serie</string>
-  <string name="Media.ChooseSeasonHeader">Selecteer een seizoen</string>
-  <string name="Media.ChooseAudioDecadeHeader">Selecteer een decade</string>
-  <string name="Media.ChooseAlbumHeader">Selecteer een album</string>
-  <string name="Media.ChooseArtistHeader">Selecteer een artiest</string>
-  <string name="Media.ChooseAudioGenreHeader">Selecteer een genre</string>
-  <string name="Media.ChooseImageYearHeader">Selecteer een jaar</string>
-  <string name="Media.ChooseImageSizeHeader">Selecteer een grootte</string>
-  <string name="Media.ChooseImageCountryHeader">Kies een land</string>
-  <string name="Media.ChooseImageStateHeader">Kies een provincie</string>
-  <string name="Media.ChooseImageCityHeader">Kies een stad</string>
-  <string name="Media.ChooseSystemHeader">Selecteer een systeem</string>
-  <string name="Media.ChooseVideoLanguageHeader">Selecteer een taal</string>
+  <string name="Media.ChooseActorHeader">Acteurs</string>
+  <string name="Media.ChooseDirectorHeader">Regisseurs</string>
+  <string name="Media.ChooseMovieHeader">Films</string>
+  <string name="Media.ChooseWriterHeader">Auteurs</string>
+  <string name="Media.ChooseVideoGenreHeader">Genres</string>
+  <string name="Media.ChooseImageHeader">Afbeeldingen</string>
+  <string name="Media.ChooseSeriesHeader">Series</string>
+  <string name="Media.ChooseEpisodeHeader">Afleveringen</string>
+  <string name="Media.ChooseAudioHeader">Audio items</string>
+  <string name="Media.ChooseAudioGenreHeader">Genres</string>
+  <string name="Media.ChooseVideoHeader">Video\'s</string>
   <string name="Media.PlaylistsOverviewHeader">Afspeellijsten</string>
   <string name="Media.SavePlaylistEditNameHeader">Afspeellijst opslaan</string>
   <string name="Media.SavePlaylistFailedHeader">Afspeellijst opslaan</string>
@@ -133,6 +119,9 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Geen afspeellijst om te laden</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Fout tijdens het laden van de afspeellijst</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Een afspeellijst kan alleen opgeslagen worden als alle media-items werden opgevraagd van de \'home server\' (dus niet door de lokale media navigatie).</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Artiest</string>
+  <string name="Media.ActorOccupationName">acteur</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Blader door media</string>
   <string name="Media.LocalMediaRootViewName">Lokale media</string>

@@ -8,5 +8,5 @@
   <string name="MyPlugin.String1">Englischer Text 1</string>
   <string name="MyPlugin.String2">Englischer Text 2</string>
   <string name="MyPlugin.StateDisplayLabel">Navigationsleisten-Statusname</string>
-  <string name="MyPlugin.MenuEntry">MeinPlugin</string>
+  <string name="MyPlugin.MenuEntry">Mein Plugin</string>
 </resources>

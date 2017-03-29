@@ -47,11 +47,20 @@
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label x:Name="CurrentProgramTitleLabel" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
-                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel2}"
-                        Color="{ThemeResource TextColor}"
-                        FontFamily="DefaultBold" />
+                    <Grid DataContext="{Binding Source={StaticResource SlimTvClient}}" IsVisible="{Binding !IsOSDLevel2}" MaxWidth="900">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <Label Grid.Column="0" x:Name="CurrentProgramTitleLabel" Content="{Binding Path=CurrentProgram.Title}" Scroll="Auto"
+                               FontFamily="DefaultBold" Color="{ThemeResource TextColor}"/>
+                      <Label Grid.Column="1" x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}" Scroll="Auto"
+                             IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}">
+                        <Label.Content>
+                          <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+                        </Label.Content>
+                      </Label>
+                    </Grid>
 
                     <Label x:Name="NextProgramTitleLabel"  Grid.Column="0" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -656,7 +665,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="True"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="True"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -1026,16 +1035,16 @@
       <Border x:Name="Item3" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="2,-5,5,-5"/>
 
-      <Border x:Name="Item2_record" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="2,-5,2,-5"/>
-      <Border x:Name="Item3_record" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="2,-5,5,-5"/>
-
       <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,2,-5"/>
       <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="2,-5,2,-5"/>
       <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="2,-5,5,-5"/>
+
+      <Border x:Name="Item2_record" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="2,-5,2,-5"/>
+      <Border x:Name="Item3_record" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="2,-5,5,-5"/>
 
       <StackPanel Orientation="Horizontal" Grid.Column="0" x:Name="Channel">

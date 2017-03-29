@@ -47,12 +47,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
     /// <summary>
     /// GUID string for the Tve3 Recording metadata extractor.
     /// </summary>
-    private const string METADATAEXTRACTOR_ID_STR = "53033EC6-52BB-4032-A822-2573C66D0ACE";
+    private const string TVE_SERIES_METADATAEXTRACTOR_ID_STR = "53033EC6-52BB-4032-A822-2573C66D0ACE";
 
     /// <summary>
     /// Tve3 metadata extractor GUID.
     /// </summary>
-    public new static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
+    public new static Guid METADATAEXTRACTOR_ID = new Guid(TVE_SERIES_METADATAEXTRACTOR_ID_STR);
 
     protected static IList<MediaCategory> SERIES_MEDIA_CATEGORIES = new List<MediaCategory>();
 

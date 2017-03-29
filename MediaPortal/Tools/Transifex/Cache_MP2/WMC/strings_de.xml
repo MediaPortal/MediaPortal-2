@@ -3,4 +3,18 @@
   <string name="WMC.Configuration.SkinSettings">Skin-Einstellungen</string>
   <string name="WMC.Configuration.EnableFanart">Fanart aktivieren</string>
   <string name="WMC.Configuration.EnableFanart.Help">Hintergrund-Fanart anzeigen</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Gesehen-Symbol aktivieren</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Legt fest, ob ein Symbol für \"gesehen\" angezeigt wird</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">Listenansicht</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Rasteransicht</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Coveransicht</string>  
+  <string name="WMC.Configuration.EnableBanners">Banner anzeigen</string>
+  <string name="WMC.Configuration.EnableBanners.Help">Legt fest, ob in der Rasteransicht Banner anstelle von Covern angezeigt werden sollen</string>
+  <string name="WMC.Configuration.EnableBanners.Movies">Filme</string>
+  <string name="WMC.Configuration.EnableBanners.Series">Serien</string>
+  <string name="WMC.Configuration.EnableBanners.Seasons">Staffeln</string>
+  <string name="WMC.Configuration.EnableAnimatedBackground">Animierten Hintergrund aktivieren</string>
+  <string name="WMC.Configuration.EnableAnimatedBackground.Help">Legt fest, ob die \"Aurora\"-Animation im Hauptmenu verwendet wird</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView">Medien Detail-Ansicht aktivieren</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Zeigt zunächst Mediendetails an, statt den Titel direkt wiederzugeben.</string>
 </resources>

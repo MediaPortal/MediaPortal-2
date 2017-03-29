@@ -131,11 +131,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
                 {
                   //If last refresh is equal to added date, it has never been through the refresh cycle, so set low last change date
                   //All media items must be added because the paths are later used to delete no longer existing media items
-                  if ((mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) -
-                    mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED)).TotalSeconds <= 5)
+                  var lastImportDate = mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE);
+                  var addedDate = mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED);
+                  if ((lastImportDate - addedDate).TotalSeconds <= 5)
                     path2LastImportDate.Add(path, DateTime.MinValue);
                   else
-                    path2LastImportDate.Add(path, mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+                    path2LastImportDate.Add(path, lastImportDate);
                 }
                 if (!path2MediaItem.ContainsKey(path))
                 {
@@ -195,11 +196,19 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       // If there are no files stored in the MediaLibrary, there is no need to delete anything
       if (!fileResourcePathsInMediaLibrary.Any())
         return;
-      
+
       // Find out which files are stored in the MediaLibrary that do not exist anymore
       // in the filesystem and delete them
-      var fileResourcePathsInFileSystem = filesInDirectory.Select(ra => ra.CanonicalLocalResourcePath);
-      var noLongerExistingFileResourcePaths = fileResourcePathsInMediaLibrary.Except(fileResourcePathsInFileSystem);
+      var fileResourcePathsInFileSystem = filesInDirectory.Select(ra => ra.CanonicalLocalResourcePath).ToList();
+      var noLongerExistingFileResourcePaths = new List<ResourcePath>();
+      foreach (var mlResource in fileResourcePathsInMediaLibrary)
+      {
+        // Existing media items can have chained resource paths (i.e. BD ISO, or video inside .zip archive)
+        if (fileResourcePathsInFileSystem.Any(fsResource => mlResource == fsResource || mlResource.BasePathSegment == fsResource.BasePathSegment))
+          continue;
+        noLongerExistingFileResourcePaths.Add(mlResource);
+      }
+
       foreach (var noLongerExistingFileResourcePath in noLongerExistingFileResourcePaths)
         await DeleteMediaItem(noLongerExistingFileResourcePath);
     }

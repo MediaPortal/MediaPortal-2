@@ -36,13 +36,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// </summary>
   public class MetadataUpdater
   {
-    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing)
+    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, bool overwriteShorterStrings = true)
     {
       bool itemAdded;
-      return SetOrUpdateList(currentList, newList, addMissing, out itemAdded);
+      return SetOrUpdateList(currentList, newList, addMissing, out itemAdded, overwriteShorterStrings);
     }
 
-    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, out bool itemWasAdded)
+    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, out bool itemWasAdded, bool overwriteShorterStrings = true)
     {
       itemWasAdded = false;
       bool changed = false;
@@ -66,7 +66,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           Type objType = currentObj.GetType();
           if (objType.IsClass)
           {
-            FieldInfo[] fields = currentObj.GetType().GetFields();
+            FieldInfo[] fields = currentObj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
             if (fields != null)
             {
               foreach (FieldInfo field in fields)
@@ -82,28 +82,28 @@ namespace MediaPortal.Extensions.OnlineLibraries
                 {
                   string currentVal = (string)field.GetValue(currentObj);
                   string newVal = (string)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is string)
                 {
                   SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
                   string newVal = (string)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is string && field.GetValue(newObj) is SimpleTitle)
                 {
                   string currentVal = (string)field.GetValue(currentObj);
                   SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is SimpleTitle)
                 {
                   SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
                   SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleRating && field.GetValue(newObj) is SimpleRating)
@@ -167,35 +167,35 @@ namespace MediaPortal.Extensions.OnlineLibraries
                   }
                   else if (listElementType == typeof(string))
                   {
-                    changed |= SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(PersonInfo))
                   {
-                    changed |= SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(CompanyInfo))
                   {
-                    changed |= SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(CharacterInfo))
                   {
-                    changed |= SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(SeasonInfo))
                   {
-                    changed |= SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(EpisodeInfo))
                   {
-                    changed |= SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(MovieInfo))
                   {
-                    changed |= SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(TrackInfo))
                   {
-                    changed |= SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else
                   {
@@ -238,75 +238,48 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return changed;
     }
 
-    public static bool SetOrUpdateString(ref SimpleTitle currentString, string newString, bool isDefaultLanguage)
+    public static bool SetOrUpdateString(ref SimpleTitle currentString, string newString, bool isDefaultLanguage, bool overwriteShorterStrings = true)
     {
       if (string.IsNullOrEmpty(newString))
         return false;
 
-      if (currentString.Text == null || currentString.IsEmpty)
-      {
-        currentString = new SimpleTitle(newString.Trim(), isDefaultLanguage);
-        return true;
-      }
+      newString = newString.Trim();
       //Avoid overwriting strings in the correct language with that of the default language
-      if(currentString.DefaultLanguage && !isDefaultLanguage)
+      if (currentString.IsEmpty || (currentString.DefaultLanguage && !isDefaultLanguage))
       {
-        currentString = new SimpleTitle(newString.Trim(), isDefaultLanguage);
+        currentString = new SimpleTitle(newString, isDefaultLanguage);
         return true;
       }
-      else if (currentString.DefaultLanguage == true)
+      else if (overwriteShorterStrings && currentString.DefaultLanguage && currentString.Text.Length <= newString.Length)
       {
-        if(currentString.Text.Length <= newString.Trim().Length)
-        {
-          currentString = new SimpleTitle(newString.Trim(), isDefaultLanguage);
-          return true;
-        }
+        currentString = new SimpleTitle(newString, isDefaultLanguage);
+        return true;
       }
       return false;
     }
 
-    public static bool SetOrUpdateString(ref string currentString, string newString)
+    public static bool SetOrUpdateString(ref string currentString, string newString, bool overwriteShorterStrings = true)
     {
       if (string.IsNullOrEmpty(newString))
         return false;
 
-      if (string.IsNullOrEmpty(currentString))
+      newString = newString.Trim();
+      if (string.IsNullOrEmpty(currentString) || (overwriteShorterStrings && currentString.Length < newString.Length))
       {
-        currentString = newString.Trim();
-        return true;
-      }
-      if (currentString.Length < newString.Trim().Length)
-      {
-        currentString = newString.Trim();
+        currentString = newString;
         return true;
       }
       return false;
     }
 
-    public static bool SetOrUpdateString(ref string currentString, SimpleTitle newString)
+    public static bool SetOrUpdateString(ref string currentString, SimpleTitle newString, bool overwriteShorterStrings = true)
     {
-      if (newString.IsEmpty)
-        return false;
-
-      if (string.IsNullOrEmpty(currentString))
-      {
-        currentString = newString.Text.Trim();
-        return true;
-      }
-      if (currentString.Length < newString.Text.Trim().Length)
-      {
-        currentString = newString.Text.Trim();
-        return true;
-      }
-      return false;
+      return SetOrUpdateString(ref currentString, newString.Text, overwriteShorterStrings);
     }
 
-    public static bool SetOrUpdateString(ref SimpleTitle currentString, SimpleTitle newString)
+    public static bool SetOrUpdateString(ref SimpleTitle currentString, SimpleTitle newString, bool overwriteShorterStrings = true)
     {
-      if (newString.IsEmpty)
-        return false;
-
-      return SetOrUpdateString(ref currentString, newString.Text, newString.DefaultLanguage);
+      return SetOrUpdateString(ref currentString, newString.Text, newString.DefaultLanguage, overwriteShorterStrings);
     }
 
     public static bool SetOrUpdateId<T>(ref T currentId, T newId)
