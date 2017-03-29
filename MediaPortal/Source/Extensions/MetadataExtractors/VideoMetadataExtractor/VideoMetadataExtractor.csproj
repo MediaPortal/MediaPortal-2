@@ -46,8 +46,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="taglib-sharp, Version=2.1.0.2, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TagLib.2.1.0.2\lib\net45\taglib-sharp.dll</HintPath>
+    <Reference Include="taglib-sharp, Version=2.1.0.3, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TagLib.2.1.0.3\lib\net45\taglib-sharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ude, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
