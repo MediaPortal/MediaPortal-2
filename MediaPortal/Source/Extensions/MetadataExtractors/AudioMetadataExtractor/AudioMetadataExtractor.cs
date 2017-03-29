@@ -359,6 +359,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return values;
     }
 
+    public static bool IsDiscFolder(string album, string albumFolder)
+    {
+      int discNo = 0;
+      int albumNo = 0;
+      if (album != null &&
+        (albumFolder.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase) && !album.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase)) ||
+        (int.TryParse(albumFolder, out discNo) && int.TryParse(album, out albumNo) && discNo != albumNo))
+      {
+        return true;
+      }
+      return false;
+    }
+
     /// <summary>
     /// We have to cope with a very stupid problem; The ID3Tag specification v2.3 (http://www.id3.org/d3v2.3.0, search for TPE1)
     /// uses the '/' character as separator for multiple values in some fields such as TPEE1 (=artist), but what to do if an artist name contains
@@ -657,7 +670,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         }
 
         //Determine compilation
-        if (!trackInfo.Compilation)
+        if (importOnly && !trackInfo.Compilation)
         {
           if (trackInfo.AlbumArtists.Count > 0 &&
               (trackInfo.AlbumArtists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
@@ -671,11 +684,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             var mediaItemPath = mediaItemAccessor.CanonicalLocalResourcePath;
             var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
             var artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
-            int discNo = 0;
-            int albumNo = 0;
-            if (trackInfo.Album != null && 
-              (albumMediaItemDirectoryPath.FileName.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase) && !trackInfo.Album.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase)) ||
-              (int.TryParse(albumMediaItemDirectoryPath.FileName, out discNo) && int.TryParse(trackInfo.Album, out albumNo) && discNo != albumNo))
+
+            if (IsDiscFolder(trackInfo.Album, albumMediaItemDirectoryPath.FileName))
             {
               //Probably a CD folder so try next parent
               artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../../");

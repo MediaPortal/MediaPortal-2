@@ -506,7 +506,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           AlbumInfo album = trackMatch.CloneBasicInstance<AlbumInfo>();
           album.Artists = trackMatch.Artists;
           if (UpdateAlbumPersons(album, occupation, importOnly))
+          {
+            trackMatch.HasChanged = album.HasChanged ? album.HasChanged : trackMatch.HasChanged;
             updated = true;
+          }
         }
 
         if (updated)

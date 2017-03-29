@@ -107,12 +107,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       {
         var mediaItemPath = mediaIteamLocator.NativeResourcePath;
         var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
-        int discNo = 0;
-        int albumNo = 0;
         string album = null;
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAspect.ATTR_ALBUM, out album) && album != null &&
-        (mediaItemDirectoryPath.FileName.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase) && !album.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase)) ||
-        (int.TryParse(mediaItemDirectoryPath.FileName, out discNo) && int.TryParse(album, out albumNo) && discNo != albumNo))
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAspect.ATTR_ALBUM, out album) && IsDiscFolder(album, mediaItemDirectoryPath.FileName))
         {
           //Probably a CD folder so try next parent
           mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
@@ -180,6 +176,19 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             result.Add(path);
         }
       return result;
+    }
+
+    public static bool IsDiscFolder(string album, string albumFolder)
+    {
+      int discNo = 0;
+      int albumNo = 0;
+      if (album != null &&
+        (albumFolder.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase) && !album.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase)) ||
+        (int.TryParse(albumFolder, out discNo) && int.TryParse(album, out albumNo) && discNo != albumNo))
+      {
+        return true;
+      }
+      return false;
     }
   }
 }
