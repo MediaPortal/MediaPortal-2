@@ -18,21 +18,22 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <ControlTemplate.Resources>
-        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
-        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
-      </ControlTemplate.Resources>
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid.Background>
-          <VideoBrush Stream="0"/>
-        </Grid.Background>
-        <Image x:Name="FanArtImageBackground" Stretch="UniformToFill">
-          <Image.Source>
-            <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
-          </Image.Source>
-        </Image>
-      </Grid>
+      <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Image x:Name="FanArtImageBackground" Stretch="UniformToFill"
+                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Image.Source>
+              <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5">
+                <ImageSourceWrapper.Source>
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt"
+                              fanart:FanArtName="{Binding MediaItem.MediaItemId}" fanart:MaxWidth="1920" fanart:MaxHeight="1080" fanart:Cache="false"/>
+                </ImageSourceWrapper.Source>
+              </ImageSourceWrapper>
+            </Image.Source>
+          </Image>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
     </ControlTemplate>
 
     <ControlTemplate x:Key="Client_Template">
