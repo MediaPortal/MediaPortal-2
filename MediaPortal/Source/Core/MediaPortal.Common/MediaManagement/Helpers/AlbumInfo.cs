@@ -429,7 +429,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       //For albums, the name is likely to have come from a tag so ensure that names are similar in addition
       //to the checks below, so that if a user has 2 albums in different qualities, deliberately tagged differently
       //they don't get merged into the same album.
-      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && !StrictMatchNames(Album, other.Album))
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && !MatchNames(Album, other.Album))
         return false;
 
       if (AudioDbId > 0 && other.AudioDbId > 0)
@@ -457,12 +457,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override bool MatchNames(string name1, string name2)
     {
-      return CompareNames(name1, name2, 0.7);
-    }
-
-    public bool StrictMatchNames(string name1, string name2)
-    {
-      return CompareNames(name1, name2, 0.85);
+      return CompareNames(name1, name2, 0.8, 3);
     }
 
     public override T CloneBasicInstance<T>()

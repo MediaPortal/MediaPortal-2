@@ -287,7 +287,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Occupation == PersonAspect.OCCUPATION_ARTIST || Occupation == PersonAspect.OCCUPATION_COMPOSER)
         return CompareNames(name1, name2, 0.8);
 
-      return CompareNames(name1, name2, 0.62);
+      return CompareNames(name1, name2);
     }
 
     public int CompareTo(PersonInfo other)

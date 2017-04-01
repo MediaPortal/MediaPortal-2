@@ -1558,20 +1558,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (albums.Count > 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", albumSearch, albums.Count);
-          //int equalCount = 0;
-          //foreach (AlbumInfo album in albums)
-          //{
-          //  if (albumSearch.Equals(album))
-          //    equalCount++;
-          //}
-          //if (equalCount == albums.Count)
-          //{
-          //  //All found albums match so take first match
-          //  AlbumInfo forcedMatch = albums[0];
-          //  albums.Clear();
-          //  albums.Add(forcedMatch);
-          //  ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Forced match found \"{0}\"!", albumSearch);
-          //}
+          foreach (AlbumInfo album in albums)
+          {
+            //Album matching is also done strictly on name so allow a strict match
+            if (albumSearch.Equals(album))
+            {
+              albums.Clear();
+              albums.Add(album);
+              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Strict match found \"{0}\"!", albumSearch);
+              break;
+            }
+          }
         }
 
         return albums.Count == 1;
@@ -1768,12 +1765,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       if (string.IsNullOrEmpty(movieOnline.OriginalName))
-        return movieSearch.MatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text);
+        return movieSearch.OnlineMatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text);
       else
       {
-        if (movieSearch.MatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text))
+        if (movieSearch.OnlineMatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text))
           return true;
-        if (movieSearch.MatchNames(movieOnline.OriginalName, movieSearch.MovieName.Text))
+        if (movieSearch.OnlineMatchNames(movieOnline.OriginalName, movieSearch.MovieName.Text))
           return true;
       }
       return false;
@@ -1784,7 +1781,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodeOnline.EpisodeName.IsEmpty || episodeSearch.EpisodeName.IsEmpty)
         return false;
 
-      return episodeSearch.MatchNames(episodeOnline.EpisodeName.Text, episodeSearch.EpisodeName.Text);
+      return episodeSearch.OnlineMatchNames(episodeOnline.EpisodeName.Text, episodeSearch.EpisodeName.Text);
     }
 
     public static bool NamesAreMostlyEqual(SeriesInfo seriesOnline, SeriesInfo seriesSearch)
@@ -1793,12 +1790,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       if (string.IsNullOrEmpty(seriesOnline.OriginalName))
-        return seriesSearch.MatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text);
+        return seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text);
       else
       {
-        if (seriesSearch.MatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text))
+        if (seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text))
           return true;
-        if (seriesSearch.MatchNames(seriesOnline.OriginalName, seriesSearch.SeriesName.Text))
+        if (seriesSearch.OnlineMatchNames(seriesOnline.OriginalName, seriesSearch.SeriesName.Text))
           return true;
       }
       return false;
@@ -1812,12 +1809,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       if (string.IsNullOrEmpty(personOnline.AlternateName))
-        return personSearch.MatchNames(personOnline.Name, personSearch.Name);
+        return personSearch.OnlineMatchNames(personOnline.Name, personSearch.Name);
       else
       {
-        if (personSearch.MatchNames(personOnline.Name, personSearch.Name))
+        if (personSearch.OnlineMatchNames(personOnline.Name, personSearch.Name))
           return true;
-        if (personSearch.MatchNames(personOnline.AlternateName, personSearch.Name))
+        if (personSearch.OnlineMatchNames(personOnline.AlternateName, personSearch.Name))
           return true;
       }
       return false;
@@ -1828,7 +1825,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (string.IsNullOrEmpty(characterOnline.Name) || string.IsNullOrEmpty(characterSearch.Name))
         return false;
 
-      return characterSearch.MatchNames(characterOnline.Name, characterSearch.Name);
+      return characterSearch.OnlineMatchNames(characterOnline.Name, characterSearch.Name);
     }
 
     public static bool NamesAreMostlyEqual(CompanyInfo companyOnline, CompanyInfo companySearch)
@@ -1838,7 +1835,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (companyOnline.Type != companySearch.Type)
         return false;
 
-      return companySearch.MatchNames(companyOnline.Name, companySearch.Name);
+      return companySearch.OnlineMatchNames(companyOnline.Name, companySearch.Name);
     }
 
     public static bool NamesAreMostlyEqual(TrackInfo trackOnline, TrackInfo trackSearch)
@@ -1846,7 +1843,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (string.IsNullOrEmpty(trackOnline.TrackName) || string.IsNullOrEmpty(trackSearch.TrackName))
         return false;
 
-      bool trackMatch = trackSearch.MatchNames(trackOnline.TrackName, trackSearch.TrackName);
+      bool trackMatch = trackSearch.OnlineMatchNames(trackOnline.TrackName, trackSearch.TrackName);
       if (!string.IsNullOrEmpty(trackSearch.Album) && trackMatch)
       {
         return NamesAreMostlyEqual(trackOnline.CloneBasicInstance<AlbumInfo>(), trackSearch.CloneBasicInstance<AlbumInfo>());
@@ -1858,7 +1855,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album) || !albumOnline.AlbumVolumesAreEqual(albumSearch))
         return false;      
-      return albumSearch.MatchNames(albumOnline.Album, albumSearch.Album);
+      return albumSearch.OnlineMatchNames(albumOnline.Album, albumSearch.Album);
     }
 
     /// <summary>
