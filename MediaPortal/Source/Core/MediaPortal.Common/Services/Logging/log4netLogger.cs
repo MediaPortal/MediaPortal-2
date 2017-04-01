@@ -40,7 +40,7 @@ namespace MediaPortal.Common.Services.Logging
   {
     static Log4NetLogger()
     {
-      MediaPortalPatternLayout.RegisterLogWrapper(@"\Source\Core\MediaPortal.Common\Services\Logging\log4netLogger.cs");
+      MediaPortalPatternLayout.RegisterLogWrapper(typeof(Log4NetLogger), @"\Source\Core\MediaPortal.Common\Services\Logging\log4netLogger.cs");
     }
 
     /// <summary>
@@ -185,9 +185,9 @@ namespace MediaPortal.Common.Services.Logging
       }
     }
 
-    public void RegisterLogWrapper(string relativeFilename)
+    public void RegisterLogWrapper(Type type, string relativeFilename)
     {
-      MediaPortalPatternLayout.RegisterLogWrapper(relativeFilename);
+      MediaPortalPatternLayout.RegisterLogWrapper(type, relativeFilename);
     }
 
     private Level ToLog4Net(LogLevel level)

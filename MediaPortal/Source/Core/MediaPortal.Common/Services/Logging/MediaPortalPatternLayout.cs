@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,12 @@ using log4net.Layout.Pattern;
 
 namespace MediaPortal.Common.Services.Logging
 {
+  internal class LogWrapper
+  {
+    public Type type;
+    public string relativeFilename;
+  }
+
   /**
    * We know the stack frame will have log4netLogger as the source of the logging event
    * so we need to go one level up
@@ -26,15 +33,18 @@ namespace MediaPortal.Common.Services.Logging
       AddConverter("L", typeof(MPLineLocationPatternConverter));
       AddConverter("line", typeof(MPLineLocationPatternConverter));
 
-      AddConverter("M", typeof(MPMethodLocationPatternConverter));
-      AddConverter("method", typeof(MPMethodLocationPatternConverter));
+      AddConverter("M", typeof(MPMethodPatternConverter));
+      AddConverter("method", typeof(MPMethodPatternConverter));
     }
 
-    private static readonly List<string> LOG_WRAPPERS = new List<string>();
+    private static readonly List<LogWrapper> LOG_WRAPPERS = new List<LogWrapper>();
 
-    public static void RegisterLogWrapper(string logger)
+    public static void RegisterLogWrapper(Type type, string relativeFilename)
     {
-      LOG_WRAPPERS.Add(logger);
+      LogWrapper logWrapper = new LogWrapper();
+      logWrapper.type = type;
+      logWrapper.relativeFilename = relativeFilename;
+      LOG_WRAPPERS.Add(logWrapper);
     }
 
     /*
@@ -42,13 +52,20 @@ namespace MediaPortal.Common.Services.Logging
      */
     internal static StackFrame GetOuterStackFrame(LoggingEvent loggingEvent)
     {
+      //Console.WriteLine("There are {0} stack frames", loggingEvent.LocationInformation.StackFrames.Length);
       StackFrame lastKnown = loggingEvent.LocationInformation.StackFrames[0];
       StackFrame[] stackFrames = loggingEvent.LocationInformation.StackFrames;
       foreach (StackFrame stackFrame in stackFrames)
       {
-        if (stackFrame.GetFileName() != null)
+        /* Console.WriteLine("Stack frame filename={0} line={1} method={2},{3}",
+          stackFrame.GetFileName() ?? "null",
+          stackFrame.GetFileLineNumber(),
+          stackFrame.GetMethod() != null && stackFrame.GetMethod().DeclaringType != null ? stackFrame.GetMethod().DeclaringType.FullName : "null",
+          stackFrame.GetMethod()?.ToString() ?? "null"
+        ); */
+        if (stackFrame.GetMethod().DeclaringType != null)
         {
-          if (LOG_WRAPPERS.All(x => stackFrame.GetFileName().IndexOf(x) == -1))
+          if (LOG_WRAPPERS.All(x => stackFrame.GetMethod().DeclaringType != x.type))
             return stackFrame;
           lastKnown = stackFrame;
         }
@@ -62,9 +79,12 @@ namespace MediaPortal.Common.Services.Logging
      */
     internal static int GetFullPathOffset(LoggingEvent loggingEvent)
     {
-      foreach (string logWrapper in LOG_WRAPPERS)
+      if (loggingEvent.LocationInformation.StackFrames[0].GetFileName() == null)
+        return 0;
+
+      foreach (LogWrapper logWrapper in LOG_WRAPPERS)
       {
-        int offset = loggingEvent.LocationInformation.StackFrames[0].GetFileName().IndexOf(logWrapper);
+        int offset = loggingEvent.LocationInformation.StackFrames[0].GetFileName().IndexOf(logWrapper.relativeFilename);
         if (offset >= 0)
           return offset + 1;
       }
@@ -88,7 +108,7 @@ namespace MediaPortal.Common.Services.Logging
     protected override void Convert(TextWriter writer, LoggingEvent loggingEvent)
     {
       string filename = MediaPortalPatternLayout.GetOuterStackFrame(loggingEvent).GetFileName();
-      writer.Write(filename.Substring(MediaPortalPatternLayout.GetFullPathOffset(loggingEvent)));
+      writer.Write(filename?.Substring(MediaPortalPatternLayout.GetFullPathOffset(loggingEvent)) ?? "");
     }
   }
 
@@ -100,7 +120,7 @@ namespace MediaPortal.Common.Services.Logging
     }
   }
 
-  internal sealed class MPMethodLocationPatternConverter : PatternLayoutConverter
+  internal sealed class MPMethodPatternConverter : PatternLayoutConverter
   {
     protected override void Convert(TextWriter writer, LoggingEvent loggingEvent)
     {

@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Common.Logging
 {
   /// <summary>
@@ -41,6 +43,12 @@ namespace MediaPortal.Common.Logging
     /// <param name="level">New log level</param>
     void SetLogLevel(LogLevel level);
 
-    void RegisterLogWrapper(string relativeFilename);
+    /// <summary>
+    /// Register a class as a log wrapper. These classes will subsequently be ignored when traversing
+    /// the log stack to work out where a call was from
+    /// </summary>
+    /// <param name="type">log wrapper class</param>
+    /// <param name="relativeFilename">Partial path starting at the git repo directory</param>
+    void RegisterLogWrapper(Type type, string relativeFilename);
   }
 }

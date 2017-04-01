@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.SlimTv.Integration
   {
     static LoggerWrapper()
     {
-      ServiceRegistration.Get<ILoggerConfig>().RegisterLogWrapper(@"Source\UI\TV\SlimTvIntegration\LoggerWrapper.cs");
+      ServiceRegistration.Get<ILoggerConfig>().RegisterLogWrapper(typeof(LoggerWrapper), @"Source\UI\TV\SlimTvIntegration\LoggerWrapper.cs");
     }
 
     private readonly Common.Logging.ILogger _logger;

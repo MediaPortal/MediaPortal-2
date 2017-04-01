@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Plugins.OneTrueError.Settings;
 using OneTrueError.Client;
@@ -37,6 +39,11 @@ namespace MediaPortal.Plugins.OneTrueError
     private SettingsChangeWatcher<ErrorReportingServiceSettings> _settings = new SettingsChangeWatcher<ErrorReportingServiceSettings>();
     private LogLevel _minReportLevel = LogLevel.Information;
     private ICollection<string> _exceptionExcludeFilter = new HashSet<string>();
+
+    static ErrorLogWrapper()
+    {
+      ServiceRegistration.Get<ILoggerConfig>().RegisterLogWrapper(typeof(ErrorLogWrapper), @"\Incubator\1TrueError\ErrorLogWrapper.cs");
+    }
 
     /// <summary>
     /// Creates a new <see cref="ErrorLogWrapper"/> instance and initializes it with the given <paramref name="parentLogger"/>.
@@ -179,6 +186,11 @@ namespace MediaPortal.Plugins.OneTrueError
     {
       ILoggerConfig loggerConfig = _logger as ILoggerConfig;
       if (loggerConfig != null) loggerConfig.SetLogLevel(level);
+    }
+
+    public void RegisterLogWrapper(Type type, string relativeFilename)
+    {
+      _logger.Warn("Unable to register log wrapper " + relativeFilename);
     }
   }
 }
