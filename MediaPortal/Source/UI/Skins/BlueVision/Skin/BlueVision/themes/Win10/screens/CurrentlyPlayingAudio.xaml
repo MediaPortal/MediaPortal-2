@@ -39,7 +39,7 @@
                         <ImageSourceWrapper Delay="2" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="2">
                           <ImageSourceWrapper.Source>
                             <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt"
-                              fanart:FanArtName="{Binding MediaItem.MediaItemId}" fanart:MaxWidth="1920" fanart:MaxHeight="1080" fanart:Cache="false"/>
+                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="1920" fanart:MaxHeight="1080" fanart:Cache="false"/>
                           </ImageSourceWrapper.Source>
                         </ImageSourceWrapper>
                       </Image.Source>
