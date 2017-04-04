@@ -297,6 +297,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
           var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
           var artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+          if (AudioMetadataExtractor.IsDiscFolder(albumTitle, albumMediaItemDirectoryPath.FileName))
+          {
+            //Probably a CD folder so try next parent
+            albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+            artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../../");
+          }
 
           //Album fanart
           var fanArtPaths = new List<ResourcePath>();

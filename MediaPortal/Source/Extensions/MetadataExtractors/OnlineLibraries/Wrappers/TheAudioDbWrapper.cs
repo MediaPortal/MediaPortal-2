@@ -415,7 +415,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
       if (albumDetail == null) return false;
 
-      if (!string.IsNullOrEmpty(albumDetail.Label) && BaseInfo.MatchNames(company.Name, albumDetail.Label) && albumDetail.LabelId.HasValue)
+      if (!string.IsNullOrEmpty(albumDetail.Label) && company.MatchNames(company.Name, albumDetail.Label) && albumDetail.LabelId.HasValue)
       {
         company.AudioDbId = albumDetail.LabelId.Value;
         company.Name = albumDetail.Label;

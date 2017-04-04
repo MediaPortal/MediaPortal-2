@@ -43,6 +43,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// </summary>
   public abstract class BaseInfo
   {
+    public const int MAX_LEVENSHTEIN_DIST = 4;
+    public const int LEVENSHTEIN_MATCH_THRESHOLD = 10;
+
     /// <summary>
     /// Maximum cover image width. Larger images will be scaled down to fit this dimension.
     /// </summary>
@@ -101,6 +104,29 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public abstract bool HasExternalId { get; }
 
+    public virtual bool MatchNames(string name1, string name2)
+    {
+      return CompareNames(name1, name2);
+    }
+
+    public virtual bool OnlineMatchNames(string name1, string name2)
+    {
+      return CompareNames(name1, name2);
+    }
+
+    protected bool CompareNames(string name1, string name2, double threshold = 0.62, int distance = 0)
+    {
+      if(Math.Max(name1.Length, name2.Length) < LEVENSHTEIN_MATCH_THRESHOLD || distance > 0)
+      {
+        //Dice Coefficients are not good against short strings
+        distance = distance <= 0 ? MAX_LEVENSHTEIN_DIST : distance;
+        double dist = StringUtils.GetLevenshteinDistance(StringUtils.RemoveDiacritics(name1).ToLowerInvariant(), StringUtils.RemoveDiacritics(name2).ToLowerInvariant());
+        return dist < distance;
+      }
+      double dice = StringUtils.RemoveDiacritics(name1).ToLowerInvariant().DiceCoefficient(StringUtils.RemoveDiacritics(name2).ToLowerInvariant());
+      return dice > threshold;
+    }
+
     /// <summary>
     /// Used to replace all "." and "_" that are not followed by a word character.
     /// <example>Replaces <c>"Once.Upon.A.Time.S01E13"</c> to <c>"Once Upon A Time S01E13"</c>, but keeps the <c>"."</c> inside
@@ -150,14 +176,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (string.IsNullOrEmpty(value)) return null;
       return Regex.Replace(Regex.Replace(value, CLEAN_REGEX, "").Trim(), @"\s{2,}", " ");
-    }
-
-    public static bool MatchNames(string name1, string name2, double threshold = 0.62)
-    {
-      double dice = StringUtils.RemoveDiacritics(name1).ToLowerInvariant().DiceCoefficient(StringUtils.RemoveDiacritics(name2).ToLowerInvariant());
-      return dice > threshold;
-
-      //return name1.FuzzyEquals(name2);
     }
 
     /// <summary>

@@ -283,7 +283,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// </summary>
     /// <param name="movieSearch">Movie search parameters</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="movieOnline">Returns movie information with only the Ids of the matched movie</param>
     /// <returns><c>true</c> if at exactly one Movie was found.</returns>
     public bool SearchMovieUniqueAndUpdate(MovieInfo movieSearch, TLang language)
     {
@@ -447,7 +446,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// - If series name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
     /// </summary>
     /// <param name="episodeSearch">Episode search parameters.</param>
-    /// <param name="series">Returns the list of matches.</param>
+    /// <param name = "language" > Language, if <c>null</c> it takes the<see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if only one Episode was found.</returns>
     public bool SearchSeriesEpisodeUniqueAndUpdate(EpisodeInfo episodeSearch, TLang language)
     {
@@ -585,7 +584,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// - If series name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
     /// </summary>
     /// <param name="seriesSearch">Series search parameters.</param>
-    /// <param name="series">Returns the list of matches.</param>
+    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if only one Series was found.</returns>
     public bool SearchSeriesUniqueAndUpdate(SeriesInfo seriesSearch, TLang language)
     {
@@ -818,13 +817,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     }
 
     /// <summary>
-    /// Search for unique matches of Persons. This method tries to find the best matching Movie in following order:
+    /// Search for unique matches of Persons. This method tries to find the best matching Person in following order:
     /// - Exact match using PreferredLanguage
     /// - Exact match using DefaultLanguage
     /// </summary>
     /// <param name="personSearch">Person search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="persons">Returns the list of matches.</param>
     /// <returns><c>true</c> if at exactly one Person was found.</returns>
     public bool SearchPersonUniqueAndUpdate(PersonInfo personSearch, TLang language)
     {
@@ -992,7 +990,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// </summary>
     /// <param name="characterSearch">Character search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="persons">Returns the list of matches.</param>
     /// <returns><c>true</c> if at exactly one Person was found.</returns>
     public bool SearchCharacterUniqueAndUpdate(CharacterInfo characterSearch, TLang language)
     {
@@ -1128,7 +1125,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// </summary>
     /// <param name="companySearch">Company search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="companies">Returns the list of matches.</param>
     /// <returns><c>true</c> if at exactly one Company was found.</returns>
     public bool SearchCompanyUniqueAndUpdate(CompanyInfo companySearch, TLang language)
     {
@@ -1562,19 +1558,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (albums.Count > 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", albumSearch, albums.Count);
-          int equalCount = 0;
           foreach (AlbumInfo album in albums)
           {
+            //Album matching is also done strictly on name so allow a strict match
             if (albumSearch.Equals(album))
-              equalCount++;
-          }
-          if (equalCount == albums.Count)
-          {
-            //All found albums match so take first match
-            AlbumInfo forcedMatch = albums[0];
-            albums.Clear();
-            albums.Add(forcedMatch);
-            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Forced match found \"{0}\"!", albumSearch);
+            {
+              albums.Clear();
+              albums.Add(album);
+              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Strict match found \"{0}\"!", albumSearch);
+              break;
+            }
           }
         }
 
@@ -1772,12 +1765,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       if (string.IsNullOrEmpty(movieOnline.OriginalName))
-        return BaseInfo.MatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text);
+        return movieSearch.OnlineMatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text);
       else
       {
-        if (BaseInfo.MatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text))
+        if (movieSearch.OnlineMatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text))
           return true;
-        if (BaseInfo.MatchNames(movieOnline.OriginalName, movieSearch.MovieName.Text))
+        if (movieSearch.OnlineMatchNames(movieOnline.OriginalName, movieSearch.MovieName.Text))
           return true;
       }
       return false;
@@ -1788,7 +1781,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodeOnline.EpisodeName.IsEmpty || episodeSearch.EpisodeName.IsEmpty)
         return false;
 
-      return BaseInfo.MatchNames(episodeOnline.EpisodeName.Text, episodeSearch.EpisodeName.Text);
+      return episodeSearch.OnlineMatchNames(episodeOnline.EpisodeName.Text, episodeSearch.EpisodeName.Text);
     }
 
     public static bool NamesAreMostlyEqual(SeriesInfo seriesOnline, SeriesInfo seriesSearch)
@@ -1797,12 +1790,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       if (string.IsNullOrEmpty(seriesOnline.OriginalName))
-        return BaseInfo.MatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text);
+        return seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text);
       else
       {
-        if (BaseInfo.MatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text))
+        if (seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text))
           return true;
-        if (BaseInfo.MatchNames(seriesOnline.OriginalName, seriesSearch.SeriesName.Text))
+        if (seriesSearch.OnlineMatchNames(seriesOnline.OriginalName, seriesSearch.SeriesName.Text))
           return true;
       }
       return false;
@@ -1816,12 +1809,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       if (string.IsNullOrEmpty(personOnline.AlternateName))
-        return BaseInfo.MatchNames(personOnline.Name, personSearch.Name);
+        return personSearch.OnlineMatchNames(personOnline.Name, personSearch.Name);
       else
       {
-        if (BaseInfo.MatchNames(personOnline.Name, personSearch.Name))
+        if (personSearch.OnlineMatchNames(personOnline.Name, personSearch.Name))
           return true;
-        if (BaseInfo.MatchNames(personOnline.AlternateName, personSearch.Name))
+        if (personSearch.OnlineMatchNames(personOnline.AlternateName, personSearch.Name))
           return true;
       }
       return false;
@@ -1832,7 +1825,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (string.IsNullOrEmpty(characterOnline.Name) || string.IsNullOrEmpty(characterSearch.Name))
         return false;
 
-      return BaseInfo.MatchNames(characterOnline.Name, characterSearch.Name);
+      return characterSearch.OnlineMatchNames(characterOnline.Name, characterSearch.Name);
     }
 
     public static bool NamesAreMostlyEqual(CompanyInfo companyOnline, CompanyInfo companySearch)
@@ -1842,7 +1835,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (companyOnline.Type != companySearch.Type)
         return false;
 
-      return BaseInfo.MatchNames(companyOnline.Name, companySearch.Name);
+      return companySearch.OnlineMatchNames(companyOnline.Name, companySearch.Name);
     }
 
     public static bool NamesAreMostlyEqual(TrackInfo trackOnline, TrackInfo trackSearch)
@@ -1850,7 +1843,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (string.IsNullOrEmpty(trackOnline.TrackName) || string.IsNullOrEmpty(trackSearch.TrackName))
         return false;
 
-      bool trackMatch = BaseInfo.MatchNames(trackOnline.TrackName, trackSearch.TrackName);
+      bool trackMatch = trackSearch.OnlineMatchNames(trackOnline.TrackName, trackSearch.TrackName);
       if (!string.IsNullOrEmpty(trackSearch.Album) && trackMatch)
       {
         return NamesAreMostlyEqual(trackOnline.CloneBasicInstance<AlbumInfo>(), trackSearch.CloneBasicInstance<AlbumInfo>());
@@ -1862,7 +1855,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album) || !albumOnline.AlbumVolumesAreEqual(albumSearch))
         return false;      
-      return BaseInfo.MatchNames(albumOnline.Album, albumSearch.Album);
+      return albumSearch.OnlineMatchNames(albumOnline.Album, albumSearch.Album);
     }
 
     /// <summary>

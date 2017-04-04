@@ -143,7 +143,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      return existingAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID);
+      if (existingAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+      {
+        AlbumInfo extracted = new AlbumInfo();
+        extracted.FromMetadata(extractedAspects);
+        AlbumInfo existing = new AlbumInfo();
+        existing.FromMetadata(existingAspects);
+
+        return existing.Equals(extracted);
+      }
+      return false;
     }
 
     public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)

@@ -506,7 +506,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           AlbumInfo album = trackMatch.CloneBasicInstance<AlbumInfo>();
           album.Artists = trackMatch.Artists;
           if (UpdateAlbumPersons(album, occupation, importOnly))
+          {
+            trackMatch.HasChanged = album.HasChanged ? album.HasChanged : trackMatch.HasChanged;
             updated = true;
+          }
         }
 
         if (updated)
@@ -906,7 +909,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
 
           if (albumInfo.Artists.Count > 0 && !albumInfo.Compilation &&
-              albumInfo.Artists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            (albumInfo.Artists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+            albumInfo.Artists[0].Name.Equals("VA", StringComparison.InvariantCultureIgnoreCase)))
           {
             albumInfo.Compilation = true;
             albumInfo.HasChanged = true;

@@ -455,6 +455,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return AlbumVolumesAreEqual(other);
     }
 
+    public override bool MatchNames(string name1, string name2)
+    {
+      return CompareNames(name1, name2, 0.8, 3);
+    }
+
     public override T CloneBasicInstance<T>()
     {
       if (typeof(T) == typeof(AlbumInfo))

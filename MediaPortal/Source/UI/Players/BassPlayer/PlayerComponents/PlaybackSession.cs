@@ -392,6 +392,8 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
           _state = SessionState.Playing;
         }
 
+        Bass.BASS_ChannelSetPosition(_outputStream.Handle, 0);
+
         // Next try
         return OutputStreamWriteProc(streamHandle, buffer, requestedBytes, userData);
       }
