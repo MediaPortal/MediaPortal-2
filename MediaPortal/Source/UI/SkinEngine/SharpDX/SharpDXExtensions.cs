@@ -23,6 +23,7 @@
 #endregion
 
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine
 {
@@ -75,6 +76,16 @@ namespace MediaPortal.UI.SkinEngine
     public static RectangleF CreateRectangleF(Vector2 location, Size2F size)
     {
       return new RectangleF(location.X, location.Y, size.Width, size.Height);
+    }
+
+    public static RawRectangleF CreateRawRectangleF(Vector2 location, Size2F size)
+    {
+      return new RawRectangleF(location.X, location.Y, size.Width, size.Height);
+    }
+
+    public static RawRectangle CreateRawRectangle(Vector2 location, Size2 size)
+    {
+      return new RawRectangle((int)location.X, (int)location.Y, size.Width, size.Height);
     }
   }
 }

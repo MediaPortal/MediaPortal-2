@@ -71,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected IGeometry _lastGeometry;
     protected string _lastEffect;
-    protected Rectangle _lastCropVideoRect;
+    protected RectangleF _lastCropVideoRect;
     protected Size _lastVideoSize;
     protected SizeF _lastAspectRatio;
     protected int _lastDeviceWidth;
@@ -175,7 +175,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         return false;
       SizeF aspectRatio = sdvPlayer.VideoAspectRatio.ToSize2F();
       Size playerSize = sdvPlayer.VideoSize.ToSize2();
-      Rectangle cropVideoRect = sdvPlayer.CropVideoRect;
+      RectangleF cropVideoRect = sdvPlayer.CropVideoRect;
+
       IGeometry geometry = ChooseVideoGeometry(player);
       string effectName = player.EffectOverride;
       int deviceWidth = GraphicsDevice.Width; // To avoid threading issues if the device size changes
@@ -208,7 +209,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _videoTextureClip = new RectangleF(cropVideoRect.X / (float)surface.Width, cropVideoRect.Y / (float)surface.Height,
             cropVideoRect.Width / (float)surface.Width, cropVideoRect.Height / (float)surface.Height);
       }
-      _scaledVideoSize = cropVideoRect.Size.ToSize2F();
+      _scaledVideoSize = cropVideoRect.Size;
 
       // Correct aspect ratio for anamorphic video
       if (!aspectRatio.IsEmpty() && geometry.RequiresCorrectAspectRatio)

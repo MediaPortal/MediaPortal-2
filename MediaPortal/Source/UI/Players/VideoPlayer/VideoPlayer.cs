@@ -886,12 +886,12 @@ namespace MediaPortal.UI.Players.Video
       return true;
     }
 
-    public Rectangle CropVideoRect
+    public RectangleF CropVideoRect
     {
       get
       {
         Size videoSize = VideoSize.ToSize2();
-        return _cropSettings == null ? new Rectangle(0, 0, videoSize.Width, videoSize.Height) : _cropSettings.CropRect(videoSize.ToDrawingSize()).ToRect();
+        return _cropSettings == null ? new RectangleF(0, 0, videoSize.Width, videoSize.Height) : _cropSettings.CropRect(videoSize.ToDrawingSize()).ToRect();
       }
     }
 

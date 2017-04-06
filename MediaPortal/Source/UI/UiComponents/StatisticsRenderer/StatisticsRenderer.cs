@@ -40,7 +40,7 @@ using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
-using Size = SharpDX.Size2;
+using SharpDX.Mathematics.Interop;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
 using SwapChain = SharpDX.DXGI.SwapChain;
@@ -284,20 +284,20 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       int left = _tearingPos;
       int width = _device.Context2D1.PixelSize.Width;
       int height = _device.Context2D1.PixelSize.Height;
-      Size size = new Size(4, height);
-      Point topLeft = new Point(left, 0);
+      SizeF size = new Size2F(4, height);
+      PointF topLeft = new PointF(left, 0);
       if (topLeft.X + size.Width >= width)
         topLeft.X = 0;
 
-      Rectangle rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
+      RawRectangleF rcTearing = SharpDXExtensions.CreateRawRectangleF(topLeft, size);
 
       _device.Context2D1.DrawRectangle(rcTearing, _whiteBrush);
 
-      topLeft = new Point((rcTearing.Right + 15) % width, 0);
+      topLeft = new PointF((rcTearing.Right + 15) % width, 0);
       if (topLeft.X + size.Width >= width)
         topLeft.X = 0;
 
-      rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
+      rcTearing = SharpDXExtensions.CreateRawRectangleF(topLeft, size);
       _device.Context2D1.DrawRectangle(rcTearing, _grayBrush);
 
       _tearingPos = (_tearingPos + 7) % width;
@@ -309,7 +309,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       using (var layout = new TextLayout(_device.FactoryDW, text, _textFormat, SkinContext.BackBufferWidth, SkinContext.BackBufferHeight))
       {
 
-        Rectangle rcTextField = new Rectangle(RENDER_OFFSET_LEFT, 0, SkinContext.BackBufferWidth - RENDER_OFFSET_LEFT, (int)Math.Ceiling(layout.Metrics.Height));
+        RawRectangleF rcTextField = new RawRectangleF(RENDER_OFFSET_LEFT, 0, SkinContext.BackBufferWidth - RENDER_OFFSET_LEFT, (int)Math.Ceiling(layout.Metrics.Height));
         _device.Context2D1.DrawText(text, _textFormat, rcTextField, _redBrush);
       }
     }

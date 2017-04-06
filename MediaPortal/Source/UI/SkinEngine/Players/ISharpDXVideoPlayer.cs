@@ -27,6 +27,7 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Players
 {
@@ -63,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// <see cref="Surface"/> property or they may simply return a bigger frame, returning the crop rectangle in this property.
     /// In that case, the SkinEngine will crop the <see cref="Surface"/> by this rectangle.
     /// </remarks>
-    Rectangle CropVideoRect { get; }
+    RectangleF CropVideoRect { get; }
 
     /// <summary>
     /// Returns a mutex object to lock while accessing the <see cref="Texture"/>.

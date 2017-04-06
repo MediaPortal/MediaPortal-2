@@ -139,7 +139,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       using (var line = CalculateTransformedPath(lineRaw, new RectangleF(0, 0, totalSize.Width, totalSize.Height)))
       {
         var bounds = line.GetBounds();
-        return new Size2F(bounds.Width, bounds.Height);
+        return new Size2F(bounds.Right - bounds.Left, bounds.Bottom - bounds.Top);
       }
     }
 

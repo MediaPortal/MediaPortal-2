@@ -31,6 +31,7 @@ using SharpDX;
 using SharpDX.Direct2D1;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -330,29 +331,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       SharpDX.Direct2D1.Geometry result = path;
       Matrix m = Matrix.Identity;
       //RectangleF bounds = result.GetBounds();
-      RectangleF bounds = result.GetWidenedBounds((float)StrokeThickness);
-      _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
+      RawRectangleF bounds = result.GetWidenedBounds((float)StrokeThickness);
+      _fillDisabled = (bounds.Right - bounds.Left) < StrokeThickness || (bounds.Bottom - bounds.Top) < StrokeThickness;
       if (Width > 0) baseRect.Width = (float)Width;
       if (Height > 0) baseRect.Height = (float)Height;
       float scaleW;
       float scaleH;
       if (Stretch == Stretch.Fill)
       {
-        scaleW = baseRect.Width / bounds.Width;
-        scaleH = baseRect.Height / bounds.Height;
-        m *= Matrix.Translation(-bounds.X, -bounds.Y, 0);
+        scaleW = baseRect.Width / (bounds.Right - bounds.Left);
+        scaleH = baseRect.Height / (bounds.Bottom - bounds.Top);
+        m *= Matrix.Translation(-bounds.Left, -bounds.Top, 0);
       }
       else if (Stretch == Stretch.Uniform)
       {
-        scaleW = Math.Min(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
+        scaleW = Math.Min(baseRect.Width / (bounds.Right - bounds.Left), baseRect.Height / (bounds.Bottom - bounds.Top));
         scaleH = scaleW;
-        m *= Matrix.Scaling(-bounds.X, -bounds.Y, 1);
+        m *= Matrix.Scaling(-bounds.Left, -bounds.Top, 1);
       }
       else if (Stretch == Stretch.UniformToFill)
       {
-        scaleW = Math.Max(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
+        scaleW = Math.Max(baseRect.Width / (bounds.Right - bounds.Left), baseRect.Height / (bounds.Bottom - bounds.Top));
         scaleH = scaleW;
-        m *= Matrix.Translation(-bounds.X, -bounds.Y, 0);
+        m *= Matrix.Translation(-bounds.Left, -bounds.Top, 0);
       }
       else
       {

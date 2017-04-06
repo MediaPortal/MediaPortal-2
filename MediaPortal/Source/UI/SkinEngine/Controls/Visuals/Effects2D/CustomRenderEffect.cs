@@ -32,6 +32,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
 {
@@ -154,12 +155,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       _drawInformation.SetVertexProcessing(null, VertexOptions.None, null, null, _effectIdVertextShader);
     }
 
-    public virtual Rectangle MapInvalidRect(int inputIndex, Rectangle invalidInputRect)
+    public virtual RawRectangle MapInvalidRect(int inputIndex, RawRectangle invalidInputRect)
     {
       return invalidInputRect;
     }
 
-    public virtual Rectangle MapInputRectanglesToOutputRectangle(Rectangle[] inputRects, Rectangle[] inputOpaqueSubRects, out Rectangle outputOpaqueSubRect)
+    public virtual RawRectangle MapInputRectanglesToOutputRectangle(RawRectangle[] inputRects, RawRectangle[] inputOpaqueSubRects, out RawRectangle outputOpaqueSubRect)
     {
       if (inputRects.Length != InputCount)
         throw new ArgumentException("InputRects must be length of " + InputCount, "inputRects");
@@ -167,7 +168,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       return inputRects[0];
     }
 
-    public virtual void MapOutputRectangleToInputRectangles(Rectangle outputRect, Rectangle[] inputRects)
+    public virtual void MapOutputRectangleToInputRectangles(RawRectangle outputRect, RawRectangle[] inputRects)
     {
       int expansion = 0;
       if (inputRects.Length != InputCount)
