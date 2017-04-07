@@ -9,6 +9,7 @@
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:animation="clr-namespace:MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;assembly=SkinEngine" 
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     DependsOnStyleResources="Colors,Buttons,Consts,Widgets"
     >
 
@@ -1046,19 +1047,102 @@
   </Style>
 
   <!-- Player control styles -->
-  <ControlTemplate x:Key="PlayerControlPoster">
-    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}" Margin="10,10,10,10">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource MEDIA_POSTER_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource MEDIA_POSTER_HEIGHT}"/>
-      </Grid.ColumnDefinitions>
-      <Border Background="#888888" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" />
-      <Image  x:Name="ItemTypeImage" HorizontalAlignment="Center" VerticalAlignment="Center" 
-              Stretch="Uniform" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}">
-      </Image>
-    </Grid>
+  <ControlTemplate x:Key="PlayerControlPosterPrimary">
+    <mp_special_controls:PlayerControl PlayerContext="PrimaryPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <mp_special_controls:PlayerControl.TemplateControl>
+        <Grid x:Name="CoverGridContainer" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid.Resources>
+            <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
+          </Grid.Resources>
+          <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_HEIGHT}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+          </Image>
+          <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" FallbackSource="VideoLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+            </Image.Source>
+          </Image>
+          <Image x:Name="OtherPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_THUMB_WIDTH}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}"
+                            ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible}))">
+                <Binding ElementName="AudioPoster" Path="Visibility" />
+                <Binding ElementName="MoviePoster" Path="Visibility" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+            </Image.Source>
+          </Image>
+        </Grid>
+      </mp_special_controls:PlayerControl.TemplateControl>
+    </mp_special_controls:PlayerControl>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PlayerControlPosterSecondary">
+    <mp_special_controls:PlayerControl PlayerContext="SecondaryPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <mp_special_controls:PlayerControl.TemplateControl>
+        <Grid x:Name="CoverGridContainer" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid.Resources>
+            <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
+          </Grid.Resources>
+          <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_HEIGHT}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+          </Image>
+          <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" FallbackSource="VideoLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+            </Image.Source>
+          </Image>
+          <Image x:Name="OtherPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_THUMB_WIDTH}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}"
+                            ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible}))">
+                <Binding ElementName="AudioPoster" Path="Visibility" />
+                <Binding ElementName="MoviePoster" Path="Visibility" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+            </Image.Source>
+          </Image>
+        </Grid>
+      </mp_special_controls:PlayerControl.TemplateControl>
+    </mp_special_controls:PlayerControl>
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayerControlButtons">
@@ -1083,7 +1167,7 @@
 
   </ControlTemplate>
 
-  <ControlTemplate x:Key="PlayerControlVideoPrimary" >
+  <!--ControlTemplate x:Key="PlayerControlVideoPrimary" >
     <Rectangle x:Name="Video"  Width="300" Height="170" Margin="0,10,0,10">
       <Rectangle.Triggers>
         <EventTrigger RoutedEvent="UIElement.MouseDown">
@@ -1094,7 +1178,7 @@
         <VideoBrush Stream="0"/>
       </Rectangle.Fill>
     </Rectangle>
-  </ControlTemplate>
+  </>
 
   <ControlTemplate x:Key="PlayerControlVideoSecondary">
     <Rectangle x:Name="Video"  Width="300" Height="170" Margin="0,10,0,10">
@@ -1107,7 +1191,7 @@
         <VideoBrush Stream="1"/>
       </Rectangle.Fill>
     </Rectangle>
-  </ControlTemplate>
+  </ControlTemplate-->
 
   <ControlTemplate x:Key="PlayerControlMediaInfo">
     <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Vertical" VerticalAlignment="Stretch">
@@ -1166,16 +1250,12 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid.RowDefinitions>
-              <!-- Background -->
               <RowDefinition Height="Auto"/>
-              <!-- Playback controls -->
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-              <!-- Optional fanart -->
               <ColumnDefinition Width="Auto"/>
-              <!-- Media thumbnail -->
-              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="30"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -1183,8 +1263,25 @@
             <Rectangle x:Name="PCBackground" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                        Fill="{ThemeResource PlayerControlBackgroundColor}">
             </Rectangle>
-            <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="0" />
-            <Control Template="{ThemeResource PlayerControlVideoSecondary}" Grid.Column="1" Grid.ColumnSpan="1" />
+            <Border Grid.Row="0" Grid.Column="1" BorderThickness="0" Margin="-15,0,15,0">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="1,0.5" EndPoint="0,0.5">
+                  <LinearGradientBrush.GradientStops>
+                    <GradientStop Color="#00000000" Offset="0"  />
+                    <GradientStop Color="#E6000000" Offset="1"  />
+                  </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border>
+            <Control Template="{ThemeResource PlayerControlPosterSecondary}" Grid.Row="0" Grid.Column="0">
+              <Control.Triggers>
+                <EventTrigger RoutedEvent="UIElement.MouseDown">
+                  <TriggerCommand Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
+                </EventTrigger>
+              </Control.Triggers>
+            </Control>
+            <Control Template="{ThemeResource PlayerControlPosterSecondary}" Grid.Row="0" Grid.Column="0" />
+            <!--Control Template="{ThemeResource PlayerControlVideoSecondary}" Grid.Column="1" Grid.ColumnSpan="1" /-->
             <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="2" />
           </Grid>
           <ControlTemplate.Triggers>
@@ -1204,16 +1301,12 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid.RowDefinitions>
-              <!-- Background -->
               <RowDefinition Height="Auto"/>
-              <!-- Playback controls -->
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
-              <!-- Media thumbnail -->
-              <ColumnDefinition Width="Auto"/>
-              <!-- Optional fanart -->
+              <ColumnDefinition Width="30"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
@@ -1221,9 +1314,25 @@
             <Rectangle x:Name="PCBackground" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                        Fill="{ThemeResource PlayerControlBackgroundColor}">
             </Rectangle>
+            <Border Grid.Row="0" Grid.Column="1" BorderThickness="0" Margin="15,0,-15,0">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                  <LinearGradientBrush.GradientStops>
+                    <GradientStop Color="#00000000" Offset="0"  />
+                    <GradientStop Color="#E6000000" Offset="1"  />
+                  </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border>
+            <Control Template="{ThemeResource PlayerControlPosterPrimary}" Grid.Row="0" Grid.Column="2">
+              <Control.Triggers>
+                <EventTrigger RoutedEvent="UIElement.MouseDown">
+                  <TriggerCommand Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
+                </EventTrigger>
+              </Control.Triggers>
+            </Control>
             <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="0" />
-            <Control Template="{ThemeResource PlayerControlVideoPrimary}" Grid.Row="0" Grid.Column="1" />            
-            <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="2" />
+            <!--Control Template="{ThemeResource PlayerControlVideoPrimary}" Grid.Row="0" Grid.Column="1" /-->            
           </Grid>
 
           <ControlTemplate.Triggers>
