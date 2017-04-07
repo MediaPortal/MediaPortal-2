@@ -86,6 +86,8 @@
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Channel name</string>
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Channel number</string>  
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelLogo">Channel logo</string>
+  <string name="SlimTvClient.ZapFromGuide">Zap from TV Guide</string>
+  <string name="SlimTvClient.ZapFromGuide.Help">If enabled, "OK" on currently running programs tunes the channel</string>
   <string name="SlimTvClient.AutoStartTv">Automatically start TV</string>
   <string name="SlimTvClient.AutoStartTv.Help">If enabled, the last selected channel will be started when entering TV home</string>
   <string name="SlimTvClient.ShowSeriesInfo">Show series infos</string>
