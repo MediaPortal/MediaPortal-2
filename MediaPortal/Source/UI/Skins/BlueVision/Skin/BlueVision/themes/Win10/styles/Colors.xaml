@@ -12,7 +12,7 @@
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
-  <ResourceWrapper x:Key="MediaItemFallbackBackgroundColor" Resource="#565656"/>
+  <ResourceWrapper x:Key="MediaItemFallbackBackgroundColor" Resource="#404040"/>
   
 
   <!-- Button background and effects-->
