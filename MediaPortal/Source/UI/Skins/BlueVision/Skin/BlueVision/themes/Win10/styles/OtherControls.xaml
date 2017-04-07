@@ -1047,6 +1047,7 @@
   </Style>
 
   <!-- Player control styles -->
+  
   <ControlTemplate x:Key="PlayerControlPosterPrimary">
     <mp_special_controls:PlayerControl PlayerContext="PrimaryPlayer"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -1055,47 +1056,61 @@
           <Grid.Resources>
             <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
           </Grid.Resources>
-          <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_HEIGHT}" 
-             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png">
-            <Image.IsVisible>
+
+          <Grid x:Name="AudioPosterGrid" Width="{StaticResource MEDIA_POSTER_HEIGHT}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"
+                Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+            <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   Stretch="Fill" Source="{Binding MediaItem}"/>
+            <Image Stretch="Uniform" Source="1190A648-90F3-413D-88AC-DA89684E9766.png" IsVisible="{Binding ElementName=AudioPoster, Path=!HasImage}"
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+            <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                 <Binding Path="MediaItem"/>
                 <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
               </MultiBinding>
-            </Image.IsVisible>
-          </Image>
-          <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
-             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" FallbackSource="VideoLarge.png">
-            <Image.IsVisible>
+            </Grid.IsVisible>
+          </Grid>
+
+          <Grid x:Name="MoviePosterGrid" Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+            <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+              </Image.Source>
+            </Image>
+            <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=MoviePoster, Path=!HasImage}"
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+            <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                 <Binding Path="MediaItem"/>
                 <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
               </MultiBinding>
-            </Image.IsVisible>
-            <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-               fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
-            </Image.Source>
-          </Image>
-          <Image x:Name="OtherPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_THUMB_WIDTH}" 
-             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png">
-            <Image.IsVisible>
+            </Grid.IsVisible>
+          </Grid>
+
+          <Grid Height="{StaticResource MEDIA_POSTER_HEIGHT}" Width="300" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+            <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}"
                             ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible}))">
-                <Binding ElementName="AudioPoster" Path="Visibility" />
-                <Binding ElementName="MoviePoster" Path="Visibility" />
+                <Binding ElementName="AudioPosterGrid" Path="Visibility" />
+                <Binding ElementName="MoviePosterGrid" Path="Visibility" />
               </MultiBinding>
-            </Image.IsVisible>
-            <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-               fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
-            </Image.Source>
-          </Image>
+            </Grid.IsVisible>
+            <Image x:Name="OtherPoster" Stretch="UniformToFill">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                fanart:MaxWidth="300" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+              </Image.Source>
+            </Image>
+            <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=OtherPoster, Path=!HasImage}"
+                   Width="300" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Opacity="0.9"
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Grid>
         </Grid>
       </mp_special_controls:PlayerControl.TemplateControl>
     </mp_special_controls:PlayerControl>
   </ControlTemplate>
-
+ 
   <ControlTemplate x:Key="PlayerControlPosterSecondary">
     <mp_special_controls:PlayerControl PlayerContext="SecondaryPlayer"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -1104,42 +1119,57 @@
           <Grid.Resources>
             <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
           </Grid.Resources>
-          <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_HEIGHT}" 
-             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png">
-            <Image.IsVisible>
+
+          <Grid x:Name="AudioPosterGrid" Width="{StaticResource MEDIA_POSTER_HEIGHT}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"
+                Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+            <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Source="{Binding MediaItem}"/>
+            <Image Stretch="Uniform" Source="1190A648-90F3-413D-88AC-DA89684E9766.png" IsVisible="{Binding ElementName=AudioPoster, Path=!HasImage}"
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+            <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                 <Binding Path="MediaItem"/>
                 <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
               </MultiBinding>
-            </Image.IsVisible>
-          </Image>
-          <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
-             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" FallbackSource="VideoLarge.png">
-            <Image.IsVisible>
+            </Grid.IsVisible>
+          </Grid>
+
+          <Grid x:Name="MoviePosterGrid" Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"
+                Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+            <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+              </Image.Source>
+            </Image>
+            <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=MoviePoster, Path=!HasImage}"
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+            <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                 <Binding Path="MediaItem"/>
-                <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}"/>
               </MultiBinding>
-            </Image.IsVisible>
-            <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-               fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
-            </Image.Source>
-          </Image>
-          <Image x:Name="OtherPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_THUMB_WIDTH}" 
-             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png">
-            <Image.IsVisible>
+            </Grid.IsVisible>
+          </Grid>
+
+          <Grid Width="300" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+            <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}"
                             ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible}))">
-                <Binding ElementName="AudioPoster" Path="Visibility" />
-                <Binding ElementName="MoviePoster" Path="Visibility" />
+                <Binding ElementName="AudioPosterGrid" Path="Visibility" />
+                <Binding ElementName="MoviePosterGrid" Path="Visibility" />
               </MultiBinding>
-            </Image.IsVisible>
-            <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-               fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
-            </Image.Source>
-          </Image>
+            </Grid.IsVisible>
+            <Image x:Name="OtherPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="UniformToFill">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                fanart:MaxWidth="300" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+              </Image.Source>
+            </Image>
+            <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=OtherPoster, Path=!HasImage}"
+                   Width="300" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Opacity="0.9"
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Grid>
+
         </Grid>
       </mp_special_controls:PlayerControl.TemplateControl>
     </mp_special_controls:PlayerControl>
