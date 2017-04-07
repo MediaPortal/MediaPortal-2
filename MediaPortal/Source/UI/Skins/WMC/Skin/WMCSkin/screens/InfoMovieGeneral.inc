@@ -54,8 +54,8 @@
                       </TransformGroup>
                     </StarRatingPanel.LayoutTransform>
                   </StarRatingPanel>
-                  <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}"  Margin="15,2,5,1" VerticalAlignment="Center"
-                         FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                  <Label x:Name="RatingCountLabel" Margin="15,2,5,1" VerticalAlignment="Center"
+                         FontSize="{ThemeResource SmallerFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
                          IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                     <Label.Content>
                       <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
@@ -89,7 +89,7 @@
              Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
         <Label.Content>
           <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
-            <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+            <Binding Path="MediaItem"/>
             <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
           </MultiBinding>
         </Label.Content>
@@ -101,10 +101,9 @@
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                 <StackPanel Orientation="Horizontal">
-                  <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
-                         IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"
-                         Content="{Binding Path=Runtime}" Color="{ThemeResource TextColor}"/>
-                  <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"
+                  <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                         IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}" Content="{Binding Path=Runtime}"/>
+                  <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
                          IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 </StackPanel>
               </Grid>
