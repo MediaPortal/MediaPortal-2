@@ -1062,7 +1062,7 @@
             <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" 
                    Stretch="Fill" Source="{Binding MediaItem}"/>
             <Image Stretch="Uniform" Source="1190A648-90F3-413D-88AC-DA89684E9766.png" IsVisible="{Binding ElementName=AudioPoster, Path=!HasImage}"
-                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
             <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                 <Binding Path="MediaItem"/>
@@ -1079,7 +1079,7 @@
               </Image.Source>
             </Image>
             <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=MoviePoster, Path=!HasImage}"
-                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
             <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                 <Binding Path="MediaItem"/>
@@ -1103,7 +1103,7 @@
               </Image.Source>
             </Image>
             <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=OtherPoster, Path=!HasImage}"
-                   Width="300" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Opacity="0.9"
+                   Width="300" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Opacity="0.6"
                    Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Grid>
         </Grid>
@@ -1124,7 +1124,7 @@
                 Background="{ThemeResource MediaItemFallbackBackgroundColor}">
             <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Source="{Binding MediaItem}"/>
             <Image Stretch="Uniform" Source="1190A648-90F3-413D-88AC-DA89684E9766.png" IsVisible="{Binding ElementName=AudioPoster, Path=!HasImage}"
-                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
             <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                 <Binding Path="MediaItem"/>
@@ -1142,7 +1142,7 @@
               </Image.Source>
             </Image>
             <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=MoviePoster, Path=!HasImage}"
-                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+                   Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
             <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                 <Binding Path="MediaItem"/>
@@ -1166,7 +1166,7 @@
               </Image.Source>
             </Image>
             <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=OtherPoster, Path=!HasImage}"
-                   Width="300" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Opacity="0.9"
+                   Width="300" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Opacity="0.6"
                    Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Grid>
 
