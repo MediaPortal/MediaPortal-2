@@ -95,17 +95,16 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="420"/>
+            <ColumnDefinition Width="1400"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+          <StackPanel Orientation="Vertical" Grid.RowSpan="2">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
               <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
                      Content="{Binding Path=SelectedCurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
-              <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
-              <Label x:Name="ProgramEnd" Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                  Color="{ThemeResource TextColor}"/>
+              <!--Label x:Name="ProgramEnd" Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                  Color="{ThemeResource TextColor}"/-->
             </StackPanel>
             <Label x:Name="Channel" Scroll="Auto" Content="{Binding SelectedChannelName}" Color="{ThemeResource TextColor}"
                    HorizontalAlignment="Right"/>
@@ -118,20 +117,20 @@
             </Image>
           </StackPanel>
 
-          <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0">
+          <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
             <Label x:Name="Program" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                    Content="{Binding SelectedCurrentProgram.Title}" Margin="0,0,0,0"
                    Color="{ThemeResource TextColor}"/>
             <Label x:Name="SeriesLabel" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Opacity="0.6"
-                   IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}">
+                   IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
               <Label.Content>
                 <Binding Path="SelectedCurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
               </Label.Content>
             </Label>
           </StackPanel>
 
-          <Label Grid.Row="1" Grid.Column="0" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 Wrap="True" Scroll="Auto" Color="{ThemeResource TextColor}" Margin="0,0,0,5" 
+          <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Wrap="True" Scroll="Auto" Color="{ThemeResource TextColor}" Margin="0,0,10,5" 
                  Content="{Binding Path=SelectedCurrentProgram.Description}"/>
 
         </Grid>
