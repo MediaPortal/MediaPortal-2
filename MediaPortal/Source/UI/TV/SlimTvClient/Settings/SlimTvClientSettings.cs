@@ -65,6 +65,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     public double ZapTimeout { get; set; }
 
     /// <summary>
+    /// If set to <c>true</c>, the FullGuide will automatically start tuning a currently running program.
+    /// Recording and further options will be only available by context menu then.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool ZapFromGuide { get; set; }
+
+    /// <summary>
     /// If set to <c>true</c>, TV gets started when entering TV home state.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = false)]

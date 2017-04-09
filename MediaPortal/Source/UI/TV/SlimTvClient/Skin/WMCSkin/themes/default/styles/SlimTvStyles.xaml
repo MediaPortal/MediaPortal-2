@@ -1045,8 +1045,10 @@
                      Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,0,0"/>
               <Label x:Name="SeriesLabel2" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" IsVisible="{Binding IsRunning}"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,0,0"/>
-              
             </Grid>
+            <Button.ContextMenuCommand>
+              <Command Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+            </Button.ContextMenuCommand>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <!--Setter TargetName="ProgramLabel" Property="Scroll" Value="Auto"/>
