@@ -55,6 +55,10 @@
           </VisualBrush>
         </Grid.Background>
 
+        <!--Image Width="250" Stretch="Uniform" Source="pause.png" Opacity="0.7"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               IsVisible="{Binding ElementName=PrimaryOSD, Path=IsPaused}"/-->
+
         <Control Grid.RowSpan="2" Grid.ColumnSpan="3">
           <Control.Background>
             <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">

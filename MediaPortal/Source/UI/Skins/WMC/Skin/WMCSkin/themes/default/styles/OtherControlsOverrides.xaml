@@ -9,6 +9,7 @@
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:wmc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Controls;assembly=WMCSkin"
     xmlns:wmcc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Converters;assembly=WMCSkin"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     DependsOnStyleResources="Colors,Buttons,Consts,OtherControls,Animations"
     >
 
@@ -764,15 +765,33 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
+          <Grid x:Name="ProgressBarGrid" HorizontalAlignment="Stretch"
+                UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
-            <Image Source="PlayerControl\seekbarshadow.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="-15,-1,-15,0"/>
+
+            <Image Source="PlayerControl\seekbarshadow.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="-15,-1,-15,0">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"/>
+                  <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+
+            <Image Source="PlayerControl\seekbardummy.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="-15,-1,-15,0">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"/>
+                  <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+
             <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Center"
                        RadiusX="3.5" RadiusY="3.5" Height="10" Fill="{ThemeResource ProgressBarBackgroundColor}" Opacity="0.8"/>
             

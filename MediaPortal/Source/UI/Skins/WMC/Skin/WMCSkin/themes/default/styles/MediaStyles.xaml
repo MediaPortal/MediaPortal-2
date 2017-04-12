@@ -190,7 +190,7 @@
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Progress_Template">
-                <DockPanel LastChildFill="true" Margin="550,10,70,10">
+                <DockPanel LastChildFill="true" Margin="550,10,70,10" HorizontalAlignment="Stretch">
                   <ProgressBar x:Name="ProgressBar" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                Value="{Binding Path=PercentPlayed, Mode=TwoWay}" Style="{ThemeResource PlayerControlsProgressBarStyle}"/>
                 </DockPanel>
