@@ -40,7 +40,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
   </Screen.Resources>
   <Screen.Triggers>
-    <EventTrigger RoutedEvent="Screen.Show">
+    <EventTrigger RoutedEvent="Screen.Hide">
       <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
     </EventTrigger>
   </Screen.Triggers>
