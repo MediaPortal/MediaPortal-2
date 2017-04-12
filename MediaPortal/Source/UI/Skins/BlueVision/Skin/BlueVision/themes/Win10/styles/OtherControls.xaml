@@ -28,6 +28,8 @@
   <DurationConverter x:Key="DurationConverter"/>
   <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
+  <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
 
   <!-- If a control is defined without a style, the engine will choose a default style for that control.
        To avoid that default behavior, simply set this empty style. -->
