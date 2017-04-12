@@ -22,6 +22,8 @@
   <StringFormatConverter x:Key="StringFormatConverter"/>
   <wmcc:IncludeItemsListActionFilter x:Key="IncludeItemsListActionFilter"/>
   <wmcc:ExcludeItemsListActionFilter x:Key="ExcludeItemsListActionFilter"/>
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
+  <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
 
   <!--
   Workflow ActionIds that will be shown in MediaMenu by default. Other actions are excluded 

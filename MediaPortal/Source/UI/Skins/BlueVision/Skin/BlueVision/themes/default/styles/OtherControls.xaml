@@ -28,6 +28,8 @@
   <DurationConverter x:Key="DurationConverter"/>
   <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
+  <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
 
   <!-- If a control is defined without a style, the engine will choose a default style for that control.
        To avoid that default behavior, simply set this empty style. -->
@@ -915,9 +917,6 @@
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <mp_special_controls:PlayerControl.TemplateControl>
         <Grid x:Name="CoverGridContainer" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Grid.Resources>
-            <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
-          </Grid.Resources>
           <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_HEIGHT}" 
              Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png">
             <Image.IsVisible>

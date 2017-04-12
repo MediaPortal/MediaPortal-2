@@ -32,11 +32,22 @@ using MediaPortal.UI.SkinEngine.Xaml;
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 {
   /// <summary>
+  /// <see cref="InvertedMediaItemAspectToBoolConverter"/> checks the <see cref="MediaItem.Aspects"/> for the absence of a given <see cref="MediaItemAspect"/>.
+  /// </summary>
+  public class InvertedMediaItemAspectToBoolConverter : MediaItemAspectToBoolConverter
+  {
+    public override bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
+    {
+      return !base.Convert(values, targetType, parameter, out result);
+    }
+  }
+
+  /// <summary>
   /// <see cref="MediaItemAspectToBoolConverter"/> checks the <see cref="MediaItem.Aspects"/> for the existance of a given <see cref="MediaItemAspect"/>.
   /// </summary>
   public class MediaItemAspectToBoolConverter : IMultiValueConverter
   {
-    public bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
+    public virtual bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
     {
       result = false;
       if (values.Length != 2)

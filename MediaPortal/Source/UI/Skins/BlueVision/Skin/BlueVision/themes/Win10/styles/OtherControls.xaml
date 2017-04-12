@@ -1053,10 +1053,6 @@
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <mp_special_controls:PlayerControl.TemplateControl>
         <Grid x:Name="CoverGridContainer" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Grid.Resources>
-            <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
-          </Grid.Resources>
-
           <Grid x:Name="AudioPosterGrid" Width="{StaticResource MEDIA_POSTER_HEIGHT}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"
                 Background="{ThemeResource MediaItemFallbackBackgroundColor}">
             <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" 
@@ -1116,10 +1112,6 @@
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <mp_special_controls:PlayerControl.TemplateControl>
         <Grid x:Name="CoverGridContainer" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Grid.Resources>
-            <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
-          </Grid.Resources>
-
           <Grid x:Name="AudioPosterGrid" Width="{StaticResource MEDIA_POSTER_HEIGHT}" Height="{StaticResource MEDIA_POSTER_HEIGHT}"
                 Background="{ThemeResource MediaItemFallbackBackgroundColor}">
             <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Source="{Binding MediaItem}"/>
