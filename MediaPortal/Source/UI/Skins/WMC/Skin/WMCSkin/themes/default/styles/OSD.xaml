@@ -5,6 +5,7 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     DependsOnStyleResources="Colors,Consts"
     >
   
@@ -14,17 +15,13 @@
         <ControlTemplate>
           <DockPanel Name="ControlsRectangle">
             <Image Source="PlayerControl\BOTTOM.RIGHT.SHADOW.PNG" Stretch="Fill" Height="90" Margin="0,-10,-20,-20" Opacity="0.8">
-              <!--Image.IsVisible>
-                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
-                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
                   <Binding Path="MediaItem"/>
                   <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
                 </MultiBinding>
-              </-->
+              </Image.IsVisible>
             </Image>
-            <!--Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ProgressAndControlsBackground" Fill="{StaticResource OSDProgressAndControlsColor}" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradient}" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradient}" /-->
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
