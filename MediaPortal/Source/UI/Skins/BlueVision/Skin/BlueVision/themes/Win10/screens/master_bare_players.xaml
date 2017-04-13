@@ -132,7 +132,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="10,-5,60,35" 
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="60,-5,20,35" 
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
       </Button>
