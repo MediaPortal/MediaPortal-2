@@ -181,7 +181,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
             trackInfo.Artists.Add(new PersonInfo()
             {
               Name = artistName,
-              Occupation = PersonAspect.OCCUPATION_ARTIST
+              Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             });
           }
 
@@ -193,7 +195,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
             trackInfo.AlbumArtists.Add(new PersonInfo()
             {
               Name = artistName,
-              Occupation = PersonAspect.OCCUPATION_ARTIST
+              Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             });
           }
 
@@ -205,7 +209,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
             trackInfo.Composers.Add(new PersonInfo()
             {
               Name = composerName,
-              Occupation = PersonAspect.OCCUPATION_COMPOSER
+              Occupation = PersonAspect.OCCUPATION_COMPOSER,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             });
           }
 

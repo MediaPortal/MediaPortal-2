@@ -245,7 +245,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         IEnumerable collection;
         Artists.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_ARTISTS, out collection))
-          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST }));
+          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST, ParentMediaName = Album }));
+        foreach (PersonInfo artist in Artists)
+          artist.AssignNameId();
 
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_AWARDS, out collection))
@@ -254,6 +256,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MusicLabels.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, out collection))
           MusicLabels.AddRange(collection.Cast<string>().Select(s => new CompanyInfo { Name = s, Type = CompanyAspect.COMPANY_MUSIC_LABEL }));
+        foreach (CompanyInfo company in MusicLabels)
+          company.AssignNameId();
 
         Genres.Clear();
         IList<MultipleMediaItemAspect> genreAspects;
@@ -297,7 +301,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         IEnumerable collection;
         Artists.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, out collection))
-          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST }));
+          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST, ParentMediaName = Album }));
+        foreach (PersonInfo artist in Artists)
+          artist.AssignNameId();
 
         return true;
       }

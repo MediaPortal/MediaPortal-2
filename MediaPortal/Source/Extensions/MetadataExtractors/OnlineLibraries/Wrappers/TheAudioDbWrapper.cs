@@ -90,8 +90,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           
           TrackName = track.Track,
           TrackNum = track.TrackNumber,
-          Artists = ConvertToPersons(track.ArtistID ?? 0, track.MusicBrainzArtistID, track.Artist, PersonAspect.OCCUPATION_ARTIST),
           Album = track.Album,
+          Artists = ConvertToPersons(track.ArtistID ?? 0, track.MusicBrainzArtistID, track.Artist, PersonAspect.OCCUPATION_ARTIST, track.Track, track.Album),
         };
         tracks.Add(info);
       }
@@ -119,7 +119,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           
           Album = album.Album,
           ReleaseDate = album.Year != null && album.Year.Value > 1900 ? new DateTime(album.Year.Value, 1, 1) : default(DateTime?),
-          Artists = ConvertToPersons(album.ArtistId ?? 0, album.MusicBrainzArtistID, album.Artist, PersonAspect.OCCUPATION_ARTIST),
+          Artists = ConvertToPersons(album.ArtistId ?? 0, album.MusicBrainzArtistID, album.Artist, PersonAspect.OCCUPATION_ARTIST, null, album.Album),
           MusicLabels = ConvertToCompanies(album.LabelId ?? 0, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL),
         };
         albums.Add(info);
@@ -163,7 +163,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Convert
 
-    private List<PersonInfo> ConvertToPersons(long artistId, string mbArtistId, string artist, string occupation)
+    private List<PersonInfo> ConvertToPersons(long artistId, string mbArtistId, string artist, string occupation, string track, string album)
     {
       if (artistId == 0 || string.IsNullOrEmpty(artist))
         return new List<PersonInfo>();
@@ -179,7 +179,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MusicBrainzId = mbArtistId,
           Name = artist,
           Occupation = occupation,
-          Order = sortOrder++
+          Order = sortOrder++,
+          MediaName = track,
+          ParentMediaName = album
         });
 
       }
@@ -294,8 +296,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (trackDetail.ArtistID.HasValue)
       {
-        track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
-        track.AlbumArtists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+        track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, trackDetail.Album);
+        track.AlbumArtists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, trackDetail.Album);
       }
 
       if (!string.IsNullOrEmpty(trackDetail.Genre))
@@ -349,7 +351,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       album.Rating = new SimpleRating(albumDetail.Rating, albumDetail.RatingCount);
 
       if (albumDetail.ArtistId.HasValue)
-        album.Artists = ConvertToPersons(albumDetail.ArtistId.Value, albumDetail.MusicBrainzArtistID, albumDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+        album.Artists = ConvertToPersons(albumDetail.ArtistId.Value, albumDetail.MusicBrainzArtistID, albumDetail.Artist, PersonAspect.OCCUPATION_ARTIST, null, albumDetail.Album);
 
       if (albumDetail.LabelId.HasValue)
         album.MusicLabels = ConvertToCompanies(albumDetail.LabelId.Value, albumDetail.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
@@ -382,7 +384,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           track.Duration = trackDetail.Duration.HasValue ? trackDetail.Duration.Value / 1000 : 0;
 
           if (trackDetail.ArtistID.HasValue)
-            track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+            track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, albumDetail.Album);
 
           if (!string.IsNullOrEmpty(trackDetail.Genre))
             track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });

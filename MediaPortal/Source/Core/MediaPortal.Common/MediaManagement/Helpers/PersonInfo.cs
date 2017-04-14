@@ -65,6 +65,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool IsGroup = false;
     public int? Order = null;
 
+    //Comparisson improvers
+    public string ParentMediaName = null;
+    public string MediaName = null;
+  
     public override bool IsBaseInfoPresent
     {
       get
@@ -276,6 +280,20 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && StrictMatchNames(Name, other.Name) && Occupation == other.Occupation)
         return true;
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && StrictMatchNames(Name, other.AlternateName) && Occupation == other.Occupation)
+        return true;
+
+      //More lax checking if media is the same
+      if (!string.IsNullOrEmpty(ParentMediaName) && !string.IsNullOrEmpty(other.ParentMediaName) && MatchNames(ParentMediaName, other.ParentMediaName) &&
+        !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Occupation == other.Occupation)
+        return true;
+      if (!string.IsNullOrEmpty(MediaName) && !string.IsNullOrEmpty(other.MediaName) && MatchNames(MediaName, other.MediaName) &&
+        !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Occupation == other.Occupation)
+        return true;
+      if (!string.IsNullOrEmpty(ParentMediaName) && !string.IsNullOrEmpty(other.ParentMediaName) && MatchNames(ParentMediaName, other.ParentMediaName) &&
+        !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && MatchNames(Name, other.AlternateName) && Occupation == other.Occupation)
+        return true;
+      if (!string.IsNullOrEmpty(MediaName) && !string.IsNullOrEmpty(other.MediaName) && MatchNames(MediaName, other.MediaName) &&
+        !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && MatchNames(Name, other.AlternateName) && Occupation == other.Occupation)
         return true;
 
       return false;

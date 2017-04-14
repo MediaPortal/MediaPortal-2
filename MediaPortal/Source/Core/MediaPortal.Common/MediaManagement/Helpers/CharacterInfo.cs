@@ -64,6 +64,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string ActorNameId = null;
     public string ActorName = null;
 
+    //Comparisson improvers
+    public string ParentMediaName = null;
+    public string MediaName = null;
+
     public override bool IsBaseInfoPresent
     {
       get
@@ -305,12 +309,22 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
         return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
 
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name))
+      //More lax checking if media is the same
+      if (!string.IsNullOrEmpty(ParentMediaName) && !string.IsNullOrEmpty(other.ParentMediaName) && MatchNames(ParentMediaName, other.ParentMediaName) &&
+        !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && LaxMatchNames(Name, other.Name))
         return true;
+      if (!string.IsNullOrEmpty(MediaName) && !string.IsNullOrEmpty(other.MediaName) && MatchNames(MediaName, other.MediaName) &&
+        !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && LaxMatchNames(Name, other.Name))
+        return true;
+
+      //More lax comparison if actor is the same
       if (!string.IsNullOrEmpty(ActorName) && !string.IsNullOrEmpty(other.ActorName) &&
         MatchNames(ActorName, other.ActorName) && !string.IsNullOrEmpty(Name) &&
         !string.IsNullOrEmpty(other.Name) && LaxMatchNames(Name, other.Name))
-        return true; //More lax comparison if actor is the same
+        return true;
+
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name))
+        return true;
 
       return false;
     }

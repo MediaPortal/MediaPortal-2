@@ -239,8 +239,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         series.IsEnded = true;
       }
 
-      series.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
-      series.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
+      series.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR, null, seriesDetail.SeriesName);
+      series.Characters = ConvertToCharacters(seriesDetail.TvdbActors, null, seriesDetail.SeriesName);
 
       foreach (TvdbActor actor in seriesDetail.TvdbActors)
       {
@@ -283,11 +283,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (episodeDetail.DvdEpisodeNumber > 0)
           episodeInfo.DvdEpisodeNumbers = new List<double>(new double[] { episodeDetail.DvdEpisodeNumber });
 
-        episodeInfo.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
+        episodeInfo.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR, episodeDetail.EpisodeName, seriesDetail.SeriesName);
         //info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR, info.Actors.Count));
-        episodeInfo.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
-        episodeInfo.Directors = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, 0);
-        episodeInfo.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0);
+        episodeInfo.Characters = ConvertToCharacters(seriesDetail.TvdbActors, episodeDetail.EpisodeName, seriesDetail.SeriesName);
+        episodeInfo.Directors = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, 0, episodeDetail.EpisodeName, seriesDetail.SeriesName);
+        episodeInfo.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0, episodeDetail.EpisodeName, seriesDetail.SeriesName);
         episodeInfo.Languages.Add(episodeDetail.Language.Abbriviation);
 
         if (!series.Episodes.Contains(episodeInfo))
@@ -400,11 +400,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (episodeDetail.DvdEpisodeNumber > 0)
             info.DvdEpisodeNumbers = new List<double>(new double[] { episodeDetail.DvdEpisodeNumber });
 
-          info.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
+          info.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR, episodeDetail.EpisodeName, seriesDetail.SeriesName);
           //info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR, info.Actors.Count));
-          info.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
-          info.Directors = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, 0);
-          info.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0);
+          info.Characters = ConvertToCharacters(seriesDetail.TvdbActors, episodeDetail.EpisodeName, seriesDetail.SeriesName);
+          info.Directors = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, 0, episodeDetail.EpisodeName, seriesDetail.SeriesName);
+          info.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0, episodeDetail.EpisodeName, seriesDetail.SeriesName);
           info.Languages.Add(episodeDetail.Language.Abbriviation);
 
           episodeDetails.Add(info);
@@ -441,7 +441,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
       if (seriesDetail == null) return false;
 
-      List<CharacterInfo> characters = ConvertToCharacters(seriesDetail.TvdbActors);
+      List<CharacterInfo> characters = ConvertToCharacters(seriesDetail.TvdbActors, null, seriesDetail.SeriesName);
       int index = characters.IndexOf(character);
       if (index >= 0)
       {
@@ -449,6 +449,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         character.ActorName = characters[index].ActorName;
         character.Name = characters[index].Name;
         character.Order = characters[index].Order;
+        character.ParentMediaName = seriesDetail.SeriesName;
 
         return true;
       }
@@ -481,7 +482,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
       if (seriesDetail == null) return false;
 
-      List<PersonInfo> actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
+      List<PersonInfo> actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR, null, seriesDetail.SeriesName);
       int index = actors.IndexOf(person);
       if (index >= 0)
       {
@@ -489,6 +490,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         person.Name = actors[index].Name;
         person.Occupation = actors[index].Occupation;
         person.Order = actors[index].Order;
+        person.ParentMediaName = seriesDetail.SeriesName;
 
         return true;
       }
@@ -540,7 +542,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Convert
 
-    private List<PersonInfo> ConvertToPersons(List<TvdbActor> actors, string occupation)
+    private List<PersonInfo> ConvertToPersons(List<TvdbActor> actors, string occupation, string episode, string series)
     {
       if (actors == null || actors.Count == 0)
         return new List<PersonInfo>();
@@ -548,11 +550,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int sortOrder = 0;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (TvdbActor person in actors)
-        retValue.Add(new PersonInfo() { TvdbId = person.Id, Name = person.Name, Occupation = occupation, Order = sortOrder++ });
+        retValue.Add(new PersonInfo() { TvdbId = person.Id, Name = person.Name, Occupation = occupation, Order = sortOrder++, MediaName = episode, ParentMediaName = series });
       return retValue;
     }
 
-    private List<PersonInfo> ConvertToPersons(List<string> actors, string occupation, int offset)
+    private List<PersonInfo> ConvertToPersons(List<string> actors, string occupation, int offset, string episode, string series)
     {
       if (actors == null || actors.Count == 0)
         return new List<PersonInfo>();
@@ -560,7 +562,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int sortOrder = offset;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (string person in actors)
-        retValue.Add(new PersonInfo() { Name = person, Occupation = occupation, Order = sortOrder++ });
+        retValue.Add(new PersonInfo() { Name = person, Occupation = occupation, Order = sortOrder++, MediaName = episode, ParentMediaName = series });
       return retValue;
     }
 
@@ -582,7 +584,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       });
     }
 
-    private List<CharacterInfo> ConvertToCharacters(List<TvdbActor> actors)
+    private List<CharacterInfo> ConvertToCharacters(List<TvdbActor> actors, string episode, string series)
     {
       if (actors == null || actors.Count == 0)
         return new List<CharacterInfo>();
@@ -595,7 +597,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ActorTvdbId = person.Id,
           ActorName = person.Name,
           Name = person.Role,
-          Order = sortOrder++
+          Order = sortOrder++,
+          MediaName = episode,
+          ParentMediaName = series
         });
       return retValue;
     }

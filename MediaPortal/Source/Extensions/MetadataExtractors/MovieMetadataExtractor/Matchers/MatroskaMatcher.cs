@@ -131,17 +131,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       tags = tagsToExtract[MatroskaConsts.TAG_ACTORS];
       if (tags != null)
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
-          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR, MediaName = movieInfo.MovieName.Text }).ToList(), false);
 
       tags = tagsToExtract[MatroskaConsts.TAG_DIRECTORS];
       if (tags != null)
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Directors,
-          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_DIRECTOR }).ToList(), false);
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_DIRECTOR, MediaName = movieInfo.MovieName.Text }).ToList(), false);
 
       tags = tagsToExtract[MatroskaConsts.TAG_WRITTEN_BY];
       if (tags != null)
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Writers,
-          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_WRITER }).ToList(), false);
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_WRITER, MediaName = movieInfo.MovieName.Text }).ToList(), false);
 
       if (tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID] != null)
       {

@@ -80,6 +80,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
             {
               Name = match.Groups[GROUP_ARTIST].Value.Trim(new[] { ' ', '-' }),
               Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             }
           };
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Artists, artists, true);
@@ -90,6 +92,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
             {
               Name = match.Groups[GROUP_ARTIST].Value.Trim(new[] { ' ', '-' }),
               Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             }
           };
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, albumArtists, true);

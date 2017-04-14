@@ -563,7 +563,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 trackInfo.Artists.Add(new PersonInfo()
                 {
                   Name = artistName.Trim(),
-                  Occupation = PersonAspect.OCCUPATION_ARTIST
+                  Occupation = PersonAspect.OCCUPATION_ARTIST,
+                  ParentMediaName = trackInfo.Album,
+                  MediaName = trackInfo.TrackName
                 });
               }
             }
@@ -585,7 +587,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 trackInfo.AlbumArtists.Add(new PersonInfo()
                 {
                   Name = artistName.Trim(),
-                  Occupation = PersonAspect.OCCUPATION_ARTIST
+                  Occupation = PersonAspect.OCCUPATION_ARTIST,
+                  ParentMediaName = trackInfo.Album,
+                  MediaName = trackInfo.TrackName
                 });
               }
             }
@@ -607,7 +611,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 trackInfo.Composers.Add(new PersonInfo()
                 {
                   Name = composerName.Trim(),
-                  Occupation = PersonAspect.OCCUPATION_COMPOSER
+                  Occupation = PersonAspect.OCCUPATION_COMPOSER,
+                  ParentMediaName = trackInfo.Album,
+                  MediaName = trackInfo.TrackName
                 });
               }
             }
@@ -779,14 +785,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             PersonInfo tempPerson1 = new PersonInfo()
             {
               Name = match.Groups["artist"].Value.Trim(),
-              Occupation = PersonAspect.OCCUPATION_ARTIST
+              Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             };
             resolvedList.Add(tempPerson1);
 
             PersonInfo tempPerson2 = new PersonInfo()
             {
               Name = match.Groups["artist2"].Value.Trim(),
-              Occupation = PersonAspect.OCCUPATION_ARTIST
+              Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             };
             resolvedList.Add(tempPerson2);
           }

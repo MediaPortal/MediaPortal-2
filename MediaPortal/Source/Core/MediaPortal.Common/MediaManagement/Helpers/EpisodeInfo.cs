@@ -348,19 +348,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       IEnumerable collection;
       Actors.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_ACTORS, out collection))
-        Actors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ACTOR }));
+        Actors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ACTOR, MediaName = EpisodeName.Text, ParentMediaName = SeriesName.Text }));
+      foreach (PersonInfo actor in Actors)
+        actor.AssignNameId();
 
       Directors.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, out collection))
-        Directors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_DIRECTOR }));
+        Directors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_DIRECTOR, MediaName = EpisodeName.Text, ParentMediaName = SeriesName.Text }));
+      foreach (PersonInfo director in Directors)
+        director.AssignNameId();
 
       Writers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_WRITERS, out collection))
-        Writers.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_WRITER }));
+        Writers.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_WRITER, MediaName = EpisodeName.Text, ParentMediaName = SeriesName.Text }));
+      foreach (PersonInfo writer in Writers)
+        writer.AssignNameId();
 
       Characters.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, out collection))
-        Characters.AddRange(collection.Cast<string>().Select(s => new CharacterInfo { Name = s }));
+        Characters.AddRange(collection.Cast<string>().Select(s => new CharacterInfo { Name = s, MediaName = EpisodeName.Text, ParentMediaName = SeriesName.Text }));
+      foreach (CharacterInfo character in Characters)
+        character.AssignNameId();
 
       Genres.Clear();
       IList<MultipleMediaItemAspect> genreAspects;
