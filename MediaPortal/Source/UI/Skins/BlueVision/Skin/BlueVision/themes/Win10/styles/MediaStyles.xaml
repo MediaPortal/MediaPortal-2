@@ -2014,16 +2014,40 @@
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
-                <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" Grid.Row="1" Grid.RowSpan="2">
-                  <Image.Resources>
-                    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
-                    <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
-                  </Image.Resources>
-                  <Image.Source>
-                      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+
+                <Grid Grid.Row="1" Grid.RowSpan="2">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+
+                  <!--Poster for movies-->
+                  <Image x:Name="MoviePoster" Stretch="UniformToFill" FallbackSource="{Binding MediaItem}">
+                    <Image.IsVisible>
+                      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                        <Binding Path="MediaItem" />
+                        <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                      </MultiBinding>
+                    </Image.IsVisible>
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster"
+                                                fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
+                                                fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
                     </Image.Source>
                   </Image>
+
+                  <!--Fallback to thumb for other video types-->
+                  <Image x:Name="VideoThumb" Stretch="UniformToFill" Source="{Binding MediaItem}">
+                    <Image.IsVisible>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {VisibilityEnum}.{Hidden}">
+                        <Binding ElementName="MoviePoster" Path="Visibility"/>
+                      </MultiBinding>
+                    </Image.IsVisible>
+                  </Image>
+                </Grid>
+
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_InfoArea_Template">
