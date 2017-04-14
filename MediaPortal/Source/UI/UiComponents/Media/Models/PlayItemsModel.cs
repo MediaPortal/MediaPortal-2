@@ -321,7 +321,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (resumeState != null)
           pc.SetContextVariable(PlayerContext.KEY_RESUME_STATE, resumeState);
         pc.Play();
-        if (pc.AVType == AVType.Video)
+        if (pc.AVType == AVType.Video || pc.AVType == AVType.Audio)
           pcm.ShowFullscreenContent(true);
       }
     }

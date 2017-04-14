@@ -17,7 +17,6 @@
   </Grid.ColumnDefinitions>
 
   <Grid.Resources>
-    <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
   </Grid.Resources>

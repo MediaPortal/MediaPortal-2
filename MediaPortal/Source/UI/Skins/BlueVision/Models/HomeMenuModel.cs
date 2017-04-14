@@ -593,7 +593,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         return false;
 
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      return workflowManager.CurrentNavigationContext.WorkflowState.StateId == currentlyPlayingWorkflowStateId;
+      return workflowManager.IsStateContainedInNavigationStack(currentlyPlayingWorkflowStateId.Value);
     }
 
     private void IsHomeChanged(AbstractProperty property, object oldvalue)

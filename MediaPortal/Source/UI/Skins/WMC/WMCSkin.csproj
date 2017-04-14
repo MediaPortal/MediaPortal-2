@@ -1051,6 +1051,21 @@
   <ItemGroup>
     <Folder Include="Skin\WMCSkin\themes\Dark-WMC\fonts\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\CurrentlyPlayingAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\FullScreenContentAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\AudioSpectrumAnalyzer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />

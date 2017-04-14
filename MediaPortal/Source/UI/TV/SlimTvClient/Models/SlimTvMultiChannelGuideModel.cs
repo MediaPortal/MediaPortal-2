@@ -255,6 +255,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return item;
     }
 
+    /// <summary>
+    /// Opens the context menu for the give program.
+    /// </summary>
+    /// <param name="selectedItem">ProgramListItem</param>
+    public void ShowProgramContextMenu(ListItem selectedItem)
+    {
+      if (selectedItem != null)
+      {
+        IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
+        base.ShowProgramActions(program);
+      }
+    }
+
+    protected override void ShowProgramActions(IProgram program)
+    {
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      // Check if program is currently running.
+      bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
+
+      if (settings.ZapFromGuide && isRunning)
+        TuneChannelByProgram(program);
+      else
+        base.ShowProgramActions(program);
+    }
+
     protected override void Update()
     {
       if (!_isInitialized)

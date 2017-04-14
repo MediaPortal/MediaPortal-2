@@ -152,6 +152,11 @@
         HelpText="[SlimTvClient.AutoStartTv.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.AutoStartTvSetting"/>
     <ConfigSetting
+        Id="ZapFromGuideSetting"
+        Text="[SlimTvClient.ZapFromGuide]"
+        HelpText="[SlimTvClient.ZapFromGuide.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ZapFromGuideSetting"/>
+    <ConfigSetting
         Id="HideAllChannelsGroupSetting"
         Text="[SlimTvClient.HideAllChannelsGroup]"
         HelpText="[SlimTvClient.HideAllChannelsGroup.Help]"

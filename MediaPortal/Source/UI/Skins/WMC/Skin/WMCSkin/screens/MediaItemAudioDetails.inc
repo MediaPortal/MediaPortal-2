@@ -20,10 +20,11 @@
     <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
 
-  <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+  <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.ColumnSpan="2">
     <media:AudioAspectWrapper.Template>
       <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -34,18 +35,20 @@
     </media:AudioAspectWrapper.Template>
   </media:AudioAspectWrapper>
 
-  <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="1">
+  <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="1"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <media:AudioAspectWrapper.Template>
       <ControlTemplate>
-        <WrapPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-          <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}"
+        <StackPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                  Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>
-          <StackPanel Grid.Row="2" Orientation="Horizontal">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
               <media:MediaAspectWrapper.Template>
                 <ControlTemplate>
                   <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-                    <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
+                    <Label x:Name="Year" FontSize="{ThemeResource SmallFontSize}"
                            Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
                   </Grid>
                 </ControlTemplate>
@@ -76,7 +79,7 @@
             </StackPanel>
           </StackPanel>
 
-          <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+          <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                  IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}"
                  Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
             <Label.Content>
@@ -88,9 +91,9 @@
           </Label>
 
           <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
-                 IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"
+                 IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" HorizontalAlignment="Stretch"
                  Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=mm\:ss}"/>
-        </WrapPanel>
+        </StackPanel>
       </ControlTemplate>
     </media:AudioAspectWrapper.Template>
   </media:AudioAspectWrapper>

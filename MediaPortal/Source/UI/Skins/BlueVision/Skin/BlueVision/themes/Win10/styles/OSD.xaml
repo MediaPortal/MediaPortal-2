@@ -5,8 +5,13 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="Colors,Consts"
     >
+
+  <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
+
   <Style x:Key="OSDContainer" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -66,6 +71,12 @@
               </Grid.Triggers>
               
               <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2">
+                <Border.IsVisible>
+                  <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"/>
+                    <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Border.IsVisible>
                 <Border.Background>
                   <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                     <LinearGradientBrush.GradientStops>
@@ -122,7 +133,7 @@
                 </DataTrigger>
               </Grid.Triggers>
 
-              <Border Margin="-40,-20,-40,0" Grid.RowSpan="2">
+              <Border Margin="-40,-25,-40,0" Grid.RowSpan="2">
                 <Border.Background>
                   <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                     <LinearGradientBrush.GradientStops>
