@@ -2014,15 +2014,16 @@
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
-                <Grid>
-                  <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
-                         FallbackSource="{Binding MediaItem}">
-                    <Image.Source>
-                      <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem}"
-                          fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" Grid.Row="1" Grid.RowSpan="2">
+                  <Image.Resources>
+                    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+                    <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+                  </Image.Resources>
+                  <Image.Source>
+                      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
                     </Image.Source>
                   </Image>
-                </Grid>
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_InfoArea_Template">
@@ -2033,44 +2034,17 @@
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="15"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="150"/>
                   </Grid.RowDefinitions>
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                        FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="DefaultBold" Grid.Row="1"
-                        Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                         FontFamily="DefaultBold" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
 
-                  <media:MediaAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.Column="1" Margin="15,-5,0,0">
-                    <media:MediaAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Label x:Name="Year" FontSize="{ThemeResource SmallerFontSize}"
-                                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                 Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
-                      </ControlTemplate>
-                    </media:MediaAspectWrapper.Template>
-                  </media:MediaAspectWrapper>
-
-                  <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-                    <media:VideoAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                          <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                          </Grid.ColumnDefinitions>
-                          <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                          </Grid.RowDefinitions>
-                          <Label x:Name="StoryPlot" Wrap="True" Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
-                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                 FontSize="{ThemeResource SmallFontSize}"
-                                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                 Content="{Binding Path=StoryPlot}" Color="{ThemeResource TextColor}" />
-                        </Grid>
-                      </ControlTemplate>
-                    </media:VideoAspectWrapper.Template>
-                  </media:VideoAspectWrapper>
+                  <Label x:Name="StoryPlot" Wrap="True" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,-5"
+                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextTrimming="WordEllipsis"
+                         Content="{Binding Path=VideoStoryPlot}" Color="{ThemeResource TextColor}" Opacity="0.6" />
                 </Grid>
               </ControlTemplate>
 
@@ -2084,16 +2058,6 @@
 
             </Control.Resources>
           </Control>
-          <!--<ControlTemplate.Triggers>
-            <Trigger Property="IsCurrentPlayer" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>-->
         </ControlTemplate>
       </Setter.Value>
     </Setter>

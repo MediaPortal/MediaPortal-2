@@ -42,7 +42,7 @@
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" 
-                         DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                       DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                   <Image.Source>
                     <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5">
                       <ImageSourceWrapper.Source>
