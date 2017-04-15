@@ -120,7 +120,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
             //Artist fallback
             foreach (MultipleMediaItemAspect relation in relationAspects)
             {
-              if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST)
+              if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ALBUMARTIST)
               {
                 fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
                 if (fanArtFiles.Count > 0)

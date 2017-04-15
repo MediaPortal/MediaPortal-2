@@ -23,27 +23,18 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
-using System.Linq;
+using System;
 
-namespace MediaPortal.UiComponents.Media.Models.ScreenData
+namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class AudioFilterByAlbumArtistScreenData : AbstractAlbumFilterScreenData<ArtistFilterItem>
+  public class FilterByAlbumArtistCriterion : RelationshipMLFilterCriterion
   {
-    public AudioFilterByAlbumArtistScreenData() :
-      base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM_ARTIST, Consts.RES_COMMON_BY_ALBUM_ARTIST_MENU_ITEM,
-      Consts.RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL, new FilterByAlbumArtistCriterion(AudioAlbumAspect.ROLE_ALBUM))
+    public FilterByAlbumArtistCriterion(Guid linkedRole) :
+      base(PersonAspect.ROLE_ALBUMARTIST, linkedRole, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
+        new SortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
     {
-      _availableMias = Consts.NECESSARY_PERSON_MIAS;
-      if (Consts.OPTIONAL_PERSON_MIAS != null)
-        _availableMias = _availableMias.Union(Consts.OPTIONAL_PERSON_MIAS);
-    }
-
-    public override AbstractFiltersScreenData<ArtistFilterItem> Derive()
-    {
-      return new AudioFilterByAlbumArtistScreenData();
     }
   }
 }

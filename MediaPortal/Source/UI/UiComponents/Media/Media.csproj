@@ -113,6 +113,7 @@
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
+    <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByDiscNumberCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByTvNetworkCriterion.cs" />
