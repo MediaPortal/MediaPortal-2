@@ -304,12 +304,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!string.IsNullOrEmpty(name))
       {
-        string nameId = name.Trim();
-        nameId = CleanString(nameId);
-        nameId = CleanupWhiteSpaces(nameId);
-        nameId = StringUtils.RemoveDiacritics(nameId);
-        nameId = nameId.Replace("'", "");
-        nameId = nameId.Replace(" ", "").ToLowerInvariant();
+        string nameId = StringUtils.RemoveDiacritics(CleanString(CleanupWhiteSpaces(name)));
+        nameId = nameId.Replace("'", "").Replace(" ", "").ToLowerInvariant();
         return nameId;
       }
       return null;
