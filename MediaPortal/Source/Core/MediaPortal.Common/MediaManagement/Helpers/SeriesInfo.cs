@@ -290,11 +290,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         Actors.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_ACTORS, out collection))
-          Actors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ACTOR }));
+          Actors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ACTOR, ParentMediaName = SeriesName.Text }));
+        foreach (PersonInfo actor in Actors)
+          actor.AssignNameId();
 
         Characters.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, out collection))
-          Characters.AddRange(collection.Cast<string>().Select(s => new CharacterInfo { Name = s }));
+          Characters.AddRange(collection.Cast<string>().Select(s => new CharacterInfo { Name = s, ParentMediaName = SeriesName.Text }));
+        foreach (CharacterInfo character in Characters)
+          character.AssignNameId();
 
         Genres.Clear();
         IList<MultipleMediaItemAspect> genreAspects;
@@ -317,10 +321,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         Networks.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, out collection))
           Networks.AddRange(collection.Cast<string>().Select(s => new CompanyInfo { Name = s, Type = CompanyAspect.COMPANY_TV_NETWORK }));
+        foreach (CompanyInfo network in Networks)
+          network.AssignNameId();
 
         ProductionCompanies.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_COMPANIES, out collection))
           ProductionCompanies.AddRange(collection.Cast<string>().Select(s => new CompanyInfo { Name = s, Type = CompanyAspect.COMPANY_PRODUCTION }));
+        foreach (CompanyInfo company in ProductionCompanies)
+          company.AssignNameId();
 
         DateTime dateNextEpisode;
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_AIR_DATE, out dateNextEpisode) && dateNextEpisode > DateTime.Now)

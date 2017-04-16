@@ -81,7 +81,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       {
         necessaryMias.Add(AudioAspect.ASPECT_ID);
         necessaryMias.Add(RelationshipAspect.ASPECT_ID);
-        filter = new RelationshipFilter(AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ARTIST, mediaItemId);
+        filter = new RelationshipFilter(AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ALBUMARTIST, mediaItemId);
       }
       else if (fanArtType == FanArtTypes.FanArt)
       {
@@ -133,7 +133,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         List<string> artists = new List<string>();
         if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, AudioAspect.Metadata, out audioAspect))
         {
-          IEnumerable<object> artistObjects = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_ARTISTS);
+          IEnumerable<object> artistObjects = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_ALBUMARTISTS);
           if (artistObjects != null)
             artists.AddRange(artistObjects.Cast<string>());
         }
@@ -143,10 +143,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         {
           foreach (MultipleMediaItemAspect relation in relationAspects)
           {
-            if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST && (Guid?)relation[RelationshipAspect.ATTR_LINKED_ID] == mediaItemId)
+            if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ALBUMARTIST && (Guid?)relation[RelationshipAspect.ATTR_LINKED_ID] == mediaItemId)
             {
               int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
-              if (index.HasValue && artists.Count > index.Value && index.Value >= 0 && string.Compare(artists[index.Value], artistMediaItemyPath.FileName, true) == 0)
+              if (index.HasValue && artists.Count > index.Value && index.Value >= 0)
                 artistName = artists[index.Value];
             }
           }
