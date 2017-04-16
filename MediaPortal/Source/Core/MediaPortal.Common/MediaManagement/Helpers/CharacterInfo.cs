@@ -295,8 +295,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return ActorTvRageId == other.ActorTvRageId;
       if (!string.IsNullOrEmpty(ActorImdbId) && !string.IsNullOrEmpty(other.ActorImdbId))
         return string.Equals(ActorImdbId, other.ActorImdbId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(ActorNameId) && !string.IsNullOrEmpty(other.ActorNameId))
-        return string.Equals(ActorNameId, other.ActorNameId, StringComparison.InvariantCultureIgnoreCase);
 
       if (!string.IsNullOrEmpty(ActorName) && !string.IsNullOrEmpty(other.ActorName) && !MatchNames(ActorName, other.ActorName))
         return false;
@@ -306,8 +304,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return MovieDbId == other.MovieDbId;
       if (TvMazeId > 0 && other.TvMazeId > 0)
         return TvMazeId == other.TvMazeId;
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
 
       //More lax checking if media is the same
       if (!string.IsNullOrEmpty(ParentMediaName) && !string.IsNullOrEmpty(other.ParentMediaName) && MatchNames(ParentMediaName, other.ParentMediaName) &&
@@ -325,6 +321,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name))
         return true;
+
+      //Name id is generated from name and can be unreliable so should only be tested as a last resort
+      if (!string.IsNullOrEmpty(ActorNameId) && !string.IsNullOrEmpty(other.ActorNameId))
+        return string.Equals(ActorNameId, other.ActorNameId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
+        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
 
       return false;
     }

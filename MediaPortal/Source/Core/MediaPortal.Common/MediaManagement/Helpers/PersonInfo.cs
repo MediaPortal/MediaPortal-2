@@ -275,8 +275,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId) && Occupation == other.Occupation)
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && Occupation == other.Occupation)
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
+      
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && StrictMatchNames(Name, other.Name) && Occupation == other.Occupation)
         return true;
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && StrictMatchNames(Name, other.AlternateName) && Occupation == other.Occupation)
@@ -295,6 +294,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(MediaName) && !string.IsNullOrEmpty(other.MediaName) && MatchNames(MediaName, other.MediaName) &&
         !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.AlternateName) && MatchNames(Name, other.AlternateName) && Occupation == other.Occupation)
         return true;
+
+      //Name id is generated from name and can be unreliable so should only be tested as a last resort
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && Occupation == other.Occupation)
+        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
 
       return false;
     }
