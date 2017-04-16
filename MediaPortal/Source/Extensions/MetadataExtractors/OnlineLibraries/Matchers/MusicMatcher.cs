@@ -405,7 +405,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly)
+    public virtual bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly)
     {
       try
       {
@@ -417,7 +417,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         bool updated = false;
         TrackInfo trackMatch = trackInfo.Clone();
         List<PersonInfo> persons = new List<PersonInfo>();
-        if (occupation == PersonAspect.OCCUPATION_ARTIST)
+        if (occupation == PersonAspect.OCCUPATION_ARTIST && forAlbum)
+        {
+          foreach (PersonInfo person in trackMatch.AlbumArtists)
+          {
+            string id;
+            if (_artistMatcher.GetNameMatch(person.Name, out id))
+            {
+              if (SetPersonId(person, id))
+              {
+                //Only add if Id valid if not then it is to avoid a retry
+                //and the person should be ignored
+                persons.Add(person);
+                updated = true;
+              }
+            }
+            else
+            {
+              persons.Add(person);
+            }
+          }
+        }
+        else if (occupation == PersonAspect.OCCUPATION_ARTIST)
         {
           foreach (PersonInfo person in trackMatch.Artists)
           {
@@ -504,7 +525,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Try to update artist based on album information
           AlbumInfo album = trackMatch.CloneBasicInstance<AlbumInfo>();
-          album.Artists = trackMatch.Artists;
+          if(forAlbum)
+            album.Artists = trackMatch.AlbumArtists;
+          else
+            album.Artists = trackMatch.Artists;
           if (UpdateAlbumPersons(album, occupation, importOnly))
           {
             trackMatch.HasChanged = album.HasChanged ? album.HasChanged : trackMatch.HasChanged;
@@ -516,14 +540,33 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
-          if (occupation == PersonAspect.OCCUPATION_ARTIST)
+          if (occupation == PersonAspect.OCCUPATION_ARTIST && forAlbum)
+            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
+          else if (occupation == PersonAspect.OCCUPATION_ARTIST)
             MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
           else if (occupation == PersonAspect.OCCUPATION_COMPOSER)
             MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
         }
 
         List<string> thumbs = new List<string>();
-        if (occupation == PersonAspect.OCCUPATION_ARTIST)
+        if (occupation == PersonAspect.OCCUPATION_ARTIST && forAlbum)
+        {
+          foreach (PersonInfo person in trackInfo.AlbumArtists)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+            {
+              _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
+            }
+            else
+            {
+              //Store empty match so he/she is not retried
+              if (!importOnly)
+                _artistMatcher.StoreNameMatch("", person.Name, person.Name);
+            }
+          }
+        }
+        else if (occupation == PersonAspect.OCCUPATION_ARTIST)
         {
           foreach (PersonInfo person in trackInfo.Artists)
           {
