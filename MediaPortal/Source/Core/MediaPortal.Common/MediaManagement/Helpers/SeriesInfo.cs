@@ -552,8 +552,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return TvRageId == other.TvRageId;
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
 
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty &&
         MatchNames(SeriesName.Text, other.SeriesName.Text) && FirstAired.HasValue && other.FirstAired.HasValue &&
@@ -562,6 +560,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty &&
         MatchNames(SeriesName.Text, other.SeriesName.Text))
         return true;
+
+      //Name id is generated from name and can be unreliable so should only be tested as a last resort
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
+        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
 
       return false;
     }

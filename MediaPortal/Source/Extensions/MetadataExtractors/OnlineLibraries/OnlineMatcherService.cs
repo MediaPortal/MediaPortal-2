@@ -359,12 +359,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly)
+    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
-        success |= matcher.UpdateTrackPersons(trackInfo, occupation, importOnly);
+        success |= matcher.UpdateTrackPersons(trackInfo, occupation, forAlbum, importOnly);
       }
       return success;
     }

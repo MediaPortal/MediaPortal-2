@@ -35,7 +35,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
-  class TrackComposerRelationshipExtractor : IAudioRelationshipExtractor, IRelationshipRoleExtractor
+  class TrackAlbumArtistRelationshipExtractor : IAudioRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return PersonAspect.ROLE_COMPOSER; }
+      get { return PersonAspect.ROLE_ALBUMARTIST; }
     }
 
     public Guid[] LinkedRoleAspects
@@ -79,10 +79,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      if (!AudioMetadataExtractor.IncludeComposerDetails)
-        return false;
-
-      if (importOnly)
+      if (!AudioMetadataExtractor.IncludeArtistDetails)
         return false;
 
       if (BaseInfo.IsVirtualResource(aspects))
@@ -95,34 +92,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (CheckCacheContains(trackInfo))
         return false;
 
-      UpdatePersons(aspects, trackInfo.Composers, false);
-        
+      UpdatePersons(aspects, trackInfo.AlbumArtists, true);
+       
       int count = 0;
       if (!AudioMetadataExtractor.SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_COMPOSER, false, importOnly);
-        count = trackInfo.Composers.Where(p => p.HasExternalId).Count();
+        OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST, true, importOnly);
+        count = trackInfo.AlbumArtists.Where(p => p.HasExternalId).Count();
         if (!trackInfo.IsRefreshed)
           trackInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
       }
       else
       {
-        count = trackInfo.Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Count();
+        count = trackInfo.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Count();
       }
 
-      if (trackInfo.Composers.Count == 0)
+      if (trackInfo.AlbumArtists.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && trackInfo.Composers.Count > 0))
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && trackInfo.AlbumArtists.Count > 0))
         trackInfo.HasChanged = true; //Force save if no relationship exists
 
-      if (!trackInfo.HasChanged)
+      if (!trackInfo.HasChanged && !importOnly)
         return false;
 
       AddToCheckCache(trackInfo);
 
       extractedLinkedAspects = new List<RelationshipItem>();
-      foreach (PersonInfo person in trackInfo.Composers)
+      foreach (PersonInfo person in trackInfo.AlbumArtists)
       {
         person.AssignNameId();
         person.HasChanged = trackInfo.HasChanged;
@@ -171,7 +168,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(AudioAspect.ATTR_COMPOSERS);
+      IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS);
       List<string> nameList = new List<string>(persons);
 
       index = nameList.IndexOf(name);

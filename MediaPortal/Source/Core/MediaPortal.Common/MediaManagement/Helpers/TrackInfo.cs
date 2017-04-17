@@ -486,8 +486,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(MusicIpId, other.MusicIpId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(IsrcId) && !string.IsNullOrEmpty(other.IsrcId))
         return string.Equals(IsrcId, other.IsrcId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
 
       if (TrackNum > 0 && other.TrackNum > 0 && TrackNum == other.TrackNum)
       {
@@ -505,8 +503,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return string.Equals(AlbumAmazonId, other.AlbumAmazonId, StringComparison.InvariantCultureIgnoreCase);
         if (!string.IsNullOrEmpty(AlbumItunesId) && !string.IsNullOrEmpty(other.AlbumItunesId))
           return string.Equals(AlbumItunesId, other.AlbumItunesId, StringComparison.InvariantCultureIgnoreCase);
-        if (!string.IsNullOrEmpty(AlbumNameId) && !string.IsNullOrEmpty(other.AlbumNameId))
-          return string.Equals(AlbumNameId, other.AlbumNameId, StringComparison.InvariantCultureIgnoreCase);
 
         if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) &&
           ReleaseDate.HasValue && other.ReleaseDate.HasValue)
@@ -528,6 +524,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (ReleaseDate.HasValue && other.ReleaseDate.HasValue)
           return ReleaseDate.Value == other.ReleaseDate.Value;
       }
+
+      //Name id is generated from name and can be unreliable so should only be tested as a last resort
+      if (TrackNum > 0 && other.TrackNum > 0 && TrackNum == other.TrackNum)
+      {
+        if (!string.IsNullOrEmpty(AlbumNameId) && !string.IsNullOrEmpty(other.AlbumNameId))
+          return string.Equals(AlbumNameId, other.AlbumNameId, StringComparison.InvariantCultureIgnoreCase);
+      }
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
+        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
 
       return false;
     }

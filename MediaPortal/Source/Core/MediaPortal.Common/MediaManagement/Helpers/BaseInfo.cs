@@ -135,6 +135,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     private const string CLEAN_WHITESPACE_REGEX = @"[\.|_](\S|$)";
     private const string SORT_REGEX = @"(^The\s+)|(^An?\s+)|(^De[rsmn]\s+)|(^Die\s+)|(^Das\s+)|(^Ein(e[srmn]?)?\s+)";
     private const string CLEAN_REGEX = @"<[^>]+>|&nbsp;";
+    private const string CLEAN_NAME_REGEX = @"[©®™\s'.-]";
 
     #region Members
 
@@ -305,7 +306,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(name))
       {
         string nameId = StringUtils.RemoveDiacritics(CleanString(CleanupWhiteSpaces(name)));
-        nameId = nameId.Replace("'", "").Replace(" ", "").ToLowerInvariant();
+        nameId = Regex.Replace(nameId, CLEAN_NAME_REGEX, "").ToLowerInvariant();
         return nameId;
       }
       return null;

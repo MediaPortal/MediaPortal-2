@@ -41,7 +41,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedAudio();
 
     bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly);
-    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly);
+    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly);
     bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly);
     bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly);
     bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly);
