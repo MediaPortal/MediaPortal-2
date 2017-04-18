@@ -130,7 +130,7 @@
         </Label.Opacity>
       </Label>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
+      <!--Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
                Template="{ThemeResource FilterCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -153,7 +153,7 @@
             </ScaleTransform.ScaleY>
           </ScaleTransform>
         </Control.LayoutTransform>
-      </Control>
+      </-->
 
       <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
             HorizontalAlignment="Stretch"
@@ -171,27 +171,34 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3,2,3,2">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" 
+          Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0,0,0,0" Source="Container.png">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.8"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
-      <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
-           Color="Black" FontSize="{ThemeResource TinyFontSize}" Margin="15,0,25,25" />
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border BorderThickness="0" Background="Black" Opacity="0.15" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+        <Label x:Name="ItemLabel" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Scroll="None" ScrollDelay="0"
+               FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25">
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+              <Setter TargetName="ItemLabel" Property="TextTrimming" Value="None"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
+        <Label x:Name="NumItems" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" Margin="15,3,25,25" Opacity="0.6"/>
+      </Grid>
     </Grid>
   </ControlTemplate>
 
@@ -272,7 +279,7 @@
         </Label.Opacity>
       </Label>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
+      <!--Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
                Template="{ThemeResource ContainerCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -295,7 +302,7 @@
             </ScaleTransform.ScaleY>
           </ScaleTransform>
         </Control.LayoutTransform>
-      </Control>
+      </-->
 
       <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
             HorizontalAlignment="Stretch"
@@ -315,25 +322,32 @@
   <ControlTemplate x:Key="GridViewContainerItemTemplate">
     <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" 
           Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Fill" Source="Container.png">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.7"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
-      <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
-           Color="Black" FontSize="{ThemeResource TinyFontSize}" Margin="15,0,25,25" />
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border BorderThickness="0" Background="Black" Opacity="0.15" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+        <Label x:Name="ItemLabel" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Scroll="None" ScrollDelay="0"
+               FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25">
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+              <Setter TargetName="ItemLabel" Property="TextTrimming" Value="None"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
+        <Label x:Name="NumItems" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" Margin="15,3,25,25" Opacity="0.6"/>
+      </Grid>
     </Grid>
   </ControlTemplate>
 
