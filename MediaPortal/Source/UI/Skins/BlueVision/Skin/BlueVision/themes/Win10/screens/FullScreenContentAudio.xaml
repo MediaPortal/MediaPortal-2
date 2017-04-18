@@ -240,6 +240,8 @@
         <mp_special_controls:PlayerControl x:Name="PrimaryOSD" Grid.RowSpan="3" Grid.ColumnSpan="3"
             Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
+        <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
+        
       </Grid>
     </mp_special_controls:PlayerControl.TemplateControl>
   </mp_special_controls:PlayerControl>

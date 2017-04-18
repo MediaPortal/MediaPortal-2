@@ -2085,7 +2085,7 @@
                   </Grid.RowDefinitions>
 
                   <!--Poster for movies-->
-                  <Image x:Name="MoviePoster" Stretch="UniformToFill" FallbackSource="{Binding MediaItem}">
+                  <Image x:Name="MoviePoster" Stretch="Uniform" FallbackSource="{Binding MediaItem}" Margin="0,20,0,20">
                     <Image.IsVisible>
                       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                         <Binding Path="MediaItem" />
@@ -2100,7 +2100,7 @@
                   </Image>
 
                   <!--Fallback to thumb for other video types-->
-                  <Image x:Name="VideoThumb" Stretch="UniformToFill" Source="{Binding MediaItem}">
+                  <Image x:Name="VideoThumb" Stretch="Uniform" Source="{Binding MediaItem}" Margin="0,20,0,20">
                     <Image.IsVisible>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {VisibilityEnum}.{Hidden}">
                         <Binding ElementName="MoviePoster" Path="Visibility"/>
