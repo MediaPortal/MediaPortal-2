@@ -305,9 +305,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!string.IsNullOrEmpty(name))
       {
-        string nameId = StringUtils.RemoveDiacritics(CleanString(CleanupWhiteSpaces(name)));
-        nameId = Regex.Replace(nameId, CLEAN_NAME_REGEX, "").ToLowerInvariant();
-        return nameId;
+        string nameId = CleanString(CleanupWhiteSpaces(name));
+        if (!string.IsNullOrEmpty(nameId))
+          nameId = StringUtils.RemoveDiacritics(nameId);
+        if (!string.IsNullOrEmpty(nameId))
+          nameId = Regex.Replace(nameId, CLEAN_NAME_REGEX, "").ToLowerInvariant();
+        if (!string.IsNullOrEmpty(nameId))
+          return nameId;
       }
       return null;
     }

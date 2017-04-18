@@ -2042,10 +2042,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             //Transfer any transient aspects
             TransferTransientAspects(mediaItemAspects, item);
 
-            if (reconcile)
-              Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
+            bool cancel = cancelToken.IsCancellationRequested;
+            try
+            {
+              if (reconcile && !cancel)
+                Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
+            }
+            catch (Exception e)
+            {
+              Logger.Error("MediaLibrary: Error reconciling media item(s) in path '{0}'", e, (path != null ? path.Serialize() : null));
+              cancel = true;
+            }
+            if(cancelToken.IsCancellationRequested)
+              cancel = true;
 
-            if (cancelToken.IsCancellationRequested)
+            if (cancel)
             {
               //Delete media item so it can be reimported later
               transaction = database.BeginTransaction();
@@ -2066,7 +2077,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Logger.Error("MediaLibrary: Error adding or updating media item(s) in path '{0}'", e, (path != null ? path.Serialize() : null));
         transaction.Rollback();
-        throw;
+        return Guid.Empty;
       }
     }
 
