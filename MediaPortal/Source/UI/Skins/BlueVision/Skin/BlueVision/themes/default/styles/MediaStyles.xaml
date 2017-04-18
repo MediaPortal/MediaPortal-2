@@ -2077,8 +2077,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-
-          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" 
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
                 <Grid>

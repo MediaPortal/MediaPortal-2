@@ -7,7 +7,7 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
-    DependsOnStyleResources="Colors,Consts"
+    DependsOnStyleResources="Colors,Consts,OtherControls"
     >
 
   <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
@@ -59,7 +59,13 @@
               </Grid.Resources>
               
               <Grid.Triggers>
-                <DataTrigger Binding="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" Value="True">
+                <DataTrigger>
+                  <DataTrigger.Binding>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                      <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
+                      <Binding Path="IsOSDVisible"/>
+                    </MultiBinding>
+                  </DataTrigger.Binding>
                   <DataTrigger.EnterActions>
                     <BeginStoryboard x:Name="InfoSlideIn_BeginStoryboard" Storyboard="{StaticResource InfoSlideInStoryboard}"/>
                   </DataTrigger.EnterActions>
@@ -120,9 +126,15 @@
                   </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
               </Grid.Resources>
-              
+
               <Grid.Triggers>
-                <DataTrigger Binding="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" Value="True">
+                <DataTrigger>
+                  <DataTrigger.Binding>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                      <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
+                      <Binding Path="IsOSDVisible"/>
+                    </MultiBinding>
+                  </DataTrigger.Binding>
                   <DataTrigger.EnterActions>
                     <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                   </DataTrigger.EnterActions>
