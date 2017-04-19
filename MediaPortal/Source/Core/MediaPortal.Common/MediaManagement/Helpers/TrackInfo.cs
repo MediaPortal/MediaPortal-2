@@ -476,18 +476,37 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (AudioDbId > 0 && other.AudioDbId > 0)
         return AudioDbId == other.AudioDbId;
-      if (MvDbId > 0 && other.MvDbId > 0)
-        return MvDbId == other.MvDbId;
-      if (LyricId > 0 && other.LyricId > 0)
-        return LyricId == other.LyricId;
-      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId))
+      
+      //Musicbrainz Id is unique per song not per album song.
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
+        !string.IsNullOrEmpty(AlbumMusicBrainzGroupId) && !string.IsNullOrEmpty(other.AlbumMusicBrainzGroupId) &&
+        string.Equals(AlbumMusicBrainzGroupId, other.AlbumMusicBrainzGroupId, StringComparison.InvariantCultureIgnoreCase))
         return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(MusicIpId) && !string.IsNullOrEmpty(other.MusicIpId))
-        return string.Equals(MusicIpId, other.MusicIpId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(IsrcId) && !string.IsNullOrEmpty(other.IsrcId))
-        return string.Equals(IsrcId, other.IsrcId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
+        !string.IsNullOrEmpty(AlbumMusicBrainzId) && !string.IsNullOrEmpty(other.AlbumMusicBrainzId) &&
+        string.Equals(AlbumMusicBrainzId, other.AlbumMusicBrainzId, StringComparison.InvariantCultureIgnoreCase))
+        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
 
-      if (TrackNum > 0 && other.TrackNum > 0 && TrackNum == other.TrackNum)
+      //Name id is generated from name and can be unreliable so should only be used if matches
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && 
+        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+
+      //These Ids are only unique per song and not per album song
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && Album == other.Album)
+      {
+        if (MvDbId > 0 && other.MvDbId > 0)
+          return MvDbId == other.MvDbId;
+        if (LyricId > 0 && other.LyricId > 0)
+          return LyricId == other.LyricId;
+        if (!string.IsNullOrEmpty(MusicIpId) && !string.IsNullOrEmpty(other.MusicIpId))
+          return string.Equals(MusicIpId, other.MusicIpId, StringComparison.InvariantCultureIgnoreCase);
+        if (!string.IsNullOrEmpty(IsrcId) && !string.IsNullOrEmpty(other.IsrcId))
+          return string.Equals(IsrcId, other.IsrcId, StringComparison.InvariantCultureIgnoreCase);
+      }
+
+      if (TrackNum > 0 && other.TrackNum > 0 && TrackNum == other.TrackNum &&
+        !string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) && MatchNames(TrackName, other.TrackName))
       {
         if (AlbumAudioDbId > 0 && other.AlbumAudioDbId > 0)
           return AlbumAudioDbId == other.AlbumAudioDbId;
@@ -504,6 +523,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (!string.IsNullOrEmpty(AlbumItunesId) && !string.IsNullOrEmpty(other.AlbumItunesId))
           return string.Equals(AlbumItunesId, other.AlbumItunesId, StringComparison.InvariantCultureIgnoreCase);
 
+        //Name id is generated from name and can be unreliable so should only be used if matches
+        if (!string.IsNullOrEmpty(AlbumNameId) && !string.IsNullOrEmpty(other.AlbumNameId) && 
+          string.Equals(AlbumNameId, other.AlbumNameId, StringComparison.InvariantCultureIgnoreCase))
+          return true;
+
         if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) &&
           ReleaseDate.HasValue && other.ReleaseDate.HasValue)
           return Album == other.Album && ReleaseDate.Value == other.ReleaseDate.Value;
@@ -513,26 +537,20 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (!string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) && MatchNames(TrackName, other.TrackName))
       {
-        if (Artists.Count > 0 && other.Artists.Count > 0 && ReleaseDate.HasValue && other.ReleaseDate.HasValue)
-          return Artists.SequenceEqual(other.Artists) && ReleaseDate.Value == other.ReleaseDate.Value;
-        if (AlbumArtists.Count > 0 && other.AlbumArtists.Count > 0 && ReleaseDate.HasValue && other.ReleaseDate.HasValue)
-          return AlbumArtists.SequenceEqual(other.AlbumArtists) && ReleaseDate.Value == other.ReleaseDate.Value;
-        if (Artists.Count > 0 && other.Artists.Count > 0)
-          return Artists.SequenceEqual(other.Artists);
-        if (AlbumArtists.Count > 0 && other.AlbumArtists.Count > 0)
-          return AlbumArtists.SequenceEqual(other.AlbumArtists);
+        //Artist matching is not reliable so only use if match
+        if (Artists.Count > 0 && other.Artists.Count > 0 && ReleaseDate.HasValue && other.ReleaseDate.HasValue &&
+          Artists.SequenceEqual(other.Artists) && ReleaseDate.Value == other.ReleaseDate.Value)
+          return true;
+        if (AlbumArtists.Count > 0 && other.AlbumArtists.Count > 0 && ReleaseDate.HasValue && other.ReleaseDate.HasValue &&
+          AlbumArtists.SequenceEqual(other.AlbumArtists) && ReleaseDate.Value == other.ReleaseDate.Value)
+          return true;
+        if (Artists.Count > 0 && other.Artists.Count > 0 && Artists.SequenceEqual(other.Artists))
+          return true;
+        if (AlbumArtists.Count > 0 && other.AlbumArtists.Count > 0 && AlbumArtists.SequenceEqual(other.AlbumArtists))
+          return true;
         if (ReleaseDate.HasValue && other.ReleaseDate.HasValue)
           return ReleaseDate.Value == other.ReleaseDate.Value;
       }
-
-      //Name id is generated from name and can be unreliable so should only be tested as a last resort
-      if (TrackNum > 0 && other.TrackNum > 0 && TrackNum == other.TrackNum)
-      {
-        if (!string.IsNullOrEmpty(AlbumNameId) && !string.IsNullOrEmpty(other.AlbumNameId))
-          return string.Equals(AlbumNameId, other.AlbumNameId, StringComparison.InvariantCultureIgnoreCase);
-      }
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
 
       return false;
     }

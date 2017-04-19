@@ -59,15 +59,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       List<AudioDbTrack> foundTracks = null;
-      foreach(PersonInfo person in trackSearch.Artists)
+      foreach (PersonInfo person in trackSearch.AlbumArtists)
       {
         foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName, language);
         if (foundTracks != null)
           break;
       }
-      if (foundTracks == null && trackSearch.AlbumArtists.Count > 0)
+      if (foundTracks == null)
       {
-        foreach (PersonInfo person in trackSearch.AlbumArtists)
+        foreach (PersonInfo person in trackSearch.Artists)
         {
           foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName, language);
           if (foundTracks != null)
@@ -104,7 +104,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       albums = null;
       language = language ?? PreferredLanguage;
 
-      List<AudioDbAlbum> foundAlbums = _audioDbHandler.SearchAlbum(albumSearch.Artists.Count > 0 ? albumSearch.Artists[0].Name : "", albumSearch.Album, language);
+      List<AudioDbAlbum> foundAlbums = null;
+      if(albumSearch.Artists.Count == 0)
+        foundAlbums = _audioDbHandler.SearchAlbum("", albumSearch.Album, language);
+      foreach (PersonInfo person in albumSearch.Artists)
+      {
+        foundAlbums = _audioDbHandler.SearchAlbum(person.Name, albumSearch.Album, language);
+        if (foundAlbums != null)
+          break;
+      }
       if (foundAlbums == null) return false;
 
       foreach (AudioDbAlbum album in foundAlbums)
@@ -263,15 +271,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (track.AudioDbId > 0)
         trackDetail = _audioDbHandler.GetTrack(track.AudioDbId, language, cacheOnly);
 
-      if (trackDetail == null && !string.IsNullOrEmpty(track.MusicBrainzId))
-        trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, language, cacheOnly);
-
       if (trackDetail == null && track.TrackNum > 0 && track.AlbumAudioDbId > 0)
       {
         List<AudioDbTrack> foundTracks = _audioDbHandler.GetTracksByAlbumId(track.AlbumAudioDbId, language, cacheOnly);
         if (foundTracks != null && foundTracks.Count > 0)
           trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
       }
+
+      //Musicbrainz Id can be unreliable in this regard because it is linked to a recording and the same recording can 
+      //be across multiple different albums. In other words the Id is unique per song not per album song, so using this can
+      //lead to the wrong album id.
+      //if (trackDetail == null && !string.IsNullOrEmpty(track.MusicBrainzId))
+      //  trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, language, cacheOnly);
+
       if (trackDetail == null) return false;
 
       //Get the track into the cache

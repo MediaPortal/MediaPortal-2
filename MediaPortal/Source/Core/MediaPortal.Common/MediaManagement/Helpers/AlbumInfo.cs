@@ -452,19 +452,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(AmazonId, other.AmazonId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(ItunesId) && !string.IsNullOrEmpty(other.ItunesId))
         return string.Equals(ItunesId, other.ItunesId, StringComparison.InvariantCultureIgnoreCase);
-      
+
+      //Name id is generated from name and can be unreliable so should only be used if matches
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
+        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+
       if (ReleaseDate.HasValue && other.ReleaseDate.HasValue &&
         (Artists == null || Artists.Count == 0 || other.Artists == null || other.Artists.Count == 0 || Artists[0].Equals(other.Artists[0])))
         return ReleaseDate.Value == other.ReleaseDate.Value;
 
-      if (AlbumVolumesAreEqual(other))
-        return true;
-
-      //Name id is generated from name and can be unreliable so should only be tested as a last resort
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
-
-      return false;
+      return AlbumVolumesAreEqual(other);
     }
 
     public override bool MatchNames(string name1, string name2)
