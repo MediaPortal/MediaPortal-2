@@ -12,6 +12,7 @@
     
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvProgramSearchModel" Id="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>
+    <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">

@@ -13,6 +13,7 @@
 
     <!-- SlimTvScheduleManagement model -->
     <Model x:Key="SlimTvScheduleManagement" Id="7610403A-4488-47A4-8C27-FD1FE833E52B"/>
+    <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
@@ -107,7 +108,7 @@
                    Content="{Binding Path=CurrentProgram.Title}"
                    Color="{ThemeResource TextColor}"/>
             <Label Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" Opacity="0.6"
-                   IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource ReferenceToBoolConverter}}">
+                   IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource EmptyStringToFalseConverter}}">
               <Label.Content>
                 <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
               </Label.Content>
