@@ -524,6 +524,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             if (tag.Properties.AudioSampleRate != 0)
               trackInfo.SampleRate = (int)tag.Properties.AudioSampleRate;
 
+            TagLib.Id3v2.Tag id3Tag = (TagLib.Id3v2.Tag)tag.GetTag(TagTypes.Id3v2, false);
+            if (id3Tag != null && !id3Tag.IsEmpty)
+              trackInfo.Compilation = id3Tag.IsCompilation;
+
             trackInfo.Album = !string.IsNullOrEmpty(tag.Tag.Album) ? tag.Tag.Album.Trim() : null;
             if(!string.IsNullOrEmpty(tag.Tag.AlbumSort))
             {
