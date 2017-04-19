@@ -451,7 +451,7 @@ namespace MediaPortal.UiComponents.Media.General
     // Timespans
     public static TimeSpan TS_SEARCH_TEXT_TYPE = TimeSpan.FromMilliseconds(300);
 
-    public static TimeSpan TS_VIDEO_INFO_TIMEOUT = TimeSpan.FromSeconds(5);
+    public static TimeSpan TS_VIDEO_INFO_TIMEOUT = TimeSpan.FromSeconds(3);
 
     public static TimeSpan TS_ADD_TO_PLAYLIST_UPDATE_DIALOG_THRESHOLD = TimeSpan.FromSeconds(3);
 
