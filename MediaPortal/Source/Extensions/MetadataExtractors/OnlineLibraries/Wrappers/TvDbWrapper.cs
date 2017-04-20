@@ -308,7 +308,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         .ThenByDescending(p => p.Id).FirstOrDefault();
       if (nextEpisode != null)
       {
-        series.NextEpisodeName = nextEpisode.EpisodeName;
+        series.NextEpisodeName = new SimpleTitle(nextEpisode.EpisodeName, false);
         series.NextEpisodeAirDate = nextEpisode.FirstAired;
         series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
         series.NextEpisodeNumber = nextEpisode.EpisodeNumber;

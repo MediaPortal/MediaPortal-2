@@ -231,7 +231,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           TvMazeEpisode nextEpisode = seriesDetail.Embedded.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
           if (nextEpisode != null)
           {
-            series.NextEpisodeName = nextEpisode.Name;
+            series.NextEpisodeName = new SimpleTitle(nextEpisode.Name, true);
             series.NextEpisodeAirDate = nextEpisode.AirStamp;
             series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
             series.NextEpisodeNumber = nextEpisode.EpisodeNumber;

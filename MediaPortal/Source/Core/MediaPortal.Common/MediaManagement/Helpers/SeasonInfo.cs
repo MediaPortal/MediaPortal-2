@@ -286,7 +286,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language))
               {
-                if (Languages.Contains(language))
+                if (!Languages.Contains(language))
                   Languages.Add(language);
               }
             }

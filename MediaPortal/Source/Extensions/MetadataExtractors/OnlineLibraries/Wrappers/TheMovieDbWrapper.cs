@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series = foundSeries.Select(s => new SeriesInfo()
       {
         MovieDbId = s.Id,
-        SeriesName = s.Name,
+        SeriesName = new SimpleTitle(s.Name, true),
         OriginalName = s.OriginalName,
         FirstAired = s.FirstAirDate,
       }).ToList();
@@ -227,7 +227,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       movie.Genres = ConvertToMovieGenreIds(movieDetail.Genres);
       movie.MovieName = new SimpleTitle(movieDetail.Title, false);
       movie.OriginalName = movieDetail.OriginalTitle;
-      movie.Summary = movieDetail.Overview;
+      movie.Summary = new SimpleTitle(movieDetail.Overview, false);
       movie.Popularity = movieDetail.Popularity ?? 0;
       movie.ProductionCompanies = ConvertToCompanies(movieDetail.ProductionCompanies, CompanyAspect.COMPANY_PRODUCTION);
       movie.Rating = new SimpleRating(movieDetail.Rating, movieDetail.RatingCount);
@@ -342,7 +342,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       company.MovieDbId = companyDetail.Id;
       company.Name = companyDetail.Name;
-      company.Description = companyDetail.Description;
+      company.Description = new SimpleTitle(companyDetail.Description, false);
 
       return true;
     }
@@ -427,7 +427,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             SeriesName = new SimpleTitle(seriesDetail.Name, false),
 
             FirstAired = currentSeason.AirDate,
-            Description = currentSeason.Overview,
+            Description = new SimpleTitle(currentSeason.Overview, false),
             TotalEpisodes = currentSeason.Episodes.Count,
             SeasonNumber = currentSeason.SeasonNumber
           };

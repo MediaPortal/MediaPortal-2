@@ -258,14 +258,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
         episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
       }
-      IList<MultipleMediaItemAspect> audioAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+
+      if (episodeInfo.Languages.Count == 0)
       {
-        foreach (MultipleMediaItemAspect aspect in audioAspects)
+        IList<MultipleMediaItemAspect> audioAspects;
+        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
         {
-          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-          if (!string.IsNullOrEmpty(language))
-            episodeInfo.Languages.Add(language);
+          foreach (MultipleMediaItemAspect aspect in audioAspects)
+          {
+            string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+            if (!string.IsNullOrEmpty(language))
+              episodeInfo.Languages.Add(language);
+          }
         }
       }
 

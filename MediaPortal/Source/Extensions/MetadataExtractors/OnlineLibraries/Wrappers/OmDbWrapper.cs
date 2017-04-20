@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       movies = foundMovies.Select(m => new MovieInfo()
       {
         ImdbId = m.ImdbID,
-        MovieName = m.Title,
+        MovieName = new SimpleTitle(m.Title, true),
         ReleaseDate = m.Year.HasValue ? new DateTime(m.Year.Value, 1, 1) : default(DateTime?),
       }).ToList();
 
@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               EpisodeInfo info = new EpisodeInfo()
               {
                 ImdbId = episode.ImdbID,
-                SeriesName = season.Title,
+                SeriesName = new SimpleTitle(season.Title, true),
                 SeasonNumber = episodeSearch.SeasonNumber.Value,
                 EpisodeName = new SimpleTitle(episode.Title, false),
               };
@@ -141,7 +141,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series = foundSeries.Select(s => new SeriesInfo()
       {
         ImdbId = s.ImdbID,
-        SeriesName = s.Title,
+        SeriesName = new SimpleTitle(s.Title, true),
         FirstAired = s.Year.HasValue ? new DateTime(s.Year.Value, 1, 1) : default(DateTime?),
       }).ToList();
       return series.Count > 0;
