@@ -25,19 +25,20 @@
             </Grid.ColumnDefinitions>
 
               <Label x:Name="SeriesName" Grid.Row="0" Grid.Column="1" Margin="-20,0,20,0"
-                    Content="{Binding SeriesName}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
-                    HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                     Content="{Binding SeriesName}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
+                     HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
               <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyBlackTemplate}"
-                                           Maximum="10" Value="{Binding TotalRating}" Margin="0,2,0,-2">
+                               Maximum="10" Value="{Binding TotalRating}" Margin="0,2,0,-2">
                 <StarRatingPanel.LayoutTransform>
                   <TransformGroup>
                     <ScaleTransform ScaleX="1.65" ScaleY="1.5"/>
                   </TransformGroup>
                 </StarRatingPanel.LayoutTransform>
               </StarRatingPanel>
-              <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0">
+              <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0"
+                     IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
                   <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
                 </Label.Content>

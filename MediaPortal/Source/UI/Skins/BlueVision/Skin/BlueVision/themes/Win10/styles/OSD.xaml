@@ -61,7 +61,7 @@
               <Grid.Triggers>
                 <DataTrigger>
                   <DataTrigger.Binding>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp;amp; {1})">
                       <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
                       <Binding Path="IsOSDVisible"/>
                     </MultiBinding>
@@ -76,7 +76,7 @@
                 </DataTrigger>
               </Grid.Triggers>
               
-              <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2">
+              <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2" BorderThickness="0">
                 <Border.IsVisible>
                   <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
                     <Binding Path="MediaItem"/>
@@ -130,7 +130,7 @@
               <Grid.Triggers>
                 <DataTrigger>
                   <DataTrigger.Binding>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp;amp; {1})">
                       <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
                       <Binding Path="IsOSDVisible"/>
                     </MultiBinding>
@@ -145,7 +145,7 @@
                 </DataTrigger>
               </Grid.Triggers>
 
-              <Border Margin="-40,-25,-40,0" Grid.RowSpan="2">
+              <Border Margin="-40,-25,-40,0" Grid.RowSpan="2" BorderThickness="0">
                 <Border.Background>
                   <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                     <LinearGradientBrush.GradientStops>
