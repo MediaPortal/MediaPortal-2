@@ -61,7 +61,7 @@
               <Grid.Triggers>
                 <DataTrigger>
                   <DataTrigger.Binding>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp;amp; {1})">
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp; {1})">
                       <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
                       <Binding Path="IsOSDVisible"/>
                     </MultiBinding>
@@ -130,7 +130,7 @@
               <Grid.Triggers>
                 <DataTrigger>
                   <DataTrigger.Binding>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp;amp; {1})">
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp; {1})">
                       <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
                       <Binding Path="IsOSDVisible"/>
                     </MultiBinding>

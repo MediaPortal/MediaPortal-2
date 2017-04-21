@@ -1093,6 +1093,9 @@
     <Content Include="Skin\BlueVision\themes\Win10\screens\FullScreenContentAudio.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\BlueVision\themes\default\styles\AudioSpectrumAnalyzer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="Skin\BlueVision\themes\Win10\screens\SimpleFilterItems.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
