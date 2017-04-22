@@ -104,7 +104,7 @@
                   </Image.Width>
                 </Image>
 
-                <ProgressBar Grid.Row="0" Grid.Column="1" x:Name="ProgressBar" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                <ProgressBar Grid.Row="0" Grid.Column="1" x:Name="ProgressBar" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0,0,0"
                              Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress, Mode=TwoWay}" Style="{ThemeResource TVPlayerControlsProgressBarStyle}"/>
 
                 <Label x:Name="EndTimeLabel" Grid.Column="2" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
@@ -127,7 +127,7 @@
                        HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold"
                        Color="{ThemeResource TextColor}"/>
                 <Label x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}"
-                       IsVisible="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}"
+                       IsVisible="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}"
                        HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold" Scroll="Auto">
                   <Label.Content>
                     <Binding Source="{StaticResource SlimTvClient}" Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
