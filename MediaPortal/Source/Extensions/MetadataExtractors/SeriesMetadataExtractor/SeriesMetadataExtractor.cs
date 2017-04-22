@@ -267,7 +267,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           foreach (MultipleMediaItemAspect aspect in audioAspects)
           {
             string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-            if (!string.IsNullOrEmpty(language))
+            if (!string.IsNullOrEmpty(language) && !episodeInfo.Languages.Contains(language))
               episodeInfo.Languages.Add(language);
           }
         }

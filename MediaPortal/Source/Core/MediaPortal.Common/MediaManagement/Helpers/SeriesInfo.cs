@@ -393,10 +393,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-              if (!string.IsNullOrEmpty(language))
-              {
-                if (!Languages.Contains(language))
-                  Languages.Add(language);
+              if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
+              { 
+                Languages.Add(language);
               }
             }
           }
@@ -435,10 +434,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-              if (!string.IsNullOrEmpty(language))
-              {
-                if (!Languages.Contains(language))
-                  Languages.Add(language);
+              if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
+              { 
+                Languages.Add(language);
               }
             }
           }
