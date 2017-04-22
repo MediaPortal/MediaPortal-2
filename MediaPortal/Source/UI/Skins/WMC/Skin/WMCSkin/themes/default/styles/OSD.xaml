@@ -6,7 +6,7 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
-    DependsOnStyleResources="Colors,Consts"
+    DependsOnStyleResources="Colors,Consts,OtherControlsOverrides"
     >
   
   <Style x:Key="ControlsStyle" TargetType="{x:Type Control}">
