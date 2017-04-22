@@ -21,7 +21,7 @@
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Border CornerRadius="{ThemeResource DialogBorderCornerRadius}" Margin="80,0,80,34" Background="#E0000000">
+            <Border CornerRadius="{ThemeResource DialogBorderCornerRadius}" Margin="40,-10,40,30" Background="#E0000000">
               <Border.IsVisible>
                 <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
                   <Binding Path="MediaItem"/>
@@ -29,7 +29,7 @@
                 </MultiBinding>
               </Border.IsVisible>
             </Border>
-            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,10">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="*"/>
@@ -51,7 +51,7 @@
               <Control Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                        Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
 
-              <Grid  Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="34" Margin="0,0,50,0" SetFocusPrio="Default">
+              <Grid  Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="34" Margin="0,0,25,0" SetFocusPrio="Default">
                 <!--IsVisible="{Binding ShowMouseControls}"-->
                 <Control x:Name="ControlsPresenter" HorizontalAlignment="Center"
                          Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
