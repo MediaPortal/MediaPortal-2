@@ -64,7 +64,7 @@
 
             <Image x:Name="CDImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
                 Source="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
-                VerticalAlignment="Bottom" Width="240" Height="240" Margin="0,0,100,25">
+                VerticalAlignment="Bottom" Width="235" Height="235" Margin="0,0,110,30">
               <Image.Resources>
                 <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
                   <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"

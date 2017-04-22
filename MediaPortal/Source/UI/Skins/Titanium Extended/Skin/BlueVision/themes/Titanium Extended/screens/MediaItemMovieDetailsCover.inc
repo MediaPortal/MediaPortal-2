@@ -39,7 +39,8 @@
                 </StarRatingPanel.LayoutTransform>
               </StarRatingPanel>
 
-              <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0">
+              <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0"
+                     IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
                   <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
                 </Label.Content>

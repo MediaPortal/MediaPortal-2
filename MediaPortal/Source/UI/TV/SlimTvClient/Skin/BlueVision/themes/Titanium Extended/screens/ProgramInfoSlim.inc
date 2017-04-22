@@ -44,7 +44,7 @@
         Content="{Binding CurrentProgram.Title}"
         Color="{ThemeResource TextColor}"/>
     <Label x:Name="SeriesLabel" Grid.Column="5" Grid.Row="1" Color="{ThemeResource TextColor}" Margin="5,0,0,0"
-           IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}">
+           IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
       <Label.Content>
         <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
       </Label.Content>
