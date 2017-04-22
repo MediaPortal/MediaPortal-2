@@ -149,7 +149,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
               }
             }
           }
-          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
+          await DeleteNoLongerExistingFilesFromMediaLibrary(importResource.ResourceAccessor, files, path2LastImportDate.Keys);
         }
 
         if (ImportJobInformation.JobType == ImportJobType.Import)
@@ -191,7 +191,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// </summary>
     /// <param name="filesInDirectory">Existing filesInDirectory in the currently processed directory</param>
     /// <param name="fileResourcePathsInMediaLibrary">ResourcePaths of file MediaItems stored as sub-items of this importResource in the MediaLibrary</param>
-    private async Task DeleteNoLongerExistingFilesFromMediaLibrary(IEnumerable<IFileSystemResourceAccessor> filesInDirectory, ICollection<ResourcePath> fileResourcePathsInMediaLibrary)
+    private async Task DeleteNoLongerExistingFilesFromMediaLibrary(IFileSystemResourceAccessor directory, IEnumerable<IFileSystemResourceAccessor> filesInDirectory, ICollection<ResourcePath> fileResourcePathsInMediaLibrary)
     {
       // If there are no files stored in the MediaLibrary, there is no need to delete anything
       if (!fileResourcePathsInMediaLibrary.Any())
@@ -201,10 +201,17 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       // in the filesystem and delete them
       var fileResourcePathsInFileSystem = filesInDirectory.Select(ra => ra.CanonicalLocalResourcePath).ToList();
       var noLongerExistingFileResourcePaths = new List<ResourcePath>();
+      var directories = (FileSystemResourceNavigator.GetChildDirectories(directory, false) ?? new List<IFileSystemResourceAccessor>()).Select(ra => ra.CanonicalLocalResourcePath).ToList();
       foreach (var mlResource in fileResourcePathsInMediaLibrary)
       {
+        // ToDo: The 2 below fixes for avoiding media item being erroneously deleted, results in them always being unnecessarily refreshed in the database.
+        // A better solution to avoid them being deleted should be found.
+
         // Existing media items can have chained resource paths (i.e. BD ISO, or video inside .zip archive)
         if (fileResourcePathsInFileSystem.Any(fsResource => mlResource == fsResource || mlResource.BasePathSegment == fsResource.BasePathSegment))
+          continue;
+        // Some media items have directory paths (i.e. those with AUDIO_TS/VIDEO_TS sub-folders). This is a temporary fix to avoid them being deleted.
+        if (directories.Any(fsResource => mlResource == fsResource))
           continue;
         noLongerExistingFileResourcePaths.Add(mlResource);
       }
