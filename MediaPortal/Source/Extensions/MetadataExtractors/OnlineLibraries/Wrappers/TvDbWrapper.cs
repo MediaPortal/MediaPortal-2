@@ -639,9 +639,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               if (seriesDetail != null)
               {
                 images.Id = series.TvdbId.ToString();
-                images.Posters.AddRange(seriesDetail.PosterBanners);
-                images.Banners.AddRange(seriesDetail.SeriesBanners);
-                images.Backdrops.AddRange(seriesDetail.FanartBanners);
+                images.Posters.AddRange(seriesDetail.PosterBanners.OrderBy(b => b.Language != language));
+                images.Banners.AddRange(seriesDetail.SeriesBanners.OrderBy(b => b.Language != language));
+                images.Backdrops.AddRange(seriesDetail.FanartBanners.OrderBy(b => b.Language != language));
                 return true;
               }
             }
@@ -665,7 +665,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 var seasonLookup = seriesDetail.SeasonBanners.Where(s => s.Season == season.SeasonNumber).ToLookup(s => string.Format("{0}_{1}", s.Season, s.BannerType), v => v);
                 foreach (IGrouping<string, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
                 {
-                  images.Banners.AddRange(seasonLookup[tvdbSeasonBanners.Key]);
+                  images.Banners.AddRange(seasonLookup[tvdbSeasonBanners.Key].OrderBy(b => b.Language != language));
                 }
                 return true;
               }

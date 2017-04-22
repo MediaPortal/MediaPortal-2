@@ -954,11 +954,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (imgs != null)
       {
         if (imgs.Id > 0) images.Id = imgs.Id.ToString();
-        if (imgs.Backdrops != null) images.Backdrops.AddRange(imgs.Backdrops);
-        if (imgs.Covers != null) images.Covers.AddRange(imgs.Covers);
-        if (imgs.Posters != null) images.Posters.AddRange(imgs.Posters);
-        if (imgs.Profiles != null) images.Thumbnails.AddRange(imgs.Profiles);
-        if (imgs.Stills != null) images.Thumbnails.AddRange(imgs.Stills);
+        if (imgs.Backdrops != null) images.Backdrops.AddRange(imgs.Backdrops.OrderBy(b => string.IsNullOrEmpty(b.Language)));
+        if (imgs.Covers != null) images.Covers.AddRange(imgs.Covers.OrderBy(b => string.IsNullOrEmpty(b.Language)));
+        if (imgs.Posters != null) images.Posters.AddRange(imgs.Posters.OrderBy(b => string.IsNullOrEmpty(b.Language)));
+        if (imgs.Profiles != null) images.Thumbnails.AddRange(imgs.Profiles.OrderBy(b => string.IsNullOrEmpty(b.Language)));
+        if (imgs.Stills != null) images.Thumbnails.AddRange(imgs.Stills.OrderBy(b => string.IsNullOrEmpty(b.Language)));
         return true;
       }
       return false;
