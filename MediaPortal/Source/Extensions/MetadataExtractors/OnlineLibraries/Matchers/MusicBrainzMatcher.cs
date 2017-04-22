@@ -166,7 +166,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override int SaveFanArtImages(string id, IEnumerable<TrackImage> images, string mediaItemId, string name, string fanartType)
+    protected override int SaveFanArtImages(string id, IEnumerable<TrackImage> images, string language, string mediaItemId, string name, string fanartType)
     {
       try
       {
