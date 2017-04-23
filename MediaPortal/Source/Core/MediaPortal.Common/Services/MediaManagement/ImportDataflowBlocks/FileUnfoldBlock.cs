@@ -206,6 +206,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         // Existing media items can have chained resource paths (i.e. BD ISO, or video inside .zip archive)
         if (fileResourcePathsInFileSystem.Any(fsResource => mlResource == fsResource || mlResource.BasePathSegment == fsResource.BasePathSegment))
           continue;
+
+        // Check if the ResourcePath points to a "single resource" folder. They must not be deleted here.
+        if (await IsSingleResourcePath(mlResource))
+          continue;
+
         noLongerExistingFileResourcePaths.Add(mlResource);
       }
 
