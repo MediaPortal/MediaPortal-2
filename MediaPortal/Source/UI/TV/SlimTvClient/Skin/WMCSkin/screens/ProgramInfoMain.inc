@@ -45,8 +45,13 @@
       <Label x:Name="Program" Scroll="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="SegoeUIBold"
              Content="{Binding SelectedCurrentProgram.Title}" Margin="10,0,0,0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
              Color="{ThemeResource TextColor}"/>
-      <Label x:Name="SeriesLabel" Content="{Binding SelectedCurrentProgram.Series}" Opacity="1.3" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-             Color="{ThemeResource MenuTextBackground}" Margin="10,0,10,0" TextTrimming="WordEllipsis"/>
+      <Label x:Name="SeriesLabel" Opacity="1.3" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
+             IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}"
+             Color="{ThemeResource MenuTextBackground}" Margin="10,0,10,0" TextTrimming="WordEllipsis">
+        <Label.Content>
+          <Binding Path="SelectedCurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+        </Label.Content>
+      </Label>
     </Grid>
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

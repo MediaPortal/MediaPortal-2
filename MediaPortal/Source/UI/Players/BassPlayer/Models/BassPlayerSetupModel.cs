@@ -35,10 +35,11 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UI.Players.BassPlayer.OutputDevices;
+using MediaPortal.UI.Players.BassPlayer.Settings;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 
-namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
+namespace MediaPortal.UI.Players.BassPlayer.Models
 {
   /// <summary>
   /// Workflow model for the video background manager setup.

@@ -34,6 +34,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Authentication;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
@@ -42,6 +43,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Enums;
+using MediaPortal.UiComponents.Media.MediaItemActions;
 using MediaPortal.UiComponents.Trakt.Service;
 using MediaPortal.UiComponents.Trakt.Settings;
 using MediaPortal.UI.Services.UserManagement;
@@ -60,7 +62,6 @@ namespace MediaPortal.UiComponents.Trakt.Models
     #region Protected fields
 
     protected readonly AbstractProperty _isEnabledProperty = new WProperty(typeof(bool), false);
-    protected readonly AbstractProperty _isAuthorizedProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _isSynchronizingProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _usermameProperty = new WProperty(typeof(string), null);
     protected readonly AbstractProperty _passwordProperty = new WProperty(typeof(string), null);
@@ -81,17 +82,6 @@ namespace MediaPortal.UiComponents.Trakt.Models
     {
       get { return (bool)_isEnabledProperty.GetValue(); }
       set { _isEnabledProperty.SetValue(value); }
-    }
-
-    public AbstractProperty IsAuthorizedProperty
-    {
-      get { return _isAuthorizedProperty; }
-    }
-
-    public bool IsAuthorized
-    {
-      get { return (bool)_isAuthorizedProperty.GetValue(); }
-      set { _isAuthorizedProperty.SetValue(value); }
     }
 
     public AbstractProperty IsSynchronizingProperty
@@ -163,7 +153,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
-      settings.IsAuthorized = IsAuthorized;
+      TestStatus = "[Trakt.LoggedIn]";
       settings.EnableTrakt = IsEnabled;
       settings.Username = Username;
       settingsManager.Save(settings);
@@ -285,7 +275,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       try
       {
         TestStatus = "[Trakt.SyncMovies]";
-        Guid[] types = { MediaAspect.ASPECT_ID, MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ImporterAspect.ASPECT_ID };
+        Guid[] types = { MediaAspect.ASPECT_ID, MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ImporterAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
         var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
         if (contentDirectory == null)
         {
@@ -310,6 +300,50 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
         #endregion
 
+        #region Mark movies as unwatched in local database
+
+        if (traktUnWatchedMovies != null && traktUnWatchedMovies.Count() > 0)
+        {
+          foreach (var movie in traktUnWatchedMovies)
+          {
+            var localMovie = collectedMovies.FirstOrDefault(m => MovieMatch(m, movie));
+            if (localMovie == null)
+            {
+              continue;
+            }
+
+            TraktLogger.Info("Marking movie as unwatched in local database, movie is not watched on trakt.tv. Title = '{0}', Year = '{1}', IMDb ID = '{2}', TMDb ID = '{3}'",
+              movie.Title, movie.Year.HasValue ? movie.Year.ToString() : "<empty>", movie.Ids.Imdb ?? "<empty>", movie.Ids.Tmdb.HasValue ? movie.Ids.Tmdb.ToString() : "<empty>");
+
+            MarkAsUnWatched(localMovie);
+          }
+          // update watched set
+          watchedMovies = collectedMovies.Where(IsWatched).ToList();
+        }
+
+        #endregion
+
+        #region Mark movies as watched in local database
+
+        if (traktWatchedMovies != null && traktWatchedMovies.Count() > 0)
+        {
+          foreach (var twm in traktWatchedMovies)
+          {
+            var localMovie = collectedMovies.FirstOrDefault(m => MovieMatch(m, twm.Movie));
+            if (localMovie == null)
+            {
+              continue;
+            }
+
+            TraktLogger.Info("Updating local movie watched state / play count to match trakt.tv. Plays = '{0}', Title = '{1}', Year = '{2}', IMDb ID = '{3}', TMDb ID = '{4}'",
+                              twm.Plays, twm.Movie.Title, twm.Movie.Year.HasValue ? twm.Movie.Year.ToString() : "<empty>", twm.Movie.Ids.Imdb ?? "<empty>", twm.Movie.Ids.Tmdb.HasValue ? twm.Movie.Ids.Tmdb.ToString() : "<empty>");
+
+            MarkAsWatched(localMovie);
+          }
+        }
+
+        #endregion
+
         #region Add movies to watched history at trakt.tv
         if (traktWatchedMovies != null)
         {
@@ -320,7 +354,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                                where !traktWatchedMovies.ToList().Exists(c => MovieMatch(movie, c.Movie))
                                select new TraktSyncMovieWatched
                                {
-                                 Ids = new TraktMovieId { Imdb = TraktHandler.GetImdbId(movie), Tmdb = TraktHandler.GetTmdbId(movie) },
+                                 Ids = new TraktMovieId { Imdb = TraktHandler.GetMovieImdbId(movie), Tmdb = TraktHandler.GetMovieTmdbId(movie) },
                                  Title = GetMovieTitle(movie),
                                  Year = GetMovieYear(movie),
                                  WatchedAt = GetLastPlayedDate(movie),
@@ -373,7 +407,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                                  where !traktCollectedMovies.ToList().Exists(c => MovieMatch(movie, c.Movie))
                                  select new TraktSyncMovieCollected
                                  {
-                                   Ids = new TraktMovieId { Imdb = TraktHandler.GetImdbId(movie), Tmdb = TraktHandler.GetTmdbId(movie) },
+                                   Ids = new TraktMovieId { Imdb = TraktHandler.GetMovieImdbId(movie), Tmdb = TraktHandler.GetMovieTmdbId(movie) },
                                    Title = GetMovieTitle(movie),
                                    Year = GetMovieYear(movie),
                                    CollectedAt = GetDateAddedToDb(movie),
@@ -384,7 +418,8 @@ namespace MediaPortal.UiComponents.Trakt.Models
                                    Is3D = false
                                  }).ToList();
 
-          TraktLogger.Info("Adding {0} movies to trakt.tv watched history", syncCollectedMovies.Count);
+          TraktLogger.Info("Adding {0} movies to trakt.tv collection", syncCollectedMovies.Count);
+         
 
           if (syncCollectedMovies.Count > 0)
           {
@@ -586,8 +621,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
         try
         {
           TestStatus = "[Trakt.SyncSeries]";
-          Guid[] types = { MediaAspect.ASPECT_ID, SeriesAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ImporterAspect.ASPECT_ID };
-          MediaItemQuery mediaItemQuery = new MediaItemQuery(types, null, null);
+          Guid[] types = { MediaAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ImporterAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
           var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
           if (contentDirectory == null)
           {
@@ -602,15 +636,69 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
           #region Get data from local database
 
-          var localEpisodes = contentDirectory.Search(mediaItemQuery, true, userProfile, false);
+          var localEpisodes = contentDirectory.Search(new MediaItemQuery(types, null, null), true, userProfile, false);
           int episodeCount = localEpisodes.Count;
 
           TraktLogger.Info("Found {0} total episodes in local database", episodeCount);
 
           // get the episodes that we have watched
           var localWatchedEpisodes = localEpisodes.Where(IsWatched).ToList();
+          var localUnWatchedEpisodes = localEpisodes.Except(localWatchedEpisodes).ToList();
 
           TraktLogger.Info("Found {0} episodes watched in tvseries database", localWatchedEpisodes.Count);
+
+          #endregion
+
+          #region Mark episodes as unwatched in local database
+
+          TraktLogger.Info("Start sync of tv episode unwatched state to local database");
+          if (traktUnWatchedEpisodes != null && traktUnWatchedEpisodes.Count() > 0)
+          {
+            // create a unique key to lookup and search for faster
+            var localLookupEpisodes = localWatchedEpisodes.ToLookup(twe => CreateLookupKey(twe), twe => twe);
+
+            foreach (var episode in traktUnWatchedEpisodes)
+            {
+              string tvdbKey = CreateLookupKey(episode);
+
+              var watchedEpisode = localLookupEpisodes[tvdbKey].FirstOrDefault();
+              if (watchedEpisode != null)
+              {
+                TraktLogger.Info("Marking episode as unwatched in local database, episode is not watched on trakt.tv. Title = '{0}', Year = '{1}', Season = '{2}', Episode = '{3}', Show TVDb ID = '{4}', Show IMDb ID = '{5}'",
+                  episode.ShowTitle, episode.ShowYear.HasValue ? episode.ShowYear.ToString() : "<empty>", episode.Season, episode.Number, episode.ShowTvdbId.HasValue ? episode.ShowTvdbId.ToString() : "<empty>", episode.ShowImdbId ?? "<empty>");
+
+                MarkAsUnWatched(watchedEpisode);
+
+                // update watched episodes
+                localWatchedEpisodes.Remove(watchedEpisode);
+              }
+            }
+          }
+
+          #endregion
+
+          #region Mark episodes as watched in local database
+
+          TraktLogger.Info("Start sync of tv episode watched state to local database");
+          if (traktWatchedEpisodes != null && traktWatchedEpisodes.Count() > 0)
+          {
+            // create a unique key to lookup and search for faster
+            var onlineEpisodes = traktWatchedEpisodes.ToLookup(twe => CreateLookupKey(twe), twe => twe);
+
+            foreach (var episode in localUnWatchedEpisodes)
+            {
+              string tvdbKey = CreateLookupKey(episode);
+
+              var traktEpisode = onlineEpisodes[tvdbKey].FirstOrDefault();
+              if (traktEpisode != null)
+              {
+                TraktLogger.Info("Marking episode as watched in local database, episode is watched on trakt.tv. Plays = '{0}', Title = '{1}', Year = '{2}', Season = '{3}', Episode = '{4}', Show TVDb ID = '{5}', Show IMDb ID = '{6}', Last Watched = '{7}'",
+                    traktEpisode.Plays, traktEpisode.ShowTitle, traktEpisode.ShowYear.HasValue ? traktEpisode.ShowYear.ToString() : "<empty>", traktEpisode.Season, traktEpisode.Number, traktEpisode.ShowTvdbId.HasValue ? traktEpisode.ShowTvdbId.ToString() : "<empty>", traktEpisode.ShowImdbId ?? "<empty>", traktEpisode.WatchedAt);
+
+                MarkAsWatched(episode);
+              }
+            }
+          }
 
           #endregion
 
@@ -737,7 +825,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
               Ids = new TraktShowId
               {
                 Tvdb = TraktHandler.GetTvdbId(episode),
-                Imdb = TraktHandler.GetImdbId(episode)
+                Imdb = TraktHandler.GetSeriesImdbId(episode)
               },
               Title = TraktHandler.GetSeriesTitle(episode),
               // Year = GetSeriesTitleAndYear(episode, )
@@ -820,7 +908,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
               Ids = new TraktShowId
               {
                 Tvdb = TraktHandler.GetTvdbId(episode),
-                Imdb = TraktHandler.GetImdbId(episode)
+                Imdb = TraktHandler.GetSeriesImdbId(episode)
               },
               Title = TraktHandler.GetSeriesTitle(episode),
               //Year = show.Year.ToNullableInt32()
@@ -962,15 +1050,15 @@ namespace MediaPortal.UiComponents.Trakt.Models
     private bool MovieMatch(MediaItem localMovie, TraktMovie traktMovie)
     {
       // IMDb comparison
-      if (!string.IsNullOrEmpty(traktMovie.Ids.Imdb) && !string.IsNullOrEmpty(TraktHandler.GetImdbId(localMovie)))
+      if (!string.IsNullOrEmpty(traktMovie.Ids.Imdb) && !string.IsNullOrEmpty(TraktHandler.GetMovieImdbId(localMovie)))
       {
-        return String.Compare(TraktHandler.GetImdbId(localMovie), traktMovie.Ids.Imdb, StringComparison.OrdinalIgnoreCase) == 0;
+        return String.Compare(TraktHandler.GetMovieImdbId(localMovie), traktMovie.Ids.Imdb, StringComparison.OrdinalIgnoreCase) == 0;
       }
 
       // TMDb comparison
-      if ((TraktHandler.GetTmdbId(localMovie) != 0) && traktMovie.Ids.Tmdb.HasValue)
+      if ((TraktHandler.GetMovieTmdbId(localMovie) != 0) && traktMovie.Ids.Tmdb.HasValue)
       {
-        return TraktHandler.GetTmdbId(localMovie) == traktMovie.Ids.Tmdb.Value;
+        return TraktHandler.GetMovieTmdbId(localMovie) == traktMovie.Ids.Tmdb.Value;
       }
 
       // Title & Year comparison
@@ -1040,6 +1128,48 @@ namespace MediaPortal.UiComponents.Trakt.Models
       return string.Format("{0}_{1}_{2}", show, episode.Season, episode.Number);
     }
 
+    private void MarkAsWatched(MediaItem mediaItem)
+    {
+      SetWatched setWatchedAction = new SetWatched();
+      if (setWatchedAction.IsAvailable(mediaItem))
+      {
+        try
+        {
+          ContentDirectoryMessaging.MediaItemChangeType changeType;
+          if (setWatchedAction.Process(mediaItem, out changeType) && changeType != ContentDirectoryMessaging.MediaItemChangeType.None)
+          {
+            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, changeType);
+            TraktLogger.Info("Marking media item '{0}' as watched", mediaItem.GetType());
+          }
+        }
+        catch (Exception ex)
+        {
+          TraktLogger.Error("Marking media item '{0}' as watched failed:", mediaItem.GetType(), ex);
+        }
+      }
+    }
+
+    private void MarkAsUnWatched(MediaItem mediaItem)
+    {
+      SetUnwatched setUnwatchedAction = new SetUnwatched();
+      if (setUnwatchedAction.IsAvailable(mediaItem))
+      {
+        try
+        {
+          ContentDirectoryMessaging.MediaItemChangeType changeType;
+          if (setUnwatchedAction.Process(mediaItem, out changeType) && changeType != ContentDirectoryMessaging.MediaItemChangeType.None)
+          {
+            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, changeType);
+            TraktLogger.Info("Marking media item '{0}' as unwatched", mediaItem.GetType());
+          }
+        }
+        catch (Exception ex)
+        {
+          TraktLogger.Error("Marking media item '{0}' as unwatched failed:", mediaItem.GetType(), ex);
+        }
+      }
+    }
+
     #endregion
 
     #region IWorkflowModel implementation
@@ -1060,21 +1190,30 @@ namespace MediaPortal.UiComponents.Trakt.Models
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
       IsEnabled = settings.EnableTrakt;
-      IsAuthorized = settings.IsAuthorized;
 
       //Clear the PIN Code textbox
       PinCode = string.Empty;
 
       if (!string.IsNullOrEmpty(settings.TraktOAuthToken))
       {
-        if (TraktHandler.Login(settings.TraktOAuthToken))
-        {
-          TestStatus = "[Trakt.LoggedIn]";
-        }
+        TestStatus = TraktHandler.Login(settings.TraktOAuthToken) ? "[Trakt.LoggedIn]" : "[Trakt.UnableLogin]";
       }
 
       // initialise the last sync activities 
-      if (settings.LastSyncActivities == null) settings.LastSyncActivities = new TraktLastSyncActivities();
+      if (settings.LastSyncActivities == null)
+      {
+          settings.LastSyncActivities = new TraktLastSyncActivities
+          {
+              All = string.Empty,
+              Episodes = new TraktLastSyncActivities.EpisodeActivities { Collection = string.Empty, Comment = string.Empty, PausedAt = string.Empty, Rating = string.Empty, Watched = string.Empty, Watchlist = string.Empty },
+              Movies = new TraktLastSyncActivities.MovieActivities { Watchlist = string.Empty, PausedAt = string.Empty, Rating = string.Empty, Comment = string.Empty, Watched = string.Empty, Collection = string.Empty },
+              Shows = new TraktLastSyncActivities.ShowActivities { Comment = string.Empty, Watchlist = string.Empty, Rating = string.Empty },
+              Seasons = new TraktLastSyncActivities.SeasonActivities { Watchlist = string.Empty, Comment = string.Empty, Rating = string.Empty },
+              Comments = new TraktLastSyncActivities.CommentActivities { LikedAt = string.Empty },
+              Lists = new TraktLastSyncActivities.ListActivities { Comment = string.Empty, LikedAt = string.Empty, UpdatedAt = string.Empty }
+          };
+        settingsManager.Save(settings);
+      }
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

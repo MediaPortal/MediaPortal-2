@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       List<string> artists = new List<string>();
       if (MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out audioAspect))
       {
-        IEnumerable<string> artistObjects = audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ARTISTS);
+        IEnumerable<string> artistObjects = audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS);
         if (artistObjects != null)
           artists.AddRange(artistObjects);
       }
@@ -114,10 +114,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           {
             albumMediaItemId = (Guid)relation[RelationshipAspect.ATTR_LINKED_ID];
           }
-          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST)
+          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ALBUMARTIST)
           {
             int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
-            if(index.HasValue && artists.Count > index.Value && index.Value >= 0)
+            if (index.HasValue && artists.Count > index.Value && index.Value >= 0)
               artistMediaItems.Add((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], artists[index.Value]);
           }
         }
@@ -297,6 +297,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
           var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
           var artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+          if (AudioMetadataExtractor.IsDiscFolder(albumTitle, albumMediaItemDirectoryPath.FileName))
+          {
+            //Probably a CD folder so try next parent
+            albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+            artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../../");
+          }
 
           //Album fanart
           var fanArtPaths = new List<ResourcePath>();

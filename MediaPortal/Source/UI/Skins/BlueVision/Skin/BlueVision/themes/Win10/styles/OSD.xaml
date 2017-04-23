@@ -5,8 +5,13 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
-    DependsOnStyleResources="Colors,Consts"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    DependsOnStyleResources="Colors,Consts,OtherControls"
     >
+
+  <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
+
   <Style x:Key="OSDContainer" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -41,20 +46,26 @@
                 <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
                 <Storyboard x:Key="InfoSlideInStoryboard" FillBehavior="HoldEnd">
                   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="InfoControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
-                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="250"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="255"/>
                     <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
                   </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
                 <Storyboard x:Key="InfoSlideOutStoryboard" FillBehavior="HoldEnd">
                   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="InfoControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
                     <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="250"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="255"/>
                   </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
               </Grid.Resources>
               
               <Grid.Triggers>
-                <DataTrigger Binding="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" Value="True">
+                <DataTrigger>
+                  <DataTrigger.Binding>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp; {1})">
+                      <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
+                      <Binding Path="IsOSDVisible"/>
+                    </MultiBinding>
+                  </DataTrigger.Binding>
                   <DataTrigger.EnterActions>
                     <BeginStoryboard x:Name="InfoSlideIn_BeginStoryboard" Storyboard="{StaticResource InfoSlideInStoryboard}"/>
                   </DataTrigger.EnterActions>
@@ -65,7 +76,13 @@
                 </DataTrigger>
               </Grid.Triggers>
               
-              <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2">
+              <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2" BorderThickness="0">
+                <Border.IsVisible>
+                  <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"/>
+                    <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Border.IsVisible>
                 <Border.Background>
                   <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                     <LinearGradientBrush.GradientStops>
@@ -109,9 +126,15 @@
                   </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
               </Grid.Resources>
-              
+
               <Grid.Triggers>
-                <DataTrigger Binding="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" Value="True">
+                <DataTrigger>
+                  <DataTrigger.Binding>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp; {1})">
+                      <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
+                      <Binding Path="IsOSDVisible"/>
+                    </MultiBinding>
+                  </DataTrigger.Binding>
                   <DataTrigger.EnterActions>
                     <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                   </DataTrigger.EnterActions>
@@ -122,7 +145,7 @@
                 </DataTrigger>
               </Grid.Triggers>
 
-              <Border Margin="-40,-20,-40,0" Grid.RowSpan="2">
+              <Border Margin="-40,-25,-40,0" Grid.RowSpan="2" BorderThickness="0">
                 <Border.Background>
                   <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                     <LinearGradientBrush.GradientStops>

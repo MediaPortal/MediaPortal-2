@@ -106,7 +106,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       if (tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS] != null)
       {
         episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Actors,
-          tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS].Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
+          tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS].Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR,
+            MediaName = episodeInfo.EpisodeName.Text, ParentMediaName = episodeInfo.SeriesName.Text }).ToList(), false);
       }
 
       // On Series, the counting tag is "TVDB"

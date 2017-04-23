@@ -119,8 +119,12 @@
               Color="{ThemeResource TextColor}"/>
 
           <Label Grid.Column="0" Grid.Row="2" x:Name="CurrentGenreLabel" Margin="10,0,10,5" FontSize="{ThemeResource SmallFontSize}"
-              Content="{Binding Path=SelectedCurrentProgram.Series}" TextTrimming="WordEllipsis"
-              Color="{ThemeResource TextColor}"/>
+                 TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}"
+                 IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Label.Content>
+              <Binding Path="SelectedCurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+            </Label.Content>
+          </Label>
 
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,0,10,5">
             <Label x:Name="CurrentProgramStartTimeLabel"

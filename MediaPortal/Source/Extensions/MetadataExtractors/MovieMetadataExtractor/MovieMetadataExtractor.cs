@@ -279,14 +279,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
 
       // Allow the online lookup to choose best matching language for metadata
-      IList<MultipleMediaItemAspect> audioAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+      if (movieInfo.Languages.Count == 0)
       {
-        foreach (MultipleMediaItemAspect aspect in audioAspects)
+        IList<MultipleMediaItemAspect> audioAspects;
+        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
         {
-          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-          if (!string.IsNullOrEmpty(language))
-            movieInfo.Languages.Add(language);
+          foreach (MultipleMediaItemAspect aspect in audioAspects)
+          {
+            string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+            if (!string.IsNullOrEmpty(language) && !movieInfo.Languages.Contains(language))
+              movieInfo.Languages.Add(language);
+          }
         }
       }
 

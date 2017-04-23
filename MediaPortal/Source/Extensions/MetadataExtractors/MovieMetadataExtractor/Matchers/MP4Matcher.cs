@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
 
         if (!ReferenceEquals(tag.Performers, null) && tag.Performers.Length > 0)
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
-            tag.Performers.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
+            tag.Performers.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR, MediaName = movieInfo.MovieName.Text }).ToList(), false);
 
         //Clean up memory
         mp4File.Dispose();

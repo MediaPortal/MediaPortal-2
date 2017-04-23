@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series = foundSeries.Select(s => new SeriesInfo()
       {
         MovieDbId = s.Id,
-        SeriesName = s.Name,
+        SeriesName = new SimpleTitle(s.Name, true),
         OriginalName = s.OriginalName,
         FirstAired = s.FirstAirDate,
       }).ToList();
@@ -227,7 +227,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       movie.Genres = ConvertToMovieGenreIds(movieDetail.Genres);
       movie.MovieName = new SimpleTitle(movieDetail.Title, false);
       movie.OriginalName = movieDetail.OriginalTitle;
-      movie.Summary = movieDetail.Overview;
+      movie.Summary = new SimpleTitle(movieDetail.Overview, false);
       movie.Popularity = movieDetail.Popularity ?? 0;
       movie.ProductionCompanies = ConvertToCompanies(movieDetail.ProductionCompanies, CompanyAspect.COMPANY_PRODUCTION);
       movie.Rating = new SimpleRating(movieDetail.Rating, movieDetail.RatingCount);
@@ -241,10 +241,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         cacheIncomplete = true;
       if (movieCasts != null)
       {
-        movie.Actors = ConvertToPersons(movieCasts.Cast, PersonAspect.OCCUPATION_ACTOR);
-        movie.Writers = ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), PersonAspect.OCCUPATION_WRITER);
-        movie.Directors = ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
-        movie.Characters = ConvertToCharacters(movieCasts.Cast);
+        movie.Actors = ConvertToPersons(movieCasts.Cast, PersonAspect.OCCUPATION_ACTOR, movieDetail.Title);
+        movie.Writers = ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), PersonAspect.OCCUPATION_WRITER, movieDetail.Title);
+        movie.Directors = ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR, movieDetail.Title);
+        movie.Characters = ConvertToCharacters(movieCasts.Cast, movieDetail.Title);
       }
 
       return !cacheIncomplete;
@@ -342,7 +342,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       company.MovieDbId = companyDetail.Id;
       company.Name = companyDetail.Name;
-      company.Description = companyDetail.Description;
+      company.Description = new SimpleTitle(companyDetail.Description, false);
 
       return true;
     }
@@ -401,8 +401,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         cacheIncomplete = true;
       if (seriesCast != null)
       {
-        series.Actors = ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR);
-        series.Characters = ConvertToCharacters(seriesCast.Cast);
+        series.Actors = ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR, null, seriesDetail.Name);
+        series.Characters = ConvertToCharacters(seriesCast.Cast, null, seriesDetail.Name);
       }
 
       SeasonEpisode nextEpisode = null;
@@ -427,7 +427,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             SeriesName = new SimpleTitle(seriesDetail.Name, false),
 
             FirstAired = currentSeason.AirDate,
-            Description = currentSeason.Overview,
+            Description = new SimpleTitle(currentSeason.Overview, false),
             TotalEpisodes = currentSeason.Episodes.Count,
             SeasonNumber = currentSeason.SeasonNumber
           };
@@ -457,13 +457,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             episodeInfo.Characters = new List<CharacterInfo>();
             if (seriesCast != null)
             {
-              episodeInfo.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR));
-              episodeInfo.Characters.AddRange(ConvertToCharacters(seriesCast.Cast));
+              episodeInfo.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR, episodeDetail.Name, seriesDetail.Name));
+              episodeInfo.Characters.AddRange(ConvertToCharacters(seriesCast.Cast, episodeDetail.Name, seriesDetail.Name));
             }
             //info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR));
             //info.Characters.AddRange(ConvertToCharacters(episodeDetail.GuestStars));
-            episodeInfo.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
-            episodeInfo.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER);
+            episodeInfo.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR, episodeDetail.Name, seriesDetail.Name);
+            episodeInfo.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER, episodeDetail.Name, seriesDetail.Name);
 
             series.Episodes.Add(episodeInfo);
 
@@ -567,13 +567,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           info.Characters = new List<CharacterInfo>();
           if (seriesCast != null)
           {
-            info.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR));
-            info.Characters.AddRange(ConvertToCharacters(seriesCast.Cast));
+            info.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR, episodeDetail.Name, seriesDetail.Name));
+            info.Characters.AddRange(ConvertToCharacters(seriesCast.Cast, episodeDetail.Name, seriesDetail.Name));
           }
           //info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR));
           //info.Characters.AddRange(ConvertToCharacters(episodeDetail.GuestStars));
-          info.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
-          info.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER);
+          info.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR, episodeDetail.Name, seriesDetail.Name);
+          info.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER, episodeDetail.Name, seriesDetail.Name);
 
           episodeDetails.Add(info);
         }
@@ -685,7 +685,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return retValue;
     }
 
-    private List<PersonInfo> ConvertToPersons(List<CrewItem> crew, string occupation)
+    private List<PersonInfo> ConvertToPersons(List<CrewItem> crew, string occupation, string media = null, string parentMedia = null)
     {
       if (crew == null || crew.Count == 0)
         return new List<PersonInfo>();
@@ -697,13 +697,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           MovieDbId = person.PersonId,
           Name = person.Name,
-          Occupation = occupation
+          Occupation = occupation,
+          MediaName = media,
+          ParentMediaName = parentMedia
         });
       }
       return retValue;
     }
 
-    private List<PersonInfo> ConvertToPersons(List<CastItem> cast, string occupation)
+    private List<PersonInfo> ConvertToPersons(List<CastItem> cast, string occupation, string media = null, string parentMedia = null)
     {
       if (cast == null || cast.Count == 0)
         return new List<PersonInfo>();
@@ -716,13 +718,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MovieDbId = person.PersonId,
           Name = person.Name,
           Occupation = occupation,
-          Order = person.Order
+          Order = person.Order,
+          MediaName = media
         });
       }
       return retValue;
     }
 
-    private List<CharacterInfo> ConvertToCharacters(List<CastItem> characters)
+    private List<CharacterInfo> ConvertToCharacters(List<CastItem> characters, string media = null, string parentMedia = null)
     {
       if (characters == null || characters.Count == 0)
         return new List<CharacterInfo>();
@@ -734,7 +737,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ActorMovieDbId = person.PersonId,
           ActorName = person.Name,
           Name = person.Character,
-          Order = person.Order
+          Order = person.Order,
+          MediaName = media,
+          ParentMediaName = parentMedia
         });
       return retValue;
     }
@@ -949,11 +954,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (imgs != null)
       {
         if (imgs.Id > 0) images.Id = imgs.Id.ToString();
-        if (imgs.Backdrops != null) images.Backdrops.AddRange(imgs.Backdrops);
-        if (imgs.Covers != null) images.Covers.AddRange(imgs.Covers);
-        if (imgs.Posters != null) images.Posters.AddRange(imgs.Posters);
-        if (imgs.Profiles != null) images.Thumbnails.AddRange(imgs.Profiles);
-        if (imgs.Stills != null) images.Thumbnails.AddRange(imgs.Stills);
+        if (imgs.Backdrops != null) images.Backdrops.AddRange(imgs.Backdrops.OrderBy(b => string.IsNullOrEmpty(b.Language)));
+        if (imgs.Covers != null) images.Covers.AddRange(imgs.Covers.OrderBy(b => string.IsNullOrEmpty(b.Language)));
+        if (imgs.Posters != null) images.Posters.AddRange(imgs.Posters.OrderBy(b => string.IsNullOrEmpty(b.Language)));
+        if (imgs.Profiles != null) images.Thumbnails.AddRange(imgs.Profiles.OrderBy(b => string.IsNullOrEmpty(b.Language)));
+        if (imgs.Stills != null) images.Thumbnails.AddRange(imgs.Stills.OrderBy(b => string.IsNullOrEmpty(b.Language)));
         return true;
       }
       return false;

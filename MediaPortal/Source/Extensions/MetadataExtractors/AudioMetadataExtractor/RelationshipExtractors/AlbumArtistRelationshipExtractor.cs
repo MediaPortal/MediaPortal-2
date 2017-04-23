@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return PersonAspect.ROLE_ARTIST; }
+      get { return PersonAspect.ROLE_ALBUMARTIST; }
     }
 
     public Guid[] LinkedRoleAspects

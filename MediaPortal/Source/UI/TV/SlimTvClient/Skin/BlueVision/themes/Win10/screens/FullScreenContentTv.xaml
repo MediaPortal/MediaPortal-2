@@ -20,25 +20,19 @@
       <ColumnDefinition Width="180"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
-      <RowDefinition Height="100"/>
+      <RowDefinition Height="140"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
-      IsVisible="{Binding !IsOSDVisible}"/>
+             IsVisible="{Binding !IsOSDVisible}"/>
     
-    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="4" IsVisible="{Binding IsOSDVisible}"
-        Style="{ThemeResource PrimarySlimTvOSDStyle}"
+    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="4"
+        Style="{ThemeResource PrimarySlimTvOSDStyle}" IsVisible="{Binding IsOSDVisible}"
         VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
     
-    <Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0" Margin="-20,30,40,0">
-      <Control.TemplateControl>
-        <Include Source="screens\FSCWindowButtons.inc"/>
-      </Control.TemplateControl>
-    </Control>
-
     <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
       <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
             Style="{ThemeResource SecondaryMediaOSDStyle}"

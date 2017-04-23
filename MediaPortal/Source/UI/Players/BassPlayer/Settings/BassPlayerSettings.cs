@@ -65,7 +65,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
     [Setting(SettingScope.Global, 200)]
     public int DirectSoundBufferSizeMilliSecs { get; set; }
 
-    [Setting(SettingScope.Global, 500)]
+    [Setting(SettingScope.Global, 300)]
     public int PlaybackBufferSizeMilliSecs { get; set; }
 
     [Setting(SettingScope.User, 20)]
@@ -79,9 +79,6 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
 
     [Setting(SettingScope.User, 5d)]
     public double CrossFadeDurationSecs { get; set; }
-
-    [Setting(SettingScope.User, true)]
-    public bool CrossFadingEnabled { get; set; }
 
     /// <summary>
     /// Gets or sets the (lower-case!) list of extensions which will be played with this player.

@@ -3,7 +3,9 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_bare_players.xaml"
+    xmlns:animation="clr-namespace:MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;assembly=SkinEngine" 
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     >
   <Include.Resources>
 
@@ -13,38 +15,91 @@
       <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <mp_special_controls:PlayerControl.TemplateControl>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="545"/>
+              <ColumnDefinition Width="20"/>
               <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="0"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
-                Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
-                Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
-                Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0"
-                Content="[Media.AudioYearLabel]" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="Year" Grid.Row="2" Grid.Column="1"
-                Content="{Binding AudioYear}" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0"
-                Content="[Media.AudioDurationLabel]" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="Duration" Grid.Row="3" Grid.Column="1"
-                Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
 
-            <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4" Stretch="Uniform" 
-                Source="{Binding MediaItem}" FallbackSource="AudioLarge.png"
-                Width="{StaticResource MEDIA_THUMB_WIDTH_CP}" Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}"/>
+            <StackPanel Margin="-20,0,0,0">
+              <Label x:Name="TrackName" Scroll="Auto" Content="{Binding AudioTrackName}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
+              <Label x:Name="Artists" Scroll="Auto" Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="AlbumName" Scroll="Auto" Content="{Binding AudioAlbumName}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+              <Label x:Name="TrackNumber" Color="{ThemeResource TextColor}" Opacity="0.6">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
+                    <Binding Source="Track "/>
+                    <Binding Path="AudioTrackNumber"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label x:Name="Year" Content="{Binding AudioYear}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+              <Label x:Name="Duration" Content="{Binding Duration}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+            </StackPanel>
+
+            <Image x:Name="FanArt" Grid.Column="2" Stretch="Fill"
+                   HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="1000" Height="562" Margin="0,-10,-10,10">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5">
+                  <ImageSourceWrapper.Source>
+                    <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt"
+                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="1000" fanart:MaxHeight="562" fanart:Cache="false"/>
+                  </ImageSourceWrapper.Source>
+                </ImageSourceWrapper>
+              </Image.Source>
+              <Image.OpacityMask>
+                <VisualBrush>
+                  <VisualBrush.Visual>
+                    <Border Name="mask" Background="White" CornerRadius="12" BorderThickness="0" BorderBrush="Black"/>
+                  </VisualBrush.Visual>
+                </VisualBrush>
+              </Image.OpacityMask>
+            </Image>
+
+            <Image x:Name="CDImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
+                Source="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
+                VerticalAlignment="Bottom" Width="235" Height="235" Margin="0,0,110,30">
+              <Image.Resources>
+                <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+                  <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"
+                                    From="0"
+                                    To="360"
+                                    Duration="0:0:2"
+                                    RepeatBehavior="Forever" />
+                </Storyboard>
+              </Image.Resources>
+              <Image.RenderTransform>
+                <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
+              </Image.RenderTransform>
+              <Image.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </Image.Triggers>
+            </Image>
+
+            <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
+                Source="{Binding MediaItem}" FallbackSource="AudioLarge.png" HorizontalAlignment="Right"
+                VerticalAlignment="Bottom" Width="250" Height="250" Margin="0,0,0,20">
+              <Image.OpacityMask>
+                <VisualBrush>
+                  <VisualBrush.Visual>
+                    <Border Background="White" CornerRadius="12" BorderThickness="0" BorderBrush="Black"/>
+                  </VisualBrush.Visual>
+                </VisualBrush>
+              </Image.OpacityMask>
+            </Image>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>

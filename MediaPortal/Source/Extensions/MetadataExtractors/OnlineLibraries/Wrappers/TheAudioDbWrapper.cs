@@ -59,15 +59,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       List<AudioDbTrack> foundTracks = null;
-      foreach(PersonInfo person in trackSearch.Artists)
+      foreach (PersonInfo person in trackSearch.AlbumArtists)
       {
         foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName, language);
         if (foundTracks != null)
           break;
       }
-      if (foundTracks == null && trackSearch.AlbumArtists.Count > 0)
+      if (foundTracks == null)
       {
-        foreach (PersonInfo person in trackSearch.AlbumArtists)
+        foreach (PersonInfo person in trackSearch.Artists)
         {
           foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName, language);
           if (foundTracks != null)
@@ -90,8 +90,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           
           TrackName = track.Track,
           TrackNum = track.TrackNumber,
-          Artists = ConvertToPersons(track.ArtistID ?? 0, track.MusicBrainzArtistID, track.Artist, PersonAspect.OCCUPATION_ARTIST),
           Album = track.Album,
+          Artists = ConvertToPersons(track.ArtistID ?? 0, track.MusicBrainzArtistID, track.Artist, PersonAspect.OCCUPATION_ARTIST, track.Track, track.Album),
         };
         tracks.Add(info);
       }
@@ -104,7 +104,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       albums = null;
       language = language ?? PreferredLanguage;
 
-      List<AudioDbAlbum> foundAlbums = _audioDbHandler.SearchAlbum(albumSearch.Artists.Count > 0 ? albumSearch.Artists[0].Name : "", albumSearch.Album, language);
+      List<AudioDbAlbum> foundAlbums = null;
+      if(albumSearch.Artists.Count == 0)
+        foundAlbums = _audioDbHandler.SearchAlbum("", albumSearch.Album, language);
+      foreach (PersonInfo person in albumSearch.Artists)
+      {
+        foundAlbums = _audioDbHandler.SearchAlbum(person.Name, albumSearch.Album, language);
+        if (foundAlbums != null)
+          break;
+      }
       if (foundAlbums == null) return false;
 
       foreach (AudioDbAlbum album in foundAlbums)
@@ -119,7 +127,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           
           Album = album.Album,
           ReleaseDate = album.Year != null && album.Year.Value > 1900 ? new DateTime(album.Year.Value, 1, 1) : default(DateTime?),
-          Artists = ConvertToPersons(album.ArtistId ?? 0, album.MusicBrainzArtistID, album.Artist, PersonAspect.OCCUPATION_ARTIST),
+          Artists = ConvertToPersons(album.ArtistId ?? 0, album.MusicBrainzArtistID, album.Artist, PersonAspect.OCCUPATION_ARTIST, null, album.Album),
           MusicLabels = ConvertToCompanies(album.LabelId ?? 0, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL),
         };
         albums.Add(info);
@@ -163,7 +171,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Convert
 
-    private List<PersonInfo> ConvertToPersons(long artistId, string mbArtistId, string artist, string occupation)
+    private List<PersonInfo> ConvertToPersons(long artistId, string mbArtistId, string artist, string occupation, string track, string album)
     {
       if (artistId == 0 || string.IsNullOrEmpty(artist))
         return new List<PersonInfo>();
@@ -179,7 +187,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MusicBrainzId = mbArtistId,
           Name = artist,
           Occupation = occupation,
-          Order = sortOrder++
+          Order = sortOrder++,
+          MediaName = track,
+          ParentMediaName = album
         });
 
       }
@@ -261,15 +271,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (track.AudioDbId > 0)
         trackDetail = _audioDbHandler.GetTrack(track.AudioDbId, language, cacheOnly);
 
-      if (trackDetail == null && !string.IsNullOrEmpty(track.MusicBrainzId))
-        trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, language, cacheOnly);
-
       if (trackDetail == null && track.TrackNum > 0 && track.AlbumAudioDbId > 0)
       {
         List<AudioDbTrack> foundTracks = _audioDbHandler.GetTracksByAlbumId(track.AlbumAudioDbId, language, cacheOnly);
         if (foundTracks != null && foundTracks.Count > 0)
           trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
       }
+
+      //Musicbrainz Id can be unreliable in this regard because it is linked to a recording and the same recording can 
+      //be across multiple different albums. In other words the Id is unique per song not per album song, so using this can
+      //lead to the wrong album id.
+      //if (trackDetail == null && !string.IsNullOrEmpty(track.MusicBrainzId))
+      //  trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, language, cacheOnly);
+
       if (trackDetail == null) return false;
 
       //Get the track into the cache
@@ -294,8 +308,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (trackDetail.ArtistID.HasValue)
       {
-        track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
-        track.AlbumArtists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+        track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, trackDetail.Album);
+        track.AlbumArtists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, trackDetail.Album);
       }
 
       if (!string.IsNullOrEmpty(trackDetail.Genre))
@@ -349,7 +363,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       album.Rating = new SimpleRating(albumDetail.Rating, albumDetail.RatingCount);
 
       if (albumDetail.ArtistId.HasValue)
-        album.Artists = ConvertToPersons(albumDetail.ArtistId.Value, albumDetail.MusicBrainzArtistID, albumDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+        album.Artists = ConvertToPersons(albumDetail.ArtistId.Value, albumDetail.MusicBrainzArtistID, albumDetail.Artist, PersonAspect.OCCUPATION_ARTIST, null, albumDetail.Album);
 
       if (albumDetail.LabelId.HasValue)
         album.MusicLabels = ConvertToCompanies(albumDetail.LabelId.Value, albumDetail.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
@@ -382,7 +396,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           track.Duration = trackDetail.Duration.HasValue ? trackDetail.Duration.Value / 1000 : 0;
 
           if (trackDetail.ArtistID.HasValue)
-            track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+            track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, albumDetail.Album);
 
           if (!string.IsNullOrEmpty(trackDetail.Genre))
             track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });
@@ -415,7 +429,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
       if (albumDetail == null) return false;
 
-      if (!string.IsNullOrEmpty(albumDetail.Label) && BaseInfo.MatchNames(company.Name, albumDetail.Label) && albumDetail.LabelId.HasValue)
+      if (!string.IsNullOrEmpty(albumDetail.Label) && company.MatchNames(company.Name, albumDetail.Label) && albumDetail.LabelId.HasValue)
       {
         company.AudioDbId = albumDetail.LabelId.Value;
         company.Name = albumDetail.Label;

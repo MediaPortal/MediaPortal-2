@@ -190,8 +190,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     protected override TvdbLanguage FindBestMatchingLanguage(List<string> mediaLanguages)
     {
       TvdbLanguage returnVal;
-
       CultureInfo mpLocal = new CultureInfo(PreferredLanguageCulture);
+
       // If we don't have movie languages available, or the MP2 setting language is available, prefer it.
       if (mediaLanguages.Count == 0 || mediaLanguages.Contains(mpLocal.TwoLetterISOLanguageName))
       {
@@ -209,6 +209,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
 
       // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
+      // Use preferred language if available.
+      returnVal = TvDbUtils.ParseLanguage(mpLocal.TwoLetterISOLanguageName);
+      if (returnVal.Id != Util.NO_VALUE)
+        return returnVal;
+
       // By returning null we allow fallback to the default language of the online source (en).
       return TvdbLanguage.DefaultLanguage;
     }

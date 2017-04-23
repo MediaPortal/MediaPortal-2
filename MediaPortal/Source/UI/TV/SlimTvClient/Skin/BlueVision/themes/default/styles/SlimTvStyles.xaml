@@ -56,7 +56,7 @@
                       <Label Grid.Column="0" x:Name="CurrentProgramTitleLabel" Content="{Binding Path=CurrentProgram.Title}" Scroll="Auto"
                                FontFamily="DefaultBold" Color="{ThemeResource TextColor}"/>
                       <Label Grid.Column="1" x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}" Scroll="Auto"
-                             IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}">
+                             IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
                         <Label.Content>
                           <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
                         </Label.Content>
@@ -542,6 +542,9 @@
               SetFocus="{Binding Path=Selected,Mode=OneTime}"
               Command="{Binding Command}"
               >
+            <Button.ContextMenuCommand>
+              <Command Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+            </Button.ContextMenuCommand>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>

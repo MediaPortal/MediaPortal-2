@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       movies = foundMovies.Select(m => new MovieInfo()
       {
         ImdbId = m.ImdbID,
-        MovieName = m.Title,
+        MovieName = new SimpleTitle(m.Title, true),
         ReleaseDate = m.Year.HasValue ? new DateTime(m.Year.Value, 1, 1) : default(DateTime?),
       }).ToList();
 
@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               EpisodeInfo info = new EpisodeInfo()
               {
                 ImdbId = episode.ImdbID,
-                SeriesName = season.Title,
+                SeriesName = new SimpleTitle(season.Title, true),
                 SeasonNumber = episodeSearch.SeasonNumber.Value,
                 EpisodeName = new SimpleTitle(episode.Title, false),
               };
@@ -141,7 +141,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series = foundSeries.Select(s => new SeriesInfo()
       {
         ImdbId = s.ImdbID,
-        SeriesName = s.Title,
+        SeriesName = new SimpleTitle(s.Title, true),
         FirstAired = s.Year.HasValue ? new DateTime(s.Year.Value, 1, 1) : default(DateTime?),
       }).ToList();
       return series.Count > 0;
@@ -200,11 +200,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       //Only use these if absolutely necessary because there is no way to ID them
       if (movie.Actors.Count == 0)
-        movie.Actors = ConvertToPersons(movieDetail.Actors, PersonAspect.OCCUPATION_ACTOR);
+        movie.Actors = ConvertToPersons(movieDetail.Actors, PersonAspect.OCCUPATION_ACTOR, movieDetail.Title);
       if (movie.Writers.Count == 0)
-        movie.Writers = ConvertToPersons(movieDetail.Writers, PersonAspect.OCCUPATION_WRITER);
+        movie.Writers = ConvertToPersons(movieDetail.Writers, PersonAspect.OCCUPATION_WRITER, movieDetail.Title);
       if (movie.Directors.Count == 0)
-        movie.Directors = ConvertToPersons(movieDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR);
+        movie.Directors = ConvertToPersons(movieDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, movieDetail.Title);
 
       return true;
     }
@@ -259,7 +259,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       //Only use these if absolutely necessary because there is no way to ID them
       if (seriesDetail.Actors == null || seriesDetail.Actors.Count == 0)
-        series.Actors = ConvertToPersons(seriesDetail.Actors, PersonAspect.OCCUPATION_ACTOR);
+        series.Actors = ConvertToPersons(seriesDetail.Actors, PersonAspect.OCCUPATION_ACTOR, null, seriesDetail.Title);
 
       //Episode listing is currently not optimal
       //OmDbSeason seasonDetails = null;
@@ -384,11 +384,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
           //Only use these if absolutely necessary because there is no way to ID them
           if (episode.Actors == null || episode.Actors.Count == 0)
-            info.Actors = ConvertToPersons(episodeDetail.Actors, PersonAspect.OCCUPATION_ARTIST);
+            info.Actors = ConvertToPersons(episodeDetail.Actors, PersonAspect.OCCUPATION_ARTIST, episodeDetail.Title, seasonDetail.Title);
           if (episode.Directors == null || episode.Directors.Count == 0)
-            info.Directors = ConvertToPersons(episodeDetail.Writers, PersonAspect.OCCUPATION_DIRECTOR);
+            info.Directors = ConvertToPersons(episodeDetail.Writers, PersonAspect.OCCUPATION_DIRECTOR, episodeDetail.Title, seasonDetail.Title);
           if (episode.Writers == null || episode.Writers.Count == 0)
-            info.Writers = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_WRITER);
+            info.Writers = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_WRITER, episodeDetail.Title, seasonDetail.Title);
 
           episodeDetails.Add(info);
         }
@@ -410,7 +410,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Convert
 
-    private List<PersonInfo> ConvertToPersons(List<string> names, string occupation)
+    private List<PersonInfo> ConvertToPersons(List<string> names, string occupation, string media, string parentMedia = null)
     {
       if (names == null || names.Count == 0)
         return new List<PersonInfo>();
@@ -418,7 +418,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int sortOrder = 0;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (string name in names)
-        retValue.Add(new PersonInfo() { Name = name, Occupation = occupation, Order = sortOrder++ });
+        retValue.Add(new PersonInfo() { Name = name, Occupation = occupation, Order = sortOrder++, MediaName = media, ParentMediaName = parentMedia });
       return retValue;
     }
 

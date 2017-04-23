@@ -72,6 +72,12 @@ namespace MediaPortal.UI.Presentation.Workflow
     IDictionary<Guid, WorkflowAction> MenuStateActions { get; }
 
     /// <summary>
+    /// Tries to get an action from <see cref="MenuStateActions"/> and executes it if possible.
+    /// </summary>
+    /// <returns>true if successful</returns>
+    bool TryExecuteAction(Guid actionId);
+
+    /// <summary>
     /// Returns the navigation structure consisting of a stack of currently active navigation contexts.
     /// </summary>
     Stack<NavigationContext> NavigationContextStack { get; }

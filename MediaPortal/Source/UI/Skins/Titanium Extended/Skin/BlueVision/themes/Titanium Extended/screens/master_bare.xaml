@@ -36,12 +36,20 @@ Parameters which have to be accessible by a DynamicResource lookup:
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
+  <Screen.Resources>
+    <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+  </Screen.Resources>
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Hide">
+      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+    </EventTrigger>
+  </Screen.Triggers>
+  
   <Canvas Width="1920" Height="1080">
     <Canvas.Resources>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
       <Model x:Key="HomeServerModel" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
       <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-      <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
       <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
       <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     </Canvas.Resources>

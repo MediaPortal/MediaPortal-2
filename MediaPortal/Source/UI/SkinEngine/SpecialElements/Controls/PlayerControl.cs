@@ -141,6 +141,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _videoStoryPlotProperty;
     protected AbstractProperty _audioArtistsProperty;
     protected AbstractProperty _audioYearProperty;
+    protected AbstractProperty _audioTrackNumberProperty;
+    protected AbstractProperty _audioTrackNameProperty;
+    protected AbstractProperty _audioAlbumNameProperty;
     protected AbstractProperty _imageSourceLocatorProperty;
     protected AbstractProperty _imageRotateDegreesProperty;
     protected AbstractProperty _imageFlipXProperty;
@@ -216,6 +219,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
       _audioArtistsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _audioYearProperty = new SProperty(typeof(int?), null);
+      _audioTrackNumberProperty = new SProperty(typeof(int?), null);
+      _audioTrackNameProperty = new SProperty(typeof(string), string.Empty);
+      _audioAlbumNameProperty = new SProperty(typeof(string), string.Empty);
 
       _fullscreenContentWFStateIDProperty = new SProperty(typeof(Guid?), null);
       _currentlyPlayingWFStateIDProperty = new SProperty(typeof(Guid?), null);
@@ -751,10 +757,16 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         if (track == null)
         {
           AudioArtists = EMPTY_NAMES_COLLECTION;
+          AudioTrackNumber = null;
+          AudioTrackName = string.Empty;
+          AudioAlbumName = string.Empty;
         }
         else
         {
           AudioArtists = track.Artists.Select(p => p.Name);
+          AudioTrackNumber = track.TrackNum > 0 ? track.TrackNum : (int?)null;
+          AudioTrackName = track.TrackName ?? string.Empty;
+          AudioAlbumName = track.Album ?? string.Empty;
         }
         IsMuted = playerManager.Muted;
         CheckShowMouseControls();
@@ -1518,6 +1530,51 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get { return (int?)_audioYearProperty.GetValue(); }
       set { _audioYearProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AudioTrackNumberProperty
+    {
+      get { return _audioTrackNumberProperty; }
+    }
+
+    /// <summary>
+    /// Gets the track number of the currently playing audio, if the current media item is an audio item and if this
+    /// information is available.
+    /// </summary>
+    public int? AudioTrackNumber
+    {
+      get { return (int?)_audioTrackNumberProperty.GetValue(); }
+      set { _audioTrackNumberProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AudioTrackNameProperty
+    {
+      get { return _audioTrackNameProperty; }
+    }
+
+    /// <summary>
+    /// Gets the track name of the currently playing audio, if the current media item is an audio item and if this
+    /// information is available.
+    /// </summary>
+    public string AudioTrackName
+    {
+      get { return (string)_audioTrackNameProperty.GetValue(); }
+      set { _audioTrackNameProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AudioAlbumNameProperty
+    {
+      get { return _audioAlbumNameProperty; }
+    }
+
+    /// <summary>
+    /// Gets the album name of the currently playing audio, if the current media item is an audio item and if this
+    /// information is available.
+    /// </summary>
+    public string AudioAlbumName
+    {
+      get { return (string)_audioAlbumNameProperty.GetValue(); }
+      set { _audioAlbumNameProperty.SetValue(value); }
     }
 
     public AbstractProperty FullscreenContentWFStateIDProperty

@@ -179,8 +179,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         if (seriesDetail.Embedded.Cast != null)
         {
-          series.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR);
-          series.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast);
+          series.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR, seriesDetail.Name);
+          series.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast, seriesDetail.Name);
         }
         if(seriesDetail.Embedded.Episodes != null)
         {
@@ -231,7 +231,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           TvMazeEpisode nextEpisode = seriesDetail.Embedded.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
           if (nextEpisode != null)
           {
-            series.NextEpisodeName = nextEpisode.Name;
+            series.NextEpisodeName = new SimpleTitle(nextEpisode.Name, true);
             series.NextEpisodeAirDate = nextEpisode.AirStamp;
             series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
             series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
@@ -314,8 +314,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
           if (seriesDetail.Embedded != null && seriesDetail.Embedded.Cast != null)
           {
-            info.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR);
-            info.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast);
+            info.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR, seriesDetail.Name);
+            info.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast, seriesDetail.Name);
           }
 
           episodeDetails.Add(info);
@@ -362,7 +362,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         if (seriesDetail.Embedded.Cast != null)
         {
-          List<CharacterInfo> characters = ConvertToCharacters(seriesDetail.Embedded.Cast);
+          List<CharacterInfo> characters = ConvertToCharacters(seriesDetail.Embedded.Cast, seriesDetail.Name);
           int index = characters.IndexOf(character);
           if (index >= 0)
           {
@@ -370,6 +370,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             character.ActorName = characters[index].ActorName;
             character.Name = characters[index].Name;
             character.Order = characters[index].Order;
+            character.ParentMediaName = seriesDetail.Name;
 
             return true;
           }
@@ -388,18 +389,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Convert
 
-    private List<PersonInfo> ConvertToPersons(List<TvMazeCast> cast, string occupation)
+    private List<PersonInfo> ConvertToPersons(List<TvMazeCast> cast, string occupation, string series)
     {
       if (cast == null || cast.Count == 0)
         return new List<PersonInfo>();
 
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (TvMazeCast person in cast)
-        retValue.Add(new PersonInfo() { TvMazeId = person.Person.Id, Name = person.Person.Name, Occupation = occupation });
+        retValue.Add(new PersonInfo() { TvMazeId = person.Person.Id, Name = person.Person.Name, Occupation = occupation, ParentMediaName = series });
       return retValue;
     }
 
-    private List<CharacterInfo> ConvertToCharacters(List<TvMazeCast> characters)
+    private List<CharacterInfo> ConvertToCharacters(List<TvMazeCast> characters, string series)
     {
       if (characters == null || characters.Count == 0)
         return new List<CharacterInfo>();
@@ -411,7 +412,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ActorTvMazeId = person.Person.Id,
           ActorName = person.Person.Name,
           TvMazeId = person.Character.Id,
-          Name = person.Character.Name
+          Name = person.Character.Name,
+          ParentMediaName = series
         });
       return retValue;
     }

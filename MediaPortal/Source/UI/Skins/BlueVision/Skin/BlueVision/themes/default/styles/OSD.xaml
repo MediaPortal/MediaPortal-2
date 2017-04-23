@@ -4,15 +4,32 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
-    DependsOnStyleResources="Colors,Consts"
+    DependsOnStyleResources="Colors,Consts,OtherControls"
     >
   <Style x:Key="OSDContainer" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border CornerRadius="{ThemeResource DialogBorderCornerRadius}" Margin="80,0,80,34" Background="#E0000000">
-            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border CornerRadius="{ThemeResource DialogBorderCornerRadius}" Margin="40,-10,40,30" Background="#E0000000">
+              <Border.IsVisible>
+                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"/>
+                  <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Border.IsVisible>
+            </Border>
+            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,10">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="*"/>
@@ -26,21 +43,21 @@
               </Grid.RowDefinitions>
 
               <Control Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" x:Name="OSDCoverPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"
-                  Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
+                       Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
 
               <Control Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2" x:Name="OSDInfoAreaPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                  Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
+                       Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
 
               <Control Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
+                       Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
 
-              <Grid  Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="34" Margin="0,0,50,0" SetFocusPrio="Default">
+              <Grid  Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="34" Margin="0,0,25,0" SetFocusPrio="Default">
                 <!--IsVisible="{Binding ShowMouseControls}"-->
-                <Control  x:Name="ControlsPresenter" HorizontalAlignment="Center"
-                     Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
+                <Control x:Name="ControlsPresenter" HorizontalAlignment="Center"
+                         Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
               </Grid>
             </Grid>
-          </Border>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
