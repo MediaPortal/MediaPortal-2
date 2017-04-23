@@ -131,10 +131,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               existingAspects.Add(aspect, extractedAspects[aspect]);
           }
           existingAspects[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
-          return true; 
         }
         
-        return false;
+        return true;
       }
       catch (Exception e)
       {
