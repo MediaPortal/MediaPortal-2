@@ -107,6 +107,42 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
+    public override bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)
+    {
+      // Don't allow OMDB during first import cycle because it is english only
+      // If it was allowed it would prevent the update of metadata with preffered language
+      // during refresh cycle that also allows searches which might be needed to find metadata 
+      // in the preferred language
+      if (importOnly && !Primary)
+        return false;
+
+      return base.FindAndUpdateEpisode(episodeInfo, importOnly);
+    }
+
+    public override bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
+    {
+      // Don't allow OMDB during first import cycle because it is english only
+      // If it was allowed it would prevent the update of metadata with preffered language
+      // during refresh cycle that also allows searches which might be needed to find metadata 
+      // in the preferred language
+      if (importOnly && !Primary)
+        return false;
+
+      return base.UpdateSeries(seriesInfo, updateEpisodeList, importOnly);
+    }
+
+    public override bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
+    {
+      // Don't allow OMDB during first import cycle because it is english only
+      // If it was allowed it would prevent the update of metadata with preffered language
+      // during refresh cycle that also allows searches which might be needed to find metadata 
+      // in the preferred language
+      if (importOnly && !Primary)
+        return false;
+
+      return base.UpdateSeason(seasonInfo, importOnly);
+    }
+
     public override bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
     {
       return false;
