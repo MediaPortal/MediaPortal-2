@@ -61,6 +61,10 @@
           </DockPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
+          <Button x:Name="PreviousChannelButton" Style="{ThemeResource ChannelDownButtonStyle}"
+                  Command="{Command ZapPrevChannel}" Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
+          <Button x:Name="NextChannelButton" Style="{ThemeResource ChannelUpButtonStyle}" 
+                  Command="{Command ZapNextChannel}" Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
           <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Command="{Command RecordDialog}"
                   Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}" Margin="{ThemeResource PlayerControlButtonMargins}"/>
           <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"

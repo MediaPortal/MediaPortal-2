@@ -1020,6 +1020,18 @@
     </Style.Resources>
   </Style>
 
+  <Style x:Key="ChannelUpButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource ChannelUpControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="ChannelDownButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource ChannelDownControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
   <Style x:Key="RecordButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource RecordControlTemplate}" />
