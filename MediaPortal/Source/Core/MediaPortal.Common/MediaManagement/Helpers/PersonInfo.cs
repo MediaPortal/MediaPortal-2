@@ -312,6 +312,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return CompareNames(name1, name2);
     }
 
+    public override bool OnlineMatchNames(string name1, string name2)
+    {
+      return StrictMatchNames(name1, name2);
+    }
+
     public int CompareTo(PersonInfo other)
     {
       if (Order != other.Order)
