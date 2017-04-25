@@ -25,27 +25,29 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-
-            <Image Source="PlayerControl\seekbar.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="0,-1,0,0"/>
-            <StackPanel Orientation="Horizontal" Margin="-5,0,5,0">
+            <Image Source="PlayerControl\seekbarshadow.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="-15,-1,-15,0"/>
+            <Image Source="PlayerControl\seekbardummy.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="-15,-1,-15,0"/>
+            <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                       RadiusX="3.5" RadiusY="3.5" Height="10" Fill="{ThemeResource ProgressBarBackgroundColor}" Opacity="0.8"/>
+            <StackPanel Orientation="Horizontal" Margin="-27,0,-27,0">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
               <Image Source="PlayerControl\Current.Position.Shadow.png" Width="55" Height="55" Stretch="Fill" Margin="-10"
                      VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
             <Grid x:Name="ProgressBarIndicator" HorizontalAlignment="Left" VerticalAlignment="Center">
-              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-90,-85,-70,0" Height="114">
+              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-100,-85,-95,0" Height="114">
                 <Image Source="PlayerControl\Time.Indicator.png" Height="114" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.9"/>
                 <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Opacity="0.9"
-                          HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,24" FontFamily="SegoeUIBold"
-                          Color="Black" FontSize="{ThemeResource SmallFontSize}"/>
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,24" FontFamily="SegoeUIBold"
+                       Color="Black" FontSize="{ThemeResource SmallFontSize}"/>
               </Grid>
-              <Rectangle  Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                          RadiusX="3.5" RadiusY="3.5" Height="9" Fill="{ThemeResource ProgressBarFillColor}" Margin="16,0,25,0"/>
+              <Rectangle Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                         RadiusX="3.5" RadiusY="3.5" Height="10" Fill="{ThemeResource ProgressBarFillColor}" Margin="0,0,0,0"/>
             </Grid>
-            <StackPanel Orientation="Horizontal" Margin="-5,0,5,0">
+            <StackPanel Orientation="Horizontal" Margin="-21,0,-21,0">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
               <Image Source="PlayerControl\Current.Position.png" Width="40" Height="40" Stretch="Fill"
-                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
           </Grid>
         </ControlTemplate>
@@ -96,6 +98,7 @@
                 <Label x:Name="StartTimeLabel" Grid.Column="0" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
                        Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                        HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                
                 <Image Grid.Column="0" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Height="70" Margin="-30,0,-30,0" Panel.ZIndex="100">
                   <Image.Width>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+60">
@@ -103,9 +106,6 @@
                     </MultiBinding>
                   </Image.Width>
                 </Image>
-
-                <ProgressBar Grid.Row="0" Grid.Column="1" x:Name="ProgressBar" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0,0,0"
-                             Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress, Mode=TwoWay}" Style="{ThemeResource TVPlayerControlsProgressBarStyle}"/>
 
                 <Label x:Name="EndTimeLabel" Grid.Column="2" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
                        Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
@@ -117,6 +117,10 @@
                     </MultiBinding>
                   </Image.Width>
                 </Image>
+
+                <ProgressBar Grid.Row="0" Grid.Column="1" x:Name="ProgressBar" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="30,0,30,0"
+                             Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress, Mode=TwoWay}" Style="{ThemeResource TVPlayerControlsProgressBarStyle}"/>
+
               </Grid>
             </DockPanel>
 
@@ -161,13 +165,12 @@
                       <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
                     </TransformGroup>
                   </StackPanel.LayoutTransform>
-                  <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="0"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
-                  <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="0"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
-                  <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Margin="0" Command="{Command RecordDialog}"/>
+                  <Button x:Name="PreviousChannelButton" Style="{ThemeResource PreviousChapterButtonStyle}"
+                          Command="{Command ZapPrevChannel}" Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
+                  <Button x:Name="NextChannelButton" Style="{ThemeResource NextChapterButtonStyle}" 
+                          Command="{Command ZapNextChannel}" Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
+                  <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Command="{Command RecordDialog}"
+                          Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
                   <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
                   <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}"
                           Command="{Command Stop}"/>
@@ -193,9 +196,9 @@
                   <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="0"
                           IsVisible="{Binding IsAudio}" Command="{Command AudioButtonPressed}"/>
                   <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}" Margin="0"
-                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}"/>
+                          Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}"/>
                   <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}" Margin="0" 
-                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
+                          Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
                 </StackPanel>
                 <!-- PlayControlsPanel -->
               </Grid>
