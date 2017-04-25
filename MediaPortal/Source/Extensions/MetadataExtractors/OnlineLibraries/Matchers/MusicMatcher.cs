@@ -976,8 +976,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!importOnly)
         {
-          string Id;
-          if (!GetTrackAlbumId(albumInfo, out Id))
+          if (!GetTrackAlbumId(albumInfo, out id))
             id = "";
           _albumMatcher.StoreNameMatch(id, GetUniqueAlbumName(albumInfo), GetUniqueAlbumName(albumMatch));
         }
