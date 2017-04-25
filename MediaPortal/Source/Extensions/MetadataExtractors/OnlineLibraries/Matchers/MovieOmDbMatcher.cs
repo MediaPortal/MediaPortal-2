@@ -79,6 +79,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
+    public override bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
+    {
+      // Don't allow OMDB during first import cycle because it is english only
+      // If it was allowed it would prevent the update of metadata with preffered language
+      // during refresh cycle that also allows searches which might be needed to find metadata 
+      // in the preferred language
+      if (importOnly && !Primary)
+        return false;
+
+      return base.FindAndUpdateMovie(movieInfo, importOnly);
+    }
+
     public override bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
     {
       return false;

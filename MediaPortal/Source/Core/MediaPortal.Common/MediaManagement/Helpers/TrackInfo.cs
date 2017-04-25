@@ -474,6 +474,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       TrackInfo other = obj as TrackInfo;
       if (other == null) return false;
 
+      //For tracks, the album name is likely to have come from a tag so ensure that names are similar in addition
+      //to the checks below, so that if a user has 2 albums in different qualities, deliberately tagged differently
+      //they don't get merged into the same track.
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && !MatchAlbumNames(Album, other.Album))
+        return false;
+
       if (AudioDbId > 0 && other.AudioDbId > 0)
         return AudioDbId == other.AudioDbId;
       
@@ -493,7 +499,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return true;
 
       //These Ids are only unique per song and not per album song
-      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && Album == other.Album)
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && MatchAlbumNames(Album, other.Album))
       {
         if (MvDbId > 0 && other.MvDbId > 0)
           return MvDbId == other.MvDbId;
@@ -530,9 +536,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) &&
           ReleaseDate.HasValue && other.ReleaseDate.HasValue)
-          return Album == other.Album && ReleaseDate.Value == other.ReleaseDate.Value;
+          return MatchAlbumNames(Album, other.Album) && ReleaseDate.Value == other.ReleaseDate.Value;
       }
-      if ((!string.IsNullOrEmpty(Album) || !string.IsNullOrEmpty(other.Album)) && Album != other.Album)
+      if ((!string.IsNullOrEmpty(Album) || !string.IsNullOrEmpty(other.Album)) && !MatchAlbumNames(Album, other.Album))
         return false;
 
       if (!string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) && MatchNames(TrackName, other.TrackName))
@@ -553,6 +559,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
 
       return false;
+    }
+
+    public bool MatchAlbumNames(string name1, string name2)
+    {
+      return CompareNames(name1, name2, 0.8, 3);
     }
 
     public int CompareTo(TrackInfo other)

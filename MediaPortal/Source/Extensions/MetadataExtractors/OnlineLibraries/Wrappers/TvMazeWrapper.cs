@@ -151,54 +151,165 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)
     {
-      TvMazeSeries seriesDetail = null;
-      if (series.TvMazeId > 0)
-        seriesDetail = _tvMazeHandler.GetSeries(series.TvMazeId, cacheOnly);
-      if (seriesDetail == null && !string.IsNullOrEmpty(series.ImdbId))
-        seriesDetail = _tvMazeHandler.GetSeriesByImDb(series.ImdbId, cacheOnly);
-      if (seriesDetail == null && series.TvdbId > 0)
-        seriesDetail = _tvMazeHandler.GetSeriesByTvDb(series.TvdbId, cacheOnly);
-      if (seriesDetail == null) return false;
-
-      series.TvMazeId = seriesDetail.Id;
-      series.TvdbId = seriesDetail.Externals.TvDbId ?? 0;
-      series.TvRageId = seriesDetail.Externals.TvRageId ?? 0;
-      series.ImdbId = seriesDetail.Externals.ImDbId;
-
-      series.SeriesName = new SimpleTitle(seriesDetail.Name, true);
-      series.FirstAired = seriesDetail.Premiered;
-      series.Description = new SimpleTitle(seriesDetail.Summary, true);
-      series.Rating = new SimpleRating(seriesDetail.Rating != null && seriesDetail.Rating.Rating.HasValue ? seriesDetail.Rating.Rating.Value : 0);
-      series.Genres = seriesDetail.Genres.Select(s => new GenreInfo { Name = s }).ToList();
-      series.Networks = ConvertToCompanies(seriesDetail.Network ?? seriesDetail.WebNetwork, CompanyAspect.COMPANY_TV_NETWORK);
-      if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
+      try
       {
-        series.IsEnded = true;
-      }
-      if(seriesDetail.Embedded != null)
-      {
-        if (seriesDetail.Embedded.Cast != null)
+        TvMazeSeries seriesDetail = null;
+        if (series.TvMazeId > 0)
+          seriesDetail = _tvMazeHandler.GetSeries(series.TvMazeId, cacheOnly);
+        if (seriesDetail == null && !string.IsNullOrEmpty(series.ImdbId))
+          seriesDetail = _tvMazeHandler.GetSeriesByImDb(series.ImdbId, cacheOnly);
+        if (seriesDetail == null && series.TvdbId > 0)
+          seriesDetail = _tvMazeHandler.GetSeriesByTvDb(series.TvdbId, cacheOnly);
+        if (seriesDetail == null) return false;
+
+        series.TvMazeId = seriesDetail.Id;
+        series.TvdbId = seriesDetail.Externals.TvDbId ?? 0;
+        series.TvRageId = seriesDetail.Externals.TvRageId ?? 0;
+        series.ImdbId = seriesDetail.Externals.ImDbId;
+
+        series.SeriesName = new SimpleTitle(seriesDetail.Name, true);
+        series.FirstAired = seriesDetail.Premiered;
+        series.Description = new SimpleTitle(seriesDetail.Summary, true);
+        series.Rating = new SimpleRating(seriesDetail.Rating != null && seriesDetail.Rating.Rating.HasValue ? seriesDetail.Rating.Rating.Value : 0);
+        series.Genres = seriesDetail.Genres.Select(s => new GenreInfo { Name = s }).ToList();
+        series.Networks = ConvertToCompanies(seriesDetail.Network ?? seriesDetail.WebNetwork, CompanyAspect.COMPANY_TV_NETWORK);
+        if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
         {
-          series.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR, seriesDetail.Name);
-          series.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast, seriesDetail.Name);
+          series.IsEnded = true;
         }
-        if(seriesDetail.Embedded.Episodes != null)
+        if (seriesDetail.Embedded != null)
         {
-          foreach (TvMazeEpisode episodeDetail in seriesDetail.Embedded.Episodes)
+          if (seriesDetail.Embedded.Cast != null)
           {
-            SeasonInfo seasonInfo = new SeasonInfo()
+            series.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR, seriesDetail.Name);
+            series.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast, seriesDetail.Name);
+          }
+          if (seriesDetail.Embedded.Episodes != null)
+          {
+            foreach (TvMazeEpisode episodeDetail in seriesDetail.Embedded.Episodes)
             {
-              SeriesTvMazeId = seriesDetail.Id,
-              SeriesImdbId = seriesDetail.Externals.ImDbId,
-              SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0,
-              SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0,
-              SeriesName = new SimpleTitle(seriesDetail.Name, true),
-              SeasonNumber = episodeDetail.SeasonNumber,
-              FirstAired = episodeDetail.AirDate,
-              TotalEpisodes = seriesDetail.Embedded.Episodes.FindAll(e => e.SeasonNumber == episodeDetail.SeasonNumber).Count
-            };
-            if (!series.Seasons.Contains(seasonInfo))
-              series.Seasons.Add(seasonInfo);
+              SeasonInfo seasonInfo = new SeasonInfo()
+              {
+                SeriesTvMazeId = seriesDetail.Id,
+                SeriesImdbId = seriesDetail.Externals.ImDbId,
+                SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0,
+                SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0,
+                SeriesName = new SimpleTitle(seriesDetail.Name, true),
+                SeasonNumber = episodeDetail.SeasonNumber,
+                FirstAired = episodeDetail.AirDate,
+                TotalEpisodes = seriesDetail.Embedded.Episodes.FindAll(e => e.SeasonNumber == episodeDetail.SeasonNumber).Count
+              };
+              if (!series.Seasons.Contains(seasonInfo))
+                series.Seasons.Add(seasonInfo);
+
+              EpisodeInfo info = new EpisodeInfo()
+              {
+                TvMazeId = episodeDetail.Id,
+
+                SeriesTvMazeId = seriesDetail.Id,
+                SeriesImdbId = seriesDetail.Externals.ImDbId,
+                SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0,
+                SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0,
+                SeriesName = new SimpleTitle(seriesDetail.Name, true),
+                SeriesFirstAired = seriesDetail.Premiered,
+
+                SeasonNumber = episodeDetail.SeasonNumber,
+                EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+                FirstAired = episodeDetail.AirDate,
+                EpisodeName = new SimpleTitle(episodeDetail.Name, true),
+                Summary = new SimpleTitle(episodeDetail.Summary, true),
+                Genres = seriesDetail.Genres.Select(s => new GenreInfo { Name = s }).ToList(),
+              };
+
+              info.Actors = series.Actors;
+              info.Characters = series.Characters;
+
+              series.Episodes.Add(info);
+            }
+
+            series.TotalSeasons = series.Seasons.Count;
+            series.TotalEpisodes = series.Episodes.Count;
+
+            TvMazeEpisode nextEpisode = seriesDetail.Embedded.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
+            if (nextEpisode != null)
+            {
+              series.NextEpisodeName = new SimpleTitle(nextEpisode.Name, true);
+              series.NextEpisodeAirDate = nextEpisode.AirStamp;
+              series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
+              series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
+            }
+          }
+        }
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Exception while processing series {0}", ex, series.ToString());
+        return false;
+      }
+    }
+
+    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
+    {
+      try
+      {
+        TvMazeSeries seriesDetail = null;
+        TvMazeSeason seasonDetail = null;
+        if (season.SeriesTvMazeId > 0)
+          seriesDetail = _tvMazeHandler.GetSeries(season.SeriesTvMazeId, cacheOnly);
+        if (seriesDetail == null) return false;
+        if (season.SeriesTvMazeId > 0 && season.SeasonNumber.HasValue)
+        {
+          List<TvMazeSeason> seasons = _tvMazeHandler.GetSeriesSeasons(season.SeriesTvMazeId, cacheOnly);
+          if (seasons != null)
+            seasonDetail = seasons.Where(s => s.SeasonNumber == season.SeasonNumber).FirstOrDefault();
+        }
+        if (seasonDetail == null) return false;
+
+        season.TvMazeId = seasonDetail.Id;
+
+        season.SeriesTvMazeId = seriesDetail.Id;
+        season.SeriesImdbId = seriesDetail.Externals.ImDbId;
+        season.SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0;
+        season.SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0;
+
+        season.SeriesName = new SimpleTitle(seriesDetail.Name, true);
+        season.FirstAired = seasonDetail.PremiereDate;
+        season.SeasonNumber = seasonDetail.SeasonNumber;
+        season.TotalEpisodes = seasonDetail.EpisodeCount ?? 0;
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Exception while processing season {0}", ex, season.ToString());
+        return false;
+      }
+    }
+
+    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
+    {
+      try
+      {
+        List<EpisodeInfo> episodeDetails = new List<EpisodeInfo>();
+        TvMazeEpisode episodeDetail = null;
+        TvMazeSeries seriesDetail = null;
+
+        if (episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+        {
+          seriesDetail = _tvMazeHandler.GetSeries(episode.SeriesTvMazeId, cacheOnly);
+          if (seriesDetail == null && !string.IsNullOrEmpty(episode.SeriesImdbId))
+            seriesDetail = _tvMazeHandler.GetSeriesByImDb(episode.SeriesImdbId, cacheOnly);
+          if (seriesDetail == null && episode.SeriesTvdbId > 0)
+            seriesDetail = _tvMazeHandler.GetSeriesByTvDb(episode.SeriesTvdbId, cacheOnly);
+          if (seriesDetail == null) return false;
+
+          foreach (int episodeNumber in episode.EpisodeNumbers)
+          {
+            episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episodeNumber, cacheOnly);
+            if (episodeDetail == null) continue;
+            if (episodeDetail.EpisodeNumber <= 0) continue;
 
             EpisodeInfo info = new EpisodeInfo()
             {
@@ -219,132 +330,53 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               Genres = seriesDetail.Genres.Select(s => new GenreInfo { Name = s }).ToList(),
             };
 
-            info.Actors = series.Actors;
-            info.Characters = series.Characters;
+            if (seriesDetail.Embedded != null && seriesDetail.Embedded.Cast != null)
+            {
+              info.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR, seriesDetail.Name);
+              info.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast, seriesDetail.Name);
+            }
 
-            series.Episodes.Add(info);
-          }
-
-          series.TotalSeasons = series.Seasons.Count;
-          series.TotalEpisodes = series.Episodes.Count;
-
-          TvMazeEpisode nextEpisode = seriesDetail.Embedded.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
-          if (nextEpisode != null)
-          {
-            series.NextEpisodeName = new SimpleTitle(nextEpisode.Name, true);
-            series.NextEpisodeAirDate = nextEpisode.AirStamp;
-            series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
-            series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
+            episodeDetails.Add(info);
           }
         }
-      }
-
-      return true;
-    }
-
-    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
-    {
-      TvMazeSeries seriesDetail = null;
-      TvMazeSeason seasonDetail = null;
-      if (season.SeriesTvMazeId > 0)
-        seriesDetail = _tvMazeHandler.GetSeries(season.SeriesTvMazeId, cacheOnly);
-      if (seriesDetail == null) return false;
-      if (season.SeriesTvMazeId > 0 && season.SeasonNumber.HasValue)
-      {
-        List<TvMazeSeason> seasons = _tvMazeHandler.GetSeriesSeasons(season.SeriesTvMazeId, cacheOnly);
-        if (seasons != null)
-          seasonDetail = seasons.Where(s => s.SeasonNumber == season.SeasonNumber).FirstOrDefault();
-      }
-      if (seasonDetail == null) return false;
-
-      season.TvMazeId = seasonDetail.Id;
-
-      season.SeriesTvMazeId = seriesDetail.Id;
-      season.SeriesImdbId = seriesDetail.Externals.ImDbId;
-      season.SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0;
-      season.SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0;
-
-      season.SeriesName = new SimpleTitle(seriesDetail.Name, true);
-      season.FirstAired = seasonDetail.PremiereDate;
-      season.SeasonNumber = seasonDetail.SeasonNumber;
-      season.TotalEpisodes = seasonDetail.EpisodeCount ?? 0;
-
-      return true;
-    }
-
-    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
-    {
-      List<EpisodeInfo> episodeDetails = new List<EpisodeInfo>();
-      TvMazeEpisode episodeDetail = null;
-      TvMazeSeries seriesDetail = null;
-      
-      if (episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
-      {
-        seriesDetail = _tvMazeHandler.GetSeries(episode.SeriesTvMazeId, cacheOnly);
-        if (seriesDetail == null && !string.IsNullOrEmpty(episode.SeriesImdbId))
-          seriesDetail = _tvMazeHandler.GetSeriesByImDb(episode.SeriesImdbId, cacheOnly);
-        if (seriesDetail == null && episode.SeriesTvdbId > 0)
-          seriesDetail = _tvMazeHandler.GetSeriesByTvDb(episode.SeriesTvdbId, cacheOnly);
-        if (seriesDetail == null) return false;
-
-        foreach (int episodeNumber in episode.EpisodeNumbers)
+        if (episodeDetails.Count > 1)
         {
-          episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episodeNumber, cacheOnly);
-          if (episodeDetail == null) continue;
-          if (episodeDetail.EpisodeNumber <= 0) continue;
-
-          EpisodeInfo info = new EpisodeInfo()
-          {
-            TvMazeId = episodeDetail.Id,
-
-            SeriesTvMazeId = seriesDetail.Id,
-            SeriesImdbId = seriesDetail.Externals.ImDbId,
-            SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0,
-            SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0,
-            SeriesName = new SimpleTitle(seriesDetail.Name, true),
-            SeriesFirstAired = seriesDetail.Premiered,
-
-            SeasonNumber = episodeDetail.SeasonNumber,
-            EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
-            FirstAired = episodeDetail.AirDate,
-            EpisodeName = new SimpleTitle(episodeDetail.Name, true),
-            Summary = new SimpleTitle(episodeDetail.Summary, true),
-            Genres = seriesDetail.Genres.Select(s => new GenreInfo { Name = s }).ToList(),
-          };
-
-          if (seriesDetail.Embedded != null && seriesDetail.Embedded.Cast != null)
-          {
-            info.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR, seriesDetail.Name);
-            info.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast, seriesDetail.Name);
-          }
-
-          episodeDetails.Add(info);
+          SetMultiEpisodeDetails(episode, episodeDetails);
+          return true;
         }
+        else if (episodeDetails.Count > 0)
+        {
+          SetEpisodeDetails(episode, episodeDetails[0]);
+          return true;
+        }
+        return false;
       }
-      if (episodeDetails.Count > 1)
+      catch (Exception ex)
       {
-        SetMultiEpisodeDetails(episode, episodeDetails);
-        return true;
+        ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Exception while processing episode {0}", ex, episode.ToString());
+        return false;
       }
-      else if (episodeDetails.Count > 0)
-      {
-        SetEpisodeDetails(episode, episodeDetails[0]);
-        return true;
-      }
-      return false;
     }
 
     public override bool UpdateFromOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      TvMazePerson personDetail = null;
-      if (person.TvMazeId > 0)
-        personDetail = _tvMazeHandler.GetPerson(person.TvMazeId, cacheOnly);
-      if (personDetail == null) return false;
+      try
+      {
+        TvMazePerson personDetail = null;
+        if (person.TvMazeId > 0)
+          personDetail = _tvMazeHandler.GetPerson(person.TvMazeId, cacheOnly);
+        if (personDetail == null) return false;
 
-      person.TvMazeId = personDetail.Id;
-      person.Name = personDetail.Name;
+        person.TvMazeId = personDetail.Id;
+        person.Name = personDetail.Name;
 
-      return true;
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Exception while processing person {0}", ex, person.ToString());
+        return false;
+      }
     }
 
     public override bool UpdateFromOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, string language, bool cacheOnly)
@@ -354,30 +386,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, string language, bool cacheOnly)
     {
-      TvMazeSeries seriesDetail = null;
-      if (seriesInfo.TvMazeId > 0)
-        seriesDetail = _tvMazeHandler.GetSeries(seriesInfo.TvMazeId, cacheOnly);
-      if (seriesDetail == null) return false;
-      if (seriesDetail.Embedded != null)
+      try
       {
-        if (seriesDetail.Embedded.Cast != null)
+        TvMazeSeries seriesDetail = null;
+        if (seriesInfo.TvMazeId > 0)
+          seriesDetail = _tvMazeHandler.GetSeries(seriesInfo.TvMazeId, cacheOnly);
+        if (seriesDetail == null) return false;
+        if (seriesDetail.Embedded != null)
         {
-          List<CharacterInfo> characters = ConvertToCharacters(seriesDetail.Embedded.Cast, seriesDetail.Name);
-          int index = characters.IndexOf(character);
-          if (index >= 0)
+          if (seriesDetail.Embedded.Cast != null)
           {
-            character.ActorTvMazeId = characters[index].ActorTvMazeId;
-            character.ActorName = characters[index].ActorName;
-            character.Name = characters[index].Name;
-            character.Order = characters[index].Order;
-            character.ParentMediaName = seriesDetail.Name;
+            List<CharacterInfo> characters = ConvertToCharacters(seriesDetail.Embedded.Cast, seriesDetail.Name);
+            int index = characters.IndexOf(character);
+            if (index >= 0)
+            {
+              character.ActorTvMazeId = characters[index].ActorTvMazeId;
+              character.ActorName = characters[index].ActorName;
+              character.Name = characters[index].Name;
+              character.Order = characters[index].Order;
+              character.ParentMediaName = seriesDetail.Name;
 
-            return true;
+              return true;
+            }
           }
         }
-      }
 
-      return false;
+        return false;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Exception while processing character {0}", ex, character.ToString());
+        return false;
+      }
     }
 
     public override bool UpdateFromOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, string language, bool cacheOnly)

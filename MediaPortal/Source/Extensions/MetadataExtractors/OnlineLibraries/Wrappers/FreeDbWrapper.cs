@@ -31,6 +31,8 @@ using System.IO;
 using System.Text;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -196,78 +198,94 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
     {
-      if (string.IsNullOrEmpty(track.AlbumCdDdId) || track.TrackNum == 0)
-        return false;
-
-      //TODO: Split CDDB ID into disc id and genre?
-      string discId = null;
-
-      FreeDBCDInfoDetail discInfo;
-      if (GetCachedDisc(discId, out discInfo))
+      try
       {
-        FreeDBCDTrackDetail foundTrack = null;
-        foreach (FreeDBCDTrackDetail trackDetail in discInfo.Tracks)
+        if (string.IsNullOrEmpty(track.AlbumCdDdId) || track.TrackNum == 0)
+          return false;
+
+        //TODO: Split CDDB ID into disc id and genre?
+        string discId = null;
+
+        FreeDBCDInfoDetail discInfo;
+        if (GetCachedDisc(discId, out discInfo))
         {
-          if (trackDetail.TrackNumber == track.TrackNum)
+          FreeDBCDTrackDetail foundTrack = null;
+          foreach (FreeDBCDTrackDetail trackDetail in discInfo.Tracks)
           {
-            foundTrack = trackDetail;
-            break;
+            if (trackDetail.TrackNumber == track.TrackNum)
+            {
+              foundTrack = trackDetail;
+              break;
+            }
           }
+          if (foundTrack == null) return false;
+
+          track.Album = discInfo.Title;
+          track.AlbumArtists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST);
+          track.TotalTracks = discInfo.Tracks.Count();
+          track.ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?);
+
+          track.TrackNum = foundTrack.TrackNumber;
+          track.TrackName = foundTrack.Title;
+          track.Artists = ConvertToPersons(foundTrack.Artist, PersonAspect.OCCUPATION_ARTIST);
+          track.Duration = foundTrack.Duration;
+
+          return true;
         }
-        if (foundTrack == null) return false;
-
-        track.Album = discInfo.Title;
-        track.AlbumArtists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST);
-        track.TotalTracks = discInfo.Tracks.Count();
-        track.ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?);
-
-        track.TrackNum = foundTrack.TrackNumber;
-        track.TrackName = foundTrack.Title;
-        track.Artists = ConvertToPersons(foundTrack.Artist, PersonAspect.OCCUPATION_ARTIST);
-        track.Duration = foundTrack.Duration;
-
-        return true;
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Exception while processing track {0}", ex, track.ToString());
+        return false;
+      }
     }
 
     public override bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, string language, bool cacheOnly)
     {
-      if (string.IsNullOrEmpty(album.CdDdId))
-        return false;
-
-      //TODO: Split CDDB ID into disc id and genre?
-      string discId = null;
-
-      FreeDBCDInfoDetail discInfo;
-      if (GetCachedDisc(discId, out discInfo))
+      try
       {
-        album.Album = discInfo.Title;
-        album.Artists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST);
-        album.TotalTracks = discInfo.Tracks.Count();
-        album.ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?);
+        if (string.IsNullOrEmpty(album.CdDdId))
+          return false;
 
-        foreach (FreeDBCDTrackDetail trackDetail in discInfo.Tracks)
+        //TODO: Split CDDB ID into disc id and genre?
+        string discId = null;
+
+        FreeDBCDInfoDetail discInfo;
+        if (GetCachedDisc(discId, out discInfo))
         {
-          TrackInfo track = new TrackInfo()
+          album.Album = discInfo.Title;
+          album.Artists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST);
+          album.TotalTracks = discInfo.Tracks.Count();
+          album.ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?);
+
+          foreach (FreeDBCDTrackDetail trackDetail in discInfo.Tracks)
           {
-            AlbumCdDdId = album.CdDdId,
-            Album = discInfo.Title,
-            AlbumArtists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST),
-            TotalTracks = discInfo.Tracks.Count(),
-            ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?),
+            TrackInfo track = new TrackInfo()
+            {
+              AlbumCdDdId = album.CdDdId,
+              Album = discInfo.Title,
+              AlbumArtists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST),
+              TotalTracks = discInfo.Tracks.Count(),
+              ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?),
 
-            TrackNum = trackDetail.TrackNumber,
-            TrackName = trackDetail.Title,
-            Artists = ConvertToPersons(trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST),
-            Duration = trackDetail.Duration
-          };
-          album.Tracks.Add(track);
+              TrackNum = trackDetail.TrackNumber,
+              TrackName = trackDetail.Title,
+              Artists = ConvertToPersons(trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST),
+              Duration = trackDetail.Duration
+            };
+            album.Tracks.Add(track);
+          }
+
+          return true;
         }
-
-        return true;
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Exception while processing album {0}", ex, album.ToString());
+        return false;
+      }
     }
 
     #endregion
