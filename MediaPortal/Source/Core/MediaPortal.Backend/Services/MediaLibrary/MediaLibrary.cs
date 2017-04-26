@@ -3165,6 +3165,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 {
                   Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", key.Key, hierarchy.ParentRole, watchPercentage);
                 }
+
+                keyParam.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
+                int watchCount = watchPercentage < 100 ? 0 : 1;
+                command.CommandText = "UPDATE " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
+                  " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = " + watchCount +
+                  " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+                  " AND " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                  " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY";
+                if (command.ExecuteNonQuery() > 0)
+                {
+                  Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch count = {2}", key.Key, hierarchy.ParentRole, watchCount);
+                }
               }
             }
           }
