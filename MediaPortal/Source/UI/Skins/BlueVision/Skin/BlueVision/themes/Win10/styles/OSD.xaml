@@ -22,12 +22,15 @@
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-
             <Grid.RowDefinitions>
               <RowDefinition Height="200"/>
               <RowDefinition Height="*"/>
               <RowDefinition Height="250"/>
             </Grid.RowDefinitions>
+
+            <Grid.Resources>
+              <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
+            </Grid.Resources>
 
             <Grid x:Name="InfoControlPanel" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default">
@@ -43,7 +46,6 @@
               </Grid.RenderTransform>
               
               <Grid.Resources>
-                <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
                 <Storyboard x:Key="InfoSlideInStoryboard" FillBehavior="HoldEnd">
                   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="InfoControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
                     <SplineDoubleKeyFrame KeyTime="00:00:00" Value="255"/>
@@ -57,25 +59,19 @@
                   </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
               </Grid.Resources>
-              
+
               <Grid.Triggers>
-                <DataTrigger>
-                  <DataTrigger.Binding>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp; {1})">
-                      <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
-                      <Binding Path="IsOSDVisible"/>
-                    </MultiBinding>
-                  </DataTrigger.Binding>
+                <DataTrigger Binding="{Binding Source={StaticResource VideoPlayerModel},Path=IsOSDVisible}" Value="True">
                   <DataTrigger.EnterActions>
                     <BeginStoryboard x:Name="InfoSlideIn_BeginStoryboard" Storyboard="{StaticResource InfoSlideInStoryboard}"/>
                   </DataTrigger.EnterActions>
                   <DataTrigger.ExitActions>
-                    <BeginStoryboard Storyboard="{StaticResource InfoSlideOutStoryboard}"/>
                     <StopStoryboard BeginStoryboardName="InfoSlideIn_BeginStoryboard"/>
+                    <BeginStoryboard Storyboard="{StaticResource InfoSlideOutStoryboard}"/>
                   </DataTrigger.ExitActions>
                 </DataTrigger>
               </Grid.Triggers>
-              
+
               <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2" BorderThickness="0">
                 <Border.IsVisible>
                   <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
@@ -112,7 +108,6 @@
               </Grid.RenderTransform>
               
               <Grid.Resources>
-                <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
                 <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
                   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PlayerControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
                     <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-120"/>
@@ -128,19 +123,13 @@
               </Grid.Resources>
 
               <Grid.Triggers>
-                <DataTrigger>
-                  <DataTrigger.Binding>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) || ({0} &amp;&amp; {1})">
-                      <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
-                      <Binding Path="IsOSDVisible"/>
-                    </MultiBinding>
-                  </DataTrigger.Binding>
+                <DataTrigger Binding="{Binding Source={StaticResource VideoPlayerModel},Path=IsOSDVisible}" Value="True">
                   <DataTrigger.EnterActions>
-                    <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                   <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                   </DataTrigger.EnterActions>
                   <DataTrigger.ExitActions>
-                    <BeginStoryboard Storyboard="{StaticResource SlideOutStoryboard}"/>
                     <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
+                    <BeginStoryboard Storyboard="{StaticResource SlideOutStoryboard}"/>
                   </DataTrigger.ExitActions>
                 </DataTrigger>
               </Grid.Triggers>
