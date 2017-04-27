@@ -96,6 +96,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public override void StoreMusicLabelMatch(CompanyInfo company)
     { }
 
+    public override void StoreAlbumMatch(AlbumInfo albumSearch, AlbumInfo albumMatch)
+    {
+      // TODO: Sometimes a label or artists id is stored in the album matches. This will cause album duplicates. 
+      // Check if FanArt.Tv is really the cause. 
+    }
+
     #endregion
 
     #region Translators

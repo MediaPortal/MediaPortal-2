@@ -213,6 +213,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         _labelMatcher.StoreNameMatch(id, company.Name, company.Name);
     }
 
+    public virtual void StoreAlbumMatch(AlbumInfo albumSearch, AlbumInfo albumMatch)
+    {
+      string id = "";
+      if (!GetTrackAlbumId(albumSearch, out id))
+        id = "";
+      _albumMatcher.StoreNameMatch(id, GetUniqueAlbumName(albumSearch), GetUniqueAlbumName(albumMatch));
+    }
+
     #endregion
 
     #region Metadata updaters
@@ -976,9 +984,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!importOnly)
         {
-          if (!GetTrackAlbumId(albumInfo, out id))
-            id = "";
-          _albumMatcher.StoreNameMatch(id, GetUniqueAlbumName(albumInfo), GetUniqueAlbumName(albumMatch));
+          StoreAlbumMatch(albumInfo, albumMatch);
         }
         return updated;
       }

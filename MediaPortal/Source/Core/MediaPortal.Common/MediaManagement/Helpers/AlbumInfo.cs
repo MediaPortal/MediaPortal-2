@@ -440,10 +440,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (AudioDbId > 0 && other.AudioDbId > 0)
         return AudioDbId == other.AudioDbId;
-      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId))
-        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(MusicBrainzGroupId) && !string.IsNullOrEmpty(other.MusicBrainzGroupId))
-        return string.Equals(MusicBrainzGroupId, other.MusicBrainzGroupId, StringComparison.InvariantCultureIgnoreCase);
+      
       if (!string.IsNullOrEmpty(CdDdId) && !string.IsNullOrEmpty(other.CdDdId))
         return string.Equals(CdDdId, other.CdDdId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(UpcEanId) && !string.IsNullOrEmpty(other.UpcEanId))
@@ -457,6 +454,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
         string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
         return true;
+
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId))
+        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(MusicBrainzGroupId) && !string.IsNullOrEmpty(other.MusicBrainzGroupId))
+        return string.Equals(MusicBrainzGroupId, other.MusicBrainzGroupId, StringComparison.InvariantCultureIgnoreCase);
 
       if (ReleaseDate.HasValue && other.ReleaseDate.HasValue &&
         (Artists == null || Artists.Count == 0 || other.Artists == null || other.Artists.Count == 0 || Artists[0].Equals(other.Artists[0])))
