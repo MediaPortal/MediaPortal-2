@@ -102,6 +102,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       {
         await Task.WhenAll(hosts.Values);
       }
+      catch (System.Net.Sockets.SocketException) { }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("DirectoryEntryNeighborhoodBrowser: Error while getting IPHostEntries", e);
