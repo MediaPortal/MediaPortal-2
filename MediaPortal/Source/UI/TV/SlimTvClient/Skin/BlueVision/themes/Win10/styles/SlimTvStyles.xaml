@@ -6,6 +6,7 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:navitems="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.Navigation;assembly=SlimTv.Client"
     xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Controls;assembly=SlimTv.Client"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="SlimTvColors,SlimTvConsts,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls,MediaStyles,OSD"
     >
@@ -87,6 +88,89 @@
     </DockPanel>
   </ControlTemplate>
 
+  <!-- FIXME: Morpheus_xx, 2017-04-29: This is a temporary workaround for a bug, that the OSD doesn't appear in LiveTV. The cause are the animation that will not be 
+       started (they referencing VideoPlayerModel, which is not used for TV). The style is a copy of OSD.xaml, with removed RenderTransforms and Animations. -->
+  <Style x:Key="StaticOSDContainer" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="150"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="200"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="250"/>
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="InfoControlPanel" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="250"/>
+              </Grid.RowDefinitions>
+
+              <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2" BorderThickness="0">
+                <Border.IsVisible>
+                  <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"/>
+                    <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Border.IsVisible>
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <LinearGradientBrush.GradientStops>
+                      <GradientStop Color="#00000000" Offset="0"  />
+                      <GradientStop Color="#CC000000" Offset="0.05"  />
+                      <GradientStop Color="#E6000000" Offset="1"  />
+                    </LinearGradientBrush.GradientStops>
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+              <Control x:Name="OSDCoverPresenter" Margin="0,10,20,10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
+              <Control Grid.Column="1" x:Name="OSDInfoAreaPresenter" Margin="0,10,0,0"
+                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
+            </Grid>
+
+            <Grid x:Name="PlayerControlPanel" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="90"/>
+                <RowDefinition Height="30"/>
+              </Grid.RowDefinitions>
+              
+              <Border Margin="-40,-25,-40,0" Grid.RowSpan="2" BorderThickness="0">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <LinearGradientBrush.GradientStops>
+                      <GradientStop Color="#CC000000" Offset="0"  />
+                      <GradientStop Color="#CC000000" Offset="0.95"  />
+                      <GradientStop Color="#00000000" Offset="1"  />
+                    </LinearGradientBrush.GradientStops>
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+
+              <Control x:Name="ControlsPresenter" HorizontalAlignment="Stretch"
+                       Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
+              <Control Grid.Row="1" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,-2,0,2"
+                       Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="PrimarySlimTvOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
@@ -95,7 +179,7 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
 
-          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+          <Control Style="{ThemeResource StaticOSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
