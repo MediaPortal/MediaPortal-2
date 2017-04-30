@@ -119,7 +119,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
-      CDFreeDbMatcher matcher = new CDFreeDbMatcher();
+      MusicFreeDbMatcher matcher = new MusicFreeDbMatcher();
       matcher.Init();
 
       TrackInfo track = new TrackInfo();
