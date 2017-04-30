@@ -1300,10 +1300,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           tracks = exactMatches;
         }
-        if (exactMatches.Count > 0)
+        else
         {
           exactMatches = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
-          if (exactMatches.Count == 1)
+          if (exactMatches.Count > 0)
           {
             tracks = exactMatches;
           }
@@ -1406,7 +1406,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           //All good
         }
-        else if (trackSearch.ReleaseDate.HasValue && tracks[0].ReleaseDate.HasValue && trackSearch.ReleaseDate.Value != tracks[0].ReleaseDate.Value)
+        else if (trackSearch.ReleaseDate.HasValue && tracks[0].ReleaseDate.HasValue && trackSearch.ReleaseDate.Value.Year != tracks[0].ReleaseDate.Value.Year)
         {
           tracks.Clear();
           return false;
@@ -1476,10 +1476,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           albums = exactMatches;
         }
-        if (exactMatches.Count > 0)
+        else
         {
           exactMatches = albums.FindAll(t => NamesAreMostlyEqual(t, albumSearch));
-          if (exactMatches.Count == 1)
+          if (exactMatches.Count > 0)
           {
             albums = exactMatches;
           }
@@ -1582,7 +1582,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           //All good
         }
-        else if (albumSearch.ReleaseDate.HasValue && albums[0].ReleaseDate.HasValue && albumSearch.ReleaseDate.Value != albums[0].ReleaseDate.Value)
+        else if (albumSearch.ReleaseDate.HasValue && albums[0].ReleaseDate.HasValue && albumSearch.ReleaseDate.Value.Year != albums[0].ReleaseDate.Value.Year)
         {
           albums.Clear();
           return false;
