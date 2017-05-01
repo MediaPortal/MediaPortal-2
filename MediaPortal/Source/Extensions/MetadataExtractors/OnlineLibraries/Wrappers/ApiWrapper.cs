@@ -1249,6 +1249,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public bool SearchTrackUniqueAndUpdate(TrackInfo trackSearch, TLang language)
     {
+      //Don't try to search for a track without artists
+      if (trackSearch.AlbumArtists.Count == 0 && trackSearch.Artists.Count == 0)
+        return false;
+
       List<TrackInfo> tracks;
       language = language != null ? language : PreferredLanguage;
 
@@ -1302,10 +1306,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         else
         {
-          exactMatches = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
-          if (exactMatches.Count > 0)
+          tracks = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
+          if (tracks.Count == 0)
           {
-            tracks = exactMatches;
+            tracks.Clear();
+            return false;
           }
         }
 
@@ -1402,6 +1407,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           //All good
         }
+        else if (trackSearch.AlbumArtists.Count > 0 && tracks[0].AlbumArtists.Count > 0 && tracks[0].AlbumArtists.Intersect(trackSearch.AlbumArtists).Any())
+        {
+          //All good
+        }
         else if (trackSearch.Artists.Count > 0 && tracks[0].Artists.Count > 0 && tracks[0].Artists.Intersect(trackSearch.Artists).Any())
         {
           //All good
@@ -1425,6 +1434,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public bool SearchTrackAlbumUniqueAndUpdate(AlbumInfo albumSearch, TLang language)
     {
+      //Don't try to search for an album without artists
+      if (albumSearch.Artists.Count == 0)
+        return false;
+
       List<AlbumInfo> albums;
       language = language != null ? language : PreferredLanguage;
 
@@ -1478,10 +1491,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         else
         {
-          exactMatches = albums.FindAll(t => NamesAreMostlyEqual(t, albumSearch));
-          if (exactMatches.Count > 0)
+          albums = albums.FindAll(t => NamesAreMostlyEqual(t, albumSearch));
+          if (albums.Count == 0)
           {
-            albums = exactMatches;
+            albums.Clear();
+            return false;
           }
         }
 
