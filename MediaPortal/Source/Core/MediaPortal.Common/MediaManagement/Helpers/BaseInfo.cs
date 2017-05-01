@@ -116,6 +116,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     protected bool CompareNames(string name1, string name2, double threshold = 0.62, int distance = 0)
     {
+      if (string.IsNullOrEmpty(name1) || string.IsNullOrEmpty(name2))
+        return false;
       if(Math.Max(name1.Length, name2.Length) < LEVENSHTEIN_MATCH_THRESHOLD || distance > 0)
       {
         //Dice Coefficients are not good against short strings

@@ -322,7 +322,7 @@
     <Compile Include="Matchers\SeriesTheMovieDbMatcher.cs" />
     <Compile Include="Matchers\MusicFanArtTvMatcher.cs" />
     <Compile Include="Wrappers\FanArtTVWrapper.cs" />
-    <Compile Include="Matchers\CDFreeDbMatcher.cs" />
+    <Compile Include="Matchers\MusicFreeDbMatcher.cs" />
     <Compile Include="Wrappers\FreeDbWrapper.cs" />
     <Compile Include="GeoLocationService.cs" />
     <Compile Include="Libraries\AudioDbV1\Data\AudioDbTracks.cs" />

@@ -58,10 +58,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       _extractors = new List<IRelationshipRoleExtractor>();
 
-      _extractors.Add(new TrackAlbumRelationshipExtractor());
       _extractors.Add(new TrackAlbumArtistRelationshipExtractor());
       _extractors.Add(new TrackArtistRelationshipExtractor());
       _extractors.Add(new TrackComposerRelationshipExtractor());
+      _extractors.Add(new TrackAlbumRelationshipExtractor());
       _extractors.Add(new AlbumArtistRelationshipExtractor());
       _extractors.Add(new AlbumLabelRelationshipExtractor());
       _extractors.Add(new AlbumTrackRelationshipExtractor());

@@ -713,7 +713,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 var seasonLookup = seriesDetail.SeasonBanners.Where(s => s.Season == season.SeasonNumber).ToLookup(s => string.Format("{0}_{1}", s.Season, s.BannerType), v => v);
                 foreach (IGrouping<string, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
                 {
-                  images.Banners.AddRange(seasonLookup[tvdbSeasonBanners.Key].OrderBy(b => b.Language != language));
+                  images.Banners.AddRange(seasonLookup[tvdbSeasonBanners.Key].Where(b => b.BannerPath.Contains("wide")).OrderBy(b => b.Language != language));
+                  images.Posters.AddRange(seasonLookup[tvdbSeasonBanners.Key].Where(b => !b.BannerPath.Contains("wide")).OrderBy(b => b.Language != language));
                 }
                 return true;
               }
