@@ -163,7 +163,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
     /// <summary>
     /// If <c>true</c>, the AudioMetadataExtractor does not fetch any information for missing local album tracks.
     /// </summary>
-    [Setting(SettingScope.Global, false)]
+    [Setting(SettingScope.Global, true)]
     public bool OnlyLocalMedia { get; set; }
 
     /// <summary>
