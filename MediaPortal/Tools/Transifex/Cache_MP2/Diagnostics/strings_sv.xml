@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="Diagnostics.Settings.Diagnostics">Diagnostik</string>
-    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Aktivera DEBUG loggning på klienten</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Aktivera DEBUG loggning</string>
     <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Öka nivån på loggad information</string>
-    <string name="Diagnostics.Settings.Image.FocusStealing">Aktivera loggning av möjlig stöld av fokus</string>
-    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Aktivera loggning av möjlig stöld av fokus</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">Aktivera loggning av tappad fokus</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Aktivera loggning av tappad fokus</string>
     <string name="Diagnostics.Settings.Collectlogs">Samla ihop loggfilerna</string>
-    <string name="Diagnostics.Settings.CollectlogsHelpText">Skapar en zip-fil med alla loggfiler</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Kör insamlaren av loggfiler som skapar en zip-fil med alla loggfiler.</string>
     <string name="Diagnostics.Settings.ShowLogs">Visa loggfilerna</string>
     <string name="Diagnostics.Settings.ShowLogsHelpText">Visa loggfilerna i eget fönster</string>
 </resources>

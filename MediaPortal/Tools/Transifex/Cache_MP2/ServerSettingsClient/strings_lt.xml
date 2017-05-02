@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Serverio nustatymai</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Prijungiamo resurso disko raidė</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Konfiguruoja disko raidę prijungiamam nuotoliniam resursui šiame serveryje.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Tinklo įgaliojimai</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Nustato vartotojo vardą ir slaptažodį kuriuo jungiamasi prie tinklo resurso iš šio serverio.</string>
   <string name="Settings.ServerSettings.UseCredentials">Naudoti vartotojo vardą ir slaptažodį tinklui pasiekti</string>

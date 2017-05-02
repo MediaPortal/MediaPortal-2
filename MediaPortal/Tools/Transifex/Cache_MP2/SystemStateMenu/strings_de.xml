@@ -6,8 +6,8 @@
   <string name="SystemState.Title">Schließen-Menü</string>
   <string name="SystemState.Hibernate">Ruhezustand</string>
   <string name="SystemState.Shutdown">Herunterfahren</string>
-  <string name="SystemState.Suspend">Suspend-Modus</string>
-  <string name="SystemState.Restart">Neustart</string>
+  <string name="SystemState.Suspend">Standby</string>
+  <string name="SystemState.Restart">PC neu starten</string>
   <string name="SystemState.Logoff">Abmelden</string>
   <string name="SystemState.SleepTimerConfig">Sleep-Timer aktivieren</string>
   <string name="SystemState.SleepTimerStop">Sleep-Timer stoppen</string>

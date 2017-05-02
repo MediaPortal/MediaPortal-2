@@ -20,6 +20,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">שנה את המראה של מדיה פורטל 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">שנה ערכת נושא</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">שנה את התצוגה של הסקין הנוכחי</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">אפשר צלילי מעטפת</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">הגדר אם צלילי מעטפת צריכים להישמע</string>
   <string name="Settings.Players">נגנים</string>
   <string name="Settings.Players.Rendering">מעבד</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">זום ברירת מחדל</string>

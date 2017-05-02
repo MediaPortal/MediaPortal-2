@@ -10,6 +10,8 @@
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Välj videoavkodare för AVC (HDTV, Bluray)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC Videoavkodare</string>
   <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Välj videoavkodare för HEVC video (HD, UHD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter">Splitter</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter.Help">Välj splitter</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Ljudavkodare</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Ljuduppspelare</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2-ljudavkodare</string>

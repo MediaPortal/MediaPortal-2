@@ -7,25 +7,20 @@
   <string name="Media.VideosMenuItem">Wideo</string>
   <string name="Media.SeriesMenuItem">Serial</string>
   <string name="Media.ImagesMenuItem">Obrazy</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Filtruj wg artysty</string>
-  <string name="Media.FilterByAlbumMenuItem">Filtruj wg albumu</string>
-  <string name="Media.FilterByAudioGenreMenuItem">Filtruj wg gatunku</string>
-  <string name="Media.FilterByDecadeMenuItem">Filtruj wg dekady</string>
-  <string name="Media.FilterByActorMenuItem">Filtruj wg aktora</string>
-  <string name="Media.FilterByVideoGenreMenuItem">Filtruj wg gatunku</string>
-  <string name="Media.FilterByVideoYearMenuItem">Filtruj wg roku</string>
-  <string name="Media.FilterByImageSizeMenuItem">Filtruj wg rozmiaru</string>
-  <string name="Media.FilterByImageYearMenuItem">Filtruj wg roku</string>
-  <string name="Media.FilterBySystemMenuItem">Filtruj wg systemu</string>
-  <string name="Media.FilterBySeriesNameMenuItem">Filtruj wg serialu</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">Filtruj wg sezonu</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">Filtruj wg odcinka</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">Nazwa</string>
+  <string name="Media.TitleMenuItem">Tytuł</string>
+  <string name="Media.ArtistMenuItem">Artysta</string>
+  <string name="Media.GenreMenuItem">Rodzaj</string>
+  <string name="Media.SizeMenuItem">Rozmiar</string>
+  <string name="Media.SystemMenuItem">System</string>
+  <string name="Media.EpisodeDateMenuItem">Odcinek</string>
+  <string name="Media.AudioLanguageMenuItem">Język</string>
+  <string name="Media.ImageStateMenuItem">Stan</string>
+  <string name="Media.SeriesNameMenuItem">Serial</string>
   <string name="Media.SimpleSearchFilterMenuItem">Wyszukaj</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Pokaż wszystkie</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Pokaż wszystkie</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Pokaż wszystkie</string>
-  <string name="Media.ShowAllMoviesMenuItem">Pokaż wszystkie</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">Filtr</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Mały</string>
   <string name="Media.ImageFilterMedium">Średni</string>
@@ -175,6 +170,7 @@
   <string name="Media.VideoYearLabel">Rok:</string>
   <string name="Media.VideoDurationLabel">Czas:</string>
   <string name="Media.VideoActorsLabel">Aktorzy:</string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->
@@ -188,8 +184,6 @@
   <string name="Media.RepeatMode.All">Wszystkie</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
-  <string name="Media.SwitchFilterMenuItem">Filtr</string>
-  <string name="Media.SwitchFilterDialogTitle">Filtr</string>
   <string name="Settings.Players">Odtwarzacze</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

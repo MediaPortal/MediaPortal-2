@@ -68,6 +68,13 @@
   <string name="SlimTvClient.EpgNumberOfRows.Help">Définit le nombre de lignes dans l\'EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours">Nombre d\'heures dans l\'EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Définit le nombre d\'heures (programmes) montré dans l\'EPG</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo">Informations visible dans l\'EPG</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.Help">Configurer l\'affichage du nom , du logo et du numéro de la chaîne dans l\'EPG.</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Nom du canal</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Numéro du canal</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelLogo">Logo du canal</string>
+  <string name="SlimTvClient.ZapFromGuide">ZAP depuis le Guide TV</string>
+  <string name="SlimTvClient.ZapFromGuide.Help">Si Activer , \"OK\" affichera la chaine du programme choisie. </string>
   <string name="SlimTvClient.AutoStartTv">Démarrage automatique d\'une session TV</string>
   <string name="SlimTvClient.AutoStartTv.Help">Si activée, le dernier canal sélectionné sera affiché lors du lancement d\'une session TV</string>
   <string name="SlimTvClient.ShowSeriesInfo">Afficher les infos de la série</string>
@@ -81,10 +88,10 @@
   <string name="SlimTvClient.RecordingsMenuItem">Enregistrements</string>
   <string name="SlimTvClient.Recordings.Help">Ici vous trouverez une liste de vos programmes enregistrés accessible à la lecture.</string>
   <string name="SlimTvClient.RecordingsRootViewName">Enregistrements TV</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Trier par chaîne</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer par chaîne</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Chaîne: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Enregistrements triés par chaîne</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Trier par nom</string>
+  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtrer par nom</string>
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
   <string name="SlimTvClient.RecordingsByNameHeader">Enregistrements triés par nom</string>
 </resources>

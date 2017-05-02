@@ -91,9 +91,7 @@
   <string name="Settings.Appearance">Ásýnd</string>
   <string name="Settings.Appearance.Skin">Útlit</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Dagsetningarsnið</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Dagsetningarsniðmát í útliti.  Notið skilgreiningarmar á sniðmátinu sem er  í .NET DateTime klasanum</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Tímasnið</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tímasniðmát í útliti.  Notið skilgreiningarnar á sniðmátinu sem er í .NET DateTime klasanum</string>
   <string name="Settings.General">Almennt</string>
   <string name="Settings.General.System">Kerfi</string>
   <string name="Settings.General.System.Autostart">Sjálfvirk ræsing</string>

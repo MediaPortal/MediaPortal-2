@@ -2,7 +2,7 @@
 <resources>
   <string name="System.Yes">כן</string>
   <string name="System.No">לא</string>
-  <string name="System.Done">סיים</string>
+  <string name="System.Done">בוצע</string>
   <string name="System.Finish">סיים</string>
   <string name="System.Ok">אישור</string>
   <string name="System.Cancel">בטל</string>
@@ -28,6 +28,7 @@
   <string name="Media.MyMusic">מוסיקה</string>
   <string name="Media.MyVideos">וידאו</string>
   <string name="Media.MyPictures">תמונות</string>
+  <string name="Media.InvalidShareName">מקור מדיה לא תקין</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">שרת MP2 לא זמין</string>
   <string name="ServerConnection.NotificationServerAvailableText">יש לפחות שרת אחד של מדיה פורטל 2 זמין ברשת. התחבר אליו על מנת לקבל את כל התכונות של מדיה פורטל 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' במארח \'{1}\'</string>
@@ -45,6 +46,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">השרת הביתי כרגע מנותק</string>
   <string name="ServerConnection.DetachMenu">התנתק</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">התנתק מהשרת הביתי</string>
+  <string name="ServerConnection.DetachConfirmDialogText">אם תתנתק מהשרת הביתי, כל המידע אודות המדיה של הקליינט יוסרו מספריית השרת הביתי. באפשרותך להתחבר שוב מאוחר יותר. האם אתה באמת רוצה להתנתק משרת \'{0}\' במארח \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">חפש שרתים</string>
   <string name="ServerConnection.DetachFromServer">התנתק מהשרת הביתי</string>
   <string name="ServerConnection.AttachToServerHeader">התחבר לשרת מדיה פורטל 2</string>
@@ -65,7 +67,9 @@
   <string name="ImporterMessages.ImportStartedText">יבוא של \'{0}\' התחיל</string>
   <string name="ImporterMessages.ImportCompletedTitle">ייבוא הסתיים</string>
   <string name="ImporterMessages.ImportCompletedText">היבוא של \'{0}\' הסתיים.</string>
+  <string name="LocalFsResourceProvider.Name">מערכת קבצים מקומית</string>
   <string name="LocalFsResourceProvider.Description">גש למערכת הקבצים המקומית</string>
+  <string name="RemoteResourceProvider.Name">משאבים מרוחקים</string>
   <string name="RemoteResourceProvider.Description">גש לשרותים הנמצאים במערכת מדיה פורטל 2 אחרת</string>
   <string name="RawUrlResourceProvider.Description">Access raw Uri sources</string>
   <string name="ScreenSaver.MediaPortal2">מדיה פורטל 2</string>
@@ -96,12 +100,11 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">מצב תקריב</string>
   <string name="Players.ChoosePlayerEffect">אפקט</string>
+  <string name="Players.ChoosePlayerSubtitle">כתובית</string>
   <string name="Settings.Appearance">תצוגה</string>
   <string name="Settings.Appearance.Skin">סקין</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">פורמט תאריך</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">פורמט תאריך שבשימוש בסקין. השתמש בהגדרות פורמט של DateTime class ב-.net</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">פורמט זמן</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">פורמט זמן בשימוש בסקין. השתמש בהגדרות פורמט של DateTime class ב-net.</string>
   <string name="Settings.General">כללי</string>
   <string name="Settings.General.System">מערכת</string>
   <string name="Settings.General.System.Autostart">הפעלה אוטומטית</string>

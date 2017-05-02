@@ -20,6 +20,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Mudar o aspeto do MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Mudar o tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Mudar a apresentação do tema atual</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Ativar sons da face</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">Configurar se os sons da face devem ser tocados</string>
   <string name="Settings.Players">Leitores</string>
   <string name="Settings.Players.Rendering">Renderização</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Modo de zoom predefinido</string>

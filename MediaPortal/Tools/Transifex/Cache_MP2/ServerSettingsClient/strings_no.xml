@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Serverinstillinger</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Tilordne ressurs til stasjonsbokstav</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Setter stasjonsbokstav for ressurser på serveren</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Nettverkstilgang</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Konfigurerer brukernavn og passord for å få tilgang til ressurser fra server</string>
   <string name="Settings.ServerSettings.UseCredentials">Bruk brukernavn og passord for å få tilgang til nettverk</string>

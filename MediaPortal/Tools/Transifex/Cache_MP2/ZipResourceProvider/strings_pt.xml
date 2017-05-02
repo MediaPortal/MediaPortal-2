@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ZipMediaProvider.Name">Ficheiro ZIP</string>
   <string name="ZipMediaProvider.Description">Acessar arquivos e diretórios em aruqivos ZIP</string>
 </resources>

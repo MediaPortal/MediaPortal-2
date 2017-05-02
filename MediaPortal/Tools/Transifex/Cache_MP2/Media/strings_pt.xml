@@ -8,32 +8,17 @@
   <string name="Media.SeriesMenuItem">Séries</string>
   <string name="Media.MoviesMenuItem">Filmes</string>
   <string name="Media.ImagesMenuItem">Imagens</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Filtrar por artista</string>
-  <string name="Media.FilterByAlbumMenuItem">Filtrar por álbum</string>
-  <string name="Media.FilterByAudioGenreMenuItem">Filtrar por género</string>
-  <string name="Media.FilterByDecadeMenuItem">Filtrar por década</string>
-  <string name="Media.FilterByActorMenuItem">Filtrar por ator</string>
-  <string name="Media.FilterByDirectorMenuItem">Filtrar por realizador</string>
-  <string name="Media.FilterByWriterMenuItem">Filtrar por argumentista</string>
-  <string name="Media.FilterByVideoGenreMenuItem">Filtrar por género</string>
-  <string name="Media.FilterByVideoYearMenuItem">Filtrar por ano</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">Filtrar por idioma</string>
-  <string name="Media.FilterByImageSizeMenuItem">Filtrar por tamanho</string>
-  <string name="Media.FilterByImageYearMenuItem">Filtrar por ano</string>
-  <string name="Media.FilterByImageCountryMenuItem">Filtrar por país</string>
-  <string name="Media.FilterByImageStateMenuItem">Filtrar por estado</string>
-  <string name="Media.FilterByImageCityMenuItem">Filtrar por cidade</string>
-  <string name="Media.FilterBySystemMenuItem">Filtrar por sistema</string>
-  <string name="Media.FilterByMoviesCollectionMenuItem">Filtrar por coleção</string>
-  <string name="Media.FilterBySeriesNameMenuItem">Filtrar por série</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">Filtrar por temporada</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrar por episódio</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.TitleMenuItem">Título</string>
+  <string name="Media.ArtistMenuItem">Artista</string>
+  <string name="Media.GenreMenuItem">Género</string>
+  <string name="Media.SystemMenuItem">Systema</string>
+  <string name="Media.EpisodeDateMenuItem">Episódio</string>
+  <string name="Media.AudioLanguageMenuItem">Linguagem</string>
+  <string name="Media.SeriesNameMenuItem">Séries</string>
   <string name="Media.SimpleSearchFilterMenuItem">Procurar</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Mostrar tudo</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Mostrar tudo</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Mostrar tudo</string>
-  <string name="Media.ShowAllMoviesMenuItem">Mostrar tudo</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">Filtrar</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Pequenas</string>
   <string name="Media.ImageFilterMedium">Médias</string>
@@ -204,6 +189,7 @@
   <string name="Media.VideoDurationLabel">Duração: </string>
   <string name="Media.VideoActorsLabel">Ator(es): </string>
   <string name="Media.VideoStoryPlotLabel">Sinopse: </string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">Série:</string>
   <string name="Media.SeriesSeasonLabel">Temporada:</string>
@@ -280,27 +266,6 @@
   <string name="Media.LargeGrid">Grade</string>
   <string name="Media.CoverLayout">Capas</string>
   <string name="Media.SwitchSortingMenuItem">Ordenando</string>
-  <string name="Media.SwitchSortingDialogTitle">Ordenando</string>
-  <string name="Media.SortByTitle">Ordenar por título</string>
-  <string name="Media.SortByAlbumTrack">Ordenar por álbum e faixa</string>
-  <string name="Media.SortByGenre">Ordenar por género</string>
-  <string name="Media.SortByAlbum">Ordenar por álbum e título</string>
-  <string name="Media.SortByTrack">Ordenar por faixa</string>
-  <string name="Media.SortByArtist">Ordenar por artista</string>
-  <string name="Media.SortByYear">Ordenar por ano</string>
-  <string name="Media.SortBySize">Ordenar por tamanho</string>
-  <string name="Media.SortBySystem">Ordenar por sistema</string>
-  <string name="Media.SortByActor">Ordenar por ator</string>
-  <string name="Media.SortByDirector">Ordenar por diretor</string>
-  <string name="Media.SortByWriter">Ordenar por argumentista</string>
-  <string name="Media.SortByDuration">Ordenar por duração</string>
-  <string name="Media.SortByAspectRatio">Ordenar por aspecto de proporção</string>
-  <string name="Media.SortByFirstAiredDate">Ordenar por data de emissão</string>
-  <string name="Media.SortByDate">Ordenar por data de gravação</string>
-  <string name="Media.SortByEpisode">Ordenar por episódio</string>
-  <string name="Media.SortingBrowseDefault">Ordenação padrão</string>
-  <string name="Media.SwitchFilterMenuItem">Filtrar</string>
-  <string name="Media.SwitchFilterDialogTitle">Filtrar</string>
   <string name="Settings.Players">Reprodutores</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Fechar reprodutores quando terminados</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Habilite esta configuração para fazer o MediaPortal fechar os reprodutores terminados automaticamente</string>

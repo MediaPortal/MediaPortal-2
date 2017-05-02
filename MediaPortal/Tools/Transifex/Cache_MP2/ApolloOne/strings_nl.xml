@@ -7,4 +7,6 @@
   <string name="Menu.Weather">Weer</string>
   <string name="Menu.Settings">Instellingen</string>
   <string name="Menu.Others">Overige</string>
+  <string name="Menu.Main">
+</string>
 </resources>

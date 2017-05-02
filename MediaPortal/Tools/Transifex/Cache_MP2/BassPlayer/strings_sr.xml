@@ -1,10 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Плејери</string>
+  <string name="Settings.Players.AudioPlayer">Аудио </string>
+  <string name="Settings.Players.BassPlayer.Setup">Подеси звучни излаз</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Подешава звучни излаз баса и других опција</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Директан звук</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Ексклузивни начин</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Начин преласка између песама</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Подеси време паузе/претапања на нову песму</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Нормалан</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Без прекида</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Претапање</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Време пре почетка пуштања музике</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Одложено пуштање музике у милисекундама [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">Windows Аудио сенсор API</string>
   <string name="Settings.Players.Rendering">Рендеровање</string>
-  <string name="Settings.Players.Rendering.CrossFading">Претапање</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Претапање је омогућено</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Омогућује МедијаПорталу да претапа песме уколико је то могуће</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Трајање претапања</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Време претапања у секундама</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Повећање времена претраге</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Повећање претраге у секундама</string>
 </resources>

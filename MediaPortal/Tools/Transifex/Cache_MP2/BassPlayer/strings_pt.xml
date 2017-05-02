@@ -1,10 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Reprodutores</string>
+  <string name="Settings.Players.AudioPlayer">Leitor de audio</string>
+  <string name="Settings.Players.BassPlayer.Setup">Configurar dispositivo de saída</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Conigura o dispositivo de saída do BassPlayer e as suas opções</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Modo exclusivo</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Modo de transição de faixa</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Defina pausa/mistura quando muda de faixa</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normal</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Sem pausa</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Mistura</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Memória intermédia para audio</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Tempo de  memória intermédia [0-300] ms</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Renderização</string>
-  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading habilitado</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Determina de MediaPortal deverá mesclar as músicas, se possível</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Duração do cross fading </string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Tempo para mesclar em segundos</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Avanço</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Avanço em segundos</string>
 </resources>

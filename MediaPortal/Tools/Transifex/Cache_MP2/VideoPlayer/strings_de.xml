@@ -10,6 +10,8 @@
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Codec für AVC-Video auswählen (H264, HDTV, BluRay)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC</string>
   <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Codec für HEVC-Video auswählen (H.265, HD, UHD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter">Splitter</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter.Help">Splitter auswählen</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Audio-Codecs</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Audio-Ausgabegerät</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2</string>
