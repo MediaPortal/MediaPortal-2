@@ -117,7 +117,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           EpisodeName = episodeSearch.EpisodeName,
         };
         info.CopyIdsFrom(seriesSearch);
-        info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
+        CollectionUtils.AddAll(info.EpisodeNumbers, episodeSearch.EpisodeNumbers);
         episodes.Add(info);
         return true;
       }

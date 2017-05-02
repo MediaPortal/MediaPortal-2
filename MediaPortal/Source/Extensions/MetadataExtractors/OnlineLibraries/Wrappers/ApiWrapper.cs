@@ -501,7 +501,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodes.Count == 1)
       {
         if (episodes[0].EpisodeNumbers.Count > 0 && episodeSearch.EpisodeNumbers.Count > 0 &&
-          episodes[0].EpisodeNumbers[0] == episodeSearch.EpisodeNumbers[0] &&
+          episodes[0].FirstEpisodeNumber == episodeSearch.FirstEpisodeNumber &&
           episodes[0].SeasonNumber.HasValue && episodeSearch.SeasonNumber.HasValue &&
           episodes[0].SeasonNumber.Value == episodeSearch.SeasonNumber.Value)
         {
@@ -755,10 +755,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.FirstAired = episodeMatches.First().FirstAired;
       episodeInfo.Rating = new SimpleRating(episodeMatches.Where(e => !e.Rating.IsEmpty).Sum(e => e.Rating.RatingValue.Value) / episodeMatches.Count); // Average rating
       episodeInfo.Rating.VoteCount = episodeMatches.Where(e => !e.Rating.IsEmpty && e.Rating.VoteCount.HasValue).Sum(e => e.Rating.VoteCount.Value) / episodeMatches.Count; // Average rating count
-      episodeInfo.EpisodeName = string.Join("; ", episodeMatches.OrderBy(e => e.EpisodeNumbers[0]).Select(e => e.EpisodeName.Text).ToArray());
+      episodeInfo.EpisodeName = string.Join("; ", episodeMatches.OrderBy(e => e.FirstEpisodeNumber).Select(e => e.EpisodeName.Text).ToArray());
       episodeInfo.EpisodeName.DefaultLanguage = episodeMatches.First().EpisodeName.DefaultLanguage;
-      episodeInfo.Summary = string.Join("\r\n\r\n", episodeMatches.OrderBy(e => e.EpisodeNumbers[0]).
-        Select(e => string.Format("{0,02}) {1}", e.EpisodeNumbers[0], e.Summary.Text)).ToArray());
+      episodeInfo.Summary = string.Join("\r\n\r\n", episodeMatches.OrderBy(e => e.FirstEpisodeNumber).
+        Select(e => string.Format("{0,02}) {1}", e.FirstEpisodeNumber, e.Summary.Text)).ToArray());
       episodeInfo.Summary.DefaultLanguage = episodeMatches.First().Summary.DefaultLanguage;
 
       episodeInfo.Genres = episodeMatches.SelectMany(e => e.Genres).Distinct().ToList();

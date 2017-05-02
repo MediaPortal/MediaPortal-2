@@ -197,7 +197,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
               episodeNums.Add(episodeNum);
           }
         }
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeNums, true);
+        List<int> tmpList = episodeInfo.EpisodeNumbers.ToList();
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(tmpList, episodeNums, true);
+        episodeInfo.EpisodeNumbers = new HashSet<int>(tmpList);
       }
       return true;
     }

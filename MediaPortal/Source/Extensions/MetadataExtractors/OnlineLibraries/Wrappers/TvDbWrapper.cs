@@ -37,6 +37,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -145,7 +146,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           EpisodeName = episodeSearch.EpisodeName,
         };
         info.CopyIdsFrom(seriesSearch);
-        info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
+        CollectionUtils.AddAll(info.EpisodeNumbers, episodeSearch.EpisodeNumbers);
         info.Languages = seriesSearch.Languages;
         episodes.Add(info);
         return true;
@@ -731,7 +732,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               {
                 images.Id = episode.TvdbId.ToString();
 
-                TvdbEpisode episodeDetail = seriesDetail.Episodes.Find(e => e.SeasonNumber == episode.SeasonNumber.Value && e.EpisodeNumber == episode.EpisodeNumbers[0]);
+                TvdbEpisode episodeDetail = seriesDetail.Episodes.Find(e => e.SeasonNumber == episode.SeasonNumber.Value && e.EpisodeNumber == episode.FirstEpisodeNumber);
                 if (episodeDetail != null)
                   images.Thumbnails.AddRange(new TvdbBanner[] { episodeDetail.Banner });
                 return true;
