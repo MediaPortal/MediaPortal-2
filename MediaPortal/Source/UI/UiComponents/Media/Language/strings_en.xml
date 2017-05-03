@@ -42,7 +42,7 @@
   <string name="Media.AiredDateMenuItem">Aired date</string>
   <string name="Media.RecordingDateMenuItem">Recording date</string>
   <string name="Media.AddedDateMenuItem">Added date</string>
-  <string name="Media.EpisodeDateMenuItem">Episode</string>
+  <string name="Media.EpisodeMenuItem">Episode</string>
   <string name="Media.DVDEpisodeMenuItem">DVD episode</string>
   <string name="Media.TVNetworkMenuItem">TV network</string>
   <string name="Media.MusicLabelMenuItem">Music label</string>
