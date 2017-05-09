@@ -155,16 +155,19 @@ namespace MediaPortal.UI.Players.Video
 
       // Load source filter, assembly location must be determined here, otherwise LoadFilterFromDll would try to lookup the file relative to VideoPlayer!
       string filterPath = FilterLoader.BuildAssemblyRelativePath("BDReader.ax");
+      // Add to windows DLL search path to find bluray dll/jar in plugin folder
+      var pluginRoot = Path.GetDirectoryName(GetType().Assembly.Location);
+      var res = NativeMethods.SetDllDirectory(pluginRoot);
       _fileSource = FilterLoader.LoadFilterFromDll(filterPath, typeof(BDReader).GUID);
       var baseFilter = _fileSource.GetFilter();
 
       // Init BD Reader
       _bdReader = (IBDReader)baseFilter;
+      _graphBuilder.AddFilter(baseFilter, BluRayAPI.BDREADER_FILTER_NAME);
+
       LoadSettings();
       _bdReader.SetD3DDevice(_device.NativePointer);
       _bdReader.SetBDReaderCallback(this);
-
-      _graphBuilder.AddFilter(baseFilter, BluRayAPI.BDREADER_FILTER_NAME);
 
       _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
       _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
@@ -179,7 +182,7 @@ namespace MediaPortal.UI.Players.Video
       _eventThread.Start();
 
       // Render the file
-      IFileSourceFilter f = (IFileSourceFilter)_fileSource;
+      IFileSourceFilter f = (IFileSourceFilter)baseFilter;
 
       using (((ILocalFsResourceAccessor)_resourceAccessor).EnsureLocalFileSystemAccess())
       {
@@ -875,5 +878,12 @@ namespace MediaPortal.UI.Players.Video
     {
       return new TimeSpan(0, 0, 0, 0, (int)(timeStamp * 1000.0f));
     }
+  }
+
+  static class NativeMethods
+  {
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SetDllDirectory(string lpPathName);
   }
 }
