@@ -12,10 +12,10 @@
   <string name="HomeEditor.Configuration.DisplayName">Visningsnamn</string>
   <string name="HomeEditor.Configuration.RestoreDefaults">Återställ till förvalda värden</string>
   
-  <string name="HomeEditor.Configuration.GroupEdit.Label">Grupphändelser</string>
-  <string name="HomeEditor.Configuration.ActionEdit.Header">Ändra händelse</string>
-  <string name="HomeEditor.Configuration.ActionRemove.Header">Ta bort händelse</string>
-  <string name="HomeEditor.Configuration.ActionRemove.Label">Välj vilken händelse du vill ta bort</string>
-  <string name="HomeEditor.Configuration.ActionEdit.Label">Välj händelse</string>
-  <string name="HomeEditor.Configuration.AddAction">Lägg till händelse</string>
+  <string name="HomeEditor.Configuration.GroupEdit.Label">Användaraktivitet i gruppmeny</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Header">Ändra användaraktivitet </string>
+  <string name="HomeEditor.Configuration.ActionRemove.Header">Ta bort användaraktivitet </string>
+  <string name="HomeEditor.Configuration.ActionRemove.Label">Välj vilken användaraktivitet du vill ta bort</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Label">Välj användaraktivitet </string>
+  <string name="HomeEditor.Configuration.AddAction">Lägg till användaraktivitet </string>
 </resources>

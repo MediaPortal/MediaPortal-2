@@ -20,6 +20,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Промени изглед МедијаПортала 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Промени тематику изгледа</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Промени тренутни изглед</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Омогући звучни изглед</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">Укључи звучни изглед</string>
   <string name="Settings.Players">Плејери</string>
   <string name="Settings.Players.Rendering">Рендеровање</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Подразумевано увеличање</string>

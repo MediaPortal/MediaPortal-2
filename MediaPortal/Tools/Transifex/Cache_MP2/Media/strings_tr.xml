@@ -8,32 +8,20 @@
   <string name="Media.SeriesMenuItem">Diziler</string>
   <string name="Media.MoviesMenuItem">Filmler</string>
   <string name="Media.ImagesMenuItem">Resimler</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Artiste göre filtrele</string>
-  <string name="Media.FilterByAlbumMenuItem">Albüme göre filtrele</string>
-  <string name="Media.FilterByAudioGenreMenuItem">Türe göre filtrele</string>
-  <string name="Media.FilterByDecadeMenuItem">Döneme göre filtrele</string>
-  <string name="Media.FilterByActorMenuItem">Aktöre göre filtrele</string>
-  <string name="Media.FilterByDirectorMenuItem">Direktöre göre filtrele</string>
-  <string name="Media.FilterByWriterMenuItem">Yazara göre filtrele</string>
-  <string name="Media.FilterByVideoGenreMenuItem">Türe göre filtrele</string>
-  <string name="Media.FilterByVideoYearMenuItem">Yıla göre filtrele</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">Dile göre filtrele</string>
-  <string name="Media.FilterByImageSizeMenuItem">Boyuta göre filtrele</string>
-  <string name="Media.FilterByImageYearMenuItem">Yıla göre filtrele</string>
-  <string name="Media.FilterByImageCountryMenuItem">Ülkeye göre filtrele</string>
-  <string name="Media.FilterByImageStateMenuItem">Eyalete göre filtrele</string>
-  <string name="Media.FilterByImageCityMenuItem">Şehre göre filtrele</string>
-  <string name="Media.FilterBySystemMenuItem">Sisteme göre filtrele</string>
-  <string name="Media.FilterByMoviesCollectionMenuItem">Koleksiyona göre filtrele</string>
-  <string name="Media.FilterBySeriesNameMenuItem">Diziye göre filtrele</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">Sezona göre filtrele</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">Bölüme göre filtrele</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">İsim</string>
+  <string name="Media.TitleMenuItem">Başlık</string>
+  <string name="Media.ArtistMenuItem">Artist</string>
+  <string name="Media.GenreMenuItem">Genre</string>
+  <string name="Media.SizeMenuItem">Size</string>
+  <string name="Media.SystemMenuItem">Sistem</string>
+  <string name="Media.EpisodeDateMenuItem">Bölüm</string>
+  <string name="Media.AudioLanguageMenuItem">Language</string>
+  <string name="Media.ImageStateMenuItem">State</string>
+  <string name="Media.SeriesNameMenuItem">Dizi</string>
   <string name="Media.SimpleSearchFilterMenuItem">Ara</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Hepsini göster</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Hepsini göster</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Hepsini göster</string>
-  <string name="Media.ShowAllMoviesMenuItem">Hepsini göster</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">Filter</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Küçük</string>
   <string name="Media.ImageFilterMedium">Orta</string>
@@ -208,6 +196,7 @@
   <string name="Media.VideoDurationLabel">Süre:</string>
   <string name="Media.VideoActorsLabel">Aktör(ler)</string>
   <string name="Media.VideoStoryPlotLabel">Konu:</string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">Seriler:</string>
   <string name="Media.SeriesSeasonLabel">Sezon:</string>
@@ -283,27 +272,6 @@
   <string name="Media.LargeGrid">Izgara</string>
   <string name="Media.CoverLayout">Kapaklar</string>
   <string name="Media.SwitchSortingMenuItem">Sıralama</string>
-  <string name="Media.SwitchSortingDialogTitle">Sıralama</string>
-  <string name="Media.SortByTitle">Başlığa göre sırala</string>
-  <string name="Media.SortByAlbumTrack">Albüm ve şarkı ismine göre sırala</string>
-  <string name="Media.SortByGenre">Türe göre sırala</string>
-  <string name="Media.SortByAlbum">Albüm ve başlığa göre sırala</string>
-  <string name="Media.SortByTrack">Şarkı ismine göre sırala</string>
-  <string name="Media.SortByArtist">Artiste göre sırala</string>
-  <string name="Media.SortByYear">Yıla göre sırala</string>
-  <string name="Media.SortBySize">Boyuta göre sırala</string>
-  <string name="Media.SortBySystem">Sisteme göre sırala</string>
-  <string name="Media.SortByActor">Aktöre göre sırala</string>
-  <string name="Media.SortByDirector">Direktöre göre sırala</string>
-  <string name="Media.SortByWriter">Yazara göre sırala</string>
-  <string name="Media.SortByDuration">Süreye göre sırala</string>
-  <string name="Media.SortByAspectRatio">Görüntü oranına göre sırala</string>
-  <string name="Media.SortByFirstAiredDate">Yayınlanma tarihine göre sırala</string>
-  <string name="Media.SortByDate">Kayıt tarihine göre sırala</string>
-  <string name="Media.SortByEpisode">Bölüme göre sırala</string>
-  <string name="Media.SortingBrowseDefault">Varsayılan sıralama</string>
-  <string name="Media.SwitchFilterMenuItem">Filter</string>
-  <string name="Media.SwitchFilterDialogTitle">Filter</string>
   <string name="Settings.Players">Oynatıcılar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Bitince oynatıcıyı kapat</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">MediaPortal\'ın işi biten oynatıcıyı otomatik kapatması için bu seçeneği seçin</string>

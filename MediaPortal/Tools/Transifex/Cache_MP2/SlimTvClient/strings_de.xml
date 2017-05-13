@@ -68,6 +68,13 @@
   <string name="SlimTvClient.EpgNumberOfRows.Help">Legt die Anzahl der angezeigten Zeilen (Sender) im EPG fest</string>
   <string name="SlimTvClient.EpgNumberOfHours">Anzahl der Stunden im EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Legt die Anzahl der angezeigten Stunden (Programme) im EPG fest</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo">Kanalinformationen im EPG anzeigen</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.Help">Kanal-Name, Logo und Nummer im EPG anzeigen</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Kanal-Name</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Kanal-Nummer</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelLogo">Kanal-Logo</string>
+  <string name="SlimTvClient.ZapFromGuide">Direkter Senderwechsel aus TV Guide</string>
+  <string name="SlimTvClient.ZapFromGuide.Help">Wenn aktiviert, führt \"OK\" bei der Auswahl eines laufenden Programms zum direkten Senderwechsel</string>
   <string name="SlimTvClient.AutoStartTv">TV automatisch starten</string>
   <string name="SlimTvClient.AutoStartTv.Help">Wenn aktiviert wird bei der Auswahl der TV-Funktion der zuletzt aktive Sender gestartet.</string>
   <string name="SlimTvClient.ShowSeriesInfo">Serien-informationen anzeigen</string>

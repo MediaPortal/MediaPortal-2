@@ -353,9 +353,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (album.AudioDbId > 0)
           albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, cacheOnly);
-        if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzId))
+        if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzGroupId))
         {
-          List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, language, cacheOnly);
+          List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzGroupId, language, cacheOnly);
           if (foundAlbums != null && foundAlbums.Count == 1)
           {
             albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, language, cacheOnly);

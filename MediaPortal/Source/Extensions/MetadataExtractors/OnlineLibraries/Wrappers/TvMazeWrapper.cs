@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.FanArt;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -103,7 +104,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           EpisodeName = episodeSearch.EpisodeName,
         };
         info.CopyIdsFrom(seriesSearch);
-        info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
+        CollectionUtils.AddAll(info.EpisodeNumbers, episodeSearch.EpisodeNumbers);
         episodes.Add(info);
         return true;
       }
@@ -516,7 +517,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (episode != null && episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
           {
             // Download all image information, filter later!
-            TvMazeEpisode episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episode.EpisodeNumbers[0], false);
+            TvMazeEpisode episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, false);
             if (episodeDetail != null)
             {
               images.Id = episode.SeriesTvMazeId.ToString();

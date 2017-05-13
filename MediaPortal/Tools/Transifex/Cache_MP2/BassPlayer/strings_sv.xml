@@ -7,10 +7,18 @@
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exklusivt läge</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Övergång mellan låtar</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Sätt paus/övergång vid byte av spår</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normal</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Övergång utan toning</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Tonad övergång</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Uppspelningsbuffert</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Buffertstorlek i sekunder [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">Direct Sound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Uppspelning</string>
-  <string name="Settings.Players.Rendering.CrossFading">Tonade övergångar</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Aktivera tonade övergångar</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Bestämmer om MediaPortal 2 ska, när det är möjligt, tona övergångar mellan låtar</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Längd på tonade övergångar</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Längd på tonade övergångar i sekunder</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Bestäm längden på tonade övergångar i sekunder</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Söksteg</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Storlek på söksteg i sekunder</string>
 </resources>

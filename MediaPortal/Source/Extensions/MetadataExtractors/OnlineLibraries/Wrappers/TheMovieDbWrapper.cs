@@ -33,6 +33,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -135,7 +136,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           EpisodeName = episodeSearch.EpisodeName,
         };
         info.CopyIdsFrom(seriesSearch);
-        info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
+        CollectionUtils.AddAll(info.EpisodeNumbers, episodeSearch.EpisodeNumbers);
         episodes.Add(info);
         return true;
       }
@@ -1014,7 +1015,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (episode != null && episode.SeriesMovieDbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
         {
           // Download all image information, filter later!
-          imgs = _movieDbHandler.GetSeriesEpisodeImages(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episode.EpisodeNumbers[0], null);
+          imgs = _movieDbHandler.GetSeriesEpisodeImages(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, null);
         }
       }
       else if (fanartMediaType == FanArtMediaTypes.Actor || fanartMediaType == FanArtMediaTypes.Director || fanartMediaType == FanArtMediaTypes.Writer)

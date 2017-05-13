@@ -27,7 +27,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label x:Name="Title" TextTrimming="WordEllipsis" FontFamily="DefaultBold"
+          <Label x:Name="Title" FontFamily="DefaultBold"
               Content="{Binding TrackName}"  Color="{ThemeResource TextColor}"/>
         </Grid>
       </ControlTemplate>
@@ -38,8 +38,7 @@
     <media:AudioAspectWrapper.Template>
       <ControlTemplate>
         <WrapPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-          <Label x:Name="Artists" 
-                 Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>
+          <Label x:Name="Artists" Content="{Binding Artists}" Color="{ThemeResource TextColor}" TextTrimming="WordEllipsis"/>
           <StackPanel Grid.Row="2" Orientation="Horizontal">
             <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
               <media:MediaAspectWrapper.Template>

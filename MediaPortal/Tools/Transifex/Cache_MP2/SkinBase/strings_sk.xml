@@ -99,9 +99,7 @@
   <string name="Settings.Appearance">Výzor</string>
   <string name="Settings.Appearance.Skin">Vzhľad</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Formát dátumu</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Vo vzhľade bol použitý formát dátumu. Použite špecifikáciu formátu .net triedy DateTime.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Formát času</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Vo vzhľade bol použitý formát času. Použite špecifikáciu formátu .net triedy DateTime.</string>
   <string name="Settings.General">Všeobecné</string>
   <string name="Settings.General.System">Systém</string>
   <string name="Settings.General.System.Autostart">Autoštart</string>

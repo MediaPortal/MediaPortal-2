@@ -6,10 +6,17 @@
   <string name="Media.SeriesMenuItem">Serije</string>
   <string name="Media.MoviesMenuItem">Filmovi</string>
   <string name="Media.ImagesMenuItem">Slike</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Filtriraj po izvođaču</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">Filtriraj po jeziku</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.TitleMenuItem">Naslov</string>
+  <string name="Media.ArtistMenuItem">Izvođač</string>
+  <string name="Media.GenreMenuItem">Žanr</string>
+  <string name="Media.SystemMenuItem">Sustav</string>
+  <string name="Media.EpisodeDateMenuItem">Epizoda</string>
+  <string name="Media.AudioLanguageMenuItem">Jezik</string>
+  <string name="Media.ImageCityMenuItem">Grad</string>
+  <string name="Media.SeriesNameMenuItem">Serije</string>
   <string name="Media.SimpleSearchFilterMenuItem">Traži</string>
+  <!--Filter titles-->
   <!--Special filters names-->
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
@@ -66,6 +73,7 @@
   <string name="Media.VideoGenreLabel">Žanr</string>
   <string name="Media.VideoYearLabel">Godina: </string>
   <string name="Media.VideoDurationLabel">Trajanje: </string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">Serije</string>
   <string name="Media.SeriesSeasonLabel">Sezona</string>
@@ -90,7 +98,6 @@
   <!--Video Player time units-->
   <string name="Media.SwitchViewModeMenuItem">Način pogleda</string>
   <string name="Media.SwitchSortingMenuItem">Sortiranje</string>
-  <string name="Media.SwitchSortingDialogTitle">Sortiranje</string>
   <string name="Settings.Players">Reproduktori</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

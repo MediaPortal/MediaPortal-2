@@ -107,13 +107,9 @@
   <string name="Settings.Appearance">Darstellung</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datum-Format</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datum-Format, das vom Skin verwendet wird. 
-
-Es muss eine Formatangabe verwendet werden, die von der .net-DateTime-Klasse interpretiert werden kann.</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datum-Format, das vom Skin verwendet wird. \'d\' für \"14.01.2017\" oder \'D\' für Samstag, 14.01.2017</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Zeit-Format</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Zeit-Format, das vom Skin verwendet wird. 
-
-Es muss eine Formatangabe verwendet werden, die von der .net-DateTime-Klasse interpretiert werden kann.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Zeit-Format, das vom Skin verwendet wird. \'t\' für \"11:50\" oder \'T\' für \"11:50:37\"</string>
   <string name="Settings.General">Allgemein</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
@@ -224,6 +220,8 @@ Es muss eine Formatangabe verwendet werden, die von der .net-DateTime-Klasse int
   <string name="SharesConfig.Relocate">Verschieben</string>
   <string name="SharesConfig.ReImport">(Erneuter) Import</string>
   <string name="SharesConfig.ManualPathInput">Manuelle Eingabe</string>
+  <string name="SharesConfig.UseShareWatcher">Share Watcher:</string>
+  <string name="SharesConfig.UseShareWatcher.Help">Überwacht Medienquellen und aktualisiert automatisch die Datenbank bei Änderungen </string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal-2-Client</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>

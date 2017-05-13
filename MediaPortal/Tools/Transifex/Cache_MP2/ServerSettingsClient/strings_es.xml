@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Configurarción del servidor</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Letra de montaje del recurso:</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configura la letra de unidad para montar los recursos remotos del servidor.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Credenciales de red</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configura el usuario y la clave para acceder a los recursos de red desde el servidor.</string>
   <string name="Settings.ServerSettings.UseCredentials">Usar usuario y clave para acceder a la red</string>

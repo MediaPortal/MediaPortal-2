@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Nastavenie servera</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Jednotka na pripájanie obsahu</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Nastavenie jednotky na pripojenie k vzdialenému serveru.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Sieťové iniciály</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Nastavenie mena a hesla na prístup k serveru v sieti.</string>
   <string name="Settings.ServerSettings.UseCredentials">Použiť meno a heslo na prístup k sieti</string>

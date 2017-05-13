@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public OnlineMatcherService()
     {
       MUSIC_MATCHERS.Add(MusicTheAudioDbMatcher.Instance);
-      MUSIC_MATCHERS.Add(CDFreeDbMatcher.Instance);
+      MUSIC_MATCHERS.Add(MusicFreeDbMatcher.Instance);
       MUSIC_MATCHERS.Add(MusicBrainzMatcher.Instance);
       MUSIC_MATCHERS.Add(MusicFanArtTvMatcher.Instance);
 

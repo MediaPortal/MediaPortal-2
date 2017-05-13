@@ -510,7 +510,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         NameId = seriesEpisode.SeriesNameId;
         SearchSeason = seriesEpisode.SeasonNumber;
         if(seriesEpisode.EpisodeNumbers.Count > 0)
-          SearchEpisode = seriesEpisode.EpisodeNumbers[0];
+          SearchEpisode = seriesEpisode.FirstEpisodeNumber;
         return true;
       }
       return false;

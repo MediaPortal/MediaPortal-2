@@ -501,7 +501,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodes.Count == 1)
       {
         if (episodes[0].EpisodeNumbers.Count > 0 && episodeSearch.EpisodeNumbers.Count > 0 &&
-          episodes[0].EpisodeNumbers[0] == episodeSearch.EpisodeNumbers[0] &&
+          episodes[0].FirstEpisodeNumber == episodeSearch.FirstEpisodeNumber &&
           episodes[0].SeasonNumber.HasValue && episodeSearch.SeasonNumber.HasValue &&
           episodes[0].SeasonNumber.Value == episodeSearch.SeasonNumber.Value)
         {
@@ -755,10 +755,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.FirstAired = episodeMatches.First().FirstAired;
       episodeInfo.Rating = new SimpleRating(episodeMatches.Where(e => !e.Rating.IsEmpty).Sum(e => e.Rating.RatingValue.Value) / episodeMatches.Count); // Average rating
       episodeInfo.Rating.VoteCount = episodeMatches.Where(e => !e.Rating.IsEmpty && e.Rating.VoteCount.HasValue).Sum(e => e.Rating.VoteCount.Value) / episodeMatches.Count; // Average rating count
-      episodeInfo.EpisodeName = string.Join("; ", episodeMatches.OrderBy(e => e.EpisodeNumbers[0]).Select(e => e.EpisodeName.Text).ToArray());
+      episodeInfo.EpisodeName = string.Join("; ", episodeMatches.OrderBy(e => e.FirstEpisodeNumber).Select(e => e.EpisodeName.Text).ToArray());
       episodeInfo.EpisodeName.DefaultLanguage = episodeMatches.First().EpisodeName.DefaultLanguage;
-      episodeInfo.Summary = string.Join("\r\n\r\n", episodeMatches.OrderBy(e => e.EpisodeNumbers[0]).
-        Select(e => string.Format("{0,02}) {1}", e.EpisodeNumbers[0], e.Summary.Text)).ToArray());
+      episodeInfo.Summary = string.Join("\r\n\r\n", episodeMatches.OrderBy(e => e.FirstEpisodeNumber).
+        Select(e => string.Format("{0,02}) {1}", e.FirstEpisodeNumber, e.Summary.Text)).ToArray());
       episodeInfo.Summary.DefaultLanguage = episodeMatches.First().Summary.DefaultLanguage;
 
       episodeInfo.Genres = episodeMatches.SelectMany(e => e.Genres).Distinct().ToList();
@@ -841,7 +841,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         if (!SearchPerson(personSearch, _defaultLanguage, out persons))
           return false;
-        if (persons.Count == 1)
+        if (TestPersonMatch(personSearch, ref persons))
         {
           personSearch.CopyIdsFrom(persons[0]);
           return true;
@@ -1008,7 +1008,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         if (!SearchCharacter(characterSearch, _defaultLanguage, out characters))
           return false;
-        if (characters.Count == 1)
+        if (TestCharacterMatch(characterSearch, ref characters))
         {
           characterSearch.CopyIdsFrom(characters[0]);
           return true;
@@ -1144,7 +1144,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (!SearchCompany(companySearch, _defaultLanguage, out companies))
           return false;
 
-        if (companies.Count == 1)
+        if (TestCompanyMatch(companySearch, ref companies))
         {
           companySearch.CopyIdsFrom(companies[0]);
           return true;
@@ -1249,6 +1249,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public bool SearchTrackUniqueAndUpdate(TrackInfo trackSearch, TLang language)
     {
+      //Don't try to search for a track without artists
+      if (trackSearch.AlbumArtists.Count == 0 && trackSearch.Artists.Count == 0)
+        return false;
+
       List<TrackInfo> tracks;
       language = language != null ? language : PreferredLanguage;
 
@@ -1264,7 +1268,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         if (!SearchTrack(trackSearch, _defaultLanguage, out tracks))
           return false;
-        if (tracks.Count == 1)
+        if (TestTrackMatch(trackSearch, ref tracks))
         {
           trackSearch.CopyIdsFrom(tracks[0]);
           return true;
@@ -1277,19 +1281,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       if (tracks.Count == 1)
       {
-        if (string.IsNullOrEmpty(trackSearch.TrackName) || GetLevenshteinDistance(tracks[0], trackSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (!string.IsNullOrEmpty(trackSearch.TrackName) && GetLevenshteinDistance(tracks[0], trackSearch) > MAX_LEVENSHTEIN_DIST)
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", trackSearch);
-          return true;
+          // No valid match, clear list to allow further detection ways
+          tracks.Clear();
+          return false;
         }
-        if (NamesAreMostlyEqual(tracks[0], trackSearch))
+        if (!NamesAreMostlyEqual(tracks[0], trackSearch))
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", trackSearch);
-          return true;
+          // No valid match, clear list to allow further detection ways
+          tracks.Clear();
+          return false;
         }
-        // No valid match, clear list to allow further detection ways
-        tracks.Clear();
-        return false;
       }
 
       // Multiple matches
@@ -1297,26 +1300,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", trackSearch, tracks.Count);
         var exactMatches = tracks.FindAll(t => !string.IsNullOrEmpty(t.TrackName) && (t.TrackName == trackSearch.TrackName || GetLevenshteinDistance(t, trackSearch) == 0));
-        if (exactMatches.Count == 1)
+        if (exactMatches.Count > 0)
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", trackSearch);
           tracks = exactMatches;
-          return true;
         }
-        if (exactMatches.Count == 0)
+        else
         {
-          exactMatches = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
-          if (exactMatches.Count == 1)
+          tracks = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
+          if (tracks.Count == 0)
           {
-            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", trackSearch);
-            tracks = exactMatches;
-            return true;
+            tracks.Clear();
+            return false;
           }
         }
 
-        if (exactMatches.Count > 1)
+        if (tracks.Count > 1)
         {
-          var lastGood = exactMatches;
+          var lastGood = tracks;
           foreach (AudioValueToCheck checkValue in Enum.GetValues(typeof(AudioValueToCheck)))
           {
             if (checkValue == AudioValueToCheck.ArtistLax && trackSearch.Artists != null && trackSearch.Artists.Count > 0)
@@ -1375,9 +1375,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
             if (exactMatches.Count == 1)
             {
-              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\" [{1}]!", trackSearch, checkValue.ToString());
+              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Filtered match found \"{0}\" [{1}]!", trackSearch, checkValue.ToString());
               tracks = exactMatches;
-              return true;
+              break;
             }
           }
 
@@ -1387,24 +1387,41 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (tracks.Count > 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", trackSearch, tracks.Count);
-
-          int equalCount = 0;
+          tracks.Clear();
           foreach (TrackInfo track in tracks)
           {
+            //Track matching is also done strictly on name so allow a strict match
             if (trackSearch.Equals(track))
-              equalCount++;
-          }
-          if (equalCount == tracks.Count)
-          {
-            //All found albums match so take first match
-            TrackInfo forcedMatch = tracks[0];
-            tracks.Clear();
-            tracks.Add(forcedMatch);
-            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Forced match found \"{0}\"!", trackSearch);
+            {
+              tracks.Add(track);
+              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Strict match found \"{0}\"!", trackSearch);
+              break;
+            }
           }
         }
+      }
 
-        return tracks.Count == 1;
+      if (tracks.Count == 1)
+      {
+        if (string.Compare(trackSearch.Album, tracks[0].Album, true) == 0)
+        {
+          //All good
+        }
+        else if (trackSearch.AlbumArtists.Count > 0 && tracks[0].AlbumArtists.Count > 0 && tracks[0].AlbumArtists.Intersect(trackSearch.AlbumArtists).Any())
+        {
+          //All good
+        }
+        else if (trackSearch.Artists.Count > 0 && tracks[0].Artists.Count > 0 && tracks[0].Artists.Intersect(trackSearch.Artists).Any())
+        {
+          //All good
+        }
+        else if (trackSearch.ReleaseDate.HasValue && tracks[0].ReleaseDate.HasValue && trackSearch.ReleaseDate.Value.Year != tracks[0].ReleaseDate.Value.Year)
+        {
+          tracks.Clear();
+          return false;
+        }
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", trackSearch);
+        return true;
       }
       return false;
     }
@@ -1417,6 +1434,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public bool SearchTrackAlbumUniqueAndUpdate(AlbumInfo albumSearch, TLang language)
     {
+      //Don't try to search for an album without artists
+      if (albumSearch.Artists.Count == 0)
+        return false;
+
       List<AlbumInfo> albums;
       language = language != null ? language : PreferredLanguage;
 
@@ -1432,7 +1453,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         if (!SearchTrackAlbum(albumSearch, _defaultLanguage, out albums))
           return false;
-        if (albums.Count == 1)
+        if (TestAlbumMatch(albumSearch, ref albums))
         {
           albumSearch.CopyIdsFrom(albums[0]);
           return true;
@@ -1445,19 +1466,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       if (albums.Count == 1)
       {
-        if (string.IsNullOrEmpty(albumSearch.Album) || GetLevenshteinDistance(albums[0], albumSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (!string.IsNullOrEmpty(albumSearch.Album) && GetLevenshteinDistance(albums[0], albumSearch) > MAX_LEVENSHTEIN_DIST)
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
-          return true;
+          // No valid match, clear list to allow further detection ways
+          albums.Clear();
+          return false;
         }
-        if (NamesAreMostlyEqual(albums[0], albumSearch))
+        if (!NamesAreMostlyEqual(albums[0], albumSearch))
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
-          return true;
+          // No valid match, clear list to allow further detection ways
+          albums.Clear();
+          return false;
         }
-        // No valid match, clear list to allow further detection ways
-        albums.Clear();
-        return false;
       }
 
       // Multiple matches
@@ -1465,26 +1485,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", albumSearch, albums.Count);
         var exactMatches = albums.FindAll(t => !string.IsNullOrEmpty(t.Album) && (t.Album == albumSearch.Album || GetLevenshteinDistance(t, albumSearch) == 0));
-        if (exactMatches.Count == 1)
+        if (exactMatches.Count > 0)
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
           albums = exactMatches;
-          return true;
         }
-        if (exactMatches.Count == 0)
+        else
         {
-          exactMatches = albums.FindAll(t => NamesAreMostlyEqual(t, albumSearch));
-          if (exactMatches.Count == 1)
+          albums = albums.FindAll(t => NamesAreMostlyEqual(t, albumSearch));
+          if (albums.Count == 0)
           {
-            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
-            albums = exactMatches;
-            return true;
+            albums.Clear();
+            return false;
           }
         }
 
-        if (exactMatches.Count > 1)
+        if (albums.Count > 1)
         {
-          var lastGood = exactMatches;
+          var lastGood = albums;
           foreach (AudioValueToCheck checkValue in Enum.GetValues(typeof(AudioValueToCheck)))
           {
             if (checkValue == AudioValueToCheck.ArtistLax && albumSearch.Artists != null && albumSearch.Artists.Count > 0)
@@ -1546,9 +1563,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
             if (exactMatches.Count == 1)
             {
-              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\" [{1}]!", albumSearch, checkValue.ToString());
+              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Filtered match found \"{0}\" [{1}]!", albumSearch, checkValue.ToString());
               albums = exactMatches;
-              return true;
+              break;
             }
           }
 
@@ -1558,20 +1575,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (albums.Count > 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", albumSearch, albums.Count);
+          albums.Clear();
           foreach (AlbumInfo album in albums)
           {
             //Album matching is also done strictly on name so allow a strict match
             if (albumSearch.Equals(album))
             {
-              albums.Clear();
               albums.Add(album);
               ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Strict match found \"{0}\"!", albumSearch);
               break;
             }
           }
         }
+      }
 
-        return albums.Count == 1;
+      if (albums.Count == 1)
+      {
+        //We need to check further to avoid accidental matches
+        if (albumSearch.Artists.Count > 0 && albums[0].Artists.Count > 0 && albums[0].Artists.Intersect(albumSearch.Artists).Any())
+        {
+          //All good
+        }
+        else if (albumSearch.ReleaseDate.HasValue && albums[0].ReleaseDate.HasValue && albumSearch.ReleaseDate.Value.Year != albums[0].ReleaseDate.Value.Year)
+        {
+          albums.Clear();
+          return false;
+        }
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
+        return true;
       }
       return false;
     }

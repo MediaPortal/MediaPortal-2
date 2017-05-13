@@ -483,21 +483,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (AudioDbId > 0 && other.AudioDbId > 0)
         return AudioDbId == other.AudioDbId;
       
-      //Musicbrainz Id is unique per song not per album song.
-      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
-        !string.IsNullOrEmpty(AlbumMusicBrainzGroupId) && !string.IsNullOrEmpty(other.AlbumMusicBrainzGroupId) &&
-        string.Equals(AlbumMusicBrainzGroupId, other.AlbumMusicBrainzGroupId, StringComparison.InvariantCultureIgnoreCase))
-        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
-        !string.IsNullOrEmpty(AlbumMusicBrainzId) && !string.IsNullOrEmpty(other.AlbumMusicBrainzId) &&
-        string.Equals(AlbumMusicBrainzId, other.AlbumMusicBrainzId, StringComparison.InvariantCultureIgnoreCase))
-        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
-
-      //Name id is generated from name and can be unreliable so should only be used if matches
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && 
-        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
-        return true;
-
       //These Ids are only unique per song and not per album song
       if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && MatchAlbumNames(Album, other.Album))
       {
@@ -510,6 +495,21 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (!string.IsNullOrEmpty(IsrcId) && !string.IsNullOrEmpty(other.IsrcId))
           return string.Equals(IsrcId, other.IsrcId, StringComparison.InvariantCultureIgnoreCase);
       }
+
+      //Name id is generated from name and can be unreliable so should only be used if matches
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
+        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+
+      //Musicbrainz Id is unique per song not per album song.
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
+        !string.IsNullOrEmpty(AlbumMusicBrainzGroupId) && !string.IsNullOrEmpty(other.AlbumMusicBrainzGroupId) &&
+        string.Equals(AlbumMusicBrainzGroupId, other.AlbumMusicBrainzGroupId, StringComparison.InvariantCultureIgnoreCase))
+        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
+        !string.IsNullOrEmpty(AlbumMusicBrainzId) && !string.IsNullOrEmpty(other.AlbumMusicBrainzId) &&
+        string.Equals(AlbumMusicBrainzId, other.AlbumMusicBrainzId, StringComparison.InvariantCultureIgnoreCase))
+        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
 
       if (TrackNum > 0 && other.TrackNum > 0 && TrackNum == other.TrackNum &&
         !string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) && MatchNames(TrackName, other.TrackName))
@@ -555,7 +555,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (AlbumArtists.Count > 0 && other.AlbumArtists.Count > 0 && AlbumArtists.SequenceEqual(other.AlbumArtists))
           return true;
         if (ReleaseDate.HasValue && other.ReleaseDate.HasValue)
-          return ReleaseDate.Value == other.ReleaseDate.Value;
+          return ReleaseDate.Value.Year == other.ReleaseDate.Value.Year;
       }
 
       return false;

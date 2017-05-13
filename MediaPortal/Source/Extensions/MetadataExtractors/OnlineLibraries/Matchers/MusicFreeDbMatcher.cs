@@ -32,13 +32,13 @@ using MediaPortal.Extensions.OnlineLibraries.Matches;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public class CDFreeDbMatcher : MusicMatcher<string, string>
+  public class MusicFreeDbMatcher : MusicMatcher<string, string>
   {
     #region Static instance
 
-    public static CDFreeDbMatcher Instance
+    public static MusicFreeDbMatcher Instance
     {
-      get { return ServiceRegistration.Get<CDFreeDbMatcher>(); }
+      get { return ServiceRegistration.Get<MusicFreeDbMatcher>(); }
     }
 
     #endregion
@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public CDFreeDbMatcher() : 
+    public MusicFreeDbMatcher() : 
       base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
     }
@@ -70,7 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("CDFreeDbMatcher: Error initializing wrapper", ex);
+        ServiceRegistration.Get<ILogger>().Error("MusicFreeDbMatcher: Error initializing wrapper", ex);
       }
       return false;
     }

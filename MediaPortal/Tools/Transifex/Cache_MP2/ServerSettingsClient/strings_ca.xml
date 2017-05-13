@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Configuració del servidor</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Lletra de muntatge del recurs:</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configura la lletra d\'unitat per muntar els recursos remots del servidor.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Credencials de xarxa.</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configura l\'usuari i la clau per accedir als recursos de xarxa des del servidor.</string>
   <string name="Settings.ServerSettings.UseCredentials">Utilitzar usuari i clau per accedir a la xarxa</string>

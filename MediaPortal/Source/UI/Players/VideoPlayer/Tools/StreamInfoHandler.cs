@@ -73,17 +73,23 @@ namespace MediaPortal.UI.Players.Video.Tools
       for (int i = 0; i < Count; ++i)
       {
         string subtitleTrackName = this[i].Name;
-        if (subtitleTrackName.Equals(selectedStream))
+        if (!subtitleTrackName.Equals(selectedStream))
+          continue;
+
+        if (this[i].StreamIndex == NO_STREAM_INDEX)
         {
-          if (this[i].StreamIndex != NO_STREAM_INDEX)
-          {
-            ServiceRegistration.Get<ILogger>().Debug("TsReaderStreamInfoHandler: Enable stream '{0}'", selectedStream);
-            _subtitleStream.SetSubtitleStream(i);
-            lock (_syncObj)
-              _currentStream = this[i];
-            return true;
-          }
+          // Disable subtitles
+          ServiceRegistration.Get<ILogger>().Debug("TsReaderStreamInfoHandler: Disable stream");
+          lock (_syncObj)
+            _currentStream = null;
+          return true;
         }
+
+        ServiceRegistration.Get<ILogger>().Debug("TsReaderStreamInfoHandler: Enable stream '{0}'", selectedStream);
+        _subtitleStream.SetSubtitleStream(i);
+        lock (_syncObj)
+          _currentStream = this[i];
+        return true;
       }
       return false;
     }
@@ -106,7 +112,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         StreamInfo subStream = new StreamInfo(null, i, subtitleTrackName, lcid);
         AddUnique(subStream);
       }
-      AddUnique(new StreamInfo(null, subtitleCount+1, "No subtitles", 0));
+      AddUnique(new StreamInfo(null, subtitleCount + 1, VideoPlayer.NO_SUBTITLES, 0));
     }
 
     public override bool EnableStream(string selectedStream)

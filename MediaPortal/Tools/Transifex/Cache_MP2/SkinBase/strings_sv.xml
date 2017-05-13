@@ -107,12 +107,9 @@
   <string name="Settings.Appearance">Utseende</string>
   <string name="Settings.Appearance.Skin">Skinn</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datumformat</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datumformat som används. Använd format enligt .NET DateTimeFormatInfo-klassen.
-\"d\"=kort datum. \"D\"=långt datum.
-</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datumformat. ´\'d\' = kort datum. \'D\' = långt datum.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Tidsformat</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tidsformat som används. Använd format enligt .NET DateTimeFormatInfo-klassen.
-\"t\"=kort tidpunkt. \"T\"=lång tidpunkt.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tidsformat. ´\'t\' = kort tid (utan sekunder). \'T\' = lång tid (med sekunder) .</string>
   <string name="Settings.General">Allmänt</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
@@ -168,9 +165,9 @@
   <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Ta bort mediakällor</string>
   <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Info om mediakällor</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Välj resursförsörjare</string>
-  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Redigera sökväg</string>
+  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Ändra sökväg</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Välj sökväg</string>
-  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Redigera namn</string>
+  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Ändra namn</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Välj kategorier</string>
   <string name="SharesConfig.CannotAddSharesTitle">Kan inte lägga till mediakällor</string>
   <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Hemmaservern finns på samma dator, alltså måste alla mediakällor vara registrerade på servern. Men servern är för närvarande inte inkopplad. Starta hemmaservern och försök igen.</string>
@@ -186,7 +183,7 @@
   <string name="SharesConfig.ReImportShare">Återimportera mediakällor</string>
   <string name="SharesConfig.SetupDefaultShares">Bestäm förvalda mediakällor</string>
   <string name="SharesConfig.RemoveShares">Ta bort mediakällor</string>
-  <string name="SharesConfig.EditShare">Redigera mediakällor</string>
+  <string name="SharesConfig.EditShare">Ändra mediakällor</string>
   <string name="SharesConfig.ChooseSystem">Välj system</string>
   <string name="SharesConfig.ChooseSharesToBeRemoved">Välj mediakällor som ska tas bort</string>
   <string name="SharesConfig.ChooseSystemForShare">Välj mediakälla</string>
@@ -197,22 +194,22 @@
   <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Hemmaservern är för närvarande inte ansluten, så serverns mediakällor kan inte hanteras nu</string>
   <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Hemmaservern finns på samma dator, så endast serverns mediakällor kan konfigureras</string>
   <string name="SharesConfig.ChooseResourceProviderForShare">Välj en resursförsörjare för mediakällor</string>
-  <string name="SharesConfig.EditResourceProviderPathForShare">Redigera sökvägen till mediakällan</string>
-  <string name="SharesConfig.ResourceProviderPathIsNotValid">Redigera en giltig sökväg till den valda resursförsörjaren. Du kan redigera en enkel sökväg som förstås av resursförsörjaren. Du kan också redigera en komplex sökväg med formatet {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Ändra sökvägen till mediakällan</string>
+  <string name="SharesConfig.ResourceProviderPathIsNotValid">Ändra en giltig sökväg till den valda resursförsörjaren. Du kan ändra en enkel sökväg som förstås av resursförsörjaren. Du kan också ändra en komplex sökväg med formatet {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
   <string name="SharesConfig.ChooseResourceProviderPathForShare">Välj sökväg till mediakälla</string>
-  <string name="SharesConfig.EditShareName">Redigera mediakällans visningsnamn</string>
+  <string name="SharesConfig.EditShareName">Ändra mediakällans visningsnamn</string>
   <string name="SharesConfig.ChooseShareCategories">Välj kategorier för mediainnehållet i mediakällan</string>
   <string name="SharesConfig.SharePathExists">Det finns redan en mediakälla med den sökvägen</string>
   <string name="SharesConfig.ShareNameExists">Det finns redan en mediakälla med det namnet</string>
-  <string name="SharesConfig.ShareNameEmpty">Redigera namnet på mediakällan</string>
+  <string name="SharesConfig.ShareNameEmpty">Ändra namnet på mediakällan</string>
   <string name="SharesConfig.EditShareProblemHeader">Problem med att konfigurera mediakälla</string>
   <string name="SharesConfig.EditShareProblemText">Det blev ett internt fel vid konfigurering av mediakällan</string>
   <string name="SharesConfig.MenuAddShare">Lägg till mediakälla</string>
-  <string name="SharesConfig.MenuEditShares">Redigera</string>
+  <string name="SharesConfig.MenuEditShares">Ändra</string>
   <string name="SharesConfig.MenuRemoveShares">Ta bort mediakällor</string>
   <string name="SharesConfig.AddServerShare">Lägg till mediakälla på servern</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
-  <string name="SharesConfig.EditServerShare">Redigera mediakälla på servern</string>
+  <string name="SharesConfig.EditServerShare">Ändra mediakälla på servern</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.AddLocalShare">Lägg till mediakälla på klienten</string>
   <string name="SharesConfig.EditLocalShare">Redigera mediakälla på klienten</string>
@@ -223,6 +220,8 @@
   <string name="SharesConfig.Relocate">Flytta</string>
   <string name="SharesConfig.ReImport">Återimportera</string>
   <string name="SharesConfig.ManualPathInput">Manuell inmatning</string>
+  <string name="SharesConfig.UseShareWatcher">Övervaka mappar:</string>
+  <string name="SharesConfig.UseShareWatcher.Help">Övervakar media-mappar och uppdaterar automatiskt media-biblioteket vid en förändring.</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2-klient</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
