@@ -100,7 +100,7 @@ namespace MediaPortal.Common.Services.Dokan
       }
       try
       {
-        if (DokanRemoveMountPoint(_mountPoint) == DOKAN_SUCCESS)
+        if (DokanRemoveMountPoint(_mountPoint))
         {
          
           ServiceRegistration.Get<ILogger>().Info("Dokan: Successfully unmounted resource '{0}'", _mountPoint);
@@ -129,7 +129,7 @@ namespace MediaPortal.Common.Services.Dokan
       // lost Dokan mount from a formerly crashed MediaPortal
       //if (IsDokanDrive(driveLetter))
       //{
-        if (DokanRemoveMountPoint(mountPoint) == DOKAN_SUCCESS)
+        if (DokanRemoveMountPoint(mountPoint))
         {
           logger.Info("Dokan: Successfully unmounted remote resource '{0}' from former unclean shutdown", mountPoint);
         }
@@ -220,7 +220,7 @@ namespace MediaPortal.Common.Services.Dokan
       }
     }
 
-    private static int DokanRemoveMountPoint(string mountPoint)
+    private static bool DokanRemoveMountPoint(string mountPoint)
     {
       return DokanNativeMethods.DokanRemoveMountPoint(mountPoint);
     }
