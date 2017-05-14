@@ -1358,11 +1358,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
       if (!fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
       {
-        IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
-        if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
+        using (IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS"))
         {
-          // Video DVD
-          return true;
+          if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
+          {
+            // Video DVD
+            return true;
+          }
         }
       }
       else if (fsra.IsFile)

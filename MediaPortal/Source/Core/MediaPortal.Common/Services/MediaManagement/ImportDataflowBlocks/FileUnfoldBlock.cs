@@ -151,7 +151,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
                   else
                     path2LastImportDate.Add(path, lastImportDate);
                 }
-                if (!path2MediaItem.ContainsKey(path))
+                if (!importResource.IsSingleResource && !path2MediaItem.ContainsKey(path))
                 {
                   path2MediaItem.Add(path, mi.MediaItemId);
                 }
@@ -169,8 +169,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         else
         {
-          result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId,
-            path2MediaItem.ContainsKey(f.CanonicalLocalResourcePath) ? path2MediaItem[f.CanonicalLocalResourcePath] : (Guid?)null)));
+          if (importResource.IsSingleResource)
+            result.Add(importResource);
+          else
+            result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId,
+              path2MediaItem.ContainsKey(f.CanonicalLocalResourcePath) ? path2MediaItem[f.CanonicalLocalResourcePath] : (Guid?)null)));
 
           // If this is a RefreshImport and we found files of the current directory in the MediaLibrary,
           // store the DateOfLastImport in the PendingImportResource
