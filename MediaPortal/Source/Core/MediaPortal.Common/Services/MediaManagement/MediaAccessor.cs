@@ -686,6 +686,12 @@ namespace MediaPortal.Common.Services.MediaManagement
       if(result == null)
         result = new Dictionary<Guid, IList<MediaItemAspect>>();
 
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra != null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MediaAccessor: Importing file '" + fsra.ResourceName + "'");
+      }
+
       bool success = false;
       // Execute all metadata extractors in order of their priority
       foreach (IMetadataExtractor extractor in metadataExtractors.OrderBy(m => m.Metadata.Priority))
