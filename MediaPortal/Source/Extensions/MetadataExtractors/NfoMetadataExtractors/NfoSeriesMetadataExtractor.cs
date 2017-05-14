@@ -622,6 +622,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return TryExtractEpsiodeMetadataAsync(mediaItemAccessor, extractedAspectData, importOnly).Result;
     }
 
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
     #endregion
   }
 }

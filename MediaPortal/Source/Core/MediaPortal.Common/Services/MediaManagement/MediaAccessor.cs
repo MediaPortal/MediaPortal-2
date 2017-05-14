@@ -726,6 +726,26 @@ namespace MediaPortal.Common.Services.MediaManagement
       return null;
     }
 
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      foreach (IMetadataExtractor extractor in LocalMetadataExtractors.Values)
+      {
+        try
+        {
+          if (extractor.IsSingleResource(mediaItemAccessor))
+            return true;
+        }
+        catch (Exception e)
+        {
+          MetadataExtractorMetadata mem = extractor.Metadata;
+          ServiceRegistration.Get<ILogger>().Error("MediaAccessor: Error checking for single resource on metadata extractor '{0}' (Id: '{1}')",
+              e, mem.Name, mem.MetadataExtractorId);
+          throw;
+        }
+      }
+      return false;
+    }
+
     #endregion
   }
 }

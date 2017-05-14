@@ -435,14 +435,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     }
 
     /// <summary>
-    /// Checks if the gived <paramref name="mediaItemAccessor"/> points to a directory and if it is considered a "single item" media source (like DVD or BD folders on hard drive).
+    /// Checks if the given <paramref name="mediaItemAccessor"/> points to a directory and if it is considered a "single item" media source (like DVD or BD folders on hard drive).
     /// </summary>
     /// <param name="mediaItemAccessor">Local FS accessor</param>
     /// <returns><c>true</c> if it is a single item.</returns>
-    protected async Task<bool> IsSingleResource(IFileSystemResourceAccessor mediaItemAccessor)
+    protected Task<bool> IsSingleResource(IFileSystemResourceAccessor mediaItemAccessor)
     {
-      //ToDo: Replace this with a call to IsSingleResource once this method is implemented in the MetadataExtractors
-      return mediaItemAccessor.IsFile || await ExtractMetadata(mediaItemAccessor, null, true) != null;
+      if (mediaItemAccessor.IsFile)
+        return Task.FromResult(true);
+      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().IsSingleResource(mediaItemAccessor));
     }
 
     protected Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)

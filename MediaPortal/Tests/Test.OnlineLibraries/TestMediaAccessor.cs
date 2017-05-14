@@ -144,5 +144,10 @@ namespace Test.OnlineLibraries
     {
       throw new NotImplementedException();
     }
+
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

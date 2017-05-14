@@ -1350,6 +1350,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return false;
     }
 
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null)
+        return false;
+
+      if (!fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
+      {
+        IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
+        if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
+        {
+          // Video DVD
+          return true;
+        }
+      }
+      else if (fsra.IsFile)
+      {
+        if (HasVideoExtension(fsra.ResourcePathName))
+        {
+          if (IsSampleFile(fsra))
+            return false;
+          return true;
+        }
+      }
+      return false;
+    }
+  
+
     #endregion
   }
 }

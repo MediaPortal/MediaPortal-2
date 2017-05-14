@@ -204,5 +204,12 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
     /// <returns>Media item with the specified metadata </returns>
     MediaItem CreateLocalMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds);
+
+    /// <summary>
+    /// Checks if the given <paramref name="mediaItemAccessor"/> points to a directory and if it is considered a "single item" media source (like DVD or BD folders on hard drive).
+    /// </summary>
+    /// <param name="mediaItemAccessor">The media item resource accessor to open the stream to the physical media.</param>
+    /// <returns><c>true</c> if it is a single item.</returns>
+    bool IsSingleResource(IResourceAccessor mediaItemAccessor);
   }
 }

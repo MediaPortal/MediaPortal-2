@@ -450,6 +450,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return false;
     }
 
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
     #endregion
   }
 }

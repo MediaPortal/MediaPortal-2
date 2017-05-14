@@ -318,6 +318,22 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return true;
     }
 
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+      using (ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor)
+      {
+        if (lfsra == null || !lfsra.IsFile)
+          return false;
+
+        string filePath = lfsra.CanonicalLocalResourcePath.ToString();
+        string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
+        if (lowerExtension != ".wtv" && lowerExtension != ".dvr-ms")
+          return false;
+        return true;
+      }
+    }
+
     #endregion
   }
 }

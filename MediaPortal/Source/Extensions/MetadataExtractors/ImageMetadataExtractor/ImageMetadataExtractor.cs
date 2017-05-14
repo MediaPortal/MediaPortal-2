@@ -283,6 +283,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       return false;
     }
 
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      string fileName = mediaItemAccessor.ResourceName;
+      if (!HasImageExtension(fileName))
+        return false;
+      return true;
+    }
+
     #endregion IMetadataExtractor implementation
   }
 }

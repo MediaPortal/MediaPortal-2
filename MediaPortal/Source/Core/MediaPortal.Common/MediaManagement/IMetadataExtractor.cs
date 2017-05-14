@@ -65,5 +65,12 @@ namespace MediaPortal.Common.MediaManagement
     /// If the return value is <c>false</c>, the <paramref name="extractedAspectData"/> collection remains
     /// unchanged.</returns>
     bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly);
+
+    /// <summary>
+    /// Checks if the given <paramref name="mediaItemAccessor"/> points to a directory and if it is considered a "single item" media source (like DVD or BD folders on hard drive).
+    /// </summary>
+    /// <param name="mediaItemAccessor">The media item resource accessor to open the stream to the physical media.</param>
+    /// <returns><c>true</c> if it is a single item.</returns>
+    bool IsSingleResource(IResourceAccessor mediaItemAccessor);
   }
 }

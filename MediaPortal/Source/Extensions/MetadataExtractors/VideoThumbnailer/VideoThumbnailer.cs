@@ -233,6 +233,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       return true;
     }
 
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
     #endregion
   }
 }

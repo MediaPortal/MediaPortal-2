@@ -434,6 +434,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return TryExtractMetadataAsync(mediaItemAccessor, extractedAspectData, importOnly).Result;
     }
 
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
     #endregion
   }
 }

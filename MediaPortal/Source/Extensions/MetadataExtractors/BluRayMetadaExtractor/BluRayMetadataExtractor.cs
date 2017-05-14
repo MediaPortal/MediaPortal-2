@@ -184,6 +184,24 @@ namespace MediaPortal.Media.MetadataExtractors
       }
     }
 
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null)
+        return false;
+
+      if (!fsra.IsFile && fsra.ResourceExists("BDMV"))
+      {
+        IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV");
+        if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
+        {
+          // Video Blu-ray
+          return true;
+        }
+      }
+      return false;
+    }
+
     #endregion
   }
 }
