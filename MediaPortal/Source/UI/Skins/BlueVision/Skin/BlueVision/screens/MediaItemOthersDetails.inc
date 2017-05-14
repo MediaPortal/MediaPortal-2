@@ -11,13 +11,13 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="480"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Label x:Name="MediaItemName" Grid.Row="0"
+  <Label x:Name="MediaItemName" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}" Content="{Binding SimpleTitle}"
          IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem,Converter={StaticResource ReferenceToBoolConverter}}"
-         DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}" Content="{Binding SimpleTitle}"
-         HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
+         HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Grid.ColumnSpan="2"/>
 
   <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,0,0,5" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}"
          IsVisible="{Binding Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}">
@@ -29,7 +29,7 @@
     </StackPanel>
   </StackPanel>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1" Grid.Column="1"
          TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
          Margin="0,0,35,25" Color="{ThemeResource TextColor}"/>
