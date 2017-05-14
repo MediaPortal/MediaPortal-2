@@ -512,8 +512,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + miaTableName + " MAIN ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = MAIN." + mainTableAttrName +
-            " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
-            " ORDER BY " + "V." + COLL_ATTR_VALUE_ORDER_COL_NAME;
+            " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
@@ -538,7 +537,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + nmTableName + " NM ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME +
             " WHERE NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
-            " ORDER BY " + "V." + COLL_ATTR_VALUE_ORDER_COL_NAME;
+            " ORDER BY " + "NM." + COLL_ATTR_VALUE_ORDER_COL_NAME;
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
@@ -805,7 +804,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         command.CommandText = "INSERT INTO " + collectionAttributeTableName + " (" +
             FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ", " + COLL_ATTR_VALUE_ORDER_COL_NAME +
-            ") SELECT @FOREIGN_COLL_ATTR, @COLL_ATTR_VALUE, " + order + " FROM " +
+            ") SELECT @FOREIGN_COLL_ATTR, @COLL_ATTR_VALUE, 0 FROM " +
             databaseManager.DummyTableName + " WHERE NOT EXISTS(SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME +
             " FROM " + collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
@@ -820,8 +819,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       string nmTableName = GetMIACollectionAttributeNMTableName(spec);
       using (IDbCommand command = transaction.CreateCommand())
       {
-        command.CommandText = "INSERT INTO " + nmTableName + " (" + MIA_MEDIA_ITEM_ID_COL_NAME + ", " + FOREIGN_COLL_ATTR_ID_COL_NAME +
-            ") SELECT @MEDIA_ITEM_ID, " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName +
+        command.CommandText = "INSERT INTO " + nmTableName + " (" + MIA_MEDIA_ITEM_ID_COL_NAME + ", " + FOREIGN_COLL_ATTR_ID_COL_NAME + "," + COLL_ATTR_VALUE_ORDER_COL_NAME +
+            ") SELECT @MEDIA_ITEM_ID, " + FOREIGN_COLL_ATTR_ID_COL_NAME + ", "+ order + " FROM " + collectionAttributeTableName +
             " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE AND NOT EXISTS(" +
               "SELECT V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName + " V " +
               " INNER JOIN " + nmTableName + " NM ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME +
@@ -1121,7 +1120,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                     COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
-                    "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "), " +
+                    "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "," + COLL_ATTR_VALUE_COL_NAME + "), " +
                     "CONSTRAINT " + fkMediaItemConstraintName +
                     " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
                     " REFERENCES " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE" +
@@ -1215,6 +1214,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.CommandText = "CREATE TABLE " + nmTableName + " (" +
                     MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
+                    COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkNMConstraintName + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "," + FOREIGN_COLL_ATTR_ID_COL_NAME + "), " +
                     "CONSTRAINT " + fkMainTableConstraintName + " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
                     " REFERENCES " + miaTableName + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE, " +
