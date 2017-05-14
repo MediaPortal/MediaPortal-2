@@ -39,6 +39,7 @@ using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -158,11 +159,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected readonly IDictionary<Guid, MediaItemAspectMetadata> _managedMIATypes = new Dictionary<Guid, MediaItemAspectMetadata>();
 
     /// <summary>
+    /// Caches the hierarchy of all managed MIAs.
+    /// </summary>
+    protected List<RelationshipHierarchy> _MIAhierarchies = new List<RelationshipHierarchy>();
+
+    /// <summary>
     /// Caches the creation dates of all managed MIAs.
     /// </summary>
     protected IDictionary<Guid, DateTime> _MIACreationDates = new ConcurrentDictionary<Guid, DateTime>();
 
-    protected readonly object _syncObj = new object();
+    protected readonly object _syncStorageObj = new object();
+    protected readonly object _syncHierarchyObj = new object();
 
     /// <summary>
     /// For all contained attribute types, the value tables are locked for concurrent access.
@@ -175,13 +182,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ReloadAliasCache();
       LoadMIATypeCache();
       LoadMIACreationDateCache();
+      LoadMIAHierarchyCache();
     }
 
     #region Table name generation and alias management
 
     protected void ReloadAliasCache()
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
         ITransaction transaction = database.BeginTransaction();
@@ -255,7 +263,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private string GetAliasMapping(string generatedName, string errorOnNotFound)
     {
       string result;
-      lock (_syncObj)
+      lock (_syncStorageObj)
         if (!_nameAliases.TryGetValue(generatedName, out result))
           throw new InvalidDataException(errorOnNotFound);
       return result;
@@ -329,7 +337,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// <returns>Table name corresponding to the specified table identifier.</returns>
     private string GenerateDBObjectName(ITransaction transaction, Guid aspectId, string objectIdentifier, string desiredName, bool allowExisting = false)
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         if (_nameAliases.ContainsKey(objectIdentifier))
           throw new InvalidDataException("Table identifier '{0}' is already present in alias cache", objectIdentifier);
@@ -357,7 +365,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       using (IDbCommand command = MediaLibrary_SubSchema.CreateMIANameAliasCommand(transaction, aspectId, objectIdentifier, dbObjectName))
         command.ExecuteNonQuery();
-      lock (_syncObj)
+      lock (_syncStorageObj)
         _nameAliases[objectIdentifier] = dbObjectName;
     }
 
@@ -391,7 +399,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void LoadMIATypeCache()
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         foreach (MediaItemAspectMetadata miam in SelectAllManagedMediaItemAspectMetadata())
           _managedMIATypes[miam.AspectId] = miam;
@@ -468,6 +476,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         transaction.Dispose();
       }      
+    }
+
+    protected void LoadMIAHierarchyCache()
+    {
+      lock (_syncHierarchyObj)
+      {
+        _MIAhierarchies.Clear();
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+        foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+        {
+          if (extractor.Hierarchies != null)
+          {
+            foreach (RelationshipHierarchy hierarchy in extractor.Hierarchies)
+            {
+              if (!_MIAhierarchies.Exists(h => h.ParentRole == hierarchy.ParentRole && h.ChildRole == hierarchy.ChildRole))
+                _MIAhierarchies.Add(hierarchy);
+            }
+          }
+        }
+      }
     }
 
     protected static object TruncateBigValue(object value, MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
@@ -554,12 +582,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void LockAttribute(MediaItemAspectMetadata.AttributeSpecification spec)
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         Thread currentThread = Thread.CurrentThread;
         ThreadOwnership to;
         while (_lockedAttrs.TryGetValue(spec, out to) && to.CurrentThread != currentThread)
-          Monitor.Wait(_syncObj);
+          Monitor.Wait(_syncStorageObj);
         if (!_lockedAttrs.TryGetValue(spec, out to))
           _lockedAttrs[spec] = to = new ThreadOwnership(currentThread);
         to.LockCount++;
@@ -568,7 +596,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void UnlockAttribute(MediaItemAspectMetadata.AttributeSpecification spec)
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         Thread currentThread = Thread.CurrentThread;
         ThreadOwnership to;
@@ -579,7 +607,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (to.LockCount == 0)
         {
           _lockedAttrs.Remove(spec);
-          Monitor.PulseAll(_syncObj);
+          Monitor.PulseAll(_syncStorageObj);
         }
       }
     }
@@ -886,7 +914,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       get
       {
-        lock (_syncObj)
+        lock (_syncStorageObj)
           return new Dictionary<Guid, MediaItemAspectMetadata>(_managedMIATypes);
       }
     }
@@ -901,7 +929,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool MediaItemAspectStorageExists(Guid aspectId)
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         MediaItemAspectMetadata miam;
         return _managedMIATypes.TryGetValue(aspectId, out miam) && miam != null;
@@ -911,7 +939,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid aspectId)
     {
       MediaItemAspectMetadata result;
-      lock (_syncObj)
+      lock (_syncStorageObj)
         if (_managedMIATypes.TryGetValue(aspectId, out result))
           return result;
       return null;
@@ -922,7 +950,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (miam.IsTransientAspect)
         return true;
 
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         if (_managedMIATypes.ContainsKey(miam.AspectId))
           return false;
@@ -1279,7 +1307,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         transaction.Rollback();
         throw;
       }
-      lock (_syncObj)
+      lock (_syncStorageObj)
         _managedMIATypes[miam.AspectId] = miam;
       _MIACreationDates[miam.AspectId] = DateTime.Now;
       return true;
@@ -1287,7 +1315,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool RemoveMediaItemAspectStorage(Guid aspectId)
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         if (!_managedMIATypes.ContainsKey(aspectId))
           return false;
@@ -1412,7 +1440,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         transaction.Rollback();
         throw;
       }
-      lock (_syncObj)
+      lock (_syncStorageObj)
         _managedMIATypes.Remove(aspectId);
       _MIACreationDates.Remove(aspectId);
       return true;
@@ -1422,6 +1450,37 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       return specification.AttributeType == typeof(string) && database.IsCLOB(specification.MaxNumChars);
+    }
+
+    #endregion
+
+    #region MIA hierarchy management
+
+    public ICollection<RelationshipHierarchy> ManagedMediaItemHierarchies
+    {
+      get
+      {
+        lock (_syncHierarchyObj)
+          return _MIAhierarchies;
+      }
+    }
+
+    public bool MediaItemHierarchyExists(Guid parentRole, Guid childRole)
+    {
+      lock (_syncHierarchyObj)
+        return _MIAhierarchies.Where(h => h.ParentRole == parentRole && h.ChildRole == childRole).Any();
+    }
+
+    public RelationshipHierarchy GetMediaItemHierarchy(Guid parentRole, Guid childRole)
+    {
+      lock (_syncHierarchyObj)
+        return _MIAhierarchies.Where(h => h.ParentRole == parentRole && h.ChildRole == childRole).FirstOrDefault();
+    }
+
+    public ICollection<RelationshipHierarchy> GetMediaItemHierarchyFromChildRole(Guid childRole)
+    {
+      lock (_syncHierarchyObj)
+        return _MIAhierarchies.Where(h => h.ChildRole == childRole).ToList();
     }
 
     #endregion

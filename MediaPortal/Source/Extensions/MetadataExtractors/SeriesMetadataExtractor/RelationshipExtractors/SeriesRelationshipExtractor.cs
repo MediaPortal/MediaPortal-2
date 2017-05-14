@@ -76,9 +76,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _extractors.Add(new SeriesEpisodeRelationshipExtractor());
 
       _hierarchies = new List<RelationshipHierarchy>();
-      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_EPISODES, true));
-      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_AVAILABLE_EPISODES, true));
-      _hierarchies.Add(new RelationshipHierarchy(SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_SEASONS, false));
+      _hierarchies.Add(new RelationshipHierarchy("Episode->Series", SeriesAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, SeriesAspect.ATTR_AVAILABLE_EPISODES, EpisodeAspect.ATTR_EPISODE, true));
+      _hierarchies.Add(new RelationshipHierarchy("Episode->Season", SeasonAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE, SeasonAspect.ATTR_AVAILABLE_EPISODES, EpisodeAspect.ATTR_EPISODE, true));
+      _hierarchies.Add(new RelationshipHierarchy("Season->Series", SeriesAspect.ASPECT_ID, SeasonAspect.ASPECT_ID, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON, SeriesAspect.ATTR_AVAILABLE_SEASONS, SeasonAspect.ATTR_SEASON, false));
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()

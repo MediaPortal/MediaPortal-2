@@ -31,15 +31,26 @@ namespace MediaPortal.Common.MediaManagement
   /// </summary>
   public class RelationshipHierarchy
   {
-    public RelationshipHierarchy(Guid childRole, MediaItemAspectMetadata.AttributeSpecification childCountAttribute, 
-      Guid parentRole, MediaItemAspectMetadata.AttributeSpecification parentCountAttribute, bool updatePlayPercentage)
+    public RelationshipHierarchy(string name, 
+      Guid parentAspectId, Guid chilAspectId,
+      Guid parentRole, Guid childRole, 
+       MediaItemAspectMetadata.SingleAttributeSpecification parentCountAttribute, MediaItemAspectMetadata.AttributeSpecification childCountAttribute,
+      bool updatePlayPercentage)
     {
+      Name = name;
+      ChildAspectId = chilAspectId;
+      ParentAspectId = parentAspectId;
       ChildRole = childRole;
-      ChildCountAttribute = childCountAttribute;
       ParentRole = parentRole;
+      ChildCountAttribute = childCountAttribute;
       ParentCountAttribute = parentCountAttribute;
       UpdatePlayPercentage = updatePlayPercentage;
     }
+
+    /// <summary>
+    /// Name for the hierarchy. Mainly used for troubleshooting and logging.
+    /// </summary>
+    public string Name { get; private set; }
 
     /// <summary>
     /// Role of the child in the hierarchy.
@@ -52,6 +63,16 @@ namespace MediaPortal.Common.MediaManagement
     public Guid ParentRole { get; private set; }
 
     /// <summary>
+    /// Aspect Id of the child aspect.
+    /// </summary>
+    public Guid ChildAspectId { get; private set; }
+
+    /// <summary>
+    /// Aspect Id of the parent aspect.
+    /// </summary>
+    public Guid ParentAspectId { get; private set; }
+
+    /// <summary>
     /// Specifies the child attribute to use to count the number of available children.
     /// </summary>
     public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute { get; private set; }
@@ -59,7 +80,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// Specifies the parent attribute to update with the number of available children.
     /// </summary>
-    public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute { get; private set; }
+    public MediaItemAspectMetadata.SingleAttributeSpecification ParentCountAttribute { get; private set; }
 
     /// <summary>
     /// Specifies if the parent play percentage should be updated after children playback.
