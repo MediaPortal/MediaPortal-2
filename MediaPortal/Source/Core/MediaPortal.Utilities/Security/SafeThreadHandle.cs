@@ -53,7 +53,7 @@ namespace MediaPortal.Utilities.Security
     [SuppressUnmanagedCodeSecurity]
     private static extern bool CloseHandle(IntPtr handle);
 
-    override protected bool ReleaseHandle()
+    protected override bool ReleaseHandle()
     {
       return CloseHandle(handle);
     }
