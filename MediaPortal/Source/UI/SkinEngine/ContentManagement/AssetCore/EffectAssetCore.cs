@@ -198,8 +198,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
       // Effect output is always located at (0, 0), so we need to adjust both size and position of render output to screen coordinates
       var oldTransform = GraphicsDevice11.Instance.Context2D1.Transform;
-      var newTransform = Matrix3x2.Scaling(renderContext.OccupiedTransformedBounds.Width / texture.Surface.Description.Width, renderContext.OccupiedTransformedBounds.Height / texture.Surface.Description.Height);
-      newTransform *= Matrix3x2.Translation(renderContext.OccupiedTransformedBounds.TopLeft);
+      var newTransform = Matrix3x2.Scaling(renderContext.OccupiedTransformedBounds.Width() / texture.Surface.Description.Width, renderContext.OccupiedTransformedBounds.Height() / texture.Surface.Description.Height);
+      newTransform *= Matrix3x2.Translation(renderContext.OccupiedTransformedBounds.Location());
 
       GraphicsDevice11.Instance.Context2D1.Transform = newTransform;
       GraphicsDevice11.Instance.Context2D1.DrawImage(_effect);

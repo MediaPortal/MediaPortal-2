@@ -39,6 +39,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.UI.SkinEngine.Xaml.XamlNamespace;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -740,7 +741,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         ArrangeChildHorizontal(item, item.HorizontalAlignment, ref position, ref childSize);
         var scrollDistance = item.ActualPosition.Y - position.Y;
-        item.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
+        item.Arrange(SharpDXExtensions.CreateRawRectangleF(position, childSize));
         SetVerticalScrollDistance(item, previousArrangedChilds.Contains(item) ? scrollDistance : 0d);
         _totalHeight += desiredExtendsInOrientationDirection;
       }
@@ -752,7 +753,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         ArrangeChildVertical(item, item.VerticalAlignment, ref position, ref childSize);
         var scrollDistance = item.ActualPosition.X - position.X;
-        item.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
+        item.Arrange(SharpDXExtensions.CreateRawRectangleF(position, childSize));
         SetHorizontalScrollDistance(item, previousArrangedChilds.Contains(item) ? scrollDistance : 0d);
         _totalWidth += desiredExtendsInOrientationDirection;
       }
@@ -762,7 +763,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
-    protected override void BringIntoView(UIElement element, ref RectangleF elementBounds)
+    protected override void BringIntoView(UIElement element, ref RawRectangleF elementBounds)
     {
       IItemProvider itemProvider = ItemProvider;
       if (itemProvider == null)
@@ -804,9 +805,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             float extendsInOrientationDirection = (float)SumActualExtendsInOrientationDirection(arrangedItemsCopy, Orientation,
                 first ? oldFirstViewableChild : oldLastViewableChild, index);
             if (Orientation == Orientation.Horizontal)
-              elementBounds.X -= extendsInOrientationDirection;
+              elementBounds.Left -= extendsInOrientationDirection;
             else
-              elementBounds.Y -= extendsInOrientationDirection;
+              elementBounds.Top -= extendsInOrientationDirection;
             break;
           }
           index++;
@@ -841,8 +842,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
-        RectangleF elementBounds = ((FrameworkElement)child).ActualBounds;
-        RectangleF bounds = ActualBounds;
+        RawRectangleF elementBounds = ((FrameworkElement)child).ActualBounds;
+        RawRectangleF bounds = ActualBounds;
         if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) return false;
         if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) return false;
         if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) return false;
@@ -869,7 +870,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Base overrides
 
-    public override void AlignedPanelAddPotentialFocusNeighbors(RectangleF? startingRect, ICollection<FrameworkElement> outElements,
+    public override void AlignedPanelAddPotentialFocusNeighbors(RawRectangleF? startingRect, ICollection<FrameworkElement> outElements,
         bool elementsBeforeAndAfter)
     {
       IItemProvider itemProvider = ItemProvider;

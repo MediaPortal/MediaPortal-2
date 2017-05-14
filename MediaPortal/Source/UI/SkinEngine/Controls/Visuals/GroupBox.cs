@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -54,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _headerProperty;
     protected AbstractProperty _headerColorProperty;
     protected Label _headerLabel;
-    protected RectangleF _headerLabelRect;
+    protected RawRectangleF _headerLabelRect;
 
     #endregion
 
@@ -167,29 +168,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.MeasureBorder(totalSize);
     }
 
-    protected override void ArrangeBorder(RectangleF finalRect)
+    protected override void ArrangeBorder(RawRectangleF finalRect)
     {
       float headerLabelHeight = _headerLabel.DesiredSize.Height;
       float halfLabelHeight = headerLabelHeight/2;
       float halfThickness = (float) BorderThickness/2;
       float insetY = (float) Math.Max(halfThickness, halfLabelHeight) - halfThickness;
-      RectangleF borderRect = new RectangleF(finalRect.X, finalRect.Y + insetY,
-          finalRect.Width, finalRect.Height - insetY);
+      RawRectangleF borderRect = new RawRectangleF(finalRect.Left, finalRect.Top + insetY,
+          finalRect.Width(), finalRect.Height() - insetY);
       base.ArrangeBorder(borderRect);
       const float realHeaderInset = HEADER_INSET_LINE + HEADER_INSET_SPACE;
       float borderInsetX = GetBorderCornerInsetX();
-      _headerLabelRect = new RectangleF(
-          finalRect.X + borderInsetX + realHeaderInset, finalRect.Y,
-          finalRect.Width - (borderInsetX + realHeaderInset) * 2, headerLabelHeight);
-      if (_headerLabelRect.Width < 0)
-        _headerLabelRect.Width = 0;
-      if (_headerLabelRect.Height > finalRect.Height)
-        _headerLabelRect.Height = finalRect.Height;
+      _headerLabelRect = new RawRectangleF(
+          finalRect.Left + borderInsetX + realHeaderInset, finalRect.Top,
+          finalRect.Width() - (borderInsetX + realHeaderInset) * 2, headerLabelHeight);
+      if (_headerLabelRect.Width() < 0)
+        _headerLabelRect.Width() = 0;
+      if (_headerLabelRect.Height() > finalRect.Height())
+        _headerLabelRect.Height() = finalRect.Height();
 
       _headerLabel.Arrange(_headerLabelRect);
     }
 
-    protected override SharpDX.Direct2D1.Geometry CreateBorderRectPath(RectangleF innerBorderRect)
+    protected override SharpDX.Direct2D1.Geometry CreateBorderRectPath(RawRectangleF innerBorderRect)
     {
       SizeF headerLabelSize = _headerLabel.DesiredSize;
       return GraphicsPathHelper.CreateRoundedRectWithTitleRegionPath(innerBorderRect,

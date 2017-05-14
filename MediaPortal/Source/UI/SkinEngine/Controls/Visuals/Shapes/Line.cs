@@ -28,6 +28,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using RectangleF = SharpDX.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
@@ -136,10 +137,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       using (PathGeometry lineRaw = GetLine())
-      using (var line = CalculateTransformedPath(lineRaw, new RectangleF(0, 0, totalSize.Width, totalSize.Height)))
+      using (var line = CalculateTransformedPath(lineRaw, new RawRectangleF(0, 0, totalSize.Width, totalSize.Height)))
       {
         var bounds = line.GetBounds();
-        return new Size2F(bounds.Right - bounds.Left, bounds.Bottom - bounds.Top);
+        return new Size2F(bounds.Width(), bounds.Height());
       }
     }
 

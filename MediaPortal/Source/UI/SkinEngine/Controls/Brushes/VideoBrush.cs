@@ -37,6 +37,7 @@ using SharpDX.Direct3D9;
 using SharpDX;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using Transform = MediaPortal.UI.SkinEngine.Controls.Transforms.Transform;
@@ -67,17 +68,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected Matrix _inverseRelativeTransformCache;
     protected ImageContext _imageContext;
     protected SizeF _scaledVideoSize;
-    protected RectangleF _videoTextureClip;
+    protected RawRectangleF _videoTextureClip;
 
     protected IGeometry _lastGeometry;
     protected string _lastEffect;
-    protected RectangleF _lastCropVideoRect;
+    protected RawRectangleF _lastCropVideoRect;
     protected Size _lastVideoSize;
     protected SizeF _lastAspectRatio;
     protected int _lastDeviceWidth;
     protected int _lastDeviceHeight;
     protected Vector4 _lastFrameData;
-    protected RectangleF _lastVertsBounds;
+    protected RawRectangleF _lastVertsBounds;
     protected Texture _texture = null;
     protected volatile bool _refresh = true;
     private Bitmap1 _videoBitmap;
@@ -175,27 +176,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         return false;
       SizeF aspectRatio = sdvPlayer.VideoAspectRatio.ToSize2F();
       Size playerSize = sdvPlayer.VideoSize.ToSize2();
-      RectangleF cropVideoRect = sdvPlayer.CropVideoRect;
+      RawRectangleF cropVideoRect = sdvPlayer.CropVideoRect;
 
       IGeometry geometry = ChooseVideoGeometry(player);
       string effectName = player.EffectOverride;
       int deviceWidth = GraphicsDevice.Width; // To avoid threading issues if the device size changes
       int deviceHeight = GraphicsDevice.Height;
-      RectangleF vertsBounds = _vertsBounds;
+      RawRectangleF vertsBounds = _vertsBounds;
 
       // Do we need a refresh?
       if (!_refresh &&
           _lastVideoSize == playerSize &&
           _lastAspectRatio == aspectRatio &&
-          _lastCropVideoRect == cropVideoRect &&
+          _lastCropVideoRect.Equals(cropVideoRect) &&
           _lastGeometry == geometry &&
           _lastEffect == effectName &&
           _lastDeviceWidth == deviceWidth &&
           _lastDeviceHeight == deviceHeight &&
-          _lastVertsBounds == vertsBounds)
+          _lastVertsBounds.Equals(vertsBounds))
         return true;
 
-      SizeF targetSize = vertsBounds.Size;
+      SizeF targetSize = vertsBounds.Size();
 
       lock (sdvPlayer.SurfaceLock)
       {
@@ -206,10 +207,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           return false;
         }
 
-        _videoTextureClip = new RectangleF(cropVideoRect.X / (float)surface.Width, cropVideoRect.Y / (float)surface.Height,
-            cropVideoRect.Width / (float)surface.Width, cropVideoRect.Height / (float)surface.Height);
+        _videoTextureClip = new RawRectangleF(cropVideoRect.Left / (float)surface.Width, cropVideoRect.Top / (float)surface.Height,
+            cropVideoRect.Width() / (float)surface.Width, cropVideoRect.Height() / (float)surface.Height);
       }
-      _scaledVideoSize = cropVideoRect.Size;
+      _scaledVideoSize = cropVideoRect.Size();
 
       // Correct aspect ratio for anamorphic video
       if (!aspectRatio.IsEmpty() && geometry.RequiresCorrectAspectRatio)
@@ -303,7 +304,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public members
 
-    public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
+    public override void SetupBrush(FrameworkElement parent, ref RawRectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
       if (ServiceRegistration.Get<IPlayerManager>(false) == null)
@@ -338,7 +339,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         return false;
 
       // Handling of multipass (3D) rendering, transformed rect contains the clipped area of the source image (i.e. left side in Side-By-Side mode).
-      RectangleF tranformedRect;
+      RawRectangleF tranformedRect;
       GraphicsDevice11.Instance.RenderPipeline.GetVideoClip(_videoTextureClip, out tranformedRect);
       return _imageContext.StartRender(renderContext, _scaledVideoSize, _videoBitmap, tranformedRect, BorderColor, _lastFrameData);
     }

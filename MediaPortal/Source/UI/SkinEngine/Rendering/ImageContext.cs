@@ -36,6 +36,7 @@ using Microsoft.CSharp;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -329,13 +330,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return true;
     }
 
-    protected override void RefreshParameters(SizeF targetImageSize, Bitmap1 texture, RectangleF textureClip)
+    protected override void RefreshParameters(SizeF targetImageSize, Bitmap1 texture, RawRectangleF textureClip)
     {
       // If necessary update our image transformation to best fit the frame
       if (_refresh || texture != _lastTexture ||
           Math.Abs(targetImageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
           Math.Abs(targetImageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT
-          || textureClip != _lastTextureClip)
+          || !textureClip.Equals(_lastTextureClip))
       {
         _lastTexture = texture;
         _lastTextureClip = textureClip;
@@ -353,8 +354,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         //Brownard 30/01/16: Do we need to take into account in the calculations below that we now allow aligning of textures?
          
         // Compensate for texture surface borders
-        textureRect.Z /= textureClip.Width;
-        textureRect.W /= textureClip.Height;
+        textureRect.Z /= textureClip.Width();
+        textureRect.W /= textureClip.Height();
 
         // Determine correct 2D transform for mapping the texture to the correct place
         float repeatx = 1.0f / textureRect.Z;
@@ -368,7 +369,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
         _inverseRelativeTransformCache = TranslateRotation(_rotation);
         _inverseRelativeTransformCache.Invert();
-        _imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, repeatx, repeaty);
+        _imageTransform = new Vector4(textureRect.X * repeatx - textureClip.Left, textureRect.Y * repeaty - textureClip.Top, repeatx, repeaty);
 
         // Build our effects
         _effect = ContentManager.Instance.GetEffect<ImageEffect>(GetEffectName());

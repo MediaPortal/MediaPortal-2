@@ -24,6 +24,7 @@
 
 using System;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine
 {
@@ -154,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine
       size.Height = Math.Max(Math.Abs(p0.Y - p2.Y), Math.Abs(p1.Y - p3.Y));
     }
 
-    public static RectangleF GetIncludingTransformedRectangle(this Matrix matrix, RectangleF rectangle)
+    public static RawRectangleF GetIncludingTransformedRectangle(this Matrix matrix, RawRectangleF rectangle)
     {
       Vector2 p0 = new Vector2(rectangle.Left, rectangle.Top);
       Vector2 p1 = new Vector2(rectangle.Right, rectangle.Top);
@@ -164,7 +165,7 @@ namespace MediaPortal.UI.SkinEngine
       matrix.Transform(ref p1);
       matrix.Transform(ref p2);
       matrix.Transform(ref p3);
-      RectangleF result = new RectangleF(
+      RawRectangleF result = new RawRectangleF(
           Math.Min(Math.Min(p0.X, p1.X), Math.Min(p2.X, p3.X)),
           Math.Min(Math.Min(p0.Y, p1.Y), Math.Min(p2.Y, p3.Y)),
           Math.Max(Math.Abs(p0.X - p2.X), Math.Abs(p1.X - p3.X)),

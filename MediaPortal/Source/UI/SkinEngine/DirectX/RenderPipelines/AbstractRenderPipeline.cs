@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
@@ -50,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
       GraphicsDevice11.Instance.Context2D1.EndDraw();
     }
 
-    public virtual void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
+    public virtual void GetVideoClip(RawRectangleF fullVideoClip, out RawRectangleF tranformedRect)
     {
       tranformedRect = fullVideoClip;
     }

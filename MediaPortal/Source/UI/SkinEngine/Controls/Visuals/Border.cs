@@ -34,6 +34,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -52,12 +53,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _cornerRadiusProperty;
     protected AbstractProperty _contentProperty;
     protected bool _performLayout;
-    protected RectangleF _outerBorderRect;
+    protected RawRectangleF _outerBorderRect;
     protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
     protected SharpDX.Direct2D1.Geometry _backgroundGeometry;
     protected SharpDX.Direct2D1.Geometry _borderGeometry;
     protected StrokeStyle _strokeStyle;
-    protected RectangleF _strokeRect;
+    protected RawRectangleF _strokeRect;
 
     #endregion
 
@@ -290,10 +291,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement content = _initializedContent;
       if (content == null)
         return;
-      RectangleF layoutRect = new RectangleF(_innerRect.X, _innerRect.Y, _innerRect.Width, _innerRect.Height);
+      RawRectangleF layoutRect = new RawRectangleF(_innerRect.Left, _innerRect.Top, _innerRect.Width(), _innerRect.Height());
       RemoveMargin(ref layoutRect, GetTotalEnclosingMargin());
-      Vector2 location = new Vector2(layoutRect.Location.X, layoutRect.Location.Y);
-      SizeF size = layoutRect.Size;
+      Vector2 location = new Vector2(layoutRect.Location().X, layoutRect.Location().Y);
+      SizeF size = layoutRect.Size();
       ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref location, ref size);
       content.Arrange(new RectangleF(location.X, location.Y, size.Width, size.Height));
     }
@@ -314,9 +315,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Used in subclasses to measure border elements
     }
 
-    protected virtual void ArrangeBorder(RectangleF finalRect)
+    protected virtual void ArrangeBorder(RawRectangleF finalRect)
     {
-      _outerBorderRect = new RectangleF(finalRect.Location.X, finalRect.Location.Y, finalRect.Width, finalRect.Height);
+      _outerBorderRect = new RawRectangleF(finalRect.Location().X, finalRect.Location().Y, finalRect.Width(), finalRect.Height());
     }
 
     protected float GetBorderCornerInsetX()
@@ -340,8 +341,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _performLayout = false;
 
       float borderThickness = (float)BorderThickness;
-      RectangleF innerBorderRect = new RectangleF(_outerBorderRect.X + borderThickness /*-0.5f*/, _outerBorderRect.Y + borderThickness /*-0.5f*/,
-          _outerBorderRect.Size.Width - 2*borderThickness /*+ 0.5f*/, _outerBorderRect.Size.Height - 2*borderThickness /*+ 0.5f*/);
+      RawRectangleF innerBorderRect = new RawRectangleF(_outerBorderRect.Left + borderThickness /*-0.5f*/, _outerBorderRect.Top + borderThickness /*-0.5f*/,
+          _outerBorderRect.Size().Width - 2*borderThickness /*+ 0.5f*/, _outerBorderRect.Size().Height - 2*borderThickness /*+ 0.5f*/);
       PerformLayoutBackground(innerBorderRect, context);
       PerformLayoutBorder(innerBorderRect, context);
 
@@ -356,7 +357,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ReCreateStrokeStyle();
     }
 
-    protected void PerformLayoutBackground(RectangleF innerBorderRect, RenderContext context)
+    protected void PerformLayoutBackground(RawRectangleF innerBorderRect, RenderContext context)
     {
       // Setup background brush
       if (Background != null)
@@ -365,16 +366,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         TryDispose(ref _backgroundGeometry);
     }
 
-    protected void PerformLayoutBorder(RectangleF innerBorderRect, RenderContext context)
+    protected void PerformLayoutBorder(RawRectangleF innerBorderRect, RenderContext context)
     {
       // Setup background brush
       if (BorderBrush != null && BorderThickness > 0)
       {
         // Adjust border to outline of background, otherwise the stroke is centered
-        innerBorderRect.X -= (float)BorderThickness / 2;
-        innerBorderRect.Y -= (float)BorderThickness / 2;
-        innerBorderRect.Width += (float)BorderThickness;
-        innerBorderRect.Height += (float)BorderThickness;
+        innerBorderRect.Left -= (float)BorderThickness / 2;
+        innerBorderRect.Top -= (float)BorderThickness / 2;
+        innerBorderRect.Width() += (float)BorderThickness;
+        innerBorderRect.Height() += (float)BorderThickness;
         _borderGeometry = CreateBorderRectPath(innerBorderRect);
         _strokeRect = _borderGeometry.GetWidenedBounds((float)BorderThickness);
       }
@@ -385,12 +386,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    protected virtual SharpDX.Direct2D1.Geometry CreateBackgroundRectPath(RectangleF innerBorderRect)
+    protected virtual SharpDX.Direct2D1.Geometry CreateBackgroundRectPath(RawRectangleF innerBorderRect)
     {
       return GraphicsPathHelper.CreateRoundedRectPath(innerBorderRect, (float)CornerRadius, (float)CornerRadius);
     }
 
-    protected virtual SharpDX.Direct2D1.Geometry CreateBorderRectPath(RectangleF innerBorderRect)
+    protected virtual SharpDX.Direct2D1.Geometry CreateBorderRectPath(RawRectangleF innerBorderRect)
     {
       return GraphicsPathHelper.CreateRoundedRectPath(innerBorderRect, (float)CornerRadius, (float)CornerRadius);
     }

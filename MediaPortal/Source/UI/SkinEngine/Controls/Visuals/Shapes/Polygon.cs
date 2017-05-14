@@ -107,8 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       using (var p = CalculateTransformedPath(pathRaw, new RectangleF(0, 0, 0, 0)))
       {
         var bounds = p.GetBounds();
-        
-        return new Size2F(bounds.Right - bounds.Left, bounds.Bottom - bounds.Top);
+        return new Size2F(bounds.Width(), bounds.Height());
       }
     }
 

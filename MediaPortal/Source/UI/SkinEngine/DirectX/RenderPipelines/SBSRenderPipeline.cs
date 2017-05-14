@@ -41,11 +41,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
       InitMasks();
     }
 
-    public override void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
+    public override void GetVideoClip(RawRectangleF fullVideoClip, out RawRectangleF tranformedRect)
     {
       tranformedRect = GraphicsDevice11.Instance.RenderPass == RenderPassType.SingleOrFirstPass ?
-        new RectangleF(0.0f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height) : // SBS first pass, left side
-        new RectangleF(fullVideoClip.Width * 0.5f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height); // SBS second pass, right side
+        new RectangleF(0.0f, 0.0f, fullVideoClip.Width() * 0.5f, fullVideoClip.Height()) : // SBS first pass, left side
+        new RectangleF(fullVideoClip.Width() * 0.5f, 0.0f, fullVideoClip.Width() * 0.5f, fullVideoClip.Height()); // SBS second pass, right side
     }
 
     public override Matrix GetRenderPassTransform(Matrix initialScreenTransform)

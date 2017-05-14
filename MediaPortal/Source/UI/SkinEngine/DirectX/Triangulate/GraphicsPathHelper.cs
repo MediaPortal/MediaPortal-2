@@ -28,6 +28,7 @@ using System.Linq;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 
@@ -61,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="baseRect">The rect which surrounds the created path.</param>
     /// <param name="radiusX">The X radius of the rounded edges.</param>
     /// <param name="radiusY">The Y radius of the rounded edges.</param>
-    public static SharpDX.Direct2D1.Geometry CreateRoundedRectPath(RectangleF baseRect, float radiusX, float radiusY)
+    public static SharpDX.Direct2D1.Geometry CreateRoundedRectPath(RawRectangleF baseRect, float radiusX, float radiusY)
     {
       return CreateRoundedRectWithTitleRegionPath(baseRect, radiusX, radiusY, false, 0f, 0f);
     }
@@ -78,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <paramref name="withTitleRegion"/> is set to <c>true</c>.</param>
     /// <param name="titleWidth">Width of the title region to leave out. This parameter will only be used if
     /// <paramref name="withTitleRegion"/> is set to <c>true</c>.</param>
-    public static SharpDX.Direct2D1.Geometry CreateRoundedRectWithTitleRegionPath(RectangleF baseRect, float radiusX, float radiusY,
+    public static SharpDX.Direct2D1.Geometry CreateRoundedRectWithTitleRegionPath(RawRectangleF baseRect, float radiusX, float radiusY,
         bool withTitleRegion, float titleInset, float titleWidth)
     {
       if (!withTitleRegion)
@@ -95,13 +96,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       PathGeometry result = new PathGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory);
       using (var sink = result.Open())
       {
-        if (radiusX <= 0.0f && radiusY <= 0.0f || baseRect.Width == 0 || baseRect.Height == 0)
+        if (radiusX <= 0.0f && radiusY <= 0.0f || baseRect.Width() == 0 || baseRect.Height() == 0)
         {
           // if corner radius is less than or equal to zero, return the original rectangle
           // If we should leave out a title region, we need to do it manually, because we need to start next to the
           // title.
 
-          titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * titleInset);
+          titleWidth = Math.Min(titleWidth, baseRect.Width() - 2 * titleInset);
           // Right from the title to the upper right edge
           sink.BeginFigure(new Vector2(baseRect.Left + 2 * titleInset + titleWidth, baseRect.Top), FigureBegin.Hollow);
           sink.AddLine(new Vector2(baseRect.Right, baseRect.Top));
@@ -121,13 +122,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         }
         else
         {
-          if (radiusX >= baseRect.Width / 2f)
-            radiusX = baseRect.Width / 2f;
-          if (radiusY >= baseRect.Height / 2f)
-            radiusY = baseRect.Height / 2f;
+          if (radiusX >= baseRect.Width() / 2f)
+            radiusX = baseRect.Width() / 2f;
+          if (radiusY >= baseRect.Height() / 2f)
+            radiusY = baseRect.Height() / 2f;
 
           // create the arc for the rectangle sides and declare a graphics path object for the drawing 
-          titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * (radiusX + titleInset));
+          titleWidth = Math.Min(titleWidth, baseRect.Width() - 2 * (radiusX + titleInset));
 
           // Right of the title to the upper right edge
           sink.BeginFigure(new Vector2(baseRect.Left + radiusX + titleInset + titleWidth, baseRect.Top), FigureBegin.Hollow);

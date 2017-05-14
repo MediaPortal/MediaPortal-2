@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected bool _fillDisabled;
     protected SharpDX.Direct2D1.Geometry _geometry;
     protected StrokeStyle _strokeStyle;
-    protected RectangleF _strokeRect;
+    protected RawRectangleF _strokeRect;
     protected readonly object _resourceRenderLock = new object();
 
     #endregion
@@ -326,32 +326,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    protected SharpDX.Direct2D1.Geometry CalculateTransformedPath(SharpDX.Direct2D1.Geometry path, RectangleF baseRect)
+    protected SharpDX.Direct2D1.Geometry CalculateTransformedPath(SharpDX.Direct2D1.Geometry path, RawRectangleF baseRect)
     {
       SharpDX.Direct2D1.Geometry result = path;
       Matrix m = Matrix.Identity;
-      //RectangleF bounds = result.GetBounds();
       RawRectangleF bounds = result.GetWidenedBounds((float)StrokeThickness);
-      _fillDisabled = (bounds.Right - bounds.Left) < StrokeThickness || (bounds.Bottom - bounds.Top) < StrokeThickness;
-      if (Width > 0) baseRect.Width = (float)Width;
-      if (Height > 0) baseRect.Height = (float)Height;
+      _fillDisabled = bounds.Width() < StrokeThickness || bounds.Height() < StrokeThickness;
+      if (Width > 0)
+      {
+        baseRect.Width()= (float)Width;
+      }
+      if (Height > 0) baseRect.Height() = (float)Height;
       float scaleW;
       float scaleH;
       if (Stretch == Stretch.Fill)
       {
-        scaleW = baseRect.Width / (bounds.Right - bounds.Left);
-        scaleH = baseRect.Height / (bounds.Bottom - bounds.Top);
+        scaleW = baseRect.Width() / bounds.Width();
+        scaleH = baseRect.Height() / bounds.Height();
         m *= Matrix.Translation(-bounds.Left, -bounds.Top, 0);
       }
       else if (Stretch == Stretch.Uniform)
       {
-        scaleW = Math.Min(baseRect.Width / (bounds.Right - bounds.Left), baseRect.Height / (bounds.Bottom - bounds.Top));
+        scaleW = Math.Min(baseRect.Width() / bounds.Width(), baseRect.Height() / bounds.Height());
         scaleH = scaleW;
         m *= Matrix.Scaling(-bounds.Left, -bounds.Top, 1);
       }
       else if (Stretch == Stretch.UniformToFill)
       {
-        scaleW = Math.Max(baseRect.Width / (bounds.Right - bounds.Left), baseRect.Height / (bounds.Bottom - bounds.Top));
+        scaleW = Math.Max(baseRect.Width() / bounds.Width(), baseRect.Height() / bounds.Height());
         scaleH = scaleW;
         m *= Matrix.Translation(-bounds.Left, -bounds.Top, 0);
       }
@@ -366,7 +368,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       if (scaleH == 0 || float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
       m *= Matrix.Scaling(scaleW, scaleH, 1);
 
-      m *= Matrix.Translation(baseRect.X, baseRect.Y, 0);
+      m *= Matrix.Translation(baseRect.Left, baseRect.Top, 0);
 
       result = new TransformedGeometry(path.Factory, path, m);
       return result;

@@ -23,6 +23,7 @@
 #endregion
 
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
@@ -53,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     /// </summary>
     /// <param name="fullVideoClip">Full size rectangle.</param>
     /// <param name="tranformedRect">Modified rectangle</param>
-    void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect);
+    void GetVideoClip(RawRectangleF fullVideoClip, out RawRectangleF tranformedRect);
 
     /// <summary>
     /// Returns the initial transform required to render the current pass.

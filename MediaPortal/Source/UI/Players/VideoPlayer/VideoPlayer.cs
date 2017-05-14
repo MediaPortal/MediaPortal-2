@@ -50,6 +50,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 
@@ -886,12 +887,12 @@ namespace MediaPortal.UI.Players.Video
       return true;
     }
 
-    public RectangleF CropVideoRect
+    public RawRectangleF CropVideoRect
     {
       get
       {
         Size videoSize = VideoSize.ToSize2();
-        return _cropSettings == null ? new RectangleF(0, 0, videoSize.Width, videoSize.Height) : _cropSettings.CropRect(videoSize.ToDrawingSize()).ToRect();
+        return _cropSettings == null ? new RawRectangleF(0, 0, videoSize.Width, videoSize.Height) : _cropSettings.CropRect(videoSize.ToDrawingSize()).ToRect();
       }
     }
 

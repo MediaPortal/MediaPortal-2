@@ -35,6 +35,7 @@ using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -328,7 +329,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           offset += desiredChildSize.Height;
         }
 
-        layoutChild.Arrange(SharpDXExtensions.CreateRectangleF(location, size));
+        layoutChild.Arrange(SharpDXExtensions.CreateRawRectangleF(location, size));
       }
     }
 
@@ -425,7 +426,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int index = 0;
         while (index < numVisibleChildren)
         {
-          LineMeasurement line = CalculateLine(visibleChildren, index, _innerRect.Size, false);
+          LineMeasurement line = CalculateLine(visibleChildren, index, _innerRect.Size(), false);
           _arrangedLines.Add(line);
           index = line.EndIndex + 1;
         }
@@ -593,7 +594,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (dlgt != null) dlgt(this);
     }
 
-    public override void BringIntoView(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RawRectangleF elementBounds)
     {
       MakeChildVisible(element, ref elementBounds);
       base.BringIntoView(element, elementBounds);
@@ -626,7 +627,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return invert ? -result : result;
     }
 
-    protected virtual void MakeChildVisible(UIElement element, ref RectangleF elementBounds)
+    protected virtual void MakeChildVisible(UIElement element, ref RawRectangleF elementBounds)
     {
       if (_doScroll)
       {
@@ -655,9 +656,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               float extendsInOrientationDirection = SumActualLineExtendsInNonOrientationDirection(lines,
                   first ? oldFirstVisibleLine : oldLastVisibleLine, lineIndex);
               if (Orientation == Orientation.Horizontal)
-                elementBounds.X -= extendsInOrientationDirection;
+                elementBounds.Left -= extendsInOrientationDirection;
               else
-                elementBounds.Y -= extendsInOrientationDirection;
+                elementBounds.Top -= extendsInOrientationDirection;
               break;
             }
           }
@@ -670,8 +671,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
-        RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
-        RectangleF bounds = ActualBounds;
+        RawRectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
+        RawRectangleF bounds = ActualBounds;
         if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) return false;
         if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) return false;
         if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) return false;
@@ -684,12 +685,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Focus management
 
-    public override void AddPotentialFocusableElements(RectangleF? startingRect, ICollection<FrameworkElement> elements)
+    public override void AddPotentialFocusableElements(RawRectangleF? startingRect, ICollection<FrameworkElement> elements)
     {
       AlignedPanelAddPotentialFocusNeighbors(startingRect, elements, false);
     }
 
-    public virtual void AlignedPanelAddPotentialFocusNeighbors(RectangleF? startingRect, ICollection<FrameworkElement> outElements,
+    public virtual void AlignedPanelAddPotentialFocusNeighbors(RawRectangleF? startingRect, ICollection<FrameworkElement> outElements,
         bool linesBeforeAndAfter)
     {
       if (!IsVisible)
@@ -702,7 +703,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           numLinesBeforeAndAfter, numLinesBeforeAndAfter, outElements);
     }
 
-    protected void AddFocusedElementRange(IList<FrameworkElement> availableElements, RectangleF? startingRect,
+    protected void AddFocusedElementRange(IList<FrameworkElement> availableElements, RawRectangleF? startingRect,
         int firstLineIndex, int lastLineIndex, int linesBefore, int linesAfter, ICollection<FrameworkElement> outElements)
     {
       IList<LineMeasurement> lines = new List<LineMeasurement>(_arrangedLines);
@@ -769,7 +770,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       FrameworkElement currentElement = GetFocusedElementOrChild();
       if (currentElement == null)
         return false;
-      RectangleF currentFocusRect = currentElement.ActualBounds;
+      RawRectangleF currentFocusRect = currentElement.ActualBounds;
       ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
       AlignedPanelAddPotentialFocusNeighbors(currentFocusRect, focusableChildren, true);
       // Check child controls

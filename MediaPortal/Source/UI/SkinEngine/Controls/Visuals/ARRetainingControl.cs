@@ -27,6 +27,7 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -122,10 +123,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement content = Content;
       if (content != null)
       {
-        PointF position = new PointF(_innerRect.X, _innerRect.Y);
-        SizeF availableSize = CalculateInnerDesiredSize(_innerRect.Size);
+        PointF position = new PointF(_innerRect.Left, _innerRect.Top);
+        SizeF availableSize = CalculateInnerDesiredSize(_innerRect.Size());
         ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref position, ref availableSize);
-        RectangleF childRect = SharpDXExtensions.CreateRectangleF(position, availableSize);
+        RawRectangleF childRect = SharpDXExtensions.CreateRawRectangleF(position, availableSize);
         content.Arrange(childRect);
       }
     }

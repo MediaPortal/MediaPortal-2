@@ -23,6 +23,7 @@
 #endregion
 
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
@@ -31,9 +32,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   /// </summary>
   internal class TAB2DRenderPipeline : AbstractRenderPipeline
   {
-    public override void GetVideoClip(RectangleF fullVideoClip, out RectangleF tranformedRect)
+    public override void GetVideoClip(RawRectangleF fullVideoClip, out RawRectangleF tranformedRect)
     {
-      tranformedRect = new RectangleF(0.0f, 0.0f, fullVideoClip.Width, fullVideoClip.Height * 0.5f); // TAB first pass, upper side
+      tranformedRect = new RectangleF(0.0f, 0.0f, fullVideoClip.Width(), fullVideoClip.Height() * 0.5f); // TAB first pass, upper side
     }
   }
 }

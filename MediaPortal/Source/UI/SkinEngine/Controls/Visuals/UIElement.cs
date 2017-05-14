@@ -46,6 +46,7 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using SharpDX.Mathematics.Interop;
 using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.Effect;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
@@ -719,10 +720,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="rect">Outer element's rectangle where the margin will be removed.</param>
     /// <param name="margin">Margin to be removed.</param>
-    public static void RemoveMargin(ref RectangleF rect, Thickness margin)
+    public static void RemoveMargin(ref RawRectangleF rect, Thickness margin)
     {
-      rect.X += margin.Left;
-      rect.Y += margin.Top;
+      rect.Left += margin.Left;
+      rect.Top += margin.Top;
 
       rect.Width -= margin.Left + margin.Right;
       rect.Height -= margin.Top + margin.Bottom;
@@ -752,7 +753,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="element">The original element which should be made visible.</param>
     /// <param name="elementBounds">The element's bounds which will be active after the scrolling
     /// update.</param>
-    public virtual void BringIntoView(UIElement element, RectangleF elementBounds)
+    public virtual void BringIntoView(UIElement element, RawRectangleF elementBounds)
     {
       UIElement parent = VisualParent as UIElement;
       if (parent != null)

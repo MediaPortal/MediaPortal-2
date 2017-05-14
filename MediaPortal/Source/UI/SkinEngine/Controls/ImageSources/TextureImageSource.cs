@@ -29,6 +29,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
@@ -52,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected ImageContext _imageContext = new ImageContext();
     protected SizeF _frameSize;
-    protected RectangleF _targetRect;
+    protected RawRectangleF _targetRect;
 
     #endregion
 
@@ -197,7 +198,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       FreeData();
     }
 
-    public override void Setup(RectangleF ownerRect, float zOrder, bool skinNeutralAR)
+    public override void Setup(RawRectangleF ownerRect, float zOrder, bool skinNeutralAR)
     {
       PositionColoredTextured[] verts = new PositionColoredTextured[4];
 
@@ -235,7 +236,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       //PrimitiveBuffer.SetPrimitiveBuffer(ref _primitiveBuffer, ref verts, PrimitiveType.TriangleFan);
 
-      _frameSize = skinNeutralAR ? ImageContext.AdjustForSkinAR(ownerRect.Size) : ownerRect.Size;
+      _frameSize = skinNeutralAR ? ImageContext.AdjustForSkinAR(ownerRect.Size()) : ownerRect.Size();
       _imageContext.FrameSize = _frameSize;
       _targetRect = ownerRect;
     }

@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
@@ -141,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       }
     }
 
-    public override void Setup(RectangleF ownerRect, float zOrder, bool skinNeutralAR)
+    public override void Setup(RawRectangleF ownerRect, float zOrder, bool skinNeutralAR)
     {
       base.Setup(ownerRect, zOrder, skinNeutralAR);
 
@@ -195,12 +196,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       if (IsAllocated)
       {
         SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
-        var target = new RectangleF(
-        _targetRect.X + (_targetRect.Width - sourceSize.Width) / 2,
-        _targetRect.Y + (_targetRect.Height - sourceSize.Height) / 2,
+        var target = new RawRectangleF(
+        _targetRect.Left + (_targetRect.Width() - sourceSize.Width) / 2,
+        _targetRect.Top + (_targetRect.Height() - sourceSize.Height) / 2,
         sourceSize.Width, sourceSize.Height);
 
-        if (_imageContext.StartRender(renderContext, target.Size, currentTexture, currentTextureClip, BorderColor, frameData))
+        if (_imageContext.StartRender(renderContext, target.Size(), currentTexture, currentTextureClip, BorderColor, frameData))
         {
         }
       }

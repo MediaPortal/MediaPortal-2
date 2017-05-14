@@ -32,6 +32,7 @@ using MediaPortal.UI.SkinEngine.Xaml;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -284,7 +285,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
 
-        RectangleF rect = new RectangleF(ActualPosition.X /*- 0.5f*/, ActualPosition.Y /*- 0.5f*/,
+        RawRectangleF rect = new RawRectangleF(ActualPosition.X /*- 0.5f*/, ActualPosition.Y /*- 0.5f*/,
             actualSize.Width /*+ 0.5f*/, actualSize.Height /*+ 0.5f*/);
 
         _backgroundGeometry = new RectangleGeometry(GraphicsDevice11.Instance.Context2D1.Factory, rect);

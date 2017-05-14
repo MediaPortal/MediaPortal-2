@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       float offsetLeft = 0.0f;
       float offsetRight = 0.0f;
       float offsetBottom = 0.0f;
-      SizeF availableSize = new SizeF(_innerRect.Width, _innerRect.Height);
+      SizeF availableSize = new SizeF(_innerRect.Width(), _innerRect.Height());
 
       int count = 0;
       // Area allocated to child
@@ -117,7 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
               // Position the child within the child area
               ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
-              child.Arrange(SharpDXExtensions.CreateRectangleF(location, childArea));
+              child.Arrange(SharpDXExtensions.CreateRawRectangleF(location, childArea));
 
               offsetTop += childArea.Height;
               availableSize.Height -= childArea.Height;
@@ -127,9 +127,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             {
               PointF location;
               if (count == visibleChildren.Count && LastChildFill)
-                location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + availableSize.Height));
+                location = new PointF(offsetLeft, _innerRect.Height() - (offsetBottom + availableSize.Height));
               else
-                location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + childSize.Height));
+                location = new PointF(offsetLeft, _innerRect.Height() - (offsetBottom + childSize.Height));
 
               location.X += ActualPosition.X;
               location.Y += ActualPosition.Y;
@@ -142,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
               // Position the child within the child area
               ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
-              child.Arrange(SharpDXExtensions.CreateRectangleF(location, childArea));
+              child.Arrange(SharpDXExtensions.CreateRawRectangleF(location, childArea));
 
               offsetBottom += childArea.Height;
               availableSize.Height -= childArea.Height;
@@ -162,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
               // Position the child within the child area
               ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
-              child.Arrange(SharpDXExtensions.CreateRectangleF(location, childArea));
+              child.Arrange(SharpDXExtensions.CreateRawRectangleF(location, childArea));
 
               offsetLeft += childArea.Width;
               availableSize.Width -= childArea.Width;
@@ -172,9 +172,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             {
               PointF location;
               if (count == visibleChildren.Count && LastChildFill)
-                location = new PointF(_innerRect.Width - (offsetRight + availableSize.Width), offsetTop);
+                location = new PointF(_innerRect.Width() - (offsetRight + availableSize.Width), offsetTop);
               else
-                location = new PointF(_innerRect.Width - (offsetRight + childSize.Width), offsetTop);
+                location = new PointF(_innerRect.Width() - (offsetRight + childSize.Width), offsetTop);
               location.X += ActualPosition.X;
               location.Y += ActualPosition.Y;
 
@@ -186,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
               // Position the child within the child area
               ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
-              child.Arrange(SharpDXExtensions.CreateRectangleF(location, childArea));
+              child.Arrange(SharpDXExtensions.CreateRawRectangleF(location, childArea));
 
               offsetRight += childArea.Width;
               availableSize.Width -= childArea.Width;
@@ -199,11 +199,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               location.Y += ActualPosition.Y;
               childSize = new SizeF(availableSize.Width, availableSize.Height);
               if (count == visibleChildren.Count && LastChildFill)
-                child.Arrange(SharpDXExtensions.CreateRectangleF(location, childSize));
+                child.Arrange(SharpDXExtensions.CreateRawRectangleF(location, childSize));
               else
               {
                 ArrangeChild(child, child.HorizontalAlignment, child.VerticalAlignment, ref location, ref childSize);
-                child.Arrange(SharpDXExtensions.CreateRectangleF(location, childSize));
+                child.Arrange(SharpDXExtensions.CreateRawRectangleF(location, childSize));
               }
 
               // Do not remove child size from a border offset or from size - the child will

@@ -33,6 +33,7 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -179,7 +180,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
+    public override void SetupBrush(FrameworkElement parent, ref RawRectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
       // We use another order here to make sure boundaries are updated first.
       // Then the visual is created for new boundaries

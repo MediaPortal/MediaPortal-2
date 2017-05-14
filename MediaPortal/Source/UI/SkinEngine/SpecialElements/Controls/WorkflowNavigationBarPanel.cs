@@ -213,7 +213,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             startPositionX += childSize.Width;
           }
 
-          firstChild.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
+          firstChild.Arrange(SharpDXExtensions.CreateRawRectangleF(position, childSize));
 
           // Lay out ellipsis
           if (_ellipsisControl != null)
@@ -234,7 +234,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
               startPositionX += childSize.Width;
             }
 
-            _ellipsisControl.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
+            _ellipsisControl.Arrange(SharpDXExtensions.CreateRawRectangleF(position, childSize));
           }
 
           int numBeforeEllipsis = childrenAfterEllipsis.Count - numShownChildrenAfterEllipsis;
@@ -265,7 +265,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             startPositionX += childSize.Width;
           }
 
-          child.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
+          child.Arrange(SharpDXExtensions.CreateRawRectangleF(position, childSize));
         }
       }
     }

@@ -73,10 +73,6 @@ namespace MediaPortal.UI.SkinEngine
     {
       return new Rectangle((int)location.X, (int)location.Y, size.Width, size.Height);
     }
-    public static RectangleF CreateRectangleF(Vector2 location, Size2F size)
-    {
-      return new RectangleF(location.X, location.Y, size.Width, size.Height);
-    }
 
     public static RawRectangleF CreateRawRectangleF(Vector2 location, Size2F size)
     {
@@ -86,6 +82,36 @@ namespace MediaPortal.UI.SkinEngine
     public static RawRectangle CreateRawRectangle(Vector2 location, Size2 size)
     {
       return new RawRectangle((int)location.X, (int)location.Y, size.Width, size.Height);
+    }
+
+    public static float Width(this RawRectangleF rect)
+    {
+      return rect.Right - rect.Left;
+    }
+
+    public static float Height(this RawRectangleF rect)
+    {
+      return rect.Bottom - rect.Top;
+    }
+
+    public static Vector2 Center(this RawRectangleF rect)
+    {
+      return new Vector2(rect.Left + (rect.Width() / 2), rect.Top + (rect.Height() / 2));
+    }
+
+    public static Size2F Size(this RawRectangleF rect)
+    {
+      return new Size2F(rect.Width(), rect.Height());
+    }
+
+    public static Vector2 Location(this RawRectangleF rect)
+    {
+      return new Vector2(rect.Left, rect.Top);
+    }
+
+    public static RawRectangleF Union(this RawRectangleF rect1, RawRectangleF rect2)
+    {
+      return new RawRectangleF();
     }
   }
 }

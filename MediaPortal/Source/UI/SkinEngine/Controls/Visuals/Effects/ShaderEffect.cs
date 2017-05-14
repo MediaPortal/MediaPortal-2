@@ -27,6 +27,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
+using SharpDX.Mathematics.Interop;
 using EffectContext = MediaPortal.UI.SkinEngine.Rendering.EffectContext;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -54,12 +55,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
         _refresh = false;
       }
 
-      RectangleF rect = renderContext.OccupiedTransformedBounds;
-      SizeF frameSize = new SizeF(rect.Width, rect.Height);
+      RawRectangleF rect = renderContext.OccupiedTransformedBounds;
+      SizeF frameSize = new SizeF(rect.Width(), rect.Height());
       //_effectContext.ExtraParameters = GetShaderParameters();
       _effectContext.ShaderEffect = _shaderEffectName;
 
-      Vector4 lastFrameData = new Vector4(rect.Width, rect.Height, 0.0f, 0.0f);
+      Vector4 lastFrameData = new Vector4(rect.Width(), rect.Height(), 0.0f, 0.0f);
       _effectContext.StartRender(renderContext, frameSize, texture, CROP_FULLSIZE, Color.Transparent, lastFrameData);
       return true;
     }

@@ -27,6 +27,7 @@ using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
@@ -46,7 +47,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     protected EffectAsset<EffectAssetCore<ImageEffect>> _effect;
     protected Bitmap1 _lastTexture;
-    protected RectangleF _lastTextureClip;
+    protected RawRectangleF _lastTextureClip;
     protected Matrix _inverseRelativeTransformCache;
     protected bool _refresh = true;
 
@@ -89,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Bitmap1 texture, RectangleF textureClip,
+    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Bitmap1 texture, RawRectangleF textureClip,
         Color borderColor, Vector4 frameData)
     {
       RefreshParameters(targetImageSize, texture, textureClip);
@@ -120,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return true;
     }
 
-    protected virtual void RefreshParameters(SizeF targetImageSize, Bitmap1 texture, RectangleF textureClip)
+    protected virtual void RefreshParameters(SizeF targetImageSize, Bitmap1 texture, RawRectangleF textureClip)
     {
       if (_refresh || _lastTexture != texture)
       {

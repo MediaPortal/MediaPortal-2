@@ -29,6 +29,7 @@ using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct2D1.Effects;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
 {
@@ -141,14 +142,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D
       }
     }
 
-    public void SetParentControlBounds(RectangleF parentControlBounds)
+    public void SetParentControlBounds(RawRectangleF parentControlBounds)
     {
       // Absolute pixels
       var parentBounds = new Vector4(
-        parentControlBounds.X,
-        parentControlBounds.Y,
-        (parentControlBounds.X + parentControlBounds.Width),
-        (parentControlBounds.Y + parentControlBounds.Width));
+        parentControlBounds.Left,
+        parentControlBounds.Top,
+        (parentControlBounds.Left + parentControlBounds.Width()),
+        (parentControlBounds.Top + parentControlBounds.Width()));
       var wasInvalidate = _invalidateCache;
       _invalidateCache = _parentControlBounds != parentBounds;
       _parentControlBounds = parentBounds;

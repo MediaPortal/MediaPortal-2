@@ -27,6 +27,7 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -109,7 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
-      RectangleF rect = new RectangleF(0, 0, 0, 0);
+      RawRectangleF rect = new RawRectangleF(0, 0, 0, 0);
       UnregisterAllChildCanvasPositionProperties();
       foreach (FrameworkElement child in GetVisibleChildren())
       {
@@ -119,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         float left = GetLeft(child, true);
         float top = GetTop(child, true);
 
-        rect = RectangleF.Union(rect, SharpDXExtensions.CreateRectangleF(new PointF(left, top), new SizeF(childSize.Width, childSize.Height)));
+        rect = RawRectangleF.Union(rect, SharpDXExtensions.CreateRawRectangleF(new PointF(left, top), new SizeF(childSize.Width, childSize.Height)));
       }
 
       return new SizeF(rect.Right, rect.Bottom);
@@ -128,8 +129,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected override void ArrangeOverride()
     {
       base.ArrangeOverride();
-      float x = _innerRect.Location.X;
-      float y = _innerRect.Location.Y;
+      float x = _innerRect.Location().X;
+      float y = _innerRect.Location().Y;
 
       foreach (FrameworkElement child in GetVisibleChildren())
       {
@@ -140,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         SizeF childSize = child.DesiredSize;
 
         // Arrange the child
-        child.Arrange(SharpDXExtensions.CreateRectangleF(location, childSize));
+        child.Arrange(SharpDXExtensions.CreateRawRectangleF(location, childSize));
       }
     }
 
