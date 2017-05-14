@@ -178,8 +178,17 @@
                 <!--ListView Grid.Row="0" Grid.Column="0" x:Name="ActorList" ItemsSource="{Binding Path=VideoActors, Converter={StaticResource StringSplitConverter}}"
                           HorizontalAlignment="Center" VerticalAlignment="Stretch" Style="{ThemeResource XXXListStyle}"
                           Margin="10,5,10,5" /-->
-                <Label Margin="20,5,10,5" Content="{Binding Path=VideoActors}" Wrap="True"
-                       Opacity="1.3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
+                <media:VideoAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}">
+                  <media:VideoAspectWrapper.Template>
+                    <ControlTemplate>
+                      <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
+                                Style="{ThemeResource PersonCPListViewStyle}"
+                                ItemsSource="{Binding Path=Actors, Converter={StaticResource StringSplitConverter}}"/>
+                    </ControlTemplate>
+                  </media:VideoAspectWrapper.Template>
+                </media:VideoAspectWrapper>
+                <!--Label Margin="20,5,10,5" Content="{Binding Path=VideoActors}" Wrap="True"
+                       Opacity="1.3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/-->
               </Grid>
 
               <!-- GENERAL INFO TAB -->

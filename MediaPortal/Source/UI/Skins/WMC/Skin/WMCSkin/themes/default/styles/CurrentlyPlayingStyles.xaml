@@ -6,6 +6,36 @@
     DependsOnStyleResources="Colors,Buttons,Consts,OtherControls"
     >
 
+  <Style x:Key="CPItemScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal" Margin="0,-50,0,-50">
+            <!--The negative margin is necessary and needs to be compensated in the 
+            ScrollContentPresenter to avoid graphic errors with grow effect-->
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="50" Margin="0,50,0,50"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                <GradientStop Color="Transparent" Offset="0.02" />
+                <GradientStop Color="Black" Offset="0.11" />
+                <GradientStop Color="Black" Offset="0.86" />
+                <GradientStop Color="Transparent" Offset="0.95" />
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!--VideoAudioStreams-->
 
   <DataTemplate x:Key="VideoAudioStreamDataTemplate">
@@ -90,7 +120,7 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="215"/>
+        <ColumnDefinition Width="220"/>
       </Grid.ColumnDefinitions>
 
       <Label FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="40,0,0,0">
@@ -149,7 +179,7 @@
             <ColumnDefinition Width="45*"/>
           </Grid.ColumnDefinitions>
           <Image Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Center"
-                 Margin="0,0,10,0" Source="Medialogos\Subtitle\Internal.png" IsVisible="{Binding IsInternal}"/>
+                 Margin="0,0,15,0" Source="Medialogos\Subtitle\Internal.png" IsVisible="{Binding IsInternal}"/>
           <!--Image Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Center"
                                  Margin="0,0,10,0" Source="Medialogos\Subtitle\External.png" IsVisible="{Binding !IsInternal}"/-->
           <Label Grid.Column="0" Margin="20,0,0,0" Color="{ThemeResource TextColor}" 
@@ -161,6 +191,37 @@
     </Grid>
   </DataTemplate>
 
+  <!--Persons-->
+
+  <DataTemplate x:Key="PersonDataTemplate">
+    <Grid Margin="0,0,-30,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="100"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="100"/>
+      </Grid.ColumnDefinitions>
+
+      <!--Image x:Name="thumb" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Fill">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </-->
+
+      <Label Content="{Binding Path=Actor}"/>
+
+    </Grid>
+  </DataTemplate>
+
   <!--ListView-->
 
   <Style x:Key="DefaultCPListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
@@ -168,8 +229,34 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel Orientation="Horizontal" IsItemsHost="True" />
+          <!--UniformGrid Columns="5" Rows="2" x:Name="ListItemsHost" IsItemsHost="True" Height="30"/-->
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="350,350" Margin="-170,0,-170,0">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
         </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource CPItemScrollViewerStyle}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>
@@ -180,6 +267,10 @@
 
   <Style x:Key="SubtitleCPListViewStyle" BasedOn="{ThemeResource DefaultCPListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource SubtitleDataTemplate}"/>
+  </Style>
+
+  <Style x:Key="PersonCPListViewStyle" BasedOn="{ThemeResource DefaultCPListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource PersonDataTemplate}"/>
   </Style>
 
 </ResourceDictionary>
