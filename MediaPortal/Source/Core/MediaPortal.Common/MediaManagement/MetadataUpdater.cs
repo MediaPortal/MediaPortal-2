@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace MediaPortal.Extensions.OnlineLibraries
+namespace MediaPortal.Common.MediaManagement
 {
   /// <summary>
   /// <see cref="MetadataUpdater"/> contains methods to merge metadata to get the most complete data.
