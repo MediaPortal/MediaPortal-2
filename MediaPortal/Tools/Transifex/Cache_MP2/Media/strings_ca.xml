@@ -8,32 +8,20 @@
   <string name="Media.SeriesMenuItem">Sèries</string>
   <string name="Media.MoviesMenuItem">Pel·lícules</string>
   <string name="Media.ImagesMenuItem">Imatges</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Filtra per artista</string>
-  <string name="Media.FilterByAlbumMenuItem">Filtra per àlbum</string>
-  <string name="Media.FilterByAudioGenreMenuItem">Filtra per gènere</string>
-  <string name="Media.FilterByDecadeMenuItem">Filtra per dècada</string>
-  <string name="Media.FilterByActorMenuItem">Filtra per actor</string>
-  <string name="Media.FilterByDirectorMenuItem">Filtra per director</string>
-  <string name="Media.FilterByWriterMenuItem">Filtra per escriptor</string>
-  <string name="Media.FilterByVideoGenreMenuItem">Filtra per gènere</string>
-  <string name="Media.FilterByVideoYearMenuItem">Filtra per any</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">Filtra per idioma</string>
-  <string name="Media.FilterByImageSizeMenuItem">Filtra per mida</string>
-  <string name="Media.FilterByImageYearMenuItem">Filtra per any</string>
-  <string name="Media.FilterByImageCountryMenuItem">Filtra per país</string>
-  <string name="Media.FilterByImageStateMenuItem">Filtra per estat</string>
-  <string name="Media.FilterByImageCityMenuItem">Filtra per ciutat</string>
-  <string name="Media.FilterBySystemMenuItem">Filtra per sistema</string>
-  <string name="Media.FilterByMoviesCollectionMenuItem">Filtra per col·lecció</string>
-  <string name="Media.FilterBySeriesNameMenuItem">Filtra per sèries</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">Filtra per temporada</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">Filtra per episodi</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">Nom</string>
+  <string name="Media.TitleMenuItem">Títol</string>
+  <string name="Media.ArtistMenuItem">Artista</string>
+  <string name="Media.GenreMenuItem">Gènere</string>
+  <string name="Media.SizeMenuItem">Mida</string>
+  <string name="Media.SystemMenuItem">Sistema</string>
+  <string name="Media.EpisodeDateMenuItem">Episodi</string>
+  <string name="Media.AudioLanguageMenuItem">Idioma</string>
+  <string name="Media.ImageStateMenuItem">Estat</string>
+  <string name="Media.SeriesNameMenuItem">Sèries</string>
   <string name="Media.SimpleSearchFilterMenuItem">Cerca</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Mostra\'ls tots</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Mostra\'ls tots</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Mostra\'ls tots</string>
-  <string name="Media.ShowAllMoviesMenuItem">Mostra\'ls tots</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">Filtra</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Petit</string>
   <string name="Media.ImageFilterMedium">Mitjà</string>
@@ -202,6 +190,7 @@
   <string name="Media.VideoDurationLabel">Durada:</string>
   <string name="Media.VideoActorsLabel">Actor(s): </string>
   <string name="Media.VideoStoryPlotLabel">Argument:</string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">Sèries:</string>
   <string name="Media.SeriesSeasonLabel">Temporada:</string>
@@ -278,27 +267,6 @@
   <string name="Media.LargeGrid">Graella</string>
   <string name="Media.CoverLayout">Cobertes</string>
   <string name="Media.SwitchSortingMenuItem">S\'està ordenant</string>
-  <string name="Media.SwitchSortingDialogTitle">S\'està ordenant</string>
-  <string name="Media.SortByTitle">Ordena per títol</string>
-  <string name="Media.SortByAlbumTrack">Ordena per àlbum i peça</string>
-  <string name="Media.SortByGenre">Ordena per gènere</string>
-  <string name="Media.SortByAlbum">Ordena per àlbum i títol</string>
-  <string name="Media.SortByTrack">Ordena per peça</string>
-  <string name="Media.SortByArtist">Ordena per artista</string>
-  <string name="Media.SortByYear">Ordena per any</string>
-  <string name="Media.SortBySize">Ordena per mida</string>
-  <string name="Media.SortBySystem">Ordena per sistema</string>
-  <string name="Media.SortByActor">Ordena per actor</string>
-  <string name="Media.SortByDirector">Ordena per director</string>
-  <string name="Media.SortByWriter">Ordena per escriptor</string>
-  <string name="Media.SortByDuration">Ordena per durada</string>
-  <string name="Media.SortByAspectRatio">Ordena per relació d\'aspecte</string>
-  <string name="Media.SortByFirstAiredDate">Ordena per data d\'emissió</string>
-  <string name="Media.SortByDate">Filtra per data d\'enregistrament</string>
-  <string name="Media.SortByEpisode">Filtra per episodi</string>
-  <string name="Media.SortingBrowseDefault">Filtratge per defecte</string>
-  <string name="Media.SwitchFilterMenuItem">Filtra</string>
-  <string name="Media.SwitchFilterDialogTitle">Filtra</string>
   <string name="Settings.Players">Reproductors</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Tanca els reproductors en acabar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activeu el paràmetre per a que el MediaPortal tanqui automàticmanet els reproductors en acabar</string>

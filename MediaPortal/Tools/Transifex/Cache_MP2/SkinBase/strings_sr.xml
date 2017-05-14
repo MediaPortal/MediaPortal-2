@@ -28,6 +28,7 @@
   <string name="Media.MyMusic">Музика</string>
   <string name="Media.MyVideos">Видео</string>
   <string name="Media.MyPictures">Слике</string>
+  <string name="Media.InvalidShareName">Извор медија не постоји</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">МП2 сервер је доступан</string>
   <string name="ServerConnection.NotificationServerAvailableText">Најмање један МедиајПортал 2 је доступан на мрежи. Прикачи се на њега како би добио све могућности Медија Портала 2</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' на домаћину \'{1}\'</string>
@@ -45,6 +46,7 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Кућни сервер није тренутно прикључен.</string>
   <string name="ServerConnection.DetachMenu">Раскачи</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Разкачи са кућног сервера</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Уколико се раскачите са главног сервера, сви подаци о извору медија са клијента ће бити уклољени са главног сервера. Можете их после поново унети. Да ли заиста хоћете да се раскачите са главног сервера \'{0}\' на \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Поздрави сервере</string>
   <string name="ServerConnection.DetachFromServer">Раскачи се са кућног сервера</string>
   <string name="ServerConnection.AttachToServerHeader">Накачи МедијаПортал 2 сервер</string>
@@ -65,8 +67,14 @@
   <string name="ImporterMessages.ImportStartedText">Унос \'{0}\' је започет.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Унос је завршен</string>
   <string name="ImporterMessages.ImportCompletedText">Унос \'{0}\' је завршен.</string>
+  <string name="LocalFsResourceProvider.Name">Локални систем датотека</string>
   <string name="LocalFsResourceProvider.Description">Приступи локалном фајл систему</string>
+  <string name="RemoteResourceProvider.Name">Даљински извори</string>
   <string name="RemoteResourceProvider.Description">Приступи изворима који се налазе на другом МедијаПортал 2 систему</string>
+  <string name="RawUrlResourceProvider.Name">Интернет адреса</string>
+  <string name="RawUrlResourceProvider.Description">Приступи идентификатору извора</string>
+  <string name="VirtualResourceProvider.Name">Виртуелни извори</string>
+  <string name="VirtualResourceProvider.Description">Приступи виртуелним изворима</string>
   <string name="ScreenSaver.MediaPortal2">МедијаПортал 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Нема Плејера</string>
@@ -95,12 +103,13 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Мод за увећање</string>
   <string name="Players.ChoosePlayerEffect">Ефекти</string>
+  <string name="Players.ChoosePlayerSubtitle">Суптилно</string>
   <string name="Settings.Appearance">Изглед</string>
   <string name="Settings.Appearance.Skin">Изглед програма</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Формат за датум</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Формат за датум који се користи у изгледу. Изабери формат са .net DateTime class.</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Временски формат коришћен за приказ.  Користи \'d\' за \"1/14/2017\" или \'D\' за \"Saturday, 1/14/2017\".</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Формат за време</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Формат за време који се користи у изгледу. Изабери формат са .net DateTime class.</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Временски формат коришћен за приказ. Користи \'t\' за \"11:50\" или \'Т\' за \"11:50:37\".</string>
   <string name="Settings.General">Генерално</string>
   <string name="Settings.General.System">Систем</string>
   <string name="Settings.General.System.Autostart">Аутостарт</string>
@@ -114,17 +123,37 @@
   <string name="Settings.General.Connectivity.ServerListener.Help">Омогући обавештавање када МедијаПортал 2 сервер је доступан на мрежи</string>
   <string name="Settings.General.Connectivity.ClientName">Назив клијента</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Подеси назив овог МедијаПортал 2 клијента</string>
+  <string name="Settings.General.Connectivity.HttpServerPort">HTTP поrt сервера</string>
+  <string name="Settings.General.Connectivity.HttpServerPort.Help">Подеси порт HTTP сервера</string>
+  <string name="Settings.General.Connectivity.UseIPv4">Користи IPv4</string>
+  <string name="Settings.General.Connectivity.UseIPv4.Help">Одабери да ли МедијаПортал 2 клијент треба да користи IPv4 Главни сервер</string>
+  <string name="Settings.General.Connectivity.UseIPv6">Користи IPv6</string>
+  <string name="Settings.General.Connectivity.UseIPv6.Help">Подеси овај МедијаПортал 2 да користи IPv6 везе ка главном серверу</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">Везе IP адреса</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings.Help">Направи листу IP адреса које требају бити коришћене од стране овог клијента МедијаПортала 2 за прикључивање на главни сервер</string>
   <string name="Settings.Regional">Регионални</string>
   <string name="Settings.Regional.Language">Језик</string>
   <string name="Settings.Regional.Language.Main">Језик</string>
   <string name="Settings.Regional.Language.Main.Help">Подеси главни језик у програму</string>
+  <string name="Settings.Shares">Извори медија</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">Подешавање извора медија</string>
   <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Подешавање извора медија</string>
   <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">ПОдешавање свих извора медија</string>
   <string name="Settings.Shares.Overview">Преглед</string>
   <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Прегледи извора медија</string>
   <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Глоални преглед извора медија</string>
+  <string name="Settings.Shares.Imports.ReImportAllShares">Поново унеси све изворе медија</string>
   <string name="Settings.Plugins">Прикључци</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Прегледи извора медија</string>
+  <string name="SharesOverview.Title">Прегледи извора медија</string>
+  <string name="SharesOverview.ReImportAllShares">Поново унеси све изворе медија</string>
+  <string name="SharesOverview.NotConnectedToHomeServer">Главни сервер није прикачен, информације о извору медија не могу се добити</string>
+  <string name="Shares.NoSharesInThisView">Нема извора информација</string>
   <string name="Shares.InvalidPath">Неважећа путања: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Онлајн</string>
@@ -132,28 +161,71 @@
   <string name="Shares.ReImport">Поново увези</string>
   <string name="Shares.Importing">Увоз ...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Подешавање извора медија</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Уклони извор медија</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Информације о изворима медија</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Одабери клијента за размену</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Промени путању</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Одабери путању</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Измени име</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Изабети категорију</string>
+  <string name="SharesConfig.CannotAddSharesTitle">Не могу се додати извори медија</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">Главни сервер се налази на истом компјутеру, сви медији се морају регистровати на серверу. Али сервер тренутно није прикачен. Покрени главни сервер и покушај поново.</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Подешавање извора медија</string>
+  <string name="SharesConfig.NoSharesAvailable">Не постоје извори медија</string>
+  <string name="SharesConfig.ShareInformationHeader">Информације о изворима медија</string>
   <string name="SharesConfig.ShareNameInfo">Име:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Извор размене:</string>
   <string name="SharesConfig.ShareSystem">Систем:</string>
   <string name="SharesConfig.SharePathInfo">Путања:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Техничка путања:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Категорије медије:</string>
+  <string name="SharesConfig.ReImportShare">Поново унеси изворе медија</string>
+  <string name="SharesConfig.SetupDefaultShares">Подеси подразумеване изворе</string>
+  <string name="SharesConfig.RemoveShares">Уклони извор медија</string>
+  <string name="SharesConfig.EditShare">Измени извор медија</string>
   <string name="SharesConfig.ChooseSystem">Изабери систем</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Одабери које изворе медија одстранити</string>
+  <string name="SharesConfig.ChooseSystemForShare">Одабери извор медија</string>
+  <string name="SharesConfig.LocalShare">Извори медија на клијенту</string>
+  <string name="SharesConfig.LocalShares">Извори медија на клијенту</string>
+  <string name="SharesConfig.GlobalShare">Извори медија на серверу</string>
+  <string name="SharesConfig.GlobalShares">Извори медија на серверу</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">Главни сервер тренутно није прикачен, извори медија са сервера се не могу тренутно управљати.</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">Главни сервер се налаз на истом компјутеру, тако да се једино могу подесити извори медија са сервера</string>
+  <string name="SharesConfig.ChooseResourceProviderForShare">Одабери давалац ресурса за извор медија</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Измени питању до извора медија</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Измените важећу путању на изабраном извору размене. Можете изменити једноставну путању која је разумљива за извор размене. Можете такође изменити комплексну путању за извор размене у формату  {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Одабери путању до извора медија</string>
+  <string name="SharesConfig.EditShareName">Измени пријазано име извора медија</string>
+  <string name="SharesConfig.ChooseShareCategories">Одабери категорије медијског садржаја које се налазе на извору медија</string>
+  <string name="SharesConfig.SharePathExists">Извор медија са овом путањом већ постоји</string>
+  <string name="SharesConfig.ShareNameExists">Извор медија са овим именом већ постоји</string>
+  <string name="SharesConfig.ShareNameEmpty">Измени име медија извора</string>
+  <string name="SharesConfig.EditShareProblemHeader">Постоји проблем у подешавању извора медија</string>
+  <string name="SharesConfig.EditShareProblemText">Грешка у систему се појавима током подешавања извора медија</string>
+  <string name="SharesConfig.MenuAddShare">Додај извор медија</string>
   <string name="SharesConfig.MenuEditShares">Измени</string>
+  <string name="SharesConfig.MenuRemoveShares">Уклони извор медија</string>
+  <string name="SharesConfig.AddServerShare">Додај медија извор за сервер</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.EditServerShare">Измени медија извор за сервер</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.AddLocalShare">Додај медија извор за клијента</string>
+  <string name="SharesConfig.EditLocalShare">Измени медија извор за клијента</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Надгради извор медија</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Давалац ресурса извора медија  и/или путања се надграђена</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Информације медија библиотеке о медијским ставкама у овом извору могу бити надграђене (премештене) или обрисане и поново унесене.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Да ли желите да промените место размени или да је очистире или поново унесете?</string>
   <string name="SharesConfig.Relocate">Промени место</string>
   <string name="SharesConfig.ReImport">Поново унеси</string>
+  <string name="SharesConfig.ManualPathInput">Ручно додавање</string>
+  <string name="SharesConfig.UseShareWatcher">Подели посматрач:</string>
+  <string name="SharesConfig.UseShareWatcher.Help">Надгледа све изворе за промене и аутоматски освежава медијску библиотеку.</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">МедијаПортал 2 клијент</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 клијент - the MediaPortal графички приказ. Омогућава гледање разних врста медија, садржи изворе за медије клијента и обезбеђује графички приказ.</string>
   <string name="UPnPFrontendServer.ModelName">МедијаПортал 2 клијент</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

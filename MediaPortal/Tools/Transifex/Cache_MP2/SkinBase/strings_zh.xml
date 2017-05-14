@@ -96,12 +96,11 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">缩放模式</string>
   <string name="Players.ChoosePlayerEffect">效果</string>
+  <string name="Players.ChoosePlayerSubtitle">字幕</string>
   <string name="Settings.Appearance">外观</string>
   <string name="Settings.Appearance.Skin">皮肤</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">数据格式</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">皮肤用到的数据格式，使用 .net DateTime class的格式规格</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">时间格式</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">皮肤用的时间格式，使用 .net DateTime class的格式规格</string>
   <string name="Settings.General">常规</string>
   <string name="Settings.General.System">系统</string>
   <string name="Settings.General.System.Autostart">自动启动</string>

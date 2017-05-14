@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="VEC.Enable">Seleccionar automáticamente os efeitos de video</string>
+  <string name="VEC.ConfigGroup">Efeitos</string>
+  <string name="VEC.LowerEffect">Efeitos de baixa resolução</string>
+  <string name="VEC.HigherEffect">Efeitos de alta resolução</string>
+  <string name="VEC.ResolutionLimit">Limite de resolução</string>
+</resources>

@@ -462,7 +462,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (ReleaseDate.HasValue && other.ReleaseDate.HasValue &&
         (Artists == null || Artists.Count == 0 || other.Artists == null || other.Artists.Count == 0 || Artists[0].Equals(other.Artists[0])))
-        return ReleaseDate.Value == other.ReleaseDate.Value;
+        return ReleaseDate.Value.Year == other.ReleaseDate.Value.Year;
 
       return AlbumVolumesAreEqual(other);
     }

@@ -8,13 +8,21 @@
   <string name="Menu.Settings">设置</string>
   <string name="Menu.Others">其它的</string>
   <string name="Menu.Home">主界面</string>
+  <string name="Menu.Main">主菜单</string>
   <string name="Movies.Title">电影</string>
   <string name="Series.Title">系列</string>
   <string name="Audio.Title">音频</string>
   <string name="Recordings.Title">录制</string>
   <string name="Images.Title">图片</string>
   <string name="Videos.Title">视频</string>
+  <string name="Video.Title">视频</string>
+  <string name="Subtitle.Title">字幕</string>
   <string name="News.Title">新闻</string>
   <string name="Weather.Title">天气</string>
   <string name="General.Title">常规</string>
+  <string name="MediaInfo.Title">媒体信息</string>
+  <string name="Media.AudioAlbumArtistsLabel">专辑艺术家：</string>
+  <string name="Media.AudioTrackLabel">音轨：</string>
+  <string name="Media.AudioBitRateLabel">位率：</string>
+  <string name="Media.AudioComposersLabel">作曲者：</string>
 </resources>

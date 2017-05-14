@@ -2,8 +2,19 @@
 <resources>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.VideosMenuItem">वीडियो</string>
-  <!--Filter titles-->
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">नाम</string>
+  <string name="Media.TitleMenuItem">शीर्षक</string>
+  <string name="Media.ArtistMenuItem">कलाकार</string>
+  <string name="Media.GenreMenuItem">घराना</string>
+  <string name="Media.SizeMenuItem">आकार</string>
+  <string name="Media.SystemMenuItem">तंत्र</string>
+  <string name="Media.EpisodeDateMenuItem">एपिसोड</string>
+  <string name="Media.AudioLanguageMenuItem">भाषा</string>
+  <string name="Media.ImageStateMenuItem">स्थिति</string>
   <string name="Media.SimpleSearchFilterMenuItem">खोजें</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">फ़िल्टर</string>
   <!--Special filters names-->
   <!--Navbar display labels for sub view navigation-->
   <!--For example: "R.E.M."-->
@@ -38,6 +49,7 @@
   <!--Play items dialog-->
   <!--Player context names-->
   <!--Video currently playing-->
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->
@@ -46,8 +58,6 @@
   <string name="Media.RepeatMode.All">सभी</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
-  <string name="Media.SwitchFilterMenuItem">फ़िल्टर</string>
-  <string name="Media.SwitchFilterDialogTitle">फ़िल्टर</string>
   <string name="Settings.Players">प्लेयर</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

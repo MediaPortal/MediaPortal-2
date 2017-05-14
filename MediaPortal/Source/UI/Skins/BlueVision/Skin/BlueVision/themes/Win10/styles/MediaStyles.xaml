@@ -479,8 +479,9 @@
   </ControlTemplate>
 
     <ControlTemplate x:Key="CoverViewSeriesFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
-      <Image x:Name="Thumb" Stretch="Fill" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" >
+    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}">
+      <Image x:Name="Thumb" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource MEDIA_COVERFLOW_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_COVERFLOW_HEIGHT}"/>
@@ -602,8 +603,9 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewSeriesSeasonFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
-      <Image x:Name="Thumb" Stretch="Fill" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}">
+    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}">
+      <Image x:Name="Thumb" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource MEDIA_COVERFLOW_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_COVERFLOW_HEIGHT}"/>
@@ -858,9 +860,9 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewMovieItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
-      <Image x:Name="Thumb" Stretch="Fill" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" 
-             VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}">
+      <Image x:Name="Thumb" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource MEDIA_COVERFLOW_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_COVERFLOW_HEIGHT}"/>

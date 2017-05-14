@@ -501,7 +501,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodes.Count == 1)
       {
         if (episodes[0].EpisodeNumbers.Count > 0 && episodeSearch.EpisodeNumbers.Count > 0 &&
-          episodes[0].EpisodeNumbers[0] == episodeSearch.EpisodeNumbers[0] &&
+          episodes[0].FirstEpisodeNumber == episodeSearch.FirstEpisodeNumber &&
           episodes[0].SeasonNumber.HasValue && episodeSearch.SeasonNumber.HasValue &&
           episodes[0].SeasonNumber.Value == episodeSearch.SeasonNumber.Value)
         {
@@ -755,10 +755,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.FirstAired = episodeMatches.First().FirstAired;
       episodeInfo.Rating = new SimpleRating(episodeMatches.Where(e => !e.Rating.IsEmpty).Sum(e => e.Rating.RatingValue.Value) / episodeMatches.Count); // Average rating
       episodeInfo.Rating.VoteCount = episodeMatches.Where(e => !e.Rating.IsEmpty && e.Rating.VoteCount.HasValue).Sum(e => e.Rating.VoteCount.Value) / episodeMatches.Count; // Average rating count
-      episodeInfo.EpisodeName = string.Join("; ", episodeMatches.OrderBy(e => e.EpisodeNumbers[0]).Select(e => e.EpisodeName.Text).ToArray());
+      episodeInfo.EpisodeName = string.Join("; ", episodeMatches.OrderBy(e => e.FirstEpisodeNumber).Select(e => e.EpisodeName.Text).ToArray());
       episodeInfo.EpisodeName.DefaultLanguage = episodeMatches.First().EpisodeName.DefaultLanguage;
-      episodeInfo.Summary = string.Join("\r\n\r\n", episodeMatches.OrderBy(e => e.EpisodeNumbers[0]).
-        Select(e => string.Format("{0,02}) {1}", e.EpisodeNumbers[0], e.Summary.Text)).ToArray());
+      episodeInfo.Summary = string.Join("\r\n\r\n", episodeMatches.OrderBy(e => e.FirstEpisodeNumber).
+        Select(e => string.Format("{0,02}) {1}", e.FirstEpisodeNumber, e.Summary.Text)).ToArray());
       episodeInfo.Summary.DefaultLanguage = episodeMatches.First().Summary.DefaultLanguage;
 
       episodeInfo.Genres = episodeMatches.SelectMany(e => e.Genres).Distinct().ToList();
@@ -1249,6 +1249,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public bool SearchTrackUniqueAndUpdate(TrackInfo trackSearch, TLang language)
     {
+      //Don't try to search for a track without artists
+      if (trackSearch.AlbumArtists.Count == 0 && trackSearch.Artists.Count == 0)
+        return false;
+
       List<TrackInfo> tracks;
       language = language != null ? language : PreferredLanguage;
 
@@ -1302,10 +1306,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         else
         {
-          exactMatches = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
-          if (exactMatches.Count > 0)
+          tracks = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
+          if (tracks.Count == 0)
           {
-            tracks = exactMatches;
+            tracks.Clear();
+            return false;
           }
         }
 
@@ -1402,6 +1407,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           //All good
         }
+        else if (trackSearch.AlbumArtists.Count > 0 && tracks[0].AlbumArtists.Count > 0 && tracks[0].AlbumArtists.Intersect(trackSearch.AlbumArtists).Any())
+        {
+          //All good
+        }
         else if (trackSearch.Artists.Count > 0 && tracks[0].Artists.Count > 0 && tracks[0].Artists.Intersect(trackSearch.Artists).Any())
         {
           //All good
@@ -1425,6 +1434,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public bool SearchTrackAlbumUniqueAndUpdate(AlbumInfo albumSearch, TLang language)
     {
+      //Don't try to search for an album without artists
+      if (albumSearch.Artists.Count == 0)
+        return false;
+
       List<AlbumInfo> albums;
       language = language != null ? language : PreferredLanguage;
 
@@ -1478,10 +1491,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         else
         {
-          exactMatches = albums.FindAll(t => NamesAreMostlyEqual(t, albumSearch));
-          if (exactMatches.Count > 0)
+          albums = albums.FindAll(t => NamesAreMostlyEqual(t, albumSearch));
+          if (albums.Count == 0)
           {
-            albums = exactMatches;
+            albums.Clear();
+            return false;
           }
         }
 

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using Ionic.Zip;
 
@@ -96,11 +97,39 @@ namespace MediaPortal.LogCollector
           Console.WriteLine("Error adding folder {0}: {1}", sourceFolder, ex);
         }
       }
+
+      string applicationEventLog = CollectEventLog("Application");
+      archive.AddFile(applicationEventLog, "Windows Logs");
+      string systemEventLog = CollectEventLog("System");
+      archive.AddFile(systemEventLog, "Windows Logs");
+
       archive.Save();
       archive.Dispose();
       Console.WriteLine("Successful created log archive: {0}", targetFile);
 
       Process.Start(outputPath); // Opens output folder
+    }
+
+    private static string CollectEventLog(string logName)
+    {
+      string filename = logName + "_eventlog.csv";
+      using (StreamWriter writer = new StreamWriter(filename))
+      {
+        writer.WriteLine("\"TimeGenerated\";\"Source\";\"Category\";\"EntryType\";\"Message\";\"InstanceID\"");
+        EventLog log = new EventLog(logName);
+        foreach (EventLogEntry entry in log.Entries)
+        {
+          string line = "\"" + entry.TimeGenerated.ToString(CultureInfo.InvariantCulture) + "\";";
+          line += "\"" + entry.Source + "\";";
+          line += "\"" + entry.Category + "\";";
+          line += "\"" + entry.EntryType + "\";";
+          line += "\"" + entry.Message.Replace(Environment.NewLine, " ") + "\";";
+          line += "\"" + entry.InstanceId + "\"";
+          writer.WriteLine(line);
+        }
+        writer.Close();
+      }
+      return filename;
     }
   }
 }

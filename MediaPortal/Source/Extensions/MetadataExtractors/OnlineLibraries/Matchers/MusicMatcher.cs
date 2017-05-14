@@ -315,7 +315,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (matchFound)
         {
           //Only update album related info if they are equal
-          bool albumMatch = trackInfo.CloneBasicInstance<AlbumInfo>().Equals(trackMatch.CloneBasicInstance<AlbumInfo>());
+          bool albumMatch = false;
+          if(!string.IsNullOrEmpty(trackInfo.Album))
+            albumMatch = trackInfo.CloneBasicInstance<AlbumInfo>().Equals(trackMatch.CloneBasicInstance<AlbumInfo>());
 
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AudioDbId, trackMatch.AudioDbId);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicBrainzId, trackMatch.MusicBrainzId);
@@ -359,13 +361,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), trackInfo.Artists.Count == 0, false);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
           MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), trackInfo.Composers.Count == 0, false);
           if (albumMatch)
           {
             MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), trackInfo.MusicLabels.Count == 0, false);
             //In some cases the album artists can be "Various Artist" and/or "Multiple Artists" or other variations
-            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), trackInfo.AlbumArtists.Count == 0, false);
+            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
           }
 
           //Store person matches
@@ -896,6 +898,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           updated = true;
         }
 
+        if (updateTrackList) //Check that the tracks are for the right artists
+        {
+          if (albumMatch.Tracks.Count == 0)
+            return false;
+
+          if (albumInfo.Artists.Count > 0 && albumMatch.Tracks.Count > 1)
+          {
+            int wrongArtitsts = 0;
+            foreach (TrackInfo track in albumMatch.Tracks)
+            {
+              wrongArtitsts += track.AlbumArtists.Count(p => !albumInfo.Artists.Contains(p));
+              if (wrongArtitsts > 1)
+              {
+                //Wrong album
+                break;
+              }
+            }
+            if (wrongArtitsts > 1)
+            {
+              Logger.Info(_id + ": Track album artist(s) don't match album artist(s) for album {0}", albumInfo.ToString());
+              return false;
+            }
+          }
+        }
+
         if (updated)
         {
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.AudioDbId, albumMatch.AudioDbId);
@@ -936,7 +963,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), albumInfo.Artists.Count == 0, false);
+          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
           MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), albumInfo.MusicLabels.Count == 0, false);
 
           if (updateTrackList) //Comparing all tracks can be quite time consuming
@@ -990,7 +1017,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        Logger.Debug(_id + ": Exception while processing collection {0}", ex, albumInfo.ToString());
+        Logger.Debug(_id + ": Exception while processing album {0}", ex, albumInfo.ToString());
         return false;
       }
     }

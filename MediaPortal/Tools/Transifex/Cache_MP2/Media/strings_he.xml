@@ -8,32 +8,23 @@
   <string name="Media.SeriesMenuItem">סדרה</string>
   <string name="Media.MoviesMenuItem">סרטים</string>
   <string name="Media.ImagesMenuItem">תמונות</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">סנן לפי אמן</string>
-  <string name="Media.FilterByAlbumMenuItem">סנן לפי אלבום</string>
-  <string name="Media.FilterByAudioGenreMenuItem">סנן לפי סגנון</string>
-  <string name="Media.FilterByDecadeMenuItem">סנן לפי עשור</string>
-  <string name="Media.FilterByActorMenuItem">סנן לפי שחקן</string>
-  <string name="Media.FilterByDirectorMenuItem">סנן לפי במאי</string>
-  <string name="Media.FilterByWriterMenuItem">סנן לפי כותב</string>
-  <string name="Media.FilterByVideoGenreMenuItem">סנן לפי סגנון</string>
-  <string name="Media.FilterByVideoYearMenuItem">סנן לפי שנה</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">סנן לפי שפה</string>
-  <string name="Media.FilterByImageSizeMenuItem">סנן לפי גודל</string>
-  <string name="Media.FilterByImageYearMenuItem">סנן לפי שנה</string>
-  <string name="Media.FilterByImageCountryMenuItem">סנן לפי מדינה</string>
-  <string name="Media.FilterByImageStateMenuItem">סנן לפי מחוז</string>
-  <string name="Media.FilterByImageCityMenuItem">סנן לפי עיר</string>
-  <string name="Media.FilterBySystemMenuItem">סנן לפי מערכת</string>
-  <string name="Media.FilterByMoviesCollectionMenuItem">סנן לפי אוסף</string>
-  <string name="Media.FilterBySeriesNameMenuItem">סנן לפי סדרה</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">סנן לפי עונה</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">סנן לפי פרק</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">שם</string>
+  <string name="Media.TitleMenuItem">כותרת</string>
+  <string name="Media.ArtistMenuItem">אמן</string>
+  <string name="Media.GenreMenuItem">ז\'אנר</string>
+  <string name="Media.SizeMenuItem">גודל</string>
+  <string name="Media.SystemMenuItem">מערכת</string>
+  <string name="Media.ActorMenuItem">שחקן</string>
+  <string name="Media.EpisodeDateMenuItem">פרק</string>
+  <string name="Media.AudioLanguageMenuItem">שפה</string>
+  <string name="Media.ImageCountryMenuItem">מדינה</string>
+  <string name="Media.ImageStateMenuItem">מצב</string>
+  <string name="Media.ImageCityMenuItem">עיר</string>
+  <string name="Media.SeriesNameMenuItem">סדרה</string>
   <string name="Media.SimpleSearchFilterMenuItem">חפש</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">הצג הכל</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">הצג הכל</string>
-  <string name="Media.ShowAllImageItemsMenuItem">הצג הכל</string>
-  <string name="Media.ShowAllMoviesMenuItem">הצג הכל</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">מסנן</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">קטן</string>
   <string name="Media.ImageFilterMedium">בינוני</string>
@@ -209,6 +200,7 @@
   <string name="Media.VideoDurationLabel">משך:</string>
   <string name="Media.VideoActorsLabel">שחקנ(ים):</string>
   <string name="Media.VideoStoryPlotLabel">עלילה:</string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">סדרה:</string>
   <string name="Media.SeriesSeasonLabel">עונה:</string>
@@ -285,27 +277,6 @@
   <string name="Media.LargeGrid">רשת:</string>
   <string name="Media.CoverLayout">עטיפות שער</string>
   <string name="Media.SwitchSortingMenuItem">מיון</string>
-  <string name="Media.SwitchSortingDialogTitle">מיון</string>
-  <string name="Media.SortByTitle">מיין לפי כותרת</string>
-  <string name="Media.SortByAlbumTrack">מיין לפי אלבום ורצועות</string>
-  <string name="Media.SortByGenre">מיין לפי ז\'אנר</string>
-  <string name="Media.SortByAlbum">סדר לפי אלבום וכותרת</string>
-  <string name="Media.SortByTrack">סדר לפי רצועה</string>
-  <string name="Media.SortByArtist">סדר לפי אמן</string>
-  <string name="Media.SortByYear">סדר לפי שנה</string>
-  <string name="Media.SortBySize">סדר לפי גודל</string>
-  <string name="Media.SortBySystem">סדר לפי המערכת</string>
-  <string name="Media.SortByActor">סדר לפי שחקן</string>
-  <string name="Media.SortByDirector">סדר לפי במאי</string>
-  <string name="Media.SortByWriter">סדר לפי כותב</string>
-  <string name="Media.SortByDuration">סדר לפי זמן ריצה</string>
-  <string name="Media.SortByAspectRatio">סדר לפי יחס תמונה</string>
-  <string name="Media.SortByFirstAiredDate">סדר לפי תאריך עליה לאויר</string>
-  <string name="Media.SortByDate">סדר לפי תאריך הקלטה</string>
-  <string name="Media.SortByEpisode">סדר לפי פרק</string>
-  <string name="Media.SortingBrowseDefault">סידור ברירת מחדל</string>
-  <string name="Media.SwitchFilterMenuItem">מסנן</string>
-  <string name="Media.SwitchFilterDialogTitle">מסנן</string>
   <string name="Settings.Players">נגנים</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">סגור נגן בעת סיום</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">סמן אפשרות זו כדי לגרום למדיה פורטל לסגור נגנים שהסתיימו בצורה אוטומטית</string>

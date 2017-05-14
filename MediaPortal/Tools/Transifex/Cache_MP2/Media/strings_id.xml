@@ -8,30 +8,20 @@
   <string name="Media.SeriesMenuItem">Serial</string>
   <string name="Media.MoviesMenuItem">Film</string>
   <string name="Media.ImagesMenuItem">Gambar</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Saring artis</string>
-  <string name="Media.FilterByAlbumMenuItem">Saring album</string>
-  <string name="Media.FilterByAudioGenreMenuItem">Saring genre</string>
-  <string name="Media.FilterByDecadeMenuItem">Saring dekade</string>
-  <string name="Media.FilterByActorMenuItem">Saring Aktor</string>
-  <string name="Media.FilterByVideoGenreMenuItem">Saring genre</string>
-  <string name="Media.FilterByVideoYearMenuItem">Saring tahun</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">Saring berdasarkan bahasa</string>
-  <string name="Media.FilterByImageSizeMenuItem">Saring ukuran</string>
-  <string name="Media.FilterByImageYearMenuItem">Saring tahun</string>
-  <string name="Media.FilterByImageCountryMenuItem">Saring berdasarkan negara</string>
-  <string name="Media.FilterByImageStateMenuItem">Saring berdasarkan provinsi</string>
-  <string name="Media.FilterByImageCityMenuItem">Saring berdasarkan kota</string>
-  <string name="Media.FilterBySystemMenuItem">Saring sistem</string>
-  <string name="Media.FilterByMoviesCollectionMenuItem">Saring berdasarkan koleksi</string>
-  <string name="Media.FilterBySeriesNameMenuItem">Saring serial</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">Saring musim</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">Saring episode</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">Nama</string>
+  <string name="Media.TitleMenuItem">Judul</string>
+  <string name="Media.ArtistMenuItem">Artis</string>
+  <string name="Media.GenreMenuItem">Genre</string>
+  <string name="Media.SizeMenuItem">Ukuran</string>
+  <string name="Media.SystemMenuItem">Sistem</string>
+  <string name="Media.EpisodeDateMenuItem">Episode</string>
+  <string name="Media.AudioLanguageMenuItem">Bahasa</string>
+  <string name="Media.ImageStateMenuItem">Kondisi</string>
+  <string name="Media.SeriesNameMenuItem">Serial</string>
   <string name="Media.SimpleSearchFilterMenuItem">Cari</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Tampilkan semua</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Tampilkan semua</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Tampilkan semua</string>
-  <string name="Media.ShowAllMoviesMenuItem">Tampilkan semua</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">Saring</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Kecil</string>
   <string name="Media.ImageFilterMedium">Sedang</string>
@@ -198,6 +188,7 @@
   <string name="Media.VideoDurationLabel">Durasi:</string>
   <string name="Media.VideoActorsLabel">Aktor(s):</string>
   <string name="Media.VideoStoryPlotLabel">Plot cerita:</string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">Serial:</string>
   <string name="Media.SeriesSeasonLabel">Musim:</string>
@@ -274,25 +265,6 @@
   <string name="Media.LargeGrid">Jala</string>
   <string name="Media.CoverLayout">Sampul</string>
   <string name="Media.SwitchSortingMenuItem">Mengurutkan</string>
-  <string name="Media.SwitchSortingDialogTitle">Mengurutkan</string>
-  <string name="Media.SortByTitle">Urutkan berdasarkan judul</string>
-  <string name="Media.SortByAlbumTrack">Urutkan berdasarkan album dan track</string>
-  <string name="Media.SortByGenre">Urutkan berdasarkan genre</string>
-  <string name="Media.SortByAlbum">Urutkan berdasarkan album dan judul</string>
-  <string name="Media.SortByTrack">Urutkan berdasarkan track</string>
-  <string name="Media.SortByArtist">Urutkan berdasarkan artis</string>
-  <string name="Media.SortByYear">Urutkan berdasarkan tahun</string>
-  <string name="Media.SortBySize">Urutkan berdasarkan ukuran</string>
-  <string name="Media.SortBySystem">Urutkan berdasarkan sistem</string>
-  <string name="Media.SortByActor">Urutkan berdasarkan aktor</string>
-  <string name="Media.SortByDirector">Urutkan berdasarkan sutradara</string>
-  <string name="Media.SortByDuration">Urutkan berdasarkan durasi</string>
-  <string name="Media.SortByAspectRatio">Urutkan berdasarkan aspek rasio</string>
-  <string name="Media.SortByDate">Urutkan berdasarkan tangal rekam</string>
-  <string name="Media.SortByEpisode">Urutkan berdasarkan episode</string>
-  <string name="Media.SortingBrowseDefault">Pengurutan baku</string>
-  <string name="Media.SwitchFilterMenuItem">Saring</string>
-  <string name="Media.SwitchFilterDialogTitle">Saring</string>
   <string name="Settings.Players">Pemutar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Tutup pemutar bila selesai</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aktifkan setelan ini untuk membuat MediaPortal secara otomatis menutup pemutar yang telah selesai</string>

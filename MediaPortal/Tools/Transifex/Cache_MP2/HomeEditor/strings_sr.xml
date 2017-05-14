@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="HomeEditor.OthersMenuItem">Додаци</string>
+  <string name="HomeEditor.Configuration">Измени Главни Мени</string>
+  <string name="HomeEditor.Configuration.Header">Групе главног менија</string>
+  <string name="HomeEditor.Configuration.Help">Измени Главни мени</string>
+  <string name="HomeEditor.Configuration.Label">Групе главног менија</string>
+  <string name="HomeEditor.Configuration.AddGroup">Додај групу</string>
+  <string name="HomeEditor.Configuration.GroupEdit.Header">Измени групу</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Header">Уклони групу</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Label">Одабери групе за одстрањивање</string>
+  <string name="HomeEditor.Configuration.DisplayName">Прикажи име</string>
+  <string name="HomeEditor.Configuration.RestoreDefaults">Поврати све на номиналне вредности</string>
+  
+  <string name="HomeEditor.Configuration.GroupEdit.Label">Акције за групни мени</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Header">Измени акције</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Header">Уколони акцију</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Label">Одабери акције за уклањање</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Label">Одабери акцију</string>
+  <string name="HomeEditor.Configuration.AddAction">Додај акцију</string>
+</resources>

@@ -280,7 +280,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (seriesId != null && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
         {
-          altEpisodeId = seriesId + "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.EpisodeNumbers[0];
+          altEpisodeId = seriesId + "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.FirstEpisodeNumber;
         }
         if (GetSeriesEpisodeId(episodeInfo, out episodeId))
         {
@@ -399,7 +399,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               if (episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
               {
-                seriesId += "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.EpisodeNumbers[0];
+                seriesId += "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.FirstEpisodeNumber;
 
                 _memoryCacheEpisode.TryAdd(seriesId, episodeInfo);
               }
@@ -443,7 +443,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.Rating, episodeMatch.Rating);
 
       if (episodeInfo.EpisodeNumbers.Count == 0)
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers.Distinct().ToList(), true);
+      {
+        List<int> tmpList = episodeInfo.EpisodeNumbers.ToList();
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(tmpList, episodeMatch.EpisodeNumbers.Distinct().ToList(), true);
+        episodeInfo.EpisodeNumbers = new HashSet<int>(tmpList);
+      }
       if (episodeInfo.DvdEpisodeNumbers.Count == 0)
         episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers.Distinct().ToList(), true);
       if (episodeInfo.Genres.Count == 0)
@@ -1681,7 +1685,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           if (episodeInfo.EpisodeNumbers.Count > 0)
           {
-            data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.EpisodeNumbers[0].ToString();
+            data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.FirstEpisodeNumber.ToString();
           }
           if (GetSeriesEpisodeId(episodeInfo, out id))
           {

@@ -99,9 +99,7 @@
   <string name="Settings.Appearance">Ulkonäkö</string>
   <string name="Settings.Appearance.Skin">Ulkoasu</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Päivämäärän muoto</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Käytettävä päivämäärän muoto. Käytä .net DateTime-luokassa määriteltyä muotoa.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Ajan esitys</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Käytettävä ajan esitys muoto. Käytä .net DateTime-luokassa määriteltyä muotoa.</string>
   <string name="Settings.General">Yleinen</string>
   <string name="Settings.General.System">Järjestelmä</string>
   <string name="Settings.General.System.Autostart">Automaattinen käynnistys</string>

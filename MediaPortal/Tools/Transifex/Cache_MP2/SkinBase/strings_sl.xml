@@ -105,9 +105,7 @@
   <string name="Settings.Appearance">Videz</string>
   <string name="Settings.Appearance.Skin">Izgled</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format datuma</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Format datuma, ki ga izgled uporablja. Uporabi specifikacijo datumskega formata .net razreda DateTime.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format ure</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format ure, ki ga izgled uporablja. Uporabi specifikacijo datumskega formata .net razreda DateTime.</string>
   <string name="Settings.General">Splošno</string>
   <string name="Settings.General.System">Sistem</string>
   <string name="Settings.General.System.Autostart">Avtomatski zagon</string>

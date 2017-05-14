@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">אבחון</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">אפשר כתיבה לקובץ רישום</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">הגדל את המידע בקובץ הרישום</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">אפשר רישום של גניבת פוקוס אפשרית</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">אפשר רישום של גניבת פוקוס אפשרית</string>
+    <string name="Diagnostics.Settings.Collectlogs">אסוף קבצי רישום</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">אחד את קבצי הרישום לקובץ ZIP</string>
+    <string name="Diagnostics.Settings.ShowLogs">הצג קבצי רישום</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">הצג קבצי רישום בחלונית נפרדת</string>
+</resources>

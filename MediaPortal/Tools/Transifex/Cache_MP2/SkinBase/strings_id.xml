@@ -98,9 +98,7 @@
   <string name="Settings.Appearance">Tampilan</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format tanggal</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Format tanggal yang digunakan dalam skin. Gunakan spesifikasi format .net DateTime class.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format waktu</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format waktu yang digunakan pada skin. Gunakan spesifikasi format .net DateTime class.</string>
   <string name="Settings.General">Umum</string>
   <string name="Settings.General.System">Sistem</string>
   <string name="Settings.General.System.Autostart">Mulai otomatis</string>

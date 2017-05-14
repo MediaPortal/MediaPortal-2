@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Trakt.Enable">Омогући скроблинг</string>
+  <string name="Trakt.Close">Затвори</string>
+  <string name="Trakt.UsernamePasswordGroup">Детаљи налога</string>
+  <string name="Trakt.Username">Корисничко име</string>
+  <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
+  <string name="Trakt.PinCode">Примљени пин код</string>
+  <string name="Trakt.Authorize">Овластити</string>
+  <string name="Trakt.Sync">Синхронизирај са trakt-ом</string>
+  <string name="Trakt.SyncMovies">Синхронизовање филмова ...</string>
+  <string name="Trakt.SyncSeries">Синхронизовање серија ...</string>
+  <string name="Trakt.SyncFinished">Синхронизовање завршено!</string>
+  <string name="Trakt.MediaLibraryNotConnected">Сервер тренутно није прикачен. Синхронизација није могућа.</string>
+  <string name="Trakt.WrongToken">Токен није доступан</string>
+  <string name="Trakt.EmptyUsername">Унеси корисничко име</string>
+  <string name="Trakt.NotAuthorized">Прво овластити!</string>
+  <string name="Trakt.CheckPin">Немогуће улоговање на trakt, погрешан пин?</string>
+  <string name="Trakt.LoggedIn">Успешно улогован!</string>
+  <string name="Trakt.UnableLogin">Онемогућено улоговање на trakt</string>
+  <string name="Settings.Plugins.Trakt">Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup">Подеси Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup.Help">Подеси детаље налога за Trakt.tv услугу</string>
+</resources>

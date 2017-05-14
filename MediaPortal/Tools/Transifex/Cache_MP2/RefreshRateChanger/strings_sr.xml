@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">Омогући промену стопе освежавања слике</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Уколико селектован, стопа освежавања слике ће покушати да се изједначи са фрејмовима у секунди видеа</string>
+  <string name="RefreshRateChanger.NoChangeForRate">Искључи стопу освежавања</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Онемогући измене стопе освежавања. Унеси цели број, одвојене запетом (нпр. 23,25,50).</string>
+  <string name="RefreshRateChanger.RateMappings">Мапирање стопе освежавања слике</string>
+  <string name="RefreshRateChanger.RateMappings.Help">Измени подразумевано подешавање мапирања
+Формат: fps:Hz; fps:Hz (нпр. \"23:24\": за видео fps=23.976 промени стопу освежавања на 24Hz).</string>
+</resources>
