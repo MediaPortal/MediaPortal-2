@@ -30,6 +30,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {

@@ -57,6 +57,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Short format string that holds movie name.
     /// </summary>
     public static string SHORT_FORMAT_STR = "{0}";
+    private const int MAX_PERSONS = 10;
 
     protected static Regex _fromName = new Regex(@"(?<movie>.*) \((?<year>\d+)\)", RegexOptions.IgnoreCase);
 
@@ -150,6 +151,52 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public MovieInfo Clone()
     {
       return CloneProperties(this);
+    }
+
+    public void MergeWith(MovieInfo other, bool overwriteShorterStrings = true)
+    {
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, other.ImdbId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, other.MovieDbId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref CollectionMovieDbId, other.CollectionMovieDbId);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref MovieName, other.MovieName, overwriteShorterStrings);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref OriginalName, other.OriginalName);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Summary, other.Summary, overwriteShorterStrings);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Certification, other.Certification, false);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref CollectionName, other.CollectionName, overwriteShorterStrings);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Tagline, other.Tagline);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Budget, other.Budget);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Revenue, other.Revenue);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Runtime, other.Runtime);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref ReleaseDate, other.ReleaseDate);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Popularity, other.Popularity);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Score, other.Score);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, other.Rating);
+      if (Genres.Count == 0)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, other.Genres.Distinct().ToList(), true);
+      }
+      HasChanged |= MetadataUpdater.SetOrUpdateList(Awards, other.Awards.Distinct().ToList(), true);
+
+      //Limit the number of persons
+      if (Actors.Count == 0 && other.Actors.Count > MAX_PERSONS)
+        other.Actors.RemoveRange(MAX_PERSONS, other.Actors.Count - MAX_PERSONS);
+      if (Characters.Count == 0 && other.Characters.Count > MAX_PERSONS)
+        other.Characters.RemoveRange(MAX_PERSONS, other.Characters.Count - MAX_PERSONS);
+      if (Directors.Count == 0 && other.Directors.Count > MAX_PERSONS)
+        other.Directors.RemoveRange(MAX_PERSONS, other.Directors.Count - MAX_PERSONS);
+      if (Writers.Count == 0 && other.Writers.Count > MAX_PERSONS)
+        other.Writers.RemoveRange(MAX_PERSONS, other.Writers.Count - MAX_PERSONS);
+
+      //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+      //So changes to these lists will only be stored if something else has changed.
+      MetadataUpdater.SetOrUpdateList(Actors, other.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Actors.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(Characters, other.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Characters.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(Directors, other.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Directors.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(ProductionCompanies, other.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), ProductionCompanies.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(Writers, other.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Writers.Count == 0, overwriteShorterStrings);
     }
 
     #region Members

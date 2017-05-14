@@ -103,6 +103,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       try
       {
+        TrackInfo existing = new TrackInfo();
+        TrackInfo extracted = new TrackInfo();
+
         //Extracted aspects
         IList<MultipleMediaItemAspect> providerResourceAspects;
         if (!MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
@@ -130,7 +133,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             if (!existingAspects.ContainsKey(aspect))
               existingAspects.Add(aspect, extractedAspects[aspect]);
           }
-          existingAspects[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
+
+          existing.FromMetadata(existingAspects);
+          extracted.FromMetadata(extractedAspects);
+
+          extracted.MergeWith(existing, false, false);
+          extracted.SetMetadata(existingAspects);
+        }
+        else
+        {
+          existing.FromMetadata(existingAspects);
+          extracted.FromMetadata(extractedAspects);
+
+          existing.MergeWith(extracted, false, false);
+          existing.SetMetadata(existingAspects);
         }
         
         return true;

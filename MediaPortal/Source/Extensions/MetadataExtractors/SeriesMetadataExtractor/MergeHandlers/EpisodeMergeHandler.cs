@@ -103,6 +103,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       try
       {
+        EpisodeInfo existing = new EpisodeInfo();
+        EpisodeInfo extracted = new EpisodeInfo();
+
         //Extracted aspects
         IList<MultipleMediaItemAspect> providerResourceAspects;
         if (!MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
@@ -143,6 +146,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
             if (!existingAspects.ContainsKey(aspect))
               existingAspects.Add(aspect, extractedAspects[aspect]);
           }
+
+          existing.FromMetadata(existingAspects);
+          extracted.FromMetadata(extractedAspects);
+
+          extracted.MergeWith(existing, true);
+          extracted.SetMetadata(existingAspects);
           return true;
         }
 
@@ -348,6 +357,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
             }
           }
         }
+
+        existing.FromMetadata(existingAspects);
+        extracted.FromMetadata(extractedAspects);
+
+        existing.MergeWith(extracted, true);
+        existing.SetMetadata(existingAspects);
 
         return true;
       }

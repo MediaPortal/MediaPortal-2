@@ -32,6 +32,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {

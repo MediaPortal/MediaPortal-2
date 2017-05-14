@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers
 {

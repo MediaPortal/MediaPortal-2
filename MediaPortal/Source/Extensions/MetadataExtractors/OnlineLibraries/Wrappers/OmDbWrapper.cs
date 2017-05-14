@@ -32,6 +32,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {

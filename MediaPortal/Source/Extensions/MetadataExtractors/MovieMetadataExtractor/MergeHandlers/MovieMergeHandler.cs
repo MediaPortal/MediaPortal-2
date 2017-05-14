@@ -104,6 +104,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       try
       {
+        MovieInfo existing = new MovieInfo();
+        MovieInfo extracted = new MovieInfo();
+
         //Extracted aspects
         IList<MultipleMediaItemAspect> providerResourceAspects;
         if (!MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
@@ -144,6 +147,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             if (!existingAspects.ContainsKey(aspect))
               existingAspects.Add(aspect, extractedAspects[aspect]);
           }
+
+          existing.FromMetadata(existingAspects);
+          extracted.FromMetadata(extractedAspects);
+
+          extracted.MergeWith(existing, true);
+          extracted.SetMetadata(existingAspects);
           return true;
         }
 
@@ -349,6 +358,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             }
           }
         }
+
+        existing.FromMetadata(existingAspects);
+        extracted.FromMetadata(extractedAspects);
+
+        existing.MergeWith(extracted, true);
+        existing.SetMetadata(existingAspects);
 
         return true;
       }
