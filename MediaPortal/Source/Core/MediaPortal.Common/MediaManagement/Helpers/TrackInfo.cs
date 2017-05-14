@@ -99,12 +99,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int Channels = 0;
     public long Duration = 0;
     public string Encoding = null;
+    public string ContentGroup = null;
     public bool AlbumHasOnlineCover = false;
     public bool AlbumHasBarcode = false;
 
     public List<PersonInfo> Artists = new List<PersonInfo>();
     public List<PersonInfo> AlbumArtists = new List<PersonInfo>();
     public List<PersonInfo> Composers = new List<PersonInfo>();
+    public List<PersonInfo> Conductors = new List<PersonInfo>();
     public List<CompanyInfo> MusicLabels = new List<CompanyInfo>();
     public List<GenreInfo> Genres = new List<GenreInfo>();
     public List<string> Languages = new List<string>();
@@ -234,6 +236,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       //So changes to these lists will only be stored if something else has changed.
       MetadataUpdater.SetOrUpdateList(Artists, other.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Artists.Count == 0, overwriteShorterStrings);
       MetadataUpdater.SetOrUpdateList(Composers, other.Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Composers.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(Conductors, other.Conductors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Conductors.Count == 0, overwriteShorterStrings);
       if (albumMatch)
       {
         MetadataUpdater.SetOrUpdateList(MusicLabels, other.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), MusicLabels.Count == 0, overwriteShorterStrings);
@@ -284,6 +287,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Channels > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_CHANNELS, Channels);
       if (SampleRate > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_SAMPLERATE, SampleRate);
       if (!string.IsNullOrEmpty(Encoding)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ENCODING, Encoding);
+      if (!string.IsNullOrEmpty(ContentGroup)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_CONTENT_GROUP, ContentGroup);
 
       if (!Rating.IsEmpty)
       {
@@ -303,6 +307,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Artists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_ARTISTS, Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
       if (AlbumArtists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
       if (Composers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_COMPOSERS, Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
+      if (Conductors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_CONDUCTERS, Conductors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
 
       aspectData.Remove(GenreAspect.ASPECT_ID);
       foreach (GenreInfo genre in Genres.Distinct())
@@ -339,6 +344,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_NUMDISCS, out TotalDiscs);
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_DURATION, out Duration);
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ENCODING, out Encoding);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_CONTENT_GROUP, out ContentGroup);
 
       double? rating;
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_TOTAL_RATING, out rating);
@@ -390,6 +396,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         Composers.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_COMPOSER, MediaName = TrackName, ParentMediaName = Album }));
       foreach (PersonInfo composer in Composers)
         composer.AssignNameId();
+
+      Conductors.Clear();
+      if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_CONDUCTERS, out collection))
+        Conductors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_CONDUCTOR, MediaName = TrackName, ParentMediaName = Album }));
+      foreach (PersonInfo conductor in Conductors)
+        conductor.AssignNameId();
 
       Genres.Clear();
       IList<MultipleMediaItemAspect> genreAspects;

@@ -75,6 +75,7 @@
     <Compile Include="RelationshipExtractors\AlbumTrackRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\IAudioRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\TrackAlbumArtistRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\TrackConductorRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\TrackComposerRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\TrackArtistRelationshipExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

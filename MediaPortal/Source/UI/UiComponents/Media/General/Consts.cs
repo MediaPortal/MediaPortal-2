@@ -172,6 +172,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_IMAGE_FILTER_MEDIUM = "[Media.ImageFilterMedium]";
     public const string RES_IMAGE_FILTER_BIG = "[Media.ImageFilterBig]";
     public const string RES_DISC_NUMBER_FILTER = "[Media.DiscNumberFilter]";
+    public const string RES_COMPILATION_FILTER_COMPILED = "[Media.CompilationFilterCompiled]";
+    public const string RES_COMPILATION_FILTER_UNCOMPILED = "[Media.CompilationFilterUncompiled]";
+    public const string RES_CONTENT_GROUP_FILTER = "[Media.ContentGroupFilter]";
 
     public const string RES_MORE_THAN_MAX_ITEMS_HINT = "[Media.MoreThanMaxItemsHint]";
     public const string RES_MORE_THAN_MAX_ITEMS_BROWSE_HINT = "[Media.MoreThanMaxItemsBrowseHint]";
@@ -265,8 +268,12 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_COMMON_BY_ALBUM_MENU_ITEM = "[Media.AlbumMenuItem]";
     public const string RES_COMMON_BY_TRACK_MENU_ITEM = "[Media.TrackMenuItem]";
     public const string RES_COMMON_BY_ARTIST_MENU_ITEM = "[Media.ArtistMenuItem]";
+    public const string RES_COMMON_BY_CONDUCTOR_MENU_ITEM = "[Media.ConductorMenuItem]";
     public const string RES_COMMON_BY_YEAR_MENU_ITEM = "[Media.YearMenuItem]";
     public const string RES_COMMON_BY_DISC_NUMBER_MENU_ITEM = "[Media.DiscNumberMenuItem]";
+    public const string RES_COMMON_BY_COMPILATION_MENU_ITEM = "[Media.CompilationMenuItem]";
+    public const string RES_COMMON_BY_ALBUM_COMPILATION_MENU_ITEM = "[Media.AlbumCompilationMenuItem]";
+    public const string RES_COMMON_BY_CONTENT_GROUP_MENU_ITEM = "[Media.ContentGroupMenuItem]";
     public const string RES_COMMON_BY_SIZE_MENU_ITEM = "[Media.SizeMenuItem]";
     public const string RES_COMMON_BY_SYSTEM_MENU_ITEM = "[Media.SystemMenuItem]";
     public const string RES_COMMON_BY_ACTOR_MENU_ITEM = "[Media.ActorMenuItem]";
@@ -308,6 +315,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_COMPOSER_NAVBAR_DISPLAY_LABEL = "[Media.FilterComposerNavbarDisplayLabel]";
     public const string RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumArtistNavbarDisplayLabel]";
     public const string RES_FILTER_ALBUM_LABEL_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumLabelNavbarDisplayLabel]";
+    public const string RES_FILTER_COMPILATION_NAVBAR_DISPLAY_LABEL = "[Media.FilterCompilationNavbarDisplayLabel]";
+    public const string RES_FILTER_ALBUM_COMPILATION_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumCompilationNavbarDisplayLabel]";
+    public const string RES_FILTER_CONDUCTOR_NAVBAR_DISPLAY_LABEL = "[Media.FilterConductorNavbarDisplayLabel]";
+    public const string RES_FILTER_CONTENT_GROUP_NAVBAR_DISPLAY_LABEL = "[Media.FilterContentGroupNavbarDisplayLabel]";
     public const string RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumNavbarDisplayLabel]";
     public const string RES_FILTER_AUDIO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioGenreNavbarDisplayLabel]";
     public const string RES_FILTER_AUDIO_DISC_NUMBER_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioDiscNumberNavbarDisplayLabel]";
@@ -371,12 +382,16 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_AUDIO_SHOW_ITEMS = "AudioShowItems";
     public const string SCREEN_AUDIO_FILTER_BY_ARTIST = "AudioFilterByArtist";
     public const string SCREEN_AUDIO_FILTER_BY_COMPOSER = "AudioFilterByComposer";
+    public const string SCREEN_AUDIO_FILTER_BY_CONDUCTOR = "AudioFilterByConductor";
     public const string SCREEN_AUDIO_FILTER_BY_ALBUM_ARTIST = "AudioFilterByAlbumArtist";
     public const string SCREEN_AUDIO_FILTER_BY_ALBUM_LABEL = "AudioFilterByAlbumLabel";
     public const string SCREEN_AUDIO_FILTER_BY_ALBUM = "AudioFilterByAlbum";
     public const string SCREEN_AUDIO_FILTER_BY_GENRE = "AudioFilterByGenre";
     public const string SCREEN_AUDIO_FILTER_BY_DECADE = "AudioFilterByDecade";
     public const string SCREEN_AUDIO_FILTER_BY_DISC_NUMBER = "AudioFilterByDiscNumber";
+    public const string SCREEN_AUDIO_FILTER_BY_COMPILATION = "AudioFilterByCompilation";
+    public const string SCREEN_AUDIO_FILTER_BY_ALBUM_COMPILATION = "AudioFilterByAlbumCompilation";
+    public const string SCREEN_AUDIO_FILTER_BY_CONTENT_GROUP = "AudioFilterByContentGroup";
     public const string SCREEN_AUDIO_FILTER_BY_SYSTEM = "AudioFilterBySystem";
     public const string SCREEN_AUDIO_SIMPLE_SEARCH = "AudioSimpleSearch";
     public const string SCREEN_VIDEOS_SHOW_ITEMS = "VideoShowItems";

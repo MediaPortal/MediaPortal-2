@@ -114,7 +114,11 @@
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByAlbumCompilationCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByConductorCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByContentGroupCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByCompilationCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByDiscNumberCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByTvNetworkCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCompanyCriterion.cs" />
@@ -183,6 +187,7 @@
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\ArtistFilterItem.cs" />
+    <Compile Include="Models\Navigation\ConductorFilterItem.cs" />
     <Compile Include="Models\Navigation\SeriesGenreFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieGenreFilterItem.cs" />
     <Compile Include="Models\Navigation\AudioGenreFilterItem.cs" />
@@ -210,7 +215,11 @@
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumLabelScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumArtistScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByAlbumCompilationScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByConductorScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByComposerScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByContentGroupScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByCompilationScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByDiscNumberScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
@@ -244,10 +253,14 @@
     <Compile Include="Models\ScreenData\SeriesFilterByNameScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesSimpleSearchScreenData.cs" />
     <Compile Include="Models\Sorting\AudioAlbumSortByFirstMusicLabel.cs" />
+    <Compile Include="Models\Sorting\AudioSortByContentGroup.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbumTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbum.cs" />
     <Compile Include="Models\Sorting\AudioAlbumSortByFirstArtist.cs" />
+    <Compile Include="Models\Sorting\AudioAlbumSortByCompilation.cs" />
+    <Compile Include="Models\Sorting\AudioSortByFirstConductor.cs" />
     <Compile Include="Models\Sorting\AudioSortByFirstComposer.cs" />
+    <Compile Include="Models\Sorting\AudioSortByCompilation.cs" />
     <Compile Include="Models\Sorting\AudioSortByTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByFirstArtist.cs" />
     <Compile Include="Models\Sorting\BrowseDefaultSorting.cs" />
@@ -601,6 +614,26 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\AudioFilterByDiscNumber.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByConductor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByCompilation.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByAlbumCompilation.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByContentGroup.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

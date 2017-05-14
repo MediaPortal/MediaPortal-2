@@ -67,6 +67,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
       _artistMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ArtistMatches.xml"));
       _composerMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ComposerMatches.xml"));
+      _conductorMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ComposerMatches.xml"));
       _labelMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "LabelMatches.xml"));
       _albumMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "AlbumMatches.xml"));
       _configFile = Path.Combine(cachePath, "MusicConfig.xml");
@@ -149,6 +150,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     private SimpleNameMatcher _artistMatcher;
     private SimpleNameMatcher _composerMatcher;
+    private SimpleNameMatcher _conductorMatcher;
     private SimpleNameMatcher _labelMatcher;
     private SimpleNameMatcher _albumMatcher;
 
@@ -205,6 +207,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       string id;
       if (GetPersonId(person, out id))
         _composerMatcher.StoreNameMatch(id, person.Name, person.Name);
+    }
+
+    public virtual void StoreConductorMatch(PersonInfo person)
+    {
+      string id;
+      if (GetPersonId(person, out id))
+        _conductorMatcher.StoreNameMatch(id, person.Name, person.Name);
     }
 
     public virtual void StoreMusicLabelMatch(CompanyInfo company)
@@ -344,6 +353,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             if (GetPersonId(person, out id))
               _composerMatcher.StoreNameMatch(id, person.Name, person.Name);
           }
+          foreach (PersonInfo person in trackInfo.Conductors)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+              _conductorMatcher.StoreNameMatch(id, person.Name, person.Name);
+          }
 
           //Store company matches
           foreach (CompanyInfo company in trackInfo.MusicLabels)
@@ -445,6 +460,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
         }
+        else if (occupation == PersonAspect.OCCUPATION_CONDUCTOR)
+        {
+          foreach (PersonInfo person in trackMatch.Conductors)
+          {
+            string id;
+            if (_conductorMatcher.GetNameMatch(person.Name, out id))
+            {
+              if (SetPersonId(person, id))
+              {
+                //Only add if Id valid if not then it is to avoid a retry
+                //and the person should be ignored
+                persons.Add(person);
+                updated = true;
+              }
+            }
+            else
+            {
+              persons.Add(person);
+            }
+          }
+        }
 
         if (persons.Count == 0)
           return true;
@@ -511,6 +547,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
           else if (occupation == PersonAspect.OCCUPATION_COMPOSER)
             MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
+          else if (occupation == PersonAspect.OCCUPATION_CONDUCTOR)
+            MetadataUpdater.SetOrUpdateList(trackInfo.Conductors, trackMatch.Conductors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
         }
 
         List<string> thumbs = new List<string>();
@@ -561,6 +599,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Store empty match so he/she is not retried
               _composerMatcher.StoreNameMatch("", person.Name, person.Name);
+            }
+          }
+        }
+        else if (occupation == PersonAspect.OCCUPATION_CONDUCTOR)
+        {
+          foreach (PersonInfo person in trackInfo.Conductors)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+            {
+              _conductorMatcher.StoreNameMatch(id, person.Name, person.Name);
+            }
+            else
+            {
+              //Store empty match so he/she is not retried
+              _conductorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }

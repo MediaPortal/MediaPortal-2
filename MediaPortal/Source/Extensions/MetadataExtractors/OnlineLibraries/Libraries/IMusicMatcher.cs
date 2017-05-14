@@ -48,6 +48,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 
     void StoreArtistMatch(PersonInfo person);
     void StoreComposerMatch(PersonInfo person);
+    void StoreConductorMatch(PersonInfo person);
     void StoreMusicLabelMatch(CompanyInfo company);
 
     bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force);

@@ -430,6 +430,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
           matcher.StoreComposerMatch(person);
         }
       }
+      else if (person.Occupation == PersonAspect.OCCUPATION_CONDUCTOR)
+      {
+        foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+        {
+          matcher.StoreConductorMatch(person);
+        }
+      }
     }
 
     public void StoreAudioCompanyMatch(CompanyInfo company)

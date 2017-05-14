@@ -544,6 +544,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               trackInfo.TotalDiscs = (int)tag.Tag.DiscCount;
             if (!string.IsNullOrEmpty(tag.Tag.Lyrics))
               trackInfo.TrackLyrics = tag.Tag.Lyrics;
+            if (!string.IsNullOrEmpty(tag.Tag.Grouping))
+              trackInfo.ContentGroup = tag.Tag.Grouping;
 
             if (tag.Tag.TrackCount != 0)
               trackInfo.TotalTracks = (int)tag.Tag.TrackCount;
@@ -620,6 +622,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                   MediaName = trackInfo.TrackName
                 });
               }
+            }
+
+            trackInfo.Conductors = new List<PersonInfo>();
+            if (!string.IsNullOrEmpty(tag.Tag.Conductor?.Trim()))
+            {
+              trackInfo.Conductors.Add(new PersonInfo()
+              {
+                Name = tag.Tag.Conductor.Trim(),
+                Occupation = PersonAspect.OCCUPATION_CONDUCTOR,
+                ParentMediaName = trackInfo.Album,
+                MediaName = trackInfo.TrackName
+              });
             }
 
             if (tag.Tag.Genres.Length > 0)
