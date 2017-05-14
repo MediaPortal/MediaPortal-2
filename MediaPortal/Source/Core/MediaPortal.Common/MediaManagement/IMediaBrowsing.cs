@@ -57,13 +57,10 @@ namespace MediaPortal.Common.MediaManagement
         IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
 
     /// <summary>
-    /// Finds media items that have updated metadata available.
+    /// Marks media items that have updated metadata available.
     /// </summary>
-    /// <param name="necessaryRequestedMIATypeIDs">Necessary MIA ids the returned items must support.</param>
-    /// <param name="optionalRequestedMIATypeIDs">Optional MIA ids the returned items can support.</param>
-    /// <returns>Collection of media items.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
+    void MarkUpdatableMediaItems();
 
     /// <summary>
     /// Loads the creation dates of all managed MIAs in the MediaLibrary

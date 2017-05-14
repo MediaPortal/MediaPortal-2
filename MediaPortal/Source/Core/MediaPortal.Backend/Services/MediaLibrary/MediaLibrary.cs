@@ -99,18 +99,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
-      {
-        try
-        {
-          return _parent.GetUpdatableMediaItems(necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
-        }
-        catch (Exception)
-        {
-          throw new DisconnectedException();
-        }
-      }
-
       public IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates()
       {
         try
@@ -128,6 +116,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           return _parent.GetManagedMediaItemAspectMetadata().Keys;
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public void MarkUpdatableMediaItems()
+      {
+        try
+        {
+          _parent.MarkUpdatableMediaItems();
         }
         catch (Exception)
         {
@@ -1298,43 +1298,68 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+    public void MarkUpdatableMediaItems()
     {
+      try
+      {
       lock (_syncObj)
       {
         Stopwatch swImport = new Stopwatch();
         swImport.Start();
-        List<MediaItem> result = new List<MediaItem>();
+          ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+          List<Guid> requiredAspects = new List<Guid>(new Guid[] { MediaAspect.ASPECT_ID });
+          string changeSql = "UPDATE " + _miaManagement.GetMIATableName(ImporterAspect.Metadata) +
+            " SET " + _miaManagement.GetMIAAttributeColumnName(ImporterAspect.ATTR_DIRTY) + " = 1" +
+            " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN ({0})";
+
         foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
         {
           var changeFilters = extractor.GetLastChangedItemsFilters();
+            if (changeFilters == null || changeFilters.Count == 0)
+              continue;
+
+            using (ITransaction transaction = database.BeginTransaction())
+            {
+              using (IDbCommand command = transaction.CreateCommand())
+              {
           int itemCount = 0;
-          if (changeFilters != null)
-          {
             foreach (var changeFilter in changeFilters)
             {
-              MediaItemQuery changeQuery = new MediaItemQuery(necessaryRequestedMIATypeIDs, changeFilter.Key);
-              if (optionalRequestedMIATypeIDs != null)
-                changeQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
+                  MediaItemQuery changeQuery = new MediaItemQuery(requiredAspects, changeFilter.Key);
               if (changeFilter.Value > 0)
                 changeQuery.Limit = changeFilter.Value;
               IList<MediaItem> foundItems = Search(changeQuery, false, null, false);
               if (foundItems != null)
               {
-                itemCount += foundItems.Count;
-                foreach (MediaItem item in foundItems)
-                  if (!result.Contains(item))
-                    result.Add(item);
+                    int currentItem = 0;
+                    List<Guid> miUpdateList = new List<Guid>();
+                    while (currentItem < foundItems.Count)
+                    {
+                      int remaining = foundItems.Count - currentItem;
+                      int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
+                      command.CommandText = string.Format(changeSql,
+                        string.Join(",", foundItems.Where((id, index) => index >= currentItem && index < endItem).Select(mi => mi.MediaItemId)));
+                      command.ExecuteNonQuery();
+                      itemCount += (endItem - currentItem);
+                      currentItem = endItem;
               }
             }
           }
+                transaction.Commit();
           extractor.ResetLastChangedItems(); //Reset changes so they are not found again in next request
 
           if (itemCount > 0)
             Logger.Info("{0} found {1} updatable media items ({1} ms)", extractor.GetType().Name, itemCount, swImport.ElapsedMilliseconds);
         }
-        return result;
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error marking updated media items", e);
+        throw;
       }
     }
 

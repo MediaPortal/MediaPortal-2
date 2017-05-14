@@ -107,6 +107,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
             await DeleteUnderPath(importResource.PendingResourcePath);
         }
 
+        if(importResource.ExistingAspects != null)
+          importResource.ExistingAspects.Clear();
+        if (importResource.Aspects != null)
         importResource.Aspects.Clear();
         importResource.IsValid = false;
         return importResource;

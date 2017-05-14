@@ -323,25 +323,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
-    protected async Task<ICollection<MediaItem>> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMiaTypeIds, IEnumerable<Guid> optionalRequestedMiaTypeIds)
-    {
-      while (true)
-      {
-        try
-        {
-          await Activated.WaitAsync();
-          // ReSharper disable PossibleMultipleEnumeration
-          return _mediaBrowsingCallback.GetUpdatableMediaItems(necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
-          // ReSharper restore PossibleMultipleEnumeration
-        }
-        catch (DisconnectedException)
-        {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
-        }
-      }
-    }
-
     protected async Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDates()
     {
       while (true)
