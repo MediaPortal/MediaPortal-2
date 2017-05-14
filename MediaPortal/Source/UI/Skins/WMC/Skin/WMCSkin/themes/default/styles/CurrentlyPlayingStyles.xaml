@@ -217,7 +217,7 @@
         </Image.OpacityMask>
       </-->
 
-      <Label Content="{Binding Path=Actor}"/>
+      <Label Content="{Binding}"/>
 
     </Grid>
   </DataTemplate>

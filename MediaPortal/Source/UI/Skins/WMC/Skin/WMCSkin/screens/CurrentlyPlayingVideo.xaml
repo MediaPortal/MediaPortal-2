@@ -183,7 +183,7 @@
                     <ControlTemplate>
                       <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
                                 Style="{ThemeResource PersonCPListViewStyle}"
-                                ItemsSource="{Binding Path=Actors, Converter={StaticResource StringSplitConverter}}"/>
+                                ItemsSource="{TemplateBinding Actors}"/>
                     </ControlTemplate>
                   </media:VideoAspectWrapper.Template>
                 </media:VideoAspectWrapper>
