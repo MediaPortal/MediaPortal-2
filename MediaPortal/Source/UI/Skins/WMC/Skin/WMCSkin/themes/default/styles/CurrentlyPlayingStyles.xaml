@@ -9,7 +9,7 @@
   <!--VideoAudioStreams-->
 
   <DataTemplate x:Key="VideoAudioStreamDataTemplate">
-    <Grid>
+    <Grid Margin="0,0,-30,0">
       <Grid.RowDefinitions>
         <RowDefinition Height="50"/>
         <RowDefinition Height="*"/>
@@ -23,15 +23,15 @@
         </Label.Content>
       </Label>
 
-      <UniformGrid Grid.Row="1" Rows="2" Columns="2" Margin="30,10,30,20">
-        <Border CornerRadius="6" Background="#1A000000" Margin="10"
-                IsVisible="{Binding Path=AudioChannels,Converter={StaticResource ReferenceToBoolConverter}}">
-          <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="-10">
-            <Image.Source>
-              <Binding Path="AudioChannels" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
-            </Image.Source>
-          </Image>
-        </Border>
+      <Border Grid.Row="1" CornerRadius="6" Background="#1A000000" Margin="0,10,0,5"/>
+
+      <UniformGrid Grid.Row="1" Rows="2" Columns="2" Margin="0,10,0,5">
+        <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" 
+               IsVisible="{Binding Path=AudioChannels,Converter={StaticResource ReferenceToBoolConverter}}">
+          <Image.Source>
+            <Binding Path="AudioChannels" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
+          </Image.Source>
+        </Image>
 
         <Grid IsVisible="{Binding Path=AudioLanguage,Converter={StaticResource ReferenceToBoolConverter}}" Margin="10">
           <Grid.RowDefinitions>
@@ -41,7 +41,6 @@
             <ColumnDefinition Width="70*"/>
             <ColumnDefinition Width="30*"/>
           </Grid.ColumnDefinitions>
-          <Border Grid.ColumnSpan="2" CornerRadius="6" Background="#1A000000"/>
           <Image Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5,8,5,8"
                  IsVisible="{Binding Path=AudioLanguage,Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image.Source>
@@ -55,18 +54,15 @@
                  Content="{Binding AudioLanguage}"/>
         </Grid>
 
-        <Border CornerRadius="10" Background="#1A000000" Margin="10"
+        <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform"
                 IsVisible="{Binding Path=AudioEncoding,Converter={StaticResource ReferenceToBoolConverter}}">
-          <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="-10">
-            <Image.Source>
-              <Binding Path="AudioEncoding" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
-            </Image.Source>
-          </Image>
-        </Border>
+          <Image.Source>
+            <Binding Path="AudioEncoding" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
+          </Image.Source>
+        </Image>
 
-        <Border CornerRadius="10" Background="#1A000000" Margin="10"
-                IsVisible="{Binding Path=AudioBitRate,Converter={StaticResource ReferenceToBoolConverter}}">
-          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" 
+                      IsVisible="{Binding Path=AudioBitRate,Converter={StaticResource ReferenceToBoolConverter}}">
             <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold" 
                    HorizontalAlignment="Center" VerticalAlignment="Center">
               <Label.Content>
@@ -80,7 +76,6 @@
               </Label.Content>
             </Label>
           </StackPanel>
-        </Border>
 
       </UniformGrid>
     </Grid>
@@ -89,13 +84,13 @@
   <!--Subtitles-->
 
   <DataTemplate x:Key="SubtitleDataTemplate">
-    <Grid>
+    <Grid Margin="0,0,-30,0">
       <Grid.RowDefinitions>
         <RowDefinition Height="50"/>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="150"/>
+        <ColumnDefinition Width="215"/>
       </Grid.ColumnDefinitions>
 
       <Label FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="40,0,0,0">
@@ -104,7 +99,7 @@
         </Label.Content>
       </Label>
 
-      <Grid Grid.Row="1" Margin="30,10,30,20">
+      <Grid Grid.Row="1" Margin="0,10,0,5">
         <Grid.RowDefinitions>
           <RowDefinition Height="4*"/>
           <RowDefinition Height="3*"/>
