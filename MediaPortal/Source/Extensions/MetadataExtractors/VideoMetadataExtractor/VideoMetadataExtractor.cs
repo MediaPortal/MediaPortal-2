@@ -1367,15 +1367,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           }
         }
       }
-      else if (fsra.IsFile)
-      {
-        if (HasVideoExtension(fsra.ResourcePathName))
-        {
-          if (IsSampleFile(fsra))
-            return false;
-          return true;
-        }
-      }
       return false;
     }
   

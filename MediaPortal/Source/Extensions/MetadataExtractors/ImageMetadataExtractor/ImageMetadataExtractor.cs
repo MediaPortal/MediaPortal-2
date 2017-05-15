@@ -285,10 +285,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
     public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
     {
-      string fileName = mediaItemAccessor.ResourceName;
-      if (!HasImageExtension(fileName))
-        return false;
-      return true;
+      return false;
     }
 
     #endregion IMetadataExtractor implementation

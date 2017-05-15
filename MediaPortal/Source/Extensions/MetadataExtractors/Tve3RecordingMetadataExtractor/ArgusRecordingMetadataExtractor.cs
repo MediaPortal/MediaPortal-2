@@ -316,18 +316,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
     {
-      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-      if (fsra == null || !fsra.IsFile)
-        return false;
-
-      string filePath = mediaItemAccessor.CanonicalLocalResourcePath.ToString();
-      string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
-      if (lowerExtension != ".ts")
-        return false;
-      string metaFilePath = ProviderPathHelper.ChangeExtension(filePath, ".arg");
-      if (!ResourcePath.Deserialize(metaFilePath).IsValidLocalPath)
-        return false;
-      return true;
+      return false;
     }
 
     #endregion

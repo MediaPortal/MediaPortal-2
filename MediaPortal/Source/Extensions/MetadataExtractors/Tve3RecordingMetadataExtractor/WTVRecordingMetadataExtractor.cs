@@ -320,17 +320,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
     {
-      using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-      {
-        if (rah.LocalFsResourceAccessor == null || !rah.LocalFsResourceAccessor.IsFile)
-          return false;
-
-        string filePath = rah.LocalFsResourceAccessor.CanonicalLocalResourcePath.ToString();
-        string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
-        if (lowerExtension != ".wtv" && lowerExtension != ".dvr-ms")
-          return false;
-        return true;
-      }
+      return false;
     }
 
     #endregion

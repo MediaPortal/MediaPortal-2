@@ -835,15 +835,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
     {
-      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-      if (fsra == null)
-        return false;
-      if (!fsra.IsFile)
-        return false;
-      string fileName = fsra.ResourceName;
-      if (!HasAudioExtension(fileName))
-        return false;
-      return true;
+      return false;
     }
 
     #endregion

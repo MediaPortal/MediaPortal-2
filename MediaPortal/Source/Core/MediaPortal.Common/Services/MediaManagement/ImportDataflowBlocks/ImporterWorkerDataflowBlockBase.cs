@@ -441,8 +441,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <returns><c>true</c> if it is a single item.</returns>
     protected Task<bool> IsSingleResource(IFileSystemResourceAccessor mediaItemAccessor)
     {
-      if (mediaItemAccessor.IsFile)
-        return Task.FromResult(true);
       return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().IsSingleResource(mediaItemAccessor));
     }
 

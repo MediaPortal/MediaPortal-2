@@ -76,13 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
     {
-      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-      if (fsra == null || !fsra.IsFile)
-        return false;
-      var extension = DosPathHelper.GetExtension(fsra.ResourceName).ToLowerInvariant();
-      if (extension != ".ts")
-        return false;
-      return true;
+      return false;
     }
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
