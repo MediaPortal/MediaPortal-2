@@ -24,7 +24,8 @@
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
             <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
                    Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
-            <Label x:Name="Delimiter" Margin="10,0,10,0"  Color="{ThemeResource TextColor}" Content="-"/>
+            <Label x:Name="Delimiter" Margin="10,0,10,0"  Color="{ThemeResource TextColor}" Content="-"
+                   IsVisible="{Binding Path=EndTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
             <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
                    Color="{ThemeResource TextColor}"/>
           </StackPanel>
