@@ -16,6 +16,24 @@
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
 
+  <!-- Program duration control style -->
+  <Style x:Key="ProgramDurationControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+            <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
+                   Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+            <Label x:Name="Delimiter" Margin="10,0,10,0"  Color="{ThemeResource TextColor}" Content="-"
+                   IsVisible="{Binding Path=EndTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                   Color="{ThemeResource TextColor}"/>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="PrimarySlimTvOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>

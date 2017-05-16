@@ -28,17 +28,8 @@
       </Image.Source>
     </Image>
 
-    <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="0,0,0,0"
-        Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-        Color="{ThemeResource TextColor}"/>
-
-    <Label Grid.Row="0" Grid.Column="2" Margin="5,0,5,0"
-           Content="-"
-           Color="{ThemeResource TextColor}"/>
-
-    <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="0,0,0,0"
-        Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-        Color="{ThemeResource TextColor}"/>
+    <!-- Common control for program duration formatting -->
+    <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}" Grid.Column="1" Grid.ColumnSpan="3" />
 
     <Label x:Name="Program" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="15,0,0,0"
         Content="{Binding CurrentProgram.Title}"
