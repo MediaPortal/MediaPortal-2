@@ -119,11 +119,10 @@ namespace MediaPortal.Media.MetadataExtractors
           return false;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-        using (ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor)
         {
-          if (!lfsra.IsFile && lfsra.ResourceExists("BDMV"))
+          if (!rah.LocalFsResourceAccessor.IsFile && rah.LocalFsResourceAccessor.ResourceExists("BDMV"))
           {
-            using (IFileSystemResourceAccessor fsraBDMV = lfsra.GetResource("BDMV"))
+            using (IFileSystemResourceAccessor fsraBDMV = rah.LocalFsResourceAccessor.GetResource("BDMV"))
               if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
               {
                 MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
@@ -144,9 +143,9 @@ namespace MediaPortal.Media.MetadataExtractors
                 MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
                 mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
 
-                using (lfsra.EnsureLocalFileSystemAccess())
+                using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
                 {
-                  BDInfoExt bdinfo = new BDInfoExt(lfsra.LocalFileSystemPath);
+                  BDInfoExt bdinfo = new BDInfoExt(rah.LocalFsResourceAccessor.LocalFileSystemPath);
                   string title = bdinfo.GetTitle();
                   mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? mediaItemAccessor.ResourceName);
 
