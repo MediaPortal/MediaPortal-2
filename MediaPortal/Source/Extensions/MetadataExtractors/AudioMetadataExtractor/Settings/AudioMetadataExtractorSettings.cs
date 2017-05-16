@@ -161,12 +161,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
     public bool SkipFanArtDownload { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, the AudioMetadataExtractor does not fetch any information for missing local album tracks.
-    /// </summary>
-    [Setting(SettingScope.Global, true)]
-    public bool OnlyLocalMedia { get; set; }
-
-    /// <summary>
     /// If <c>true</c>, a copy will be made of FanArt placed on network drives to allow browsing when they are offline.
     /// </summary>
     [Setting(SettingScope.Global, true)]
