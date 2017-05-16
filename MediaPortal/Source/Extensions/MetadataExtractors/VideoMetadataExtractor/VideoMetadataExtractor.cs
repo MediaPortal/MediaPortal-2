@@ -1328,8 +1328,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               }
             }
           }
-          else if (HasSubtitleExtension(filePath))
+          else if (HasSubtitleExtension(filePath) && importOnly == false)
           {
+            //Don't handle subtitle files during import cycle because they will be handled together with the video file instead
             using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
             {
               ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
