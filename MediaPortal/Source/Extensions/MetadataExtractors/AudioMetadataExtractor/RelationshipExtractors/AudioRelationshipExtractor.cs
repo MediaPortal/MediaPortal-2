@@ -65,7 +65,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       _extractors.Add(new TrackAlbumRelationshipExtractor());
       _extractors.Add(new AlbumArtistRelationshipExtractor());
       _extractors.Add(new AlbumLabelRelationshipExtractor());
-      _extractors.Add(new AlbumTrackRelationshipExtractor());
 
       _hierarchies = new List<RelationshipHierarchy>();
       _hierarchies.Add(new RelationshipHierarchy("Track->Album", AudioAlbumAspect.ASPECT_ID, AudioAspect.ASPECT_ID, AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS, AudioAspect.ATTR_TRACK, true));

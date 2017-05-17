@@ -232,7 +232,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeComposerDetails { get; private set; }
     public static bool IncludeMusicLabelDetails { get; private set; }
-    public static bool OnlyLocalMedia { get; private set; }
 
     private void LoadSettings()
     {
@@ -243,7 +242,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeComposerDetails = _settingWatcher.Settings.IncludeComposerDetails;
       IncludeMusicLabelDetails = _settingWatcher.Settings.IncludeMusicLabelDetails;
-      OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
     }
 
     private void SettingsChanged(object sender, EventArgs e)
