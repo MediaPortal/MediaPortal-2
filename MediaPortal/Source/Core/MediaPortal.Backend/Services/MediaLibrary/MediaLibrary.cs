@@ -1319,6 +1319,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             if (changeFilters == null || changeFilters.Count == 0)
               continue;
 
+            Logger.Info("{0} marking all updateable media items ({1} ms)", extractor.GetType().Name, swImport.ElapsedMilliseconds);
+
             using (ITransaction transaction = database.BeginTransaction())
             {
               using (IDbCommand command = transaction.CreateCommand())
@@ -1353,7 +1355,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 extractor.ResetLastChangedItems(); //Reset changes so they are not found again in next request
 
                 if (itemCount > 0)
-                  Logger.Info("{0} found {1} updatable media items ({1} ms)", extractor.GetType().Name, itemCount, swImport.ElapsedMilliseconds);
+                  Logger.Info("{0} found {1} updatable media items ({2} ms)", extractor.GetType().Name, itemCount, swImport.ElapsedMilliseconds);
               }
             }
           }
