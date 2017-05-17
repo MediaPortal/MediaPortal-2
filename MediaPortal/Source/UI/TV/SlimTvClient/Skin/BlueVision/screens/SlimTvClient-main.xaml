@@ -84,7 +84,7 @@
 
           <StackPanel Orientation="Vertical" Grid.RowSpan="2">
             <!-- Common control for program duration formatting -->
-            <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}" />
+            <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=SelectedCurrentProgram}" />
             <Label x:Name="Channel" Scroll="Auto" Content="{Binding SelectedChannelName}" Color="{ThemeResource TextColor}"/>
             <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}"
                    Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
