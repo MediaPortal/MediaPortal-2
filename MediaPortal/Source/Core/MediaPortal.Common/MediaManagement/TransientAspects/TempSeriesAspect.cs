@@ -23,13 +23,12 @@
 #endregion
 
 using System;
-using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
+namespace MediaPortal.Common.MediaManagement.TransientAspects
 {
   /// <summary>
   /// Contains the metadata specification for series.
-  /// It is used to pass information to the RelationshipExtractors and is not persisted to database.
+  /// It is used to pass series information to the RelationshipExtractors and is not persisted to database.
   /// </summary>
   public static class TempSeriesAspect
   {
@@ -43,6 +42,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NAME =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Name", 100, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Series sort name.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SORT_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SortName", 100, Cardinality.Inline, false);
 
     /// <summary>
     /// Series TV network.
@@ -98,10 +103,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_VOTES =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("Votes", typeof(int), Cardinality.Inline, false);
 
-
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "TempSeriesItem", new[] {
             ATTR_NAME,
+            ATTR_SORT_NAME,
             ATTR_STATION,
             ATTR_TVDBID,
             ATTR_GENRES,

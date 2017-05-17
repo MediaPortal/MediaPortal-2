@@ -23,15 +23,14 @@
 #endregion
 
 using System;
-using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
+namespace MediaPortal.Common.MediaManagement.TransientAspects
 {
   /// <summary>
-  /// Contains the metadata specification for persons.
-  /// It is used to pass information to the RelationshipExtractors and is not persisted to database.
+  /// Contains the metadata specification for artists.
+  /// It is used to pass aartist information to the RelationshipExtractors and is not persisted to database.
   /// </summary>
-  public static class TempPersonAspect
+  public static class TempArtistAspect
   {
     /// <summary>
     /// Media item aspect id of the person aspect.
@@ -51,6 +50,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("MbId", 100, Cardinality.Inline, false);
 
     /// <summary>
+    /// Person AudioDB ID.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ADBID =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("ADbId", 100, Cardinality.Inline, false);
+
+    /// <summary>
     /// Specifies the persons occupation.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_OCCUPATION =
@@ -62,13 +67,42 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_FROMALBUM =
         MediaItemAspectMetadata.CreateMultipleAttributeSpecification("FromAlbum", typeof(bool), Cardinality.Inline, false);
 
+    /// <summary>
+    /// Person biography.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_BIOGRAPHY =
+    MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Biography", 10000, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Date and time the person was born.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_DATEOFBIRTH =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("BornDate", typeof(DateTime), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Date and time the person died.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_DATEOFDEATH =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("DeathDate", typeof(DateTime), Cardinality.Inline, false);
+
+    /// <summary>
+    /// If set to <c>true</c>, the person is actually a group of people i.e. a music band.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_GROUP =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsGroup", typeof(bool), Cardinality.Inline, false);
+
 
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
-        ASPECT_ID, "TempPersonItem", new[] {
+        ASPECT_ID, "TempArtistItem", new[] {
             ATTR_NAME,
             ATTR_MBID,
+            ATTR_ADBID,
             ATTR_OCCUPATION,
-            ATTR_FROMALBUM
+            ATTR_FROMALBUM,
+            ATTR_BIOGRAPHY,
+            ATTR_DATEOFBIRTH,
+            ATTR_DATEOFDEATH,
+            ATTR_GROUP
         },
         new[] {
             ATTR_NAME,

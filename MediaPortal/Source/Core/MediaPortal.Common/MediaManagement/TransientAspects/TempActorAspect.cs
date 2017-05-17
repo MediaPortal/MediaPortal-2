@@ -23,18 +23,17 @@
 #endregion
 
 using System;
-using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Common.MediaManagement.TransientAspects
 {
   /// <summary>
-  /// Contains the metadata specification for persons.
-  /// It is used to pass information to the RelationshipExtractors and is not persisted to database.
+  /// Contains the metadata specification for actors.
+  /// It is used to pass actor information to the RelationshipExtractors and is not persisted to database.
   /// </summary>
-  public static class TempPersonAspect
+  public static class TempActorAspect
   {
     /// <summary>
-    /// Media item aspect id of the person aspect.
+    /// Media item aspect id of the actor aspect.
     /// </summary>
     public static readonly Guid ASPECT_ID = new Guid("91DB3E1C-270D-4B9F-9FDB-09803811554A");
 
@@ -100,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
 
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
-        ASPECT_ID, "TempPersonItem", new[] {
+        ASPECT_ID, "TempActorItem", new[] {
             ATTR_NAME,
             ATTR_CHARACTER,
             ATTR_IMDBID,

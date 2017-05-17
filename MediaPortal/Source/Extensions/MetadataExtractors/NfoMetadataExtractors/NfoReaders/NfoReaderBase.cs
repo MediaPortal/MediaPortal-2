@@ -457,6 +457,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
+    /// Tries to read a simple long? from <paramref name="element"/>.Value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns>
+    /// <c>null</c> if <see cref="ParseSimpleString"/> returns <c>null</c> for <paramref name="element"/>
+    /// or <see cref="ParseSimpleString"/> for <paramref name="element"/> does not contain a valid <see cref="long"/> value;
+    /// otherwise (long?)<paramref name="element"/>
+    /// </returns>
+    protected long? ParseSimpleLong(XElement element)
+    {
+      var longString = ParseSimpleString(element);
+      if (longString == null)
+        return null;
+      long? result = null;
+      try
+      {
+        result = (long?)element;
+      }
+      catch (Exception)
+      {
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain an long value, but it does not: {1}", _miNumber, element);
+      }
+      return result;
+    }
+
+    /// <summary>
     /// Tries to read a simple decimal? from <paramref name="element"/>.Value
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>

@@ -31,6 +31,9 @@
     <Instance
         Id="NfoSeriesMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoSeriesMetadataExtractor"/>
+    <Instance
+        Id="NfoAudioMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoAudioMetadataExtractor"/>
   </Register>
 
   <Register Location="/Media/RelationshipExtractors">
@@ -40,5 +43,8 @@
     <Instance
         Id="NfoSeriesRelationshipExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.SeriesRelationshipExtractor"/>
+    <Instance
+        Id="NfoAudioRelationshipExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.AudiosRelationshipExtractor"/>
   </Register>
 </Plugin>
