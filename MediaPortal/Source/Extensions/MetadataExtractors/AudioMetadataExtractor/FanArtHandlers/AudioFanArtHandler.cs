@@ -310,6 +310,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           var bannerPaths = new List<ResourcePath>();
           var logoPaths = new List<ResourcePath>();
           var clearArtPaths = new List<ResourcePath>();
+          var discArtPaths = new List<ResourcePath>();
           var thumbPaths = new List<ResourcePath>();
           if (albumMediaItemId.HasValue)
           {
@@ -347,6 +348,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                     potentialFanArtFileNameWithoutExtension == "cover"
                     select potentialFanArtFile);
 
+                discArtPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "cdart"
+                    select potentialFanArtFile);
+
                 fanArtPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
@@ -360,6 +367,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             }
             foreach (ResourcePath posterPath in coverPaths)
               SaveFolderFile(mediaItemLocater, posterPath, FanArtTypes.Cover, albumMediaItemId.Value, albumTitle);
+            foreach (ResourcePath discArtPath in discArtPaths)
+              SaveFolderFile(mediaItemLocater, discArtPath, FanArtTypes.DiscArt, albumMediaItemId.Value, albumTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
               SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, albumMediaItemId.Value, albumTitle);
 
@@ -370,6 +379,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             bannerPaths.Clear();
             logoPaths.Clear();
             clearArtPaths.Clear();
+            discArtPaths.Clear();
             thumbPaths.Clear();
             if (artistMediaItems.Count > 0)
             {
