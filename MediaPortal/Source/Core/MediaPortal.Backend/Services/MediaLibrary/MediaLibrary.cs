@@ -2362,6 +2362,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       foreach (MediaItem item in items)
       {
+        TransferTransientAspects(aspects.Values.SelectMany(x => x), item);
         Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
         CollectFanArt(item.MediaItemId, item.Aspects);
       }
