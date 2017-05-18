@@ -310,8 +310,6 @@
     <Compile Include="Matches\IdMatch.cs" />
     <Compile Include="Matches\SimpleNameMatch.cs" />
     <Compile Include="OnlineMatcherService.cs" />
-    <Compile Include="SerializableRegex.cs" />
-    <Compile Include="Settings\GenreMapping.cs" />
     <Compile Include="Settings\MatcherSetting.cs" />
     <Compile Include="Settings\OnlineLibrarySettings.cs" />
     <Compile Include="Wrappers\ApiWrapperImageCollection.cs" />

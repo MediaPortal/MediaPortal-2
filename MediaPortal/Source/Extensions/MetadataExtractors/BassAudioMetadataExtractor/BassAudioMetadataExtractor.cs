@@ -41,6 +41,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
 using System.Linq;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
 {
@@ -218,7 +219,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           IEnumerable<string> genres = SplitTagEnum(tags.genre);
           genres = PatchID3v23Enumeration(genres);
           trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s }).ToList();
-          OnlineMatcherService.Instance.AssignMissingMusicGenreIds(trackInfo.Genres);
+          GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
 
           int year;
           if (int.TryParse(tags.year, out year))

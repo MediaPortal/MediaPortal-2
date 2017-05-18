@@ -27,9 +27,8 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using System.Linq;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -92,18 +91,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       UpdateArtists(aspects, albumInfo.Artists, true);
       if (!UpdateAlbum(aspects, albumInfo))
         return false;
-      OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(albumInfo.Genres);
+      GenreMapper.AssignMissingSeriesGenreIds(albumInfo.Genres);
 
       extractedLinkedAspects = new List<RelationshipItem>();
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       albumInfo.SetMetadata(albumAspects);
 
-      if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+      if (aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        bool episodeVirtual = true;
-        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out episodeVirtual))
+        bool trackVirtual = true;
+        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
         {
-          MediaItemAspect.SetAttribute(albumAspects, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
+          MediaItemAspect.SetAttribute(albumAspects, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
         }
       }
 

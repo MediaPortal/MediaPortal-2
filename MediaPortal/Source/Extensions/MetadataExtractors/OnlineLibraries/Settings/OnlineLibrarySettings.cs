@@ -35,9 +35,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected MatcherSetting[] _musicMatchers = new MatcherSetting[0];
     protected MatcherSetting[] _seriesMatchers = new MatcherSetting[0];
     protected MatcherSetting[] _movieMatchers = new MatcherSetting[0];
-    protected GenreMapping[] _musicGenreMap = new GenreMapping[0];
-    protected GenreMapping[] _seriesGenreMap = new GenreMapping[0];
-    protected GenreMapping[] _movieGenreMap = new GenreMapping[0];
     protected string _musicLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
     protected string _seriesLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
     protected string _movieLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
@@ -78,13 +75,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
     }
 
     [Setting(SettingScope.Global)]
-    public GenreMapping[] MusicGenreMappings
-    {
-      get { return _musicGenreMap; }
-      set { _musicGenreMap = value; }
-    }
-
-    [Setting(SettingScope.Global)]
     public string MusicLanguageCulture
     {
       get { return _musicLanguageCulture; }
@@ -100,13 +90,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
     }
 
     [Setting(SettingScope.Global)]
-    public GenreMapping[] SeriesGenreMappings
-    {
-      get { return _seriesGenreMap; }
-      set { _seriesGenreMap = value; }
-    }
-
-    [Setting(SettingScope.Global)]
     public string SeriesLanguageCulture
     {
       get { return _seriesLanguageCulture; }
@@ -119,13 +102,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       get { return _movieMatchers; }
       set { _movieMatchers = value; }
-    }
-
-    [Setting(SettingScope.Global)]
-    public GenreMapping[] MovieGenreMappings
-    {
-      get { return _movieGenreMap; }
-      set { _movieGenreMap = value; }
     }
 
     [Setting(SettingScope.Global)]

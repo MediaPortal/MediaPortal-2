@@ -36,6 +36,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -233,7 +234,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (TryGet(extractedTags, TAG_GENRE, out tmpString))
       {
         episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = tmpString } });
-        OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episodeInfo.Genres);
+        GenreMapper.AssignMissingSeriesGenreIds(episodeInfo.Genres);
       }
 
       episodeInfo.HasChanged = true;
@@ -288,7 +289,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (TryGet(tags, TAG_GENRE, out value))
         {
           List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value } });
-          OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+          GenreMapper.AssignMissingMovieGenreIds(genreList);
           MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
           genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
           genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);

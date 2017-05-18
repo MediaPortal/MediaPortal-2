@@ -28,7 +28,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries
+namespace MediaPortal.Common.Settings
 {
   /// <summary>
   /// Wraps a <see cref="Regex"/> object and makes it XmlSerializable for our settings system

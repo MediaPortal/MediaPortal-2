@@ -32,6 +32,7 @@ using MediaPortal.Utilities;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
@@ -124,7 +125,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       if (tags != null)
       {
         List<GenreInfo> genreList = tags.Select(s => new GenreInfo { Name = s }).ToList();
-        OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+        GenreMapper.AssignMissingMovieGenreIds(genreList);
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
       }
 

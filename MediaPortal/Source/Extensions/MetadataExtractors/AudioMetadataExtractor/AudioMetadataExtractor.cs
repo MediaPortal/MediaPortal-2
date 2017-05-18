@@ -45,6 +45,7 @@ using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Messaging;
 using System.Threading;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -640,7 +641,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               if ((tag.TagTypes & TagTypes.Id3v2) != 0)
                 genres = PatchID3v23Enumeration(genres);
               trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
-              OnlineMatcherService.Instance.AssignMissingMusicGenreIds(trackInfo.Genres);
+              GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
             }
 
             int year = (int)tag.Tag.Year;

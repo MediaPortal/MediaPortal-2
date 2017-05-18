@@ -41,6 +41,7 @@ using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -325,7 +326,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (movieInfo.Genres.Count > 0)
           {
-            movieInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMovieGenreIds(movieInfo.Genres);
+            movieInfo.HasChanged |= GenreMapper.AssignMissingMovieGenreIds(movieInfo.Genres);
           }
 
           //Store person matches
@@ -807,7 +808,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (updateMovieList)
           {
             foreach (MovieInfo movie in movieCollectionMatch.Movies)
-              OnlineMatcherService.Instance.AssignMissingMovieGenreIds(movie.Genres);
+              GenreMapper.AssignMissingMovieGenreIds(movie.Genres);
           }
         }
 

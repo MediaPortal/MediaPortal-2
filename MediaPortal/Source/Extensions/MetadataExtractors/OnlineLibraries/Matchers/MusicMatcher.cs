@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -331,7 +332,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (trackInfo.Genres.Count > 0)
           {
-            trackInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMusicGenreIds(trackInfo.Genres);
+            trackInfo.HasChanged |= GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
           }
 
           //Store person matches
@@ -913,13 +914,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (albumInfo.Genres.Count > 0)
           {
-            albumInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMusicGenreIds(albumInfo.Genres);
+            albumInfo.HasChanged |= GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres);
           }
 
           if (updateTrackList)
           {
             foreach (TrackInfo track in albumMatch.Tracks)
-              OnlineMatcherService.Instance.AssignMissingMusicGenreIds(track.Genres);
+              GenreMapper.AssignMissingMusicGenreIds(track.Genres);
           }
 
           //Store person matches

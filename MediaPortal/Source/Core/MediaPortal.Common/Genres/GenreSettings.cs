@@ -22,23 +22,39 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.OnlineLibraries
-{
-  public class GenreMapping
-  {
-    public int GenreId { get; set; }
-    public SerializableRegex GenrePattern { get; set; }
+using MediaPortal.Common.Settings;
 
-    public GenreMapping()
+namespace MediaPortal.Common.Genres
+{
+  public class GenreSettings
+  {
+    protected GenreMapping[] _musicGenreMap = new GenreMapping[0];
+    protected GenreMapping[] _seriesGenreMap = new GenreMapping[0];
+    protected GenreMapping[] _movieGenreMap = new GenreMapping[0];
+
+    public GenreSettings()
     {
-      GenreId = 0;
-      GenrePattern = null;
     }
 
-    public GenreMapping(int genreId, SerializableRegex genrePattern)
+    [Setting(SettingScope.Global)]
+    public GenreMapping[] MusicGenreMappings
     {
-      GenreId = genreId;
-      GenrePattern = genrePattern;
+      get { return _musicGenreMap; }
+      set { _musicGenreMap = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public GenreMapping[] SeriesGenreMappings
+    {
+      get { return _seriesGenreMap; }
+      set { _seriesGenreMap = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public GenreMapping[] MovieGenreMappings
+    {
+      get { return _movieGenreMap; }
+      set { _movieGenreMap = value; }
     }
   }
 }

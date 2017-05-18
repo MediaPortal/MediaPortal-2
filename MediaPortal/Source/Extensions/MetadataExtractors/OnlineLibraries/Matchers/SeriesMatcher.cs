@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -482,7 +483,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (seriesInfo.Genres.Count > 0)
           {
-            seriesInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(seriesInfo.Genres);
+            seriesInfo.HasChanged |= GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres);
           }
 
           //Store person matches

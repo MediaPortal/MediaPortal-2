@@ -68,6 +68,7 @@
     <Compile Include="FanArt\FanArtCache.cs" />
     <Compile Include="FanArt\FanArtConstants.cs" />
     <Compile Include="FanArt\FanArtSettings.cs" />
+    <Compile Include="Genres\GenreMapper.cs" />
     <Compile Include="Genres\SeriesGenre.cs" />
     <Compile Include="Genres\MovieGenre.cs" />
     <Compile Include="Genres\MusicGenre.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
+    <Compile Include="Genres\GenreMapping.cs" />
     <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
     <Compile Include="MediaManagement\Helpers\RelationshipCache.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
+    <Compile Include="Genres\GenreSettings.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
     <Compile Include="MediaManagement\RelationshipHierarchy.cs" />
     <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
@@ -177,6 +180,7 @@
     <Compile Include="Services\TaskScheduler\TaskWaitableTimer.cs" />
     <Compile Include="Services\ThumbnailGenerator\IThumbnailProvider.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailProviderBuilder.cs" />
+    <Compile Include="Settings\SerializableRegex.cs" />
     <Compile Include="SystemCommunication\MPClientMetadata.cs" />
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\ICommand.cs" />
