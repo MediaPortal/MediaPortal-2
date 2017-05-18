@@ -425,9 +425,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         if (resourcePath.TryCreateLocalResourceAccessor(out ra))
           using (ra)
           {
-            ILocalFsResourceAccessor lfsra = ra as ILocalFsResourceAccessor;
-            if (lfsra != null)
-              return await IsSingleResource(lfsra);
+            IFileSystemResourceAccessor fssra = ra as IFileSystemResourceAccessor;
+            if (fssra != null)
+              return await IsSingleResource(fssra);
           }
       }
       catch { }

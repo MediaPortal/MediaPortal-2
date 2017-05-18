@@ -96,15 +96,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var result = new HashSet<PendingImportResourceNewGen> { importResource };
       try
       {
-        ICollection<IFileSystemResourceAccessor> files = null;
+        ICollection<IFileSystemResourceAccessor> files = new HashSet<IFileSystemResourceAccessor>();
         IDictionary<ResourcePath, DateTime> path2LastImportDate = new Dictionary<ResourcePath, DateTime>();
         IDictionary<ResourcePath, Guid> path2MediaItem = new Dictionary<ResourcePath, Guid>();
         IEnumerable<MediaItem> mediaItems = null;
         if (importResource.IsSingleResource)
         {
-          files = new HashSet<IFileSystemResourceAccessor>();
-          files.Add(importResource.ResourceAccessor);
-
           MediaItem mi = await LoadLocalItem(importResource.PendingResourcePath, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, null);
           if (mi != null)
           {
@@ -114,15 +111,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         else
         {
-        // FileSystemResourceNavigator.GetFiles also returns files that were identified as virtual directories by
-        // FileSystemResourceNavigator.GetChildDirectories (such as zip-files).
-        // ToDo: Clarify if this is a bug
-          files = FileSystemResourceNavigator.GetFiles(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
-        SingleMediaItemAspect directoryAspect;
-        // ReSharper disable once PossibleInvalidOperationException
-        // TODO: Rework this
+          files = FileSystemResourceNavigator.GetFiles(importResource.ResourceAccessor, false, false) ?? new HashSet<IFileSystemResourceAccessor>();
+          SingleMediaItemAspect directoryAspect;
+          // ReSharper disable once PossibleInvalidOperationException
+          // TODO: Rework this
           mediaItems = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
-          .Where(mi => !MediaItemAspect.TryGetAspect(mi.Aspects, DirectoryAspect.Metadata, out directoryAspect));
+            .Where(mi => !MediaItemAspect.TryGetAspect(mi.Aspects, DirectoryAspect.Metadata, out directoryAspect));
         }
         if (mediaItems != null)
         {
@@ -164,14 +158,13 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         if (ImportJobInformation.JobType == ImportJobType.Import)
         {
           //Only import new files so only add non existing paths
-          result.UnionWith(files.Where(f => !path2LastImportDate.Keys.Contains(f.CanonicalLocalResourcePath)).
-            Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
+          if (!importResource.IsSingleResource)
+            result.UnionWith(files.Where(f => !path2LastImportDate.Keys.Contains(f.CanonicalLocalResourcePath)).
+              Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
         }
         else
         {
-          if (importResource.IsSingleResource)
-            result.Add(importResource);
-          else
+          if (!importResource.IsSingleResource)
             result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId,
               path2MediaItem.ContainsKey(f.CanonicalLocalResourcePath) ? path2MediaItem[f.CanonicalLocalResourcePath] : (Guid?)null)));
 
@@ -217,6 +210,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         // Existing media items can have chained resource paths (i.e. BD ISO, or video inside .zip archive)
         if (fileResourcePathsInFileSystem.Any(fsResource => mlResource == fsResource || mlResource.BasePathSegment == fsResource.BasePathSegment))
+          continue;
+        if (await IsSingleResourcePath(mlResource))
           continue;
 
         noLongerExistingFileResourcePaths.Add(mlResource);
