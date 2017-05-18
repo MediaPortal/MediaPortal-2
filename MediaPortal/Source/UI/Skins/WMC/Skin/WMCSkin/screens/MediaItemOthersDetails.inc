@@ -15,10 +15,10 @@
   </Grid.ColumnDefinitions>
 
   <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-         DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Content="{Binding SimpleTitle}"
-         IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"/>
+         DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}" Content="{Binding SimpleTitle}" Grid.ColumnSpan="2"
+         IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem,Converter={StaticResource ReferenceToBoolConverter}}"/>
     
-  <StackPanel Orientation="Vertical" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,0,0,5">
+  <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,0,0,5">
     <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}">
       <StackPanel Orientation="Horizontal">
         <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding NumItems}"
@@ -34,8 +34,8 @@
         <ControlTemplate>
           <StackPanel Orientation="Horizontal">
             <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"
-                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Opacity="0.5"
-                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Color="{ThemeResource TextColor}"/>
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}"/>
           </StackPanel>
         </ControlTemplate>
       </media:MediaAspectWrapper.Template>
@@ -46,7 +46,7 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <StackPanel Orientation="Horizontal">
-              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
@@ -54,7 +54,7 @@
                   </MultiBinding>
                 </Label.Content>
               </Label>
-              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
+              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
             </StackPanel>
           </Grid>
@@ -83,7 +83,7 @@
     <media:VideoAspectWrapper.Template>
       <ControlTemplate>
         <StackPanel Orientation="Horizontal">
-          <Label x:Name="MediaItemName" FontSize="{ThemeResource SmallFontSize}" Opacity="1.2"
+          <Label x:Name="MediaItemName" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3"
                  Color="{ThemeResource MenuTextBackground}" TextTrimming="WordEllipsis"
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Label.Content>
