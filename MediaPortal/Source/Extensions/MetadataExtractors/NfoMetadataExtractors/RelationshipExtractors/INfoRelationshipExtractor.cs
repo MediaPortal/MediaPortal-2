@@ -577,7 +577,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         personAspect.SetAttribute(TempArtistAspect.ATTR_MBID, person.MusicBrainzId);
         personAspect.SetAttribute(TempArtistAspect.ATTR_NAME, person.Name);
         personAspect.SetAttribute(TempArtistAspect.ATTR_OCCUPATION, person.Occupation);
-        personAspect.SetAttribute(TempArtistAspect.ATTR_BIOGRAPHY, person.Biography);
+        personAspect.SetAttribute(TempArtistAspect.ATTR_BIOGRAPHY, person.Biography.Text);
         personAspect.SetAttribute(TempArtistAspect.ATTR_DATEOFBIRTH, person.DateOfBirth);
         personAspect.SetAttribute(TempArtistAspect.ATTR_DATEOFDEATH, person.DateOfDeath);
         personAspect.SetAttribute(TempArtistAspect.ATTR_GROUP, person.IsGroup);

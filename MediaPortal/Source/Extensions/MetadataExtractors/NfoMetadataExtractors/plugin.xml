@@ -45,6 +45,6 @@
         ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.SeriesRelationshipExtractor"/>
     <Instance
         Id="NfoAudioRelationshipExtractor"
-        ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.AudiosRelationshipExtractor"/>
+        ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.AudioRelationshipExtractor"/>
   </Register>
 </Plugin>

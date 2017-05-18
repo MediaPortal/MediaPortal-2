@@ -53,7 +53,7 @@ namespace MediaPortal.Common.MediaManagement.TransientAspects
     /// Album AudioDB ID.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ADBID =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("ADbId", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("ADbId", typeof(long), Cardinality.Inline, false);
 
     /// <summary>
     /// Album Musicbrainz ID.

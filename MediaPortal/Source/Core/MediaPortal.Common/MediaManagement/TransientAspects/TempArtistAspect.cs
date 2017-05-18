@@ -53,7 +53,7 @@ namespace MediaPortal.Common.MediaManagement.TransientAspects
     /// Person AudioDB ID.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ADBID =
-        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("ADbId", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ADbId", typeof(long), Cardinality.Inline, false);
 
     /// <summary>
     /// Specifies the persons occupation.

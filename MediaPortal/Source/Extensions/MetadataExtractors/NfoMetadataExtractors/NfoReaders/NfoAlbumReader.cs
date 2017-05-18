@@ -24,19 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
-using System.Globalization;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities.Cache;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
@@ -103,9 +97,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("musicBrainzAlbumID", new TryReadElementDelegate(TryReadMbReleaseId));
       _supportedElements.Add("audioDbID", new TryReadElementDelegate(TryReadAudiodbId));
       _supportedElements.Add("title", new TryReadElementDelegate(TryReadTitle));
+      _supportedElements.Add("artist", new TryReadElementDelegate(TryReadArtists));
       _supportedElements.Add("releasedate", new TryReadElementDelegate(TryReadReleaseDate));
       _supportedElements.Add("year", new TryReadElementDelegate(TryReadYear));
-      _supportedElements.Add("label", new TryReadElementDelegate(TryReadLabel));
+      _supportedElements.Add("label", new TryReadElementDelegate(TryReadLabels));
       _supportedElements.Add("genre", new TryReadElementDelegate(TryReadGenre));
       _supportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
       //_supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
@@ -215,11 +210,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
+    /// Tries to read a record artists
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadArtists(XElement element)
+    {
+      // Examples of valid elements:
+      // <artist>Artists name</artist>
+      // <artist>Artist name 1 / Artist name 2</artist>
+      return ((_currentStub.Artists = ParseCharacterSeparatedStrings(element, _currentStub.Artists)) != null);
+    }
+
+    /// <summary>
     /// Tries to read a record label value
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadLabel(XElement element)
+    private bool TryReadLabels(XElement element)
     {
       // Examples of valid elements:
       // <company>Record label</company>
