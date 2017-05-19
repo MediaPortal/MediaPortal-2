@@ -269,7 +269,8 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      {
                                        new DvArgument("ChannelId", A_ARG_TYPE_ChannelId, ArgumentDirection.In),
                                        new DvArgument("TimeFrom", A_ARG_TYPE_DateTime, ArgumentDirection.In),
-                                       new DvArgument("TimeTo", A_ARG_TYPE_DateTime, ArgumentDirection.In)
+                                       new DvArgument("TimeTo", A_ARG_TYPE_DateTime, ArgumentDirection.In),
+                                       new DvArgument("ScheduleRecordingType", A_ARG_TYPE_ScheduleRecordingType, ArgumentDirection.In)
                                      },
                             new[]
                                      {
@@ -571,10 +572,11 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       int channelId = (int)inParams[0];
       DateTime startTime = (DateTime)inParams[1];
       DateTime endTime = (DateTime)inParams[2];
+      ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[3];
       ISchedule schedule = null;
 
       IChannel channel;
-      bool result = channelAndGroupInfo.GetChannel(channelId, out channel) && scheduleControl.CreateScheduleByTime(channel, startTime, endTime, out schedule);
+      bool result = channelAndGroupInfo.GetChannel(channelId, out channel) && scheduleControl.CreateScheduleByTime(channel, startTime, endTime, recordingType, out schedule);
 
       outParams = new List<object> { result, schedule };
       return null;

@@ -769,7 +769,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
-    public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
+    public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
       Channel indexChannel = channel as Channel;
       schedule = null;
@@ -781,7 +781,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       try
       {
-        return TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, "Manual", from, to, WebScheduleType.Once);
+        return TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, "Manual", from, to, (WebScheduleType)recordingType);
       }
       catch
       {
