@@ -374,8 +374,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Adjust border to outline of background, otherwise the stroke is centered
         innerBorderRect.Left -= (float)BorderThickness / 2;
         innerBorderRect.Top -= (float)BorderThickness / 2;
-        innerBorderRect.Width() += (float)BorderThickness;
-        innerBorderRect.Height() += (float)BorderThickness;
+        //innerBorderRect.Width() += (float)BorderThickness;
+        //innerBorderRect.Height() += (float)BorderThickness;
         _borderGeometry = CreateBorderRectPath(innerBorderRect);
         _strokeRect = _borderGeometry.GetWidenedBounds((float)BorderThickness);
       }

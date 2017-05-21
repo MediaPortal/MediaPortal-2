@@ -334,9 +334,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       _fillDisabled = bounds.Width() < StrokeThickness || bounds.Height() < StrokeThickness;
       if (Width > 0)
       {
-        baseRect.Width()= (float)Width;
+        //baseRect.Width()= (float)Width;
       }
-      if (Height > 0) baseRect.Height() = (float)Height;
+     // if (Height > 0) baseRect.Height() = (float)Height;
       float scaleW;
       float scaleH;
       if (Stretch == Stretch.Fill)
@@ -370,7 +370,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
       m *= Matrix.Translation(baseRect.Left, baseRect.Top, 0);
 
-      result = new TransformedGeometry(path.Factory, path, m);
+    //  result = new TransformedGeometry(path.Factory, path, m);
       return result;
     }
   }

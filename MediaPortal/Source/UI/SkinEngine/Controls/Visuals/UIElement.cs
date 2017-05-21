@@ -725,8 +725,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       rect.Left += margin.Left;
       rect.Top += margin.Top;
 
-      rect.Width -= margin.Left + margin.Right;
-      rect.Height -= margin.Top + margin.Bottom;
+      //rect.Width -= margin.Left + margin.Right;
+      //rect.Height -= margin.Top + margin.Bottom;
     }
 
     /// <summary>

@@ -76,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine
 
     public static RawRectangleF CreateRawRectangleF(Vector2 location, Size2F size)
     {
-      return new RawRectangleF(location.X, location.Y, size.Width, size.Height);
+      return new RawRectangleF(location.X, location.Y, location.X + size.Width, location.Y + size.Height);
     }
 
     public static RawRectangle CreateRawRectangle(Vector2 location, Size2 size)

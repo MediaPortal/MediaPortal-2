@@ -260,17 +260,17 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         return false;
 
       // Apply effect parameters
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.WorldTransform, renderContext.Transform);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.Opacity, (float)renderContext.Opacity);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, _inverseRelativeTransformCache);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new Vector4(0, 0, 1, 1));
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameData, endFrameData);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.MixAB, mixValue);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, startContext._inverseRelativeTransformCache);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransformA, startContext._imageTransform);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameDataA, startFrameData);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.BorderColor, borderColor.ToColor4());
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.WorldTransform, renderContext.Transform);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.Opacity, (float)renderContext.Opacity);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, _inverseRelativeTransformCache);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new Vector4(0, 0, 1, 1));
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.FrameData, endFrameData);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.MixAB, mixValue);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, startContext._inverseRelativeTransformCache);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransformA, startContext._imageTransform);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.FrameDataA, startFrameData);
+      //_effectTransition.Effect.SetValue((int)ParamIndexIT.BorderColor, borderColor.ToColor4());
 
       // Render
       _effectTransition.StartRender(startContext._lastTexture, renderContext, endTexture);
@@ -318,12 +318,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           return false;
       }
 
-      _effect.Effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
-      _effect.Effect.SetValue((int)ParamIndexI.Opacity, (float)renderContext.Opacity);
-      _effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, _inverseRelativeTransformCache);
-      _effect.Effect.SetValue((int)ParamIndexI.ImageTransform, _imageTransform);
-      _effect.Effect.SetValue((int)ParamIndexI.FrameData, frameData);
-      _effect.Effect.SetValue((int)ParamIndexI.BorderColor, (Color4)borderColor);
+      //_effect.Effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
+      //_effect.Effect.SetValue((int)ParamIndexI.Opacity, (float)renderContext.Opacity);
+      //_effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, _inverseRelativeTransformCache);
+      //_effect.Effect.SetValue((int)ParamIndexI.ImageTransform, _imageTransform);
+      //_effect.Effect.SetValue((int)ParamIndexI.FrameData, frameData);
+      //_effect.Effect.SetValue((int)ParamIndexI.BorderColor, (Color4)borderColor);
 
       // Render
       _effect.StartRender(_lastTexture, renderContext);

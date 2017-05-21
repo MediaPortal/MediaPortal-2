@@ -182,10 +182,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _headerLabelRect = new RawRectangleF(
           finalRect.Left + borderInsetX + realHeaderInset, finalRect.Top,
           finalRect.Width() - (borderInsetX + realHeaderInset) * 2, headerLabelHeight);
-      if (_headerLabelRect.Width() < 0)
-        _headerLabelRect.Width() = 0;
-      if (_headerLabelRect.Height() > finalRect.Height())
-        _headerLabelRect.Height() = finalRect.Height();
+      //if (_headerLabelRect.Width() < 0)
+      //  _headerLabelRect.Width() = 0;
+      //if (_headerLabelRect.Height() > finalRect.Height())
+      //  _headerLabelRect.Height() = finalRect.Height();
 
       _headerLabel.Arrange(_headerLabelRect);
     }

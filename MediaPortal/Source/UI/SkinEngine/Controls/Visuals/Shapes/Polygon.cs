@@ -120,18 +120,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       if (points.Length < 3)
         return null;
       PathGeometry path = new PathGeometry(GraphicsDevice11.Instance.Context2D1.Factory);
-      using (var sink = path.Open())
-      {
-        sink.BeginFigure(points[0], FigureBegin.Filled);
+      //using (var sink = path.Open())
+      //{
+      //  sink.BeginFigure(points[0], FigureBegin.Filled);
 
-        for (int i = 1; i < points.Length; i++)
-        {
-          sink.AddLine(points[i]);
-        }
+      //  for (int i = 1; i < points.Length; i++)
+      //  {
+      //    sink.AddLine(points[i]);
+      //  }
 
-        sink.EndFigure(FigureEnd.Closed);
-        sink.Close();
-      }
+      //  sink.EndFigure(FigureEnd.Closed);
+      //  sink.Close();
+      //}
       return path;
     }
 

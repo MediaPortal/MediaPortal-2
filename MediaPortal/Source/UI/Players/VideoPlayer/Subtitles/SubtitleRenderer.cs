@@ -637,7 +637,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
         using (new TemporaryRenderTarget2D(targetSurface.Bitmap))
         {
-          GraphicsDevice11.Instance.Context2D1.Transform = transform;
+       //   GraphicsDevice11.Instance.Context2D1.Transform = transform;
           GraphicsDevice11.Instance.Context2D1.DrawBitmap(subTexture, 1f, InterpolationMode.Linear);
           GraphicsDevice11.Instance.Context2D1.Flush();
         }

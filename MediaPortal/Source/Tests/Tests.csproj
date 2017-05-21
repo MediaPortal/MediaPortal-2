@@ -47,6 +47,10 @@
       <HintPath>..\..\Packages\Moq.4.5.28\lib\net45\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SharpDX, Version=3.1.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\SharpDX.3.1.1\lib\net45\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Mathematics, Version=3.1.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1" />
     <Reference Include="System" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\..\Packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
@@ -80,6 +84,7 @@
   <ItemGroup>
     <Compile Include="ComSkipChaptersTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SkinEngineTests.cs" />
     <Compile Include="VideoPlayerForComSkipTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +107,10 @@
     <ProjectReference Include="..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
       <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj">
       <Project>{33721bc7-193a-4b80-9cff-dc8a50700443}</Project>

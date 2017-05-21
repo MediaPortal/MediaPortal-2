@@ -120,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         float left = GetLeft(child, true);
         float top = GetTop(child, true);
 
-        rect = RawRectangleF.Union(rect, SharpDXExtensions.CreateRawRectangleF(new PointF(left, top), new SizeF(childSize.Width, childSize.Height)));
+      //  rect = RawRectangleF.Union(rect, SharpDXExtensions.CreateRawRectangleF(new PointF(left, top), new SizeF(childSize.Width, childSize.Height)));
       }
 
       return new SizeF(rect.Right, rect.Bottom);
