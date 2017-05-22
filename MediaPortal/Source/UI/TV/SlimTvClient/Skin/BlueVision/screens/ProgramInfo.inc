@@ -4,7 +4,7 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     x:Name="ProgramInfoPanel" LastChildFill="true" Height="170">
 
-  <Grid DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-35,70,-30,-50">
+  <Grid DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-35,70,-30,-100">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
@@ -27,7 +27,7 @@
       </Image>      
     </StackPanel>
 
-    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
+    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch">
       <Label x:Name="Program" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              Content="{Binding CurrentProgram.Title}" Margin="0,0,0,0"
              Color="{ThemeResource TextColor}"/>
@@ -41,7 +41,6 @@
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
            Wrap="True" Scroll="Auto" ScrollDelay="5" ScrollSpeed="10" Opacity="0.6"
-           Content="{Binding Path=CurrentProgram.Description}"
-           Color="{ThemeResource TextColor}" Margin="0,0,10,5"/>
+           Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}" Margin="0,0,10,5"/>
   </Grid>
 </DockPanel>
