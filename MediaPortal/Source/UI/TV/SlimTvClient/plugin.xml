@@ -191,5 +191,10 @@
         Text="[SlimTvClient.ZapTimeout]"
         HelpText="[SlimTvClient.ZapTimeout.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ZapTimeoutSetting"/>
+    <ConfigSetting
+        Id="ChannelLogoStyle"
+        Text="[SlimTvClient.ChannelLogoStyle]"
+        HelpText="[SlimTvClient.ChannelLogoStyle.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ChannelLogoStyleSetting"/>
   </Register>
 </Plugin>
