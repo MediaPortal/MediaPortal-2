@@ -104,7 +104,7 @@
             <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold"/>
             <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold">
               <Label.Content>
-                <Binding ElementName="ScheduleList" Path="ItemsSource.Count" />
+                <Binding ElementName="ScheduleList" Path="ItemsCount" />
               </Label.Content>
             </Label>
           </StackPanel>
