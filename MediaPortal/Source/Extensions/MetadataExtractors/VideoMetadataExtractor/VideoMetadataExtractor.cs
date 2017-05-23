@@ -584,7 +584,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
@@ -668,7 +668,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
@@ -704,12 +704,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
         // In quick mode only allow thumbs taken from cache.
-        bool cachedOnly = importOnly;
+        bool cachedOnly = importOnly || forceQuickMode;
 
         // Thumbnail extraction
         IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
@@ -1194,7 +1194,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
@@ -1246,9 +1246,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 result.UpdateMetadata(extractedAspectData, lfsra, -1, 0);
                 try
                 {
-                  ExtractMatroskaTags(lfsra, extractedAspectData, importOnly);
-                  ExtractMp4Tags(lfsra, extractedAspectData, importOnly);
-                  ExtractThumbnailData(lfsra, extractedAspectData, importOnly);
+                  ExtractMatroskaTags(lfsra, extractedAspectData, importOnly, forceQuickMode);
+                  ExtractMp4Tags(lfsra, extractedAspectData, importOnly, forceQuickMode);
+                  ExtractThumbnailData(lfsra, extractedAspectData, importOnly, forceQuickMode);
                 }
                 catch (Exception ex)
                 {
@@ -1308,9 +1308,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                     result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet);
                     try
                     {
-                      ExtractMatroskaTags(lfsra, extractedAspectData, importOnly);
-                      ExtractMp4Tags(lfsra, extractedAspectData, importOnly);
-                      ExtractThumbnailData(lfsra, extractedAspectData, importOnly);
+                      ExtractMatroskaTags(lfsra, extractedAspectData, importOnly, forceQuickMode);
+                      ExtractMp4Tags(lfsra, extractedAspectData, importOnly, forceQuickMode);
+                      ExtractThumbnailData(lfsra, extractedAspectData, importOnly, forceQuickMode);
                     }
                     catch (Exception ex)
                     {
@@ -1318,9 +1318,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                     }
                     UpdateSetName(lfsra, extractedAspectData, multipart);
 
-                    //Initial add of all subtitles because they might have been skipped
-                    //during merging as no video item is available for the merge
-                    FindExternalSubtitles(lfsra, extractedAspectData);
+                    //Initial add of all subtitles because they have been skipped during import
+                    if(!forceQuickMode)
+                      FindExternalSubtitles(lfsra, extractedAspectData);
 
                     return true;
                   }
@@ -1328,7 +1328,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               }
             }
           }
-          else if (HasSubtitleExtension(filePath) && importOnly == false)
+          else if (HasSubtitleExtension(filePath) && importOnly == false && forceQuickMode == false)
           {
             //Don't handle subtitle files during import cycle because they will be handled together with the video file instead
             using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))

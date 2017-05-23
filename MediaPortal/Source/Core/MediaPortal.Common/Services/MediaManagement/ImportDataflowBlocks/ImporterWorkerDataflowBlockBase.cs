@@ -461,13 +461,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     protected async Task<bool> IsSingleResource(IFileSystemResourceAccessor mediaItemAccessor)
     {
       //ToDo: Replace this with a call to IsSingleResource once this method is implemented in the MetadataExtractors
-      return mediaItemAccessor.IsFile || await ExtractMetadata(mediaItemAccessor, null, true) != null;
+      return mediaItemAccessor.IsFile || await ExtractMetadata(mediaItemAccessor, null, true, true) != null;
     }
 
-    protected Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)
+    protected Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, 
+      bool importOnly, bool forceQuickMode)
     {
       // ToDo: This is a workaround. MetadataExtractors should have an async ExtractMetadata method that returns a Task.
-      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().ExtractMetadata(mediaItemAccessor, ImportJobInformation.MetadataExtractorIds, existingAspects, importOnly));
+      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().ExtractMetadata(mediaItemAccessor, ImportJobInformation.MetadataExtractorIds, existingAspects, importOnly, forceQuickMode));
     }
 
     #endregion

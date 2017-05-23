@@ -321,10 +321,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
+        if (forceQuickMode)
+          return false;
+
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
 

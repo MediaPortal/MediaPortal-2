@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public MetadataExtractorMetadata Metadata { get { return _metadata; } }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null || !fsra.IsFile)

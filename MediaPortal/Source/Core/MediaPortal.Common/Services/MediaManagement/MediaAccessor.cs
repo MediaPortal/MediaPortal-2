@@ -648,7 +648,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<Guid> metadataExtractorIds, bool importOnly)
+        IEnumerable<Guid> metadataExtractorIds, bool importOnly, bool forceQuickMode)
     {
       ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
       foreach (Guid extractorId in metadataExtractorIds)
@@ -657,11 +657,12 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
           extractors.Add(extractor);
       }
-      return ExtractMetadata(mediaItemAccessor, extractors, importOnly);
+      return ExtractMetadata(mediaItemAccessor, extractors, importOnly, forceQuickMode);
     }
 
     public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)
+        IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, 
+        bool importOnly, bool forceQuickMode)
     {
       ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
       foreach (Guid extractorId in metadataExtractorIds)
@@ -670,17 +671,19 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
           extractors.Add(extractor);
       }
-      return ExtractMetadata(mediaItemAccessor, extractors, existingAspects, importOnly);
+      return ExtractMetadata(mediaItemAccessor, extractors, existingAspects, importOnly, forceQuickMode);
     }
 
     public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<IMetadataExtractor> metadataExtractors, bool importOnly)
+        IEnumerable<IMetadataExtractor> metadataExtractors, bool importOnly, bool forceQuickMode)
     {
-      return ExtractMetadata(mediaItemAccessor, metadataExtractors, new Dictionary<Guid, IList<MediaItemAspect>>(), importOnly);
+      return ExtractMetadata(mediaItemAccessor, metadataExtractors, new Dictionary<Guid, IList<MediaItemAspect>>(), 
+        importOnly, forceQuickMode);
     }
 
     public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)
+        IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, 
+        bool importOnly, bool forceQuickMode)
     {
       IDictionary<Guid, IList<MediaItemAspect>> result = existingAspects;
       if(result == null)
@@ -692,7 +695,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         try
         {
-          if (extractor.TryExtractMetadata(mediaItemAccessor, result, importOnly))
+          if (extractor.TryExtractMetadata(mediaItemAccessor, result, importOnly, forceQuickMode))
             success = true;
         }
         catch (Exception e)
@@ -710,7 +713,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       const bool importOnly = true;
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, importOnly);
+      const bool forceQuickMode = true;
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, importOnly, forceQuickMode);
       if (aspects == null)
         return null;
       IList<MultipleMediaItemAspect> providerResourceAspects;

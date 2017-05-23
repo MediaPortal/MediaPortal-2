@@ -60,10 +60,14 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="importOnly">Importing needs to be quick, but the server side importer can extract further details.
     /// If the value is set to <c>true</c>, no unnecessary slow operations are permitted (like lookup of metadata from the internet or
     /// non-cached thumbnail extraction).</param>
+    /// <param name="forceQuickMode">Interactive browsing needs to be quick, but the server side importer can extract further details.
+    /// If the value is set to <c>true</c>, no slow operations are permitted (like lookup of metadata from the internet or
+    /// non-cached thumbnail extraction).</param>
     /// <returns><c>true</c> if the metadata could be extracted from the specified media item, else <c>false</c>.
     /// If the return value is <c>true</c>, the extractedAspectData collection was filled by this metadata extractor.
     /// If the return value is <c>false</c>, the <paramref name="extractedAspectData"/> collection remains
     /// unchanged.</returns>
-    bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly);
+    bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, 
+      bool importOnly, bool forceQuickMode);
   }
 }
