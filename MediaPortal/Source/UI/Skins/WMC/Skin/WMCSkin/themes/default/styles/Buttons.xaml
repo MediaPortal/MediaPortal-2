@@ -1352,6 +1352,17 @@
             </Grid.RenderTransform>
           </Grid>
           <ControlTemplate.Triggers>
+            <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+              <BeginStoryboard Name="SetSelectedFocusStoryBoard">
+                <BeginStoryboard.Storyboard>
+                  <Storyboard>
+                    <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                      <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="True" />
+                    </ObjectAnimationUsingKeyFrames>
+                  </Storyboard>
+                </BeginStoryboard.Storyboard>
+              </BeginStoryboard>
+            </EventTrigger>
             <Trigger Property="HasFocus" Value="True">
               <!--Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.2"/-->
               <!--Setter Property="Foreground" Value="White"/-->

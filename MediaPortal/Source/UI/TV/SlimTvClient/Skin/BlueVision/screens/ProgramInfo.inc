@@ -15,13 +15,8 @@
     </Grid.ColumnDefinitions>
 
     <StackPanel Orientation="Vertical" Grid.RowSpan="2">
-      <StackPanel Orientation="Horizontal">
-        <Label x:Name="ProgramStart" Margin="0,0,0,0" Color="{ThemeResource TextColor}"
-               Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
-        <!--Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
-        <Label x:Name="ProgramEnd" Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-            Color="{ThemeResource TextColor}"/-->
-      </StackPanel>  
+      <!-- Common control for program duration formatting -->
+      <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}" />
       <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
       <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
              Stretch="Uniform" VerticalAlignment="Top" HorizontalAlignment="Left" >
@@ -45,7 +40,7 @@
     </StackPanel>
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-           Wrap="True" TextTrimming="WordEllipsis" Opacity="0.6"
+           Wrap="True" Scroll="Auto" ScrollDelay="5" ScrollSpeed="10" Opacity="0.6"
            Content="{Binding Path=CurrentProgram.Description}"
            Color="{ThemeResource TextColor}" Margin="0,0,10,5"/>
   </Grid>

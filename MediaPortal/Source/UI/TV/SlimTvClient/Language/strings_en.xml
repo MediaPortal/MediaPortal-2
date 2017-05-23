@@ -98,6 +98,8 @@
   <string name="SlimTvClient.ZapTimeout.Help">Configures the delay until tuning starts.</string>
   <string name="SlimTvClient.HideAllChannelsGroup">Hide "All Channels" group</string>
   <string name="SlimTvClient.HideAllChannelsGroup.Help">If enabled, the inbuilt "All Channels" group will be hidden.</string>
+  <string name="SlimTvClient.ChannelLogoStyle">Channel logo style</string>
+  <string name="SlimTvClient.ChannelLogoStyle.Help">Select channel logo style. Server and Clients needs to be restarted after changes.</string>
 
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.Recordings.Help">Here you can find a list of your recorded programs for playback.</string>
