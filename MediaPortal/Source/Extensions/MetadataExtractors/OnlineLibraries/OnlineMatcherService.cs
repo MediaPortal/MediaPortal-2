@@ -68,13 +68,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       MUSIC_MATCHERS.Add(MusicFanArtTvMatcher.Instance);
 
       MOVIE_MATCHERS.Add(MovieTheMovieDbMatcher.Instance);
-      MOVIE_MATCHERS.Add(MovieOmDbMatcher.Instance);
+      //MOVIE_MATCHERS.Add(MovieOmDbMatcher.Instance);
       MOVIE_MATCHERS.Add(MovieFanArtTvMatcher.Instance);
 
       SERIES_MATCHERS.Add(SeriesTvDbMatcher.Instance);
       SERIES_MATCHERS.Add(SeriesTheMovieDbMatcher.Instance);
       SERIES_MATCHERS.Add(SeriesTvMazeMatcher.Instance);
-      SERIES_MATCHERS.Add(SeriesOmDbMatcher.Instance);
+      //SERIES_MATCHERS.Add(SeriesOmDbMatcher.Instance);
       SERIES_MATCHERS.Add(SeriesFanArtTvMatcher.Instance);
 
       //Load settings
