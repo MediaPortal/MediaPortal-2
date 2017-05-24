@@ -126,11 +126,12 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="SearchButton" Grid.Column="0" Style="{ThemeResource SearchButtonStyle}" Margin="1,0,1,0" 
+          <Button x:Name="SearchButton" Grid.Column="0" Style="{ThemeResource SearchButtonStyle}" Margin="1,0,1,0"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}"
                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
-          <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0" VerticalAlignment="Center"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0" Wrap="False" VerticalAlignment="Center"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
+          </Label>
           <Grid.Triggers>
             <MultiTrigger>
               <MultiTrigger.Conditions>

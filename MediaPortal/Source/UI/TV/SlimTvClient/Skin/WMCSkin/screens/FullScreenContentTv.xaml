@@ -34,7 +34,11 @@
       <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
         IsVisible="{Binding !IsOSDVisible}"/>
     </Grid>
-    
+
+    <Image Width="250" Stretch="Uniform" Source="pause.png" Opacity="0.7"
+           HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="3" Grid.RowSpan="3"
+           IsVisible="{Binding ElementName=PrimaryOSD, Path=IsPaused}" />
+
     <!-- BackgroundPipLayoutGrid -->
     <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
                VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
