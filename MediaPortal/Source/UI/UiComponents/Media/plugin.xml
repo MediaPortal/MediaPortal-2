@@ -256,17 +256,21 @@
         Id="Players"
         Redundant="true"
         Text="[Settings.Players]"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Media"
         Redundant="true"
         Text="[Settings.Media]"/>
   </Register>
 
-  <!-- Contents of '/Players' section -->
   <Register Location="/Configuration/Settings/Players">
+    <ConfigSection
+      Id="General"
+      Redundant="true"
+      Text="[Settings.General]"/>
+  </Register>
+
+  <!-- Contents of '/Players' section -->
+  <Register Location="/Configuration/Settings/Players/General">
     <ConfigSetting
         Id="ClosePlayersWhenFinished"
         Text="[Settings.Players.ClosePlayersWhenFinished]"
