@@ -2260,6 +2260,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       mediaItemAspects = RemoveInverseRelationships(mediaItemAspects);
       foreach (MediaItemAspect mia in mediaItemAspects)
       {
+        if (mia.Metadata.IsTransientAspect)
+          continue;
         if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
           // Simply skip unknown MIA types. All types should have been added before update.
           continue;

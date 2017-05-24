@@ -130,6 +130,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Audio);
 
+      // All non-default media item aspects must be registered
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempAlbumAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempPersonAspect.Metadata);
+
       AudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>();
       InitializeExtensions(settings);
       InitializeUnsplittableID3v23Values(settings);

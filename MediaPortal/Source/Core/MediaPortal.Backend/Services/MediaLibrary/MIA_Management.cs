@@ -649,22 +649,23 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void CleanupAllOrphanedAttributeValues(ITransaction transaction)
     {
       foreach (MediaItemAspectMetadata miaType in ManagedMediaItemAspectTypes.Values)
-        foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
-          switch (spec.Cardinality)
-          {
-            case Cardinality.Inline:
-            case Cardinality.OneToMany:
-              break;
-            case Cardinality.ManyToOne:
-              CleanupManyToOneOrphanedAttributeValues(transaction, spec);
-              break;
-            case Cardinality.ManyToMany:
-              CleanupManyToManyOrphanedAttributeValues(transaction, spec);
-              break;
-            default:
-              throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
-                  spec.Cardinality, spec.ParentMIAM.AspectId, spec.AttributeName));
-          }
+        if(miaType != null && !miaType.IsTransientAspect)
+          foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
+            switch (spec.Cardinality)
+            {
+              case Cardinality.Inline:
+              case Cardinality.OneToMany:
+                break;
+              case Cardinality.ManyToOne:
+                CleanupManyToOneOrphanedAttributeValues(transaction, spec);
+                break;
+              case Cardinality.ManyToMany:
+                CleanupManyToManyOrphanedAttributeValues(transaction, spec);
+                break;
+              default:
+                throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
+                    spec.Cardinality, spec.ParentMIAM.AspectId, spec.AttributeName));
+            }
     }
 
     protected void CleanupAllManyToOneOrphanedAttributeValues(ITransaction transaction, MediaItemAspectMetadata miaType)
@@ -920,15 +921,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
-      if (miam.IsTransientAspect)
-        return true;
-
       lock (_syncObj)
       {
         if (_managedMIATypes.ContainsKey(miam.AspectId))
           return false;
+        if (miam.IsTransientAspect)
+        {
+          _managedMIATypes.Add(miam.AspectId, miam);
+          return true;
+        }
         _managedMIATypes.Add(miam.AspectId, null);
       }
+      
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       ServiceRegistration.Get<ILogger>().Info("MIA_Management: Adding media library storage for media item aspect '{0}' (id '{1}')",
@@ -1287,13 +1291,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool RemoveMediaItemAspectStorage(Guid aspectId)
     {
+      MediaItemAspectMetadata miam = GetMediaItemAspectMetadata(aspectId);
       lock (_syncObj)
       {
         if (!_managedMIATypes.ContainsKey(aspectId))
           return false;
-        _managedMIATypes[aspectId] = null;
+        _managedMIATypes.Remove(aspectId);
       }
-      MediaItemAspectMetadata miam = GetMediaItemAspectMetadata(aspectId);
+      if (miam.IsTransientAspect)
+        return true;
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       ServiceRegistration.Get<ILogger>().Info("MIA_Management: Removing media library storage for media item aspect '{0}' (id '{1}')",
@@ -1542,6 +1548,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (!_managedMIATypes.TryGetValue(mia.Metadata.AspectId, out miaType) || miaType == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist",
           mia.Metadata.AspectId));
+      if (miaType.IsTransientAspect)
+        return;
 
       IList<string> terms1 = new List<string>();
       IList<string> terms2 = new List<string>();

@@ -120,6 +120,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
         seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(seriesCategory);
+
+      // All non-default media item aspects must be registered
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempSeriesAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempPersonAspect.Metadata);
     }
 
     /// <summary>

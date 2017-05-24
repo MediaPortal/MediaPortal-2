@@ -120,6 +120,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
         movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(movieCategory);
+
+      // All non-default media item aspects must be registered
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempPersonAspect.Metadata);
     }
 
     /// <summary>
