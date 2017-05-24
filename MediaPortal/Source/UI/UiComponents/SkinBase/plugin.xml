@@ -240,12 +240,6 @@
         IconSmallPath="Resources\ConfigurationImages\general-22.png"
         IconLargePath="Resources\ConfigurationImages\general-48.png"/>
     <ConfigSection
-        Id="Regional"
-        Redundant="true"
-        Text="[Settings.Regional]"
-        IconSmallPath="Resources\ConfigurationImages\globe-22.png"
-        IconLargePath="Resources\ConfigurationImages\globe-48.png"/>
-    <ConfigSection
         Id="Shares"
         Redundant="true"
         Text="[Settings.Shares]"/>
@@ -290,7 +284,7 @@
     <ConfigSection
         Id="Regional"
         Redundant="true"
-        Text="[Settings.Regional.Language]"/>
+        Text="[Settings.Regional]"/>
   </Register>
 
   <!-- Contents of '/General/Connectivity' group -->
