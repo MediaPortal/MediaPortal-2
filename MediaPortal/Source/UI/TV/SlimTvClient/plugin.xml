@@ -132,20 +132,13 @@
 
   <!-- Root Sections -->
   <Register Location="/Configuration/Settings">
-    <ConfigSection
-        Id="Plugins"
-        Redundant="true"
-        Text="[Settings.Plugins]"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Plugins">
-    <ConfigSection
+   <ConfigSection
         Id="TV"
         Redundant="true"
         Text="[Settings.Plugins.TV]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Plugins/TV">
+  <Register Location="/Configuration/Settings/TV">
     <ConfigSetting
         Id="AutoStartTvSetting"
         Text="[SlimTvClient.AutoStartTv]"
