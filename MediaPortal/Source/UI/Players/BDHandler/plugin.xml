@@ -53,17 +53,10 @@
 
   <!-- Contents of '/Players/Codecs' section -->
   <Register Location="/Configuration/Settings/Players/Codecs">
-    <ConfigGroup
-        Id="VideoCodecs"
-        Redundant="true"
-        Text="[Settings.Players.Codecs.VideoCodecs]"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/Codecs">
-    <ConfigGroup
+    <ConfigSection
         Id="SourceFilters"
         Redundant="true"
-        Text="[Settings.Players.Codecs.SourceFilters]"/>
+        Text="[Settings.Players.Codecs.VideoCodecs.Splitter]"/>
   </Register>
 
   <Register Location="/Configuration/Settings/Players/Codecs/SourceFilters">

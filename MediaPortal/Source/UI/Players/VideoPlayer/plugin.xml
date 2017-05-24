@@ -60,21 +60,21 @@
   </Register>
 
   <!-- Contents of '/Players/VideoPlayer/Codecs' section -->
-  <Register Location="/Configuration/Settings/Players/VideoPlayer">
+  <Register Location="/Configuration/Settings/Players">
     <ConfigSection
         Id="Codecs"
         Redundant="true"
         Text="[Settings.Players.Codecs]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs">
+  <Register Location="/Configuration/Settings/Players/Codecs">
     <ConfigSection
         Id="VideoCodecs"
         Redundant="true"
         Text="[Settings.Players.Codecs.VideoCodecs]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs/VideoCodecs">
+  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
     <ConfigSetting
         Id="VideoMPEG2Codec"
         Text="[Settings.Players.Codecs.VideoCodecs.MPEG2]"
@@ -95,22 +95,25 @@
         Text="[Settings.Players.Codecs.VideoCodecs.HEVC]"
         HelpText="[Settings.Players.Codecs.VideoCodecs.HEVC.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoHEVCCodec"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Codecs/SourceFilters">
     <ConfigSetting
-            Id="Splitter"
-            Text="[Settings.Players.Codecs.VideoCodecs.Splitter]"
-            HelpText="[Settings.Players.Codecs.VideoCodecs.Splitter.Help]"
-            ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Splitter"/>
+        Id="Splitter"
+        Text="[Settings.Players.Codecs.VideoCodecs.Splitter]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.Splitter.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Splitter"/>
   </Register>
 
   <!-- Contents of '/Players/Codecs' section -->
-  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs">
+  <Register Location="/Configuration/Settings/Players/Codecs">
     <ConfigSection
         Id="AudioCodecs"
         Redundant="true"
         Text="[Settings.Players.Codecs.AudioCodecs]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs/AudioCodecs">
+  <Register Location="/Configuration/Settings/Players/Codecs/AudioCodecs">
     <ConfigSetting
         Id="AudioCodec"
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodec]"
@@ -126,16 +129,6 @@
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodecAAC]"
         HelpText="[Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodecAAC"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs">
-    <ConfigSection
-        Id="AudioRenderer"
-        Redundant="true"
-        Text="[Settings.Players.Codecs.AudioRenderer]"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs/AudioRenderer">
     <ConfigSetting
         Id="AudioRenderer"
         Text="[Settings.Players.Codecs.AudioCodecs.AudioRenderer]"

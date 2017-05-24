@@ -240,12 +240,6 @@
         IconSmallPath="Resources\ConfigurationImages\general-22.png"
         IconLargePath="Resources\ConfigurationImages\general-48.png"/>
     <ConfigSection
-        Id="Regional"
-        Redundant="true"
-        Text="[Settings.Regional]"
-        IconSmallPath="Resources\ConfigurationImages\globe-22.png"
-        IconLargePath="Resources\ConfigurationImages\globe-48.png"/>
-    <ConfigSection
         Id="Shares"
         Redundant="true"
         Text="[Settings.Shares]"/>
@@ -263,16 +257,8 @@
         Text="[Settings.Appearance.Skin]"/>
   </Register>
 
-  <!-- Contents of '/Appearance/Skin' section -->
-  <Register Location="/Configuration/Settings/Appearance/Skin">
-    <ConfigGroup
-        Id="Formats"
-        Redundant="true"
-        Text="[Settings.Appearance.Skin.Formats]"/>
-  </Register>
-
-  <!-- Contents of '/Appearance/Skin/Formats' group -->
-  <Register Location="/Configuration/Settings/Appearance/Skin/Formats">
+  <!-- Contents of '/Appearance/Skin/Regional' group -->
+  <Register Location="/Configuration/Settings/General/Regional">
     <ConfigSetting
         Id="TimeFormat"
         Text="[Settings.Appearance.Skin.Formats.TimeFormat]"
@@ -295,6 +281,10 @@
         Id="Connectivity"
         Redundant="true"
         Text="[Settings.General.Connectivity]"/>
+    <ConfigSection
+        Id="Regional"
+        Redundant="true"
+        Text="[Settings.Regional]"/>
   </Register>
 
   <!-- Contents of '/General/Connectivity' group -->
@@ -346,16 +336,8 @@
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.Autostart"/>
   </Register>
 
-  <!-- Contents of '/Regional' section -->
-  <Register Location="/Configuration/Settings/Regional">
-    <ConfigGroup
-        Id="Language"
-        Redundant="true"
-        Text="[Settings.Regional.Language]"/>
-  </Register>
-
-  <!-- Contents of '/Regional/Language' group -->
-  <Register Location="/Configuration/Settings/Regional/Language">
+  <!-- Contents of '/General/Regional/Language' group -->
+  <Register Location="/Configuration/Settings/General/Regional">
     <ConfigSetting
         Id="MainLanguage"
         Text="[Settings.Regional.Language.Main]"
@@ -365,28 +347,13 @@
 
   <!-- Contents of '/Shares' section -->
   <Register Location="/Configuration/Settings/Shares">
-    <ConfigGroup
-        Id="ConfigureShares"
-        Redundant="true"
-        Text="[Settings.Shares.Configure]"/>
-    <ConfigGroup
-        Id="Overview"
-        Redundant="true"
-        Text="[Settings.Shares.Overview]"/>
-  </Register>
-
-  <!-- Contents of '/Shares/ConfigureShares' group -->
-  <Register Location="/Configuration/Settings/Shares/ConfigureShares">
     <CustomConfigSetting
         Id="SharesConfiguration"
         Text="[Settings.Shares.ConfigureShares.SharesConfiguration]"
         HelpText="[Settings.Shares.ConfigureShares.SharesConfiguration.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesConfigSetting"
         AdditionalData="WorkflowState=36B3F24A-29B4-4cb4-BC7D-434C51491CD2,ConfAppPanel=..."/>
-  </Register>
 
-  <!-- Contents of '/Shares/Import' group -->
-  <Register Location="/Configuration/Settings/Shares/Overview">
     <CustomConfigSetting
         Id="SharesOverview"
         Text="[Settings.Shares.Overview.SharesOverview]"
