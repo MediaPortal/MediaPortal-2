@@ -68,8 +68,8 @@
         Redundant="true"
         Text="[Settings.ServerSettings]"/>
   </Register>
-  
-  <Register Location="/Configuration/Settings/ServerSettings">
+
+  <Register Location="/Configuration/Settings/Shares">
     <CustomConfigSetting
         Id="NetworkCredentials"
         Text="[Settings.ServerSettings.NetworkCredentials]"

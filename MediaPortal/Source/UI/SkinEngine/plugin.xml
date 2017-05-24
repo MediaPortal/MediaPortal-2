@@ -73,7 +73,7 @@
 
   <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
-    <ConfigGroup
+    <ConfigSection
         Id="System"
         Redundant="true"
         Text="[Settings.Appearance.System]"/>

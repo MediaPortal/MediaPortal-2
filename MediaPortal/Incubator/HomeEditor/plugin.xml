@@ -74,7 +74,14 @@
   </Register>
 
   <!-- Contents of '/Appearance' group -->
-  <Register Location="/Configuration/Settings/Appearance">
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigSection
+      Id="SkinSettings"
+      Redundant="true"
+      Text="[SkinSettings.Configuration.SkinSettings]"/>
+  </Register>
+  
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
     <CustomConfigSetting
         Id="HomeEditorConfig"
         Text="[HomeEditor.Configuration]"
