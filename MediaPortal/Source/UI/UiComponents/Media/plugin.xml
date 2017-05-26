@@ -254,10 +254,12 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
     <ConfigSection
         Id="Media"
+        Sort="B100"
         Redundant="true"
         Text="[Settings.Media]"/>
   </Register>
@@ -265,6 +267,7 @@
   <Register Location="/Configuration/Settings/Players">
     <ConfigSection
       Id="General"
+      Sort="E100"
       Redundant="true"
       Text="[Settings.General]"/>
   </Register>

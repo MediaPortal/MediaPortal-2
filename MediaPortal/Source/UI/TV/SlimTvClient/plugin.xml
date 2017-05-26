@@ -134,6 +134,7 @@
   <Register Location="/Configuration/Settings">
    <ConfigSection
         Id="TV"
+        Sort="F100"
         Redundant="true"
         Text="[Settings.Plugins.TV]"/>
   </Register>

@@ -66,6 +66,7 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
   </Register>
@@ -74,6 +75,7 @@
   <Register Location="/Configuration/Settings/Players">
     <ConfigSection
         Id="AudioPlayer"
+        Sort="E110"
         Redundant="true"
         Text="[Settings.Players.AudioPlayer]"/>
   </Register>

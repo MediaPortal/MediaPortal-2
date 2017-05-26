@@ -47,6 +47,7 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
   </Register>
@@ -55,6 +56,7 @@
   <Register Location="/Configuration/Settings/Players/">
     <ConfigSection
         Id="VideoPlayer"
+        Sort="E130"
         Redundant="true"
         Text="[Settings.Players.VideoPlayer]"/>
   </Register>
@@ -63,6 +65,7 @@
   <Register Location="/Configuration/Settings/Players">
     <ConfigSection
         Id="Codecs"
+        Sort="E170"
         Redundant="true"
         Text="[Settings.Players.Codecs]"/>
   </Register>
@@ -70,6 +73,7 @@
   <Register Location="/Configuration/Settings/Players/Codecs">
     <ConfigSection
         Id="VideoCodecs"
+        Sort="E172"
         Redundant="true"
         Text="[Settings.Players.Codecs.VideoCodecs]"/>
   </Register>
@@ -97,6 +101,14 @@
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoHEVCCodec"/>
   </Register>
 
+  <Register Location="/Configuration/Settings/Players/Codecs">
+    <ConfigSection
+      Id="SourceFilters"
+      Sort="E171"
+      Redundant="true"
+      Text="[Settings.Players.Codecs.VideoCodecs.Splitter]"/>
+  </Register>
+
   <Register Location="/Configuration/Settings/Players/Codecs/SourceFilters">
     <ConfigSetting
         Id="Splitter"
@@ -109,6 +121,7 @@
   <Register Location="/Configuration/Settings/Players/Codecs">
     <ConfigSection
         Id="AudioCodecs"
+        Sort="E173"
         Redundant="true"
         Text="[Settings.Players.Codecs.AudioCodecs]"/>
   </Register>

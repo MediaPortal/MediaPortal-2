@@ -35,6 +35,7 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
   </Register>
@@ -43,6 +44,7 @@
   <Register Location="/Configuration/Settings/Players/">
     <ConfigSection
         Id="VideoPlayer"
+        Sort="E130"
         Redundant="true"
         Text="[Settings.Players.VideoPlayer]"/>
   </Register>
@@ -51,6 +53,7 @@
   <Register Location="/Configuration/Settings/Players/VideoPlayer">
     <ConfigSection
         Id="Codecs"
+        Sort="E170"
         Redundant="true"
         Text="[Settings.Players.Codecs]"/>
   </Register>
