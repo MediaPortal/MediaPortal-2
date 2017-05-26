@@ -74,9 +74,9 @@
   <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
     <ConfigSection
-        Id="System"
+        Id="General"
         Redundant="true"
-        Text="[Settings.Appearance.System]"/>
+        Text="[Settings.General]"/>
     <ConfigSection
         Id="Skin"
         Redundant="true"
@@ -84,7 +84,7 @@
   </Register>
 
   <!-- Contents of '/Appearance/System' group -->
-  <Register Location="/Configuration/Settings/Appearance/System">
+  <Register Location="/Configuration/Settings/Appearance/General">
     <ConfigSetting
         Id="Fullscreen"
         Text="[Settings.Appearance.System.Fullscreen]"
