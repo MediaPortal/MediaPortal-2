@@ -408,6 +408,9 @@
   <string name="Media.SwitchSortingDialogTitle">Sort by</string>
   <string name="Media.SortingBrowseDefault">Default Sorting</string>
 
+  <string name="Media.SortByDate">Date</string>
+  <string name="Media.GroupingBrowseDefault">Default</string>
+
   <string name="Media.SwitchGroupingMenuItem">Grouping</string>
   <string name="Media.SwitchGroupingDialogTitle">Group by</string>
   <string name="Media.NoGrouping">No grouping</string>
