@@ -25,6 +25,7 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -55,7 +56,7 @@ namespace WakeOnLan.Common
     /// <param name="pingTimeout">The time in ms to wait for a ping response from the server.</param>
     /// <param name="wakeTimeout">The total time in ms to spend trying to wake the server. </param>
     /// <returns></returns>
-    public static async Task<bool> WakeServer(string hostNameOrAddress, byte[] hwAddress, int port, int pingTimeout, int wakeTimeout)
+    public static async Task<bool> WakeServer(ICollection<UnicastIPAddressInformation> localAddresses, string hostNameOrAddress, byte[] hwAddress, int port, int pingTimeout, int wakeTimeout)
     {
       if (!IsValidHardwareAddress(hwAddress))
         throw new ArgumentException(
@@ -77,7 +78,8 @@ namespace WakeOnLan.Common
       do
       {
         //Send the magic packet
-        await SendWOLPacketAsync(magicPacket, port);
+        foreach (UnicastIPAddressInformation address in localAddresses)
+          await SendWOLPacketAsync(magicPacket, address.Address, port);
 
         //See if the server is now awake
         if (await PingAsync(hostNameOrAddress, pingTimeout))
@@ -108,10 +110,11 @@ namespace WakeOnLan.Common
     /// Asynchronously sends a Wake-On-LAN 'magic' packet to the computer with the specified hardware address.
     /// </summary>
     /// <param name="hwAddress">The hardware address of the computer to wake.</param>
-    protected static async Task SendWOLPacketAsync(byte[] magicPacket, int port)
+    protected static async Task SendWOLPacketAsync(byte[] magicPacket, IPAddress localAddress, int port)
     {
+      IPEndPoint endpoint = new IPEndPoint(localAddress, port);
       // WOL 'magic' packet is sent over UDP.
-      using (UdpClient client = new UdpClient())
+      using (UdpClient client = new UdpClient(endpoint))
       {
         // Send to: 255.255.255.0 over UDP.
         client.Connect(IPAddress.Broadcast, port);

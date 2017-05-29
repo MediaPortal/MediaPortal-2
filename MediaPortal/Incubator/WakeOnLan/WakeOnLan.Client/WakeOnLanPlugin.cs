@@ -185,9 +185,10 @@ namespace WakeOnLan.Client
           ServiceRegistration.Get<ILogger>().Warn("WakeOnLanClient: No network connection found within timeout {0}ms", settings.NetworkConnectedTimeout);
           return;
         }
-
+                
         ServiceRegistration.Get<ILogger>().Info("WakeOnLanHelper: Waking server at {0} using port {1}", wolAddress.IPAddress, settings.Port);
-        await WakeOnLanHelper.WakeServer(wolAddress.IPAddress, wolAddress.HardwareAddress, settings.Port, settings.PingTimeout, settings.WakeTimeout);
+        await WakeOnLanHelper.WakeServer(NetworkUtils.GetAllLocalIPv4Networks(),
+          wolAddress.IPAddress, wolAddress.HardwareAddress, settings.Port, settings.PingTimeout, settings.WakeTimeout);
       }
       catch (Exception ex)
       {
