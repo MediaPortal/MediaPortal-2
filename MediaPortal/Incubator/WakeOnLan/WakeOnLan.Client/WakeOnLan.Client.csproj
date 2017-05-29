@@ -75,7 +75,7 @@
       <Name>UPnP</Name>
     </ProjectReference>
     <ProjectReference Include="..\WakeOnLan.Common\WakeOnLan.Common.csproj">
-      <Project>{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}</Project>
+      <Project>{9f6cbafb-159f-4343-9afa-65b9d95bf08a}</Project>
       <Name>WakeOnLan.Common</Name>
     </ProjectReference>
   </ItemGroup>
