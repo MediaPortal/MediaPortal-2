@@ -101,11 +101,6 @@
         Text="[Settings.Appearance.System.CellPhoneInputStyle]"
         HelpText="[Settings.Appearance.System.CellPhoneInputStyle.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.CellPhoneInputStyle"/>
-    <ConfigSetting
-        Id="Antialiasing"
-        Text="[Settings.Appearance.System.Antialiasing]"
-        HelpText="[Settings.Appearance.System.Antialiasing.Help]"
-        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Antialiasing"/>
 
     <ConfigSetting
         Id="ScreenSaverEnabled"
