@@ -43,6 +43,8 @@ namespace WakeOnLan.Common
     const ushort AF_INET = 2;
     const ushort AF_INET6 = 23;
 
+    const int PHYSICAL_ADDRESS_LENGTH = 6;
+
     #endregion
 
     #region Public Methods
@@ -62,21 +64,15 @@ namespace WakeOnLan.Common
         throw new ArgumentException(string.Format("{0} is not a valid IPv4 or IPv6 address", remoteAddress), "remoteAddress");
 
       hwAddress = null;
-      try
-      {
-        MIB_IPNET_ROW2 entry;
-        //Try and find an entry in the IP neighbor table, if none found try and resolve the entry directly
-        if (!TryGetEntryFromNetTable(remoteAddress, out entry) && !TryResolveIPNetEntry(localAddress, remoteAddress, out entry))
-          return false;
-
-        hwAddress = new byte[entry.PhysicalAddressLength];
-        Buffer.BlockCopy(entry.PhysicalAddress, 0, hwAddress, 0, hwAddress.Length);
-        return true;
-      }
-      catch
-      {
+      MIB_IPNET_ROW2 entry;
+      //Try and find an entry in the IP neighbor table, if none found try and resolve the entry directly
+      if (!TryGetEntryFromNetTable(remoteAddress, out entry) && !TryResolveIPNetEntry(localAddress, remoteAddress, out entry))
         return false;
-      }
+
+      hwAddress = new byte[entry.PhysicalAddressLength];
+      Buffer.BlockCopy(entry.PhysicalAddress, 0, hwAddress, 0, hwAddress.Length);
+      //MediaPortal.Common.ServiceRegistration.Get<MediaPortal.Common.Logging.ILogger>().Info("WakeOnLan: Got physical address {0} for {1}", BytesToHex(hwAddress), remoteAddress);
+      return true;
     }
 
     static bool IsAddressValid(IPAddress address)
@@ -96,12 +92,13 @@ namespace WakeOnLan.Common
     /// <returns><c>true</c> if a matching row was found.</returns>
     static bool TryGetEntryFromNetTable(IPAddress remoteAddress, out MIB_IPNET_ROW2 entry)
     {
+      //LogRows();
       ushort family = remoteAddress.AddressFamily == AddressFamily.InterNetworkV6 ? AF_INET6 : AF_INET;
       var rows = GetIPNetTableRows(family);
       if (rows != null)
       {
         foreach (var row in rows)
-          if (IsMatchingRow(remoteAddress, row))
+          if (HasPhysicalAddress(row) && IsMatchingRow(remoteAddress, row))
           {
             entry = row;
             return true;
@@ -109,6 +106,44 @@ namespace WakeOnLan.Common
       }
       entry = default(MIB_IPNET_ROW2);
       return false;
+    }
+
+    static void LogRows()
+    {
+      MIB_IPNET_ROW2[] rows = GetIPNetTableRows(AF_INET6);
+      if (rows == null)
+      {
+        MediaPortal.Common.ServiceRegistration.Get<MediaPortal.Common.Logging.ILogger>().Info("WakeOnLan: Found 0 IPNET rows");
+        return;
+      }
+      MediaPortal.Common.ServiceRegistration.Get<MediaPortal.Common.Logging.ILogger>().Info("WakeOnLan: Found {0} IPNET rows", rows.Length);
+      foreach (var row in rows)
+      {
+        byte[] addressBytes;
+        switch (row.Address.si_family)
+        {
+          case AF_INET:
+            addressBytes = row.Address.Ipv4.Address;
+            break;
+          case AF_INET6:
+            addressBytes = row.Address.Ipv6.Address;
+            break;
+          default:
+            MediaPortal.Common.ServiceRegistration.Get<MediaPortal.Common.Logging.ILogger>().Info("WakeOnLan: Invalid address family {0}", row.Address.si_family);
+            continue;
+        }
+        var address = new IPAddress(addressBytes);
+        var hwAddress = BytesToHex(row.PhysicalAddress);
+        MediaPortal.Common.ServiceRegistration.Get<MediaPortal.Common.Logging.ILogger>().Info("    {0} ({1}) : {2} - {3}", address, address.ScopeId, row.PhysicalAddressLength, hwAddress);
+      }
+    }
+
+    static string BytesToHex(byte[] bytes)
+    {
+      System.Text.StringBuilder hex = new System.Text.StringBuilder(bytes.Length * 2);
+      foreach (byte b in bytes)
+        hex.AppendFormat("{0:x2}", b);
+      return hex.ToString();
     }
 
     static MIB_IPNET_ROW2[] GetIPNetTableRows(ushort family)
@@ -142,6 +177,11 @@ namespace WakeOnLan.Common
           return false;
       }
       return remoteAddress.Equals(new IPAddress(addressBytes));
+    }
+
+    static bool HasPhysicalAddress(MIB_IPNET_ROW2 row)
+    {
+      return row.PhysicalAddressLength == PHYSICAL_ADDRESS_LENGTH && row.PhysicalAddress.Any(b => b != 0);
     }
 
     #endregion
@@ -188,7 +228,7 @@ namespace WakeOnLan.Common
       //Try and resolve the address
       int hr = NativeMethods.ResolveIpNetEntry2(ref entry, ref sourceAddress);
       Marshal.ThrowExceptionForHR(hr);
-      return hr == 0;
+      return hr == 0 && HasPhysicalAddress(entry);
     }
 
     static int GetAdapterIndex(IPAddress localAddress)
