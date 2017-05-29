@@ -27,9 +27,25 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <Image Width="250" Stretch="Uniform" Source="pause.png" Opacity="0.7"
-           HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="3" Grid.RowSpan="4"
-           IsVisible="{Binding ElementName=PrimaryOSD, Path=IsPaused}" />
+    <!--Playerstate overlay-->
+    <Grid Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center"
+          DataContext="{Binding ElementName=PrimaryOSD}">
+      <Image Width="250" Stretch="Uniform" Opacity="0.7" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {3} : ({1} ? {4} : ({2} ? {5} : {6}))">
+            <Binding Path="IsSeekingForward"/>
+            <Binding Path="IsSeekingBackward"/>
+            <Binding Path="IsPaused"/>
+            <Binding Source="fastforward.png"/>
+            <Binding Source="fastrewind.png"/>
+            <Binding Source="pause.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="DefaultBold" Opacity="0.7" Margin="0,0,0,5"
+             Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Grid>
 
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
              IsVisible="{Binding !IsOSDVisible}"/>
