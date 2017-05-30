@@ -655,7 +655,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\BlueVision\sounds\" />
-    <Folder Include="Skin\BlueVision\superlayers\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\master_bare.xaml" />
@@ -1094,6 +1093,12 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\default\styles\AudioSpectrumAnalyzer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\superlayers\SkipStepOSD.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Page Include="Skin\BlueVision\themes\Win10\screens\SimpleFilterItems.xaml">

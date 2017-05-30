@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <DockPanel LastChildFill="False">
     <Border x:Name="DialogBorder" DockPanel.Dock="Right" Margin="0,130,40,0" Width="70" Height="180"
-            VerticalAlignment="Top" CornerRadius="0" BorderThickness="0" Background="#FF666666">
+            VerticalAlignment="Top" CornerRadius="12" BorderThickness="0" Background="#FF000000">
 
       <Grid Context="{Model A2F24149-B44C-498b-AE93-288213B87A1A}" Margin="10">
         <!-- Model = GeneralPlayerModel -->
