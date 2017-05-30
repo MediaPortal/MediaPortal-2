@@ -369,7 +369,6 @@
     <Compile Include="Utils\UIResourcesHelper.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverTimeout.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverEnabled.cs" />
-    <Compile Include="Settings\Configuration\Appearance\Antialiasing.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\CellPhoneInputStyle.cs" />

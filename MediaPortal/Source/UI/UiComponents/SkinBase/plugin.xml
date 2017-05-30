@@ -230,21 +230,25 @@
     <ConfigSection
         Id="Appearance"
         Redundant="true"
+        Sort="D100"
         Text="[Settings.Appearance]"
         IconSmallPath="Resources\ConfigurationImages\skin-22.png"
         IconLargePath="Resources\ConfigurationImages\skin-48.png"/>
     <ConfigSection
         Id="General"
         Redundant="true"
+        Sort="A100"
         Text="[Settings.General]"
         IconSmallPath="Resources\ConfigurationImages\general-22.png"
         IconLargePath="Resources\ConfigurationImages\general-48.png"/>
     <ConfigSection
         Id="Shares"
+        Sort="C100"
         Redundant="true"
         Text="[Settings.Shares]"/>
     <ConfigSection
         Id="Plugins"
+        Sort="G100"
         Redundant="true"
         Text="[Settings.Plugins]"/>
   </Register>
@@ -275,14 +279,17 @@
   <Register Location="/Configuration/Settings/General">
     <ConfigSection
         Id="System"
+        Sort="A110"
         Redundant="true"
         Text="[Settings.General.System]"/>
     <ConfigSection
         Id="Connectivity"
+        Sort="A150"
         Redundant="true"
         Text="[Settings.General.Connectivity]"/>
     <ConfigSection
         Id="Regional"
+        Sort="A130"
         Redundant="true"
         Text="[Settings.Regional]"/>
   </Register>

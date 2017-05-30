@@ -341,13 +341,13 @@ namespace MediaPortal.UiComponents.Media.General
     // Sorting
     public const string RES_SWITCH_SORTING = "[Media.SwitchSortingMenuItem]";
     public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
-    public const string RES_SORT_BY_DATE = "[Media.SortByDate]";                         //no string defined
+    public const string RES_SORT_BY_DATE = "[Media.SortByDate]";
 
     // Grouping
     public const string RES_SWITCH_GROUPING = "[Media.SwitchGroupingMenuItem]";
     public const string RES_NO_GROUPING = "[Media.NoGrouping]";
     public const string RES_GROUP_BY_DATE = "[Media.GroupByDate]";
-    public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";   //no string defined
+    public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";
 
     // Filter
     public const string RES_SWITCH_FILTER = "[Media.SwitchFilterMenuItem]";
