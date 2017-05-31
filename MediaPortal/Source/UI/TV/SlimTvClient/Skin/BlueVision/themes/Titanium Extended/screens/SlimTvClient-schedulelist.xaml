@@ -14,6 +14,9 @@
     <!-- SlimTvScheduleManagement model -->
     <Model x:Key="SlimTvScheduleManagement" Id="7610403A-4488-47A4-8C27-FD1FE833E52B"/>
 
+    <!-- SlimTvManualSchedule model -->
+    <Model x:Key="SlimTvManualSchedule" Id="B2428C91-6B70-42E1-9519-1D5AA9D558A3"/>
+
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,-108,0,-30"
@@ -28,15 +31,20 @@
         </Grid.RowDefinitions>
 
         <Image Stretch="Fill" Source="panel_tv_guide_large.png" Grid.Row="0" Grid.RowSpan="2"
-               Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,0,-43,-60"/> 
+               Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,0,-43,-60"/>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="0">
+        <StackPanel Orientation="Horizontal" Grid.Row="0" VerticalAlignment="Center">
           <CheckBox x:Name="EnableSeriesModeCheckbox" Margin="10,10,0,5" Style="{ThemeResource DefaultCheckBoxStyle}"
               IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}" VerticalAlignment="Center"
               Content="{Binding}" />
           <Label Content="[SlimTvClient.ScheduleModeSeries]" Color="Black" Margin="0,0,5,0" VerticalAlignment="Center"/>
         </StackPanel>
         
+        <Button x:Name="NewScheduleButton" Grid.Column="1" Style="{ThemeResource ButtonWideStyle}" Margin="10"
+                HorizontalAlignment="Right" VerticalAlignment="Center"
+                Content="[SlimTvClient.NewSchedule]"
+                Command="{Command Source={StaticResource SlimTvManualSchedule}, Path=Show}" />
+
         <ListView Grid.Row="1" Grid.Column="1"
                   Margin="10,25,-35,-10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource ScheduleListViewStyle}"

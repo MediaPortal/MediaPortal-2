@@ -32,6 +32,7 @@
   <string name="SlimTvClient.RecordNow">Record now</string>
   <string name="SlimTvClient.DeleteSchedule">Delete schedule</string>
   <string name="SlimTvClient.CreateSchedule">Schedule recording</string>
+  <string name="SlimTvClient.CreateManualSchedule">Schedule recording manually</string>
 
   <string name="SlimTvClient.ProgramSearch">Search programs</string>
 
@@ -73,6 +74,7 @@
   <string name="SlimTvClient.ExtendedSchedule">Extended scheduling</string>
   <string name="SlimTvClient.ScheduleManagement">Manage schedules</string>
   <string name="SlimTvClient.ScheduleModeSeries">Manage series schedules</string>
+  <string name="SlimTvClient.NewSchedule">New schedule</string>
 
   <string name="SlimTvClient.ErrorNoTvProvider">No TV provider available (yet)</string>
 
