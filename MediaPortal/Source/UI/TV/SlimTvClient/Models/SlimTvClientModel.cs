@@ -522,8 +522,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (ChannelContext.IsSameChannel(channel, _tvHandler.GetChannel(SlotIndex)))
         return;
 
-      if (SlotPlayer != null)
-        SlotPlayer.Pause();
+      // Invoke event handler before pausing to avoid flashing of pause symbol
+      SlotPlayer?.OnBeginZap?.Invoke(this, EventArgs.Empty);
+      SlotPlayer?.Pause();
 
       // Set the current index of the tuned channel
       if (ChannelContext.Instance.Channels.MoveTo(c => ChannelContext.IsSameChannel(c, channel)))
@@ -539,6 +540,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         Update();
         UpdateChannelGroupSelection(channel);
       }
+
+      // Notify end of zapping
+      SlotPlayer?.OnEndZap?.Invoke(this, EventArgs.Empty);
     }
 
     protected bool ShouldAutoTune()

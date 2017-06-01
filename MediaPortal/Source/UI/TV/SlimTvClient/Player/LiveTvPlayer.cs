@@ -153,8 +153,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       _zapping = true;
       // Tell the TsReader that we are zapping, before we actually tune the new channel.
       _tsReader.OnZapping(0x80);
-
-      OnBeginZap?.Invoke(this, EventArgs.Empty);
     }
 
     public void EndZap()
@@ -174,8 +172,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       // Then invalidate the "black" surface to use new frame.
       OnTextureInvalidated();
       ServiceRegistration.Get<ILogger>().Debug("{0}: End zapping", PlayerTitle);
-
-      OnEndZap?.Invoke(this, EventArgs.Empty);
     }
 
     public void OnProgramChange()
