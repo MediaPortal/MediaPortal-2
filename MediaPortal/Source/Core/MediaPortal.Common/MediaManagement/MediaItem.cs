@@ -136,7 +136,7 @@ namespace MediaPortal.Common.MediaManagement
           return new List<MultipleMediaItemAspect>();
 
         // Consider only primary resources (physical main parts), but not extra resources (like subtitles)
-        return providerAspects.Where(pra => pra.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY)).ToList();
+        return providerAspects.Where(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY).ToList();
       }
     }
 
@@ -177,7 +177,7 @@ namespace MediaPortal.Common.MediaManagement
         return false;
       foreach (MultipleMediaItemAspect pra in resourceAspects)
       {
-        if (pra.GetAttributeValue<bool?>(ProviderResourceAspect.ATTR_PRIMARY) == true)
+        if (pra.GetAttributeValue<int?>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY)
         {
           mimeType = (string)pra[ProviderResourceAspect.ATTR_MIME_TYPE];
           mediaItemTitle = (string)mediaAspect[MediaAspect.ATTR_TITLE];

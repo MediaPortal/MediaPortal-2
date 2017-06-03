@@ -28,23 +28,22 @@ using MediaPortal.Common.Settings;
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
 {
   /// <summary>
-  /// Settings class for the <see cref="NfoSeriesMetadataExtractor"/>
+  /// Settings class for the <see cref="NfoAudioMetadataExtractorSettings"/>
   /// </summary>
   /// <remarks>
   /// Also contains all properties defined in <see cref="NfoMetadataExtractorSettingsBase"/>
   /// </remarks>
-  public class NfoSeriesMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
+  public class NfoAudioMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
   {
     #region Ctor
 
     /// <summary>
     /// Sets the default values specific to the <see cref="NfoSeriesMetadataExtractor"/>
     /// </summary>
-    public NfoSeriesMetadataExtractorSettings()
+    public NfoAudioMetadataExtractorSettings()
     {
-      SeriesNfoFileNames = new HashSet<string> { "tvshow" };
-      BluRayStubFileExtensions = new HashSet<string> { "bdstub" };
-      DvdStubFileExtensions = new HashSet<string> { "dvdstub" };
+      AlbumNfoFileNames = new HashSet<string> { "album" };
+      ArtistNfoFileNames = new HashSet<string> { "artist" };
     }
 
     #endregion
@@ -52,35 +51,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     #region Public properties
 
     /// <summary>
-    /// These file extensions are used to find a stub-files for Blu-ray's
+    /// These file names are used to find a nfo-file for the album as a whole
     /// </summary>
     [Setting(SettingScope.Global)]
-    public HashSet<string> BluRayStubFileExtensions { get; set; }
+    public HashSet<string> AlbumNfoFileNames { get; set; }
 
     /// <summary>
-    /// These file extensions are used to find a stub-files for DVD's
+    /// These file names are used to find a nfo-file for the artist as a whole
     /// </summary>
     [Setting(SettingScope.Global)]
-    public HashSet<string> DvdStubFileExtensions { get; set; }
+    public HashSet<string> ArtistNfoFileNames { get; set; }
 
     /// <summary>
-    /// These file names are used to find a nfo-file for the series as a whole
-    /// The nfo-file for episodes always has the same name as the episodes' media file
-    /// </summary>
-    [Setting(SettingScope.Global)]
-    public HashSet<string> SeriesNfoFileNames { get; set; }
-
-    /// <summary>
-    /// If <c>true</c>, Actor details will be created.
+    /// If <c>true</c>, Artist details will be created.
     /// </summary>
     [Setting(SettingScope.Global, true)]
-    public bool IncludeActorDetails { get; set; }
+    public bool IncludeArtistDetails { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, Character details will be created.
+    /// If <c>true</c>, Album details will be created.
     /// </summary>
     [Setting(SettingScope.Global, true)]
-    public bool IncludeCharacterDetails { get; set; }
+    public bool IncludeAlbumDetails { get; set; }
 
     #endregion
   }

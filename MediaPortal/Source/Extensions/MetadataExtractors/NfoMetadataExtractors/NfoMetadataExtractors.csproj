@@ -83,6 +83,7 @@
     <Compile Include="RelationshipExtractors\TrackAlbumArtistRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\TrackAlbumRelationshipExtractor.cs" />
     <Compile Include="Settings\NfoAudioMetadataExtractorSettings.cs" />
+    <Compile Include="Stubs\AlbumTrackStub.cs" />
     <Compile Include="Stubs\AlbumStub.cs" />
     <Compile Include="Stubs\ArtistStub.cs" />
     <Compile Include="Utilities\JsonByteArrayConverter.cs" />

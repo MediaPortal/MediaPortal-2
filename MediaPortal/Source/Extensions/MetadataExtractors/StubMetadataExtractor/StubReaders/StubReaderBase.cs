@@ -332,41 +332,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       return result;
     }
 
-    public async Task<bool> TryReadElementAsync(XElement nfoElement, IFileSystemResourceAccessor nfoDirectoryFsra)
-    {
-      _stubs.Clear();
-      var result = false;
-
-      _currentStub = new TStub();
-      var metadataFound = false;
-      foreach (var element in nfoElement.Elements())
-      {
-        Delegate readDelegate;
-        if (_supportedElements.TryGetValue(element.Name, out readDelegate))
-        {
-          try
-          {
-            if ((readDelegate is TryReadElementDelegate && (readDelegate as TryReadElementDelegate).Invoke(element)) ||
-                (readDelegate is TryReadElementAsyncDelegate && await (readDelegate as TryReadElementAsyncDelegate).Invoke(element, nfoDirectoryFsra).ConfigureAwait(false)))
-              metadataFound = true;
-          }
-          catch (Exception e)
-          {
-            _debugLogger.Error("[#{0}]: Exception while reading element {1}", e, _miNumber, element);
-          }
-        }
-        else
-          _debugLogger.Warn("[#{0}]: Unknown element {1}", _miNumber, element);
-      }
-      if (metadataFound)
-      {
-        _stubs.Add(_currentStub);
-        result = true;
-      }
-      _currentStub = default(TStub);
-      return result;
-    }
-
     /// <summary>
     /// Checks if the nfoDocument has a root element with the name "root" and at least one child element
     /// </summary>
@@ -533,27 +498,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (decimalString == null)
         return null;
 
-      decimal? result = null;
-      try
+      //Decimal defined as fraction
+      if (decimalString.Contains("/"))
       {
-        //Decimal defined as fraction
-        if (decimalString.Contains("/"))
-        {
-          string[] numbers = decimalString.Split('/');
-          return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
-        }
-
-        //Decimal defined as ratio
-        if (decimalString.Contains(":"))
-        {
-          string[] numbers = decimalString.Split(':');
-          return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
-        }
+        string[] numbers = decimalString.Split('/');
+        return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
       }
-      catch (Exception)
+
+      //Decimal defined as ratio
+      if (decimalString.Contains(":"))
       {
-        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a decimal value, but it does not: {1}", _miNumber, element);
-        return result;
+        string[] numbers = decimalString.Split(':');
+        return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
       }
 
       decimal val;
@@ -569,6 +525,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return val;
       }
 
+      decimal? result = null;
       try
       {
         result = (decimal?)element;
@@ -824,228 +781,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to read a simple duration in minutes from <paramref name="element"/>.Value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns>
-    /// <c>null</c> if <see cref="ParseSimpleString"/> returns <c>null</c> for <paramref name="element"/>
-    /// or <see cref="ParseSimpleString"/> for <paramref name="element"/> does not contain a valid <see cref="double"/> or <see cref="TimeSpan"/> value;
-    /// otherwise (double?)<paramref name="element"/>.
-    /// </returns>
-    protected TimeSpan? ParseSimpleDuration(XElement element)
-    {
-      var durationString = ParseSimpleString(element);
-      if (durationString == null)
-        return null;
-
-      TimeSpan? result = null;
-      try
-      {
-        //Decimal defined as time span
-        if (durationString.Contains(":"))
-        {
-          TimeSpan ts;
-          if (TimeSpan.TryParseExact(durationString, @"h\:mm\:ss", CultureInfo.InvariantCulture, out ts))
-            return ts;
-          if (TimeSpan.TryParseExact(durationString, @"mm\:ss", CultureInfo.InvariantCulture, out ts))
-            return ts;
-        }
-
-        //Nfo format 1h 43mn 36s
-        if (durationString.Contains("mn"))
-        {
-          TimeSpan ts;
-          if (TimeSpan.TryParseExact(durationString, @"h\h\ m\m\n\ s\s", CultureInfo.InvariantCulture, out ts))
-            return ts;
-          if (TimeSpan.TryParseExact(durationString, @"h\hm\m\ns\s", CultureInfo.InvariantCulture, out ts))
-            return ts;
-          if (TimeSpan.TryParseExact(durationString, @"m\m\n\ s\s", CultureInfo.InvariantCulture, out ts))
-            return ts;
-          if (TimeSpan.TryParseExact(durationString, @"m\m\ns\s", CultureInfo.InvariantCulture, out ts))
-            return ts;
-        }
-      }
-      catch (Exception)
-      {
-        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a duration value, but it does not: {1}", _miNumber, element);
-        return result;
-      }
-
-      double val;
-      //Decimal defined as neutral localized string
-      if (double.TryParse(durationString, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
-      {
-        return TimeSpan.FromMinutes(val);
-      }
-
-      //Decimal defined as localized string
-      if (double.TryParse(durationString, NumberStyles.Float, CultureInfo.CurrentCulture, out val))
-      {
-        return TimeSpan.FromMinutes(val);
-      }
-
-      try
-      {
-        result = TimeSpan.FromMinutes((double)element);
-      }
-      catch (Exception)
-      {
-        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a duration value, but it does not: {1}", _miNumber, element);
-      }
-      return result;
-    }
-
-    /// <summary>
-    /// Tries to read the fileinfo value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <param name="currentStreamDetails">Current list of <see cref="StreamDetailsStub"/> details</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    protected HashSet<StreamDetailsStub> ParseFileInfo(XElement element)
-    {
-      // Example of a valid element:
-      // <fileinfo>
-      //   <streamdetails>
-      //     <video>
-      //       <codec>h264</codec>
-      //       <aspect>2.4</aspect>
-      //       <width>1280</width>
-      //       <height>534</height>
-      //       <duration>149</duration>
-      //       <durationinseconds>8940</durationinseconds>
-      //       <stereomode></stereomode>
-      //     </video>
-      //     <audio>
-      //       <codec>ac3</codec>
-      //       <language>French</language>
-      //       <channels>6</channels>
-      //     </audio>
-      //     <subtitle>
-      //       <language>French</language>
-      //     </subtitle>
-      //   </streamdetails>
-      // </fileinfo>
-      // There can be multiple <streamdetails> elements in the <fileinfo> element.
-      // There can be multiple <video>, <audio> and/or <subtitle> elements in one <streamdetails> element.
-      // the <durationinseconds> element is preferred over the <duration> element.
-      if (element == null || !element.HasElements)
-        return null;
-
-      var fileInfoFound = false;
-      HashSet<StreamDetailsStub> streamDetailStubs = new HashSet<StreamDetailsStub>();
-      foreach (var stream in element.Elements())
-      {
-        if (stream.Name != "streamdetails" || !stream.HasElements)
-        {
-          _debugLogger.Warn("[#{0}]: Unknown or empty child element {1}", _miNumber, stream);
-          continue;
-        }
-        var streamDetails = new StreamDetailsStub();
-        var streamValueFound = false;
-        foreach (var streamDetail in stream.Elements())
-        {
-          switch (streamDetail.Name.ToString())
-          {
-            case "video":
-              var videoDetails = new VideoStreamDetailsStub();
-              var videoDetailValueFound = ((videoDetails.Codec = ParseSimpleString(streamDetail.Element("codec"))) != null);
-              if(string.IsNullOrEmpty(videoDetails.Codec))
-                videoDetailValueFound = ((videoDetails.Codec = ParseSimpleString(streamDetail.Element("format"))) != null) || videoDetailValueFound;
-              if (string.IsNullOrEmpty(videoDetails.Codec))
-                videoDetailValueFound = ((videoDetails.Codec = ParseSimpleString(streamDetail.Element("codecid"))) != null) || videoDetailValueFound;
-              string codecInfo = ParseSimpleString(streamDetail.Element("codecidinfo"));
-              if(!string.IsNullOrEmpty(codecInfo))
-              {
-                videoDetails.Codec = codecInfo;
-                videoDetailValueFound = true;
-              }
-              videoDetailValueFound = ((videoDetails.Aspect = ParseSimpleDecimal(streamDetail.Element("aspect"))) != null) || videoDetailValueFound;
-              videoDetailValueFound = ((videoDetails.Width = ParseSimpleInt(streamDetail.Element("width"))) != null) || videoDetailValueFound;
-              videoDetailValueFound = ((videoDetails.Height = ParseSimpleInt(streamDetail.Element("height"))) != null) || videoDetailValueFound;
-              string videoBitrate = ParseSimpleString(streamDetail.Element("bitrate"));
-              if(videoBitrate != null)
-              {
-                long br = 0;
-                if (videoBitrate.EndsWith(" kbps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(videoBitrate.Substring(0, videoBitrate.Length - 5).Replace(" ", ""), out br))
-                  videoDetails.Bitrate = br * 1024;
-                else if (videoBitrate.EndsWith(" bps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(videoBitrate.Substring(0, videoBitrate.Length - 4).Replace(" ", ""), out br))
-                  videoDetails.Bitrate = br;
-                videoDetailValueFound  = br > 0 || videoDetailValueFound;
-              }
-              videoDetailValueFound = ((videoDetails.BitrateMode = ParseSimpleString(streamDetail.Element("bitratemode"))) != null) || videoDetailValueFound;
-              var duration = ParseSimpleDuration(streamDetail.Element("duration"));
-              if (duration != null)
-              {
-                videoDetails.Duration = duration;
-                videoDetailValueFound = true;
-              }
-              var durationSeconds = ParseSimpleInt(streamDetail.Element("durationinseconds"));
-              if (durationSeconds != null && durationSeconds > 0)
-              {
-                videoDetails.Duration = TimeSpan.FromSeconds(durationSeconds.Value);
-                videoDetailValueFound = true;
-              }
-              videoDetailValueFound = ((videoDetails.StereoMode = ParseSimpleString(streamDetail.Element("stereomode"))) != null) || videoDetailValueFound;
-              videoDetailValueFound = ((videoDetails.ScanType = ParseSimpleString(streamDetail.Element("scantype"))) != null) || videoDetailValueFound;
-
-              if (videoDetailValueFound)
-              {
-                if (streamDetails.VideoStreams == null)
-                  streamDetails.VideoStreams = new HashSet<VideoStreamDetailsStub>();
-                streamDetails.VideoStreams.Add(videoDetails);
-                streamValueFound = true;
-              }
-              break;
-            case "audio":
-              var audioDetails = new AudioStreamDetailsStub();
-              var audioDetailValueFound = ((audioDetails.Codec = ParseSimpleString(streamDetail.Element("codec"))) != null);
-              audioDetailValueFound = ((audioDetails.Language = ParseSimpleString(streamDetail.Element("language"))) != null) || audioDetailValueFound;
-              audioDetailValueFound = ((audioDetails.Channels = ParseSimpleInt(streamDetail.Element("channels"))) != null) || audioDetailValueFound;
-              string audioBitrate = ParseSimpleString(streamDetail.Element("bitrate"));
-              if (audioBitrate != null)
-              {
-                long br = 0;
-                if (audioBitrate.EndsWith(" kbps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(audioBitrate.Substring(0, audioBitrate.Length - 5).Replace(" ", ""), out br))
-                  audioDetails.Bitrate = br * 1024;
-                else if (audioBitrate.EndsWith(" bps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(audioBitrate.Substring(0, audioBitrate.Length - 4).Replace(" ", ""), out br))
-                  audioDetails.Bitrate = br;
-                audioDetailValueFound = br > 0 || audioDetailValueFound;
-              }
-              audioDetailValueFound = ((audioDetails.BitrateMode = ParseSimpleString(streamDetail.Element("bitratemode"))) != null) || audioDetailValueFound;
-              if (audioDetailValueFound)
-              {
-                if (streamDetails.AudioStreams == null)
-                  streamDetails.AudioStreams = new HashSet<AudioStreamDetailsStub>();
-                streamDetails.AudioStreams.Add(audioDetails);
-                streamValueFound = true;
-              }
-              break;
-            case "subtitle":
-              var subtitleDetails = new SubtitleStreamDetailsStub();
-              var subtitleDetailValueFound = ((subtitleDetails.Language = ParseSimpleString(streamDetail.Element("language"))) != null);
-              if (subtitleDetailValueFound)
-              {
-                if (streamDetails.SubtitleStreams == null)
-                  streamDetails.SubtitleStreams = new HashSet<SubtitleStreamDetailsStub>();
-                streamDetails.SubtitleStreams.Add(subtitleDetails);
-                streamValueFound = true;
-              }
-              break;
-            default:
-              _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, streamDetail);
-              break;
-          }
-        }
-        if (streamValueFound)
-        {
-          streamDetailStubs.Add(streamDetails);
-          fileInfoFound = true;
-        }
-      }
-      return fileInfoFound ? streamDetailStubs : null;
-    }
-
-    /// <summary>
     /// Tries to parse a <see cref="PersonStub"/> object
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
@@ -1097,42 +832,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       return value;
     }
 
-    /// <summary>
-    /// Tries to parse a <see cref="AlbumTrackStub"/> object
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns>
-    /// The filled <see cref="AlbumTrackStub"/> object or <c>null</c> if
-    /// - element is null
-    /// - element does not contain child elements
-    /// - element does not contain a child element with the name "title" or such child element is empty or contains a value from _settings.IgnoreStrings
-    /// </returns>
-    protected AlbumTrackStub ParseTrack(XElement element)
-    {
-      // Example of a valid element:
-      //<track>
-      //  <position>1</position>
-      //  <title>Title of first track</title>
-      //  <duration>Length of first track (XXX min, MM:SS)</duration>
-      //</track>
-      // The <title> child element is mandatory, all other child elements are optional
-      if (element == null)
-        return null;
-      if (!element.HasElements)
-      {
-        _debugLogger.Warn("[#{0}]: The following element was supposed to contain track data in child elements, but it doesn't contain child elements: {1}", _miNumber, element);
-        return null;
-      }
-      var value = new AlbumTrackStub();
-      if ((value.Title = ParseSimpleString(element.Element("title"))) == null)
-        return null;
-      value.AudioDbId = ParseSimpleLong(element.Element("audioDbID"));
-      value.MusicBrainzId = ParseSimpleString(element.Element("musicBrainzID"));
-      value.TrackNumber = ParseSimpleInt(element.Element("position"));
-      value.Duration = ParseSimpleDuration(element.Element("duration"));
-      return value;
-    }
-    
     #endregion
 
     #region Abstract methods

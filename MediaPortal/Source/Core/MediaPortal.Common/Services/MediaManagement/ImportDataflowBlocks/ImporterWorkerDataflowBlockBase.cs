@@ -304,6 +304,25 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
+    protected async Task<MediaItem> LoadLocalItem(Guid mediaItemId, IEnumerable<Guid> necessaryRequestedMiaTypeIds, IEnumerable<Guid> optionalRequestedMiaTypeIds)
+    {
+      while (true)
+      {
+        try
+        {
+          await Activated.WaitAsync();
+          // ReSharper disable PossibleMultipleEnumeration
+          return _mediaBrowsingCallback.LoadLocalItem(mediaItemId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
+          // ReSharper restore PossibleMultipleEnumeration
+        }
+        catch (DisconnectedException)
+        {
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
+          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+        }
+      }
+    }
+
     protected async Task<ICollection<MediaItem>> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMiaTypeIds, IEnumerable<Guid> optionalRequestedMiaTypeIds)
     {
       while (true)
@@ -444,10 +463,26 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().IsSingleResource(mediaItemAccessor));
     }
 
+    /// <summary>
+    /// Checks if the given <paramref name="mediaItemAccessor"/> points to a stub item.
+    /// </summary>
+    /// <param name="mediaItemAccessor">Local FS accessor</param>
+    /// <returns><c>true</c> if it is a stub item.</returns>
+    protected Task<bool> IsStubResource(IFileSystemResourceAccessor mediaItemAccessor)
+    {
+      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().IsStubResource(mediaItemAccessor));
+    }
+
     protected Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)
     {
       // ToDo: This is a workaround. MetadataExtractors should have an async ExtractMetadata method that returns a Task.
       return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().ExtractMetadata(mediaItemAccessor, ImportJobInformation.MetadataExtractorIds, existingAspects, importOnly));
+    }
+
+    protected Task<IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>>> ExtractStubItems(IResourceAccessor mediaItemAccessor)
+    {
+      // ToDo: This is a workaround. MetadataExtractors should have an async ExtractMetadata method that returns a Task.
+      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().ExtractStubItems(mediaItemAccessor, ImportJobInformation.MetadataExtractorIds));
     }
 
     #endregion

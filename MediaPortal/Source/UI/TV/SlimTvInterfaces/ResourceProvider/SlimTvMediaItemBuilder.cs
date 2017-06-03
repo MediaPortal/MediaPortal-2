@@ -81,7 +81,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
 
       MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
       String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();

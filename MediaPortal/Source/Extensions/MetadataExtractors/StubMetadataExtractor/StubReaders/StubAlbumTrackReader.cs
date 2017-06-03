@@ -103,10 +103,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("label", new TryReadElementDelegate(TryReadLabels));
       _supportedElements.Add("genre", new TryReadElementDelegate(TryReadGenre));
       _supportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
-      _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
+      //_supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
       _supportedElements.Add("review", new TryReadElementDelegate(TryReadReview));
-      _supportedElements.Add("track", new TryReadElementDelegate(TryReadTrack));
     }
 
     #endregion
@@ -277,23 +276,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, childElement);
       }
       return result;
-    }
-
-    /// <summary>
-    /// Tries to (asynchronously) read a track value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadTrack(XElement element)
-    {
-      // For examples of valid element values see the comment in NfoReaderBase.ParseTrack
-      var track = ParseTrack(element);
-      if (track == null)
-        return false;
-      if (_currentStub.Tracks == null)
-        _currentStub.Tracks = new HashSet<AlbumTrackStub>();
-      _currentStub.Tracks.Add(track);
-      return true;
     }
 
     #endregion

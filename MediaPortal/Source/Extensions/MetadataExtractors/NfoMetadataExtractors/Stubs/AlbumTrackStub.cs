@@ -30,24 +30,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
   /// <summary>
   /// This stub class is used to store information about an album
   /// </summary>
-  public class AlbumStub
+  public class AlbumTrackStub
   {
     #region Information on internet databases
 
     /// <summary>
-    /// ID of this release at MusicBrainz
+    /// ID of this recording at MusicBrainz
     /// </summary>
     /// <example>"bbb06db2-9c83-4f31-a596-63f7c712cead"</example>
-    public string MusicBrainzAlbumId { get; set; }
+    public string MusicBrainzId { get; set; }
 
     /// <summary>
-    /// ID of this release group at MusicBrainz
-    /// </summary>
-    /// <example>"d50603ae-887c-4a8f-8477-c541eb8f953a"</example>
-    public string MusicBrainzReleaseGroupId { get; set; }
-
-    /// <summary>
-    /// ID of this album at TheAudioDB
+    /// ID of this track at TheAudioDB
     /// </summary>
     /// <example>675</example>
     public long? AudioDbId { get; set; }
@@ -57,69 +51,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     #region Title information
 
     /// <summary>
-    /// Title of the album as it should be displayed
+    /// Title of the track as it should be displayed
     /// </summary>
-    /// <example>"The Album Title"</example>
+    /// <example>"The Track Title"</example>
     public string Title { get; set; }
-
-    #endregion
-
-    #region Making-of information
-
-    /// <summary>
-    /// Date of first release
-    /// </summary>
-    public DateTime? ReleaseDate { get; set; }
-
-    /// <summary>
-    /// Year of first release
-    /// </summary>
-    public DateTime? Year { get; set; }
-
-    /// <summary>
-    /// Record Labels
-    /// </summary>
-    public HashSet<string> Labels { get; set; }
-
-    /// <summary>
-    /// Artists on this album
-    /// </summary>
-    public HashSet<string> Artists { get; set; }
 
     #endregion
 
     #region Content information
 
     /// <summary>
-    /// Genre(s) of the album
+    /// Number of the Track
     /// </summary>
-    public HashSet<string> Genres { get; set; }
+    public int? TrackNumber { get; set; }
 
     /// <summary>
-    /// Tracks in this album
+    /// Duration of the Track in minutes
     /// </summary>
-    public HashSet<AlbumTrackStub> Tracks { get; set; }
-
-    #endregion
-
-    #region Images
-
-    public byte[] Thumb { get; set; }
-
-    #endregion
-
-    #region Ratings
-
-    /// <summary>
-    /// General rating of this album
-    /// </summary>
-    /// <example>8.7</example>
-    public decimal? Rating { get; set; }
-
-    /// <summary>
-    /// A review of this album
-    /// </summary>
-    public string Review { get; set; }
+    public TimeSpan? Duration { get; set; }
 
     #endregion
   }

@@ -24,27 +24,34 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
 {
   /// <summary>
-  /// Settings class for the <see cref="NfoSeriesMetadataExtractor"/>
+  /// Settings class for the <see cref="NfoMovieMetadataExtractor"/>
   /// </summary>
   /// <remarks>
   /// Also contains all properties defined in <see cref="NfoMetadataExtractorSettingsBase"/>
   /// </remarks>
-  public class NfoSeriesMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
+  public class NfoMovieMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
   {
+    #region Consts
+
+    // A valid IMDB-ID starts with "tt" followed by exactly 7 digits
+    private const string REGEX_STRING_IMDBID = @"(tt\d{7})";
+
+    #endregion
+
     #region Ctor
 
     /// <summary>
-    /// Sets the default values specific to the <see cref="NfoSeriesMetadataExtractor"/>
+    /// Sets the default values specific to the <see cref="NfoMovieMetadataExtractor"/>
     /// </summary>
-    public NfoSeriesMetadataExtractorSettings()
+    public NfoMovieMetadataExtractorSettings()
     {
-      SeriesNfoFileNames = new HashSet<string> { "tvshow" };
-      BluRayStubFileExtensions = new HashSet<string> { "bdstub" };
-      DvdStubFileExtensions = new HashSet<string> { "dvdstub" };
+      MovieNfoFileNames = new HashSet<string> { "movie" };
+      ImdbIdRegex = new SerializableRegex(REGEX_STRING_IMDBID);
     }
 
     #endregion
@@ -52,23 +59,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     #region Public properties
 
     /// <summary>
-    /// These file extensions are used to find a stub-files for Blu-ray's
+    /// These file names are used additionally to the media file name to find a respective nfo-file for movies
     /// </summary>
     [Setting(SettingScope.Global)]
-    public HashSet<string> BluRayStubFileExtensions { get; set; }
+    public HashSet<string> MovieNfoFileNames { get; set; }
 
     /// <summary>
-    /// These file extensions are used to find a stub-files for DVD's
+    /// Regular expression used to find an IMDB-ID
     /// </summary>
     [Setting(SettingScope.Global)]
-    public HashSet<string> DvdStubFileExtensions { get; set; }
-
-    /// <summary>
-    /// These file names are used to find a nfo-file for the series as a whole
-    /// The nfo-file for episodes always has the same name as the episodes' media file
-    /// </summary>
-    [Setting(SettingScope.Global)]
-    public HashSet<string> SeriesNfoFileNames { get; set; }
+    public SerializableRegex ImdbIdRegex { get; set; }
 
     /// <summary>
     /// If <c>true</c>, Actor details will be created.
@@ -81,6 +81,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeCharacterDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Director details will be created.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeDirectorDetails { get; set; }
 
     #endregion
   }

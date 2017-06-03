@@ -247,7 +247,7 @@ namespace Test.Common
 
       MultipleMediaItemAspect providerAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
       providerAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-      providerAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+      providerAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
       providerAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "audio/mp3");
 
       Assert.AreEqual(aspects.Keys.Count, 1, "aspect key count");

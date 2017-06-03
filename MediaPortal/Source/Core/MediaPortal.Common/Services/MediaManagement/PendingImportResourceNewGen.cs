@@ -74,6 +74,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private String _parentDirectoryResourcePathString;
     private Guid? _parentDirectoryId;
     private bool _isSingleResource = true;
+    private bool _isStubResource = false;
     private String _currentBlock;
     private DateTime _dateOfLastImport; // only valid for refresh imports
 
@@ -158,6 +159,13 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get { return _isSingleResource; }
       set { _isSingleResource = value; }
+    }
+
+    [XmlIgnore]
+    public bool IsStubResource
+    {
+      get { return _isStubResource; }
+      set { _isStubResource = value; }
     }
 
     [XmlIgnore]
@@ -352,6 +360,16 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get { return _isSingleResource; }
       set { _isSingleResource = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("IsStubResource")]
+    public bool XmlIsStubResource
+    {
+      get { return _isStubResource; }
+      set { _isStubResource = value; }
     }
 
     /// <summary>

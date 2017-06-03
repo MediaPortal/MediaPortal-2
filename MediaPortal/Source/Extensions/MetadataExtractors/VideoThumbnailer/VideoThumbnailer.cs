@@ -145,7 +145,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
           ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
           if (resourcePath.Equals(lfsra.CanonicalLocalResourcePath))
           {
-            if(pra.GetAttributeValue<bool?>(ProviderResourceAspect.ATTR_PRIMARY) == true)
+            if(pra.GetAttributeValue<int?>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY)
             {
               isPrimaryResource = true;
               break;
@@ -234,6 +234,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
     }
 
     public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
     }

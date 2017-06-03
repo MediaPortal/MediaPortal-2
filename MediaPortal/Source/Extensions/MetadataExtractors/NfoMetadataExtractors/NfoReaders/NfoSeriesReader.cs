@@ -140,6 +140,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("votes", new TryReadElementDelegate(TryReadVotes));
       _supportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
 
+      _supportedElements.Add("episodedetails", new TryReadElementAsyncDelegate(TryReadEpisodeAsync));
+
       // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
       // ToDo: Reenable the below once we can store the information in the MediaLibrary
       _supportedElements["thumb"] = new TryReadElementDelegate(Ignore);
@@ -496,6 +498,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, childElement);
       }
       return result;
+    }
+
+    /// <summary>
+    /// Tries to (asynchronously) read an epsiode value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private async Task<bool> TryReadEpisodeAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
+    {
+      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _importOnly, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings);
+      // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
+      if(await episodeNfoReader.TryReadElementAsync(element, nfoDirectoryFsra).ConfigureAwait(false))
+      {
+        if (_currentStub.Episodes == null)
+          _currentStub.Episodes = new HashSet<SeriesEpisodeStub>();
+        foreach (SeriesEpisodeStub stub in episodeNfoReader.GetEpisodeStubs())         
+          _currentStub.Episodes.Add(stub);
+
+        return true;
+      }
+      return false;
     }
 
     #endregion

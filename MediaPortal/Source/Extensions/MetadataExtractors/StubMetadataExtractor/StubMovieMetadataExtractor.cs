@@ -439,16 +439,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return false;
     }
 
-    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
-    {
-      return false;
-    }
-
-    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
-    {
-      return false;
-    }
-
     #endregion
   }
 }

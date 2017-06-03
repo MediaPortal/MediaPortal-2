@@ -43,6 +43,18 @@ namespace MediaPortal.Common.MediaManagement
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null);
 
     /// <summary>
+    /// Loads the specified media item located on the local system.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the media item.</param>
+    /// <param name="necessaryRequestedMIATypeIDs">Necessary MIA ids the returned item must support.</param>
+    /// <param name="optionalRequestedMIATypeIDs">Optional MIA ids the returned item can support.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <returns>Loaded media item.</returns>
+    /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
+    MediaItem LoadLocalItem(Guid mediaItemId,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null);
+
+    /// <summary>
     /// Loads the media items in the directory with the given <paramref name="parentDirectoryId"/>.
     /// </summary>
     /// <param name="parentDirectoryId">Id of the directory whose contents should be loaded.</param>

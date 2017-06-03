@@ -58,30 +58,15 @@ namespace MediaPortal.Common.FanArt
     private static void LoadSettings()
     {
       FanArtSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<FanArtSettings>();
-      if (MAX_FANART_IMAGES.Count == 0)
-      {
-        MAX_FANART_IMAGES.Add(FanArtTypes.Banner, settings.MaxBannerFanArt);
-        MAX_FANART_IMAGES.Add(FanArtTypes.ClearArt, settings.MaxClearArt);
-        MAX_FANART_IMAGES.Add(FanArtTypes.Cover, settings.MaxPosterFanArt);
-        MAX_FANART_IMAGES.Add(FanArtTypes.DiscArt, settings.MaxDiscArt);
-        MAX_FANART_IMAGES.Add(FanArtTypes.FanArt, settings.MaxBackdropFanArt);
-        MAX_FANART_IMAGES.Add(FanArtTypes.Logo, settings.MaxLogoFanArt);
-        MAX_FANART_IMAGES.Add(FanArtTypes.Poster, settings.MaxPosterFanArt);
-        MAX_FANART_IMAGES.Add(FanArtTypes.Thumbnail, settings.MaxThumbFanArt);
-        MAX_FANART_IMAGES.Add(FanArtTypes.Undefined, 0);
-      }
-      else
-      {
-        MAX_FANART_IMAGES[FanArtTypes.Banner] = settings.MaxBannerFanArt;
-        MAX_FANART_IMAGES[FanArtTypes.ClearArt] = settings.MaxClearArt;
-        MAX_FANART_IMAGES[FanArtTypes.Cover] = settings.MaxPosterFanArt;
-        MAX_FANART_IMAGES[FanArtTypes.DiscArt] = settings.MaxDiscArt;
-        MAX_FANART_IMAGES[FanArtTypes.FanArt] = settings.MaxBackdropFanArt;
-        MAX_FANART_IMAGES[FanArtTypes.Logo] = settings.MaxLogoFanArt;
-        MAX_FANART_IMAGES[FanArtTypes.Poster] = settings.MaxPosterFanArt;
-        MAX_FANART_IMAGES[FanArtTypes.Thumbnail] = settings.MaxThumbFanArt;
-        MAX_FANART_IMAGES[FanArtTypes.Undefined] = 0;
-      }
+      MAX_FANART_IMAGES[FanArtTypes.Banner] = settings.MaxBannerFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.ClearArt] = settings.MaxClearArt;
+      MAX_FANART_IMAGES[FanArtTypes.Cover] = settings.MaxPosterFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.DiscArt] = settings.MaxDiscArt;
+      MAX_FANART_IMAGES[FanArtTypes.FanArt] = settings.MaxBackdropFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.Logo] = settings.MaxLogoFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.Poster] = settings.MaxPosterFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.Thumbnail] = settings.MaxThumbFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.Undefined] = 0;
     }
 
     private static void SettingsChanged(object sender, EventArgs e)
