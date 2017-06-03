@@ -22,12 +22,41 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.IO;
+using MediaPortal.Common;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemResolver;
+using MediaPortal.Utilities.FileSystem;
 
-namespace MediaPortal.Plugins.SlimTv.SlimTvResources.Settings
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Settings
 {
   public class SlimTvLogoSettings
   {
+    private List<string> _logoThemes = new List<string>();
+
+    public SlimTvLogoSettings()
+    {
+      _logoThemes = new List<string>();
+      if (ServiceRegistration.Get<ISystemResolver>().SystemType == SystemType.Server)
+      {
+        string designsFolder = FileUtils.BuildAssemblyRelativePath("Designs");
+        if (Directory.Exists(designsFolder))
+          foreach (var file in Directory.GetFiles(designsFolder, "*.logotheme"))
+            _logoThemes.Add(Path.GetFileNameWithoutExtension(file));
+      }
+    }
+
+    /// <summary>
+    /// Helper property to transport available themes from Server to Client.
+    /// Note: No SettingAttribute here, otherwise the value is saved and not new created!
+    /// </summary>
+    public List<string> LogoThemes
+    {
+      get { return _logoThemes; }
+      set { _logoThemes = new List<string>(value); }
+    }
+
     [Setting(SettingScope.Global, "http://channellogos.nocrosshair.de/")]
     public string RepositoryUrl { get; set; }
 

@@ -42,6 +42,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #endregion
 
+    #region Variables
+
+    private readonly bool _forceQuickMode;
+
+    #endregion
+
     #region Constructor
 
     /// <summary>
@@ -57,13 +63,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
     /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
-    public MetadataExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
+    public MetadataExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController, bool forceQuickMode)
       : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5, BoundedCapacity = 100 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       BLOCK_NAME, true, parentImportJobController)
     {
+      _forceQuickMode = forceQuickMode;
     }
 
     #endregion
@@ -94,7 +101,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, importResource.ExistingAspects, !importResource.MediaItemId.HasValue);
+        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, importResource.ExistingAspects, !importResource.MediaItemId.HasValue, _forceQuickMode);
         if (importResource.Aspects == null)
           importResource.Aspects = importResource.ExistingAspects;
         if (importResource.Aspects == null)

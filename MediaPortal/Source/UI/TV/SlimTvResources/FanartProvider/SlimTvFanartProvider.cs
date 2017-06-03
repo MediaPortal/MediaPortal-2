@@ -37,9 +37,9 @@ using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.LogoManager;
 using MediaPortal.LogoManager.ChannelManagerService;
 using MediaPortal.LogoManager.Design;
-using MediaPortal.Plugins.SlimTv.SlimTvResources.Settings;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Common.FanArt;
+using MediaPortal.Plugins.SlimTv.Interfaces.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
 {

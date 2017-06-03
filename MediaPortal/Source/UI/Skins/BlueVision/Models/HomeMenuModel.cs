@@ -789,6 +789,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.StatesPopped)
         {
           UpdateSelectedGroup();
+          // MP2-665: Make sure to recreate the main tiles when navigating back into Home screen
+          if (IsHomeScreen)
+            CreatePositionedItems();
         }
         if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
         {

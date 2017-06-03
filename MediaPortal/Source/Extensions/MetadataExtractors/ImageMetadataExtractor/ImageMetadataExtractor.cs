@@ -149,7 +149,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       string fileName = mediaItemAccessor.ResourceName;
       if (!HasImageExtension(fileName))
@@ -241,7 +241,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             string.IsNullOrEmpty(imageAspect.GetAttributeValue<string>(ImageAspect.ATTR_COUNTRY)))
           {
             CivicAddress locationInfo;
-            if (GeoLocationService.Instance.TryLookup(new GeoCoordinate(latitude.Value, longitude.Value), out locationInfo))
+            if (!forceQuickMode && GeoLocationService.Instance.TryLookup(new GeoCoordinate(latitude.Value, longitude.Value), out locationInfo))
             {
               imageAspect.SetAttribute(ImageAspect.ATTR_CITY, locationInfo.City);
               imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.StateProvince);
@@ -261,10 +261,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
             if (localFsResourcePath != null)
             {
+              // In quick mode only allow thumbs taken from cache.
+              bool cachedOnly = forceQuickMode;
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, false, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, cachedOnly, out thumbData, out imageType))
               {
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
                 updated = true;

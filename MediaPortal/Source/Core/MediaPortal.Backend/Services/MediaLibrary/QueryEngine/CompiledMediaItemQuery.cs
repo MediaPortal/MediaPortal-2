@@ -315,6 +315,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     private void AddMultipleMIAResults(ISQLDatabase database, ITransaction transaction, MultipleMediaItemAspectMetadata miam, MainQueryBuilder builder, IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues)
     {
+      if (miam.IsTransientAspect)
+        return;
       using (IDbCommand command = transaction.CreateCommand())
       {
         string mediaItemIdAlias;

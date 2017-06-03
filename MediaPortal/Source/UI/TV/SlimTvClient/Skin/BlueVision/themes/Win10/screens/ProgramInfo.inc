@@ -4,13 +4,13 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     x:Name="ProgramInfoPanel" LastChildFill="true" Height="170">
 
-  <Grid DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="8,10,0,-30">
+  <Grid DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="8,10,0,-80">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="320"/>
+      <ColumnDefinition Width="420"/>
       <ColumnDefinition Width="1500"/>
     </Grid.ColumnDefinitions>
 
@@ -41,6 +41,6 @@
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
            Wrap="True" Scroll="Auto" ScrollDelay="5" Opacity="0.6" Content="{Binding Path=CurrentProgram.Description}"
-           Color="{ThemeResource TextColor}" Margin="0,0,10,25"/>
+           Color="{ThemeResource TextColor}"/>
   </Grid>
 </DockPanel>

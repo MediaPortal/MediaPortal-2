@@ -77,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         });
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
@@ -98,7 +98,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
         EpisodeInfo episodeInfo = GetSeriesFromTags(recording);
         if (episodeInfo.IsBaseInfoPresent)
         {
-          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
+          if(!forceQuickMode)
+            OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
@@ -220,7 +221,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {

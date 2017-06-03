@@ -131,6 +131,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Audio);
 
+      // All non-default media item aspects must be registered
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempAlbumAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempPersonAspect.Metadata);
+
       AudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>();
       InitializeExtensions(settings);
       InitializeUnsplittableID3v23Values(settings);
@@ -416,7 +421,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null)
@@ -670,7 +675,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               else
               {
                 // In quick mode only allow thumbs taken from cache.
-                bool cachedOnly = importOnly;
+                bool cachedOnly = importOnly || forceQuickMode;
 
                 // Thumbnail extraction
                 fileName = mediaItemAccessor.ResourcePathName;
@@ -729,18 +734,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         trackInfo.AssignNameId();
 
-        AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);
+        if (!forceQuickMode)
+        {
+          AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);
 
-        if (SkipOnlineSearches && !SkipFanArtDownload)
-        {
-          TrackInfo tempInfo = trackInfo.Clone();
-          OnlineMatcherService.Instance.FindAndUpdateTrack(tempInfo, importOnly);
-          trackInfo.CopyIdsFrom(tempInfo);
-          trackInfo.HasChanged = tempInfo.HasChanged;
-        }
-        else if (!SkipOnlineSearches)
-        {
-          OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, importOnly);
+          if (SkipOnlineSearches && !SkipFanArtDownload)
+          {
+            TrackInfo tempInfo = trackInfo.Clone();
+            OnlineMatcherService.Instance.FindAndUpdateTrack(tempInfo, importOnly);
+            trackInfo.CopyIdsFrom(tempInfo);
+            trackInfo.HasChanged = tempInfo.HasChanged;
+          }
+          else if (!SkipOnlineSearches)
+          {
+            OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, importOnly);
+          }
         }
 
         if (refresh)

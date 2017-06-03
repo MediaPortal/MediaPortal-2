@@ -142,6 +142,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
       CpAction action = GetAction("ConcatenatePaths");
       IList<object> inParameters = new List<object> {basePath.Serialize(), relativePath};
       IList<object> outParameters = action.InvokeAction(inParameters);
+      if (outParameters[0] == null)
+        return null;
       return ResourcePath.Deserialize((string) outParameters[0]);
     }
 

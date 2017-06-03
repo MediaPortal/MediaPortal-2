@@ -146,12 +146,13 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="metadataExtractorIds">Enumeration of ids of metadata extractors to apply to the
     /// specified media file.</param>
     /// <param name="importOnly">Specifies if only import operations for IMetaDataExtractor are allowed.</param>
+    /// <param name="forceQuickMode">Specifies if only quick operations for IMetaDataExtractor are allowed.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
     /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<Guid> metadataExtractorIds, bool importOnly);
+        IEnumerable<Guid> metadataExtractorIds, bool importOnly, bool forceQuickMode);
 
     /// <summary>
     /// Extracts the specified metadata from the specified local media item.
@@ -161,12 +162,14 @@ namespace MediaPortal.Common.ResourceAccess
     /// specified media file.</param>
     /// <param name="existingAspects">Existing aspects to add and/or enhance.</param>
     /// <param name="importOnly">Specifies if only import operations for IMetaDataExtractor are allowed.</param>
+    /// <param name="forceQuickMode">Specifies if only quick operations for IMetaDataExtractor are allowed.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
     /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly);
+        IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, 
+        bool importOnly, bool forceQuickMode);
 
     /// <summary>
     /// Extracts the specified metadata from the specified local media item.
@@ -174,12 +177,13 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="mediaItemAccessor">Media item file to use as source for this metadata extraction.</param>
     /// <param name="metadataExtractors">Enumeration of metadata extractors to apply to the specified media file.</param>
     /// <param name="importOnly">Specifies if only import operations for IMetaDataExtractor are allowed.</param>
+    /// <param name="forceQuickMode">Specifies if only quick operations for IMetaDataExtractor are allowed.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
     /// <c>null</c>, if none of the specified providers could extract any metadata.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<IMetadataExtractor> metadataExtractors, bool importOnly);
+        IEnumerable<IMetadataExtractor> metadataExtractors, bool importOnly, bool forceQuickMode);
 
     /// <summary>
     /// Extracts the specified metadata from the specified local media item.
@@ -188,13 +192,14 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="metadataExtractors">Enumeration of metadata extractors to apply to the specified media file.</param>
     /// <param name="existingAspects">Existing aspects to add and/or enhance.</param>
     /// <param name="importOnly">Specifies if only import operations for IMetaDataExtractor are allowed.</param>
+    /// <param name="forceQuickMode">Specifies if only quick operations for IMetaDataExtractor are allowed.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
     /// <c>null</c>, if none of the specified providers could extract any metadata.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, 
-        bool importOnly);
+        bool importOnly, bool forceQuickMode);
 
     /// <summary>
     /// Returns a media item for a local resource with metadata extracted by the metadata extractors specified by the
