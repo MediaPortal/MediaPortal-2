@@ -509,7 +509,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private async Task<bool> TryReadEpisodeAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
-      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _importOnly, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings);
+      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _importOnly, _forceQuickMode, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings);
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
       if(await episodeNfoReader.TryReadElementAsync(element, nfoDirectoryFsra).ConfigureAwait(false))
       {

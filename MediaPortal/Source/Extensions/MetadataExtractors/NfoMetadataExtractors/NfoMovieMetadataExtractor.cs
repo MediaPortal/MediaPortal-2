@@ -43,6 +43,7 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
 using System.Collections;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.MediaManagement.TransientAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -123,7 +124,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      miatr.RegisterLocallyKnownMediaItemAspectType(TempPersonAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempActorAspect.Metadata);
     }
 
     /// <summary>

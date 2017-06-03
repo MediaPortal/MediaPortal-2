@@ -46,6 +46,7 @@ using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Messaging;
 using System.Threading;
 using MediaPortal.Common.Genres;
+using MediaPortal.Common.MediaManagement.TransientAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -134,7 +135,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(TempAlbumAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(TempPersonAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempArtistAspect.Metadata);
 
       AudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>();
       InitializeExtensions(settings);

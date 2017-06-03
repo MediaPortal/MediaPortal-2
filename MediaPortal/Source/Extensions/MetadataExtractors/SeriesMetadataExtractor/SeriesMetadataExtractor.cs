@@ -37,6 +37,7 @@ using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
 using MediaPortal.Common.Messaging;
 using System.Threading;
+using MediaPortal.Common.MediaManagement.TransientAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
