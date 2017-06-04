@@ -256,7 +256,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                                                           bool result;
                                                           // "No Program" placeholder
                                                           if (program.ProgramId == -1)
-                                                            result = _tvHandler.ScheduleControl.CreateScheduleByTime(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, out schedule);
+                                                            result = _tvHandler.ScheduleControl.CreateScheduleByTime(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, ScheduleRecordingType.Once, out schedule);
                                                           else
                                                             result = _tvHandler.ScheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule);
 

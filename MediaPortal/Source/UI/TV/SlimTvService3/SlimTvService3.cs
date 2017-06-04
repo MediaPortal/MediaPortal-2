@@ -543,9 +543,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return false;
     }
 
-    public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
+    public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
-      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(channel.ChannelId, "Manual", from, to, (int)ScheduleRecordingType.Once);
+      TvDatabase.Schedule tvSchedule = new TvDatabase.Schedule(channel.ChannelId, "Manual", from, to);
+      tvSchedule.ScheduleType = (int)recordingType;
       tvSchedule.PreRecordInterval = Int32.Parse(_tvBusiness.GetSetting("preRecordInterval", "5").Value);
       tvSchedule.PostRecordInterval = Int32.Parse(_tvBusiness.GetSetting("postRecordInterval", "5").Value);
       tvSchedule.Persist();
