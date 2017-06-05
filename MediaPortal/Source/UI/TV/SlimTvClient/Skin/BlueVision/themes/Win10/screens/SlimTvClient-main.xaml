@@ -46,12 +46,12 @@
                    Height="20" Stretch="Uniform" Margin="5"/>
           </Button>  
           <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextGroup}" Margin="7,0,0,0">
+                  Command="{Command NextGroup}" Margin="1,0,0,0">
             <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
                    Height="20" Stretch="Uniform" Margin="5"/>
           </Button>
           <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}" VerticalAlignment="Center"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
         </StackPanel>
 
         <Label x:Name="CurrentProgramLabel" Content="[SlimTvClient.CurrentProgram]" VerticalAlignment="Center" Grid.Column="1"
