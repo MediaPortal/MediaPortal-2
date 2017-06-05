@@ -16,13 +16,11 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
 
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
             DataContext="{Binding Source={StaticResource SlimTvManualScheduleModel}}">
-
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
@@ -32,26 +30,27 @@
 
           <!--Channel select-->
           
-          <Label Content="[SlimTvClient.ChannelLabel]" Color="{ThemeResource TextColor}"/>
-          <StackPanel Orientation="Horizontal">
-            <Button x:Name="ChooseChannelGroupButton" Width="200" Style="{ThemeResource ButtonWideStyle}"
-                    Content="{Binding Source={Binding ChannelGroup}, Path=Name}"
-                    Command="{Command ShowChannelGroupDialog}"
-                    SetFocusPrio="DefaultLow"/>
-            <Button x:Name="ChooseChannelButton" Style="{ThemeResource ButtonWideStyle}" Margin="5,0,0,0"
-                    Content="{Binding Source={Binding Channel}, Path=Name}"
-                    Command="{Command ShowChannelDialog}"/>
-          </StackPanel>
+          <Label Content="[SlimTvClient.ChannelLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+          <Grid HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" x:Name="ChooseChannelGroupButton" MaxWidth="350" Style="{ThemeResource ButtonWideStyle}"
+                    Content="{Binding Source={Binding ChannelGroup}, Path=Name}" HorizontalAlignment="Stretch"
+                    Command="{Command ShowChannelGroupDialog}" SetFocusPrio="DefaultLow"/>
+            <Button Grid.Column="1" x:Name="ChooseChannelButton" Style="{ThemeResource ButtonWideStyle}" Margin="5,0,0,0"
+                    Content="{Binding Source={Binding Channel}, Path=Name}" HorizontalAlignment="Stretch"
+                    Command="{Command ShowChannelDialog}"/>            
+          </Grid>
 
           <!--Schedule type select-->
-          
-          <Label Content="[SlimTvClient.ScheduleType]" Margin="0,20,0,0" Color="{ThemeResource TextColor}"/>
+          <Label Content="[SlimTvClient.ScheduleType]" Margin="0,20,0,0" Color="{ThemeResource TextColor}" Opacity="0.6"/>
           <Button x:Name="ChooseRecordingTypeButton" HorizontalAlignment="Stretch" Style="{ThemeResource ButtonWideStyle}"
                   Content="{Binding RecordingTypeName}"
                   Command="{Command ShowRecordingTypeDialog}"/>
 
           <!--Start/end time-->
-          
           <Grid HorizontalAlignment="Stretch" Margin="0,20,0,0">
 
             <Grid.ColumnDefinitions>
@@ -64,10 +63,9 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            
+
             <!--Start time-->
-            
-            <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}"
+            <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}" Opacity="0.6"
                    Content="[SlimTvClient.ProgramStartLabel]"/>
 
             <Grid Grid.Column="0" Grid.Row="1">
@@ -86,10 +84,8 @@
               </Grid.RowDefinitions>
 
               <!--Start date-->
-
               <Button Grid.Column="0" Grid.Row="0" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,0,0,2"
-                      Style="{ThemeResource ArrowButtonUpStyle}"
-                      Command="{Command Path=AddStartTime, Parameters=1440}"/>
+                      Style="{ThemeResource ArrowButtonUpStyle}" Command="{Command Path=AddStartTime, Parameters=1440}"/>
               <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
                       Content="{Binding Path=StartTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}"/>
               <Button Grid.Column="0" Grid.Row="2" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,2,0,0"
@@ -97,7 +93,6 @@
                       Command="{Command Path=AddStartTime, Parameters=-1440}"/>
 
               <!--Start time-->
-
               <Button Grid.Column="2" Grid.Row="0" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,0,0,2"
                       Style="{ThemeResource ArrowButtonUpStyle}"
                       Command="{Command Path=AddStartTime, Parameters=60}"/>
@@ -109,7 +104,7 @@
 
               <Label Grid.Column="3" Grid.Row="1" Color="{ThemeResource TextColor}"
                       Content="{Binding Path=TimeSeparator, Mode=OneTime}"/>
-              
+
               <Button Grid.Column="4" Grid.Row="0" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,0,0,2"
                       Style="{ThemeResource ArrowButtonUpStyle}"
                       Command="{Command Path=AddStartTime, Parameters=1}"/>
@@ -123,8 +118,7 @@
 
 
             <!--End time-->
-            
-            <Label Grid.Column="2" Grid.Row="0" Color="{ThemeResource TextColor}"
+            <Label Grid.Column="2" Grid.Row="0" Color="{ThemeResource TextColor}" Opacity="0.6"
                    Content="[SlimTvClient.ProgramEndLabel]"/>
 
             <Grid Grid.Column="2" Grid.Row="1">
@@ -143,7 +137,6 @@
               </Grid.RowDefinitions>
 
               <!--End date-->
-
               <Button Grid.Column="0" Grid.Row="0" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,0,0,2"
                       Style="{ThemeResource ArrowButtonUpStyle}"
                       Command="{Command Path=AddEndTime, Parameters=1440}"/>
@@ -154,7 +147,6 @@
                       Command="{Command Path=AddEndTime, Parameters=-1440}"/>
 
               <!--End time-->
-
               <Button Grid.Column="2" Grid.Row="0" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,0,0,2"
                       Style="{ThemeResource ArrowButtonUpStyle}"
                       Command="{Command Path=AddEndTime, Parameters=60}"/>
@@ -177,9 +169,7 @@
                       Command="{Command Path=AddEndTime, Parameters=-1}"/>
 
             </Grid>
-
           </Grid>
-
         </StackPanel>
 
         <Button x:Name="OkButton" Grid.Row="1" Margin="10,10,10,0" HorizontalAlignment="Center" Style="{ThemeResource DialogButtonStyle}"

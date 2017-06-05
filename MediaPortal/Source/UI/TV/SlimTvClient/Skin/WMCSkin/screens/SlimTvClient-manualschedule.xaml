@@ -32,13 +32,18 @@
 
           <!--Channel select-->
           <Label Content="[SlimTvClient.ChannelLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-          <StackPanel Orientation="Horizontal">
-            <Button x:Name="ChooseChannelGroupButton" Width="400" Style="{ThemeResource ButtonWideStyle}"
-                    Content="{Binding Source={Binding ChannelGroup}, Path=Name}"
+          <Grid HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" x:Name="ChooseChannelGroupButton" MaxWidth="350" Style="{ThemeResource ButtonWideStyle}"
+                    Content="{Binding Source={Binding ChannelGroup}, Path=Name}" HorizontalAlignment="Stretch"
                     Command="{Command ShowChannelGroupDialog}" SetFocusPrio="DefaultLow"/>
-            <Button x:Name="ChooseChannelButton" Style="{ThemeResource ButtonWideStyle}" Margin="5,0,0,0" HorizontalAlignment="Stretch"
-                    Content="{Binding Source={Binding Channel}, Path=Name}" Command="{Command ShowChannelDialog}"/>
-          </StackPanel>
+            <Button Grid.Column="1" x:Name="ChooseChannelButton" Style="{ThemeResource ButtonWideStyle}" Margin="5,0,0,0"
+                    Content="{Binding Source={Binding Channel}, Path=Name}" HorizontalAlignment="Stretch"
+                    Command="{Command ShowChannelDialog}"/>
+          </Grid>
 
           <!--Schedule type select-->
           <Label Content="[SlimTvClient.ScheduleType]" Margin="0,20,0,0" Color="{ThemeResource TextColor}" Opacity="0.6"/>
