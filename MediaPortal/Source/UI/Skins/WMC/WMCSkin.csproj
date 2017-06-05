@@ -514,6 +514,8 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SCHEDULE.FOCUS .png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SCHEDULE.NOFOCUS.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\STARTMENU.LAUNCH.SKITTLE.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.FOCUS.PNG" />

@@ -2082,4 +2082,20 @@
     </Setter>
   </Style>
 
+  <Style x:Key="ScheduleButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Image x:Name="image" Source="PlayerControl\SCHEDULE.NOFOCUS.PNG" Stretch="Uniform" 
+                 VerticalAlignment="Center" Height="45" Width="65"/>
+            <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="PlayerControl\SCHEDULE.FOCUS.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>
