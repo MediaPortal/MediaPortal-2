@@ -824,6 +824,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(mpnp10AddOrUpdateMediaItemAction);
 
+      DvAction mpnp10AddOrUpdateMediaItemIdAction = new DvAction("X_MediaPortal_AddOrUpdateMediaItemId", OnMPnP10AddOrUpdateMediaItemId,
+          new DvArgument[] {
+            new DvArgument("ParentDirectoryId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
+            new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("UpdatedMediaItemAspects", A_ARG_TYPE_MediaItemAspects, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.Out, true),
+          });
+      AddAction(mpnp10AddOrUpdateMediaItemIdAction);
+
       DvAction mpnp10DeleteMediaItemOrPathAction = new DvAction("X_MediaPortal_DeleteMediaItemOrPath", OnMPnP10DeleteMediaItemOrPath,
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
@@ -1010,6 +1023,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("MediaItem", A_ARG_TYPE_MediaItem, ArgumentDirection.Out, true),
           });
       AddAction(mpnp11LoadItemAction);
+
+      DvAction mpnp11LoadItemIdAction = new DvAction("X_MediaPortal_LoadItemId", OnMPnP11LoadItemId,
+          new DvArgument[] {
+            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("UserProfile", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItem", A_ARG_TYPE_MediaItem, ArgumentDirection.Out, true),
+          });
+      AddAction(mpnp11LoadItemIdAction);
 
       // Media playback
 
@@ -1668,6 +1694,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
+    static UPnPError OnMPnP10AddOrUpdateMediaItemId(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid parentDirectoryId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string systemId = (string)inParams[1];
+      ResourcePath path = ResourcePath.Deserialize((string)inParams[2]);
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[3]);
+      IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>)inParams[4];
+      mediaItemId = ServiceRegistration.Get<IMediaLibrary>().AddOrUpdateMediaItem(parentDirectoryId, systemId, path, mediaItemId, mediaItemAspects, true);
+      outParams = new List<object> { MarshallingHelper.SerializeGuid(mediaItemId) };
+      return null;
+    }
+
     static UPnPError OnMPnP10DeleteMediaItemOrPath(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
@@ -1952,6 +1991,22 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if(!string.IsNullOrEmpty((string)inParams[4]))
         userProfile = MarshallingHelper.DeserializeGuid((string)inParams[4]);
       MediaItem mediaItem = ServiceRegistration.Get<IMediaLibrary>().LoadItem(systemId, path,
+          necessaryMIATypes, optionalMIATypes, userProfile);
+      outParams = new List<object> { mediaItem };
+      return null;
+    }
+
+    static UPnPError OnMPnP11LoadItemId(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      string systemId = (string)inParams[0];
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[2]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[3]);
+      Guid? userProfile = null;
+      if (!string.IsNullOrEmpty((string)inParams[4]))
+        userProfile = MarshallingHelper.DeserializeGuid((string)inParams[4]);
+      MediaItem mediaItem = ServiceRegistration.Get<IMediaLibrary>().LoadItem(systemId, mediaItemId,
           necessaryMIATypes, optionalMIATypes, userProfile);
       outParams = new List<object> { mediaItem };
       return null;

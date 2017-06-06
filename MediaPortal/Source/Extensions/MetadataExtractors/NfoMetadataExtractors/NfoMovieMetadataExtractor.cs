@@ -188,9 +188,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public static bool IncludeActorDetails { get; private set; }
     public static bool IncludeCharacterDetails { get; private set; }
     public static bool IncludeDirectorDetails { get; private set; }
+    public static HashSet<string> MovieStubFileExtensions { get; private set; }
 
     private void LoadSettings()
     {
+      MovieStubFileExtensions = _settingWatcher.Settings.MovieStubFileExtensions;
       IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
       IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
       IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
@@ -240,23 +242,37 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           return false;
         }
 
-        // Here we try to find an IFileSystemResourceAccessor pointing to the nfo-file.
-        // If we don't find one, we cannot extract any metadata.
-        IFileSystemResourceAccessor nfoFsra;
-        if (!TryGetNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out nfoFsra))
-          return false;
-
-        // Now we (asynchronously) extract the metadata into a stub object.
-        // If there is an error parsing the nfo-file with XmlNfoReader, we at least try to parse for a valid IMDB-ID.
-        // If no metadata was found, nothing can be stored in the MediaItemAspects.
-        var nfoReader = new NfoMovieReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-        using (nfoFsra)
+        NfoMovieReader nfoReader = null;
+        // Check if stub
+        if (MovieStubFileExtensions.Where(e => string.Compare("." + e, ResourcePathHelper.GetExtension(mediaItemAccessor.Path.ToString()), true) == 0).Any())
         {
-          if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&
-              !await nfoReader.TryParseForImdbId(nfoFsra).ConfigureAwait(false))
+          nfoReader = new NfoMovieReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
+          if (!await nfoReader.TryReadMetadataAsync(mediaItemAccessor as IFileSystemResourceAccessor).ConfigureAwait(false))
           {
             _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
             return false;
+          }
+        }
+        else
+        {
+          // Here we try to find an IFileSystemResourceAccessor pointing to the nfo-file.
+          // If we don't find one, we cannot extract any metadata.
+          IFileSystemResourceAccessor nfoFsra;
+          if (!TryGetNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out nfoFsra))
+            return false;
+
+          // Now we (asynchronously) extract the metadata into a stub object.
+          // If there is an error parsing the nfo-file with XmlNfoReader, we at least try to parse for a valid IMDB-ID.
+          // If no metadata was found, nothing can be stored in the MediaItemAspects.
+          nfoReader = new NfoMovieReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
+          using (nfoFsra)
+          {
+            if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&
+                !await nfoReader.TryParseForImdbId(nfoFsra).ConfigureAwait(false))
+            {
+              _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
+              return false;
+            }
           }
         }
 
@@ -449,7 +465,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return false;
     }
 
-    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
     }

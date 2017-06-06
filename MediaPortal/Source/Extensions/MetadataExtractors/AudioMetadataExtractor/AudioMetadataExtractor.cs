@@ -541,8 +541,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
             if (trackNo.HasValue)
               trackInfo.TrackNum = (int)trackNo.Value;
-            if (tag.Tag.TrackCount != 0)
-              trackInfo.TotalTracks = (int)tag.Tag.TrackCount;
             if (tag.Tag.Disc != 0)
               trackInfo.DiscNum = (int)tag.Tag.Disc;
             if (tag.Tag.DiscCount != 0)
@@ -851,7 +849,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return false;
     }
 
-    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
     }

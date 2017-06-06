@@ -82,7 +82,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Constructor
 
-    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, String currentBlock, ImportJobController parentImportJobController, Guid? parentDirectoryId = null, Guid? mediaItemId = null)
+    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, String currentBlock, ImportJobController parentImportJobController, Guid? parentDirectoryId = null, Guid? mediaItemId = null, bool isStubResource = false)
     {
       _parentDirectoryId = parentDirectoryId;
       _mediaItemId = mediaItemId;
@@ -91,6 +91,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       _currentBlock = currentBlock;
       _parentImportJobController = parentImportJobController;
       _pendingImportResourceNumber = _parentImportJobController.GetNumberOfNextPendingImportResource();
+      _isStubResource = isStubResource;
 
       _isValid = (_resourceAccessor != null);
 

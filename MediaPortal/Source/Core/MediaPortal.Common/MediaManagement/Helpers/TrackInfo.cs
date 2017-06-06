@@ -270,7 +270,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (TrackNum > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_TRACK, TrackNum);
       if (TotalTracks > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_NUMTRACKS, TotalTracks);
       if (Duration > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_DURATION, Duration);
-      MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ISCD, false);
+
+      bool? isCd;
+      if(!MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ISCD, out isCd) || !isCd.HasValue)
+        MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ISCD, false);
 
       if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_TRACK, MusicBrainzId);
       if (!string.IsNullOrEmpty(IsrcId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_ISRC, ExternalIdentifierAspect.TYPE_TRACK, IsrcId);

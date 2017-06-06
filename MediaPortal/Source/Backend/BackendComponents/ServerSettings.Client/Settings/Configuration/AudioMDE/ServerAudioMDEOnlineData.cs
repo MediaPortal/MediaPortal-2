@@ -28,6 +28,7 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -68,6 +69,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
+
       AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
       if (Selected == 0)
       {
@@ -91,6 +93,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       }
       serverSettings.Save(settings);
       localSettings.Save(settings);
+
+      NfoAudioMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoAudioMetadataExtractorSettings>();
+      nfoSettings.SkipOnlineSearches = settings.SkipOnlineSearches;
+      nfoSettings.SkipFanArtDownload = settings.SkipFanArtDownload;
+      serverSettings.Save(nfoSettings);
+      localSettings.Save(nfoSettings);
     }
 
     public void Dispose()

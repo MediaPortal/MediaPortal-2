@@ -1498,6 +1498,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItemAspectMetadata miam;
       if (!_managedMIATypes.TryGetValue(mia.Metadata.AspectId, out miam) || miam == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", mia.Metadata.AspectId));
+      if (miam.IsTransientAspect)
+        return false;
+
       string miaTableName = GetMIATableName(miam);
 
       ISQLDatabase database = transaction.Database;

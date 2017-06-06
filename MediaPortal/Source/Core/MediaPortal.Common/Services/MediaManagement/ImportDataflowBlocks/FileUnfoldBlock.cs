@@ -97,6 +97,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         ICollection<IFileSystemResourceAccessor> files = new HashSet<IFileSystemResourceAccessor>();
+        ICollection<IFileSystemResourceAccessor> stubFiles = new HashSet<IFileSystemResourceAccessor>();
         IDictionary<ResourcePath, DateTime> path2LastImportDate = new Dictionary<ResourcePath, DateTime>();
         IDictionary<ResourcePath, Guid> path2MediaItem = new Dictionary<ResourcePath, Guid>();
         IEnumerable<MediaItem> mediaItems = null;
@@ -165,14 +166,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
                   catch { }
 
                   // Only add it if it still exists
-                  if (files.Contains(file))
+                  if (files.Where(f => f.CanonicalLocalResourcePath == file.CanonicalLocalResourcePath).Any())
                   {
-                    files.Remove(file);
+                    stubFiles.Add(file);
 
                     DateTime dateTime;
-                    PendingImportResourceNewGen pir = new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, file, ToString(), ParentImportJobController, importResource.MediaItemId, mi.MediaItemId);
+                    PendingImportResourceNewGen pir = new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, file, ToString(), 
+                      ParentImportJobController, importResource.MediaItemId, mi.MediaItemId, true);
                     pir.ExistingAspects = mi.Aspects;
-                    pir.IsStubResource = true;
                     if (ImportJobInformation.JobType == ImportJobType.Refresh)
                     {
                       if (path2LastImportDate.TryGetValue(pir.PendingResourcePath, out dateTime))
@@ -188,19 +189,18 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
 
         //Add new stub items
-        ICollection<IFileSystemResourceAccessor> stubFiles = new List<IFileSystemResourceAccessor>(files);
-        foreach (var file in stubFiles.Where(f => !path2LastImportDate.Keys.Contains(f.CanonicalLocalResourcePath)))
+        foreach (var file in files.Where(f => !path2LastImportDate.Keys.Contains(f.CanonicalLocalResourcePath)))
         {
           if (await IsStubResource(file))
           {
-            files.Remove(file);
+            stubFiles.Add(file);
 
             DateTime dateTime;
             foreach (var aspects in await ExtractStubItems(file))
             {
-              PendingImportResourceNewGen pir = new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, file, ToString(), ParentImportJobController, importResource.MediaItemId);
+              PendingImportResourceNewGen pir = new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, file, ToString(), 
+                ParentImportJobController, importResource.MediaItemId, null, true);
               pir.ExistingAspects = aspects;
-              pir.IsStubResource = true;
               if (ImportJobInformation.JobType == ImportJobType.Refresh)
               {
                 if (path2LastImportDate.TryGetValue(pir.PendingResourcePath, out dateTime))
@@ -209,6 +209,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
               result.Add(pir);
             }
           }
+        }
+
+        //Remove stub files from files collection so they don't get added again
+        foreach (IFileSystemResourceAccessor file in stubFiles)
+        {
+          IFileSystemResourceAccessor stub = files.Where(f => f.CanonicalLocalResourcePath == file.CanonicalLocalResourcePath).FirstOrDefault();
+          if (stub != null)
+            files.Remove(stub);
         }
 
         //Add importers for files if any

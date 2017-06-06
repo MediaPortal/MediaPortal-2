@@ -63,9 +63,12 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="StubAudioMetadataExtractor.cs" />
     <Compile Include="NfoAudioMetadataExtractor.cs" />
+    <Compile Include="StubMovieMetadataExtractor.cs" />
     <Compile Include="NfoReaders\NfoArtistReader.cs" />
     <Compile Include="NfoReaders\NfoAlbumReader.cs" />
+    <Compile Include="StubSeriesMetadataExtractor.cs" />
     <Compile Include="RelationshipExtractors\AlbumArtistRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\INfoRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieActorRelationshipExtractor.cs" />
@@ -107,6 +110,7 @@
     <Compile Include="Stubs\StreamDetailsStub.cs" />
     <Compile Include="Stubs\SubtitleStreamDetailsStub.cs" />
     <Compile Include="Stubs\VideoStreamDetailsStub.cs" />
+    <Compile Include="Utilities\StubParser.cs" />
     <Compile Include="Utilities\XmlNfoReader.cs" />
   </ItemGroup>
   <ItemGroup>

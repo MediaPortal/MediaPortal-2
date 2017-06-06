@@ -358,7 +358,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return false;
     }
 
-    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
     }

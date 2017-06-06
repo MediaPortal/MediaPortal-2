@@ -58,6 +58,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
 
     #endregion
 
+    #region Making-of information
+
+    /// <summary>
+    /// Artists on this track
+    /// </summary>
+    public HashSet<string> Artists { get; set; }
+
+    #endregion
+
     #region Content information
 
     /// <summary>
@@ -69,6 +78,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// Duration of the Track in minutes
     /// </summary>
     public TimeSpan? Duration { get; set; }
+
+    #endregion
+
+    #region Media file information
+
+    /// <summary>
+    /// Collection of stream details in the given audio file
+    /// </summary>
+    public HashSet<StreamDetailsStub> FileInfo { get; set; }
 
     #endregion
   }

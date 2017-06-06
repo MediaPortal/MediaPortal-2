@@ -43,8 +43,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     public NfoSeriesMetadataExtractorSettings()
     {
       SeriesNfoFileNames = new HashSet<string> { "tvshow" };
-      BluRayStubFileExtensions = new HashSet<string> { "bdstub" };
-      DvdStubFileExtensions = new HashSet<string> { "dvdstub" };
+      SeriesStubFileExtensions = new HashSet<string> { "seriesstub" };
     }
 
     #endregion
@@ -55,13 +54,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// These file extensions are used to find a stub-files for Blu-ray's
     /// </summary>
     [Setting(SettingScope.Global)]
-    public HashSet<string> BluRayStubFileExtensions { get; set; }
-
-    /// <summary>
-    /// These file extensions are used to find a stub-files for DVD's
-    /// </summary>
-    [Setting(SettingScope.Global)]
-    public HashSet<string> DvdStubFileExtensions { get; set; }
+    public HashSet<string> SeriesStubFileExtensions { get; set; }
 
     /// <summary>
     /// These file names are used to find a nfo-file for the series as a whole

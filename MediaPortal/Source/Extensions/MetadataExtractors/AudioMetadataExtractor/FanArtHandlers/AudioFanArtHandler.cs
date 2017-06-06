@@ -216,6 +216,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return;
 
       ExtractFolderImages(mediaItemLocater, albumMediaItemId, artistMediaItems, albumTitle);
+
+      SingleMediaItemAspect mediaAspect;
+      if (MediaItemAspect.TryGetAspect(aspects, MediaAspect.Metadata, out mediaAspect))
+        if (mediaAspect.GetAttributeValue<bool>(MediaAspect.ATTR_ISSTUB) == true)
+          return; //Cannot extract images from stub files
+
       using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
       {
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))

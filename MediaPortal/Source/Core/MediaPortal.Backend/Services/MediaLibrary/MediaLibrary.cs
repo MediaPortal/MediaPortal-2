@@ -164,7 +164,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           lock (_parent.GetResourcePathLock(basePath))
           {
-            return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, updatedAspects, true, isRefresh, cancelToken);
+            return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, true, isRefresh, cancelToken);
+          }
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
+      {
+        try
+        {
+          lock (_parent.GetResourcePathLock(basePath))
+          {
+            return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, true, isRefresh, cancelToken);
           }
         }
         catch (Exception)
@@ -1760,7 +1775,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
     {
-      return AddOrUpdateMediaItem(parentDirectoryId, systemId, path, null, mediaItemAspects, true, isRefresh, CancellationToken.None);
+      return AddOrUpdateMediaItem(parentDirectoryId, systemId, path, null, null, mediaItemAspects, true, isRefresh, CancellationToken.None);
+    }
+
+    public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
+    {
+      return AddOrUpdateMediaItem(parentDirectoryId, systemId, path, mediaItemId, null, mediaItemAspects, true, isRefresh, CancellationToken.None);
     }
 
     private string GetMediaItemTitle(IEnumerable<MediaItemAspect> mediaItemAspects, string defaultTitle)
@@ -1773,6 +1793,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
       return defaultTitle;
+    }
+
+    private bool HasStubResource(IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      foreach (MediaItemAspect mia in mediaItemAspects)
+      {
+        if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+        {
+          int resourceType = mia.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE);
+          if (resourceType == ProviderResourceAspect.TYPE_STUB)
+            return true;
+        }
+      }
+      return false;
     }
 
     private void TransferTransientAspects(IEnumerable<MediaItemAspect> sourceMediaItemAspects, MediaItem destinationMediaItem)
@@ -1801,7 +1835,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return extractedAspects;
     }
 
-    private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh, CancellationToken cancelToken)
+    private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? existingMediaItemId, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh, CancellationToken cancelToken)
     {
       Stopwatch swImport = new Stopwatch();
       swImport.Start();
@@ -1815,40 +1849,40 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         if (isRefresh)
         {
-          Guid? existingMediaItemId = GetMediaItemId(transaction, systemId, path);
+          Guid? refreshMediaItemId = existingMediaItemId.HasValue ? existingMediaItemId : GetMediaItemId(transaction, systemId, path);
           IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = ConvertAspects(mediaItemAspects);
           bool dirty = false;
           if (extractedAspects.ContainsKey(ImporterAspect.ASPECT_ID))
             dirty = extractedAspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
-          if (!dirty && existingMediaItemId.HasValue)
+          if (!dirty && refreshMediaItemId.HasValue)
           {
             transaction.Commit();
 
             if (extractedAspects.ContainsKey(DirectoryAspect.ASPECT_ID))
-              return existingMediaItemId.Value;
+              return refreshMediaItemId.Value;
 
             if (reconcile)
-              Reconcile(existingMediaItemId.Value, extractedAspects, isRefresh, cancelToken);
-            CollectFanArt(existingMediaItemId.Value, extractedAspects);
+              Reconcile(refreshMediaItemId.Value, extractedAspects, isRefresh, cancelToken);
+            CollectFanArt(refreshMediaItemId.Value, extractedAspects);
 
             //Set media item as refreshed
             using (transaction = database.BeginTransaction())
             {
-              MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, existingMediaItemId.Value, ImporterAspect.ASPECT_ID);
+              MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, refreshMediaItemId.Value, ImporterAspect.ASPECT_ID);
               importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
               importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, DateTime.Now);
-              _miaManagement.AddOrUpdateMIA(transaction, existingMediaItemId.Value, importerAspect, false);
+              _miaManagement.AddOrUpdateMIA(transaction, refreshMediaItemId.Value, importerAspect, false);
               transaction.Commit();
             }
 
-            Logger.Info("Refreshed media item {0} ({1}) ({2} ms)", existingMediaItemId.Value, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
-            return existingMediaItemId.Value;
+            Logger.Info("Refreshed media item {0} ({1}) ({2} ms)", refreshMediaItemId.Value, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
+            return refreshMediaItemId.Value;
           }
         }
 
         bool merged;
         string name = GetMediaItemTitle(mediaItemAspects, path.FileName);
-        Guid? mediaItemId = AddOrUpdateMediaItem(database, transaction, parentDirectoryId, systemId, path, newMediaItemId, mediaItemAspects, out merged);
+        Guid? mediaItemId = AddOrUpdateMediaItem(database, transaction, parentDirectoryId, systemId, path, existingMediaItemId, newMediaItemId, mediaItemAspects, out merged);
         if (!mediaItemId.HasValue || mediaItemId.Value == Guid.Empty)
         {
           transaction.Rollback();
@@ -1903,13 +1937,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    private Guid AddOrUpdateMediaItem(ISQLDatabase database, ITransaction transaction, Guid parentDirectoryId, string systemId, ResourcePath path, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, out bool merged)
+    private Guid AddOrUpdateMediaItem(ISQLDatabase database, ITransaction transaction, Guid parentDirectoryId, string systemId, ResourcePath path, Guid? existingMediaItemId, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, out bool merged)
     {
       Stopwatch swImport = new Stopwatch();
       swImport.Start();
       merged = false;
       string name = GetMediaItemTitle(mediaItemAspects, path.FileName);
-      Guid? mediaItemId = GetMediaItemId(transaction, systemId, path);
+      Guid? mediaItemId = null;
+      if(existingMediaItemId.HasValue || !HasStubResource(mediaItemAspects))
+        mediaItemId = existingMediaItemId.HasValue ? existingMediaItemId : GetMediaItemId(transaction, systemId, path);
       mediaItemAspects = RemoveInverseRelationships(mediaItemAspects);
       Logger.Debug("Adding media item {0} with name {1} ({2})", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName));
 
@@ -1990,8 +2026,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           bool? isStub = mia.GetAttributeValue<bool?>(MediaAspect.ATTR_ISSTUB);
           if (!isStub.HasValue)
             mia.SetAttribute(MediaAspect.ATTR_ISSTUB, false);
-
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
         }
         else if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
         {
@@ -2372,7 +2406,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             Logger.Debug("Adding new media item for extracted item {0}", newMediaItemId);
             bool merged;
             IEnumerable<MediaItemAspect> extractedAspects = extractedItemAspects.Values.SelectMany(x => x);
-            newMediaItemId = AddOrUpdateMediaItem(database, transaction, Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(newMediaItemId), newMediaItemId, extractedAspects, out merged);
+            newMediaItemId = AddOrUpdateMediaItem(database, transaction, Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(newMediaItemId), null, newMediaItemId, extractedAspects, out merged);
             if (newMediaItemId != Guid.Empty)
             {
               AddRelationship(roleExtractor, newMediaItemId, aspects, extractedItemAspects);

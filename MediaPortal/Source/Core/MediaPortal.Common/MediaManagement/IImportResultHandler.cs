@@ -43,6 +43,18 @@ namespace MediaPortal.Common.MediaManagement
     Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken);
 
     /// <summary>
+    /// Adds or updates the metadata of the specified media item located on the local system.
+    /// </summary>
+    /// <param name="parentDirectoryId">Id of the parent directory's media item or <see cref="Guid.Empty"/>, if the
+    /// parent directory is not present in the media library.</param>
+    /// <param name="path">Path of the media item's resource.</param>
+    /// <param name="mediaItemId">Id the media item.</param>
+    /// <param name="updatedAspects">Enumeration of updated media item aspects.</param>
+    /// <returns>Id of the media item which has been added or updated.</returns>
+    /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
+    Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken);
+
+    /// <summary>
     /// Deletes the media item of the given location located on the local system.
     /// </summary>
     /// <param name="path">Location of the media item to delete.</param>

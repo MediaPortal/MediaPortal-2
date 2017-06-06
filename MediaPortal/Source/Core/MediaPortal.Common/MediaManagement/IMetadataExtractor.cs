@@ -97,6 +97,6 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="extractedStubAspectData">List of dictionaries containing a mapping of media item aspect ids to stub aspects.</param>
     /// <returns><c>true</c> if stubs could be extracted from the specified media item, else <c>false</c>.
     /// If the return value is <c>true</c>, the extractedStubAspectData collection was filled by this metadata extractor.
-    bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData);
+    bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData);
   }
 }

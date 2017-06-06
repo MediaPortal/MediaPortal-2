@@ -274,6 +274,18 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (MediaItem) outParameters[0];
     }
 
+    public MediaItem LoadItem(string systemId, Guid mediaItemId,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile)
+    {
+      CpAction action = GetAction("X_MediaPortal_LoadItemId");
+      IList<object> inParameters = new List<object> {systemId, MarshallingHelper.SerializeGuid(mediaItemId),
+          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
+          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
+          userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (MediaItem)outParameters[0];
+    }
+
     public IList<MediaItem> Browse(Guid parentDirectory,
       IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile, 
       bool includeVirtual, uint? offset = null, uint? limit = null)
@@ -487,6 +499,22 @@ namespace MediaPortal.Common.Services.ServerCommunication
         };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return MarshallingHelper.DeserializeGuid((string) outParameters[0]);
+    }
+
+    public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
+        Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      CpAction action = GetAction("X_MediaPortal_AddOrUpdateMediaItemId");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(parentDirectoryId),
+            systemId,
+            path.Serialize(),
+            MarshallingHelper.SerializeGuid(mediaItemId),
+            mediaItemAspects
+        };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
     public void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive)

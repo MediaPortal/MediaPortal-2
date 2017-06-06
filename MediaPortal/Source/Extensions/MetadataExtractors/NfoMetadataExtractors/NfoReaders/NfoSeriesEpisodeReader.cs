@@ -1373,6 +1373,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         _debugLogger.Warn("[#{0}]: There were multiple series contained in the series nfo-file; only information from the first series is used.", _miNumber);
     }
 
+    /// <summary>
+    /// Sets the <see cref="SeriesEpisodeStub"/> objects to be used by the TryWrite methods
+    /// </summary>
+    /// <param name="spisodeStubs">List of <see cref="SeriesEpisodeStub"/> objects to be used</param>
+    public void SetEpisodeStubs(List<SeriesEpisodeStub> episodeStubs)
+    {
+      _stubs = episodeStubs;
+      if (_stubs == null || _stubs.Count == 0)
+      {
+        _debugLogger.Warn("[#{0}]: Stub is null or empty.", _miNumber);
+        _useSeriesStubs = false;
+        return;
+      }
+      if (_stubs.Count > 1)
+        _debugLogger.Warn("[#{0}]: There were multiple episodes contained in the episode stub; only information from the first episode is used.", _miNumber);
+    }
+
     #endregion
 
     #region BaseOverrides

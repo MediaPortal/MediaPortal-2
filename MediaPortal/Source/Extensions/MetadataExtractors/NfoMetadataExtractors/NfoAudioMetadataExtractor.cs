@@ -180,9 +180,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeAlbumDetails { get; private set; }
+    public static HashSet<string> AudioStubFileExtensions { get; private set; }
 
     private void LoadSettings()
     {
+      AudioStubFileExtensions = _settingWatcher.Settings.AudioStubFileExtensions;
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeAlbumDetails = _settingWatcher.Settings.IncludeAlbumDetails;
     }
@@ -231,22 +233,37 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           return false;
         }
 
-        // First we try to find an IFileSystemResourceAccessor pointing to the album nfo-file.
-        IFileSystemResourceAccessor albumNfoFsra;
-        if (TryGetAlbumNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out albumNfoFsra))
+        // Check if stub
+        if (AudioStubFileExtensions.Where(e => string.Compare("." + e, ResourcePathHelper.GetExtension(mediaItemAccessor.Path.ToString()), true) == 0).Any())
         {
-          // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
-          // we store it into the MediaItemAspects.
           var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-          using (albumNfoFsra)
+          if (await albumNfoReader.TryReadMetadataAsync(mediaItemAccessor as IFileSystemResourceAccessor).ConfigureAwait(false))
           {
-            if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
+            Stubs.AlbumStub album = albumNfoReader.GetAlbumStubs().First();
+            INfoRelationshipExtractor.StoreAlbum(extractedAspectData, album);
+          }
+          else
+            _debugLogger.Warn("[#{0}]: No valid metadata found in album stub file", miNumber);
+        }
+        else
+        {
+          // First we try to find an IFileSystemResourceAccessor pointing to the album nfo-file.
+          IFileSystemResourceAccessor albumNfoFsra;
+          if (TryGetAlbumNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out albumNfoFsra))
+          {
+            // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
+            // we store it into the MediaItemAspects.
+            var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
+            using (albumNfoFsra)
             {
-              Stubs.AlbumStub album = albumNfoReader.GetAlbumStubs().First();
-              INfoRelationshipExtractor.StoreAlbum(extractedAspectData, album);
+              if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
+              {
+                Stubs.AlbumStub album = albumNfoReader.GetAlbumStubs().First();
+                INfoRelationshipExtractor.StoreAlbum(extractedAspectData, album);
+              }
+              else
+                _debugLogger.Warn("[#{0}]: No valid metadata found in album nfo-file", miNumber);
             }
-            else
-              _debugLogger.Warn("[#{0}]: No valid metadata found in album nfo-file", miNumber);
           }
         }
 
@@ -525,7 +542,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return false;
     }
 
-    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
     }

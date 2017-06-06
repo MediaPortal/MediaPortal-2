@@ -675,25 +675,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       else
         _debugLogger.Error("[#{0}]: The nfo-file's parent directory's fsra could not be created", _miNumber);
 
-      // Then check if we have a valid http URL
-      Uri imageFileUri;
-      if (!Uri.TryCreate(imageFileString, UriKind.Absolute, out imageFileUri) || imageFileUri.Scheme != Uri.UriSchemeHttp)
+      if (!_settings.SkipFanArtDownload)
       {
-        _debugLogger.Warn("[#{0}]: The following element does neither contain an exsisting file name nor a valid http URL: {1}", _miNumber, element);
-        return null;
-      }
+        // Then check if we have a valid http URL
+        Uri imageFileUri;
+        if (!Uri.TryCreate(imageFileString, UriKind.Absolute, out imageFileUri) || imageFileUri.Scheme != Uri.UriSchemeHttp)
+        {
+          _debugLogger.Warn("[#{0}]: The following element does neither contain an exsisting file name nor a valid http URL: {1}", _miNumber, element);
+          return null;
+        }
 
-      // Finally try to download the image from the internet
-      try
-      {
-        var response = await _httpDownloadClient.GetAsync(imageFileUri).ConfigureAwait(false);
-        if (response.IsSuccessStatusCode)
-          return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-        _debugLogger.Warn("[#{0}]: Http status code {1} ({2}) when trying to download image file: {3}", _miNumber, (int)response.StatusCode, response.StatusCode, element);
-      }
-      catch (Exception e)
-      {
-        _debugLogger.Warn("[#{0}]: The following image file could not be downloaded: {1}", e, _miNumber, element);
+        // Finally try to download the image from the internet
+        try
+        {
+          var response = await _httpDownloadClient.GetAsync(imageFileUri).ConfigureAwait(false);
+          if (response.IsSuccessStatusCode)
+            return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+          _debugLogger.Warn("[#{0}]: Http status code {1} ({2}) when trying to download image file: {3}", _miNumber, (int)response.StatusCode, response.StatusCode, element);
+        }
+        catch (Exception e)
+        {
+          _debugLogger.Warn("[#{0}]: The following image file could not be downloaded: {1}", e, _miNumber, element);
+        }
       }
       return null;
     }
@@ -857,7 +860,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           TimeSpan ts;
           if (TimeSpan.TryParseExact(durationString, @"h\:mm\:ss", CultureInfo.InvariantCulture, out ts))
             return ts;
-          if (TimeSpan.TryParseExact(durationString, @"mm\:ss", CultureInfo.InvariantCulture, out ts))
+          if (TimeSpan.TryParseExact(durationString, @"m\:ss", CultureInfo.InvariantCulture, out ts))
             return ts;
         }
 
@@ -915,6 +918,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       // Example of a valid element:
       // <fileinfo>
+      //   <container>.avi</container>
       //   <streamdetails>
       //     <video>
       //       <codec>h264</codec>
@@ -942,15 +946,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return null;
 
       var fileInfoFound = false;
+      string container = null;
       HashSet<StreamDetailsStub> streamDetailStubs = new HashSet<StreamDetailsStub>();
       foreach (var stream in element.Elements())
       {
+        if (stream.Name == "container")
+        {
+          container = ParseSimpleString(stream);
+          continue;
+        }
         if (stream.Name != "streamdetails" || !stream.HasElements)
         {
           _debugLogger.Warn("[#{0}]: Unknown or empty child element {1}", _miNumber, stream);
           continue;
         }
         var streamDetails = new StreamDetailsStub();
+        streamDetails.Container = container;
         var streamValueFound = false;
         foreach (var streamDetail in stream.Elements())
         {
@@ -963,10 +974,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
                 videoDetailValueFound = ((videoDetails.Codec = ParseSimpleString(streamDetail.Element("format"))) != null) || videoDetailValueFound;
               if (string.IsNullOrEmpty(videoDetails.Codec))
                 videoDetailValueFound = ((videoDetails.Codec = ParseSimpleString(streamDetail.Element("codecid"))) != null) || videoDetailValueFound;
-              string codecInfo = ParseSimpleString(streamDetail.Element("codecidinfo"));
-              if(!string.IsNullOrEmpty(codecInfo))
+              string videoCodecInfo = ParseSimpleString(streamDetail.Element("codecidinfo"));
+              if(!string.IsNullOrEmpty(videoCodecInfo))
               {
-                videoDetails.Codec = codecInfo;
+                videoDetails.Codec = videoCodecInfo;
                 videoDetailValueFound = true;
               }
               videoDetailValueFound = ((videoDetails.Aspect = ParseSimpleDecimal(streamDetail.Element("aspect"))) != null) || videoDetailValueFound;
@@ -1011,12 +1022,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               var audioDetailValueFound = ((audioDetails.Codec = ParseSimpleString(streamDetail.Element("codec"))) != null);
               audioDetailValueFound = ((audioDetails.Language = ParseSimpleString(streamDetail.Element("language"))) != null) || audioDetailValueFound;
               audioDetailValueFound = ((audioDetails.Channels = ParseSimpleInt(streamDetail.Element("channels"))) != null) || audioDetailValueFound;
+              string audioCodecInfo = ParseSimpleString(streamDetail.Element("codecidinfo"));
+              if (!string.IsNullOrEmpty(audioCodecInfo))
+              {
+                audioDetails.Codec = audioCodecInfo;
+                audioDetailValueFound = true;
+              }
               string audioBitrate = ParseSimpleString(streamDetail.Element("bitrate"));
               if (audioBitrate != null)
               {
                 long br = 0;
                 if (audioBitrate.EndsWith(" kbps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(audioBitrate.Substring(0, audioBitrate.Length - 5).Replace(" ", ""), out br))
-                  audioDetails.Bitrate = br * 1024;
+                  audioDetails.Bitrate = br * 1000;
                 else if (audioBitrate.EndsWith(" bps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(audioBitrate.Substring(0, audioBitrate.Length - 4).Replace(" ", ""), out br))
                   audioDetails.Bitrate = br;
                 audioDetailValueFound = br > 0 || audioDetailValueFound;
@@ -1140,6 +1157,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       value.MusicBrainzId = ParseSimpleString(element.Element("musicBrainzID"));
       value.TrackNumber = ParseSimpleInt(element.Element("position"));
       value.Duration = ParseSimpleDuration(element.Element("duration"));
+      value.Artists = ParseCharacterSeparatedStrings(element.Element("artist"), value.Artists);
+      value.FileInfo = ParseFileInfo(element.Element("fileinfo"));
       return value;
     }
     

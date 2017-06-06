@@ -79,6 +79,18 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
+      public MediaItem LoadLocalItem(Guid mediaItemId, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = default(Guid?))
+      {
+        try
+        {
+          return _contentDirectory.LoadItem(_localSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
       public IList<MediaItem> Browse(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includVirtual, uint? offset = null, uint? limit = null)
       {
@@ -125,6 +137,18 @@ namespace MediaPortal.UI.Services.ServerCommunication
         try
         {
           return _contentDirectory.AddOrUpdateMediaItem(parentDirectoryId, _localSystemId, path, updatedAspects);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
+      {
+        try
+        {
+          return _contentDirectory.AddOrUpdateMediaItem(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects);
         }
         catch (Exception)
         {

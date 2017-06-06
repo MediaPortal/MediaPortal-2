@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     {
       AlbumNfoFileNames = new HashSet<string> { "album" };
       ArtistNfoFileNames = new HashSet<string> { "artist" };
-      CompactDiscStubFileExtensions = new HashSet<string> { "cdstub" };
+      AudioStubFileExtensions = new HashSet<string> { "audiostub" };
     }
 
     #endregion
@@ -55,7 +55,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// These file extensions are used to find a stub-files for CD's
     /// </summary>
     [Setting(SettingScope.Global)]
-    public HashSet<string> CompactDiscStubFileExtensions { get; set; }
+    public HashSet<string> AudioStubFileExtensions { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, no online searches will be done for metadata.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool SkipOnlineSearches { get; set; }
 
     /// <summary>
     /// These file names are used to find a nfo-file for the album as a whole
