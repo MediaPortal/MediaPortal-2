@@ -442,8 +442,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       ServiceRegistration.Get<ILogger>().Debug("On TextSubtitle called");
       try
       {
-        if (sub.Page == _activeSubPage)
-        {
+       // if (sub.Page == _activeSubPage)
+       // {
           ServiceRegistration.Get<ILogger>().Debug("Page: " + sub.Page);
           ServiceRegistration.Get<ILogger>().Debug("Character table: " + sub.Encoding);
           ServiceRegistration.Get<ILogger>().Debug("Timeout: " + sub.TimeOut);
@@ -456,7 +456,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
             ServiceRegistration.Get<ILogger>().Error("OnTextSubtitle: sub.txt == null!");
             return;
           }
-        }
+       // }
       }
       catch (Exception e)
       {
@@ -467,7 +467,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       try
       {
         // if we dont need the subtitle
-        if (!_renderSubtitles || _useBitmap || (_activeSubPage != sub.Page))
+        if (!_renderSubtitles /*|| _useBitmap || (_activeSubPage != sub.Page)*/)
         {
           ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) discarded: useBitmap is {1} and activeSubPage is {2}", sub.Page, _useBitmap, _activeSubPage);
           return;

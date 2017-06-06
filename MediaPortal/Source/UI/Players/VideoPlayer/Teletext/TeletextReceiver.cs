@@ -30,7 +30,7 @@ using MediaPortal.Common.Logging;
 
 namespace MediaPortal.UI.Players.Video.Teletext
 {
-  internal class TeletextReceiver
+  public class TeletextReceiver
   {
     private readonly TeletextEventCallback _eventCallback;
     private readonly TeletextPacketCallback _packetCallback;

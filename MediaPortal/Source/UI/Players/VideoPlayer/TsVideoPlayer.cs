@@ -33,6 +33,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
+using MediaPortal.UI.Players.Video.Teletext;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX.Direct3D9;
@@ -65,6 +66,9 @@ namespace MediaPortal.UI.Players.Video
     protected ChangedMediaType _changedMediaType;
     protected string _oldVideoFormat;
     protected LocalFsResourceAccessorHelper _localFsRaHelper;
+
+    public TeletextReceiver _ttxtReceiver = null;
+    protected ITeletextSource _teletextSource = null;
 
     #endregion
 
@@ -118,15 +122,21 @@ namespace MediaPortal.UI.Players.Video
       _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 
       _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
-      _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
-      if (_subtitleFilter != null)
-      {
-        _subtitleRenderer.RenderSubtitles = settings.EnableSubtitles;
-        _subtitleRenderer.SetPlayer(this);
-      }
+
+
+      _teletextSource = (ITeletextSource)baseFilter;
+      TeletextSubtitleDecoder ttxtDecoder = new TeletextSubtitleDecoder(_subtitleRenderer);
+      _ttxtReceiver = new TeletextReceiver(_teletextSource, ttxtDecoder);
+
+      //_subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
+      //if (_subtitleFilter != null)
+      //{
+      //  _subtitleRenderer.RenderSubtitles = settings.EnableSubtitles;
+      //  _subtitleRenderer.SetPlayer(this);
+      //}
 
       // For supporting CC
-      AddClosedCaptionsFilter();
+      // AddClosedCaptionsFilter();
 
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
