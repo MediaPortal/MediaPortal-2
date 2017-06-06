@@ -46,12 +46,12 @@
                    Height="20" Stretch="Uniform" Margin="5"/>
           </Button>  
           <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextGroup}" Margin="7,0,0,0">
+                  Command="{Command NextGroup}" Margin="1,0,0,0">
             <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
                    Height="20" Stretch="Uniform" Margin="5"/>
           </Button>
           <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}" VerticalAlignment="Center"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
         </StackPanel>
 
         <Label x:Name="CurrentProgramLabel" Content="[SlimTvClient.CurrentProgram]" VerticalAlignment="Center" Grid.Column="1"
@@ -59,7 +59,7 @@
         <Label x:Name="NextProgramLabel" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center" Grid.Column="1"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="710,0,10,0"/>
         <Label x:Name="ProgressLabel" Content="[SlimTvClient.Progress]" VerticalAlignment="Center" Grid.Column="1"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="1245,0,10,0"/>
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="1240,0,10,0"/>
 
         <Control Template="{ThemeResource PiPControlTemplate}" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
                  HorizontalAlignment="Left"/>

@@ -16,8 +16,8 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="1805" Height="900"
-        DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="50,130,35,0">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="1805" Height="910"
+            DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="50,120,35,0">
 
        <Grid.Triggers>
         <EventTrigger RoutedEvent="Screen.Show">
@@ -59,7 +59,7 @@
                      Height="15" Stretch="Uniform" Margin="5"/>
             </Button>
             <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-                Command="{Command NextGroup}" Margin="5,0,7,0">
+                    Command="{Command NextGroup}" Margin="5,0,7,0">
               <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
                      Height="15" Stretch="Uniform" Margin="5"/>
             </Button>
@@ -68,14 +68,21 @@
           </StackPanel>
 
           <Control Template="{ThemeResource PiPControlTemplate}" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
-                 HorizontalAlignment="Left"/>
-
+                   HorizontalAlignment="Left"/>
         </StackPanel>
-        <Label x:Name="TimeLabel" Grid.Column="1" Grid.Row="0"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
-               FontSize="{ThemeResource SmallFontSize}" Margin="0,0,60,0" FontFamily="DefaultBold"
-               Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        
+        <Label x:Name="TimeLabel" Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+               FontSize="30" Margin="0,0,30,4" FontFamily="DefaultBold"
+               Color="{ThemeResource TextColor}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
 
-        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="20,0,20,0"
+        <Label x:Name="CurrentProgramLabel" Content="[SlimTvClient.CurrentProgram]" VerticalAlignment="Center" Grid.Column="1"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="180,0,10,0"/>
+        <Label x:Name="NextProgramLabel" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center" Grid.Column="1"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="670,0,10,0"/>
+        <Label x:Name="ProgressLabel" Content="[SlimTvClient.Progress]" VerticalAlignment="Center" Grid.Column="1"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="1150,0,10,0"/>
+
+        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="10,0,-5,0"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
             Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
             ItemsSource="{Binding Path=CurrentGroupChannels}"

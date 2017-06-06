@@ -112,6 +112,7 @@
     <Compile Include="Controls\EpgGrid.cs" />
     <Compile Include="Controls\SlimTvDateFormatConverter.cs" />
     <Compile Include="Controls\SlimTvGuideTimeFormatConverter.cs" />
+    <Compile Include="Extensions\ManualSchedule.cs" />
     <Compile Include="Extensions\ExtendedSchedule.cs" />
     <Compile Include="Extensions\ProgramExample.cs" />
     <Compile Include="Helpers\ChannelContext.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Models\ScreenData\RecordingsSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingFilterByNameScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsShowItemsScreenData.cs" />
+    <Compile Include="Models\SlimTvManualScheduleModel.cs" />
     <Compile Include="Models\SlimTvProgramSearchModel.cs" />
     <Compile Include="Models\SlimTvGuideExtScheduleModel.cs" />
     <Compile Include="Models\SlimTvModelBase.cs" />
@@ -543,6 +545,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\themes\Dark-WMC\styles\SlimTvColors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogManualSchedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-manualschedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SlimTvClient-manualschedule.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

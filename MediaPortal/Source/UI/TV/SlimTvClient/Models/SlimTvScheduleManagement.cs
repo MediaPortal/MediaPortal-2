@@ -448,6 +448,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _startTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
         _endTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
+        _isInitialized = true;
       }
       base.InitModel();
     }
