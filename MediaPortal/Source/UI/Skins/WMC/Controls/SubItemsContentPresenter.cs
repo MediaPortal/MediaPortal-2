@@ -23,19 +23,42 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 
 namespace MediaPortal.UiComponents.WMCSkin.Controls
 {
   public class SubItemsContentPresenter : AnimatedScrollContentPresenter
   {
+    protected AbstractProperty _currentIndexProperty = new SProperty(typeof(int), 0);
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      var sicp = (SubItemsContentPresenter)source;
+      CurrentIndex = sicp.CurrentIndex;
+    }
+
+    public AbstractProperty CurrentIndexProperty
+    {
+      get { return _currentIndexProperty; }
+    }
+
+    public int CurrentIndex
+    {
+      get { return (int)_currentIndexProperty.GetValue(); }
+      set { _currentIndexProperty.SetValue(value); }
+    }
+
     public override void BringIntoView(UIElement element, RectangleF elementBounds)
     {
       //disable auto centering if using mouse, prevents items from scrolling
       if (AutoCentering != ScrollAutoCenteringEnum.None && IsMouseOverElement(element))
         return;
+      UpdateCurrentIndex(element);
       base.BringIntoView(element, elementBounds);
     }
 
@@ -45,6 +68,13 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
         return false;
       FrameworkElement frameworkElement = element as FrameworkElement;
       return frameworkElement != null && frameworkElement.IsMouseOver;
+    }
+
+    protected void UpdateCurrentIndex(UIElement element)
+    {
+      var lvi = element.FindParentOfType<ListViewItem>();
+      if (lvi != null)
+        CurrentIndex = lvi.ItemIndex;
     }
   }
 }

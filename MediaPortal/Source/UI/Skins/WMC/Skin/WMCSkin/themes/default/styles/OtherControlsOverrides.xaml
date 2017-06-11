@@ -196,7 +196,9 @@
             </Grid.RowDefinitions>
             <!-- Content -->
             <wmc:SubItemsContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
-                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableSubMenuAnimations}">
+                                          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                          EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableSubMenuAnimations}"
+                                          CurrentIndex="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItemIndex, Mode=OneWayToSource}">
               <wmc:SubItemsContentPresenter.Triggers>
                 <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
                   <EventTrigger.Actions>
@@ -279,6 +281,19 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
+      <Grid.Triggers>
+        <!--Triggers the ContentPresenter to auto scroll the item to center-->
+        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+          <DataTrigger.EnterActions>
+            <TriggerCommand>
+              <TriggerCommand.Command>
+                <Command ElementName="ItemControl" Path="BringIntoView"/>
+              </TriggerCommand.Command>
+            </TriggerCommand>
+          </DataTrigger.EnterActions>
+        </DataTrigger>
+      </Grid.Triggers>
+      
       <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" 
              Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8">
         <Image.Source>

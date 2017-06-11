@@ -59,16 +59,18 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public static readonly Guid CUSTOM_HOME_STATE_ID = new Guid("B285DC02-AA8C-47F2-8795-0B13B6E66306");
     protected const string KEY_ITEM_GROUP = "HomeMenuModel: Group";
     protected const string KEY_ITEM_SELECTED_ACTION_ID = "HomeMenuModel: SelectedActionId";
-    
+
     protected AbstractProperty _enableSubMenuAnimationsProperty;
     protected AbstractProperty _enableMainMenuAnimationsProperty;
     protected AbstractProperty _scrollDirectionProperty;
+    protected AbstractProperty _currentSubItemIndexProperty;
 
     protected readonly object _syncOb = new object();
     protected HomeMenuActionProxy _homeProxy;
     protected bool _updatingMenu;
     protected bool _attachedToMenuItems;
     protected NavigationList<ListItem> _navigationList;
+    protected NavigationList<SubItem> _subItemNavigationList;
     protected ItemsList _mainItems;
     protected ItemsList _subItems;
 
@@ -84,9 +86,11 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       _enableSubMenuAnimationsProperty = new WProperty(typeof(bool), false);
       _enableMainMenuAnimationsProperty = new WProperty(typeof(bool), false);
       _scrollDirectionProperty = new WProperty(typeof(ScrollDirection), ScrollDirection.None);
+      _currentSubItemIndexProperty = new WProperty(typeof(int), 0);
 
       _homeProxy = new HomeMenuActionProxy();
       _navigationList = new NavigationList<ListItem>();
+      _subItemNavigationList = new NavigationList<SubItem>();
       _mainItems = new ItemsList();
       _subItems = new ItemsList();
       _delayedMenuUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
@@ -94,6 +98,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       _delayedAnimationEnableEvent = new DelayedEvent(200);
       _delayedAnimationEnableEvent.OnEventHandler += OnEnableAnimations;
       _navigationList.OnCurrentChanged += OnNavigationListCurrentChanged;
+      _subItemNavigationList.OnCurrentChanged += OnSubItemNavigationListCurrentChanged;
       SubscribeToMessages();
     }
 
@@ -174,6 +179,17 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       set { _scrollDirectionProperty.SetValue(value); }
     }
 
+    public AbstractProperty CurrentSubItemIndexProperty
+    {
+      get { return _currentSubItemIndexProperty; }
+    }
+
+    public int CurrentSubItemIndex
+    {
+      get { return (int)_currentSubItemIndexProperty.GetValue(); }
+      set { _currentSubItemIndexProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public Methods
@@ -186,6 +202,16 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public void MovePrevious()
     {
       _navigationList.MovePrevious();
+    }
+
+    public void MoveNextSubItem()
+    {
+      _subItemNavigationList.SetIndex(CurrentSubItemIndex + 1);
+    }
+
+    public void MovePreviousSubItem()
+    {
+      _subItemNavigationList.SetIndex(CurrentSubItemIndex - 1);
     }
 
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
@@ -261,6 +287,19 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       {
         _updatingMenu = false;
       }
+    }
+
+    private void OnSubItemNavigationListCurrentChanged(int oldIndex, int newIndex)
+    {
+      CurrentSubItemIndex = newIndex;
+      if (_updatingMenu)
+        return;
+      SubItem oldItem = _subItemNavigationList.GetAt(oldIndex);
+      if (oldItem != null)
+        oldItem.IsCurrent = false;
+      SubItem newItem = _subItemNavigationList.GetAt(newIndex);
+      if (newItem != null)
+        newItem.IsCurrent = true;
     }
 
     private void OnUpdateMenu(object sender, EventArgs e)
@@ -341,8 +380,12 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       var actions = _homeProxy.GetGroupActions(group);
       if (forceUpdate || SubItemsNeedUpdate(_subItems, actions))
       {
+        _subItemNavigationList.Clear();
         _subItems.Clear();
-        CollectionUtils.AddAll(_subItems, CreateSubItems(actions));
+
+        List<SubItem> subItems = CreateSubItems(actions);
+        CollectionUtils.AddAll(_subItemNavigationList, subItems);
+        CollectionUtils.AddAll(_subItems, subItems);
         fireChange = true;
       }
       FocusCurrentSubItem(item);
@@ -385,19 +428,19 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       return false;
     }
 
-    protected List<ListItem> CreateSubItems(IList<WorkflowAction> actions)
+    protected List<SubItem> CreateSubItems(IList<WorkflowAction> actions)
     {
       var groupedActions = _homeProxy.GroupedActions;
-      List<ListItem> items = new List<ListItem>();
+      List<SubItem> items = new List<SubItem>();
       foreach (var action in actions)
       {
         WorkflowAction workflowAction = action;
         HomeMenuAction groupedAction;
-        ListItem listItem;
+        SubItem listItem;
         if (groupedActions.TryGetValue(workflowAction.ActionId, out groupedAction))
-          listItem = new ListItem(Consts.KEY_NAME, groupedAction.DisplayName);
+          listItem = new SubItem(Consts.KEY_NAME, groupedAction.DisplayName);
         else
-          listItem = new ListItem(Consts.KEY_NAME, workflowAction.DisplayTitle);
+          listItem = new SubItem(Consts.KEY_NAME, workflowAction.DisplayTitle);
         listItem.AdditionalProperties[Consts.KEY_ITEM_ACTION] = workflowAction;
         listItem.Command = new MethodDelegateCommand(workflowAction.Execute);
         items.Add(listItem);
@@ -419,12 +462,17 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       if (parentItem != null)
         currentActionId = parentItem.AdditionalProperties[KEY_ITEM_SELECTED_ACTION_ID] as Guid?;
 
+      int selectedIndex = 0;
       WorkflowAction action;
       for (int i = 0; i < _subItems.Count; i++)
       {
-        _subItems[i].Selected = (currentActionId == null && i == 0) ||
+        bool selected = (currentActionId == null && i == 0) ||
           (TryGetAction(_subItems[i], out action) && action.ActionId == currentActionId);
+        _subItems[i].Selected = selected;
+        if (selected)
+          selectedIndex = i;
       }
+      _subItemNavigationList.SetIndex(selectedIndex);
     }
 
     protected static bool TryGetAction(ListItem item, out WorkflowAction action)
