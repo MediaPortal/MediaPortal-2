@@ -188,6 +188,15 @@ namespace SkinCloneTool
         string newModelId = Guid.NewGuid().ToString("D").ToUpperInvariant();
         infos.ModelIdTranslations[oldModelId] = newModelId;
       }
+
+      Regex reSkinSettings = new Regex("(<SkinSettings Id=\")([^\"]*)\"([^>]*)");
+      matches = reSkinSettings.Matches(content);
+      foreach (Match match in matches)
+      {
+        string oldModelId = Guid.Parse(match.Groups[2].Value).ToString("D").ToUpperInvariant();
+        string newModelId = Guid.NewGuid().ToString("D").ToUpperInvariant();
+        infos.ModelIdTranslations[oldModelId] = newModelId;
+      }
       foreach (var translation in infos.ModelIdTranslations)
       {
         var reKvp = new Regex(translation.Key, RegexOptions.IgnoreCase);
@@ -235,7 +244,7 @@ namespace SkinCloneTool
 
       // Converter references
       //    xmlns:wmc="clr-namespace:MediaPortal.UiComponents.New1.Controls;assembly=WMCSkin"
-      content = content.Replace(";assembly=" + infos.OldAssemblyName, ";assembly=" + infos.NewAssemblyName + "].");
+      content = content.Replace(";assembly=" + infos.OldAssemblyName, ";assembly=" + infos.NewAssemblyName);
 
       // Replace all localized labels, starting with old name i.e. [WMC.Enable...]
       content = content.Replace("SKIN_NAME = \"" + infos.OldAssemblyName + "\"", "SKIN_NAME = \"" + args.TargetSkin + "\"");
