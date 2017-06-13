@@ -203,6 +203,23 @@ namespace SkinCloneTool
         content = reKvp.Replace(content, translation.Value);
       }
 
+      // Create unique skin setting IDs
+      Regex reSettingIds = new Regex("<Register Location=\"/Configuration/Settings/Appearance/Skin/SkinSettings\">*(?:[^<]*<ConfigSetting[^<]*Id=\"([^\"]*)\"[^/>]*/>)+\\s+</Register>");
+
+      var matchResult = reSettingIds.Match(content);
+      {
+        foreach (Capture capture in matchResult.Groups[1].Captures)
+        {
+          var oldId = capture.Value;
+          if (oldId.StartsWith(args.SourceSkin))
+            oldId = oldId.Substring(args.SourceSkin.Length);
+          if (oldId.StartsWith(infos.OldSkinName))
+            oldId = oldId.Substring(infos.OldSkinName.Length);
+
+          content = content.Replace(string.Format("Id=\"{0}\"", capture.Value), string.Format("Id=\"{1}{0}\"", oldId, args.TargetSkin));
+        }
+      }
+
       // Replace all Name="WMC" (old skin name)
       content = content.Replace("Name=\"" + infos.OldSkinName + "\"", "Name=\"" + args.TargetSkin + "\"");
 
