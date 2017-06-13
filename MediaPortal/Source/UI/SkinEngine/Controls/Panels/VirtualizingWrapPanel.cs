@@ -34,7 +34,7 @@ using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using PointF = SharpDX.Mathematics.Interop.RawVector2;
 using RectangleF = SharpDX.RectangleF;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels

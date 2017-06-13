@@ -51,7 +51,7 @@ using INameScope = MediaPortal.UI.SkinEngine.Xaml.Interfaces.INameScope;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using PointF = SharpDX.Mathematics.Interop.RawVector2;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {

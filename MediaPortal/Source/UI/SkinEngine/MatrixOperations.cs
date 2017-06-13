@@ -89,7 +89,7 @@ namespace MediaPortal.UI.SkinEngine
     /// <param name="p">Point to transform. Will contain the transformed point after this method returns.</param>
     public static void Transform(this Matrix matrix, ref Point p)
     {
-      Vector2 v = new Vector2(p.X, p.Y);
+      RawVector2 v = new RawVector2(p.X, p.Y);
       matrix.Transform(ref v);
       p.X = (int) v.X;
       p.Y = (int) v.Y;
@@ -115,7 +115,7 @@ namespace MediaPortal.UI.SkinEngine
     /// </summary>
     /// <param name="matrix">Transformation matrix.</param>
     /// <param name="v">Vector to transform. Will contain the transformed vector after this method returns.</param>
-    public static void Transform(this Matrix matrix, ref Vector2 v)
+    public static void Transform(this Matrix matrix, ref RawVector2 v)
     {
       // DirectX uses row-major matrices, so we need to multiply the transposed matrix
       matrix.Transform(ref v.X, ref v.Y);
@@ -143,10 +143,10 @@ namespace MediaPortal.UI.SkinEngine
     /// this method returns.</param>
     public static void TransformIncludingRectangleSize(this Matrix matrix, ref Size2F size)
     {
-      Vector2 p0 = new Vector2(0, 0);
-      Vector2 p1 = new Vector2(size.Width, 0);
-      Vector2 p2 = new Vector2(size.Width, size.Height);
-      Vector2 p3 = new Vector2(0, size.Height);
+      RawVector2 p0 = new RawVector2(0, 0);
+      RawVector2 p1 = new RawVector2(size.Width, 0);
+      RawVector2 p2 = new RawVector2(size.Width, size.Height);
+      RawVector2 p3 = new RawVector2(0, size.Height);
       matrix.Transform(ref p0);
       matrix.Transform(ref p1);
       matrix.Transform(ref p2);
@@ -157,10 +157,10 @@ namespace MediaPortal.UI.SkinEngine
 
     public static RawRectangleF GetIncludingTransformedRectangle(this Matrix matrix, RawRectangleF rectangle)
     {
-      Vector2 p0 = new Vector2(rectangle.Left, rectangle.Top);
-      Vector2 p1 = new Vector2(rectangle.Right, rectangle.Top);
-      Vector2 p2 = new Vector2(rectangle.Right, rectangle.Bottom);
-      Vector2 p3 = new Vector2(rectangle.Left, rectangle.Bottom);
+      RawVector2 p0 = new RawVector2(rectangle.Left, rectangle.Top);
+      RawVector2 p1 = new RawVector2(rectangle.Right, rectangle.Top);
+      RawVector2 p2 = new RawVector2(rectangle.Right, rectangle.Bottom);
+      RawVector2 p3 = new RawVector2(rectangle.Left, rectangle.Bottom);
       matrix.Transform(ref p0);
       matrix.Transform(ref p1);
       matrix.Transform(ref p2);
@@ -215,7 +215,7 @@ namespace MediaPortal.UI.SkinEngine
     /// </summary>
     /// <param name="matrix">Transformation matrix.</param>
     /// <param name="v">Vector to transform. Will contain the transformed vector after this method returns.</param>
-    public static void Invert(this Matrix matrix, ref Vector2 v)
+    public static void Invert(this Matrix matrix, ref RawVector2 v)
     {
       Matrix inverse = Matrix.Invert(matrix);
       inverse.Transform(ref v);

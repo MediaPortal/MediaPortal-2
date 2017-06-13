@@ -56,7 +56,7 @@ using SharpDX.Mathematics.Interop;
 using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.Effect;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using PointF = SharpDX.Mathematics.Interop.RawVector2;
 using Transform = MediaPortal.UI.SkinEngine.Controls.Transforms.Transform;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals

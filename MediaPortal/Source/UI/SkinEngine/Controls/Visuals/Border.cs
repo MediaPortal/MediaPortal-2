@@ -293,7 +293,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       RawRectangleF layoutRect = new RawRectangleF(_innerRect.Left, _innerRect.Top, _innerRect.Width(), _innerRect.Height());
       RemoveMargin(ref layoutRect, GetTotalEnclosingMargin());
-      Vector2 location = new Vector2(layoutRect.Location().X, layoutRect.Location().Y);
+      RawVector2 location = new RawVector2(layoutRect.Location().X, layoutRect.Location().Y);
       SizeF size = layoutRect.Size();
       ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref location, ref size);
       content.Arrange(new RectangleF(location.X, location.Y, size.Width, size.Height));
