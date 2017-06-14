@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
@@ -37,13 +35,33 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
   public class OpenWeatherMapCatcher : IWeatherCatcher
   {
     public const string SERVICE_NAME = "OpenWeatherMap.com";
-    internal const string SERVICE_KEY = "12ca330117b1b4e1e1b7ccbe69360883";
+
+    internal static string[] KEYS = {
+      "1fab7e4a0c59e4c97e9d2fad0444c226",
+      "4cd7cc0f5e67f4384b3a27fc521cde76",
+      "9c147de480f4d0a2d328b3aa80248727",
+      "ac9b74a65c3a6ca0ce8d6fb8a5efd4e7",
+      "975bb275d812da71ec309057b7aaa2ab",
+      "861e52c09675881b817bf89b47f9dc44",
+      "e1f79b4364ad10955c8bc9f9421e472b",
+      "4f55982020ffeae8bd3e9652191a5d04",
+      "928db392dcc654102ea8d0a6e6388a23",
+      "eb688d0a708e9107e033ac5e9a6fb6b2",
+      "7e6e2495ddb4da3065ec72faf89786fd",
+      "2e8bcdd83feff437759a89b97655e92f",
+      "91bab7dff33dbb8f3b2ac644272188fa",
+      "dd1ec26c30b60782b76b5cd4beb2cd0b",
+      "c700353fc67ddb8e6dee46b7f6ab64eb",
+      "12ca330117b1b4e1e1b7ccbe69360883"
+    };
 
     private readonly Dictionary<int, int> _weatherCodeTranslation = new Dictionary<int, int>();
+    private readonly Dictionary<int, int> _weatherCodeTranslationNight = new Dictionary<int, int>();
 
     private OpenWeatherMapLanguage _language;
     private MetricSystem _metricSystem;
     private DateTimeFormatInfo _dateFormat;
+    private int _keyIndex = 0;
 
     public OpenWeatherMapCatcher()
     {
@@ -57,67 +75,162 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       #region Weather code translation
 
       // See https://openweathermap.org/weather-conditions
-      // TODO: Adopt mapping from here: https://dl.team-mediaportal.com/2016/10/280291_WorldWeatherIconMapping.xml
+      // See https://github.com/ronie/weather.openweathermap.extended/blob/master/resources/lib/utils.py#L118
+      _weatherCodeTranslation[200] = 4;
+      _weatherCodeTranslation[200] = 4;
+      _weatherCodeTranslation[201] = 4;
+      _weatherCodeTranslation[202] = 3;
+      _weatherCodeTranslation[210] = 4;
+      _weatherCodeTranslation[211] = 4;
+      _weatherCodeTranslation[212] = 3;
+      _weatherCodeTranslation[221] = 38;
+      _weatherCodeTranslation[230] = 4;
+      _weatherCodeTranslation[231] = 4;
+      _weatherCodeTranslation[232] = 4;
+      _weatherCodeTranslation[300] = 9;
+      _weatherCodeTranslation[301] = 9;
+      _weatherCodeTranslation[302] = 9;
+      _weatherCodeTranslation[310] = 9;
+      _weatherCodeTranslation[311] = 9;
+      _weatherCodeTranslation[312] = 9;
+      _weatherCodeTranslation[313] = 9;
+      _weatherCodeTranslation[314] = 9;
+      _weatherCodeTranslation[321] = 9;
+      _weatherCodeTranslation[500] = 11;
+      _weatherCodeTranslation[501] = 11;
+      _weatherCodeTranslation[502] = 11;
+      _weatherCodeTranslation[503] = 11;
+      _weatherCodeTranslation[504] = 11;
+      _weatherCodeTranslation[511] = 11;
+      _weatherCodeTranslation[520] = 11;
+      _weatherCodeTranslation[521] = 11;
+      _weatherCodeTranslation[522] = 11;
+      _weatherCodeTranslation[531] = 40;
+      _weatherCodeTranslation[600] = 14;
+      _weatherCodeTranslation[601] = 16;
+      _weatherCodeTranslation[602] = 41;
+      _weatherCodeTranslation[611] = 18;
+      _weatherCodeTranslation[612] = 6;
+      _weatherCodeTranslation[615] = 5;
+      _weatherCodeTranslation[616] = 5;
+      _weatherCodeTranslation[620] = 14;
+      _weatherCodeTranslation[621] = 46;
+      _weatherCodeTranslation[622] = 43;
+      _weatherCodeTranslation[701] = 20;
+      _weatherCodeTranslation[711] = 22;
+      _weatherCodeTranslation[721] = 21;
+      _weatherCodeTranslation[731] = 19;
+      _weatherCodeTranslation[741] = 20;
+      _weatherCodeTranslation[751] = 19;
+      _weatherCodeTranslation[761] = 19;
+      _weatherCodeTranslation[762] = 19;
+      _weatherCodeTranslation[771] = 2;
+      _weatherCodeTranslation[781] = 0;
+      _weatherCodeTranslation[800] = 32;
+      _weatherCodeTranslation[801] = 34;
+      _weatherCodeTranslation[802] = 30;
+      _weatherCodeTranslation[803] = 30;
+      _weatherCodeTranslation[804] = 28;
+      _weatherCodeTranslation[900] = 0;
+      _weatherCodeTranslation[901] = 1;
+      _weatherCodeTranslation[902] = 2;
+      _weatherCodeTranslation[903] = 25;
+      _weatherCodeTranslation[904] = 36;
+      _weatherCodeTranslation[905] = 24;
+      _weatherCodeTranslation[906] = 17;
+      _weatherCodeTranslation[951] = 33;
+      _weatherCodeTranslation[952] = 24;
+      _weatherCodeTranslation[953] = 24;
+      _weatherCodeTranslation[954] = 24;
+      _weatherCodeTranslation[955] = 24;
+      _weatherCodeTranslation[956] = 24;
+      _weatherCodeTranslation[957] = 23;
+      _weatherCodeTranslation[958] = 23;
+      _weatherCodeTranslation[959] = 23;
+      _weatherCodeTranslation[960] = 4;
+      _weatherCodeTranslation[961] = 3;
+      _weatherCodeTranslation[962] = 2;
 
-      // Done:
-      _weatherCodeTranslation[800] = 32; // Clear/Sunny
-      _weatherCodeTranslation[801] = 30; // Partly Cloudy (scattered clouds)
-      _weatherCodeTranslation[802] = 30; // Partly Cloudy
-      _weatherCodeTranslation[803] = 26; // Cloudy (broken clouds)
-      _weatherCodeTranslation[804] = 26; // Overcast (overcast clouds)
-
-      // TODO:
-      _weatherCodeTranslation[395] = 42; //  Moderate or heavy snow in area with thunder
-      _weatherCodeTranslation[392] = 14; //  Patchy light snow in area with thunder
-      _weatherCodeTranslation[389] = 40; //  Moderate or heavy rain in area with thunder
-      _weatherCodeTranslation[386] = 3; //  Patchy light rain in area with thunder
-      _weatherCodeTranslation[377] = 18; //  Moderate or heavy showers of ice pellets
-      _weatherCodeTranslation[374] = 18; //  Light showers of ice pellets
-      _weatherCodeTranslation[371] = 16; //  Moderate or heavy snow showers
-      _weatherCodeTranslation[368] = 14; //  Light snow showers
-      _weatherCodeTranslation[365] = 6; //  Moderate or heavy sleet showers
-      _weatherCodeTranslation[362] = 6; //  Light sleet showers
-      _weatherCodeTranslation[359] = 12; //  Torrential rain shower
-      _weatherCodeTranslation[356] = 40; //  Moderate or heavy rain shower
-      _weatherCodeTranslation[353] = 39; //  Light rain shower
-      _weatherCodeTranslation[350] = 18; //  Ice pellets
-      _weatherCodeTranslation[338] = 42; //  Heavy snow
-      _weatherCodeTranslation[335] = 16; //  Patchy heavy snow
-      _weatherCodeTranslation[332] = 41; //  Moderate snow
-      _weatherCodeTranslation[329] = 14; //  Patchy moderate snow
-      _weatherCodeTranslation[326] = 14; //  Light snow
-      _weatherCodeTranslation[323] = 14; //  Patchy light snow
-      _weatherCodeTranslation[320] = 6; //  Moderate or heavy sleet
-      _weatherCodeTranslation[317] = 6; //  Light sleet
-      _weatherCodeTranslation[314] = 10; //  Moderate or Heavy freezing rain
-      _weatherCodeTranslation[311] = 10; //  Light freezing rain
-      _weatherCodeTranslation[308] = 40; //  Heavy rain
-      _weatherCodeTranslation[305] = 39; //  Heavy rain at times
-      _weatherCodeTranslation[302] = 40; //  Moderate rain
-      _weatherCodeTranslation[299] = 39; //  Moderate rain at times
-      _weatherCodeTranslation[296] = 11; //  Light rain
-      _weatherCodeTranslation[293] = 11; //  Patchy light rain
-      _weatherCodeTranslation[284] = 8; //  Heavy freezing drizzle
-      _weatherCodeTranslation[281] = 8; //  Freezing drizzle
-      _weatherCodeTranslation[266] = 9; //  Light drizzle
-      _weatherCodeTranslation[263] = 9; //  Patchy light drizzle
-      _weatherCodeTranslation[260] = 20; //  Freezing fog
-      _weatherCodeTranslation[248] = 20; //  Fog
-      _weatherCodeTranslation[230] = 42; //  Blizzard
-      _weatherCodeTranslation[227] = 43; //  Blowing snow
-      _weatherCodeTranslation[200] = 35; //  Thundery outbreaks in nearby
-      _weatherCodeTranslation[185] = 8; //  Patchy freezing drizzle nearby
-      _weatherCodeTranslation[182] = 6; //  Patchy sleet nearby
-      _weatherCodeTranslation[179] = 41; //  Patchy snow nearby
-      _weatherCodeTranslation[176] = 39; //  Patchy rain nearby
-      _weatherCodeTranslation[143] = 20; //  Mist
+      _weatherCodeTranslationNight[200] = 47;
+      _weatherCodeTranslationNight[201] = 47;
+      _weatherCodeTranslationNight[202] = 47;
+      _weatherCodeTranslationNight[210] = 47;
+      _weatherCodeTranslationNight[211] = 47;
+      _weatherCodeTranslationNight[212] = 47;
+      _weatherCodeTranslationNight[221] = 47;
+      _weatherCodeTranslationNight[230] = 47;
+      _weatherCodeTranslationNight[231] = 47;
+      _weatherCodeTranslationNight[232] = 47;
+      _weatherCodeTranslationNight[300] = 45;
+      _weatherCodeTranslationNight[301] = 45;
+      _weatherCodeTranslationNight[302] = 45;
+      _weatherCodeTranslationNight[310] = 45;
+      _weatherCodeTranslationNight[311] = 45;
+      _weatherCodeTranslationNight[312] = 45;
+      _weatherCodeTranslationNight[313] = 45;
+      _weatherCodeTranslationNight[314] = 45;
+      _weatherCodeTranslationNight[321] = 45;
+      _weatherCodeTranslationNight[500] = 45;
+      _weatherCodeTranslationNight[501] = 45;
+      _weatherCodeTranslationNight[502] = 45;
+      _weatherCodeTranslationNight[503] = 45;
+      _weatherCodeTranslationNight[504] = 45;
+      _weatherCodeTranslationNight[511] = 45;
+      _weatherCodeTranslationNight[520] = 45;
+      _weatherCodeTranslationNight[521] = 45;
+      _weatherCodeTranslationNight[522] = 45;
+      _weatherCodeTranslationNight[531] = 45;
+      _weatherCodeTranslationNight[600] = 46;
+      _weatherCodeTranslationNight[601] = 46;
+      _weatherCodeTranslationNight[602] = 46;
+      _weatherCodeTranslationNight[611] = 46;
+      _weatherCodeTranslationNight[612] = 46;
+      _weatherCodeTranslationNight[615] = 46;
+      _weatherCodeTranslationNight[616] = 46;
+      _weatherCodeTranslationNight[620] = 46;
+      _weatherCodeTranslationNight[621] = 46;
+      _weatherCodeTranslationNight[622] = 46;
+      _weatherCodeTranslationNight[701] = 29;
+      _weatherCodeTranslationNight[711] = 29;
+      _weatherCodeTranslationNight[721] = 29;
+      _weatherCodeTranslationNight[731] = 29;
+      _weatherCodeTranslationNight[741] = 29;
+      _weatherCodeTranslationNight[751] = 29;
+      _weatherCodeTranslationNight[761] = 29;
+      _weatherCodeTranslationNight[762] = 29;
+      _weatherCodeTranslationNight[771] = 29;
+      _weatherCodeTranslationNight[781] = 29;
+      _weatherCodeTranslationNight[800] = 31;
+      _weatherCodeTranslationNight[801] = 33;
+      _weatherCodeTranslationNight[802] = 29;
+      _weatherCodeTranslationNight[803] = 29;
+      _weatherCodeTranslationNight[804] = 27;
+      _weatherCodeTranslationNight[900] = 29;
+      _weatherCodeTranslationNight[901] = 29;
+      _weatherCodeTranslationNight[902] = 27;
+      _weatherCodeTranslationNight[903] = 33;
+      _weatherCodeTranslationNight[904] = 31;
+      _weatherCodeTranslationNight[905] = 27;
+      _weatherCodeTranslationNight[906] = 45;
+      _weatherCodeTranslationNight[951] = 31;
+      _weatherCodeTranslationNight[952] = 31;
+      _weatherCodeTranslationNight[953] = 33;
+      _weatherCodeTranslationNight[954] = 33;
+      _weatherCodeTranslationNight[955] = 29;
+      _weatherCodeTranslationNight[956] = 29;
+      _weatherCodeTranslationNight[957] = 29;
+      _weatherCodeTranslationNight[958] = 27;
+      _weatherCodeTranslationNight[959] = 27;
+      _weatherCodeTranslationNight[960] = 27;
+      _weatherCodeTranslationNight[961] = 45;
+      _weatherCodeTranslationNight[962] = 45;
 
       #endregion
     }
 
     public bool GetLocationData(City city)
     {
-      var client = new OpenWeatherMapClient(SERVICE_KEY);
+      var client = new OpenWeatherMapClient(GetKey());
       var currentWeather = Task.Run(async () => await client.CurrentWeather.GetByCityId(int.Parse(city.Id), _metricSystem, _language)).Result;
 
       city.Condition.Temperature = FormatTemp(currentWeather.Temperature.Value, currentWeather.Temperature.Unit);
@@ -126,8 +239,10 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       city.Condition.Precipitation = string.Format("{0} {1}", currentWeather.Precipitation.Value, currentWeather.Precipitation.Unit);
       city.Condition.Wind = string.Format("{0} {1}", currentWeather.Wind.Speed.Name, currentWeather.Wind.Direction.Name);
       city.Condition.Condition = currentWeather.Weather.Value;
-      city.Condition.BigIcon = @"Weather\128x128\" + GetWeatherIcon(currentWeather.Weather.Number);
-      city.Condition.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(currentWeather.Weather.Number);
+      var now = DateTime.Now;
+      bool isNight = now >= currentWeather.City.Sun.Set || now < currentWeather.City.Sun.Rise;
+      city.Condition.BigIcon = @"Weather\128x128\" + GetWeatherIcon(currentWeather.Weather.Number, isNight);
+      city.Condition.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(currentWeather.Weather.Number, isNight);
 
       var forecasts = Task.Run(async () => await client.Forecast.GetByCityId(int.Parse(city.Id), true, _metricSystem, _language)).Result;
       foreach (var forecast in forecasts.Forecast)
@@ -142,8 +257,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         dayForecast.Precipitation = string.Format("{0} {1}", forecast.Precipitation.Value, forecast.Precipitation.Unit);
         dayForecast.Wind = string.Format("{0} {1}", forecast.WindSpeed.Mps, currentWeather.Wind.Direction.Name);
         dayForecast.Overview = forecast.Symbol.Name;
-        dayForecast.BigIcon = @"Weather\128x128\" + GetWeatherIcon(forecast.Symbol.Number);
-        dayForecast.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(forecast.Symbol.Number);
+        dayForecast.BigIcon = @"Weather\128x128\" + GetWeatherIcon(forecast.Symbol.Number, false);
+        dayForecast.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(forecast.Symbol.Number, false);
         string fomattedDate = forecast.Day.ToString(_dateFormat.ShortDatePattern, _dateFormat);
         string day = _dateFormat.GetAbbreviatedDayName(forecast.Day.DayOfWeek);
         dayForecast.Day = String.Format("{0} {1}", day, fomattedDate);
@@ -152,6 +267,34 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       }
       city.ForecastCollection.FireChange();
       return false;
+    }
+
+    public List<CitySetupInfo> FindLocationsByName(string name)
+    {
+      var client = new OpenWeatherMapClient(GetKey());
+      var location = Task.Run(async () => await client.Search.GetByName(name)).Result;
+      var cities = new List<CitySetupInfo>();
+      bool useCoords = location.Count > 1;
+      foreach (var city in location.List)
+      {
+        var setup = new CitySetupInfo(city.City.Name, city.City.Id.ToString(), SERVICE_NAME);
+        if (useCoords)
+          setup.Detail = string.Format("Lat. {0:F2} Lon. {1:F2}", city.City.Coordinates.Latitude, city.City.Coordinates.Longitude);
+        cities.Add(setup);
+      }
+      return cities;
+    }
+
+    public string GetServiceName()
+    {
+      return "OpenWeatherMap";
+    }
+
+    private string GetKey()
+    {
+      var key = KEYS[_keyIndex];
+      _keyIndex = (++_keyIndex) % KEYS.Length;
+      return key;
     }
 
     private string FormatTemp(double temperatureValue, string temperatureUnit)
@@ -174,28 +317,11 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       return string.Format("{0} {1}", temp, unit);
     }
 
-    public List<CitySetupInfo> FindLocationsByName(string name)
-    {
-      var client = new OpenWeatherMapClient(SERVICE_KEY);
-      var location = Task.Run(async () => await client.Search.GetByName(name)).Result;
-      var cities = new List<CitySetupInfo>();
-      foreach (var city in location.List)
-      {
-        var setup = new CitySetupInfo(city.City.Name, city.City.Id.ToString(), SERVICE_NAME);
-        cities.Add(setup);
-      }
-      return cities;
-    }
-
-    public string GetServiceName()
-    {
-      return "OpenWeatherMap";
-    }
-
-    private string GetWeatherIcon(int weatherCode)
+    private string GetWeatherIcon(int weatherCode, bool isNight)
     {
       int translatedID;
-      if (_weatherCodeTranslation.TryGetValue(weatherCode, out translatedID))
+      var dict = isNight ? _weatherCodeTranslationNight : _weatherCodeTranslation;
+      if (dict.TryGetValue(weatherCode, out translatedID))
         return translatedID + ".png";
       return "na.png";
     }
