@@ -50,7 +50,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       _dateFormat = currentCulture.DateTimeFormat;
       _metricSystem = new RegionInfo(currentCulture.LCID).IsMetric ? MetricSystem.Metric : MetricSystem.Imperial;
-      _language = OpenWeatherMapLanguage.EN;
+      if (!Enum.TryParse(currentCulture.TwoLetterISOLanguageName, true, out _language))
+        _language = OpenWeatherMapLanguage.EN;
       _metricSystem = MetricSystem.Metric;
 
       #region Weather code translation
@@ -132,8 +133,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       foreach (var forecast in forecasts.Forecast)
       {
         DayForecast dayForecast = new DayForecast();
-        dayForecast.High = FormatTemp(forecast.Temperature.Max, forecast.Temperature.Unit);
-        dayForecast.Low = FormatTemp(forecast.Temperature.Min, forecast.Temperature.Unit);
+        dayForecast.High = FormatTemp(forecast.Temperature.Max, currentWeather.Temperature.Unit);
+        dayForecast.Low = FormatTemp(forecast.Temperature.Min, currentWeather.Temperature.Unit);
 
         dayForecast.Humidity = string.Format("{0} {1}", forecast.Humidity.Value, forecast.Humidity.Unit);
         // TODO:
@@ -149,27 +150,27 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
         city.ForecastCollection.Add(dayForecast);
       }
-
+      city.ForecastCollection.FireChange();
       return false;
     }
 
     private string FormatTemp(double temperatureValue, string temperatureUnit)
     {
       var temp = temperatureValue;
-      var unit = temperatureUnit;
-      if (temperatureUnit == "kelvin")
+      string unit;
+      switch (temperatureUnit)
       {
-        temp = ToDegree(temp);
-        unit = "°C";
+        case "metric":
+          unit = "°C";
+          break;
+        case "imperial":
+          unit = "°F";
+          break;
+        default:
+          unit = null;
+          break;
       }
-      else if (temperatureUnit == "metric")
-      {
-        unit = "°C";
-      }
-      else
-      {
-        unit = "°F";
-      }
+      temp = Math.Round(temp, 1);
       return string.Format("{0} {1}", temp, unit);
     }
 
