@@ -88,12 +88,15 @@
 
               <Button Grid.Column="0" Grid.Row="0" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,0,0,2"
                       Style="{ThemeResource ArrowButtonUpStyle}"
-                      Command="{Command Path=AddStartTime, Parameters=1440}"/>
+                      Command="{Command Path=AddStartTime, Parameters=1440}"
+                      IsVisible="{Binding !StartsToday}"/>
               <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
-                      Content="{Binding Path=StartTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}"/>
+                      Content="{Binding Path=StartTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}"
+                      IsVisible="{Binding !StartsToday}"/>
               <Button Grid.Column="0" Grid.Row="2" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,2,0,0"
                       Style="{ThemeResource ArrowButtonDownStyle}"
-                      Command="{Command Path=AddStartTime, Parameters=-1440}"/>
+                      Command="{Command Path=AddStartTime, Parameters=-1440}"
+                      IsVisible="{Binding !StartsToday}"/>
 
               <!--Start time-->
 
@@ -138,11 +141,14 @@
               <!--End date-->
 
               <Button Grid.Column="0" Grid.Row="0" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,0,0,2"
-                      Style="{ThemeResource ArrowButtonUpStyle}" Command="{Command Path=AddEndTime, Parameters=1440}"/>
+                      Style="{ThemeResource ArrowButtonUpStyle}" Command="{Command Path=AddEndTime, Parameters=1440}"
+                      IsVisible="{Binding !EndsOnSameDay}"/>
               <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
-                     Content="{Binding Path=EndTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}"/>
+                     Content="{Binding Path=EndTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}"
+                      IsVisible="{Binding !EndsOnSameDay}"/>
               <Button Grid.Column="0" Grid.Row="2" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,2,0,0"
-                      Style="{ThemeResource ArrowButtonDownStyle}" Command="{Command Path=AddEndTime, Parameters=-1440}"/>
+                      Style="{ThemeResource ArrowButtonDownStyle}" Command="{Command Path=AddEndTime, Parameters=-1440}"
+                      IsVisible="{Binding !EndsOnSameDay}"/>
 
               <!--End time-->
 
