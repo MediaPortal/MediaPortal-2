@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
@@ -135,6 +136,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return;
       }
 
+      FixupServer();
+
       Start();
       if (!_tvServiceThread.InitializedEvent.WaitOne(MAX_WAIT_MS))
       {
@@ -147,6 +150,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to register events. This happens only if startup failed. Stopping plugin now.");
         DeInit();
+      }
+    }
+
+    /// <summary>
+    /// In case of changed server names/IP addresses the TVE core rejects startup. This impacts the whole MP2 service, so we update changed IPs first.
+    /// </summary>
+    protected void FixupServer()
+    {
+      var server = Server.ListAll().FirstOrDefault(s => s.IsMaster);
+      if (server != null)
+      {
+        var hostName = Dns.GetHostName();
+        if (server.HostName != hostName)
+        {
+          server.HostName = hostName;
+          server.Persist();
+        }
       }
     }
 
@@ -204,15 +224,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool DeInit()
     {
-      if (_serviceThread != null && _serviceThread.IsAlive)
+      var thread = _serviceThread;
+      _tvServiceThread = null;
+      if (thread != null && thread.IsAlive)
       {
-        bool joined = _serviceThread.Join(MAX_WAIT_MS);
-        if (!joined)
+        try
         {
-          _serviceThread.Abort();
-          _serviceThread.Join();
+          bool joined = thread.Join(MAX_WAIT_MS);
+          if (!joined)
+          {
+            thread.Abort();
+            thread.Join();
+          }
         }
-        _tvServiceThread = null;
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Failed to deinit TVEngine", ex);
+        }
       }
       return true;
     }
