@@ -657,6 +657,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       string systemIdAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID);
       string pathAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       string primaryAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_TYPE);
+      string indexAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
+      string parentDirAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID);
+      string virtualAttribute = _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL);
+      string stubAttribute = _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISSTUB);
       string commandStr = "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + ", " + primaryAttribute + ", " + pathAttribute +
               " FROM " + providerAspectTable + " WHERE " + systemIdAttribute + " = @SYSTEM_ID" +
               " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
@@ -666,9 +670,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               " AND " + pathAttribute + " = @EXACT_PATH)";
 
       int affectedRows = 0;
-      Guid? parentId = null;
+      Guid? mediaItemId = null;
       bool hasMorePrimaryResources = false;
-      bool isPartOfStubResource = false;
+      bool hasStubResources = false;
       ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
@@ -683,7 +687,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           while (reader.Read())
           {
-            parentId = database.ReadDBValue<Guid?>(reader, 0);
+            if (!mediaItemId.HasValue)
+              mediaItemId = database.ReadDBValue<Guid?>(reader, 0);
+            else if (mediaItemId.Value != database.ReadDBValue<Guid?>(reader, 0))
+              continue;
 
             int? resType = database.ReadDBValue<int?>(reader, 1);
             if (!resType.HasValue) resType = ProviderResourceAspect.TYPE_PRIMARY;
@@ -692,78 +699,85 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             ResourcePath resourcePath = ResourcePath.Deserialize(resPath);
             if (resourcePath != basePath)
             {
-              if (resType.Value == ProviderResourceAspect.TYPE_PRIMARY)
+              if (resType.Value == ProviderResourceAspect.TYPE_PRIMARY || resType.Value == ProviderResourceAspect.TYPE_STUB)
                 hasMorePrimaryResources = true;
               if (resType.Value == ProviderResourceAspect.TYPE_STUB)
-                isPartOfStubResource = true;
+                hasStubResources = true;
             }
           }
         }
       }
 
-      if (hasMorePrimaryResources || isPartOfStubResource)
+      if (mediaItemId.HasValue)
       {
-        //Only delete the resource
-        using (IDbCommand command = transaction.CreateCommand())
+        if (hasMorePrimaryResources || hasStubResources)
         {
-          database.AddParameter(command, "SYSTEM_ID", systemId, typeof(string));
+          //Only delete the resource
+          using (IDbCommand command = transaction.CreateCommand())
+          {
+            database.AddParameter(command, "ITEM_ID", mediaItemId.Value, typeof(Guid));
+            string path = StringUtils.RemoveSuffixIfPresent(basePath.Serialize(), "/");
+            database.AddParameter(command, "EXACT_PATH", path, typeof(string));
 
-          string path = StringUtils.RemoveSuffixIfPresent(basePath.Serialize(), "/");
-          database.AddParameter(command, "EXACT_PATH", path, typeof(string));
+            commandStr = "DELETE FROM " + providerAspectTable +
+              " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+              " AND " + pathAttribute + " = @EXACT_PATH";
+            command.CommandText = commandStr;
+            affectedRows = command.ExecuteNonQuery();
 
-          commandStr = "DELETE FROM " + providerAspectTable +
-            " WHERE " + systemIdAttribute + " = @SYSTEM_ID" +
-            " AND " + pathAttribute + " = @EXACT_PATH";
-          command.CommandText = commandStr;
-          affectedRows = command.ExecuteNonQuery();
+            if (!hasStubResources)
+            {
+              //Remove stub tag
+              commandStr = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
+                " SET " + stubAttribute + " = 0" +
+                " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " = @ITEM_ID";
+              command.CommandText = commandStr;
+              affectedRows = command.ExecuteNonQuery();
+            }
+          }
         }
-      }
-      else if (parentId.HasValue)
-      {
-        Logger.Debug("MediaLibrary: Set media item {0} virtual", parentId.Value);
-
-        using (IDbCommand command = transaction.CreateCommand())
+        else
         {
-          database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
+          Logger.Debug("MediaLibrary: Set media item {0} virtual", mediaItemId.Value);
 
-          //Set virtual tag
-          commandStr = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
-            " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 1" +
-            ", " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISSTUB) + " = 0" +
-            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " = @ITEM_ID";
-          command.CommandText = commandStr;
-          affectedRows = command.ExecuteNonQuery();
+          using (IDbCommand command = transaction.CreateCommand())
+          {
+            database.AddParameter(command, "ITEM_ID", mediaItemId.Value, typeof(Guid));
 
-          //Delete all remaining resources so foreign keys delete linked rows
-          commandStr = "DELETE FROM " + providerAspectTable +
-            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " = @ITEM_ID";
-          command.CommandText = commandStr;
-          affectedRows += command.ExecuteNonQuery();
+            //Set virtual and stub tag
+            commandStr = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
+              " SET " + virtualAttribute + " = 1, " + stubAttribute + " = 0" +
+              " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " = @ITEM_ID";
+            command.CommandText = commandStr;
+            affectedRows = command.ExecuteNonQuery();
 
-          //Insert virtual resource
-          database.AddParameter(command, "VIRT_PATH", VirtualResourceProvider.ToResourcePath(parentId.Value).Serialize(), typeof(string));
-          database.AddParameter(command, "PARENT_DIR", Guid.Empty, typeof(Guid));
+            //Delete all remaining resources so foreign keys delete linked rows
+            commandStr = "DELETE FROM " + providerAspectTable +
+              " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " = @ITEM_ID";
+            command.CommandText = commandStr;
+            affectedRows += command.ExecuteNonQuery();
 
-          commandStr = "INSERT INTO " + providerAspectTable + " (" +
-            MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + ", " +
-            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) + ", " +
-            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_TYPE) + ", " +
-            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_INDEX) + ", " +
-            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID) + ", " +
-            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID) +
-            ") VALUES (@ITEM_ID, @VIRT_PATH, " + ProviderResourceAspect.TYPE_VIRTUAL + ", 0, '" + _localSystemId + "', @PARENT_DIR)";
-          command.CommandText = commandStr;
-          affectedRows += command.ExecuteNonQuery();
-        }
+            //Insert virtual resource
+            database.AddParameter(command, "VIRT_PATH", VirtualResourceProvider.ToResourcePath(mediaItemId.Value).Serialize(), typeof(string));
+            database.AddParameter(command, "PARENT_DIR", Guid.Empty, typeof(Guid));
 
-        //Check if new virtual media item should be deleted
-        if (DeleteVirtualParents(transaction.Database, transaction, parentId.Value) == false)
-        {
-          //Check if new virtual parent should be updated
-          UpdateVirtualParents(transaction.Database, transaction, parentId.Value, false);
+            commandStr = "INSERT INTO " + providerAspectTable + " (" +
+              MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + ", " + pathAttribute + ", " + primaryAttribute + ", " + indexAttribute + ", " +
+              systemIdAttribute + ", " + parentDirAttribute +
+              ") VALUES (@ITEM_ID, @VIRT_PATH, " + ProviderResourceAspect.TYPE_VIRTUAL + ", 0, '" + _localSystemId + "', @PARENT_DIR)";
+            command.CommandText = commandStr;
+            affectedRows += command.ExecuteNonQuery();
+          }
 
-          //Check if new virtual parent user data should be updated
-          UpdateAllParentPlayUserData(transaction.Database, transaction, parentId.Value, false);
+          //Check if new virtual media item should be deleted
+          if (DeleteVirtualParents(transaction.Database, transaction, mediaItemId.Value) == false)
+          {
+            //Check if new virtual parent should be updated
+            UpdateVirtualParents(transaction.Database, transaction, mediaItemId.Value, false);
+
+            //Check if new virtual parent user data should be updated
+            UpdateAllParentPlayUserData(transaction.Database, transaction, mediaItemId.Value, false);
+          }
         }
       }
       return affectedRows;
@@ -927,6 +941,30 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         if (affectedParents.Count > 0)
         {
+          #region Handle Deleted Resources
+          //Delete resources
+          command.CommandText = "DELETE FROM " + providerAspectTable +
+            " WHERE " + systemIdAttribute + " = @SYSTEM_ID";
+          if (basePath != null)
+          {
+            command.CommandText += " AND (";
+            if (inclusive)
+              command.CommandText += pathAttribute + " = @EXACT_PATH OR ";
+            command.CommandText += pathAttribute + " LIKE @LIKE_PATH1 ESCAPE @LIKE_ESCAPE1 OR " + pathAttribute + " LIKE @LIKE_PATH2 ESCAPE @LIKE_ESCAPE2)";
+          }
+          affectedRows += command.ExecuteNonQuery();
+
+          //Affected media items
+          affectedMediaItems = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
+            " WHERE NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + 
+            " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + "," + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
+            " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
+
+          findParentsSql = "SELECT DISTINCT " + linkedIdAttribute +
+          " FROM " + relationshipAspectTable + " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " IN (" + affectedMediaItems + ")" + roleSql;
+
           //Check if any of the parent still have non-virtual childs
           command.CommandText = "SELECT DISTINCT R." + linkedIdAttribute + ", R." + linkedRoleAttribute + ", R." + roleAttribute +
               " FROM " + relationshipAspectTable + " R" +
@@ -946,25 +984,36 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
           }
 
-          #region Handle Deleted Resources
-          //Delete resources
-          command.CommandText = "DELETE FROM " + providerAspectTable +
-            " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
-          affectedRows += command.ExecuteNonQuery();
-
           //Non-virtual media items with no primary or stub resource should be made virtual
-          string mediaItemsToCorrect = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
-            " WHERE MT." + virtualAttribute + " = 0 AND NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-            " FROM " + providerAspectTable + " PT" + " WHERE PT." + resTypeAttribute + " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + ")" +
-            " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
-
           //Delete all remaining resources so foreign keys delete linked rows
           command.CommandText = "DELETE FROM " + providerAspectTable +
-            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + mediaItemsToCorrect + ")";
+            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
           command.ExecuteNonQuery();
 
           //Set virtual tag
           command.CommandText = "UPDATE " + mediaAspectTable + " SET " + virtualAttribute + " = 1, " + stubAttribute + " = 0" +
+            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
+          command.ExecuteNonQuery();
+
+          //Non-stub media items with stub resource should be made stubs
+          string mediaItemsToCorrect = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
+            " WHERE MT." + stubAttribute + " = 0 AND EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + " IN (" +  ProviderResourceAspect.TYPE_STUB + ")" +
+            " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
+
+          //Set stub tag
+          command.CommandText = "UPDATE " + mediaAspectTable + " SET " + virtualAttribute + " = 0, " + stubAttribute + " = 1" +
+            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + mediaItemsToCorrect + ")";
+          command.ExecuteNonQuery();
+
+          //Stub media items with no stub resource should be made non-stubs
+          mediaItemsToCorrect = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
+            " WHERE MT." + stubAttribute + " = 1 AND NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + " IN (" + ProviderResourceAspect.TYPE_STUB + ")" +
+            " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
+
+          //Remove stub tag
+          command.CommandText = "UPDATE " + mediaAspectTable + " SET " + stubAttribute + " = 0" +
             " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + mediaItemsToCorrect + ")";
           command.ExecuteNonQuery();
 
@@ -972,7 +1021,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           List<Guid> fixIds = new List<Guid>();
           command.CommandText = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
             " WHERE MT." + virtualAttribute + " = 1 AND NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-            " FROM " + providerAspectTable + " PT" + " WHERE PT." + resTypeAttribute + " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + ")" +
+            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + " IN (" + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
             " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
           using (IDataReader reader = command.ExecuteReader())
           {
@@ -1070,6 +1119,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
         else //No parents
         {
+          //Delete resources
+          command.CommandText = "DELETE FROM " + providerAspectTable +
+            " WHERE " + systemIdAttribute + " = @SYSTEM_ID";
+          if (basePath != null)
+          {
+            command.CommandText += " AND (";
+            if (inclusive)
+              command.CommandText += pathAttribute + " = @EXACT_PATH OR ";
+            command.CommandText += pathAttribute + " LIKE @LIKE_PATH1 ESCAPE @LIKE_ESCAPE1 OR " + pathAttribute + " LIKE @LIKE_PATH2 ESCAPE @LIKE_ESCAPE2)";
+          }
+          affectedRows += command.ExecuteNonQuery();
+
+          //Affected media items
+          affectedMediaItems = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
+            " WHERE NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + 
+            " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + "," + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
+            " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
+
           //Delete Fanart
           command.CommandText = affectedMediaItems;
           using (IDataReader reader = command.ExecuteReader())
@@ -2224,7 +2292,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         //by requesting only the MergeHandlers match aspects, the rest of the aspects are loaded if a match is found.
         bool loadAllAspects = mergeHandler.RequiresMerge(extractedAspects);
         IEnumerable<Guid> optionalAspectIds = loadAllAspects ? allAspectIds : mergeHandler.MatchAspects.Where(a => a != RelationshipAspect.ASPECT_ID);
-        IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, false);
+        IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
         foreach (MediaItem existingItem in existingItems)
         {
           //Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
@@ -2236,7 +2304,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             else
               //ensure all aspects are loaded
               matchedItem = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, allAspectIds,
-                  new MediaItemIdFilter(existingItem.MediaItemId)), false, null, false).FirstOrDefault();
+                  new MediaItemIdFilter(existingItem.MediaItemId)), false, null, true).FirstOrDefault();
 
             if (matchedItem != null)
             {

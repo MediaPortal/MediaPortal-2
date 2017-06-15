@@ -134,7 +134,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
               {
                 bool isStub = pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB;
                 ResourcePath path = ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
-                if (!path2LastImportDate.ContainsKey(path))
+                if (!path2LastImportDate.ContainsKey(path) && importResource.PendingResourcePath.IsSameOrParentOf(path))
                 {
                   //If last refresh is equal to added date, it has never been through the refresh cycle, so set low last change date
                   //All media items must be added because the paths are later used to delete no longer existing media items
@@ -166,7 +166,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
                   catch { }
 
                   // Only add it if it still exists
-                  if (files.Where(f => f.CanonicalLocalResourcePath == file.CanonicalLocalResourcePath).Any())
+                  if (files.Where(f => file != null && f.CanonicalLocalResourcePath == file.CanonicalLocalResourcePath).Any())
                   {
                     stubFiles.Add(file);
 
