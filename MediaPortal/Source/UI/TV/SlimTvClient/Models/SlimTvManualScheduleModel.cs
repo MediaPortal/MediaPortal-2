@@ -61,27 +61,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected AbstractProperty _channelGroupProperty;
     protected AbstractProperty _channelProperty;
-    protected AbstractProperty _startTimeProperty;
-    protected AbstractProperty _endTimeProperty;
     protected AbstractProperty _recordingTypeProperty;
     protected AbstractProperty _recordingTypeNameProperty;
     protected AbstractProperty _isScheduleValidProperty;
 
+    protected AbstractProperty _startTimeProperty;
+    protected AbstractProperty _endTimeProperty;
+    protected AbstractProperty _startsTodayProperty;
+    protected AbstractProperty _endsOnSameDayProperty;
+
     #endregion
 
     #region Init/Update
-    
+
     protected override void InitModel()
     {
       if (!_isInitialized)
       {
         _channelGroupProperty = new WProperty(typeof(IChannelGroup), null);
         _channelProperty = new WProperty(typeof(IChannel), null);
-        _startTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
-        _endTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
         _recordingTypeProperty = new WProperty(typeof(ScheduleRecordingType), ScheduleRecordingType.Once);
         _recordingTypeNameProperty = new WProperty(typeof(string), GetLocalizedRecordingTypeName(ScheduleRecordingType.Once));
         _isScheduleValidProperty = new WProperty(typeof(bool), false);
+
+        _startTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
+        _endTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
+        _startsTodayProperty = new WProperty(typeof(bool), false);
+        _endsOnSameDayProperty = new WProperty(typeof(bool), false);
+
         Attach();
         _isInitialized = true;
       }
@@ -92,8 +99,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       _channelGroupProperty.Attach(OnChannelGroupChanged);
       _channelProperty.Attach(OnPropertyChanged);
-      _startTimeProperty.Attach(OnPropertyChanged);
-      _endTimeProperty.Attach(OnPropertyChanged);
+      _startTimeProperty.Attach(OnTimeChanged);
+      _endTimeProperty.Attach(OnTimeChanged);
       _recordingTypeProperty.Attach(OnRecordingTypeChanged);
     }
 
@@ -173,6 +180,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected void OnRecordingTypeChanged(AbstractProperty property, object oldValue)
     {
       RecordingTypeName = GetLocalizedRecordingTypeName(RecordingType);
+    }
+
+    private void OnTimeChanged(AbstractProperty property, object oldValue)
+    {
+      DateTime now = DateTime.Now;
+      DateTime startTime = StartTime;      
+      StartsToday = startTime.Date == now.Date;
+      EndsOnSameDay = EndTime.Date == startTime.Date;
+      UpdateIsScheduleValid();
     }
 
     protected void UpdateIsScheduleValid()
@@ -282,6 +298,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       set { _isScheduleValidProperty.SetValue(value); }
     }
 
+    public AbstractProperty StartsTodayProperty
+    {
+      get { return _startsTodayProperty; }
+    }
+
+    /// <summary>
+    /// Indicates whether the current start date is today.
+    /// </summary>
+    public bool StartsToday
+    {
+      get { return (bool)_startsTodayProperty.GetValue(); }
+      set { _startsTodayProperty.SetValue(value); }
+    }
+
+    public AbstractProperty EndsOnSameDayProperty
+    {
+      get { return _endsOnSameDayProperty; }
+    }
+
+    /// <summary>
+    /// Indicates whether the current end date is the same as the start date.
+    /// </summary>
+    public bool EndsOnSameDay
+    {
+      get { return (bool)_endsOnSameDayProperty.GetValue(); }
+      set { _endsOnSameDayProperty.SetValue(value); }
+    }
+
     /// <summary>
     /// Exposes the localized time separator to the skin.
     /// </summary>
@@ -330,9 +374,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void AddEndTime(int minutes)
     {
       DateTime newEndTime = EndTime.AddMinutes(minutes);
-      if (newEndTime <= StartTime)
-        return;
-      EndTime = newEndTime;
+      DateTime startTime = StartTime;
+      EndTime = newEndTime > startTime ? newEndTime : startTime.AddMinutes(1);
     }
 
     /// <summary>
