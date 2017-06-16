@@ -43,10 +43,6 @@ namespace MediaPortal.UiComponents.Weather
       _grabber = grabber;
     }
 
-    public CitySetupInfo(string name, string id) :
-      this(name, id, WorldWeatherOnlineCatcher.SERVICE_NAME)
-    { }
-
     public CitySetupInfo() {}
 
     /// <summary>
