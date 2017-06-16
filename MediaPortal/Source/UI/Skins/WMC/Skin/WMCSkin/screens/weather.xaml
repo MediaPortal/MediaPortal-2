@@ -44,7 +44,6 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Image Margin="0,70,20,-70" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
           <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           DataContext="{Binding Source={StaticResource Model}}">
             <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Center" VerticalAlignment="Stretch">
