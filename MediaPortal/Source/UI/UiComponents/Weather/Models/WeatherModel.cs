@@ -358,6 +358,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
       ListItem item = new ListItem();
       item.SetLabel("Name", loc.Name);
+      item.SetLabel("Grabber", loc.Grabber);
       item.SetLabel("Id", loc.Id);
       item.AdditionalProperties[KEY_CITY] = city;
       _locationsList.Add(item);

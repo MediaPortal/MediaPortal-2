@@ -68,7 +68,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public string SearchCity
     {
-      get { return (string) _searchCityProperty.GetValue(); }
+      get { return (string)_searchCityProperty.GetValue(); }
       set { _searchCityProperty.SetValue(value); }
     }
 
@@ -102,7 +102,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       // Check if preferred location still in list, if not then set the first available
       if (settings.LocationsList.Find(loc => loc.Id == settings.LocationCode) == null && settings.LocationsList.Count > 0)
         settings.LocationCode = settings.LocationsList[0].Id;
-      if(settings.LocationsList.Count == 0)
+      if (settings.LocationsList.Count == 0)
         settings.LocationCode = string.Empty;
 
       settingsManager.Save(settings);
@@ -121,7 +121,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
       _locationsExposed.Add(item);
       // Create a CitySetupObject and add it to the loctions list
-      CitySetupInfo c = new CitySetupInfo(item["Name"], item["Id"]) { Detail = item["Detail"] };
+      CitySetupInfo c = new CitySetupInfo(item["Name"], item["Id"], item["Grabber"]) { Detail = item["Detail"] };
       _locations.Add(c);
       _locationsExposed.FireChange();
     }
@@ -215,6 +215,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       ListItem item = new ListItem();
       item.SetLabel("Name", city.Name);
       item.SetLabel("Id", city.Id);
+      item.SetLabel("Grabber", city.Grabber);
       item.SetLabel("Detail", city.Detail);
       list.Add(item);
     }
