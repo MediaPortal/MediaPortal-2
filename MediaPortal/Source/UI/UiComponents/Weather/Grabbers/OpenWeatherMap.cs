@@ -230,12 +230,16 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
     public bool GetLocationData(City city)
     {
+      int cityId;
+      // Other grabbers store string IDs and this would fail here
+      if (city.Grabber != GetServiceName() || !int.TryParse(city.Id, out cityId))
+        return false;
       var client = new OpenWeatherMapClient(GetKey());
-      var currentWeather = Task.Run(async () => await client.CurrentWeather.GetByCityId(int.Parse(city.Id), _metricSystem, _language)).Result;
+      var currentWeather = Task.Run(async () => await client.CurrentWeather.GetByCityId(cityId, _metricSystem, _language)).Result;
 
       city.Condition.Temperature = FormatTemp(currentWeather.Temperature.Value, currentWeather.Temperature.Unit);
       city.Condition.Humidity = string.Format("{0} {1}", currentWeather.Humidity.Value, currentWeather.Humidity.Unit);
-      city.Condition.Pressure = string.Format("{0} {1}", currentWeather.Pressure.Value, currentWeather.Pressure.Unit);
+      city.Condition.Pressure = string.Format("{0:F0} {1}", currentWeather.Pressure.Value, currentWeather.Pressure.Unit);
       city.Condition.Precipitation = string.Format("{0} {1}", currentWeather.Precipitation.Value, currentWeather.Precipitation.Unit);
       city.Condition.Wind = string.Format("{0} {1}", currentWeather.Wind.Speed.Name, currentWeather.Wind.Direction.Name);
       city.Condition.Condition = currentWeather.Weather.Value;
@@ -244,7 +248,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       city.Condition.BigIcon = @"Weather\128x128\" + GetWeatherIcon(currentWeather.Weather.Number, isNight);
       city.Condition.SmallIcon = @"Weather\64x64\" + GetWeatherIcon(currentWeather.Weather.Number, isNight);
 
-      var forecasts = Task.Run(async () => await client.Forecast.GetByCityId(int.Parse(city.Id), true, _metricSystem, _language)).Result;
+      var forecasts = Task.Run(async () => await client.Forecast.GetByCityId(cityId, true, _metricSystem, _language)).Result;
       foreach (var forecast in forecasts.Forecast)
       {
         DayForecast dayForecast = new DayForecast();
@@ -266,13 +270,30 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         city.ForecastCollection.Add(dayForecast);
       }
       city.ForecastCollection.FireChange();
-      return false;
+      return true;
     }
 
     public List<CitySetupInfo> FindLocationsByName(string name)
     {
       var client = new OpenWeatherMapClient(GetKey());
-      var location = Task.Run(async () => await client.Search.GetByName(name)).Result;
+      var parts = name.Split(',');
+      bool isCoord = false;
+      Coordinates coordinates = new Coordinates();
+      double lat;
+      double lon;
+      if (parts.Length == 2 &&
+        double.TryParse(parts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out lat) &&
+        double.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out lon))
+      {
+        coordinates.Latitude = lat;
+        coordinates.Longitude = lon;
+        isCoord = true;
+      }
+
+      var location = Task.Run(
+        async () => isCoord ?
+          await client.Search.GetByCoordinates(coordinates, _metricSystem, _language) :
+          await client.Search.GetByName(name, _metricSystem, _language)).Result;
       var cities = new List<CitySetupInfo>();
       bool useCoords = location.Count > 1;
       foreach (var city in location.List)
@@ -280,6 +301,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         var setup = new CitySetupInfo(city.City.Name, city.City.Id.ToString(), SERVICE_NAME);
         if (useCoords)
           setup.Detail = string.Format("Lat. {0:F2} Lon. {1:F2}", city.City.Coordinates.Latitude, city.City.Coordinates.Longitude);
+        setup.Grabber = GetServiceName();
         cities.Add(setup);
       }
       return cities;
@@ -319,10 +341,10 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
     private string GetWeatherIcon(int weatherCode, bool isNight)
     {
-      int translatedID;
+      int translatedId;
       var dict = isNight ? _weatherCodeTranslationNight : _weatherCodeTranslation;
-      if (dict.TryGetValue(weatherCode, out translatedID))
-        return translatedID + ".png";
+      if (dict.TryGetValue(weatherCode, out translatedId))
+        return translatedId + ".png";
       return "na.png";
     }
 
