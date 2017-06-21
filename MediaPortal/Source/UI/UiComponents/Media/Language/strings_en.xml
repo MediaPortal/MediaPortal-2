@@ -22,7 +22,7 @@
   <string name="Media.SortTitleMenuItem">Sort title</string>
   <string name="Media.AlbumMenuItem">Album and title</string>
   <string name="Media.AlbumTrackMenuItem">Album and track</string>
-  <string name="Media.AlbumArtistMenuItem">Album Artist</string>
+  <string name="Media.AlbumArtistMenuItem">Album artist</string>
   <string name="Media.AlbumLabelMenuItem">Music label</string>
   <string name="Media.TrackMenuItem">Track</string>
   <string name="Media.ArtistMenuItem">Artist</string>
@@ -56,6 +56,10 @@
   <string name="Media.MoviesCollectionMenuItem">Collection</string>
   <string name="Media.SeriesNameMenuItem">Series</string>
   <string name="Media.SeriesSeasonMenuItem">Season</string>
+  <string name="Media.ConductorMenuItem">Conductor</string>
+  <string name="Media.CompilationMenuItem">Compilation</string>
+  <string name="Media.AlbumCompilationMenuItem">Album compilation</string>
+  <string name="Media.ContentGroupMenuItem">Content group</string>
 
   <string name="Media.SimpleSearchFilterMenuItem">Search</string>
   
@@ -68,6 +72,9 @@
   <string name="Media.ImageFilterMedium">Medium</string>
   <string name="Media.ImageFilterBig">Big</string>
   <string name="Media.DiscNumberFilter">Disc {0}</string>
+  <string name="Media.CompilationFilterCompiled">Compilations</string>
+  <string name="Media.CompilationFilterUncompiled">Non-compilations</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   
   <string name="Media.SwitchToBrowseMLView">To server view</string>
   <string name="Media.SwitchToLocalMediaView">To local view</string>
@@ -108,7 +115,11 @@
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">System: {0}</string>
   <string name="Media.FilterMoviesNavbarDisplayLabel">Movies: {0}</string>
-
+  <string name="Media.FilterConductorNavbarDisplayLabel">Conductor: {0}</string>
+  <string name="Media.FilterCompilationNavbarDisplayLabel">Compilations</string>
+  <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Album compilations</string>
+  <string name="Media.FilterContentGroupNavbarDisplayLabel">Content group: {0}</string>
+  
   <!-- Display labels for workflow navigation contexts -->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Browse media</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Local media</string>
@@ -179,6 +190,10 @@
   <string name="Media.ChooseVideoHeader">Videos</string>
   <string name="Media.ChooseVideoLanguageHeader">Languages</string>
   <string name="Media.ChoosePlayCountHeader">Watch states</string>
+  <string name="Media.ChooseAlbumCompilationHeader">Album compilations</string>
+  <string name="Media.ChooseCompilationHeader">Compilations</string>
+  <string name="Media.ChooseConductorHeader">Conductors</string>
+  <string name="Media.ChooseContentGroupHeader">Content groups</string>
 
   <string name="Media.PlaylistsOverviewHeader">Playlists</string>
   <string name="Media.SavePlaylistEditNameHeader">Save playlist</string>
