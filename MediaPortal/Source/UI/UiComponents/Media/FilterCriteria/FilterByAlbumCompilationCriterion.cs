@@ -52,12 +52,18 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
+
+      List<Guid> necessaryAlbumMIATypeIds = necessaryMIATypeIds.ToList();
+      if(necessaryAlbumMIATypeIds.Contains(AudioAspect.ASPECT_ID))
+        necessaryAlbumMIATypeIds.Remove(AudioAspect.ASPECT_ID);
+      necessaryAlbumMIATypeIds.Add(AudioAlbumAspect.ASPECT_ID);
+
       IFilter emptyFilter = new EmptyFilter(AudioAlbumAspect.ATTR_COMPILATION);
       IFilter compiledFilter = new RelationalFilter(AudioAlbumAspect.ATTR_COMPILATION, RelationalOperator.EQ, true);
       IFilter uncompiledFilter = new RelationalFilter(AudioAlbumAspect.ATTR_COMPILATION, RelationalOperator.EQ, false);
-      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
-      int numCompiledItems = cd.CountMediaItems(necessaryMIATypeIds, compiledFilter, true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
-      int numUncompiledItems = cd.CountMediaItems(necessaryMIATypeIds, uncompiledFilter, true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+      int numEmptyItems = cd.CountMediaItems(necessaryAlbumMIATypeIds, emptyFilter, true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+      int numCompiledItems = cd.CountMediaItems(necessaryAlbumMIATypeIds, compiledFilter, true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+      int numUncompiledItems = cd.CountMediaItems(necessaryAlbumMIATypeIds, uncompiledFilter, true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
       return new List<FilterValue>(new FilterValue[]
         {
             new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),
