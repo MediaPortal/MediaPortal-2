@@ -385,6 +385,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, sortTitle);
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISSTUB, true);
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_STUB_LABEL, album.StubLabel);
               if (album.ReleaseDate.HasValue)
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, album.ReleaseDate);
 

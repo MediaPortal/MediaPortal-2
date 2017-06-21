@@ -109,6 +109,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// </summary>
     public HashSet<SetStub> Sets { get; set; }
 
+    /// <summary>
+    /// Stub label for matching stub to a volume label
+    /// </summary>
+    /// <example>"Movie"</example>
+    public string StubLabel { get; set; }
+
     #endregion 
 
     #region Making-of information

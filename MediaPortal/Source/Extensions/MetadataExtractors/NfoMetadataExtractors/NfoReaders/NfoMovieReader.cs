@@ -231,6 +231,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("lastplayed", new TryReadElementDelegate(TryReadLastPlayed));
       _supportedElements.Add("dateadded", new TryReadElementDelegate(TryReadDateAdded));
       _supportedElements.Add("resume", new TryReadElementDelegate(TryReadResume));
+      _supportedElements.Add("stub", new TryReadElementDelegate(TryReadStub));
 
       // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
       // ToDo: Reenable the below once we can store the information in the MediaLibrary
@@ -441,6 +442,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // Example of a valid element:
       // <originaltitle>Harry Potter and the Order of the Phoenix</originaltitle>
       return ((_currentStub.OriginalTitle = ParseSimpleString(element)) != null);
+    }
+
+    // <summary>
+    /// Tries to read the stub value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadStub(XElement element)
+    {
+      // Example of a valid element:
+      // <stub>Movie</stub>
+      return ((_currentStub.StubLabel = ParseSimpleString(element)) != null);
     }
 
     /// <summary>

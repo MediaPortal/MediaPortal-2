@@ -25,6 +25,16 @@
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common;
+using System.Linq;
+using System;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -66,5 +76,71 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     public abstract IList<MediaItem> MediaItems { get; }
     public abstract IList<ViewSpecification> SubViewSpecifications { get; }
     public abstract IEnumerable<MediaItem> GetAllMediaItems();
+    public static MediaItem FindStub(DriveInfo driveInfo, MediaItem mediaItem)
+    {
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      if (cd == null)
+        return mediaItem;
+
+      IList<MediaItem> existingItems;
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+      //Try merge handlers
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      foreach (IMediaMergeHandler mergeHandler in mediaAccessor.LocalMergeHandlers.Values)
+      {
+        IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = mediaItem.Aspects;
+        // Extracted aspects must contain all of mergeHandler.MergeableAspects
+        if (mergeHandler.MergeableAspects.All(g => extractedAspects.Keys.Contains(g)))
+        {
+          IFilter filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, 
+            mergeHandler.GetSearchFilter(extractedAspects), 
+            new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true));
+          if (filter != null)
+          {
+            existingItems = cd.Search(new MediaItemQuery(mergeHandler.MergeableAspects, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, true);
+            foreach (MediaItem existingItem in existingItems)
+            {
+              if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
+              {
+                mergeHandler.TryMerge(extractedAspects, existingItem.Aspects);
+                return existingItem;
+              }
+            }
+          }
+        }
+      }
+
+      //Try stub label
+      existingItems = cd.Search(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS,
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, 
+          new RelationalFilter(MediaAspect.ATTR_STUB_LABEL, RelationalOperator.EQ, driveInfo.VolumeLabel),
+          new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true))), false, userProfile, true);
+      if (existingItems != null && existingItems.Count == 1)
+      {
+        MediaItem existingItem = existingItems.First();
+        if (existingItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID) && mediaItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+        {
+          int newResIndex = 0;
+          foreach (MediaItemAspect mia in existingItem.Aspects[ProviderResourceAspect.ASPECT_ID])
+          {
+            if (newResIndex <= mia.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX))
+              newResIndex = mia.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) + 1;
+          }
+          foreach (MediaItemAspect mia in mediaItem.Aspects[ProviderResourceAspect.ASPECT_ID])
+          {
+            mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, newResIndex);
+            existingItem.Aspects[ProviderResourceAspect.ASPECT_ID].Add(mia);
+            newResIndex++;
+          }
+        }
+        return existingItem;
+      }
+
+      return mediaItem;
+    }
   }
 }

@@ -92,6 +92,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISSTUB =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsStub", typeof(bool), Cardinality.Inline, true);
 
+    /// <summary>
+    /// Contains a volume label for the stub media.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STUB_LABEL =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("StubLabel", 250, Cardinality.Inline, true);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
@@ -103,7 +109,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_PLAYCOUNT,
             ATTR_LASTPLAYED,
             ATTR_ISVIRTUAL,
-            ATTR_ISSTUB
+            ATTR_ISSTUB,
+            ATTR_STUB_LABEL
         });
   }
 }

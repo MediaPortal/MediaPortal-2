@@ -196,17 +196,21 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
             stubFiles.Add(file);
 
             DateTime dateTime;
-            foreach (var aspects in await ExtractStubItems(file))
+            var stubAspects = await ExtractStubItems(file);
+            if (stubAspects != null)
             {
-              PendingImportResourceNewGen pir = new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, file, ToString(), 
-                ParentImportJobController, importResource.MediaItemId, null, true);
-              pir.ExistingAspects = aspects;
-              if (ImportJobInformation.JobType == ImportJobType.Refresh)
+              foreach (var aspects in stubAspects)
               {
-                if (path2LastImportDate.TryGetValue(pir.PendingResourcePath, out dateTime))
-                  pir.DateOfLastImport = dateTime;
+                PendingImportResourceNewGen pir = new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, file, ToString(),
+                  ParentImportJobController, importResource.MediaItemId, null, true);
+                pir.ExistingAspects = aspects;
+                if (ImportJobInformation.JobType == ImportJobType.Refresh)
+                {
+                  if (path2LastImportDate.TryGetValue(pir.PendingResourcePath, out dateTime))
+                    pir.DateOfLastImport = dateTime;
+                }
+                result.Add(pir);
               }
-              result.Add(pir);
             }
           }
         }

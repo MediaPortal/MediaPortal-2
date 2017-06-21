@@ -139,6 +139,11 @@ namespace MediaPortal.Media.MetadataExtractors
                 MultipleMediaItemAspect videoStreamAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
                 videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
                 videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, -1);
+                videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
+
+                MultipleMediaItemAspect audioStreamAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
+                audioStreamAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
+                audioStreamAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, -1);
 
                 MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
                 mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
@@ -147,7 +152,7 @@ namespace MediaPortal.Media.MetadataExtractors
                 {
                   BDInfoExt bdinfo = new BDInfoExt(rah.LocalFsResourceAccessor.LocalFileSystemPath);
                   string title = bdinfo.GetTitle();
-                  mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? mediaItemAccessor.ResourceName);
+                  mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? bdinfo.VolumeLabel);
 
                   // Check for BD disc thumbs
                   FileInfo thumbnail = bdinfo.GetBiggestThumb();

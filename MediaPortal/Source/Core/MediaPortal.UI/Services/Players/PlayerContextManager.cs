@@ -235,10 +235,14 @@ namespace MediaPortal.UI.Services.Players
 
     protected void HandleResumeInfo(IPlayerSlotController psc, MediaItem mediaItem, IResumeState resumeState)
     {
-      // We can only handle resume info for valid MediaItemIds that are coming from MediaLibrary, not from local browsing.
+      // We can only handle resume info for valid MediaItemIds that are coming from MediaLibrary
       if (mediaItem == null)
         return;
+      // Not from local browsing
       if (mediaItem.MediaItemId == Guid.Empty)
+        return;
+      // And not from stubs
+      if (mediaItem.IsStub)
         return;
 
       string serialized = ResumeStateBase.Serialize(resumeState);

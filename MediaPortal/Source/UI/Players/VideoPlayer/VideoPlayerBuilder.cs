@@ -32,6 +32,12 @@ using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PathManager;
+using System.IO;
+using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -118,17 +124,53 @@ namespace MediaPortal.UI.Players.Video
         }
       }
     }
-    
+
+    #endregion
+
+    #region Helpers
+
+    private bool TryCreateInsertMediaMediaItem(out MediaItem mi)
+    {
+      mi = null;
+      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+      string resourceDirectory = pathManager.GetPath(@"<DATA>\Resources\");
+      string[] files = Directory.GetFiles(resourceDirectory, "InsertVideoMedia.*");
+      if (files == null || files.Length == 0)
+        return false;
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      MediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, files[0]).Serialize());
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, MimeTypeDetector.GetMimeType(files[0], "video/unknown"));
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, ServiceRegistration.Get<ISystemResolver>().LocalSystemId);
+
+      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.Metadata);
+      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "?");
+
+      mi = new MediaItem(Guid.Empty, aspects);
+      return true;
+    }
+
     #endregion
 
     #region IPlayerBuilder implementation
 
     public IPlayer GetPlayer(MediaItem mediaItem)
     {
+      if (mediaItem.IsStub)
+      {
+        MediaItem stubMI;
+        if(TryCreateInsertMediaMediaItem(out stubMI))
+          mediaItem = stubMI;
+      }
+
       string mimeType;
       string title;
       if (!mediaItem.GetPlayData(out mimeType, out title))
         return null;
+
       IResourceLocator locator = mediaItem.GetResourceLocator();
       Type playerType = PlayerRegistration.GetPlayerTypeForMediaItem(locator, mimeType);
       if (playerType == null)

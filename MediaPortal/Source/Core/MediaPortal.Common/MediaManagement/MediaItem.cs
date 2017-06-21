@@ -141,6 +141,24 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Indicates if the current MediaItem is a stub.
+    /// </summary>
+    public bool IsStub
+    {
+      get
+      {
+        if (PrimaryResources.Count > 0)
+          return false;
+
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return providerAspects.Where(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB).Any();
+
+        return false;
+      }
+    }
+
+    /// <summary>
     /// Returns the maximum zero-based index of available primary resource locators. For single media this will be always <c>0</c>.
     /// If no <see cref="ProviderResourceAspect"/> is available, the result is <c>-1</c>.
     /// Note: extra resources like subtitles are not considered here.
@@ -159,6 +177,8 @@ namespace MediaPortal.Common.MediaManagement
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
     public virtual IResourceLocator GetResourceLocator()
     {
+      if (PrimaryResources.Count <= ActiveResourceLocatorIndex)
+        return null;
       var aspect = PrimaryResources[ActiveResourceLocatorIndex];
       string systemId = (string)aspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
       string resourceAccessorPath = (string)aspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];

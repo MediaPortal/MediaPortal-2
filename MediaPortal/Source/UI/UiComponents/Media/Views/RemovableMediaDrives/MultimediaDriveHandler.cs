@@ -28,6 +28,7 @@ using System.IO;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities.FileSystem;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -81,10 +82,13 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       string directory = drive + "\\";
 
       ICollection<MediaItem> mediaItems;
-      MultiMediaType mediaType;
-      return (mediaType = MultimediaDirectory.DetectMultimedia(
-          directory, videoMIATypeIds, imageMIATypeIds, audioMIATypeIds, out mediaItems)) == MultiMediaType.None ? null :
-          new MultimediaDriveHandler(driveInfo, mediaItems, mediaType);
+      MultiMediaType mediaType = MultimediaDirectory.DetectMultimedia(directory, videoMIATypeIds, imageMIATypeIds, audioMIATypeIds, out mediaItems);
+      if (mediaType == MultiMediaType.None)
+        return null;
+      MediaItem[] miArray = mediaItems.ToArray();
+      for (int mediaItemIdx = 0; mediaItemIdx < mediaItems.Count; mediaItemIdx++)
+        miArray[mediaItemIdx] = FindStub(driveInfo, miArray[mediaItemIdx]);
+      return new MultimediaDriveHandler(driveInfo, miArray, mediaType);
     }
 
     public MultiMediaType MediaType

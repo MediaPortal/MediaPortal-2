@@ -108,6 +108,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
       _supportedElements.Add("review", new TryReadElementDelegate(TryReadReview));
       _supportedElements.Add("track", new TryReadElementDelegate(TryReadTrack));
+      _supportedElements.Add("stub", new TryReadElementDelegate(TryReadStub));
     }
 
     #endregion
@@ -179,6 +180,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // Example of a valid element:
       // <title>Album Title</title>
       return ((_currentStub.Title = ParseSimpleString(element)) != null);
+    }
+
+    /// <summary>
+    /// Tries to read the stub value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadStub(XElement element)
+    {
+      // Example of a valid element:
+      // <stub>Album</stub>
+      return ((_currentStub.StubLabel = ParseSimpleString(element)) != null);
     }
 
     #endregion

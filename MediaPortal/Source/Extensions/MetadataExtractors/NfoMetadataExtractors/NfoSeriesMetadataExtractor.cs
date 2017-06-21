@@ -226,14 +226,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       {
         _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (importOnly: {2}, forceQuickMode: {3})", miNumber, mediaItemAccessor, importOnly, forceQuickMode);
 
-        // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
-        // has identified this MediaItem as a video and therefore added a VideoAspect.
-        if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
-        {
-          _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
-          return false;
-        }
-
         // This MetadataExtractor only works for MediaItems accessible by an IFileSystemResourceAccessor.
         // Otherwise it is not possible to find a nfo-file in the MediaItem's directory or parent directory.
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
@@ -277,6 +269,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
         else
         {
+          // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
+          // has identified this MediaItem as a video and therefore added a VideoAspect.
+          if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+          {
+            _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
+            return false;
+          }
+
           // Here we try to find an IFileSystemResourceAccessor pointing to the episode nfo-file.
           // If we don't find one, we cannot extract any metadata.
           IFileSystemResourceAccessor episodeNfoFsra;

@@ -309,6 +309,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISSTUB, true);
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, movie.Premiered.HasValue ? movie.Premiered.Value : movie.Year.HasValue ? movie.Year.Value : (DateTime?)null);
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_STUB_LABEL, movie.StubLabel);
 
             MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
             providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
