@@ -124,8 +124,9 @@
       <ComponentRef Id="TeamMediaPortal.StartMenu" />
       <ComponentRef Id="MP2.StartMenu" />
     </Feature>
-
+    
     <!-- User Interface -->
+    <!-- Remove this when the MP2 bootstrapper app is finished
     <WixVariable Id="WixUILicenseRtf"
                  Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\$(var.Configuration)\Docs\MediaPortal License.rtf" />
     <WixVariable Id="WixUIBannerBmp"
@@ -134,8 +135,8 @@
                  Value="Resources\MPDialog.jpg" />
 
     <UIRef Id="MP2_Setup_UI_FeatureTree" />
-    <UIRef Id="WixUI_ErrorProgressText" />
-
+    <UIRef Id="WixUI_ErrorProgressText" /> -->
+    
     <InstallUISequence>
 
       <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize">NOT Installed</Custom>

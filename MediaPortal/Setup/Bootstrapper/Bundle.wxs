@@ -7,14 +7,18 @@
   <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
 
   <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MainPackage)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no">
-    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
-      <bal:WixStandardBootstrapperApplication LicenseFile="..\..\Source\Base\Client\Docs\MediaPortal License.rtf"
-                                              LogoFile="..\..\Setup\MP2-Setup\Resources\MP2_Icon_48.png"
-                                              ThemeFile="Theme\CustomTheme.xml"
-                                              LocalizationFile="Theme\CustomTheme.wxl"
-                                              SuppressOptionsUI="yes"
-                                              LicenseUrl="http://www.team-mediaportal.com"/>
-    </BootstrapperApplicationRef>
+    <BootstrapperApplicationRef Id="ManagedBootstrapperApplicationHost">
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\MP2BootstrapperApp.dll"/>
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\BootstrapperCore.config"/>
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Prism.dll"/>
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Prism.Wpf.dll"/>
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\System.Windows.Interactivity.dll"/>
+
+     
+      </BootstrapperApplicationRef>
+    
+    <!-- Needed for the ManagedBootstrapperApplicationHost-->
+    <WixVariable Id="WixMbaPrereqLicenseUrl" Value=""/>
 
     <Chain>
 

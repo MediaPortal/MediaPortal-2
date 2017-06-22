@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2-Setup", "MP2-Setup\MP2-Setup.wixproj", "{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -41,6 +41,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.LogCollector", "..\Tools\LogCollector\MediaPortal.LogCollector.csproj", "{3476BFD3-B634-4BAB-8E0F-12921019B7B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{EB0083EF-7363-4473-BADC-D72A3ECC4156}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP2BootstrapperApp", "MP2BootstrapperApp\MP2BootstrapperApp.csproj", "{690C4618-718B-4D07-916D-456B5C211A7A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -183,6 +185,18 @@ Global
 		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Test|Any CPU.Build.0 = Release|Any CPU
 		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Test|x86.ActiveCfg = Release|Any CPU
 		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Test|x86.Build.0 = Release|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Debug|x86.Build.0 = Debug|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Release|x86.ActiveCfg = Release|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Release|x86.Build.0 = Release|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Test|Any CPU.Build.0 = Release|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Test|x86.ActiveCfg = Release|Any CPU
+		{690C4618-718B-4D07-916D-456B5C211A7A}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
