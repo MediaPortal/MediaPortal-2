@@ -641,14 +641,14 @@ namespace UPnP.Infrastructure.CP.SSDP
       string location = header["LOCATION"];
       string server = header["SERVER"];
       // ST is not used
-      //string st = header["ST"];
+      string st = header["ST"];
       string usn = header["USN"];
       string bi = header["BOOTID.UPNP.ORG"];
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
       string error;
-      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp, out error))
-        UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle SSDP response from {0}:{1} - {2}:\n{3}", remoteEndPoint.Address, remoteEndPoint.Port, error, header);
+      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp, st, out error))
+        UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle SSDP response from {0}:{1} ({2} [{3}]): {4}", remoteEndPoint.Address, remoteEndPoint.Port, location, server, error);
     }
 
     protected void HandleNotifyRequest(SimpleHTTPRequest header, EndpointConfiguration config, IPEndPoint remoteEndPoint)
@@ -673,22 +673,28 @@ namespace UPnP.Infrastructure.CP.SSDP
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
       string error;
-      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp, out error))
-        UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle notify request from {0}:{1} - {2}:\n{3}", remoteEndPoint.Address, remoteEndPoint.Port, error, header);
+      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp, null, out error))
+        UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle notify request from {0}:{1} ({2} [{3}]): {4}", remoteEndPoint.Address, remoteEndPoint.Port, location, server, error);
     }
 
     protected bool HandleNotifyPacket(EndpointConfiguration config, IPEndPoint remoteEndPoint, HTTPVersion httpVersion,
-        string date, string cacheControl, string location, string server, string nts, string usn, string bi, string ci, string sp, out string error)
+        string date, string cacheControl, string location, string server, string nts, string usn, string bi, string ci, string sp, string st, out string error)
     {
       error = "Invalid message";
       uint bootID = 0;
       if (bi != null && !uint.TryParse(bi, out bootID))
+      {
         // Invalid message
+        error += " BOOTID has wrong format";
         return false;
+      }
       uint configID = 0;
       if (ci != null && !uint.TryParse(ci, out configID))
+      {
         // Invalid message
+        error += " CONFIGID has wrong format";
         return false;
+      }
       if (usn == null || !usn.StartsWith("uuid:"))
       {
         // Invalid usn - ignore message
@@ -702,12 +708,18 @@ namespace UPnP.Infrastructure.CP.SSDP
       if (nts == "ssdp:alive")
       {
         if (server == null)
+        {
           // Invalid message
+          error += " SERVER is missing";
           return false;
+        }
         int maxAge;
         if (!TryParseMaxAge(cacheControl, out maxAge))
+        {
           // Invalid message
+          error += " MAX-AGE is missing";
           return false;
+        }
         DateTime d;
         if (!DateTime.TryParse(date, out d))
           d = DateTime.Now;
@@ -730,8 +742,11 @@ namespace UPnP.Infrastructure.CP.SSDP
         // 4. Tokens can be space or comma separated, but not a mixture. Incidental spaces and commas may be present.
         int upnpVersionIndex = server.IndexOf(UPnPVersion.VERSION_PREFIX);
         if (upnpVersionIndex == -1)
+        {
           // Invalid message (UPnP version not in SERVER header)
+          error += " UPnP version is missing in SERVER header";
           return false;
+        }
 
         char separator = ' ';
         if (upnpVersionIndex == 0)
@@ -780,9 +795,21 @@ namespace UPnP.Infrastructure.CP.SSDP
         int searchPort = 1900;
         if (upnpVersion.VerMin >= 1)
         {
-          if (bi == null || ci == null)
+          if (bi == null)
+          {
             // Invalid message
+            error += " BOOTID is missing";
             return false;
+          }
+          // See section 1.3.3 ("search response") of the UPnP v1.1
+          // http://upnp.org/specs/arch/UPnP-arch-DeviceArchitecture-v1.1.pdf
+          // CONFIGID is optional in SSDP search responses (ST present in header), but mandatory for NOTIFY
+          if (ci == null && st == null)
+          {
+            // Invalid message
+            error += " CONFIGID is missing and not a Search response";
+            return false;
+          }
           if (sp != null && (!int.TryParse(sp, out searchPort) || searchPort < 49152 || searchPort > 65535))
             // Invalid message
             return false;
@@ -852,7 +879,7 @@ namespace UPnP.Infrastructure.CP.SSDP
               deviceEntry = rootEntry.GetOrCreateDeviceEntry(deviceUUID);
               serviceType = messageType;
               if (deviceEntry.Services.Contains(serviceType))
-			    // Ignore
+                // Ignore
                 return true;
               deviceEntry.Services.Add(serviceType);
               fireServiceAdded = true;
