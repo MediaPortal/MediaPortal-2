@@ -68,4 +68,6 @@
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="242"/>
   <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-50,-40,-50,20"/>
 
+  <ResourceWrapper x:Key="ContentGroupBoxCornerRadius" Resource="0"/>
+  
 </ResourceDictionary>
