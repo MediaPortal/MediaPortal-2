@@ -58,11 +58,12 @@
   <ResourceWrapper x:Key="DialogBorderGradient3Color" Resource="#40505050"/>
 
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="#393939"/>
-
+  <ResourceWrapper x:Key="ContentGroupBoxHeaderColor" Resource="#393939"/>
+  
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
 
   <ResourceWrapper x:Key="WatchedTextColor" Resource="#00A7FF"/>
-
+  
   <ResourceWrapper x:Key="MenuTextColor" Resource="#393939"/>
   
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
