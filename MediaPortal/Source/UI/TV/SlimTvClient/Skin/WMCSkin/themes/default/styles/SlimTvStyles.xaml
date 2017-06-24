@@ -306,7 +306,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="{ThemeResource ProgramBaseFill}" StrokeThickness="0"/>
+            <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonBase" Fill="{ThemeResource ProgramBaseFill}" StrokeThickness="0"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill=""/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
           </DockPanel>
@@ -320,7 +320,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" StrokeThickness="0">
+            <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonBase" StrokeThickness="0">
               <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                   <GradientStop Color="{ThemeResource ProgramChannelBaseFill}" Offset="0"/>
@@ -340,7 +340,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" StrokeThickness="0">
+            <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonBase" StrokeThickness="0">
               <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                   <GradientStop Color="{ThemeResource ProgramChannelBaseFill}" Offset="0"/>
@@ -501,10 +501,9 @@
           </Grid>
           <ControlTemplate.Triggers>
             <!-- Handling of different program states -->
-            <!--DataTrigger Binding="{Binding IsRunning}" Value="True">
-              <Setter TargetName="ProgramLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-              <Setter TargetName="SeriesLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-            </-->
+            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+              <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
+            </DataTrigger>
             <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
               <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
             </DataTrigger>
@@ -516,7 +515,7 @@
               <Setter TargetName="RecIndicator" Property="IsVisible" Value="True"/>
             </MultiTrigger>
             <Trigger Property="HasFocus" Value="True">
-              <!--Setter TargetName="ButtonHover" Property="Fill" Value="{ThemeResource FocusedButtonGradient3Color}"/-->
+              <!--Setter TargetName="ButtonHover" Property="Fill" Value="{ThemeResource ProgramFocusedFill}"/-->
               <Setter TargetName="ButtonFocusFrame" Property="IsVisible" Value="True"/>
               <Setter TargetName="ButtonUpperShine" Property="IsVisible" Value="True"/>
               <Trigger.EnterActions>
