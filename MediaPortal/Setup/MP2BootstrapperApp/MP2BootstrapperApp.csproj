@@ -79,5 +79,23 @@
   <ItemGroup>
     <Resource Include="Resources\MP2Icon184.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\background.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\banner.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\client_install.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\custom_install.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\full_install.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\server_install.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

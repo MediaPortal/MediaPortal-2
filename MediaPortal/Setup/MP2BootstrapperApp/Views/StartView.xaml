@@ -3,35 +3,145 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
+        xmlns:local="clr-namespace:MP2BootstrapperApp.ViewModels"
         mc:Ignorable="d"
-        Title="MP2 Setup" Height="350" Width="525">
+        Title="Mediaportal" Height="638.045" Width="1020.739" ResizeMode="NoResize" WindowStyle="None" WindowStartupLocation="CenterScreen" UseLayoutRounding="False"
+        >
+  <Window.Effect>
+    <DropShadowEffect ShadowDepth="0" BlurRadius="25"/>
+  </Window.Effect>
+  <Window.Foreground>
+    <SolidColorBrush Color="Black"/>
+  </Window.Foreground>
+  <Window.Background>
+    <SolidColorBrush Color="#FF0E0E0E"/>
+  </Window.Background>
   <Window.Resources>
-    <Style TargetType="{x:Type Button}">
-      <Setter Property="Margin" Value="15"/>
-      <Setter Property="Height" Value="25"/>
-      <Setter Property="Width" Value="70" />
+    <!-- Our style for the ToggleButton -->
+    <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
+      <!-- Here you can set the initial properties for the control -->
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="SnapsToDevicePixels" Value="True" />
+
+      <!-- Template needs to completely re-writing the standard control -->
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ToggleButton}">
+            <Grid>
+              <!-- Then responsible for the content. In our case it did not really need, because it is set Path -->
+              <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <!-- Our Path. Shows a cross -->
+              <Path x:Name="CloseWindow" SnapsToDevicePixels="True" ToolTip="Close window" Width="12" Height="12" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Fill="#FF919191" Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z " />
+            </Grid>
+            <!-- Trigger fires on the property -->
+            <ControlTemplate.Triggers>
+              <!-- Here change the color when the mouse cursor -->
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="CloseWindow" Property="Fill" Value="#C10000" />
+              </Trigger>
+
+              <!-- Use ToggleButton, because it has a property IsChecked, accessible through the style -->
+              <Trigger Property="IsChecked" Value="True">
+
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
     </Style>
+
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Opacity" Value="0.5"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type Button}">
+            <Border Background="{TemplateBinding Background}" BorderBrush="Black" BorderThickness="0">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="Transparent"/>
+          <Setter Property="Opacity" Value="1.0"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    
   </Window.Resources>
   <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="*"/>
-      <RowDefinition Height="*"/>
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
-    <DockPanel Grid.Column="0" Grid.Row="0">
-      <Image Source="..\resources\MP2Icon184.jpg" Width="184" Height="184" HorizontalAlignment="Left"/>
-      <StackPanel>
-        <TextBlock TextWrapping="Wrap" FontSize="20">Welcome to the Media Portal 2 Setup Wizard</TextBlock>
-        <TextBlock TextWrapping="Wrap" Margin="0,40,0,0" FontSize="14">The Setup Wizard will install Media Portal 2 on your computer. Click Next to continue or Cancel to exit the Setup Wizard</TextBlock>
+    <Image Source="..\resources\background.jpg" Stretch="Fill">
+      <Image.Effect>
+        <BlurEffect Radius="10"/>
+      </Image.Effect>
+      <Image.OpacityMask>
+        <SolidColorBrush Color="Black" Opacity="0.155"/>
+      </Image.OpacityMask>
+    </Image>
+    <Rectangle HorizontalAlignment="Left" Height="112.497" Stroke="Black" VerticalAlignment="Top" Width="1021.343" Margin="0,-0.239,-0.604,0" RenderTransformOrigin="0.5,0.5" StrokeThickness="0">
+      <Rectangle.Fill>
+        <SolidColorBrush Color="#FF2C2C2C" Opacity="0.885"/>
+      </Rectangle.Fill>
+      <Rectangle.RenderTransform>
+        <TransformGroup>
+          <ScaleTransform/>
+          <SkewTransform AngleY="-0.073"/>
+          <RotateTransform/>
+          <TranslateTransform Y="-0.399"/>
+        </TransformGroup>
+      </Rectangle.RenderTransform>
+      <Rectangle.Effect>
+        <DropShadowEffect Opacity="0.45" Direction="256" BlurRadius="12"/>
+      </Rectangle.Effect>
+    </Rectangle>
+    <Rectangle HorizontalAlignment="Left" Height="130.538" Stroke="Black" VerticalAlignment="Top" Width="1020.739" Margin="0,507.507,0,0" StrokeThickness="0">
+      <Rectangle.Fill>
+        <SolidColorBrush Color="Black" Opacity="0.6"/>
+      </Rectangle.Fill>
+      <Rectangle.Effect>
+        <DropShadowEffect Opacity="0.57" Direction="482" BlurRadius="8"/>
+      </Rectangle.Effect>
+    </Rectangle>
+    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" Height="110.559" Margin="10,522.09,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="1000.739" Foreground="#FF919191" FontStretch="SemiCondensed" FontSize="14"><Run Text="MediaPortal is a free open source mediacenter software"/><LineBreak/><LineBreak/><Run Text="You may use, distribute and copy MediaPortal under the terms of"/><Run FontFamily="Arial" Text=" "/><Run Text="GNU General Public License version 3, which is displayed below."/><LineBreak/><Span TextDecorations="Underline"><Span.Foreground>
+      <SolidColorBrush Color="#FF006493"/>
+    </Span.Foreground><Run Text="GNU GENERAL PUBLIC LICENSE"/></Span><LineBreak/><Span><Run Text="Version 3, 29 June 2007"/></Span></TextBlock>
+    <CheckBox Content="Agree to our license" Margin="418.419,464.272,397.614,135.538" Width="204.706" VerticalContentAlignment="Center" VerticalAlignment="Center" BorderBrush="{x:Null}" Foreground="#FFA2A2A2" Height="38.235" FontSize="16" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="-18,-4,0,0">
+      <CheckBox.Background>
+        <SolidColorBrush Color="White" Opacity="0.2"/>
+      </CheckBox.Background>
+    </CheckBox>
+
+    <Image Margin="9.208,0,240.814,527.134" Source="..\resources\banner.png"/>
+    <ToggleButton Name="CloseButton" Style="{StaticResource ToggleButtonWindowClose}" Margin="941.015,28.423,42.233,562.742" BorderBrush="White" Foreground="White" />
+    <Label x:Name="Label" Content="Installation" HorizontalAlignment="Left" Margin="454,146,0,0" VerticalAlignment="Top" Foreground="#FFCDCDCD" HorizontalContentAlignment="Center" FontSize="22" Background="{x:Null}"/>
+
+    <Button x:Name="FullInstallBtn" Command="{Binding ClientServerInstallCommand}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="83,249,743,0" VerticalAlignment="Top" Width="195" Height="149">
+      <StackPanel >
+        <Image Source="..\resources\full_install.png" Stretch="Fill" Width="75" Height="75"/>
+        <Label FontSize="22" Foreground="#FFD4D4D4" Margin="0,30,0,0">Client and Server</Label>
       </StackPanel>
-    </DockPanel>
-    <DockPanel Grid.Row="1" HorizontalAlignment="Right"  VerticalAlignment="Bottom" >
-      <Button Content="Back" />
-      <Button Content="Next" />
-      <Button Content="Cancel" />
-    </DockPanel>
+    </Button>
+    <Button x:Name="ClientInstallBtn" Command="{Binding ClientInstallCommand}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="303,249,523,0" VerticalAlignment="Top" Width="195" Height="149">
+      <StackPanel >
+        <Image Source="..\resources\client_install.png" Stretch="Fill" Width="75" Height="75"/>
+        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Client</Label>
+      </StackPanel>
+    </Button>
+    <Button x:Name="ServerInstallBtn" Command="{Binding ServerInstallCommand}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="526,249,300,0" VerticalAlignment="Top" Width="195" Height="149">
+      <StackPanel >
+        <Image Source="..\resources\server_install.png" Stretch="Fill" Width="65" Height="65"/>
+        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Server</Label>
+      </StackPanel>
+    </Button>
+    <Button x:Name="CustomInstallBtn" Command="{Binding CustomInstallCommand}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="751,249,62,0" VerticalAlignment="Top" Width="208" Height="149">
+      <StackPanel>
+        <Image Source="..\resources\custom_install.png" Stretch="Fill" Width="65" Height="65"/>
+        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Custom Installation</Label>
+      </StackPanel>
+    </Button>
+
   </Grid>
 </Window>
+

@@ -50,6 +50,8 @@ namespace MP2BootstrapperApp.ViewModels
     private readonly BootstrapperApplicationModel _model;
     private InstallState _state;
     private string _message;
+    private bool _installServer;
+    private bool _installClient;
 
     #endregion
 
@@ -62,22 +64,11 @@ namespace MP2BootstrapperApp.ViewModels
 
       WireUpEventHandlers();
 
-      NextCommand = new DelegateCommand(() => Next(), () => true);
-      BackCommand = new DelegateCommand(() => Back(), () => true);
-      InstallCommand = new DelegateCommand(() => _model.PlanAction(LaunchAction.Install), () => State == InstallState.NotPresent);
+      ClientServerInstallCommand = new DelegateCommand(() => ClientServerInstall(), () => true);
+      ClientInstallCommand = new DelegateCommand(() => ClientInstall(), () => true);
+      ServerInstallCommand = new DelegateCommand(() => ServerInstall(), () => true);
+      CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
       UninstallCommand = new DelegateCommand(() => _model.PlanAction(LaunchAction.Uninstall), () => State == InstallState.Present);
-      CancelCommand = new DelegateCommand(() =>
-      {
-        _model.LogMessage("Cancelling...");
-        if (State == InstallState.Applaying)
-        {
-          State = InstallState.Canceled;
-        }
-        else
-        {
-          MP2BootstrapperApplication.Dispatcher.InvokeShutdown();
-        }
-      }, () => State != InstallState.Canceled);
 
       _model.BootstrapperApplication.ResolveSource += (sender, args) =>
       {
@@ -92,19 +83,53 @@ namespace MP2BootstrapperApp.ViewModels
       };
     }
 
+    private void ClientServerInstall()
+    {
+      _installClient = true;
+      _installServer = true;
+      _model.PlanAction(LaunchAction.Install);
+    }
+
+    private void ClientInstall()
+    {
+      _installClient = true;
+      _model.PlanAction(LaunchAction.Install);
+    }
+
+    private void ServerInstall()
+    {
+      _installServer = true;
+      _model.PlanAction(LaunchAction.Install);
+    }
+
+    private void CancelInstall()
+    {
+      _model.LogMessage("Cancelling...");
+      if (State == InstallState.Applaying)
+      {
+        State = InstallState.Canceled;
+      }
+      else
+      {
+        MP2BootstrapperApplication.Dispatcher.InvokeShutdown();
+      }
+    }
+
     #endregion
 
     #region Properties
-
-    public ICommand InstallCommand { get; private set; }
 
     public ICommand UninstallCommand { get; private set; }
 
     public ICommand CancelCommand { get; private set; }
 
-    public ICommand NextCommand { get; private set; }
+    public ICommand ClientServerInstallCommand { get; private set; }
 
-    public ICommand BackCommand { get; private set; }
+    public ICommand ClientInstallCommand { get; private set; }
+
+    public ICommand ServerInstallCommand { get; private set; }
+
+    public ICommand CustomInstallCommand { get; private set; }
 
     public string Message
     {
@@ -135,16 +160,6 @@ namespace MP2BootstrapperApp.ViewModels
     #endregion
 
     #region Methods
-
-    private void Next()
-    {
-      // go to next dialogue
-    }
-
-    private void Back()
-    {
-      // got to prev dialogue
-    }
 
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs e)
     {
@@ -192,11 +207,42 @@ namespace MP2BootstrapperApp.ViewModels
       MP2BootstrapperApplication.Dispatcher.InvokeShutdown();
     }
 
+    protected void PlanMsiFeature(object sender, PlanMsiFeatureEventArgs e)
+    {
+      if (e.FeatureId == "Client")
+      {
+        e.State = _installClient ? FeatureState.Local : FeatureState.Absent;
+      }
+      else
+      {
+        e.State = FeatureState.Local;
+      }
+
+      if (e.FeatureId == "Server")
+      {
+        e.State = _installServer ? FeatureState.Local : FeatureState.Absent;
+      }
+      else
+      {
+        e.State = FeatureState.Local;
+      }
+    }
+
+    protected void PlanPackageBegin(object sender, PlanPackageBeginEventArgs e)
+    {
+      if (e.PackageId == "directx9")
+      {
+        e.State = _installServer ? RequestState.None : RequestState.Present;
+      }
+    }
+
     private void Refresh()
     {
       MP2BootstrapperApplication.Dispatcher.Invoke(() =>
       {
-        ((DelegateCommand)InstallCommand).RaiseCanExecuteChanged();
+        ((DelegateCommand)ClientServerInstallCommand).RaiseCanExecuteChanged();
+        ((DelegateCommand)ClientInstallCommand).RaiseCanExecuteChanged();
+        ((DelegateCommand)ServerInstallCommand).RaiseCanExecuteChanged();
         ((DelegateCommand)UninstallCommand).RaiseCanExecuteChanged();
         ((DelegateCommand)CancelCommand).RaiseCanExecuteChanged();
       });
@@ -210,6 +256,8 @@ namespace MP2BootstrapperApp.ViewModels
       _model.BootstrapperApplication.ApplyBegin += ApplyBegin;
       _model.BootstrapperApplication.ExecutePackageBegin += ExecutePackageBegin;
       _model.BootstrapperApplication.ExecutePackageComplete += ExecutePackageComplete;
+      _model.BootstrapperApplication.PlanMsiFeature += PlanMsiFeature;
+      _model.BootstrapperApplication.PlanPackageBegin += PlanPackageBegin;
     }
 
     #endregion
