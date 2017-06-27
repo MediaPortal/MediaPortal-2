@@ -77,9 +77,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\MP2Icon184.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\background.jpg" />
   </ItemGroup>
   <ItemGroup>

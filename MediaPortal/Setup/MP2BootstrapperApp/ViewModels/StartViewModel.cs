@@ -69,18 +69,6 @@ namespace MP2BootstrapperApp.ViewModels
       ServerInstallCommand = new DelegateCommand(() => ServerInstall(), () => true);
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
       UninstallCommand = new DelegateCommand(() => _model.PlanAction(LaunchAction.Uninstall), () => State == InstallState.Present);
-
-      _model.BootstrapperApplication.ResolveSource += (sender, args) =>
-      {
-        if (!string.IsNullOrEmpty(args.DownloadSource))
-        {
-          args.Result = Result.Download;
-        }
-        else
-        {
-          args.Result = Result.Ok;
-        }
-      };
     }
 
     private void ClientServerInstall()
