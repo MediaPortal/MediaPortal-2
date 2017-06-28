@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.10</ProductVersion>
+    <ProjectGuid>109958fb-395a-4311-9bd9-3be80ce3e54f</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>MP2Server</OutputName>
+    <OutputType>Package</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <SuppressIces>ICE60;ICE80</SuppressIces>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Features\Server.Heat.wxs" />
+    <Compile Include="Features\Server.wxs" />
+    <Compile Include="MP2Server.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Includes.wxi" />
+    <Content Include="MP2Server-Logging.bat" />
+    <Content Include="VersionInfo.wxi" />
+    <Content Include="xslt\Server.Heat.xslt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features" />
+    <Folder Include="Language" />
+    <Folder Include="xslt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Language\en-us.wxl" />
+    <EmbeddedResource Include="Language\WixExt_en-us.wxl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Main\MediaPortal.Server\MediaPortal.Server.csproj">
+      <Name>MediaPortal.Server</Name>
+      <Project>{dbb95772-9a29-443d-a1b1-7a32e27f598b}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\CustomActions\CustomActions.csproj">
+      <Name>CustomActions</Name>
+      <Project>{461696fb-ab81-4bf8-8907-e648f51ccdf0}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixUtilExtension">
+      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
+      <Name>WixUtilExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixNetFxExtension">
+      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
+      <Name>WixNetFxExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixFirewallExtension">
+      <HintPath>$(WixExtDir)\WixFirewallExtension.dll</HintPath>
+      <Name>WixFirewallExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" />
+  <Import Project="build.targets" />
+</Project>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   
   <Fragment>
     <util:FileSearch Id="LAV_Filters_Version_x86"

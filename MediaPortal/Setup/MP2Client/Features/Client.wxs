@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+
+  <Fragment>
+
+    <?include ..\Includes.wxi ?>
+
+    <!-- Icon -->
+    <Icon Id="Client" SourceFile="$(var.MediaPortal.Client.TargetPath)" />
+
+    <!-- Directory definition -->
+    <DirectoryRef Id="TeamMediaPortal.Folder">
+      <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client" />
+    </DirectoryRef>
+
+    <DirectoryRef Id="TeamMediaPortal.Data.Folder">
+      <Directory Id="CLIENT_DATA_FOLDER" Name="MP2-Client">
+        <Component Id="CLIENT_DATA_FOLDER" Guid="3DF62027-81C3-4047-815C-4C530E0328EB">
+          <CreateFolder/>
+        </Component>
+
+        <Directory Id="CLIENT_CONFIG_FOLDER" Name="Config">
+          <Component Id="CLIENT_CONFIG_FOLDER" Guid="0165F58A-FCC9-460E-A88D-F32B5E0DE112">
+            <CreateFolder/>
+          </Component>
+        </Directory>
+        <Directory Id="CLIENT_LOG_FOLDER" Name="Log">
+          <Component Id="CLIENT_LOG_FOLDER" Guid="98590791-BDC0-44FD-B348-DF66A110EE70">
+            <CreateFolder/>
+          </Component>
+        </Directory>
+      </Directory>
+    </DirectoryRef>
+
+    <!-- Directory content -->
+    <DirectoryRef Id="INSTALLDIR_CLIENT" FileSource="$(var.MediaPortal.Client.TargetDir)">
+
+      <Component Id="Client.Registry.InstallDir" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
+        <RegistryKey Root="HKLM"
+                     Key="Software\[Manufacturer]\[ProductName]">
+          <RegistryValue Type="string" Name="INSTALLDIR_CLIENT" Value="[INSTALLDIR_CLIENT]"/>
+        </RegistryKey>
+        <CreateFolder />
+      </Component>
+
+      <!-- Albert, 2012-03-04: If we would let the user change the custom paths, we could write them here to the Paths.xml file.
+                                 We would need to call our custom action PrepareXmlPathVariables(). -->
+      <!--
+      <Directory Id="Defaults" Name="Defaults">
+        <Component Id="Defaults" Guid="8B5A0635-DF72-4668-96BC-3F9CDDDFA5FF">
+          <File Id="Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
+        </Component>
+
+        <Component Id="WriteCustomClientPaths" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
+          <?foreach LABEL in $(var.ClientPathLabels)?>
+          <util:XmlFile Id="WriteCustomClientPaths_$(var.LABEL)"
+                        Action="setValue" File="[Defaults]\Paths.xml"
+                        ElementPath="//Paths/Path[\[]@name='$(var.LABEL)'[\]]"
+                        Value="[XML.CLIENT.$(var.LABEL).FOLDER]" Name="value" SelectionLanguage="XPath" />
+          <?endforeach?>
+        </Component>
+      </Directory>
+        -->
+
+      <Component Id="Client.exe" Guid="15EAC789-4F3A-4F65-B758-92562DB7C5AA">
+        <File Id="Client.exe" Name="MP2-Client.exe" KeyPath="yes" Checksum="yes">
+          <fire:FirewallException Id="MP2ClientExTCPDom" Name="MP2-Client TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExTCPPriv" Name="MP2-Client TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExUDPDom" Name="MP2-Client UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExUDPPriv" Name="MP2-Client UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+        </File>
+      </Component>
+
+    </DirectoryRef>
+
+    <!-- Shortcuts -->
+    <DirectoryRef Id="MP2.StartMenu">
+      <Component Id="Client.StartMenu.Shortcut" Guid="1F79952A-464C-4E69-9C4F-F8F4488DE83F">
+        <Shortcut Id="Client.StartMenu.Shortcut"
+                  Name="!(loc.SC_Client)"
+                  Description="!(loc.SC_Client_Desc)"
+                  Target="[!Client.exe]"
+                  Icon="Client"
+                  WorkingDirectory="INSTALLDIR_CLIENT" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="Client.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="Client.Desktop.Shortcut" Guid="F005C623-CE3D-4ABD-A6DB-598D3859D58D">
+        <Shortcut Id="Client.Desktop.Shortcut"
+                  Name="!(loc.SC_Client)"
+                  Description="!(loc.SC_Client_Desc)"
+                  Target="[!Client.exe]"
+                  Icon="Client"
+                  WorkingDirectory="INSTALLDIR_CLIENT" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="Client.Desktop.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Feature -->
+    <Feature Id="Client"
+              Level="1"
+              AllowAdvertise="no"
+              ConfigurableDirectory="INSTALLDIR_CLIENT"
+              Title="!(loc.F_Client)"
+              Description="!(loc.F_Client_Desc)">
+
+      <ComponentRef Id="CLIENT_DATA_FOLDER" />
+      <ComponentRef Id="CLIENT_CONFIG_FOLDER" />
+      <ComponentRef Id="CLIENT_LOG_FOLDER" />
+
+      <ComponentRef Id="Client.exe" />
+      <ComponentRef Id="Client.Desktop.Shortcut" />
+      <ComponentRef Id="Client.StartMenu.Shortcut" />
+      <ComponentRef Id="Client.Registry.InstallDir" />
+
+      <ComponentGroupRef Id="Client.Heat"/>
+    </Feature>
+
+  </Fragment>
+</Wix>

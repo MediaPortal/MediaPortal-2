@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+
+  <Fragment>
+
+    <?include ..\Includes.wxi ?>
+
+    <!-- Icon -->
+    <Icon Id="SetupTV" SourceFile="$(var.MediaPortal.Server.TargetDir)\Plugins\SlimTV.Service3\SetupTV.ico" />
+
+    <!-- Directory definition -->
+    <DirectoryRef Id="TeamMediaPortal.Folder">
+      <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server" />
+    </DirectoryRef>
+
+    <DirectoryRef Id="TeamMediaPortal.Data.Folder">
+      <Directory Id="SERVER_DATA_FOLDER" Name="MP2-Server">
+        <Component Id="SERVER_DATA_FOLDER" Guid="4C918D8D-9925-49D9-8CC9-0369A32F6221">
+          <CreateFolder/>
+        </Component>
+
+        <Directory Id="SERVER_CONFIG_FOLDER" Name="Config">
+          <Component Id="SERVER_CONFIG_FOLDER" Guid="97054EC5-47F1-4072-ADC3-BB4BF26CF35A">
+            <CreateFolder/>
+          </Component>
+        </Directory>
+        <Directory Id="SERVER_LOG_FOLDER" Name="Log">
+          <Component Id="SERVER_LOG_FOLDER" Guid="4FF03809-8904-43E9-929B-A1397853A77F">
+            <CreateFolder/>
+          </Component>
+        </Directory>
+        <Directory Id="SERVER_DATABASE_FOLDER" Name="Database">
+          <Component Id="SERVER_DATABASE_FOLDER" Guid="A7ABDEB5-0D3F-48B7-A4EA-92B1B5DE6C2A">
+            <CreateFolder/>
+          </Component>
+        </Directory>
+      </Directory>
+    </DirectoryRef>
+
+    <!-- Directory content -->
+    <DirectoryRef Id="INSTALLDIR_SERVER" FileSource="$(var.MediaPortal.Server.TargetDir)">
+
+      <Component Id="Server.Registry.InstallDir" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
+        <RegistryKey Root="HKLM"
+                     Key="Software\[Manufacturer]\[ProductName]">
+          <RegistryValue Type="string" Name="INSTALLDIR_SERVER" Value="[INSTALLDIR_SERVER]"/>
+        </RegistryKey>
+        <CreateFolder />
+      </Component>
+
+      <!-- Albert, 2012-03-04: If we would let the user change the custom paths, we could write them here to the Paths.xml file.
+                                 We would need to call our custom action PrepareXmlPathVariables(). -->
+      <!--
+      <Directory Id="S__Defaults" Name="Defaults">
+        <Component Id="S__Defaults" Guid="9894844B-C89B-4F8D-A905-751B836A5DF3">
+          <File Id="S__Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
+        </Component>
+      </Directory>
+      -->
+
+      <Component Id="Server.exe" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
+        <File Id="Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes">
+          <fire:FirewallException Id="MP2ServerExTCPDom" Name="MP2-Server TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServerExTCPPriv" Name="MP2-Server TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServerExUDPPriv" Name="MP2-Server UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+        </File>
+        <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Vital="yes" Name="MP2-Server"
+            DisplayName="!(loc.Service_DisplayName)"
+            Description="!(loc.Service_Description)"
+            Start="auto" Account="LocalSystem" ErrorControl="ignore" Interactive="no" />
+        <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="MP2-Server" Wait="yes" />
+      </Component>
+
+      <!--<Component Id="SetupTV.exe" Guid="F9DC6B22-A800-4F0C-B442-CC5D6A6D5B92">
+        <File Id="SetupTV.exe" Name="SetupTV.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>-->
+
+    </DirectoryRef>
+    <!-- Shortcuts -->
+    <DirectoryRef Id="MP2.StartMenu">
+      <Component Id="SetupTV.StartMenu.Shortcut" Guid="08D3FF8F-A2AE-4AAA-8598-981F1E26F299">
+        <Shortcut Id="SetupTV.StartMenu.Shortcut"
+                  Name="MediaPortal 2 TV Configuration"
+                  Target="[INSTALLDIR_SERVER]\Plugins\SlimTV.Service3\SetupTV.exe"
+                  Icon="SetupTV"
+                  WorkingDirectory="INSTALLDIR_SERVER" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="SetupTV.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="SetupTV.Desktop.Shortcut" Guid="958D7666-FDE2-43EF-BE84-4D19F7BAEA32">
+        <Shortcut Id="SetupTV.Desktop.Shortcut"
+                  Name="MediaPortal 2 TV Configuration"
+                  Target="[INSTALLDIR_SERVER]\Plugins\SlimTV.Service3\SetupTV.exe"
+                  Icon="SetupTV"
+                  WorkingDirectory="INSTALLDIR_SERVER" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="SetupTV.Desktop.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Feature -->
+    <Feature Id="Server"
+             Level="1"
+             AllowAdvertise="no"
+             ConfigurableDirectory="INSTALLDIR_SERVER"
+             Title="!(loc.F_Server)"
+             Description="!(loc.F_Server_Desc)">
+
+      <ComponentRef Id="SERVER_DATA_FOLDER" />
+      <ComponentRef Id="SERVER_CONFIG_FOLDER" />
+      <ComponentRef Id="SERVER_LOG_FOLDER" />
+      <ComponentRef Id="SERVER_DATABASE_FOLDER" />
+
+      <ComponentRef Id="Server.exe" />
+      <ComponentRef Id="Server.Registry.InstallDir" />
+
+      <ComponentRef Id="SetupTV.StartMenu.Shortcut" />
+      <ComponentRef Id="SetupTV.Desktop.Shortcut" />
+
+      <ComponentGroupRef Id="Server.Heat"/>
+    </Feature>
+
+  </Fragment>
+</Wix>
