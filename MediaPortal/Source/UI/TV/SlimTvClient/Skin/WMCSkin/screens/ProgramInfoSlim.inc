@@ -46,7 +46,7 @@
     </Grid>
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-           Wrap="True" TextTrimming="WordEllipsis" Opacity="1.3" FontSize="{ThemeResource SmallFontSize}"
+           Wrap="True" TextTrimming="WordEllipsis" Opacity="1.4" FontSize="{ThemeResource SmallFontSize}"
            Content="{Binding Path=CurrentProgram.Description}"
            Color="{ThemeResource MenuTextBackground}" Margin="10,0,0,5" />
   </Grid>
