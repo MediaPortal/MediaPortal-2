@@ -69,7 +69,7 @@
                 <StackPanel x:Name="Temperatures" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding CurrentLocation}">
                   <Label x:Name="Temperature" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}"
                          Content="{Binding CurrentLocation.Condition.Temperature}"/>
-                  <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Margin="0,0,0,30"
+                  <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Margin="0,0,0,28"
                          Content="{Binding CurrentLocation.Name}" Wrap="True" Width="750"/>
                 </StackPanel>
               </StackPanel>
