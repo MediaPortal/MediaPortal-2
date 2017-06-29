@@ -3,25 +3,26 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
   <?include VersionInfo.wxi?>
-  
-	<Product Id="*" 
-           Name="MP2Server" 
+
+  <Product Id="*" 
+           Name="MP2Common" 
            Language="!(loc.ProductLanguage)" 
            Version="$(var.Version)" 
            Manufacturer="$(var.Manufacturer)" 
-           UpgradeCode="c477b7e6-c49b-49df-83c3-89a710f166b7">
+           UpgradeCode="e11b21f5-f258-4a59-879e-31bf427771f7">
 		
     <Package 
-            InstallerVersion="405" 
-            Description="MediaPortal 2 Server Installer"
+            InstallerVersion="405"
+            Description="MediaPortal 2 Common Installer"
             Compressed="yes" 
             SummaryCodepage="!(loc.SummaryCodepage)"
             InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
-		<MediaTemplate EmbedCab="yes" />
+		<MediaTemplate EmbedCab="yes"/>
 
-	  <!-- Directories -->
+
+    <!-- Directories -->
 	  <Directory Id="TARGETDIR" Name="SourceDir">
 
 	    <Directory Id="ProgramFilesFolder">
@@ -51,8 +52,7 @@
 	    <Directory Id="DesktopFolder" />
 	  </Directory>
 
-
-	  <!-- Shortcuts -->
+    <!-- Shortcuts -->
 	  <DirectoryRef Id="TeamMediaPortal.StartMenu">
 	    <Component Id="TeamMediaPortal.StartMenu" Guid="EBCECF2A-3330-11E1-BB19-75D94724019B">
 	      <RegistryValue Root="HKCU"
@@ -88,22 +88,25 @@
 	    </Component>
 	  </DirectoryRef>
 
-	  <!-- Features -->
-	  <Feature Id="MP2Server"
-	           Level="1"
-	           AllowAdvertise="no"
-	           Display="expand"
-	           Title="!(loc.F_MediaPortal)"
-	           Description="!(loc.F_MediaPortal_Desc)">
-	    <FeatureRef Id="Server" />
-
-	    <ComponentRef Id="EmptyComponent_WindowsInstallerBugWorkaround" />
-	    <ComponentRef Id="TeamMediaPortal.Data.Folder" />
-	    <ComponentRef Id="TeamMediaPortal.StartMenu" />
-	    <ComponentRef Id="MP2.StartMenu" />
-	  </Feature>
     
-	  <InstallUISequence>
+
+    <Feature Id="MP2Common" 
+             Level="1"
+             AllowAdvertise="no"
+             Display="expand"
+             Title="!(loc.F_MediaPortal)"
+             Description="!(loc.F_MediaPortal_Desc)">
+      <FeatureRef Id="ServiceMonitor" />
+      <FeatureRef Id="LogCollector" />
+
+      <ComponentRef Id="EmptyComponent_WindowsInstallerBugWorkaround" />
+      <ComponentRef Id="TeamMediaPortal.Data.Folder" />
+      <ComponentRef Id="TeamMediaPortal.StartMenu" />
+      <ComponentRef Id="MP2.StartMenu" />
+      
+		</Feature>
+
+    <InstallUISequence>
 
 	    <!-- <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize">NOT Installed</Custom> -->
 
@@ -122,6 +125,6 @@
       <RemoveExistingProducts After="InstallInitialize" />
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>     -->
-    
+
 	</Product>
 </Wix>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include>
+  <?define RegKeyRoot="Software\Team MediaPortal\MediaPortal 2" ?>
+  <?define RegKeyInstall="$(var.RegKeyRoot)\Install" ?>
+</Include>

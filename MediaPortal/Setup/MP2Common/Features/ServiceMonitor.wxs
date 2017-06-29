@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+
+  <Fragment>
+
+    <?include ..\Includes.wxi ?>
+
+    <!-- Icon -->
+    <Icon Id="ServiceMonitor" SourceFile="$(var.MediaPortal.ServiceMonitor.TargetPath)" />
+
+    <!-- Directory definition -->
+    <DirectoryRef Id="TeamMediaPortal.Folder">
+      <Directory Id="INSTALLDIR_SERVICE_MONITOR" Name="MP2-ServiceMonitor" />
+    </DirectoryRef>
+
+    <!-- Directory content -->
+    <DirectoryRef Id="INSTALLDIR_SERVICE_MONITOR" FileSource="$(var.MediaPortal.ServiceMonitor.TargetDir)">
+
+      <Component Id="ServiceMonitor.Registry.InstallDir" Guid="6B87D8D0-1C8E-4A5A-AF9E-AD2E89698660">
+        <RegistryKey Root="HKLM"
+                     Key="Software\[Manufacturer]\[ProductName]">
+          <RegistryValue Type="string" Name="INSTALLDIR_SERVICE_MONITOR" Value="[INSTALLDIR_SERVICE_MONITOR]"/>
+        </RegistryKey>
+        <CreateFolder />
+      </Component>
+
+      <Component Id="ServiceMonitor.exe" Guid="440393DC-C511-4C73-8A92-184CB119CA49">
+        <File Id="ServiceMonitor.exe" Name="MP2-ServiceMonitor.exe" KeyPath="yes" Checksum="yes">
+          <fire:FirewallException Id="MP2ServiceMonitorExTCPDom" Name="MP2-ServiceMonitor TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServiceMonitorExTCPPriv" Name="MP2-ServiceMonitor TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServiceMonitorExUDPDom" Name="MP2-ServiceMonitor UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServiceMonitorExUDPPriv" Name="MP2-ServiceMonitor UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+        </File>
+      </Component>
+      <!-- Auto-start via Registry -->
+      <Component Id="ServiceMonitor.Registry.AutoStart" Guid="6F122131-ACC6-493B-8EC2-31D5715E07BF">
+        <RegistryValue Root="HKCU"
+                       Key="Software\Microsoft\Windows\Currentversion\Run"
+                       Name="MP2 ServiceMonitor"
+                       Value='"[#ServiceMonitor.exe]" -m'
+                       KeyPath="yes"
+                       Type="expandable"/>
+      </Component>
+
+    </DirectoryRef>
+
+    <!-- Shortcuts -->
+    <DirectoryRef Id="MP2.StartMenu">
+      <Component Id="ServiceMonitor.StartMenu.Shortcut" Guid="859CAD90-107F-4526-9607-CB340B4D59E8">
+        <Shortcut Id="ServiceMonitor.StartMenu.Shortcut"
+                  Name="!(loc.SC_ServiceMonitor)"
+                  Description="!(loc.SC_ServiceMonitor_Desc)"
+                  Target="[!ServiceMonitor.exe]"
+                  Icon="ServiceMonitor"
+                  WorkingDirectory="INSTALLDIR_SERVICE_MONITOR" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="ServiceMonitor.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="ServiceMonitor.Desktop.Shortcut" Guid="44C19D8A-48F8-4B0A-98B4-5E02C0F2BE2D">
+        <Shortcut Id="ServiceMonitor.Desktop.Shortcut"
+                  Name="!(loc.SC_ServiceMonitor)"
+                  Description="!(loc.SC_ServiceMonitor_Desc)"
+                  Target="[!ServiceMonitor.exe]"
+                  Icon="ServiceMonitor"
+                  WorkingDirectory="INSTALLDIR_SERVICE_MONITOR" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="ServiceMonitor.Desktop.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Feature -->
+    <Feature Id="ServiceMonitor"
+             Level="1"
+             AllowAdvertise="no"
+             ConfigurableDirectory="INSTALLDIR_SERVICE_MONITOR"
+             Title="!(loc.F_ServiceMonitor)"
+             Description="!(loc.F_ServiceMonitor_Desc)">
+
+      <ComponentRef Id="ServiceMonitor.exe" />
+      <ComponentRef Id="ServiceMonitor.Desktop.Shortcut" />
+      <ComponentRef Id="ServiceMonitor.StartMenu.Shortcut" />
+      <ComponentRef Id="ServiceMonitor.Registry.AutoStart" />
+      <ComponentRef Id="ServiceMonitor.Registry.InstallDir" />
+
+      <ComponentGroupRef Id="ServiceMonitor.Heat" />
+    </Feature>
+
+    <InstallExecuteSequence>
+      <Custom Action="LaunchServiceMonitor" After="InstallFinalize"><![CDATA[&ServiceMonitor=3]]></Custom>
+    </InstallExecuteSequence>
+
+    <CustomAction Id="LaunchServiceMonitor"
+                  FileKey="ServiceMonitor.exe"
+                  ExeCommand=" -m"
+                  Return="asyncNoWait" />
+
+  </Fragment>
+</Wix>

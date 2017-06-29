@@ -2,7 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   
-  <?include ..\VersionInfo.wxi?>
+  <?include VersionInfo.wxi?>
 
   <Product Id="*" 
            Name="MP2Client" 

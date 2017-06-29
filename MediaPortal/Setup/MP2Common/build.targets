@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+
+  <UsingTask TaskName="HeatDirectory"
+    AssemblyFile="$(WixToolPath)WixUtilExtension.dll" />
+
+  <Target Name="BeforeBuild">
+
+    <HeatDirectory
+      Directory="$(SolutionDir)..\Bin\MP2-ServiceMonitor\bin\x86\$(Configuration)"
+      PreprocessorVariable="var.MediaPortal.ServiceMonitor.TargetDir"
+      ComponentGroupName="ServiceMonitor.Heat"
+      DirectoryRefId="INSTALLDIR_SERVICE_MONITOR"
+      Transforms="$(ProjectDir)xslt\ServiceMonitor.Heat.xslt"
+      OutputFile="$(ProjectDir)Features\ServiceMonitor.Heat.wxs"
+      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
+
+    <HeatDirectory
+      Directory="$(SolutionDir)..\Bin\MP2-LogCollector\bin\x86\$(Configuration)"
+      PreprocessorVariable="var.MediaPortal.LogCollector.TargetDir"
+      ComponentGroupName="LogCollector.Heat"
+      DirectoryRefId="INSTALLDIR_LOG_COLLECTOR"
+      Transforms="$(ProjectDir)xslt\LogCollector.Heat.xslt"
+      OutputFile="$(ProjectDir)Features\LogCollector.Heat.wxs"
+      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
+    
+  </Target>
+
+  <ItemGroup>
+    <Resources Include="$(ProjectDir)MP2Common-Logging.bat"/>
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(Resources)" DestinationFolder="$(TargetDir)en-us\" />
+  </Target>
+
+</Project>
