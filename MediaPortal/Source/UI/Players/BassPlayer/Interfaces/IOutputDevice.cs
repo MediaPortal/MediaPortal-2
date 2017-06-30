@@ -111,5 +111,15 @@ namespace MediaPortal.UI.Players.BassPlayer.Interfaces
     /// Clears playbackbuffers by overwriting them with zeros.
     /// </summary>
     void ClearBuffers();
+
+    /// <summary>
+    /// Gets or sets the volume (0-100), in a linear scale.
+    /// </summary>
+    int Volume { get; set; }
+
+    /// <summary>
+    /// Gets or sets the mute state.
+    /// </summary>
+    bool Mute { get; set; }
   }
 }
