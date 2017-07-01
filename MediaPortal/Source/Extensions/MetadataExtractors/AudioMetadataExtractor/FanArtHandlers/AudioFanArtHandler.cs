@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     #endregion
 
     protected FanArtHandlerMetadata _metadata;
-    private SynchronizedCollection<Guid> _checkCache = new SynchronizedCollection<Guid>();
+    private readonly SynchronizedCollection<Guid> _checkCache = new SynchronizedCollection<Guid>();
 
     public AudioFanArtHandler()
     {
@@ -118,7 +118,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           {
             int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
             if (index.HasValue && artists.Count > index.Value && index.Value >= 0)
-              artistMediaItems.Add((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], artists[index.Value]);
+              artistMediaItems[(Guid)relation[RelationshipAspect.ATTR_LINKED_ID]] = artists[index.Value];
           }
         }
       }
@@ -262,8 +262,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 return;
 
               FanArtCache.InitFanArtCache(mediaItemId, albumTitle);
-              string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
-                "File." + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
+              string cacheFile = GetCacheFileName(mediaItemId, fanArtType, "File." + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
               if (!System.IO.File.Exists(cacheFile))
               {
                 using (MemoryStream ms = new MemoryStream(pics[0].Data.Data))
