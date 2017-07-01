@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -142,7 +143,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
 
       IEnumerable<string> characters = aspect.GetCollectionAttribute<string>(VideoAspect.ATTR_CHARACTERS);
-      List<string> nameList = new List<string>(characters);
+      List<string> nameList = new SafeList<string>(characters);
 
       index = nameList.IndexOf(name);
       return index >= 0;
