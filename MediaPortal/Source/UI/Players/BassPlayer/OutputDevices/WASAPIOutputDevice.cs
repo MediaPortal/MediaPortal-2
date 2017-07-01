@@ -333,6 +333,11 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       set
       {
         BassWasapi.BASS_WASAPI_SetMute(_bassWASAPIVolScope, value);
+        if (!value)
+        {
+          var bassVolume = _volume / 100f;
+          BassWasapi.BASS_WASAPI_SetVolume(BASSWASAPIVolume.BASS_WASAPI_CURVE_LINEAR, bassVolume);
+        }
         _isMuted = value;
       }
     }
