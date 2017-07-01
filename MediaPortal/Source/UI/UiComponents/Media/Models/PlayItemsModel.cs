@@ -524,7 +524,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
       }
       _playMenuItems = new ItemsList();
-      ListItem resumeItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAYBACK_RESUME)
+      ListItem resumeItem = new ListItem
       {
         Command = new MethodDelegateCommand(() =>
         {
@@ -532,6 +532,9 @@ namespace MediaPortal.UiComponents.Media.Models
           PlayItem(item, resumeState);
         })
       };
+      PositionResumeState positionResume = resumeState as PositionResumeState;
+      string playbackResume = LocalizationHelper.Translate(Consts.RES_PLAYBACK_RESUME, positionResume.ResumePosition.ToString(@"hh\:mm\:ss"));
+      resumeItem.SetLabel(Consts.KEY_NAME, playbackResume);
       _playMenuItems.Add(resumeItem);
       ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAYBACK_FROMSTART)
       {
