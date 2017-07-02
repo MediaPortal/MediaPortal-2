@@ -83,6 +83,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         return mediaItem;
 
       IList<MediaItem> existingItems;
+      IFilter filter = null;
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
@@ -96,7 +97,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         // Extracted aspects must contain all of mergeHandler.MergeableAspects
         if (mergeHandler.MergeableAspects.All(g => extractedAspects.Keys.Contains(g)))
         {
-          IFilter filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, 
+          filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, 
             mergeHandler.GetSearchFilter(extractedAspects), 
             new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true));
           if (filter != null)
@@ -115,10 +116,15 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       }
 
       //Try stub label
-      existingItems = cd.Search(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS,
-          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, 
+      filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           new RelationalFilter(MediaAspect.ATTR_STUB_LABEL, RelationalOperator.EQ, driveInfo.VolumeLabel),
-          new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true))), false, userProfile, true);
+          new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true));
+      int trackNo = 0;
+      if(mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAspect.ATTR_TRACK, 0, out trackNo) && trackNo > 0)
+      {
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(AudioAspect.ATTR_TRACK, RelationalOperator.EQ, trackNo));
+      }
+      existingItems = cd.Search(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, true);
       if (existingItems != null && existingItems.Count == 1)
       {
         MediaItem existingItem = existingItems.First();
