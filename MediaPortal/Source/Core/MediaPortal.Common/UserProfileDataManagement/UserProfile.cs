@@ -43,14 +43,20 @@ namespace MediaPortal.Common.UserProfileDataManagement
   {
     protected Guid _profileId;
     protected string _name;
+    protected string _password;
+    protected byte[] _image;
+    protected DateTime? _lastLogin;
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
-    public UserProfile(Guid profileId, string name)
+    public UserProfile(Guid profileId, string name, string password = null, byte[] image = null, DateTime? lastLogin = null)
     {
       _profileId = profileId;
       _name = name;
+      _password = password;
+      _image = image;
+      _lastLogin = lastLogin;
     }
 
     /// <summary>
@@ -69,6 +75,33 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public string Name
     {
       get { return _name; }
+    }
+
+    /// <summary>
+    /// Returns the user password of this profile.
+    /// </summary>
+    [XmlIgnore]
+    public string Password
+    {
+      get { return _password; }
+    }
+
+    /// <summary>
+    /// Returns the user image of this profile.
+    /// </summary>
+    [XmlIgnore]
+    public byte[] Image
+    {
+      get { return _image; }
+    }
+
+    /// <summary>
+    /// Returns the last login of this profile.
+    /// </summary>
+    [XmlIgnore]
+    public DateTime? LastLogin
+    {
+      get { return _lastLogin; }
     }
 
     /// <summary>
@@ -166,6 +199,36 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       get { return _name; }
       set { _name = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("Password")]
+    public string XML_Password
+    {
+      get { return _password; }
+      set { _password = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("Image")]
+    public string XML_Image
+    {
+      get { return _image != null && _image.Length > 0 ? Convert.ToBase64String(_image) : ""; }
+      set { _image = string.IsNullOrEmpty(value) ? null : Convert.FromBase64String(value); }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("LastLogin")]
+    public long XML_LastLogin
+    {
+      get { return _lastLogin.HasValue ? _lastLogin.Value.Ticks : 0; }
+      set { _lastLogin = value == 0 ? (DateTime?)null : new DateTime(value); }
     }
 
     #endregion

@@ -10,7 +10,7 @@
     PluginVersion="1.0"
     ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
-  
+
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
@@ -21,6 +21,20 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="{82582433-FD64-41bd-9059-7F662DBDA713}" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.LoginModel"/>
+    <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.LoginModel"/>
   </Register>
+
+  <Register Location="/Workflow/States">
+    <WorkflowState Id="2529B0F0-8415-4A4E-971B-38D6CDD2406A" Name="Login" MainScreen="Login"
+        DisplayLabel="[Login.Title]" />
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="LoginLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location = "/Resources/Skin">
+    <Resource Id="LoginSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
 </Plugin>

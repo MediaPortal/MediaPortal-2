@@ -42,7 +42,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public const string SUBSCHEMA_NAME = "UserProfileDataManagement";
 
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
-    public const int EXPECTED_SCHEMA_VERSION_MINOR = 0;
+    public const int EXPECTED_SCHEMA_VERSION_MINOR = 1;
 
     internal const string USER_MEDIA_ITEM_DATA_TABLE_NAME = "USER_MEDIA_ITEM_DATA";
     internal const string USER_PROFILE_ID_COL_NAME = "PROFILE_ID";
@@ -63,11 +63,11 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     // User profiles
 
     public static IDbCommand SelectUserProfilesCommand(ITransaction transaction, Guid? profileId, string name,
-        out int profileIdIndex, out int nameIndex)
+        out int profileIdIndex, out int nameIndex, out int passwordIndex, out int imageIndex, out int lastLoginIndex)
     {
       ISQLDatabase database = transaction.Database;
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT PROFILE_ID, NAME FROM USER_PROFILES";
+      result.CommandText = "SELECT PROFILE_ID, NAME, PASSWORD, IMAGE, LAST_LOGIN FROM USER_PROFILES";
 
       IList<string> filters = new List<string>(2);
       if (profileId.HasValue)
@@ -85,16 +85,21 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
       profileIdIndex = 0;
       nameIndex = 1;
+      passwordIndex = 2;
+      imageIndex = 3;
+      lastLoginIndex = 4;
       return result;
     }
 
-    public static IDbCommand CreateUserProfileCommand(ITransaction transaction, Guid profileId, string name)
+    public static IDbCommand CreateUserProfileCommand(ITransaction transaction, Guid profileId, string name, string password = null, byte[] image = null)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO USER_PROFILES (PROFILE_ID, NAME) VALUES (@PROFILE_ID, @NAME)";
+      result.CommandText = "INSERT INTO USER_PROFILES (PROFILE_ID, NAME, PASSWORD, IMAGE) VALUES (@PROFILE_ID, @NAME, @PASSWORD, @IMAGE)";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "NAME", name, typeof(string));
+      database.AddParameter(result, "PASSWORD", profileId, typeof(string));
+      database.AddParameter(result, "IMAGE", name, typeof(byte[]));
       return result;
     }
 
@@ -105,6 +110,18 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "NAME", newName, typeof(string));
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      return result;
+    }
+
+    public static IDbCommand UpdateUserProfileNameCommand(ITransaction transaction, Guid profileId, string newName, string newPassword, byte[] newImage)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "UPDATE USER_PROFILES SET NAME=@NAME, PASSWORD=@PASSWORD, IMAGE=@IMAGE WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "NAME", newName, typeof(string));
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "PASSWORD", newPassword, typeof(string));
+      database.AddParameter(result, "IMAGE", newImage, typeof(byte[]));
       return result;
     }
 

@@ -70,17 +70,20 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       {
         int profileIdIndex;
         int nameIndex;
+        int passwordIndex;
+        int imageIndex;
+        int lastLoginIndex;
         using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserProfilesCommand(transaction, profileId, name,
-            out profileIdIndex, out nameIndex))
+            out profileIdIndex, out nameIndex, out passwordIndex, out imageIndex, out lastLoginIndex))
         {
           ICollection<UserProfile> result = new List<UserProfile>();
           using (IDataReader reader = command.ExecuteReader())
           {
             while (reader.Read())
             {
-              Guid profileId_ = database.ReadDBValue<Guid>(reader, profileIdIndex);
-              string name_ = database.ReadDBValue<string>(reader, nameIndex);
-              result.Add(new UserProfile(profileId_, name_));
+              result.Add(new UserProfile(database.ReadDBValue<Guid>(reader, profileIdIndex), database.ReadDBValue<string>(reader, nameIndex), 
+                database.ReadDBValue<string>(reader, passwordIndex), database.ReadDBValue<byte[]>(reader, imageIndex), database.ReadDBValue<DateTime?>(reader, lastLoginIndex))
+              );
             }
           }
           return result;
