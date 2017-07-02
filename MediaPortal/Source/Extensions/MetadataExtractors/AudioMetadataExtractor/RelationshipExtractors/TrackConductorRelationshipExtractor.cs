@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using System.Linq;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -155,7 +156,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
 
       IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ARTISTS);
-      List<string> nameList = new List<string>(persons);
+      List<string> nameList = new SafeList<string>(persons);
 
       index = nameList.IndexOf(name);
       return index >= 0;
