@@ -1128,13 +1128,13 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="0.5" >
+          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="1" >
             <Border.Background>
               <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                 <LinearGradientBrush.GradientStops>
-                  <GradientStop Color="#666666" Offset="0"  />
-                  <GradientStop Color="#666666" Offset="0.95"  />
-                  <GradientStop Color="#666666" Offset="1"  />
+                  <GradientStop Color="#444444" Offset="0"  />
+                  <GradientStop Color="#444444" Offset="0.95"  />
+                  <GradientStop Color="#444444" Offset="1"  />
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Border.Background>
@@ -1165,7 +1165,7 @@
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.9"/>
+              <Setter TargetName="ButtonControlRectangle" Property="Background" Value="{ThemeResource FocusedButtonGradient1Color}"/>
               <Trigger.EnterActions>
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>

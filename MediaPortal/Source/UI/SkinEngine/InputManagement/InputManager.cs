@@ -380,8 +380,14 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     protected void ExecuteKeyPress(KeyEvent evt)
     {
       Key key = evt.Key;
+      if (key == null)
+        return;
+
       if (KeyPreview != null)
         KeyPreview(ref key);
+
+      if (key == null)
+        return;
 
       var routedKeyEventArgs = new KeyEventArgs(Environment.TickCount, key);
 

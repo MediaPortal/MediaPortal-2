@@ -34,7 +34,7 @@
               IsChecked="{Binding Path=IsEnabled,Mode=TwoWay}"
               IsEnabled="{Binding Path=!IsSynchronizing}"
               Content="{Binding}" />
-          <Label Content="[Trakt.Enable]" Color="{ThemeResource TextColor}" Margin="5"/>
+          <Label Content="[Trakt.Enable]" Color="{ThemeResource MenuTextColor}" Margin="5"/>
         </StackPanel>
 
         <GroupBox x:Name="UsernamePasswordGroup" Header="[Trakt.UsernamePasswordGroup]" Grid.Row="1" Grid.ColumnSpan="3" Margin="10"
@@ -59,7 +59,7 @@
 
             <Label Content="[Trakt.PinUrl]" Color="{ThemeResource TextColor}" Margin="5,35,5,5" Grid.Row="2"/>
             <Image x:Name="ItemTypeImage" Stretch="Uniform" Source="qr.png" Grid.RowSpan="5" Grid.Column="1" HorizontalAlignment="Right" 
-                   Height="{ResolutionResource QRHeight}" Margin="10,0,15,15"/>
+                   Height="{ResolutionResource QRHeight}" Margin="10,0,0,0"/>
             <Label Content="[Trakt.PinCode]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="3"/>
             <TextBox Text="{Binding Path=PinCode,Mode=TwoWay}" Margin="5"
                      Style="{ThemeResource DefaultTextBoxStyle}" Grid.Row="4" Height="50"/>

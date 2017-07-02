@@ -75,6 +75,7 @@
     <Compile Include="Models\NavigationList.cs" />
     <Compile Include="Models\NestedItem.cs" />
     <Compile Include="Models\ScreenModeModel.cs" />
+    <Compile Include="Models\SubItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\EnableBannersConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableAnimatedBackgroundConfiguration.cs" />

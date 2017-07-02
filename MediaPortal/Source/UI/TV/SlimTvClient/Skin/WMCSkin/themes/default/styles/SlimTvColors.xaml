@@ -10,8 +10,9 @@
   <!-- Program guide colors -->
   <ResourceWrapper x:Key="ProgramChannelBaseFill" Resource="#D9000000"/>
   <ResourceWrapper x:Key="ProgramBaseFill" Resource="#D900264c"/>
-  <ResourceWrapper x:Key="ProgramRunningFill" Resource="#A0134763"/> 
+  <ResourceWrapper x:Key="ProgramRunningFill" Resource="#D9037482"/> 
   <ResourceWrapper x:Key="ProgramScheduledFill" Resource="#A0FF0000"/>
+  <ResourceWrapper x:Key="ProgramFocusedFill" Resource="#330db9cd"/>
   
   <ResourceWrapper x:Key="MiniguideDetailBackground" Resource="#A0000000"/>
 
