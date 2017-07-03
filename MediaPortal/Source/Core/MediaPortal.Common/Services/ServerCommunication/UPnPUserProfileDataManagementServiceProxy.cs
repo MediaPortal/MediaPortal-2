@@ -73,6 +73,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.DeserializeGuid((string) outParameters[0]);
     }
 
+    public Guid CreateProfile(string profileName, int profileType, string profilePassword, byte[] profileImage)
+    {
+      CpAction action = GetAction("CreateUserProfile");
+      IList<object> inParameters = new List<object> { profileName, profileType, profilePassword, profileImage != null && profileImage.Length > 0 ? Convert.ToBase64String(profileImage) : "" };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
+    }
+
     public bool RenameProfile(Guid profileId, string newName)
     {
       CpAction action = GetAction("RenameProfile");
@@ -87,6 +95,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(profileId)};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (bool) outParameters[0];
+    }
+
+    public bool LoginProfile(Guid profileId)
+    {
+      CpAction action = GetAction("LoginProfile");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId) };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (bool)outParameters[0];
     }
 
     #endregion

@@ -41,22 +41,27 @@ namespace MediaPortal.Common.UserProfileDataManagement
   /// </remarks>
   public class UserProfile
   {
+    public const int CLIENT_PROFILE = 0;
+    public const int USER_PROFILE = 1;
+
     protected Guid _profileId;
     protected string _name;
     protected string _password;
     protected byte[] _image;
     protected DateTime? _lastLogin;
+    protected int _profileType;
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
-    public UserProfile(Guid profileId, string name, string password = null, byte[] image = null, DateTime? lastLogin = null)
+    public UserProfile(Guid profileId, string name, int profileType = CLIENT_PROFILE, string password = null, byte[] image = null, DateTime? lastLogin = null)
     {
       _profileId = profileId;
       _name = name;
       _password = password;
       _image = image;
       _lastLogin = lastLogin;
+      _profileType = profileType;
     }
 
     /// <summary>
@@ -78,9 +83,18 @@ namespace MediaPortal.Common.UserProfileDataManagement
     }
 
     /// <summary>
-    /// Returns the user password of this profile.
+    /// Returns the type this profile.
     /// </summary>
     [XmlIgnore]
+    public int ProfileType
+    {
+      get { return _profileType; }
+    }
+
+      /// <summary>
+      /// Returns the user password of this profile.
+      /// </summary>
+      [XmlIgnore]
     public string Password
     {
       get { return _password; }
@@ -199,6 +213,16 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       get { return _name; }
       set { _name = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("ProfileType")]
+    public int XML_ProfileType
+    {
+      get { return _profileType; }
+      set { _profileType = value; }
     }
 
     /// <summary>

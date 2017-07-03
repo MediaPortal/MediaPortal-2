@@ -79,6 +79,13 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           };
       AddStateVariable(A_ARG_TYPE_String);
 
+      // Used for string values
+      DvStateVariable A_ARG_TYPE_Int = new DvStateVariable("A_ARG_TYPE_Int", new DvStandardDataType(UPnPStandardDataType.Int))
+      {
+        SendEvents = false
+      };
+      AddStateVariable(A_ARG_TYPE_Int);
+
       // More state variables go here
 
 
@@ -118,6 +125,18 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           });
       AddAction(createProfileAction);
 
+      DvAction createUserProfileAction = new DvAction("CreateUserProfile", OnCreateUserProfile,
+          new DvArgument[] {
+            new DvArgument("ProfileName", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("ProfileType", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("ProfilePassword", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("ProfileImage", A_ARG_TYPE_String, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.Out, true)
+          });
+      AddAction(createUserProfileAction);
+
       DvAction renameProfileAction = new DvAction("RenameProfile", OnRenameProfile,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
@@ -136,6 +155,15 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(deleteProfileAction);
+
+      DvAction loginProfileAction = new DvAction("LoginProfile", OnLoginProfile,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In)
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(loginProfileAction);
 
       // User playlist data
       DvAction getUserPlaylistDataAction = new DvAction("GetUserPlaylistData", OnGetUserPlaylistData,
@@ -264,6 +292,21 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return null;
     }
 
+    static UPnPError OnCreateUserProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      string profileName = (string)inParams[0];
+      int profileType = (int)inParams[1];
+      string profilePassword = (string)inParams[2];
+      string profileImage = (string)inParams[3];
+      byte[] image = null;
+      if (!string.IsNullOrEmpty(profileImage))
+        image = Convert.FromBase64String(profileImage);
+      Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfile(profileName, profileType, profilePassword, image);
+      outParams = new List<object> { profileId };
+      return null;
+    }
+
     static UPnPError OnRenameProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
@@ -280,6 +323,15 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       bool success = ServiceRegistration.Get<IUserProfileDataManagement>().DeleteProfile(profileId);
       outParams = new List<object> {success};
+      return null;
+    }
+
+    static UPnPError OnLoginProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().LoginProfile(profileId);
+      outParams = new List<object> { success };
       return null;
     }
 

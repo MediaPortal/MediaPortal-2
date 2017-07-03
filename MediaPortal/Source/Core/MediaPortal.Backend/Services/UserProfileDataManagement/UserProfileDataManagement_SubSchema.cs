@@ -29,6 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -63,11 +64,11 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     // User profiles
 
     public static IDbCommand SelectUserProfilesCommand(ITransaction transaction, Guid? profileId, string name,
-        out int profileIdIndex, out int nameIndex, out int passwordIndex, out int imageIndex, out int lastLoginIndex)
+        out int profileIdIndex, out int nameIndex, out int profileTypeIndex, out int passwordIndex, out int imageIndex, out int lastLoginIndex)
     {
       ISQLDatabase database = transaction.Database;
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT PROFILE_ID, NAME, PASSWORD, IMAGE, LAST_LOGIN FROM USER_PROFILES";
+      result.CommandText = "SELECT PROFILE_ID, NAME, PROFILE_TYPE, PASSWORD, IMAGE, LAST_LOGIN FROM USER_PROFILES";
 
       IList<string> filters = new List<string>(2);
       if (profileId.HasValue)
@@ -85,21 +86,23 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
       profileIdIndex = 0;
       nameIndex = 1;
-      passwordIndex = 2;
-      imageIndex = 3;
-      lastLoginIndex = 4;
+      profileTypeIndex = 2;
+      passwordIndex = 3;
+      imageIndex = 4;
+      lastLoginIndex = 5;
       return result;
     }
 
-    public static IDbCommand CreateUserProfileCommand(ITransaction transaction, Guid profileId, string name, string password = null, byte[] image = null)
+    public static IDbCommand CreateUserProfileCommand(ITransaction transaction, Guid profileId, string name, int profileType = UserProfile.CLIENT_PROFILE, string password = null, byte[] image = null)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO USER_PROFILES (PROFILE_ID, NAME, PASSWORD, IMAGE) VALUES (@PROFILE_ID, @NAME, @PASSWORD, @IMAGE)";
+      result.CommandText = "INSERT INTO USER_PROFILES (PROFILE_ID, NAME, PROFILE_TYPE, PASSWORD, IMAGE) VALUES (@PROFILE_ID, @NAME, @PROFILE_TYPE, @PASSWORD, @IMAGE)";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "NAME", name, typeof(string));
-      database.AddParameter(result, "PASSWORD", profileId, typeof(string));
-      database.AddParameter(result, "IMAGE", name, typeof(byte[]));
+      database.AddParameter(result, "PROFILE_TYPE", profileType, typeof(int));
+      database.AddParameter(result, "PASSWORD", password, typeof(string));
+      database.AddParameter(result, "IMAGE", image, typeof(byte[]));
       return result;
     }
 
@@ -113,7 +116,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
-    public static IDbCommand UpdateUserProfileNameCommand(ITransaction transaction, Guid profileId, string newName, string newPassword, byte[] newImage)
+    public static IDbCommand UpdateUserProfileCommand(ITransaction transaction, Guid profileId, string newName, string newPassword, byte[] newImage)
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "UPDATE USER_PROFILES SET NAME=@NAME, PASSWORD=@PASSWORD, IMAGE=@IMAGE WHERE PROFILE_ID=@PROFILE_ID";
@@ -122,6 +125,16 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "PASSWORD", newPassword, typeof(string));
       database.AddParameter(result, "IMAGE", newImage, typeof(byte[]));
+      return result;
+    }
+
+    public static IDbCommand LoginUserProfileCommand(ITransaction transaction, Guid profileId)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "UPDATE USER_PROFILES SET LAST_LOGIN=@LAST_LOGIN WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "LAST_LOGIN", DateTime.Now, typeof(DateTime));
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       return result;
     }
 

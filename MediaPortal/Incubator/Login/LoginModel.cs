@@ -136,10 +136,12 @@ namespace MediaPortal.UiComponents.Login
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
 
       UserProfile userProfile;
-      if (userManagement.UserProfileDataManagement == null || !userManagement.UserProfileDataManagement.GetProfile(profileId, out userProfile))
+      if (userManagement.UserProfileDataManagement == null)
         return;
-
+      if (!userManagement.UserProfileDataManagement.GetProfile(profileId, out userProfile))
+        return;
       SetCurrentUser(userProfile);
+      userManagement.UserProfileDataManagement.LoginProfile(profileId);
     }
 
     /// <summary>
