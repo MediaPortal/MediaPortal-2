@@ -70,8 +70,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _characterMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CharacterMatches.xml"));
       _companyMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CompanyMatches.xml"));
       _configFile = Path.Combine(cachePath, "MovieConfig.xml");
-
-      Init();
     }
 
     public override bool Init()

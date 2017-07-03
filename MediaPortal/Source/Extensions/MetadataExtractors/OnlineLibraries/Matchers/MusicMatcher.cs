@@ -69,8 +69,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _labelMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "LabelMatches.xml"));
       _albumMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "AlbumMatches.xml"));
       _configFile = Path.Combine(cachePath, "MusicConfig.xml");
-
-      Init();
     }
 
     public override bool Init()

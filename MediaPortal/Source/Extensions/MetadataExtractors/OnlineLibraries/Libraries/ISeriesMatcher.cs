@@ -30,6 +30,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
   public interface ISeriesMatcher
   {
+    bool Init();
+
     bool Primary { get; set; }
     bool Enabled { get; set; }
     string Id { get; }

@@ -72,8 +72,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _networkMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "NetworkMatches.xml"));
       _seriesNameMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "SeriesNameMatches.xml"));
       _configFile = Path.Combine(cachePath, "SeriesConfig.xml");
-
-      Init();
     }
 
     public override bool Init()
