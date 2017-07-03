@@ -95,6 +95,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
           matcher.PreferredLanguageCulture = settings.MusicLanguageCulture;
+          matcher.Init();
         }
       }
 
@@ -106,6 +107,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
           matcher.PreferredLanguageCulture = settings.MovieLanguageCulture;
+          matcher.Init();
         }
       }
 
@@ -117,6 +119,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
           matcher.PreferredLanguageCulture = settings.SeriesLanguageCulture;
+          matcher.Init();
         }
       }
     }

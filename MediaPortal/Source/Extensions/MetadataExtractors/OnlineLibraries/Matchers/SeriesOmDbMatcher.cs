@@ -55,6 +55,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public SeriesOmDbMatcher() : 
       base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
+      //TODO: Disabled for now. Has gone private for the time being.
+      Enabled = false;
     }
 
     public override bool InitWrapper(bool useHttps)
