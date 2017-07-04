@@ -622,7 +622,28 @@
 
   <!-- Style definition for EpgGrid defining header and program item styles -->
   <Style x:Key="EpgGridStyle" TargetType="{x:Type tv:EpgGrid}">
-    <Setter Property="HeaderWidth" Value="{ThemeResource MultiGuideHeaderWidth}" />
+    <Setter Property="GroupButtonWidth" Value="{ThemeResource GroupButtonWidth}"/>
+    <Setter Property="GroupButtonTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}">
+            <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+              <Label x:Name="GroupLabel" VerticalAlignment="Center" HorizontalAlignment="Center"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Opacity="0.6" Content="[SlimTvClient.ChannelGroupButton]"/>
+              <Label VerticalAlignment="Center" HorizontalAlignment="Center"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Opacity="0.6" Content=": "/>
+              <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Opacity="0.6" Content="{Binding GroupName}" VerticalAlignment="Center"/>
+              <StackPanel.LayoutTransform>
+                <RotateTransform CenterX="0.5" CenterY="0.5" Angle="-90" />
+              </StackPanel.LayoutTransform>
+            </StackPanel>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="HeaderTemplate">
       <Setter.Value>
         <ControlTemplate>
@@ -632,23 +653,43 @@
                 <!-- Channel Logo -->
                 <ColumnDefinition Width="Auto"/>
                 <!-- Channel Number -->
-                <ColumnDefinition Width="Auto"/>     
+                <ColumnDefinition Width="Auto"/>
                 <!-- Channel Name -->
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-              <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MaxWidth="80" Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}"
-                     Margin="0,0,0,0">
+
+              <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="DefaultBold" Opacity="0.4"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
+                <Label.IsVisible>
+                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
+                </Label.IsVisible>
+              </Label>
+
+              <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,-1,0,-1" Width="92" HorizontalAlignment="Center"
+                     Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
                 <Image.Source>
-                  <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                                            fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                 </Image.Source>
+                <Image.IsVisible>
+                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
+                </Image.IsVisible>
               </Image>
-              <Label x:Name="ChannelNumber" Grid.Column="1" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="DefaultBold" Opacity="0.4"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>               
-              <Label Grid.Column="2" Grid.Row="0" x:Name="NameLabel" VerticalAlignment="Center" Margin="5,0,0,0"
-                     Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+              <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+                <Label.IsVisible>
+                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+                </Label.IsVisible>
+                <Label.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
+                  </DataTrigger>
+                </Label.Triggers>
+              </Label>
             </Grid>
           </Button>
         </ControlTemplate>
