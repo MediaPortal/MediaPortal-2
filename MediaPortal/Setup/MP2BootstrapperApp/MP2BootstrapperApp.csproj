@@ -55,6 +55,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\BundlePackage.cs" />
+    <Compile Include="Models\BootstrapperAppPrereqPackage.cs" />
     <Compile Include="MP2BootstrapperApplication.cs" />
     <Compile Include="Models\BootstrapperApplicationModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -24,8 +24,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Input;
+using System.Xml.Linq;
 using MP2BootstrapperApp.Models;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using Prism.Commands;
@@ -52,22 +56,8 @@ namespace MP2BootstrapperApp.ViewModels
     private readonly BootstrapperApplicationModel _model;
     private InstallState _state;
     private string _message;
-    private readonly Dictionary<string, RequestState> _bundlePackages = new Dictionary<string, RequestState>
-    {
-      { DIRECT_X, RequestState.None },
-      { DOKANY, RequestState.None },
-      { LAV_FILTERS, RequestState.None },
-      { MP2CLIENT, RequestState.None },
-      { MP2COMMON, RequestState.None },
-      { MP2SERVER, RequestState.None }
-    };
 
-    private const string DIRECT_X = "directx9";
-    private const string DOKANY = "dokan";
-    private const string LAV_FILTERS = "LAVFilters";
-    private const string MP2CLIENT = "MP2Client";
-    private const string MP2SERVER = "MP2Server";
-    private const string MP2COMMON = "MP2Common";
+    private ObservableCollection<BundlePackage> _bundlePackages = new ObservableCollection<BundlePackage>();
 
     #endregion
 
@@ -80,34 +70,11 @@ namespace MP2BootstrapperApp.ViewModels
 
       WireUpEventHandlers();
 
-      ClientServerInstallCommand = new DelegateCommand(() =>
-      {
-        _bundlePackages[DIRECT_X] = RequestState.Present;
-        _bundlePackages[DOKANY] = RequestState.Present;
-        _bundlePackages[LAV_FILTERS] = RequestState.Present;
-        _bundlePackages[MP2CLIENT] = RequestState.Present;
-        _bundlePackages[MP2COMMON] = RequestState.Present;
-        _bundlePackages[MP2SERVER] = RequestState.Present;
-        _model.PlanAction(LaunchAction.Install);
-      }, () => true);
+      ClientServerInstallCommand = new DelegateCommand(() => { _model.PlanAction(LaunchAction.Install); }, () => true);
 
-      ClientInstallCommand = new DelegateCommand(() =>
-      {
-        _bundlePackages[DIRECT_X] = RequestState.Present;
-        _bundlePackages[DOKANY] = RequestState.Present;
-        _bundlePackages[LAV_FILTERS] = RequestState.Present;
-        _bundlePackages[MP2CLIENT] = RequestState.Present;
-        _bundlePackages[MP2COMMON] = RequestState.Present;
-        _model.PlanAction(LaunchAction.Install);
-      }, () => true);
+      ClientInstallCommand = new DelegateCommand(() => { _model.PlanAction(LaunchAction.Install); }, () => true);
 
-      ServerInstallCommand = new DelegateCommand(() =>
-      {
-        _bundlePackages[DOKANY] = RequestState.Present;
-        _bundlePackages[MP2SERVER] = RequestState.Present;
-        _bundlePackages[MP2COMMON] = RequestState.Present;
-        _model.PlanAction(LaunchAction.Install);
-      }, () => true);
+      ServerInstallCommand = new DelegateCommand(() => { _model.PlanAction(LaunchAction.Install); }, () => true);
 
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
       UninstallCommand = new DelegateCommand(() => _model.PlanAction(LaunchAction.Uninstall), () => State == InstallState.Present);
@@ -181,6 +148,18 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
+    public ObservableCollection<BundlePackage> BundlePackages
+    {
+      get
+      {
+        return _bundlePackages;
+      }
+      set
+      {
+        _bundlePackages = value;
+      }
+    }
+
     #endregion
 
     #region Methods
@@ -233,11 +212,9 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void PlanPackageBegin(object sender, PlanPackageBeginEventArgs planPackageBeginEventArgs)
     {
-      string pkgId = planPackageBeginEventArgs.PackageId;
-      _model.LogMessage("Test: found packag: " +  pkgId);
-      KeyValuePair<string, RequestState> package = _bundlePackages.FirstOrDefault(p => p.Key == pkgId);
-      _model.LogMessage("setting state to :" + package.Value);
-      planPackageBeginEventArgs.State = package.Value;
+      string packageId = planPackageBeginEventArgs.PackageId;
+      BundlePackage package = BundlePackages.FirstOrDefault(p => p.Id == packageId);
+      planPackageBeginEventArgs.State = package.RequestedInstallState;
     }
 
     private void Refresh()
