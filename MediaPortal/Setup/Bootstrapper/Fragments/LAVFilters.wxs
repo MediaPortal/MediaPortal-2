@@ -12,7 +12,7 @@
       <ExePackage Id="LAVFilters" Cache="yes" Permanent="yes" Vital="yes" Compressed="no"
                   Name="LAVFilters.exe"
                   DownloadUrl="http://install.team-mediaportal.com/MP2/install/LAVFilters.exe"
-                  InstallCommand="/q"
+                  InstallCommand="/SILENT /SP-"
                   InstallCondition="(NOT LAV_Filters_Path >= v0.70.0.0) OR NOT LAV_Filters_Version_x86">
       
         <RemotePayload 
