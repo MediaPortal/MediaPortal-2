@@ -330,7 +330,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (trackInfo.Genres.Count > 0)
           {
-            trackInfo.HasChanged |= GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
+            trackInfo.HasChanged |= GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres, language.ToString());
           }
 
           //Store person matches
@@ -912,13 +912,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (albumInfo.Genres.Count > 0)
           {
-            albumInfo.HasChanged |= GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres);
+            albumInfo.HasChanged |= GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres, language.ToString());
           }
 
           if (updateTrackList)
           {
             foreach (TrackInfo track in albumMatch.Tracks)
-              GenreMapper.AssignMissingMusicGenreIds(track.Genres);
+              GenreMapper.AssignMissingMusicGenreIds(track.Genres, language.ToString());
           }
 
           //Store person matches

@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -34,7 +33,6 @@ using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {

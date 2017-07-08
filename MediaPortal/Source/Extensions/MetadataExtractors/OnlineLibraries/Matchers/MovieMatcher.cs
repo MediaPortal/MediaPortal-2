@@ -324,7 +324,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (movieInfo.Genres.Count > 0)
           {
-            movieInfo.HasChanged |= GenreMapper.AssignMissingMovieGenreIds(movieInfo.Genres);
+            movieInfo.HasChanged |= GenreMapper.AssignMissingMovieGenreIds(movieInfo.Genres, language.ToString());
           }
 
           //Store person matches
@@ -806,7 +806,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (updateMovieList)
           {
             foreach (MovieInfo movie in movieCollectionMatch.Movies)
-              GenreMapper.AssignMissingMovieGenreIds(movie.Genres);
+              GenreMapper.AssignMissingMovieGenreIds(movie.Genres, language.ToString());
           }
         }
 

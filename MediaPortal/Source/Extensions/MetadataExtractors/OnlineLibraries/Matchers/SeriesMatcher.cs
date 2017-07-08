@@ -481,7 +481,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (seriesInfo.Genres.Count > 0)
           {
-            seriesInfo.HasChanged |= GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres);
+            seriesInfo.HasChanged |= GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres, language.ToString());
           }
 
           //Store person matches

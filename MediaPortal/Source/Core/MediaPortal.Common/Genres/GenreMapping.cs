@@ -22,14 +22,14 @@
 
 #endregion
 
-using MediaPortal.Common.Settings;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Common.Genres
 {
   public class GenreMapping
   {
     public int GenreId { get; set; }
-    public SerializableRegex GenrePattern { get; set; }
+    public Regex GenrePattern { get; set; }
 
     public GenreMapping()
     {
@@ -37,7 +37,7 @@ namespace MediaPortal.Common.Genres
       GenrePattern = null;
     }
 
-    public GenreMapping(int genreId, SerializableRegex genrePattern)
+    public GenreMapping(int genreId, Regex genrePattern)
     {
       GenreId = genreId;
       GenrePattern = genrePattern;

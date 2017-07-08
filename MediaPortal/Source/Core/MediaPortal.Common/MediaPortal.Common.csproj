@@ -72,6 +72,7 @@
     <Compile Include="Genres\SeriesGenre.cs" />
     <Compile Include="Genres\MovieGenre.cs" />
     <Compile Include="Genres\MusicGenre.cs" />
+    <Compile Include="Genres\GenreStringManager.cs" />
     <Compile Include="Logging\ILoggerConfig.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\GenreAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
@@ -495,10 +496,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Genres\Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="References\log4net.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
