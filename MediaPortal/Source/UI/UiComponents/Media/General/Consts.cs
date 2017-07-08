@@ -141,6 +141,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     // Resume playback
     public static string RES_PLAYBACK_RESUME = "[Media.PlaybackResume]";
+    public static string RES_PLAYBACK_RESUME_TIME = "[Media.PlaybackResumeTime]";
     public static string RES_PLAYBACK_FROMSTART = "[Media.PlaybackFromStart]";
 
     public const string RES_VIDEO_IMAGE_CONTEXT_NAME = "[Media.VideoImageContextName]";
