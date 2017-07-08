@@ -71,11 +71,8 @@ namespace MP2BootstrapperApp.ViewModels
       WireUpEventHandlers();
 
       ClientServerInstallCommand = new DelegateCommand(() => { _model.PlanAction(LaunchAction.Install); }, () => true);
-
       ClientInstallCommand = new DelegateCommand(() => { _model.PlanAction(LaunchAction.Install); }, () => true);
-
       ServerInstallCommand = new DelegateCommand(() => { _model.PlanAction(LaunchAction.Install); }, () => true);
-
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
       UninstallCommand = new DelegateCommand(() => _model.PlanAction(LaunchAction.Uninstall), () => State == InstallState.Present);
 

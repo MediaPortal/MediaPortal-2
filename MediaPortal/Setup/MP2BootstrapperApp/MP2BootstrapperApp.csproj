@@ -60,7 +60,26 @@
     <Compile Include="MP2BootstrapperApplication.cs" />
     <Compile Include="Models\BootstrapperApplicationModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\InstallExistTypePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallNewTypePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallFinishPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallOverviewPageViewModel.cs" />
     <Compile Include="ViewModels\StartViewModel.cs" />
+    <Compile Include="Views\InstallExistTypePageView.xaml.cs">
+      <DependentUpon>InstallExistTypePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallFinishPageView.xaml.cs">
+      <DependentUpon>InstallFinishPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallNewTypePageView.xaml.cs">
+      <DependentUpon>InstallNewTypePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallOverviewPageView.xaml.cs">
+      <DependentUpon>InstallOverviewPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallWizardBaseView.xaml.cs">
+      <DependentUpon>InstallWizardBaseView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\StartView.xaml.cs">
       <DependentUpon>StartView.xaml</DependentUpon>
     </Compile>
@@ -73,6 +92,26 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\InstallExistTypePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallFinishPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallNewTypePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallOverviewPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallWizardBaseView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\StartView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -95,6 +134,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\server_install.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\directx.png" />
+    <Content Include="Resources\dokan.png" />
+    <Content Include="Resources\lav_filters.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,11 +1,13 @@
-﻿<Window x:Class="MP2BootstrapperApp.Views.StartView"
+﻿<Window x:Class="MP2BootstrapperApp.Views.InstallWizardBaseView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MP2BootstrapperApp.ViewModels"
+        xmlns:view="clr-namespace:MP2BootstrapperApp.Views"
+        xmlns:viewModels="clr-namespace:MP2BootstrapperApp.ViewModels"
         mc:Ignorable="d"
-        Title="Mediaportal" Height="638.045" Width="1020.739" ResizeMode="NoResize" WindowStyle="None" WindowStartupLocation="CenterScreen" UseLayoutRounding="False">
+        Title="Mediaportal" Height="638.045" Width="1020.739" ResizeMode="NoResize" WindowStyle="None" WindowStartupLocation="CenterScreen" UseLayoutRounding="False"
+>
   <Window.Effect>
     <DropShadowEffect ShadowDepth="0" BlurRadius="25"/>
   </Window.Effect>
@@ -16,6 +18,23 @@
     <SolidColorBrush Color="#FF0E0E0E"/>
   </Window.Background>
   <Window.Resources>
+
+    <DataTemplate DataType="{x:Type viewModels:InstallExistTypePageViewModel}">
+      <view:InstallExistTypePageView />
+    </DataTemplate>
+    
+    <DataTemplate DataType="{x:Type viewModels:InstallNewTypePageViewModel}">
+      <view:InstallNewTypePageView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:InstallOverviewPageViewModel}">
+      <view:InstallOverviewPageView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:InstallFinishPageViewModel}">
+      <view:InstallFinishPageView />
+    </DataTemplate>
+
     <!-- Our style for the ToggleButton -->
     <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
       <!-- Here you can set the initial properties for the control -->
@@ -32,7 +51,6 @@
               <!-- Our Path. Shows a cross -->
               <Path x:Name="CloseWindow" SnapsToDevicePixels="True" ToolTip="Close window" Width="12" Height="12" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Fill="#FF919191" Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z " />
             </Grid>
-            
             <!-- Trigger fires on the property -->
             <ControlTemplate.Triggers>
               <!-- Here change the color when the mouse cursor -->
@@ -69,7 +87,7 @@
         </Trigger>
       </Style.Triggers>
     </Style>
-    
+
   </Window.Resources>
   <Grid>
     <Image Source="..\resources\background.jpg" Stretch="Fill">
@@ -107,41 +125,11 @@
     <TextBlock TextAlignment="Center" HorizontalAlignment="Center" Height="110.559" Margin="10,522.09,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="1000.739" Foreground="#FF919191" FontStretch="SemiCondensed" FontSize="14"><Run Text="MediaPortal is a free open source mediacenter software"/><LineBreak/><LineBreak/><Run Text="You may use, distribute and copy MediaPortal under the terms of"/><Run FontFamily="Arial" Text=" "/><Run Text="GNU General Public License version 3, which is displayed below."/><LineBreak/><Span TextDecorations="Underline"><Span.Foreground>
       <SolidColorBrush Color="#FF006493"/>
     </Span.Foreground><Run Text="GNU GENERAL PUBLIC LICENSE"/></Span><LineBreak/><Span><Run Text="Version 3, 29 June 2007"/></Span></TextBlock>
-    <CheckBox Content="Agree to our license" Margin="418.419,464.272,397.614,135.538" Width="204.706" VerticalContentAlignment="Center" VerticalAlignment="Center" BorderBrush="{x:Null}" Foreground="#FFA2A2A2" Height="38.235" FontSize="16" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Padding="-18,-4,0,0">
-      <CheckBox.Background>
-        <SolidColorBrush Color="White" Opacity="0.2"/>
-      </CheckBox.Background>
-    </CheckBox>
 
     <Image Margin="9.208,0,240.814,527.134" Source="..\resources\banner.png"/>
     <ToggleButton Name="CloseButton" Style="{StaticResource ToggleButtonWindowClose}" Margin="941.015,28.423,42.233,562.742" BorderBrush="White" Foreground="White" />
     <Label x:Name="Label" Content="Installation" HorizontalAlignment="Left" Margin="454,146,0,0" VerticalAlignment="Top" Foreground="#FFCDCDCD" HorizontalContentAlignment="Center" FontSize="22" Background="{x:Null}"/>
-
-    <Button x:Name="FullInstallBtn" Command="{Binding ClientServerInstallCommand}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="83,249,743,0" VerticalAlignment="Top" Width="195" Height="149">
-      <StackPanel >
-        <Image Source="..\resources\full_install.png" Stretch="Fill" Width="75" Height="75"/>
-        <Label FontSize="22" Foreground="#FFD4D4D4" Margin="0,30,0,0">Client and Server</Label>
-      </StackPanel>
-    </Button>
-    <Button x:Name="ClientInstallBtn" Command="{Binding ClientInstallCommand}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="303,249,523,0" VerticalAlignment="Top" Width="195" Height="149">
-      <StackPanel >
-        <Image Source="..\resources\client_install.png" Stretch="Fill" Width="75" Height="75"/>
-        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Client</Label>
-      </StackPanel>
-    </Button>
-    <Button x:Name="ServerInstallBtn" Command="{Binding ServerInstallCommand}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="526,249,300,0" VerticalAlignment="Top" Width="195" Height="149">
-      <StackPanel >
-        <Image Source="..\resources\server_install.png" Stretch="Fill" Width="65" Height="65"/>
-        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Server</Label>
-      </StackPanel>
-    </Button>
-    <Button x:Name="CustomInstallBtn" Command="{Binding CustomInstallCommand}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="751,249,62,0" VerticalAlignment="Top" Width="208" Height="149">
-      <StackPanel>
-        <Image Source="..\resources\custom_install.png" Stretch="Fill" Width="65" Height="65"/>
-        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Custom Installation</Label>
-      </StackPanel>
-    </Button>
-
+    
   </Grid>
 </Window>
 
