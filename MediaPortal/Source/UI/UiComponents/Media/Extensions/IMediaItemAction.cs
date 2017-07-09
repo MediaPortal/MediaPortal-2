@@ -47,4 +47,15 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// <returns><c>true</c> if successful</returns>
     bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType);
   }
+
+  /// <summary>
+  /// Defined for actions that need a confirmation before.
+  /// </summary>
+  public interface IMediaItemActionConfirmation : IMediaItemAction
+  {
+    /// <summary>
+    /// Gets the confirmation message.
+    /// </summary>
+    string ConfirmationMessage { get; }
+  }
 }

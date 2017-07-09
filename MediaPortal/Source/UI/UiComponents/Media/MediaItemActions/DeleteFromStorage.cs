@@ -31,11 +31,12 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
-  public class DeleteFromStorage : AbstractMediaItemAction
+  public class DeleteFromStorage : AbstractMediaItemAction, IMediaItemActionConfirmation
   {
     /// <summary>
     /// Defines a rule how to delete media items. It can be used to remove associated files when the main media file is deleted.
@@ -172,6 +173,11 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       }
 
       return true;
+    }
+
+    public string ConfirmationMessage
+    {
+      get { return "[Media.DeleteFromStorage.Confirmation]"; }
     }
   }
 }
