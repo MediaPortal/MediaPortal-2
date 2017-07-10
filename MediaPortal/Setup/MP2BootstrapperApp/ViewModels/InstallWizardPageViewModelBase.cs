@@ -22,14 +22,43 @@
 
 #endregion
 
+using System.Collections.ObjectModel;
 using MP2BootstrapperApp.Models;
+using Prism.Mvvm;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallExistTypePageViewModel : InstallWizardPageViewModelBase
+  public abstract class InstallWizardPageViewModelBase : BindableBase
   {
-    public InstallExistTypePageViewModel(BootstrapperApplicationModel model) : base(model)
+    #region Fields
+
+    private readonly BootstrapperApplicationModel _bootstrapperApplicationModel;
+    private bool _isCurrentPage;
+
+    #endregion
+
+    #region Constructor
+
+    protected InstallWizardPageViewModelBase(BootstrapperApplicationModel model)
     {
+      _bootstrapperApplicationModel = model;
     }
+
+    #endregion
+
+    #region Properties
+
+    public BootstrapperApplicationModel BootstrapperApplicationModel
+    {
+      get { return _bootstrapperApplicationModel; }
+    }
+
+    public bool IsCurrentPage
+    {
+      get { return _isCurrentPage; }
+      set { SetProperty(ref _isCurrentPage, value); }
+    }
+
+    #endregion
   }
 }

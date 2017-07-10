@@ -23,17 +23,21 @@
 #endregion
 
 using System.Windows;
+using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.Views
 {
   /// <summary>
   /// Interaction logic for InstallWizardBaseView.xaml
   /// </summary>
-  public partial class InstallWizardBaseView : Window
+  public partial class InstallWizardView : Window
   {
-    public InstallWizardBaseView()
+    public InstallWizardView(InstallWizardViewModel viewModel)
     {
       InitializeComponent();
+      DataContext = viewModel;
+
+      Closed += (sender, e) => viewModel.CancelCommand.Execute(this);
     }
   }
 }

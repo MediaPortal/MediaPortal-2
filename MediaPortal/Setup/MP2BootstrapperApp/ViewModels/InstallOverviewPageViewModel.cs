@@ -22,9 +22,14 @@
 
 #endregion
 
+using MP2BootstrapperApp.Models;
+
 namespace MP2BootstrapperApp.ViewModels
 {
-    class InstallOverviewPageViewModel
+  public class InstallOverviewPageViewModel : InstallWizardPageViewModelBase
+  {
+    public InstallOverviewPageViewModel(BootstrapperApplicationModel model) : base(model)
     {
     }
+  }
 }

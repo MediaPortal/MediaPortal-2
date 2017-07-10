@@ -22,14 +22,18 @@
 
 #endregion
 
-using MP2BootstrapperApp.Models;
+using System.Windows.Controls;
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp.Views
 {
-  public class InstallExistTypePageViewModel : InstallWizardPageViewModelBase
+  /// <summary>
+  /// Interaction logic for InstallWelcomePageView.xaml
+  /// </summary>
+  public partial class InstallWelcomePageView : UserControl
   {
-    public InstallExistTypePageViewModel(BootstrapperApplicationModel model) : base(model)
+    public InstallWelcomePageView()
     {
+      InitializeComponent();
     }
   }
 }

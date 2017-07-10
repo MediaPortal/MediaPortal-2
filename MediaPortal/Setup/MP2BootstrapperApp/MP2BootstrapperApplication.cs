@@ -22,13 +22,7 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Windows.Threading;
-using System.Xml.Linq;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 using MP2BootstrapperApp.Views;
@@ -48,11 +42,11 @@ namespace MP2BootstrapperApp
       Dispatcher = Dispatcher.CurrentDispatcher;
 
       var model = new BootstrapperApplicationModel(this);
-      var viewModel = new StartViewModel(model);
-      var view = new StartView(viewModel);
-      
+
+      var viewModel = new InstallWizardViewModel(model);
+      var view = new InstallWizardView(viewModel);
+
       model.SetWindowHandle(view);
-      viewModel.BundlePackages.AddRange(GetBundlePackages());
 
       Engine.Detect();
 
@@ -60,38 +54,6 @@ namespace MP2BootstrapperApp
       Dispatcher.Run();
       Engine.Quit(model.FinalResult);
     }
-
-    private IEnumerable<BundlePackage> GetBundlePackages()
-    {
-      IEnumerable<BundlePackage> packages = null;
-
-      XNamespace manifestNamespace = "http://schemas.microsoft.com/wix/2010/BootstrapperApplicationData";
-
-      string manifestPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-      if (manifestPath != null)
-      {
-        string bootstrapperDataFilePath = Path.Combine(manifestPath, "BootstrapperApplicationData.xml");
-        XElement bundleManifestData;
-
-        using (var reader = new StreamReader(bootstrapperDataFilePath))
-        {
-          var xml = reader.ReadToEnd();
-          var xDoc = XDocument.Parse(xml);
-          bundleManifestData = xDoc.Element(manifestNamespace + "BootstrapperApplicationData");
-        }
-
-        var mbaPrereqs = bundleManifestData?.Descendants(manifestNamespace + "WixMbaPrereqInformation")
-          .Select(x => new BootstrapperAppPrereqPackage(x))
-          .ToList();
-
-        packages =  bundleManifestData?.Descendants(manifestNamespace + "WixPackageProperties")
-          .Select(x => new BundlePackage(x))
-          .Where(pkg => !mbaPrereqs.Any(preReq => preReq.PackageId == pkg.Id));
-      }
-
-      return packages;
-    }
-
   }
 
 }

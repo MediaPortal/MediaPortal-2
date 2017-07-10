@@ -64,6 +64,9 @@
     <Compile Include="ViewModels\InstallNewTypePageViewModel.cs" />
     <Compile Include="ViewModels\InstallFinishPageViewModel.cs" />
     <Compile Include="ViewModels\InstallOverviewPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallWelcomePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallWizardPageViewModelBase.cs" />
+    <Compile Include="ViewModels\InstallWizardViewModel.cs" />
     <Compile Include="ViewModels\StartViewModel.cs" />
     <Compile Include="Views\InstallExistTypePageView.xaml.cs">
       <DependentUpon>InstallExistTypePageView.xaml</DependentUpon>
@@ -77,8 +80,11 @@
     <Compile Include="Views\InstallOverviewPageView.xaml.cs">
       <DependentUpon>InstallOverviewPageView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\InstallWizardBaseView.xaml.cs">
-      <DependentUpon>InstallWizardBaseView.xaml</DependentUpon>
+    <Compile Include="Views\InstallWelcomePageView.xaml.cs">
+      <DependentUpon>InstallWelcomePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallWizardView.xaml.cs">
+      <DependentUpon>InstallWizardView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\StartView.xaml.cs">
       <DependentUpon>StartView.xaml</DependentUpon>
@@ -108,7 +114,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\InstallWizardBaseView.xaml">
+    <Page Include="Views\InstallWelcomePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallWizardView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
