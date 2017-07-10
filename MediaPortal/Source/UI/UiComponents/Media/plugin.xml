@@ -67,6 +67,9 @@
 
     <Model Id="E1752E49-67FE-4D94-8544-1134CC3DCD87" Name="LatestMediaModelContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.LatestMediaAction" />
     <Model Id="11193401-D85D-4D50-9825-E9EB34D87062" Name="LatestMediaModel" ClassName="MediaPortal.UiComponents.Media.Models.LatestMediaModel" />
+
+    <Model Id="93445803-8B71-4ACD-BF2A-CDD380AD805D" Name="LastWatchedModelContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.LastWatchedMediaAction" />
+    <Model Id="164E1F07-3448-46E2-9F0B-AC1831D33573" Name="LastWatchedMediaModel" ClassName="MediaPortal.UiComponents.Media.Models.LastWatchedMediaModel" />
   </Register>
 
   <Register Location="/Workflow/States">
@@ -112,6 +115,12 @@
         MainScreen="LatestMedia"
         DisplayLabel="[Media.LatestMediaWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="11193401-D85D-4D50-9825-E9EB34D87062"/> <!-- Workflow model = Latest Media model -->
+
+    <WorkflowState Id="F9573F11-C100-40FD-AC65-D4313C559ABB"
+        Name="LastWatchedMedia"
+        MainScreen="LastWatchedMedia"
+        DisplayLabel="[Media.LastWatchedMediaWorkflowNavigationContextDisplayLabel]"
+        WorkflowModel="164E1F07-3448-46E2-9F0B-AC1831D33573"/> <!-- Workflow model = Last Watche Media model -->
 
     <!-- MediaItemActions -->
 

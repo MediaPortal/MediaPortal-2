@@ -55,6 +55,12 @@
         SortOrder="g"
         SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         ContributorModelId="E1752E49-67FE-4D94-8544-1134CC3DCD87"/> <!-- Latest media action -->
+    <WorkflowContributorAction Id="7E1EEB25-CCC8-47EC-9A4B-E8CB54454C9E"
+        Name="Home->Last Watched Media"
+        DisplayCategory="a-Media"
+        SortOrder="g"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        ContributorModelId="93445803-8B71-4ACD-BF2A-CDD380AD805D"/>  <!-- Last watched media action -->
     <WorkflowContributorAction Id="69283181-C137-493B-891C-F95DA99C9AC6"
         Name="*->SwitchBrowseLocalML"
         DisplayCategory="a0-Media"

@@ -251,18 +251,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         compiledSortInformation = new List<CompiledSortInformation>();
         foreach (SortInformation sortInformation in _sortInformation)
         {
-          if (sortInformation.AttributeType.ParentMIAM.IsTransientAspect)
-            continue;
-          if (!Include(sortInformation.AttributeType.ParentMIAM))
-            continue;
-          MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
-          if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
-            // Sorting can only be done for Inline and MTO attributes
-            continue;
-          RequestedAttribute ra;
-          RequestSimpleAttribute(new QueryAttribute(attr), tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
-              miaTypeTableQueries, miaIdAttribute, out ra);
-          compiledSortInformation.Add(new CompiledSortInformation(ra, sortInformation.Direction));
+          if (sortInformation.AttributeType != null)
+          {
+            if (sortInformation.AttributeType.ParentMIAM.IsTransientAspect)
+              continue;
+            if (!Include(sortInformation.AttributeType.ParentMIAM))
+              continue;
+            MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
+            if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
+              // Sorting can only be done for Inline and MTO attributes
+              continue;
+            RequestedAttribute ra;
+            RequestSimpleAttribute(new QueryAttribute(attr), tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
+                miaTypeTableQueries, miaIdAttribute, out ra);
+            compiledSortInformation.Add(new CompiledSortInformation(ra, sortInformation.Direction));
+          }
+          else if(sortInformation.UserDataKey != null)
+          {
+            RequestedAttribute ra = new RequestedAttribute(new TableQueryData(UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME), sortInformation.UserDataKey);
+            compiledSortInformation.Add(new CompiledSortInformation(ra, sortInformation.Direction));
+          }
         }
       }
       StringBuilder result = new StringBuilder("SELECT ");

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -23,13 +23,23 @@
 #endregion
 
 using System;
+using MediaPortal.UiComponents.Media.General;
 
-namespace MediaPortal.Common.UserProfileDataManagement
+namespace MediaPortal.UiComponents.Media.Actions
 {
-  public class UserDataKeysKnown
+  public class LastWatchedMediaAction : VisibilityDependsOnServerConnectStateAction
   {
-    public const string KEY_PLAY_COUNT = "PlayCount";
-    public const string KEY_PLAY_PERCENTAGE = "PlayPercentage";
-    public const string KEY_PLAY_DATE = "PlayDate";
+    #region Consts
+
+    public const string LAST_WATCHED_MEDIA_CONTRIBUTOR_MODEL_ID_STR = "93445803-8B71-4ACD-BF2A-CDD380AD805D";
+
+    public static readonly Guid LAST_WATCHED_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(LAST_WATCHED_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
+
+    #endregion
+
+    public LastWatchedMediaAction() :
+      base(true, Consts.WF_STATE_ID_LAST_WATCHED_MEDIA, Consts.RES_LAST_WATCHED_MEDIA_MENU_ITEM)
+    {
+    }
   }
 }

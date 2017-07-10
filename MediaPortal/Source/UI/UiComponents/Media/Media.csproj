@@ -95,6 +95,7 @@
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
     <Compile Include="Actions\BaseTrackServerConnectionAction.cs" />
+    <Compile Include="Actions\LastWatchedMediaAction.cs" />
     <Compile Include="Actions\LatestMediaAction.cs" />
     <Compile Include="Actions\SwitchBrowseModeAction.cs" />
     <Compile Include="Actions\SwitchBrowseLocalMLAction.cs" />
@@ -171,6 +172,7 @@
     <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
+    <Compile Include="Models\LastWatchedMediaModel.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaGroupingModel.cs" />

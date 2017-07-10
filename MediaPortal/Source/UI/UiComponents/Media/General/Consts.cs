@@ -40,6 +40,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT = "312016AA-3DF6-4C1D-B8F7-44D34C456FFE";
 
     public const string STR_WF_STATE_ID_LATEST_MEDIA = "60CD1874-1752-4486-9DF1-82B7BDF635A6";
+    public const string STR_WF_STATE_ID_LAST_WATCHED_MEDIA = "F9573F11-C100-40FD-AC65-D4313C559ABB";
 
     public const string STR_WF_STATE_ID_ADD_TO_PLAYLIST = "76CDF664-F49C-40a4-8108-E478AB199595";
 
@@ -94,6 +95,7 @@ namespace MediaPortal.UiComponents.Media.General
                                     };
 
     public static readonly Guid WF_STATE_ID_LATEST_MEDIA = new Guid(STR_WF_STATE_ID_LATEST_MEDIA);
+    public static readonly Guid WF_STATE_ID_LAST_WATCHED_MEDIA = new Guid(STR_WF_STATE_ID_LAST_WATCHED_MEDIA);
 
     public static readonly Guid WF_STATE_ID_CURRENTLY_PLAYING_VIDEO = new Guid(STR_WF_STATE_ID_CURRENTLY_PLAYING_VIDEO);
     public static readonly Guid WF_STATE_ID_FULLSCREEN_VIDEO = new Guid(STR_WF_STATE_ID_FULLSCREEN_VIDEO);
@@ -207,6 +209,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SERIES_MENU_ITEM = "[Media.SeriesMenuItem]";
     public const string RES_SERIES_SEASON_MENU_ITEM = "[Media.SeriesSeasonMenuItem]";
     public const string RES_LATEST_MEDIA_MENU_ITEM = "[Media.LatestMediaMenuItem]";
+    public const string RES_LAST_WATCHED_MEDIA_MENU_ITEM = "[Media.LastWatchedMediaMenuItem]";
 
     public const string RES_ADD_TO_PLAYLIST_MENU_ITEM = "[Media.ManagePlaylists]";
     public const string RES_SAVE_PLAYLIST = "[Media.SavePlaylistAction]";

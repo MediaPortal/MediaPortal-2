@@ -40,11 +40,20 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   public class SortInformation
   {
     protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
+    protected string _userDataKey;
     protected SortDirection _sortDirection;
 
     public SortInformation(MediaItemAspectMetadata.AttributeSpecification attributeType, SortDirection sortDirection)
     {
       _attributeType = attributeType;
+      _userDataKey = null;
+      _sortDirection = sortDirection;
+    }
+
+    public SortInformation(string userDataKey, SortDirection sortDirection)
+    {
+      _attributeType = null;
+      _userDataKey = userDataKey;
       _sortDirection = sortDirection;
     }
 
@@ -53,6 +62,13 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _attributeType; }
       set { _attributeType = value; }
+    }
+
+    [XmlIgnore]
+    public string UserDataKey
+    {
+      get { return _userDataKey; }
+      set { _userDataKey = value; }
     }
 
     public SortDirection Direction
@@ -68,11 +84,21 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("AttributeType", IsNullable=false)]
+    [XmlElement("AttributeType", IsNullable = true)]
     public string XML_AttributeType
     {
-      get { return SerializationHelper.SerializeAttributeTypeReference(_attributeType); }
-      set { _attributeType = SerializationHelper.DeserializeAttributeTypeReference(value); }
+      get { return _attributeType == null ? null : SerializationHelper.SerializeAttributeTypeReference(_attributeType); }
+      set { _attributeType = value == null ? null : SerializationHelper.DeserializeAttributeTypeReference(value); }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("UserDataKey", IsNullable = true)]
+    public string XML_UserDataKey
+    {
+      get { return _userDataKey; }
+      set { _userDataKey = value; }
     }
 
     #endregion

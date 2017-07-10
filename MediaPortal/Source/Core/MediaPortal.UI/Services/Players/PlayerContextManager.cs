@@ -52,6 +52,8 @@ namespace MediaPortal.UI.Services.Players
   /// </summary>
   public class PlayerContextManager : IPlayerContextManager, IDisposable
   {
+    const double MINIMUM_WATCHED_SEC = 60;
+    
     #region Enums, delegates & classes
 
     protected enum PlayerWFStateType
@@ -255,13 +257,16 @@ namespace MediaPortal.UI.Services.Players
         mediaItem.UserData.Add(PlayerContext.KEY_RESUME_STATE, "");
       mediaItem.UserData[PlayerContext.KEY_RESUME_STATE] = serialized;
 
-      int playPercentage = GetPlayPercentage(mediaItem, resumeState);
-      NotifyPlayback(mediaItem, playPercentage);
+      int playPercentage = 0;
+      double playDuration = 0;
+      if(TryGetPlayDuration(mediaItem, resumeState, out playPercentage, out playDuration))
+        NotifyPlayback(mediaItem, playPercentage, playDuration);
     }
 
-    protected static int GetPlayPercentage(MediaItem mediaItem, IResumeState resumeState)
+    protected static bool TryGetPlayDuration(MediaItem mediaItem, IResumeState resumeState, out int playPercentage, out double playDuration)
     {
-      int playPercentage = 100;
+      playPercentage = 100;
+      playDuration = MINIMUM_WATCHED_SEC;
       PositionResumeState positionResume = resumeState as PositionResumeState;
       if (positionResume != null)
       {
@@ -295,16 +300,22 @@ namespace MediaPortal.UI.Services.Players
         }
 
         if (duration.TotalSeconds > 0)
+        {
           playPercentage = (int)(resumePosition.TotalSeconds * 100 / duration.TotalSeconds);
+          playDuration = resumePosition.TotalSeconds;
+        }
         else
+        {
           playPercentage = 0;
+          playDuration = 0;
+        }
       }
       if (playPercentage > 100)
         playPercentage = 100;
-      return playPercentage;
+      return true;
     }
 
-    protected static void NotifyPlayback(MediaItem mediaItem, int playPercentage)
+    protected static void NotifyPlayback(MediaItem mediaItem, int playPercentage, double playDuration)
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
@@ -328,6 +339,9 @@ namespace MediaPortal.UI.Services.Players
       {
         userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId,
           UserDataKeysKnown.KEY_PLAY_PERCENTAGE, playPercentage.ToString());
+        if (playDuration >= MINIMUM_WATCHED_SEC || playPercentage >= 50)
+          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId,
+          UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
       }
 
       if (watched)
