@@ -241,8 +241,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
     {
       if (!CanExtract(lfsra, extractedAspectData))
         return false;
-      if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
-        return false;
 
       using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
       {
