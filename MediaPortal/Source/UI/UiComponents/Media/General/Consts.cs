@@ -140,8 +140,12 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_PLAY_VIDEO_IMAGE_ITEMS_PIP = "[Media.PlayVideoImageItemsPiP]";
 
     // Resume playback
-    public static string RES_PLAYBACK_RESUME = "[Media.PlaybackResume]";
-    public static string RES_PLAYBACK_FROMSTART = "[Media.PlaybackFromStart]";
+    public const string RES_PLAYBACK_RESUME = "[Media.PlaybackResume]";
+    public const string RES_PLAYBACK_RESUME_TIME = "[Media.PlaybackResumeTime]";
+    public const string RES_PLAYBACK_FROMSTART = "[Media.PlaybackFromStart]";
+
+    // Media item action confirmation
+    public const string RES_CONFIRM_HEADER = "[Media.ConfirmAction]";
 
     public const string RES_VIDEO_IMAGE_CONTEXT_NAME = "[Media.VideoImageContextName]";
     public const string RES_AUDIO_CONTEXT_NAME = "[Media.AudioContextName]";

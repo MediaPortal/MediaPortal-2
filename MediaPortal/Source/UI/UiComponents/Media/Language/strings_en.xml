@@ -261,6 +261,8 @@
   <string name="Media.SetWatched">Set watched</string>
   <string name="Media.SetUnwatched">Set unwatched</string>
   <string name="Media.DeleteFromStorage">Delete from storage</string>
+  <string name="Media.DeleteFromStorage.Confirmation">Are you sure to finally delete this item? This action cannot be undone.</string>
+  <string name="Media.ConfirmAction">Confirm action</string>
 
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>
@@ -283,7 +285,8 @@
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Play video/image item in background &amp; continue concurrent audio item</string>
   <string name="Media.PlayVideoImageItemPiP">Play video/image item in PiP mode</string>
 
-  <string name="Media.PlaybackResume">Resume playback from: \'{0}\'</string>
+  <string name="Media.PlaybackResume">Resume playback</string>
+  <string name="Media.PlaybackResumeTime">Resume playback from: \'{0}\'</string>
   <string name="Media.PlaybackFromStart">Play from start</string>
 
   <!-- Player context names -->
