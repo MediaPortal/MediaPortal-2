@@ -286,6 +286,13 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (MediaItem)outParameters[0];
     }
 
+    public void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata)
+    {
+      CpAction action = GetAction("X_MediaPortal_RefreshMediaItem");
+      IList<object> inParameters = new List<object> { systemId, MarshallingHelper.SerializeGuid(mediaItemId), clearMetadata };
+      action.InvokeAction(inParameters);
+    }
+
     public IList<MediaItem> Browse(Guid parentDirectory,
       IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile, 
       bool includeVirtual, uint? offset = null, uint? limit = null)

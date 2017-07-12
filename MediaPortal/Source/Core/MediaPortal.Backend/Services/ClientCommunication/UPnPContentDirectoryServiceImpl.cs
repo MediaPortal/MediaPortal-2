@@ -1037,6 +1037,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(mpnp11LoadItemIdAction);
 
+      DvAction mpnp11RefreshMediaItemAction = new DvAction("X_MediaPortal_RefreshMediaItem", OnMPnP11RefreshMediaItem,
+          new DvArgument[] {
+            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("ClearMetadata", A_ARG_TYPE_Bool, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+          });
+      AddAction(mpnp11RefreshMediaItemAction);
+      
       // Media playback
 
       DvAction mpnp11NotifyPlaybackAction = new DvAction("X_MediaPortal_NotifyPlayback", OnMPnP11NotifyPlayback,
@@ -2009,6 +2019,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       MediaItem mediaItem = ServiceRegistration.Get<IMediaLibrary>().LoadItem(systemId, mediaItemId,
           necessaryMIATypes, optionalMIATypes, userProfile);
       outParams = new List<object> { mediaItem };
+      return null;
+    }
+
+    static UPnPError OnMPnP11RefreshMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      string systemId = (string)inParams[0];
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
+      bool clearMetadata = (bool)inParams[2];
+      ServiceRegistration.Get<IMediaLibrary>().RefreshMediaItemMetadata(systemId, mediaItemId, clearMetadata);
+      outParams = null;
       return null;
     }
 

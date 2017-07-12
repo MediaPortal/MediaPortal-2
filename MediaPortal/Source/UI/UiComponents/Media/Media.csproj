@@ -149,6 +149,9 @@
     <Compile Include="MediaItemActions\AddAllToPlaylist.cs" />
     <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
     <Compile Include="MediaItemActions\AbstractPlayCountAction.cs" />
+    <Compile Include="MediaItemActions\AbstractRefeshMediaItemAction.cs" />
+    <Compile Include="MediaItemActions\ReimportMediaItem.cs" />
+    <Compile Include="MediaItemActions\RefreshMediaItem.cs" />
     <Compile Include="MediaItemActions\SetWatched.cs" />
     <Compile Include="MediaItemActions\SetUnwatched.cs" />
     <Compile Include="Models\AspectWrappers\AudioAlbumAspectWrapper.cs" />
@@ -399,7 +402,9 @@
     <Content Include="Language\strings_en.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="plugin.xml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml" />
     <Content Include="Skin\default\screens\DialogChooseAVType.xaml" />
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
