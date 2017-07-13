@@ -25,8 +25,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
 using Ionic.Zip;
 
 namespace MediaPortal.LogCollector
@@ -98,38 +102,95 @@ namespace MediaPortal.LogCollector
         }
       }
 
-      string applicationEventLog = CollectEventLog("Application");
-      archive.AddFile(applicationEventLog, "Windows Logs");
-      string systemEventLog = CollectEventLog("System");
-      archive.AddFile(systemEventLog, "Windows Logs");
-
+      try
+      {
+        string applicationEventLog = CollectEventLog(outputPath, "Application");
+        archive.AddFile(applicationEventLog, "Windows Logs");
+        string systemEventLog = CollectEventLog(outputPath, "System");
+        archive.AddFile(systemEventLog, "Windows Logs");
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("Error collecting event log files {0}.", ex);
+      }
+    
       archive.Save();
       archive.Dispose();
       Console.WriteLine("Successful created log archive: {0}", targetFile);
 
+      CleanupTempEventLogFiles(outputPath);
+
       Process.Start(outputPath); // Opens output folder
     }
-
-    private static string CollectEventLog(string logName)
+    
+    private static string CollectEventLog(string pathToFile, string logType)
     {
-      string filename = logName + "_eventlog.csv";
-      using (StreamWriter writer = new StreamWriter(filename))
+      string fileName = Path.Combine(pathToFile, logType + "_eventlog.csv");
+
+      StringBuilder csv = new StringBuilder();
+      csv.AppendLine("\"Level\";\"Date and Time\";\"Source\";\"Message\";\"EventID\"");
+      EventLogReader logReader = new EventLogReader(logType, PathType.LogName);
+      XNamespace eventNamespace = "http://schemas.microsoft.com/win/2004/08/events/event";
+
+      for (EventRecord eventdetail = logReader.ReadEvent(); eventdetail != null; eventdetail = logReader.ReadEvent())
       {
-        writer.WriteLine("\"TimeGenerated\";\"Source\";\"Category\";\"EntryType\";\"Message\";\"InstanceID\"");
-        EventLog log = new EventLog(logName);
-        foreach (EventLogEntry entry in log.Entries)
+        XDocument xDoc = XDocument.Parse(eventdetail.ToXml());
+
+        XElement timeCreated = xDoc.Descendants(eventNamespace + "TimeCreated").FirstOrDefault();
+        XAttribute systemTime = timeCreated?.Attribute("SystemTime");
+        DateTime date = DateTime.Parse(systemTime?.Value);
+
+        // collect only records for the last 14 days
+        if (date < DateTime.Now.AddDays(-14))
         {
-          string line = "\"" + entry.TimeGenerated.ToString(CultureInfo.InvariantCulture) + "\";";
-          line += "\"" + entry.Source + "\";";
-          line += "\"" + entry.Category + "\";";
-          line += "\"" + entry.EntryType + "\";";
-          line += "\"" + entry.Message.Replace(Environment.NewLine, " ") + "\";";
-          line += "\"" + entry.InstanceId + "\"";
-          writer.WriteLine(line);
+          continue;
         }
-        writer.Close();
+
+        string timeGenerated = date.ToString("dd.MM.yyyy HH:mm:ss");
+
+        XElement provider = xDoc.Descendants(eventNamespace + "Provider").FirstOrDefault();
+        XAttribute name = provider?.Attribute("Name");
+        string source = name?.Value ?? string.Empty;
+
+        XElement levelNode = xDoc.Descendants(eventNamespace + "Level").FirstOrDefault();
+        LogLevel level = (LogLevel)Enum.Parse(typeof(LogLevel), levelNode.Value);
+
+        XElement data = xDoc.Descendants(eventNamespace + "Data").FirstOrDefault();
+        string message = data?.Value ?? string.Empty;
+
+        XElement id = xDoc.Descendants(eventNamespace + "EventID").FirstOrDefault();
+        string eventId = id?.Value ?? string.Empty;
+
+        string newLine = $"{level}; {timeGenerated}; {source}; {message}; {eventId}";
+        csv.AppendLine(newLine);
       }
-      return filename;
+      File.WriteAllText(fileName, csv.ToString());
+
+      return fileName;
+    }
+
+    private static void CleanupTempEventLogFiles(string pathToLogs)
+    {
+      try
+      {
+        File.Delete(Path.Combine(pathToLogs, "Application_eventlog.csv"));
+        File.Delete(Path.Combine(pathToLogs, "System_eventlog.csv"));
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("Error error cleaning up event log files {0}.", ex);
+      }
+    }
+
+    enum LogLevel
+    {
+      Critical = 0,
+      Error = 2,
+      Information = 4,
+      Undefined = 0,
+      Verbose = 5,
+      Warning = 3
     }
   }
+
 }

@@ -44,6 +44,11 @@
     <SkinSettings Id="F9063616-EC04-4C22-B207-12C1918EAF11" Name="WMC" ClassName="MediaPortal.UiComponents.WMCSkin.Settings.WMCSkinSettings"/>
   </Register>
 
+  <!--Register support for the home editor to ensure its configuration is visible in this skin-->
+  <Register Location="/HomeEditor">
+    <HomeEditorRegistration Id="4D0738C3-84BA-4DBC-904D-9951911403C0" SkinName="WMCSkin"/>
+  </Register>
+
   <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
     <ConfigSection

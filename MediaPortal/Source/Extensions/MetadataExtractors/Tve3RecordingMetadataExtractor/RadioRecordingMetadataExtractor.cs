@@ -87,8 +87,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
         var extension = DosPathHelper.GetExtension(fsra.ResourceName).ToLowerInvariant();
         if (extension != ".ts")
           return false;
-        if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
-          return false;
 
         using (MediaInfoWrapper mediaInfo = ReadMediaInfo(fsra))
         {
