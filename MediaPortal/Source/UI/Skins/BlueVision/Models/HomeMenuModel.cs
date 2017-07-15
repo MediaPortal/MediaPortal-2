@@ -427,7 +427,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         if (_menuSettings.Settings.DisableAutoSelection)
           groupItem.Command = new MethodDelegateCommand(() =>
           {
-            wfAction.Execute();
+            ExecuteShortcutAction(groupId, wfAction);
             SetGroup(groupId, true);
           });
 
@@ -435,6 +435,16 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         groupItem.AdditionalProperties["ActionId"] = wfAction.ActionId;
         _mainMenuGroupList.Add(groupItem);
       }
+    }
+
+    protected void ExecuteShortcutAction(string id, WorkflowAction action)
+    {
+      //MP2-635: Don't execute the CP action again if we are already on the CP screen.
+      //TODO: Make this more generic so it can handle any type of shortcut.
+      if (id.Equals(MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase) && IsCurrentPlaying())
+        return;
+
+      action.Execute();
     }
 
     /// <summary>
@@ -591,9 +601,28 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       Guid? currentlyPlayingWorkflowStateId;
       if (!GetPlayerWorkflowStates(out fullscreenContentWfStateId, out currentlyPlayingWorkflowStateId))
         return false;
+      
+      NavigationContext context = GetCurrentScreenNavigationContext();
+      return context != null && context.WorkflowState.StateId == currentlyPlayingWorkflowStateId.Value;
+    }
 
+    /// <summary>
+    /// Gets the context for the current screen, ignoring the contexts of any overlaying dialogs.
+    /// </summary>
+    /// <returns></returns>
+    private NavigationContext GetCurrentScreenNavigationContext()
+    {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      return workflowManager.IsStateContainedInNavigationStack(currentlyPlayingWorkflowStateId.Value);
+      workflowManager.Lock.EnterReadLock();
+      try
+      {
+        //Skip any dialog states, we want the state of the underlying screen
+        return workflowManager.NavigationContextStack.SkipWhile(c => c.DialogInstanceId.HasValue).FirstOrDefault();
+      }
+      finally
+      {
+        workflowManager.Lock.ExitReadLock();
+      }
     }
 
     private void IsHomeChanged(AbstractProperty property, object oldvalue)
@@ -630,7 +659,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     private void UpdateSelectedGroup()
     {
       List<string> groups = new List<string>();
-      if (IsCurrentPlaying() && MenuSettings.MENU_ID_PLAYING.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.OrdinalIgnoreCase) ||
+      if (MenuSettings.MENU_ID_PLAYING.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.OrdinalIgnoreCase) && IsCurrentPlaying() ||
         !MenuSettings.MENU_ID_PLAYING.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.OrdinalIgnoreCase))
         groups.Add(_menuSettings.Settings.DefaultMenuGroupId);
       if (!string.IsNullOrEmpty(_lastActiveGroup))
