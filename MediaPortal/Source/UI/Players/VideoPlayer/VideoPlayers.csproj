@@ -158,7 +158,7 @@
   <Import Project="..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets" Condition="Exists('..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets')" />
   <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
   <Import Project="..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets')" />
-  <Import Project="..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.34\build\MediaPortal.TsReader.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.34\build\MediaPortal.TsReader.targets')" />
+  <Import Project="..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.38\build\MediaPortal.TsReader.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.38\build\MediaPortal.TsReader.targets')" />
   <Import Project="..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets')" />
   <Import Project="..\..\..\..\Packages\MediaPortal.DVBSub.1.16.1\build\MediaPortal.DVBSub.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.DVBSub.1.16.1\build\MediaPortal.DVBSub.targets')" />
 </Project>
