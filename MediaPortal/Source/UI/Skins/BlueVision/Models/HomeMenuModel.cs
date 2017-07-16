@@ -428,7 +428,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
           groupItem.Command = new MethodDelegateCommand(() =>
           {
             ExecuteShortcutAction(groupId, wfAction);
-            SetGroup(groupId, true);
           });
 
         groupItem.AdditionalProperties["Id"] = groupId;
@@ -437,14 +436,15 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
     }
 
-    protected void ExecuteShortcutAction(string id, WorkflowAction action)
+    protected void ExecuteShortcutAction(string groupId, WorkflowAction action)
     {
       //MP2-635: Don't execute the CP action again if we are already on the CP screen.
       //TODO: Make this more generic so it can handle any type of shortcut.
-      if (id.Equals(MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase) && IsCurrentPlaying())
+      if (groupId.Equals(MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase) && IsCurrentPlaying())
         return;
 
       action.Execute();
+      SetGroup(groupId, true);
     }
 
     /// <summary>
