@@ -26,11 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using Ionic.Zip;
 
 namespace MediaPortal.LogCollector
@@ -113,7 +109,7 @@ namespace MediaPortal.LogCollector
       {
         Console.WriteLine("Error collecting event log files {0}.", ex);
       }
-    
+
       archive.Save();
       archive.Dispose();
       Console.WriteLine("Successful created log archive: {0}", targetFile);
@@ -122,51 +118,53 @@ namespace MediaPortal.LogCollector
 
       Process.Start(outputPath); // Opens output folder
     }
-    
+
     private static string CollectEventLog(string pathToFile, string logType)
     {
       string fileName = Path.Combine(pathToFile, logType + "_eventlog.csv");
+      var minLogDate = DateTime.Now.AddDays(-14);
+      var readTimeOut = TimeSpan.FromSeconds(5);
 
-      StringBuilder csv = new StringBuilder();
-      csv.AppendLine("\"Level\";\"Date and Time\";\"Source\";\"Message\";\"EventID\"");
-      EventLogReader logReader = new EventLogReader(logType, PathType.LogName);
-      XNamespace eventNamespace = "http://schemas.microsoft.com/win/2004/08/events/event";
-
-      for (EventRecord eventdetail = logReader.ReadEvent(); eventdetail != null; eventdetail = logReader.ReadEvent())
+      using (EventLogReader logReader = new EventLogReader(logType, PathType.LogName))
+      using (FileStream fs = new FileStream(fileName, FileMode.Create))
+      using (StreamWriter sw = new StreamWriter(fs))
       {
-        XDocument xDoc = XDocument.Parse(eventdetail.ToXml());
-
-        XElement timeCreated = xDoc.Descendants(eventNamespace + "TimeCreated").FirstOrDefault();
-        XAttribute systemTime = timeCreated?.Attribute("SystemTime");
-        DateTime date = DateTime.Parse(systemTime?.Value);
-
-        // collect only records for the last 14 days
-        if (date < DateTime.Now.AddDays(-14))
+        sw.WriteLine("\"Level\";\"Date and Time\";\"Source\";\"Message\";\"EventID\"");
+        EventRecord eventdetail;
+        while ((eventdetail = logReader.ReadEvent(readTimeOut)) != null)
         {
-          continue;
+          using (eventdetail)
+          {
+            if (!eventdetail.TimeCreated.HasValue || eventdetail.TimeCreated.Value < minLogDate)
+              continue;
+            LogLevel displayName = eventdetail.Level.HasValue ? (LogLevel)eventdetail.Level.Value : LogLevel.Undefined;
+            DateTime createdValue = eventdetail.TimeCreated.Value;
+            string providerName = eventdetail.ProviderName;
+            string formatDescription;
+            try
+            {
+              formatDescription = eventdetail.FormatDescription();
+            }
+            catch
+            {
+              formatDescription = "[Error reading event log]";
+            }
+
+            sw.WriteLine("\"{0}\";\"{1}\";\"{2}\";\"{3}\";\"{4}\"",
+              displayName,
+              createdValue,
+              EscapeCSV(providerName),
+              EscapeCSV(formatDescription),
+              eventdetail.Id);
+          }
         }
-
-        string timeGenerated = date.ToString("dd.MM.yyyy HH:mm:ss");
-
-        XElement provider = xDoc.Descendants(eventNamespace + "Provider").FirstOrDefault();
-        XAttribute name = provider?.Attribute("Name");
-        string source = name?.Value ?? string.Empty;
-
-        XElement levelNode = xDoc.Descendants(eventNamespace + "Level").FirstOrDefault();
-        LogLevel level = (LogLevel)Enum.Parse(typeof(LogLevel), levelNode.Value);
-
-        XElement data = xDoc.Descendants(eventNamespace + "Data").FirstOrDefault();
-        string message = data?.Value ?? string.Empty;
-
-        XElement id = xDoc.Descendants(eventNamespace + "EventID").FirstOrDefault();
-        string eventId = id?.Value ?? string.Empty;
-
-        string newLine = $"{level}; {timeGenerated}; {source}; {message}; {eventId}";
-        csv.AppendLine(newLine);
       }
-      File.WriteAllText(fileName, csv.ToString());
-
       return fileName;
+    }
+
+    private static string EscapeCSV(string value)
+    {
+      return (value ?? string.Empty).Replace("\"", "\"\"");
     }
 
     private static void CleanupTempEventLogFiles(string pathToLogs)
