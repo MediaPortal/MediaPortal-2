@@ -22,17 +22,23 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
+using System;
 using MediaPortal.UiComponents.Media.General;
 
-namespace MediaPortal.UiComponents.Media.FilterCriteria
+namespace MediaPortal.UiComponents.Media.Actions
 {
-  public class FilterByComposerCriterion : RelationshipMLFilterCriterion
+  public class FavoriteMediaAction : VisibilityDependsOnServerConnectStateAction
   {
-    public FilterByComposerCriterion() :
-      base(PersonAspect.ROLE_COMPOSER, AudioAspect.ROLE_TRACK, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
-        new AttributeSortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
+    #region Consts
+
+    public const string FAVORITE_MEDIA_CONTRIBUTOR_MODEL_ID_STR = "EB11ECA4-F7AB-42E7-AFF9-A0D0F547131E";
+
+    public static readonly Guid FAVORITE_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(FAVORITE_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
+
+    #endregion
+
+    public FavoriteMediaAction() :
+      base(true, Consts.WF_STATE_ID_FAVORITE_MEDIA, Consts.RES_FAVORITE_MEDIA_MENU_ITEM)
     {
     }
   }

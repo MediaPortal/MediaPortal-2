@@ -32,6 +32,10 @@ using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Presentation.Players;
 using Un4seen.Bass.AddOn.Tags;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Players.BassPlayer
 {
@@ -67,6 +71,7 @@ namespace MediaPortal.UI.Players.BassPlayer
     protected volatile PlayerState _externalState;
     protected InputSourceFactory _inputSourceFactory;
     protected string _mediaItemTitle = string.Empty;
+    protected Guid? _mediaItemId;
 
     // Spectrum related fields
     protected int _sampleFrequency = 0;
@@ -145,6 +150,7 @@ namespace MediaPortal.UI.Players.BassPlayer
       lock (_syncObj)
         if (_externalState != PlayerState.Active)
           return;
+      NotifyPlayback();
       // Just make MP come up with the next item on its playlist
       FireNextItemRequest();
     }
@@ -180,6 +186,7 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     internal void FireStopped()
     {
+      NotifyPlayback();
       // The delegate is final so we can invoke it without the need of a local copy
       if (_stopped != null)
         _stopped(this);
@@ -206,6 +213,32 @@ namespace MediaPortal.UI.Players.BassPlayer
         dlgt(this);
     }
 
+    protected void NotifyPlayback()
+    {
+      double playPercentage = CurrentTime.TotalSeconds / Duration.TotalSeconds;
+      if (playPercentage >= 0.9 && _mediaItemId.HasValue)
+      {
+        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+        IContentDirectory cd = scm.ContentDirectory;
+        // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
+        if (cd != null)
+          cd.NotifyPlayback(_mediaItemId.Value, true);
+
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement.IsValidUser)
+        {
+          string data = null;
+          userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
+            _mediaItemId.Value, UserDataKeysKnown.KEY_PLAY_COUNT, out data);
+          int count = data != null ? Convert.ToInt32(data) + 1 : 1;
+          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
+            _mediaItemId.Value, UserDataKeysKnown.KEY_PLAY_COUNT, count.ToString());
+          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
+            _mediaItemId.Value, UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
+        }
+      }
+    }
+
     #endregion
 
     #region Public methods
@@ -219,19 +252,29 @@ namespace MediaPortal.UI.Players.BassPlayer
     /// <remarks>
     /// The workitem will actually be executed on the controller's mainthread.
     /// </remarks>
-    public void SetMediaItemLocator(IResourceLocator locator, string mimeType, string mediaItemTitle)
+    public bool SetMediaItem(MediaItem mediaItem)
     {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return false;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
+      if (!InputSourceFactory.CanPlay(locator, mimeType))
+        return false;
+
       if (_externalState != PlayerState.Stopped)
         Stop();
       IInputSource inputSource = _inputSourceFactory.CreateInputSource(locator, mimeType);
       if (inputSource == null)
       {
         ServiceRegistration.Get<ILogger>().Warn("Unable to play '{0}'", locator);
-        return;
+        return false;
       }
-      _mediaItemTitle = mediaItemTitle;
+      _mediaItemTitle = title;
+      _mediaItemId = mediaItem.MediaItemId;
       _externalState = PlayerState.Active;
       _controller.MoveToNextItem_Async(inputSource, StartTime.AtOnce);
+      return true;
     }
 
     #endregion

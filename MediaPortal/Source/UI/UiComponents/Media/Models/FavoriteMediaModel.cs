@@ -42,7 +42,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
-  public class LastWatchedMediaModel : IWorkflowModel
+  public class FavoriteMediaModel : IWorkflowModel
   {
     public class TitledItem : ListItem
     {
@@ -63,10 +63,10 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Consts
 
     // Global ID definitions and references
-    public const string LAST_WATCHED_MEDIA_MODEL_ID_STR = "164E1F07-3448-46E2-9F0B-AC1831D33573";
+    public const string FAVORITE_MEDIA_MODEL_ID_STR = "F0852B41-E412-4E94-BFC6-CE0BB3336FD3";
 
     // ID variables
-    public static readonly Guid LAST_WATCHED_MEDIA_MODEL_ID = new Guid(LAST_WATCHED_MEDIA_MODEL_ID_STR);
+    public static readonly Guid FAVORITE_MEDIA_MODEL_ID = new Guid(FAVORITE_MEDIA_MODEL_ID_STR);
 
     #endregion
 
@@ -76,7 +76,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public ItemsList AllItems { get; private set; }
 
-    public LastWatchedMediaModel()
+    public FavoriteMediaModel()
     {
       AllItems = new ItemsList();
     }
@@ -124,11 +124,11 @@ namespace MediaPortal.UiComponents.Media.Models
 
       MediaItemQuery query = new MediaItemQuery(necessaryMIAs, null)
       {
-        Filter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)) : null,
-        Limit = QUERY_LIMIT, // Last 5 imported items
-        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
+        Filter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)) : null,
+        Limit = QUERY_LIMIT, // Most watched 5 items
+        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
       };
- 
+
       var items = contentDirectory.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(necessaryMIAs));
       list.Clear();
       foreach (MediaItem mediaItem in items)
@@ -155,7 +155,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public Guid ModelId
     {
-      get { return LAST_WATCHED_MEDIA_MODEL_ID; }
+      get { return FAVORITE_MEDIA_MODEL_ID; }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)

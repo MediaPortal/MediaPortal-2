@@ -50,6 +50,8 @@ using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Events;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -72,6 +74,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Constants
 
     protected const int PROGRAM_UPDATE_SEC = 30; // Update frequency for current running programs
+    protected const int PROGRAM_WATCHED_SEC = 300; // Time before a program is considered watched
 
     #endregion
 
@@ -116,6 +119,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     // Resume handling
     protected DelayedEvent _resumeEvent = new DelayedEvent(2000);
     protected bool _tvWasActive;
+
+    // Watched handling
+    protected DelayedEvent _watchedTimer;
 
     #endregion
 
@@ -543,6 +549,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       // Notify end of zapping
       SlotPlayer?.OnEndZap?.Invoke(this, EventArgs.Empty);
+
+      if (_watchedTimer == null)
+      {
+        _watchedTimer = new DelayedEvent(PROGRAM_WATCHED_SEC * 1000);
+        _watchedTimer.OnEventHandler += WatchedTimerElapsed;
+      }
+      // In case of new user action, reset the timer.
+      _watchedTimer.EnqueueEvent(channel, EventArgs.Empty);
     }
 
     protected bool ShouldAutoTune()
@@ -710,6 +724,30 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       // When not zapped the previous channel information is restored during the next Update() call
+    }
+
+    private void WatchedTimerElapsed(object sender, EventArgs e)
+    {
+      IChannel channel = sender as IChannel;
+      if (channel != null)
+      {
+        Guid? userProfile = null;
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+          userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+        if (userProfile.HasValue)
+        {
+          string data = null;
+          userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalData(userProfile.Value,
+            UserDataKeysKnown.KEY_PLAY_COUNT, channel.ChannelId, out data);
+          int count = data != null ? Convert.ToInt32(data) + 1 : 1;
+          userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalData(userProfile.Value,
+            UserDataKeysKnown.KEY_PLAY_COUNT, channel.ChannelId, count.ToString());
+          userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalData(userProfile.Value, 
+            UserDataKeysKnown.KEY_PLAY_DATE, channel.ChannelId, DateTime.Now.ToString("s"));
+        }
+      }
     }
 
     protected void UpdateSelectedChannelPrograms(IChannel channel)
@@ -926,6 +964,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _resumeEvent.Dispose();
       if (_zapTimer != null)
         _zapTimer.Dispose();
+      if (_watchedTimer != null)
+        _watchedTimer.Dispose();
       _isInitialized = false;
       base.Dispose();
     }

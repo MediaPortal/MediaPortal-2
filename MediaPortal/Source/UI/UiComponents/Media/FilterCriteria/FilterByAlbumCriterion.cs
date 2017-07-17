@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     public FilterByAlbumCriterion() :
       base(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, Consts.NECESSARY_ALBUM_MIAS, Consts.OPTIONAL_ALBUM_MIAS,
-        new SortInformation(AudioAlbumAspect.ATTR_ALBUM, SortDirection.Ascending))
+        new AttributeSortInformation(AudioAlbumAspect.ATTR_ALBUM, SortDirection.Ascending))
     {
     }
   }

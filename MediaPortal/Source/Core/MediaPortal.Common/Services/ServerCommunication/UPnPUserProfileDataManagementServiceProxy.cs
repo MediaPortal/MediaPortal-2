@@ -28,6 +28,7 @@ using MediaPortal.Common.UPnP;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
+using System.Linq;
 
 namespace MediaPortal.Common.Services.ServerCommunication
 {
@@ -199,6 +200,47 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (bool) outParameters[0];
     }
 
+    public bool GetUserAdditionalData(Guid profileId, string key, int dataNo, out string data)
+    {
+      CpAction action = GetAction("GetUserAdditionalDataNo");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(profileId),
+            key,
+            dataNo
+        };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      data = (string)outParameters[0];
+      return (bool)outParameters[1];
+    }
+
+    public bool SetUserAdditionalData(Guid profileId, string key, int dataNo, string data)
+    {
+      CpAction action = GetAction("SetUserAdditionalDataNo");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(profileId),
+            key,
+            dataNo,
+            data
+        };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data)
+    {
+      CpAction action = GetAction("GetUserAdditionalDataList");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(profileId),
+            key
+        };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      data = MarshallingHelper.ParseCsvTupleCollection((string)outParameters[0]).Select(t => new Tuple<int, string>(Convert.ToInt32(t.Item1), t.Item2));
+      return (bool)outParameters[1];
+    }
+
     #endregion
 
     #region Cleanup user data
@@ -209,6 +251,22 @@ namespace MediaPortal.Common.Services.ServerCommunication
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(profileId)};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (bool) outParameters[0];
+    }
+
+    public bool ClearUserMediaItemDataKey(Guid profileId, string key)
+    {
+      CpAction action = GetAction("ClearUserMediaItemDataKey");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), key };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public bool ClearUserAdditionalDataKey(Guid profileId, string key)
+    {
+      CpAction action = GetAction("ClearUserAdditionalDataKey");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), key };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (bool)outParameters[0];
     }
 
     #endregion

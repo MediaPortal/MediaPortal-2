@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     public FilterByMovieCollectionCriterion() :
       base(MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieAspect.ROLE_MOVIE, Consts.NECESSARY_MOVIE_COLLECTION_MIAS, Consts.OPTIONAL_MOVIE_COLLECTION_MIAS,
-        new SortInformation(MovieCollectionAspect.ATTR_COLLECTION_NAME, SortDirection.Ascending))
+        new AttributeSortInformation(MovieCollectionAspect.ATTR_COLLECTION_NAME, SortDirection.Ascending))
     {
     }
   }

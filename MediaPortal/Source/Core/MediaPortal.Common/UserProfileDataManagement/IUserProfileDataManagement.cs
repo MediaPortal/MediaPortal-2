@@ -66,12 +66,17 @@ namespace MediaPortal.Common.UserProfileDataManagement
     // Other global user data 
     bool GetUserAdditionalData(Guid profileId, string key, out string data);
     bool SetUserAdditionalData(Guid profileId, string key, string data);
+    bool SetUserAdditionalData(Guid profileId, string key, int dataNo, string data);
+    bool GetUserAdditionalData(Guid profileId, string key, int dataNo, out string data);
+    bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data);
 
     #endregion
 
     #region Cleanup user data
 
     bool ClearAllUserData(Guid profileId);
+    bool ClearUserMediaItemDataKey(Guid profileId, string key);
+    bool ClearUserAdditionalDataKey(Guid profileId, string key);
 
     #endregion
   }

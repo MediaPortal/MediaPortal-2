@@ -95,6 +95,7 @@
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
     <Compile Include="Actions\BaseTrackServerConnectionAction.cs" />
+    <Compile Include="Actions\FavoriteMediaAction.cs" />
     <Compile Include="Actions\LastWatchedMediaAction.cs" />
     <Compile Include="Actions\LatestMediaAction.cs" />
     <Compile Include="Actions\SwitchBrowseModeAction.cs" />
@@ -175,6 +176,7 @@
     <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
+    <Compile Include="Models\FavoriteMediaModel.cs" />
     <Compile Include="Models\LastWatchedMediaModel.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
@@ -646,6 +648,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\AudioFilterByContentGroup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\LastWatchedMedia.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\FavoriteMedia.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

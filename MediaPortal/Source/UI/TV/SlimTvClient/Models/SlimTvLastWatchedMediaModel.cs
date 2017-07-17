@@ -39,10 +39,17 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.Plugins.SlimTv.Client.TvHandler;
+using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
+using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using System.Linq;
 
-namespace MediaPortal.UiComponents.Media.Models
+namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
-  public class LastWatchedMediaModel : IWorkflowModel
+  public class SlimTvLastWatchedMediaModel : SlimTvModelBase
   {
     public class TitledItem : ListItem
     {
@@ -63,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Consts
 
     // Global ID definitions and references
-    public const string LAST_WATCHED_MEDIA_MODEL_ID_STR = "164E1F07-3448-46E2-9F0B-AC1831D33573";
+    public const string LAST_WATCHED_MEDIA_MODEL_ID_STR = "35D14C2F-5C9C-4683-B7A2-0C9AD6E76B16";
 
     // ID variables
     public static readonly Guid LAST_WATCHED_MEDIA_MODEL_ID = new Guid(LAST_WATCHED_MEDIA_MODEL_ID_STR);
@@ -76,7 +83,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public ItemsList AllItems { get; private set; }
 
-    public LastWatchedMediaModel()
+    public SlimTvLastWatchedMediaModel()
     {
       AllItems = new ItemsList();
     }
@@ -87,7 +94,7 @@ namespace MediaPortal.UiComponents.Media.Models
       AllItems.FireChange();
     }
 
-    protected void Update()
+    protected override void Update()
     {
       ClearAll();
       var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
@@ -97,25 +104,52 @@ namespace MediaPortal.UiComponents.Media.Models
       }
 
       ItemsList list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_MOVIES_MIAS, list, item => new MovieItem(item));
-      AllItems.Add(new TitledItem("[Media.MoviesMenuItem]", list));
+      FillChannelList(list);
+      AllItems.Add(new TitledItem("[SlimTvClient.ChannelsMenuItem]", list));
 
       list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_EPISODE_MIAS, list, item => new EpisodeItem(item));
-      AllItems.Add(new TitledItem("[Media.SeriesMenuItem]", list));
-
-      list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_IMAGE_MIAS, list, item => new ImageItem(item));
-      AllItems.Add(new TitledItem("[Media.ImagesMenuItem]", list));
-
-      list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_AUDIO_MIAS, list, item => new AudioItem(item));
-      AllItems.Add(new TitledItem("[Media.AudioMenuItem]", list));
+      FillRecordingList(contentDirectory, SlimTvConsts.NECESSARY_RECORDING_MIAS, list, item => new RecordingItem(item));
+      AllItems.Add(new TitledItem("[SlimTvClient.RecordingsMenuItem]", list));
 
       AllItems.FireChange();
     }
 
-    protected static void FillList(IContentDirectory contentDirectory, Guid[] necessaryMIAs, ItemsList list, MediaItemToListItemAction converterAction)
+    protected static void FillChannelList(ItemsList list)
+    {
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+        IEnumerable<Tuple<int, string>> channelList;
+        if (userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataList(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE, out channelList))
+        {
+          int count = 0;
+          IOrderedEnumerable<Tuple<int, string>> sortedList = channelList.OrderByDescending(c => c.Item2);
+          foreach(var channelData in sortedList)
+          {
+            IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelId == channelData.Item1);
+            if (channel != null)
+            {
+              count++;
+              ChannelProgramListItem item = new ChannelProgramListItem(channel, null)
+              {
+                Command = new MethodDelegateCommand(() => TuneChannel(channel)),
+                Selected = false
+              };
+              item.AdditionalProperties["CHANNEL"] = channel;
+              list.Add(item);
+            }
+            if (count >= QUERY_LIMIT)
+              break;
+          }
+          list.FireChange();
+        }
+      }
+    }
+
+    protected static void FillRecordingList(IContentDirectory contentDirectory, Guid[] necessaryMIAs, ItemsList list, MediaItemToListItemAction converterAction)
     {
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
@@ -153,48 +187,27 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region IWorkflowModel implementation
 
-    public Guid ModelId
+    public override Guid ModelId
     {
       get { return LAST_WATCHED_MEDIA_MODEL_ID; }
     }
 
-    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      return true;
-    }
-
-    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
+      base.EnterModelContext(oldContext, newContext);
       Update();
       SetLayout();
     }
 
-    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-    }
-
-    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
-    {
-    }
-
-    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+     public override void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // Don't disable the current navigation data when we leave our model - the last navigation data must be
       // available in sub workflows, for example to make the GetMediaItemsFromCurrentView method work
     }
 
-    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
+    public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // The last navigation data was not disabled so we don't need to enable it here
-    }
-
-    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
-    {
-    }
-
-    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
-    {
-      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion

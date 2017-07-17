@@ -1602,7 +1602,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           executeQuery.Filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, executeQuery.Filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
       }
 
-      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
+      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery, userProfileId);
       IList<MediaItem> items = null;
       if (database == null || transaction == null)
         items = cmiq.QueryList();

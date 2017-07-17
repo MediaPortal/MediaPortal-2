@@ -45,6 +45,8 @@ using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Players.Image
 {
@@ -398,11 +400,24 @@ namespace MediaPortal.UI.Players.Image
         ImageAspect.OrientationToFlip(orientationInfo, out flipX, out flipY);
       }
       SetMediaItemData(locator, title, rotation, flipX, flipY);
+
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
+      if (cd != null)
+        cd.NotifyPlayback(mediaItem.MediaItemId, true);
+
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
       {
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId,
-         UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
+        string data = null;
+        userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
+          mediaItem.MediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, out data);
+        int count = data != null ? Convert.ToInt32(data) + 1 : 1;
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
+          mediaItem.MediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, count.ToString());
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, 
+          mediaItem.MediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
       }
       return true;
     }

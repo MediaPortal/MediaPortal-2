@@ -28,6 +28,7 @@ using System.Text;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
+using System;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -83,9 +84,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IList<QueryAttribute> _selectAttributes;
     protected readonly SelectProjectionFunction _selectProjectionFunction;
     protected readonly IFilter _filter;
-    protected readonly IList<SortInformation> _sortInformation;
+    protected readonly IList<ISortInformation> _sortInformation;
     protected readonly uint? _offset;
     protected readonly uint? _limit;
+    protected readonly Guid? _userProfileId;
 
     /// <summary>
     /// Creates a new <see cref="MainQueryBuilder"/> instance.
@@ -106,7 +108,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public MainQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
         SelectProjectionFunction selectProjectionFunction,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-        IFilter filter, IList<SortInformation> sortInformation, uint? limit = null, uint? offset = null)
+        IFilter filter, IList<ISortInformation> sortInformation, Guid? userProfileId = null, uint? limit = null, uint? offset = null)
       : base(miaManagement)
     {
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
@@ -117,6 +119,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _sortInformation = sortInformation;
       _limit = limit;
       _offset = offset;
+      _userProfileId = userProfileId;
     }
 
     protected void GenerateSqlStatement(bool groupByValues,
@@ -162,6 +165,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       // Contains CompiledSortInformation instances for each sort information instance
       IList<CompiledSortInformation> compiledSortInformation = null;
+
+      List<BindVar> sqlVars = new List<BindVar>();
 
       // Ensure that the tables for all necessary MIAs are requested first (INNER JOIN)
       foreach (MediaItemAspectMetadata miaType in _necessaryRequestedMIAs)
@@ -246,30 +251,47 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             miaTypeTableQueries, miaIdAttribute, out ra);
       }
       // Build table query data for each sort attribute
+      bool userMediaItemSortAdded = false;
       if (_sortInformation != null)
       {
         compiledSortInformation = new List<CompiledSortInformation>();
-        foreach (SortInformation sortInformation in _sortInformation)
+        foreach (ISortInformation sortInformation in _sortInformation)
         {
-          if (sortInformation.AttributeType != null)
+          AttributeSortInformation attributeSort = sortInformation as AttributeSortInformation;
+          if (attributeSort != null)
           {
-            if (sortInformation.AttributeType.ParentMIAM.IsTransientAspect)
+            if (attributeSort.AttributeType.ParentMIAM.IsTransientAspect)
               continue;
-            if (!Include(sortInformation.AttributeType.ParentMIAM))
+            if (!Include(attributeSort.AttributeType.ParentMIAM))
               continue;
-            MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
+            MediaItemAspectMetadata.AttributeSpecification attr = attributeSort.AttributeType;
             if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
               // Sorting can only be done for Inline and MTO attributes
               continue;
             RequestedAttribute ra;
             RequestSimpleAttribute(new QueryAttribute(attr), tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
                 miaTypeTableQueries, miaIdAttribute, out ra);
-            compiledSortInformation.Add(new CompiledSortInformation(ra, sortInformation.Direction));
+            compiledSortInformation.Add(new CompiledSortInformation(ra, attributeSort.Direction));
+            continue;
           }
-          else if(sortInformation.UserDataKey != null)
+
+          DataSortInformation dataSort = sortInformation as DataSortInformation;
+          if (dataSort != null && _userProfileId.HasValue && !userMediaItemSortAdded)
           {
-            RequestedAttribute ra = new RequestedAttribute(new TableQueryData(UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME), sortInformation.UserDataKey);
-            compiledSortInformation.Add(new CompiledSortInformation(ra, sortInformation.Direction));
+            BindVar userVar = new BindVar("UID", _userProfileId.Value, typeof(Guid));
+            BindVar keyVar = new BindVar("UDK", dataSort.UserDataKey, typeof(string));
+            TableQueryData tqd = new TableQueryData(UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
+            RequestedAttribute ra = new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
+            compiledSortInformation.Add(new CompiledSortInformation(ra, dataSort.Direction));
+            TableJoin join = new TableJoin("INNER JOIN", tqd, new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME), "@" + userVar.Name);
+            join.AddCondition(new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute);
+            join.AddCondition(new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME), "@" + keyVar.Name);
+            tableJoins.Add(join);
+            sqlVars.Add(userVar);
+            sqlVars.Add(keyVar);
+
+            //Only one user data key order by is possible because of the join required
+            userMediaItemSortAdded = true;
           }
         }
       }
@@ -319,6 +341,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       string whereStr = compiledFilter.CreateSqlFilterCondition(ns, requestedAttributes, out bindVars);
+      foreach(BindVar bv in sqlVars)
+        bindVars.Add(bv);
 
       result.Append(" FROM ");
 

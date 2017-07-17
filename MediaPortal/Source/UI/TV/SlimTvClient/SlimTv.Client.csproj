@@ -124,6 +124,8 @@
     <Compile Include="Messaging\SlimTvClientMessaging.cs" />
     <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs" />
     <Compile Include="Models\ChannelZapModel.cs" />
+    <Compile Include="Models\SlimTvFavoriteMediaModel.cs" />
+    <Compile Include="Models\SlimTvLastWatchedMediaModel.cs" />
     <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
     <Compile Include="Models\Navigation\RecordingItem.cs" />
     <Compile Include="Models\RecordingsAction.cs" />

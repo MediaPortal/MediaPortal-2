@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IEnumerable<Guid> mias = new[] { MediaAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID }.Concat(necessaryMIATypeIds);
       MediaItemQuery query = new MediaItemQuery(mias, filter)
       {
-        SortInformation = new List<SortInformation> { new SortInformation(EpisodeAspect.ATTR_EPISODE, SortDirection.Ascending) }
+        SortInformation = new List<ISortInformation> { new AttributeSortInformation(EpisodeAspect.ATTR_EPISODE, SortDirection.Ascending) }
       };
       var items = cd.Search(query, true, userProfile, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
       IList<FilterValue> result = new List<FilterValue>(items.Count);

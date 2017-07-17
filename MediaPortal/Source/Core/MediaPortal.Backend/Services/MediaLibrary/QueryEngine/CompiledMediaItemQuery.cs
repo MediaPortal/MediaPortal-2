@@ -54,8 +54,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IFilter _filter;
     protected uint? _offset;
     protected uint? _limit;
+    protected Guid? _userProfileId;
 
-    protected readonly IList<SortInformation> _sortInformation;
+    protected readonly IList<ISortInformation> _sortInformation;
 
     public CompiledMediaItemQuery(
         MIA_Management miaManagement,
@@ -63,9 +64,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         ICollection<MediaItemAspectMetadata> optionalRequestedMIAs,
         IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes,
         ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectedAttributes,
-        IFilter filter, IList<SortInformation> sortInformation,
+        IFilter filter, IList<ISortInformation> sortInformation,
+        Guid? userProfileId = null,
         uint? limit = null,
-        uint? offset = null)
+        uint? offset = null
+        )
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
@@ -76,6 +79,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _sortInformation = sortInformation;
       _limit = limit;
       _offset = offset;
+      _userProfileId = userProfileId;
     }
 
     public IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> MainSelectAttributes
@@ -93,7 +97,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _filter; }
     }
 
-    public ICollection<SortInformation> SortInformation
+    public ICollection<ISortInformation> SortInformation
     {
       get { return _sortInformation; }
     }
@@ -114,7 +118,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _limit; }
     }
 
-    public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query)
+    public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query, Guid? userProfileId = null)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
       ICollection<MediaItemAspectMetadata> necessaryMIATypes = new List<MediaItemAspectMetadata>();
@@ -161,7 +165,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       return new CompiledMediaItemQuery(miaManagement, necessaryMIATypes, optionalMIATypes, mainSelectedAttributes, explicitSelectAttributes,
-        query.Filter, query.SortInformation, query.Limit, query.Offset);
+        query.Filter, query.SortInformation, userProfileId, query.Limit, query.Offset);
     }
 
     private IList<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, bool singleMode, IEnumerable<MediaItemAspectMetadata> selectedMIAs, out IList<Guid> mediaItemIds, out IDictionary<Guid, IList<Guid>> complexMediaItems)
@@ -170,7 +174,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       IList<BindVar> bindVars;
 
       MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement,
-          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
+          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation, _userProfileId);
 
       using (IDbCommand command = transaction.CreateCommand())
       {

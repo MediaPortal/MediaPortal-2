@@ -22,18 +22,18 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.UiComponents.Media.General;
-
-namespace MediaPortal.UiComponents.Media.FilterCriteria
+namespace MediaPortal.Common.MediaManagement.MLQueries
 {
-  public class FilterByComposerCriterion : RelationshipMLFilterCriterion
+  public enum SortDirection
   {
-    public FilterByComposerCriterion() :
-      base(PersonAspect.ROLE_COMPOSER, AudioAspect.ROLE_TRACK, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
-        new AttributeSortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
-    {
-    }
+    Ascending,
+    Descending
+  }
+
+  /// <summary>
+  /// Marker interface for sorting information.
+  /// </summary>
+  public interface ISortInformation
+  {
   }
 }

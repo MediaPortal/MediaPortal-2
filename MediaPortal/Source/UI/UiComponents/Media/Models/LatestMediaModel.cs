@@ -119,7 +119,7 @@ namespace MediaPortal.UiComponents.Media.Models
       MediaItemQuery query = new MediaItemQuery(necessaryMIAs, null)
       {
         Limit = QUERY_LIMIT, // Last 5 imported items
-        SortInformation = new List<SortInformation> { new SortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();

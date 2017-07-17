@@ -161,7 +161,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       MediaItemQuery query = new MediaItemQuery(necessaryMIAs, null)
       {
         Limit = (uint)QueryLimit, // Last 5 imported items
-        SortInformation = new List<SortInformation> { new SortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
 
       Guid? userProfile = null;

@@ -45,10 +45,13 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
     public const int EXPECTED_SCHEMA_VERSION_MINOR = 1;
 
+    internal const string USER_DATA_TABLE_NAME = "USER_ADDITIONAL_DATA";
     internal const string USER_MEDIA_ITEM_DATA_TABLE_NAME = "USER_MEDIA_ITEM_DATA";
     internal const string USER_PROFILE_ID_COL_NAME = "PROFILE_ID";
     internal const string USER_DATA_KEY_COL_NAME = "DATA_KEY";
     internal const string USER_DATA_VALUE_COL_NAME = "MEDIA_ITEM_DATA";
+    internal const string USER_DATA_VALUE_NO_COL_NAME = "VALUE_NO";
+    internal const string USER_ADDITIONAL_DATA_VALUE_COL_NAME = "ADDITIONAL_DATA";
 
     #endregion
 
@@ -268,38 +271,58 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     // User additional data
 
-    public static IDbCommand SelectUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey, out int additionalDataIndex)
+    public static IDbCommand SelectUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey, int dataNo, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY";
+      result.CommandText = "SELECT ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY AND DATA_NO=@DATA_NO";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
+      database.AddParameter(result, "DATA_NO", dataNo, typeof(int));
 
       additionalDataIndex = 0;
       return result;
     }
 
-    public static IDbCommand CreateUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey, string additionalData)
+    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string dataKey, out int dataNoIndex, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO USER_ADDITIONAL_DATA (PROFILE_ID, DATA_KEY, ADDITIONAL_DATA) VALUES (@PROFILE_ID, @DATA_KEY, @ADDITIONAL_DATA)";
+      result.CommandText = "SELECT VALUE_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
+
+      dataNoIndex = 0;
+      additionalDataIndex = 1;
+      return result;
+    }
+
+    public static IDbCommand CreateUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey, int dataNo, string additionalData)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "INSERT INTO USER_ADDITIONAL_DATA (PROFILE_ID, DATA_KEY, DATA_NO, ADDITIONAL_DATA) VALUES (@PROFILE_ID, @DATA_KEY, @DATA_NO, @ADDITIONAL_DATA)";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
+      database.AddParameter(result, "DATA_NO", dataNo, typeof(int));
       database.AddParameter(result, "ADDITIONAL_DATA", additionalData, typeof(string));
       return result;
     }
 
-    public static IDbCommand DeleteUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey)
+    public static IDbCommand DeleteUserAdditionalDataCommand(ITransaction transaction, Guid profileId, int? dataNo, string dataKey)
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "DELETE FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID";
+      if (dataNo.HasValue)
+        result.CommandText += " AND DATA_NO=@DATA_NO";
       if (!string.IsNullOrEmpty(dataKey))
         result.CommandText += " AND DATA_KEY=@DATA_KEY";
 
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+
+      if (dataNo.HasValue)
+        database.AddParameter(result, "DATA_NO", dataNo.Value, typeof(int));
 
       if (!string.IsNullOrEmpty(dataKey))
         database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));

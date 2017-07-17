@@ -109,7 +109,10 @@
     <Compile Include="MediaManagement\MetadataUpdater.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractRelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\DataSortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\AttributeSortInformation.cs" />
+    <Compile Include="MediaManagement\MLQueries\ISortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />

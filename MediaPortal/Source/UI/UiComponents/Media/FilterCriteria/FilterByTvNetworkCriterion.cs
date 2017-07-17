@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     public FilterByTvNetworkCriterion() :
       base(CompanyAspect.ROLE_TV_NETWORK, SeriesAspect.ROLE_SERIES, Consts.NECESSARY_COMPANY_MIAS, Consts.OPTIONAL_COMPANY_MIAS,
-        new SortInformation(CompanyAspect.ATTR_COMPANY_NAME, SortDirection.Ascending))
+        new AttributeSortInformation(CompanyAspect.ATTR_COMPANY_NAME, SortDirection.Ascending))
     {
     }
   }

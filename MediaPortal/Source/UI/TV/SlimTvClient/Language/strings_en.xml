@@ -104,6 +104,7 @@
   <string name="SlimTvClient.ChannelLogoStyle.Help">Select channel logo style. Server and Clients needs to be restarted after changes.</string>
 
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
+  <string name="SlimTvClient.ChannelsMenuItem">Channels</string>
   <string name="SlimTvClient.Recordings.Help">Here you can find a list of your recorded programs for playback.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV recordings</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filter by channel</string>

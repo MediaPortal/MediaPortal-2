@@ -78,14 +78,24 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       {
         userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
           UserDataKeysKnown.KEY_PLAY_COUNT, playCount.ToString());
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
-          UserDataKeysKnown.KEY_PLAY_PERCENTAGE, (playCount > 0 ? 100 : 0).ToString());
+        string data = null;
+        if (userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
+            UserDataKeysKnown.KEY_PLAY_PERCENTAGE, out data) && data != null)
+        {
+          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
+            UserDataKeysKnown.KEY_PLAY_PERCENTAGE, playPercentage.ToString());
+        }
+        if (playCount <= 0)
+          userProfileDataManagement.UserProfileDataManagement.ClearUserMediaItemDataKey(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE);
       }
 
       //Also update media item locally so changes are reflected in GUI without reloading
       MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, playCount);
       mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = playCount.ToString();
-      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
+      if(mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
+        mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
+      if (playCount <= 0)
+        mediaItem.UserData.Remove(UserDataKeysKnown.KEY_PLAY_DATE);
       changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
       return true;
     }

@@ -359,7 +359,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       {
         int dataIndex;
         using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataCommand(transaction, profileId,
-            key, out dataIndex))
+            key, 0, out dataIndex))
         {
           using (IDataReader reader = command.ExecuteReader())
           {
@@ -386,9 +386,9 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       try
       {
         bool result;
-        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, profileId, key))
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, profileId, null, key))
           command.ExecuteNonQuery();
-        using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, profileId, key, data))
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, profileId, key, 0, data))
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
         return result;
@@ -398,6 +398,87 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error setting additional data '{0}' in profile '{1}'", e, key, profileId);
         transaction.Rollback();
         throw;
+      }
+    }
+
+    public bool GetUserAdditionalData(Guid profileId, string key, int dataNo, out string data)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.CreateTransaction();
+      try
+      {
+        int dataIndex;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataCommand(transaction, profileId,
+            key, dataNo, out dataIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              data = database.ReadDBValue<string>(reader, dataIndex);
+              return true;
+            }
+          }
+        }
+        data = null;
+        return false;
+      }
+      finally
+      {
+        transaction.Dispose();
+      }
+    }
+
+    public bool SetUserAdditionalData(Guid profileId, string key, int dataNo, string data)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        bool result;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, profileId, dataNo, key))
+          command.ExecuteNonQuery();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, profileId, key, dataNo, data))
+          result = command.ExecuteNonQuery() > 0;
+        transaction.Commit();
+        return result;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error setting additional data '{0}' in profile '{1}'", e, key, profileId);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
+    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.CreateTransaction();
+      try
+      {
+        int dataNoIndex;
+        int dataIndex;
+        List<Tuple<int, string>> list = new List<Tuple<int, string>>();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, profileId,
+            key, out dataNoIndex, out dataIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              list.Add(new Tuple<int, string>(database.ReadDBValue<int>(reader, dataNoIndex), database.ReadDBValue<string>(reader, dataIndex)));
+            }
+          }
+        }
+        data = null;
+        if (list.Count > 0)
+          data = list;
+        return data != null;
+      }
+      finally
+      {
+        transaction.Dispose();
       }
     }
 
@@ -415,7 +496,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           command.ExecuteNonQuery();
         using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserMediaItemDataCommand(transaction, profileId, null, null))
           command.ExecuteNonQuery();
-        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, profileId, null))
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, profileId, null, null))
           command.ExecuteNonQuery();
         transaction.Commit();
         return true;
@@ -423,6 +504,44 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error clearing user data for profile '{0}'", e, profileId);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
+    public bool ClearUserMediaItemDataKey(Guid profileId, string key)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserMediaItemDataCommand(transaction, profileId, null, key))
+          command.ExecuteNonQuery();
+        transaction.Commit();
+        return true;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error clearing user media item data for profile '{0}'", e, profileId);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
+    public bool ClearUserAdditionalDataKey(Guid profileId, string key)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, profileId, null, key))
+          command.ExecuteNonQuery();
+        transaction.Commit();
+        return true;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error clearing user additional data for profile '{0}'", e, profileId);
         transaction.Rollback();
         throw;
       }

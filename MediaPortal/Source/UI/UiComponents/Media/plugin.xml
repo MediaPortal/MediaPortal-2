@@ -70,6 +70,9 @@
 
     <Model Id="93445803-8B71-4ACD-BF2A-CDD380AD805D" Name="LastWatchedModelContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.LastWatchedMediaAction" />
     <Model Id="164E1F07-3448-46E2-9F0B-AC1831D33573" Name="LastWatchedMediaModel" ClassName="MediaPortal.UiComponents.Media.Models.LastWatchedMediaModel" />
+  
+    <Model Id="EB11ECA4-F7AB-42E7-AFF9-A0D0F547131E" Name="FavoriteModelContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.FavoriteMediaAction" />
+    <Model Id="F0852B41-E412-4E94-BFC6-CE0BB3336FD3" Name="FavoriteMediaModel" ClassName="MediaPortal.UiComponents.Media.Models.FavoriteMediaModel" />
   </Register>
 
   <Register Location="/Workflow/States">
@@ -120,7 +123,13 @@
         Name="LastWatchedMedia"
         MainScreen="LastWatchedMedia"
         DisplayLabel="[Media.LastWatchedMediaWorkflowNavigationContextDisplayLabel]"
-        WorkflowModel="164E1F07-3448-46E2-9F0B-AC1831D33573"/> <!-- Workflow model = Last Watche Media model -->
+        WorkflowModel="164E1F07-3448-46E2-9F0B-AC1831D33573"/> <!-- Workflow model = Last Watched Media model -->
+    
+    <WorkflowState Id="17243BF9-5B84-4563-9A41-7E607C12887D"
+        Name="FavoriteMedia"
+        MainScreen="FavoriteMedia"
+        DisplayLabel="[Media.FavoriteMediaWorkflowNavigationContextDisplayLabel]"
+        WorkflowModel="F0852B41-E412-4E94-BFC6-CE0BB3336FD3"/> <!-- Workflow model = Favorite Media model -->
 
     <!-- MediaItemActions -->
 

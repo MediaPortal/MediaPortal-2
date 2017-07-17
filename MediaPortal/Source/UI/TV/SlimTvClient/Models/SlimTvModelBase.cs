@@ -169,6 +169,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
+    protected static void TuneChannel(IChannel channel)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
+      if (model != null)
+      {
+        model.Tune(channel);
+        // Always switch to fullscreen
+        workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
+      }
+    }
+
     /// <summary>
     /// Exposes the list of available series recording types or other user choices.
     /// </summary>

@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -33,10 +34,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         public MIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
             SelectProjectionFunction selectProjectionFunction,
             IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-            IFilter filter, IList<SortInformation> sortInformation) : base(miaManagement, simpleSelectAttributes,
+            IFilter filter, IList<ISortInformation> sortInformation, Guid? userProfileId = null) : base(miaManagement, simpleSelectAttributes,
             selectProjectionFunction,
             necessaryRequestedMIAs, optionalRequestedMIAs,
-            filter, sortInformation)
+            filter, sortInformation, userProfileId)
         {
         }
 

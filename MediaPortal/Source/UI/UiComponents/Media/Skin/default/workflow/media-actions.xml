@@ -61,6 +61,12 @@
         SortOrder="g"
         SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         ContributorModelId="93445803-8B71-4ACD-BF2A-CDD380AD805D"/>  <!-- Last watched media action -->
+    <WorkflowContributorAction Id="94930258-F5D4-4BD5-8EEE-727885F5EED0"
+        Name="Home->Favorite Media"
+        DisplayCategory="a-Media"
+        SortOrder="g"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        ContributorModelId="EB11ECA4-F7AB-42E7-AFF9-A0D0F547131E"/>  <!-- Favorite media action -->
     <WorkflowContributorAction Id="69283181-C137-493B-891C-F95DA99C9AC6"
         Name="*->SwitchBrowseLocalML"
         DisplayCategory="a0-Media"

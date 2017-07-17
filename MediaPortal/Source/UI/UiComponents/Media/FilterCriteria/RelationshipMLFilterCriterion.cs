@@ -46,9 +46,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     protected Guid _linkedRole;
     protected IEnumerable<Guid> _necessaryMIATypeIds;
     protected IEnumerable<Guid> _optionalMIATypeIds;
-    protected SortInformation _sortInformation;
+    protected ISortInformation _sortInformation;
 
-    public RelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, SortInformation sortInformation)
+    public RelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, ISortInformation sortInformation)
     {
       _role = role;
       _linkedRole = linkedRole;
@@ -79,7 +79,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         queryFilter = new RelationshipFilter(_role, _linkedRole, Guid.Empty);
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
       if (_sortInformation != null)
-        query.SortInformation = new List<SortInformation> { _sortInformation };
+        query.SortInformation = new List<ISortInformation> { _sortInformation };
       IList<MediaItem> items = cd.Search(query, true, userProfile, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)

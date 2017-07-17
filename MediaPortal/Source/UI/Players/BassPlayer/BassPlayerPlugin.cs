@@ -99,27 +99,22 @@ namespace MediaPortal.UI.Players.BassPlayer
           mediaItem = stubMI;
       }
 
-      string mimeType;
-      string title;
-      if (!mediaItem.GetPlayData(out mimeType, out title))
-        return null;
-      IResourceLocator locator = mediaItem.GetResourceLocator();
-      if (InputSourceFactory.CanPlay(locator, mimeType))
+      BassPlayer player = new BassPlayer();
+      try
       {
-        BassPlayer player = new BassPlayer();
-        try
+        if (!player.SetMediaItem(mediaItem))
         {
-          player.SetMediaItemLocator(locator, mimeType, title);
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("BassPlayerPlugin: Error playing media item '{0}'", e, locator);
           player.Dispose();
           return null;
         }
-        return player;
       }
-      return null;
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("BassPlayerPlugin: Error playing media item '{0}'", e, mediaItem.ToString());
+        player.Dispose();
+        return null;
+      }
+      return player;
     }
 
     #endregion
