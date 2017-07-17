@@ -228,8 +228,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
           return false;
-        if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
-          return false;
 
         Argus.Recording recording;
         using (metaFileAccessor)

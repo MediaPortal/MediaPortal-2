@@ -22,16 +22,11 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.Messaging;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
-using System;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkinSettings
 {
@@ -128,11 +123,11 @@ namespace SkinSettings
     protected static HashSet<string> GetLoadedSkins()
     {
       HashSet<string> loadedSkins = new HashSet<string>();
-      var srb = ServiceRegistration.Get<IScreenManager>().CurrentSkinResourceBundle;
-      while (srb != null)
+      var sr = SkinContext.SkinResources;
+      while (sr != null)
       {
-        loadedSkins.Add(srb.Name);
-        srb = srb.InheritedSkinResources;
+        loadedSkins.Add(sr.Name);
+        sr = sr.InheritedSkinResources;
       }
       return loadedSkins;
     }

@@ -35,6 +35,7 @@
   <string name="SlimTvClient.CreateManualSchedule">Schedule recording manually</string>
 
   <string name="SlimTvClient.ProgramSearch">Search programs</string>
+  <string name="SlimTvClient.ProgramSearch.Help">Search for program titles in the EPG and find your desired shows</string>
 
   <!-- Extended recording features -->
   <string name="SlimTvClient.RecordActions">Recording actions</string>

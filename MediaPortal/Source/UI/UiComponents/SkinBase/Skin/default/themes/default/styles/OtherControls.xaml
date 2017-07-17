@@ -319,7 +319,8 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource DialogButtonStyle}" Margin="5,0,5,0"
-              IsDefault="{Binding AdditionalProperties[IsDefault]}">
+              IsDefault="{Binding AdditionalProperties[IsDefault]}"
+              SetFocus="{Binding AdditionalProperties[IsDefault]}">
             <Button.Command>
               <CommandList>
                 <LateBoundValue BindingValue="{Binding Command}"/>
