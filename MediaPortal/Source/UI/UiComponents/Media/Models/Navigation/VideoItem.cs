@@ -151,48 +151,51 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
               a[VideoStreamAspect.ATTR_VIDEO_TYPE] != null).Select(a => (string)a[VideoStreamAspect.ATTR_VIDEO_TYPE]).FirstOrDefault();
           }
 
-          videoStreams[partSet.Value].Duration = dur.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int)dur.Value)) : string.Empty;
-          videoStreams[partSet.Value].Format = type;
-          if (aspectRatio.HasValue)
+          if (partSet.HasValue && videoStreams.ContainsKey(partSet.Value))
           {
-            if (aspectRatio.Value < 1.4)
-              videoStreams[partSet.Value].AspectRatio = "4:3";
-            else if (aspectRatio.Value < 1.8)
-              videoStreams[partSet.Value].AspectRatio = "16:9";
-            else
-              videoStreams[partSet.Value].AspectRatio = "21:9";
+            videoStreams[partSet.Value].Duration = dur.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int)dur.Value)) : string.Empty;
+            videoStreams[partSet.Value].Format = type;
+            if (aspectRatio.HasValue)
+            {
+              if (aspectRatio.Value < 1.4)
+                videoStreams[partSet.Value].AspectRatio = "4:3";
+              else if (aspectRatio.Value < 1.8)
+                videoStreams[partSet.Value].AspectRatio = "16:9";
+              else
+                videoStreams[partSet.Value].AspectRatio = "21:9";
+            }
+            if (bitrate.HasValue)
+              videoStreams[partSet.Value].BitRate = bitrate.ToString() + " kbps";
+            if (fps.HasValue)
+            {
+              float validFrameRate = 23.976F;
+              if (fps.Value < 23.989999999999998D)
+                validFrameRate = 23.976F;
+              else if (fps.Value < 24.100000000000001D)
+                validFrameRate = 24;
+              else if (fps.Value < 25.100000000000001D)
+                validFrameRate = 25;
+              else if (fps.Value < 29.989999999999998D)
+                validFrameRate = 29.97F;
+              else if (fps.Value < 30.100000000000001D)
+                validFrameRate = 30;
+              else if (fps.Value < 50.100000000000001D)
+                validFrameRate = 50;
+              else if (fps.Value < 59.990000000000002D)
+                validFrameRate = 59.94F;
+              else if (fps.Value < 60.100000000000001D)
+                validFrameRate = 60;
+              else if (fps.Value < 120.100000000000001D)
+                validFrameRate = 120;
+              videoStreams[partSet.Value].FPS = validFrameRate.ToString("0.###");
+            }
+            if (height.HasValue)
+              videoStreams[partSet.Value].Height = height.Value;
+            if (width.HasValue)
+              videoStreams[partSet.Value].Width = width.Value;
+            videoStreams[partSet.Value].Parts = parts;
+            videoStreams[partSet.Value].VideoEncoding = encoding;
           }
-          if (bitrate.HasValue)
-            videoStreams[partSet.Value].BitRate = bitrate.ToString() + " kbps";
-          if (fps.HasValue)
-          {
-            float validFrameRate = 23.976F;
-            if (fps.Value < 23.989999999999998D)
-              validFrameRate = 23.976F;
-            else if (fps.Value < 24.100000000000001D)
-              validFrameRate = 24;
-            else if (fps.Value < 25.100000000000001D)
-              validFrameRate = 25;
-            else if (fps.Value < 29.989999999999998D)
-              validFrameRate = 29.97F;
-            else if (fps.Value < 30.100000000000001D)
-              validFrameRate = 30;
-            else if (fps.Value < 50.100000000000001D)
-              validFrameRate = 50;
-            else if (fps.Value < 59.990000000000002D)
-              validFrameRate = 59.94F;
-            else if (fps.Value < 60.100000000000001D)
-              validFrameRate = 60;
-            else if (fps.Value < 120.100000000000001D)
-              validFrameRate = 120;
-            videoStreams[partSet.Value].FPS = validFrameRate.ToString("0.###");
-          }
-          if(height.HasValue)
-            videoStreams[partSet.Value].Height = height.Value;
-          if(width.HasValue)
-            videoStreams[partSet.Value].Width = width.Value;
-          videoStreams[partSet.Value].Parts = parts;
-          videoStreams[partSet.Value].VideoEncoding = encoding;
 
           string videoEnc = (string)videoStreamAspect[VideoStreamAspect.ATTR_VIDEOENCODING];
           if (!string.IsNullOrEmpty(videoEnc))
@@ -204,7 +207,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
             if ((int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] == (int)audioStreamAspect[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX])
             {
               VideoAudioStreamItem audioItem = new VideoAudioStreamItem();
-              audioItem.Set = partSet.Value;
               channels = null;
               language = null;
               bitrate = null;
@@ -220,6 +222,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
               }
               else if (partSet.HasValue)
               {
+                audioItem.Set = partSet.Value;
                 IEnumerable<MultipleMediaItemAspect> aspectList = audioStreamAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                   a[VideoAudioStreamAspect.ATTR_AUDIOCHANNELS] != null);
                 if (aspectList.Any())
@@ -267,7 +270,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
                   audioItem.Channels = "10.2";
               }
               audioItem.Language = language;
-              videoAudioStreams[partSet.Value].Add(audioItem);
+              if (partSet.HasValue && videoAudioStreams.ContainsKey(partSet.Value))
+                videoAudioStreams[partSet.Value].Add(audioItem);
 
               string audioEnc = (string)audioStreamAspect[VideoAudioStreamAspect.ATTR_AUDIOENCODING];
               if (!string.IsNullOrEmpty(audioEnc))
@@ -283,8 +287,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
               if ((int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] == (int)subtitleAspect[SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX])
               {
                 SubtitleItem subtitleItem = new SubtitleItem();
-                subtitleItem.Set = partSet.Value;
-
                 language = null;
                 encoding = null;
                 type = null;
@@ -299,6 +301,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
                 }
                 else if (partSet.HasValue)
                 {
+                  subtitleItem.Set = partSet.Value;
                   isDefault = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                     a[SubtitleAspect.ATTR_DEFAULT] != null).Select(a => (bool)a[SubtitleAspect.ATTR_DEFAULT]).FirstOrDefault();
                   isForced = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
@@ -313,7 +316,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
                 subtitleItem.Forced = isForced;
                 subtitleItem.Format = type;
                 subtitleItem.Language = language;
-                subtitleStreams[partSet.Value].Add(subtitleItem);
+                if (partSet.HasValue && subtitleStreams.ContainsKey(partSet.Value))
+                  subtitleStreams[partSet.Value].Add(subtitleItem);
               }
             }
           }
