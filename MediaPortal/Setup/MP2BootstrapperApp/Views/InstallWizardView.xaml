@@ -19,6 +19,10 @@
   </Window.Background>
   <Window.Resources>
 
+    <DataTemplate DataType="{x:Type viewModels:InstallWelcomePageViewModel}">
+      <view:InstallExistTypePageView />
+    </DataTemplate>
+    
     <DataTemplate DataType="{x:Type viewModels:InstallExistTypePageViewModel}">
       <view:InstallExistTypePageView />
     </DataTemplate>
@@ -88,48 +92,110 @@
       </Style.Triggers>
     </Style>
 
-  </Window.Resources>
-  <Grid>
-    <Image Source="..\resources\background.jpg" Stretch="Fill">
-      <Image.Effect>
-        <BlurEffect Radius="10"/>
-      </Image.Effect>
-      <Image.OpacityMask>
-        <SolidColorBrush Color="Black" Opacity="0.155"/>
-      </Image.OpacityMask>
-    </Image>
-    <Rectangle HorizontalAlignment="Left" Height="112.497" Stroke="Black" VerticalAlignment="Top" Width="1021.343" Margin="0,-0.239,-0.604,0" RenderTransformOrigin="0.5,0.5" StrokeThickness="0">
-      <Rectangle.Fill>
-        <SolidColorBrush Color="#FF2C2C2C" Opacity="0.885"/>
-      </Rectangle.Fill>
-      <Rectangle.RenderTransform>
-        <TransformGroup>
-          <ScaleTransform/>
-          <SkewTransform AngleY="-0.073"/>
-          <RotateTransform/>
-          <TranslateTransform Y="-0.399"/>
-        </TransformGroup>
-      </Rectangle.RenderTransform>
-      <Rectangle.Effect>
-        <DropShadowEffect Opacity="0.45" Direction="256" BlurRadius="12"/>
-      </Rectangle.Effect>
-    </Rectangle>
-    <Rectangle HorizontalAlignment="Left" Height="130.538" Stroke="Black" VerticalAlignment="Top" Width="1020.739" Margin="0,507.507,0,0" StrokeThickness="0">
-      <Rectangle.Fill>
-        <SolidColorBrush Color="Black" Opacity="0.6"/>
-      </Rectangle.Fill>
-      <Rectangle.Effect>
-        <DropShadowEffect Opacity="0.57" Direction="482" BlurRadius="8"/>
-      </Rectangle.Effect>
-    </Rectangle>
-    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" Height="110.559" Margin="10,522.09,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="1000.739" Foreground="#FF919191" FontStretch="SemiCondensed" FontSize="14"><Run Text="MediaPortal is a free open source mediacenter software"/><LineBreak/><LineBreak/><Run Text="You may use, distribute and copy MediaPortal under the terms of"/><Run FontFamily="Arial" Text=" "/><Run Text="GNU General Public License version 3, which is displayed below."/><LineBreak/><Span TextDecorations="Underline"><Span.Foreground>
-      <SolidColorBrush Color="#FF006493"/>
-    </Span.Foreground><Run Text="GNU GENERAL PUBLIC LICENSE"/></Span><LineBreak/><Span><Run Text="Version 3, 29 June 2007"/></Span></TextBlock>
+    <VisualBrush x:Key="Background">
+      <VisualBrush.Visual>
+        <Grid>
+          <Image Source="..\resources\background.jpg" Stretch="Fill">
+            <Image.Effect>
+              <BlurEffect Radius="30"/>
+            </Image.Effect>
+            <Image.OpacityMask>
+              <SolidColorBrush Color="Black" Opacity="0.155"/>
+            </Image.OpacityMask>
+          </Image>
+        </Grid>
+      </VisualBrush.Visual>
+    </VisualBrush>
 
-    <Image Margin="9.208,0,240.814,527.134" Source="..\resources\banner.png"/>
-    <ToggleButton Name="CloseButton" Style="{StaticResource ToggleButtonWindowClose}" Margin="941.015,28.423,42.233,562.742" BorderBrush="White" Foreground="White" />
-    <Label x:Name="Label" Content="Installation" HorizontalAlignment="Left" Margin="454,146,0,0" VerticalAlignment="Top" Foreground="#FFCDCDCD" HorizontalContentAlignment="Center" FontSize="22" Background="{x:Null}"/>
-    
+    <VisualBrush x:Key="Banner">
+      <VisualBrush.Visual>
+        <Grid>
+          <Image Source="..\resources\banner.png" Stretch="Fill">
+          </Image>
+        </Grid>
+      </VisualBrush.Visual>
+    </VisualBrush>
+
+  </Window.Resources>
+  <Grid Background="{StaticResource Background}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="160"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0" Grid.Column="0" Background="{StaticResource Banner}">
+      <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Top" Height="30" Width="30" Margin="30" Name="CloseButton"
+                    Style="{StaticResource ToggleButtonWindowClose}" BorderBrush="White" Foreground="White" />
+    </Grid>
+
+    <HeaderedContentControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="40" Content="{Binding Path=CurrentPage}" Header="{Binding Path=Header}"/>
+
+    <Grid Grid.Column="0" Grid.Row="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition SharedSizeGroup="Buttons" />
+        <ColumnDefinition SharedSizeGroup="Buttons" />
+        <ColumnDefinition SharedSizeGroup="Buttons" />
+      </Grid.ColumnDefinitions>
+      <Button Grid.Row="0" Grid.Column="0" x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}"
+              HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom"
+              Width="25" Height="25">
+        <StackPanel Height="25" Width="25">
+          <Image Source="..\resources\button_back.png" Stretch="Fill" Width="25" Height="25" />
+        </StackPanel>
+      </Button>
+      <Button Grid.Row="0" Grid.Column="1" x:Name="Next" IsEnabled="True" Command="{Binding Path=NextCommand}"
+              HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom"
+              Width="25" Height="25">
+        <StackPanel Height="25" Width="25">
+          <Image Source="..\resources\button_next.png" Stretch="Fill" Width="25" Height="25"
+                 HorizontalAlignment="Left" />
+        </StackPanel>
+      </Button>
+      <Button Grid.Row="0" Grid.Column="2" x:Name="Cancel" Command="{Binding Path=CancelCommand}"
+              HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom"
+              Width="25" Height="25">
+        <StackPanel Height="25" Width="25">
+          <Image Source="..\resources\button_cancel.png" Stretch="Fill" Width="25" Height="25"
+                 RenderTransformOrigin="0.6,3.24" />
+        </StackPanel>
+      </Button>
+    </Grid>
+
+    <Grid Grid.Column="0" Grid.Row="3">
+      <Rectangle HorizontalAlignment="Left" Height="130.538" Stroke="Black" VerticalAlignment="Top"
+                 Width="1020.739" StrokeThickness="0">
+        <Rectangle.Fill>
+          <SolidColorBrush Color="Black" Opacity="0.6" />
+        </Rectangle.Fill>
+        <Rectangle.Effect>
+          <DropShadowEffect Opacity="0.57" Direction="482" BlurRadius="8" />
+        </Rectangle.Effect>
+      </Rectangle>
+
+      <TextBlock TextAlignment="Center" HorizontalAlignment="Center" Height="110.559" TextWrapping="Wrap"
+                 VerticalAlignment="Bottom" Width="1000.739" Foreground="#FF919191" FontStretch="SemiCondensed"
+                 FontSize="14">
+        <Run Text="MediaPortal is a free open source mediacenter software" /><LineBreak /><LineBreak />
+        <Run Text="You may use, distribute and copy MediaPortal under the terms of" />
+        <Run FontFamily="Arial" Text=" " />
+        <Run Text="GNU General Public License version 3, which is displayed below." /><LineBreak />
+        <Span TextDecorations="Underline">
+          <Span.Foreground>
+            <SolidColorBrush Color="#FF006493" />
+          </Span.Foreground>
+          <Run Text="GNU GENERAL PUBLIC LICENSE" />
+        </Span>
+        <LineBreak />
+        <Span>
+          <Run Text="Version 3, 29 June 2007" />
+        </Span>
+      </TextBlock>
+    </Grid>
   </Grid>
 </Window>
 

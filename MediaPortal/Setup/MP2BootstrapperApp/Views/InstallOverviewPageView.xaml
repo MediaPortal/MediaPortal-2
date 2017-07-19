@@ -3,12 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             xmlns:local="clr-namespace:MP2BootstrapperApp.Views">
   
-  <Grid Margin="10">
-    <ItemsControl Margin="71.687,222.376,70.225,168.246">
+  <Grid>
+    <ItemsControl >
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel />
@@ -36,7 +34,6 @@
       </CheckBox>
     </ItemsControl>
     <ProgressBar HorizontalAlignment="Left" Height="5" Margin="-0.521,503.97,0,0" VerticalAlignment="Top" Width="1023" Foreground="#FFE8641B" Minimum="-1" Value="28" BorderThickness="0"/>
-    <Button Content="Install" HorizontalAlignment="Left" Margin="828.893,435.672,0,0" VerticalAlignment="Top" Width="149.613" Height="42.294" Foreground="White" FontSize="18" Background="#FF3A3A3A"/>
   </Grid>
   
 </UserControl>

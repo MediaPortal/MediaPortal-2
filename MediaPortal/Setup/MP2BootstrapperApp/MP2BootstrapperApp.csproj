@@ -67,7 +67,6 @@
     <Compile Include="ViewModels\InstallWelcomePageViewModel.cs" />
     <Compile Include="ViewModels\InstallWizardPageViewModelBase.cs" />
     <Compile Include="ViewModels\InstallWizardViewModel.cs" />
-    <Compile Include="ViewModels\StartViewModel.cs" />
     <Compile Include="Views\InstallExistTypePageView.xaml.cs">
       <DependentUpon>InstallExistTypePageView.xaml</DependentUpon>
     </Compile>
@@ -85,9 +84,6 @@
     </Compile>
     <Compile Include="Views\InstallWizardView.xaml.cs">
       <DependentUpon>InstallWizardView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\StartView.xaml.cs">
-      <DependentUpon>StartView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -122,10 +118,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\StartView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\background.jpg" />
@@ -146,9 +138,12 @@
     <Resource Include="Resources\server_install.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\directx.png" />
-    <Content Include="Resources\dokan.png" />
-    <Content Include="Resources\lav_filters.png" />
+    <Resource Include="Resources\button_back.png" />
+    <Resource Include="Resources\button_cancel.png" />
+    <Resource Include="Resources\button_next.png" />
+    <Resource Include="Resources\directx.png" />
+    <Resource Include="Resources\dokan.png" />
+    <Resource Include="Resources\lav_filters.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
