@@ -16,6 +16,7 @@
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientX" Resource="1.17"/>
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.15"/>
   <Model x:Key="ScreenModeModel" Id="0E621AA5-0733-4E88-A0F0-887F8D73A055"/>
+  <Model x:Key="LoginModel" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
@@ -1471,7 +1472,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid DockPanel.Dock="Left" Height="58" Width="58">
+          <Grid Height="58" Width="58">
             <Image x:Name="RecordingIcon" Source="Recording.png" Stretch="Uniform" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
               <Image.Triggers>
                 <Trigger Property="IsEnabled" Value="True">
@@ -1494,7 +1495,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid DockPanel.Dock="Left" Height="58" Width="58">
+          <Grid Height="58" Width="58">
             <Image x:Name="RecordingIcon" Source="Importing.png" Stretch="Uniform" Margin="10"
                    HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.49,0.49">
               <Image.RenderTransform>
@@ -1512,6 +1513,28 @@
               </Image.Triggers>
             </Image>
           </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="UserButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel>
+            <Image x:Name="UserIcon" DockPanel.Dock="Left" Height="80" Width="80" Source="Person.png" Stretch="Uniform"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+            <Label x:Name="UserLabel" DockPanel.Dock="Right" Opacity="0.4" Margin="-12,0,0,0"
+                   DataContext="{Binding Source={StaticResource LoginModel}, Path=CurrentUser}" Content="{Binding Path=Name}" 
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"/>
+          </DockPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="UserLabel" Property="Opacity" Value="1"/>
+              <Setter TargetName="UserIcon" Property="Opacity" Value="1.2"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
