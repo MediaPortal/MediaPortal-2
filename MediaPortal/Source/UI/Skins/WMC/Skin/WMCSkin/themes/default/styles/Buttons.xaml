@@ -1525,13 +1525,13 @@
           <DockPanel>
             <Image x:Name="UserIcon" DockPanel.Dock="Left" Height="80" Width="80" Source="Person.png" Stretch="Uniform"
                    HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
-            <Label x:Name="UserLabel" DockPanel.Dock="Right" Opacity="0.4" Margin="-12,0,0,0"
+            <Label x:Name="UserLabel" DockPanel.Dock="Right" Margin="-12,0,0,0"
                    DataContext="{Binding Source={StaticResource LoginModel}, Path=CurrentUser}" Content="{Binding Path=Name}" 
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"/>
+                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"/>
           </DockPanel>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
-              <Setter TargetName="UserLabel" Property="Opacity" Value="1"/>
+              <Setter TargetName="UserLabel" Property="Color" Value="{ThemeResource TextColor}"/>
               <Setter TargetName="UserIcon" Property="Opacity" Value="1.2"/>
             </Trigger>
           </ControlTemplate.Triggers>
