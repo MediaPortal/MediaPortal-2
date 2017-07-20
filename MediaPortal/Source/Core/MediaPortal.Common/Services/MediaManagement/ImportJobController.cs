@@ -236,6 +236,17 @@ namespace MediaPortal.Common.Services.MediaManagement
       _firstBlockHasFinished.TrySetResult(new object());
     }
 
+    internal bool PostToBlocksOfType(Type blockType, PendingImportResourceNewGen item)
+    {
+      bool success = false;
+      foreach (ImporterWorkerDataflowBlockBase block in _dataflowBlocks)
+      {
+        if (block.GetType() == blockType)
+          success |= block.Post(item);
+      }
+      return success;
+    }
+
     #endregion
 
     #region Private methods
@@ -351,8 +362,8 @@ namespace MediaPortal.Common.Services.MediaManagement
           // Now we are sure that we need a DataflowBlock network
 
           // Create the blocks
-          _dataflowBlocks.Add(new DirectoryUnfoldBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new DirectorySaveBlock(_cts.Token, _importJobInformation, this));
+          _dataflowBlocks.Add(new DirectoryUnfoldBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new FileUnfoldBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new ChangeUnfoldBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new MediaItemLoadBlock(_cts.Token, _importJobInformation, this));

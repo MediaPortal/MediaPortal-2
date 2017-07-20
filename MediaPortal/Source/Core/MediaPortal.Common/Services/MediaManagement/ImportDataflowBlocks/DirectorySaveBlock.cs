@@ -92,7 +92,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         importResource.ParentDirectoryId = await GetParentDirectoryId(importResource.ParentDirectory);
-        
+        importResource.IsSingleResource = await IsSingleResource(importResource.ResourceAccessor);
+
         // Directories that are single resources (such as DVD directories) are not saved in this DataflowBlock
         // We just pass them to the next DataflowBlock.
         if (!importResource.IsSingleResource)
