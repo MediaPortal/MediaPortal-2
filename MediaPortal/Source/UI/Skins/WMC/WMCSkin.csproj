@@ -93,6 +93,23 @@
     </Content>
     <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4EFocus.png" />
     <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4ENofocus.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK0.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK12.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK16.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK18.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK6.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\TV-14.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\TV-G.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\TV-MA.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\TV-PG.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\TV-Y.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\TV-Y7.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\TV-Y7FV.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_G.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_NC17.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_PG.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_PG13.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_R.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer2.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer3.png" />

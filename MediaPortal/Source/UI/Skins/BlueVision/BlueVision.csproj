@@ -1101,6 +1101,12 @@
     <Content Include="Skin\BlueVision\superlayers\SkipStepOSD.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\dialogNewsFeedsSetup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\dialogWeatherSetup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="Skin\BlueVision\themes\Win10\screens\SimpleFilterItems.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
