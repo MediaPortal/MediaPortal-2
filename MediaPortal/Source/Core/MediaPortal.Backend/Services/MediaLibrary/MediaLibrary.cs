@@ -54,6 +54,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using System.Diagnostics;
 using MediaPortal.Common.Services.MediaManagement;
 using System.Threading.Tasks;
+using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -1602,6 +1603,127 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           executeQuery.Filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, executeQuery.Filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
       }
 
+      IFilter shareFilter = null;
+      IFilter movieFilter = null;
+      IFilter seriesFilter = null;
+      UserProfile user = null;
+      int? allowedAge = null;
+      bool? allowParentalGuidedContent = null;
+      if (userProfileId.HasValue)
+      {
+        int profileIdIndex;
+        int dataIndex;
+        int typeIndex;
+        int passwordIndex;
+        int imageIndex;
+        int lastLoginIndex;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserProfilesCommand(transaction, userProfileId, null,
+            out profileIdIndex, out dataIndex, out typeIndex, out passwordIndex, out imageIndex, out lastLoginIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              user = new UserProfile(database.ReadDBValue<Guid>(reader, profileIdIndex), database.ReadDBValue<string>(reader, dataIndex), database.ReadDBValue<int>(reader, typeIndex));
+            }
+          }
+        }
+
+        // Shares filter
+        var shares = GetShares(LocalSystemId);
+        List<IFilter> shareFilters = new List<IFilter>();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, userProfileId.Value, UserDataKeysKnown.KEY_ALLOWED_SHARE, out typeIndex, out dataIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              Guid shareId = new Guid(database.ReadDBValue<string>(reader, dataIndex));
+              if (!shares.ContainsKey(shareId))
+                continue;
+              shareFilters.Add(new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, shares[shareId].BaseResourcePath + "%", null, true));
+            }
+          }
+        }
+        if (shareFilters.Count > 0)
+          shareFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, shareFilters.ToArray());
+
+        // Determine allowed age
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataCommand(transaction, userProfileId.Value, UserDataKeysKnown.KEY_ALLOWED_AGE_RATING, 0, out dataIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              string age = database.ReadDBValue<string>(reader, dataIndex);
+              if (!string.IsNullOrEmpty(age) && Convert.ToInt32(age) >= 0)
+              {
+                allowedAge = Convert.ToInt32(age);
+              }
+            }
+          }
+        }
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataCommand(transaction, userProfileId.Value, UserDataKeysKnown.KEY_ALLOW_PARENT_GUIDE_AGE_RATING, 0, out dataIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              string allow = database.ReadDBValue<string>(reader, dataIndex);
+              if (!string.IsNullOrEmpty(allow))
+              {
+                allowParentalGuidedContent = Convert.ToInt32(allow) > 0;
+              }
+            }
+          }
+        }
+
+        // Movie filter
+        if (query.NecessaryRequestedMIATypeIDs.Contains(MovieAspect.ASPECT_ID) && allowedAge.HasValue)
+        {
+          IEnumerable<CertificationMapping> certs = CertificationMapper.GetMovieCertificationsForAge(allowedAge.Value, allowParentalGuidedContent ?? false);
+          var certLimit = certs.Take(MAX_VARIABLES_LIMIT);
+          List<IFilter> filters = new List<IFilter>();
+          while (certLimit.Count() > 0)
+          {
+            filters.Add(new InFilter(MovieAspect.ATTR_CERTIFICATION, certLimit));
+            certLimit = certs.Skip(MAX_VARIABLES_LIMIT * filters.Count).Take(MAX_VARIABLES_LIMIT);
+          }
+          if (filters.Count > 0)
+            movieFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, filters.ToArray());
+        }
+
+        // Series filter
+        if (query.NecessaryRequestedMIATypeIDs.Contains(SeriesAspect.ASPECT_ID) && allowedAge.HasValue)
+        {
+          IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, allowParentalGuidedContent ?? false);
+          var certLimit = certs.Take(MAX_VARIABLES_LIMIT);
+          List<IFilter> filters = new List<IFilter>();
+          while (certLimit.Count() > 0)
+          {
+            filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certLimit));
+            certLimit = certs.Skip(MAX_VARIABLES_LIMIT * filters.Count).Take(MAX_VARIABLES_LIMIT);
+          }
+          if (filters.Count > 0)
+            seriesFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, filters.ToArray());
+        }
+
+        // Series episode filter
+        if (query.NecessaryRequestedMIATypeIDs.Contains(EpisodeAspect.ASPECT_ID) && allowedAge.HasValue)
+        {
+          IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, allowParentalGuidedContent ?? false);
+          var certLimit = certs.Take(MAX_VARIABLES_LIMIT);
+          List<IFilter> filters = new List<IFilter>();
+          while (certLimit.Count() > 0)
+          {
+            filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certLimit));
+            certLimit = certs.Skip(MAX_VARIABLES_LIMIT * filters.Count).Take(MAX_VARIABLES_LIMIT);
+          }
+          if (filters.Count > 0)
+            seriesFilter = new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, filters.ToArray()));
+        }
+      }
+
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery, userProfileId);
       IList<MediaItem> items = null;
       if (database == null || transaction == null)
@@ -1609,6 +1731,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       else
         items = cmiq.QueryList(database, transaction);
       //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
+      //TODO: Remove movies/series found through optional aspects that are not allowed according to user rating filter
       LoadUserDataForMediaItems(database, transaction, userProfileId, items);
 
       if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))

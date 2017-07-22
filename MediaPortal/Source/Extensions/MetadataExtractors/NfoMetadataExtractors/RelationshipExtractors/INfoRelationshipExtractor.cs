@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.Certifications;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -436,7 +437,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         seriesAspect.SetAttribute(TempSeriesAspect.ATTR_SORT_NAME, series.SortTitle);
       else
         seriesAspect.SetAttribute(TempSeriesAspect.ATTR_SORT_NAME, BaseInfo.GetSortTitle(title));
-      seriesAspect.SetAttribute(TempSeriesAspect.ATTR_CERTIFICATION, series.Mpaa != null && series.Mpaa.Count > 0 ? series.Mpaa.First() : null);
+
+      CertificationMapping cert = null;
+      seriesAspect.SetAttribute(TempSeriesAspect.ATTR_CERTIFICATION, null);
+      foreach (string certification in series.Mpaa)
+      {
+        if (CertificationMapper.TryFindMovieCertification(certification, out cert))
+        {
+          seriesAspect.SetAttribute(TempSeriesAspect.ATTR_CERTIFICATION, cert.CertificationId);
+          break;
+        }
+      }
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_ENDED, !string.IsNullOrEmpty(series.Status) ? series.Status.Contains("End") : false);
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_PLOT, !string.IsNullOrEmpty(series.Plot) ? series.Plot : series.Outline);
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_PREMIERED, series.Premiered.HasValue ? series.Premiered.Value : series.Year.HasValue ? series.Year.Value : default(DateTime?));

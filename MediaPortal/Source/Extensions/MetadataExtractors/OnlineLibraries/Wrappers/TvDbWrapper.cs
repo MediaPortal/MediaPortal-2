@@ -38,6 +38,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaPortal.Utilities;
+using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -233,13 +234,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         series.SeriesName = new SimpleTitle(seriesDetail.SeriesName, false);
         series.FirstAired = seriesDetail.FirstAired;
         series.Description = new SimpleTitle(seriesDetail.Overview, false);
-        series.Certification = seriesDetail.ContentRating;
         series.Rating = new SimpleRating(seriesDetail.Rating, seriesDetail.RatingCount);
         series.Genres = seriesDetail.Genre.Select(s => new GenreInfo { Name = s }).ToList();
         series.Networks = ConvertToCompanies(seriesDetail.NetworkID, seriesDetail.Network, CompanyAspect.COMPANY_TV_NETWORK);
         if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
         {
           series.IsEnded = true;
+        }
+
+        CertificationMapping certification = null;
+        if (CertificationMapper.TryFindMovieCertification(seriesDetail.ContentRating, out certification))
+        {
+          series.Certification = certification.CertificationId;
         }
 
         series.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR, null, seriesDetail.SeriesName);
