@@ -28,7 +28,7 @@ namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallExistTypePageViewModel : InstallWizardPageViewModelBase
   {
-    public InstallExistTypePageViewModel(BootstrapperApplicationModel model) : base(model)
+    public InstallExistTypePageViewModel(InstallWizardViewModel viewModel)
     {
     }
   }

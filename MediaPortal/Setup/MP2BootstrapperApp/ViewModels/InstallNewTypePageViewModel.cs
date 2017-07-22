@@ -28,8 +28,16 @@ namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallNewTypePageViewModel : InstallWizardPageViewModelBase
   {
-    public InstallNewTypePageViewModel(BootstrapperApplicationModel model) : base(model)
+    public InstallNewTypePageViewModel(InstallWizardViewModel viewModel)
     {
     }
+
+    public bool IsSelectedCustom { get; set; }
+
+    public bool IsSelectedClient { get; set; }
+
+    public bool IsSelectedServer { get; set; }
+
+    public bool IsSelectedClientAndServer { get; set; }
   }
 }

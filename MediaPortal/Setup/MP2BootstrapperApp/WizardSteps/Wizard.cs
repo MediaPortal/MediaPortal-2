@@ -22,12 +22,35 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallWelcomePageViewModel : InstallWizardPageViewModelBase
+  public class Wizard
   {
-    public InstallWelcomePageViewModel(InstallWizardViewModel viewModel)
+    public Wizard(IStep step)
     {
+      Step = step;
+    }
+
+    public IStep Step { get; set; }
+
+    public void GoNext()
+    {
+      Step.Next(this);
+    }
+
+    public void GoBack()
+    {
+      Step.Back(this);
+    }
+
+    public bool CanGoNext()
+    {
+      return Step.CanGoNext();
+    }
+
+    public bool CanGoBack()
+    {
+      return Step.CanGoBack();
     }
   }
 }

@@ -32,26 +32,11 @@ namespace MP2BootstrapperApp.ViewModels
   {
     #region Fields
 
-    private readonly BootstrapperApplicationModel _bootstrapperApplicationModel;
     private bool _isCurrentPage;
 
     #endregion
 
-    #region Constructor
-
-    protected InstallWizardPageViewModelBase(BootstrapperApplicationModel model)
-    {
-      _bootstrapperApplicationModel = model;
-    }
-
-    #endregion
-
     #region Properties
-
-    public BootstrapperApplicationModel BootstrapperApplicationModel
-    {
-      get { return _bootstrapperApplicationModel; }
-    }
 
     public bool IsCurrentPage
     {
