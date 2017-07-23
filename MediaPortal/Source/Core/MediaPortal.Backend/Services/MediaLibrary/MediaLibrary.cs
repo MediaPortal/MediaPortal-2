@@ -2355,6 +2355,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
           //Already stored
           continue;
+        if (mia.Metadata.IsTransientAspect)
+          continue;
         if (mia.Deleted)
           _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia.Metadata.AspectId);
         else if (wasCreated)
