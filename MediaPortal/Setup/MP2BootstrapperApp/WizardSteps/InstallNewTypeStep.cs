@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.WizardSteps
@@ -37,8 +38,47 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public void Next(Wizard wizard)
     {
-      wizard.Step = new InstallOverviewStep(viewModel);
-      viewModel.CurrentPage = new InstallOverviewPageViewModel(viewModel);
+      InstallNewTypePageViewModel page = viewModel.CurrentPage as InstallNewTypePageViewModel;
+
+      switch (page?.InstallType)
+      {
+        case InstallType.ClientServer:
+          foreach (var package in viewModel.BundlePackages)
+          {
+            if (package.CurrentInstallState != PackageState.Present)
+            {
+              package.RequestedInstallState = RequestState.Present;
+            }
+          }
+          wizard.Step = new InstallOverviewStep(viewModel);
+          viewModel.CurrentPage = new InstallOverviewPageViewModel(viewModel);
+          break;
+        case InstallType.Server:
+          foreach (var package in viewModel.BundlePackages)
+          {
+            if (package.CurrentInstallState != PackageState.Present || package.Id != "directx9" || package.Id != "LAVFilters")
+            {
+              package.RequestedInstallState = RequestState.Present;
+            }
+          }
+          wizard.Step = new InstallOverviewStep(viewModel);
+          viewModel.CurrentPage = new InstallOverviewPageViewModel(viewModel);
+          break;
+        case InstallType.Client:
+          foreach (var package in viewModel.BundlePackages)
+          {
+            if (package.CurrentInstallState != PackageState.Present)
+            {
+              package.RequestedInstallState = RequestState.Present;
+            }
+          }
+          wizard.Step = new InstallOverviewStep(viewModel);
+          viewModel.CurrentPage = new InstallOverviewPageViewModel(viewModel);
+          break;
+          case InstallType.Custom:
+          // TODO
+          break;
+      }
     }
 
     public void Back(Wizard wizard)

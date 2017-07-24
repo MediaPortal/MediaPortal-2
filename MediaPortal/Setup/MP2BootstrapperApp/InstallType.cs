@@ -22,22 +22,13 @@
 
 #endregion
 
-using MP2BootstrapperApp.Models;
-
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp
 {
-  public class InstallNewTypePageViewModel : InstallWizardPageViewModelBase
+  public enum InstallType
   {
-    private InstallType _installType = InstallType.ClientServer;
-
-    public InstallNewTypePageViewModel(InstallWizardViewModel viewModel)
-    {
-    }
-
-    public InstallType InstallType
-    {
-      get { return _installType; }
-      set { SetProperty(ref _installType, value); }
-    }
+    ClientServer,
+    Client,
+    Server,
+    Custom
   }
 }

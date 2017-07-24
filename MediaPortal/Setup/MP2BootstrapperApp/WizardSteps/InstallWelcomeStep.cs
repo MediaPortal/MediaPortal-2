@@ -53,7 +53,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public bool CanGoBack()
     {
-      return true;
+      return false;
     }
   }
 }

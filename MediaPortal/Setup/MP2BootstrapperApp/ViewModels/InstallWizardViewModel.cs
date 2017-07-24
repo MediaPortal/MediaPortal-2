@@ -66,10 +66,10 @@ namespace MP2BootstrapperApp.ViewModels
       WireUpEventHandlers();
       ComputeBundlePackages();
 
-      Wizard chris = new Wizard(new InstallWelcomeStep(this));
+      Wizard wizard = new Wizard(new InstallWelcomeStep(this));
 
-      NextCommand = new DelegateCommand(() => chris.GoNext(), () => chris.CanGoNext());
-      BackCommand = new DelegateCommand(() => chris.GoBack(), () => chris.CanGoBack());
+      NextCommand = new DelegateCommand(() => wizard.GoNext(), () => wizard.CanGoNext());
+      BackCommand = new DelegateCommand(() => wizard.GoBack(), () => wizard.CanGoBack());
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
     }
 
@@ -115,6 +115,7 @@ namespace MP2BootstrapperApp.ViewModels
         }
 
         RaisePropertyChanged();
+        Refresh();
       }
     }
 

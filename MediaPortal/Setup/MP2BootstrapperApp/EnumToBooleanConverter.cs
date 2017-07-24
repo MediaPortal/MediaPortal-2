@@ -22,22 +22,22 @@
 
 #endregion
 
-using MP2BootstrapperApp.Models;
+using System;
+using System.Globalization;
+using System.Windows.Data;
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp
 {
-  public class InstallNewTypePageViewModel : InstallWizardPageViewModelBase
-  {
-    private InstallType _installType = InstallType.ClientServer;
-
-    public InstallNewTypePageViewModel(InstallWizardViewModel viewModel)
+    public class EnumToBooleanConverter : IValueConverter
     {
-    }
+      public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+      {
+        return value?.Equals(parameter);
+      }
 
-    public InstallType InstallType
-    {
-      get { return _installType; }
-      set { SetProperty(ref _installType, value); }
+      public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+      {
+        return value.Equals(true) ? parameter : Binding.DoNothing;
+      }
     }
-  }
 }
