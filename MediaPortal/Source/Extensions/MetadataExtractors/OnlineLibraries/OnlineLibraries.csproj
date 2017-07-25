@@ -98,6 +98,13 @@
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecording.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackReleaseSearchResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\MusicBrainzDownloader.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiPerson.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiMovie.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiPersonSearchResult.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiPersonSearchItem.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiMovieSearchItem.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiMovieSearchResult.cs" />
+    <Compile Include="Libraries\SimApiV1\SimApiV1.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbBaseResponse.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbSearchItem.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbSearchResult.cs" />
@@ -299,6 +306,7 @@
     <Compile Include="Libraries\IMovieMatcher.cs" />
     <Compile Include="Libraries\ISeriesMatcher.cs" />
     <Compile Include="Libraries\IMusicMatcher.cs" />
+    <Compile Include="Matchers\MovieSimApiMatcher.cs" />
     <Compile Include="Matchers\MusicMatcher.cs" />
     <Compile Include="Matchers\IdMapper.cs" />
     <Compile Include="Matchers\SimpleNameMatcher.cs" />
@@ -313,6 +321,7 @@
     <Compile Include="Settings\MatcherSetting.cs" />
     <Compile Include="Settings\OnlineLibrarySettings.cs" />
     <Compile Include="Wrappers\ApiWrapperImageCollection.cs" />
+    <Compile Include="Wrappers\SimApiWrapper.cs" />
     <Compile Include="Wrappers\OmDbWrapper.cs" />
     <Compile Include="Matchers\SeriesOmDbMatcher.cs" />
     <Compile Include="Matchers\SeriesTvMazeMatcher.cs" />

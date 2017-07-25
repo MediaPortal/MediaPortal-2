@@ -31,5 +31,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public const string KEY_PLAY_COUNT = "PlayCount";
     public const string KEY_PLAY_PERCENTAGE = "PlayPercentage";
     public const string KEY_PLAY_DATE = "PlayDate";
+    public const string KEY_ALLOWED_SHARE = "AllowedShare";
+    public const string KEY_ALLOWED_AGE_RATING = "AllowedAgeRating";
+    public const string KEY_ALLOW_PARENT_GUIDE_AGE_RATING = "AllowParentalGuideAgeRating";
   }
 }

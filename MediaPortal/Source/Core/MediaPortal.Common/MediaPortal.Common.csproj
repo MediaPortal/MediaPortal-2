@@ -64,6 +64,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
+    <Compile Include="Certifications\CertificationMapper.cs" />
+    <Compile Include="Certifications\CetificationMapping.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
     <Compile Include="FanArt\FanArtCache.cs" />
     <Compile Include="FanArt\FanArtConstants.cs" />

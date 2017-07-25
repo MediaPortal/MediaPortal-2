@@ -1537,6 +1537,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         result = new MultipleMediaItemAspect((MultipleMediaItemAspectMetadata)miaType);
       else
         result = new SingleMediaItemAspect((SingleMediaItemAspectMetadata)miaType);
+      if (miaType.IsTransientAspect)
+        return result;
     
       Namespace ns = new Namespace();
       string miaTableName = GetMIATableName(miaType);
@@ -1775,6 +1777,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItemAspectMetadata miaType;
       if (!_managedMIATypes.TryGetValue(aspectId, out miaType) || miaType == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", aspectId));
+      if (miaType.IsTransientAspect)
+        return true;
       string miaTableName = GetMIATableName(miaType);
 
       // Cleanup/delete attribute value entries

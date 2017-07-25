@@ -41,6 +41,7 @@ using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System.Globalization;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Genres;
+using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -1582,16 +1583,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMovieAspectCertification(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
+      CertificationMapping cert = null;
+
       // priority 1:
       if (_stubs[0].Certification != null && _stubs[0].Certification.Any())
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, _stubs[0].Certification.First());
-        return true;
+        foreach (string certification in _stubs[0].Certification)
+        {
+          if (CertificationMapper.TryFindMovieCertification(certification, out cert))
+          {
+            MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, cert.CertificationId);
+            return true;
+          }
+        }
       }
       // priority 2:
       if (_stubs[0].Mpaa != null && _stubs[0].Mpaa.Any())
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, _stubs[0].Mpaa.First());
+        foreach (string certification in _stubs[0].Mpaa)
+        {
+          if (CertificationMapper.TryFindMovieCertification(certification, out cert))
+          {
+            MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, cert.CertificationId);
+            return true;
+          }
+        }
         return true;
       }
       return false;

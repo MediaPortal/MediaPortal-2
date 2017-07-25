@@ -572,7 +572,7 @@
             </Grid.RowDefinitions>
             <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}"
                    HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.4" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54"
+            <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54" Scroll="Auto"
                    HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
             <Image x:Name="FocusFrame" Source="Focus.frame.png"

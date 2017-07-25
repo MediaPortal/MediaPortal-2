@@ -54,6 +54,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using System.Diagnostics;
 using MediaPortal.Common.Services.MediaManagement;
 using System.Threading.Tasks;
+using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -920,7 +921,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             database.AddParameter(command, "PARENT_ROLE" + roleNo, hierarchy.ParentRole, typeof(Guid));
             roleNo++;
           }
-          roleSql = " AND (" + StringUtils.Join(" OR ", ors) + ")";
+          roleSql = " AND ((" + StringUtils.Join(") OR (", ors) + "))";
         }
 
         #region Find Affected Parents
@@ -957,7 +958,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           //Affected media items
           affectedMediaItems = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
             " WHERE NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + 
+            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute +
             " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + "," + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
             " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
 
@@ -990,15 +991,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
           command.ExecuteNonQuery();
 
+          //Only mark childs with parents as virtual. Orphans should be deleted
+          string findParentChildsSql = "SELECT DISTINCT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " FROM " + relationshipAspectTable + " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " IN (" + affectedMediaItems + ")" + roleSql;
+
           //Set virtual tag
           command.CommandText = "UPDATE " + mediaAspectTable + " SET " + virtualAttribute + " = 1, " + stubAttribute + " = 0" +
-            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
+            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + findParentChildsSql + ")";
           command.ExecuteNonQuery();
 
           //Non-stub media items with stub resource should be made stubs
           string mediaItemsToCorrect = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
             " WHERE MT." + stubAttribute + " = 0 AND EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + " IN (" +  ProviderResourceAspect.TYPE_STUB + ")" +
+            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + " IN (" + ProviderResourceAspect.TYPE_STUB + ")" +
             " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
 
           //Set stub tag
@@ -1130,34 +1136,34 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             command.CommandText += pathAttribute + " LIKE @LIKE_PATH1 ESCAPE @LIKE_ESCAPE1 OR " + pathAttribute + " LIKE @LIKE_PATH2 ESCAPE @LIKE_ESCAPE2)";
           }
           affectedRows += command.ExecuteNonQuery();
-
-          //Affected media items
-          affectedMediaItems = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
-            " WHERE NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + 
-            " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + "," + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
-            " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
-
-          //Delete Fanart
-          command.CommandText = affectedMediaItems;
-          using (IDataReader reader = command.ExecuteReader())
-          {
-            while (reader.Read())
-            {
-              DeleteFanArt(database.ReadDBValue<Guid>(reader, 0));
-            }
-          }
-
-          //Delete relations
-          command.CommandText = "DELETE FROM " + relationshipAspectTable +
-              " WHERE " + linkedIdAttribute + " IN (" + affectedMediaItems + ")";
-          command.ExecuteNonQuery();
-
-          //Delete media items
-          command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
-          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
-          affectedRows += command.ExecuteNonQuery();
         }
+
+        //Affected media items
+        affectedMediaItems = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
+          " WHERE NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute +
+          " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + "," + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
+          " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
+
+        //Delete Fanart
+        command.CommandText = affectedMediaItems;
+        using (IDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            DeleteFanArt(database.ReadDBValue<Guid>(reader, 0));
+          }
+        }
+
+        //Delete relations
+        command.CommandText = "DELETE FROM " + relationshipAspectTable +
+            " WHERE " + linkedIdAttribute + " IN (" + affectedMediaItems + ")";
+        command.ExecuteNonQuery();
+
+        //Delete media items
+        command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
+        affectedRows += command.ExecuteNonQuery();
 
         //Delete orphan Fanart
         string orphanMediaItems = " SELECT T0." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
@@ -1186,10 +1192,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
           " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + orphanMediaItems + ")";
         affectedRows += command.ExecuteNonQuery();
-
-        //Clean collection tables
-        _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
       }
+
+      //Clean collection tables
+      _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
+
       return affectedRows;
     }
 
@@ -1602,6 +1609,127 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           executeQuery.Filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, executeQuery.Filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
       }
 
+      IFilter shareFilter = null;
+      IFilter movieFilter = null;
+      IFilter seriesFilter = null;
+      UserProfile user = null;
+      int? allowedAge = null;
+      bool? allowParentalGuidedContent = null;
+      if (userProfileId.HasValue)
+      {
+        int profileIdIndex;
+        int dataIndex;
+        int typeIndex;
+        int passwordIndex;
+        int imageIndex;
+        int lastLoginIndex;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserProfilesCommand(transaction, userProfileId, null,
+            out profileIdIndex, out dataIndex, out typeIndex, out passwordIndex, out imageIndex, out lastLoginIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              user = new UserProfile(database.ReadDBValue<Guid>(reader, profileIdIndex), database.ReadDBValue<string>(reader, dataIndex), database.ReadDBValue<int>(reader, typeIndex));
+            }
+          }
+        }
+
+        // Shares filter
+        var shares = GetShares(LocalSystemId);
+        List<IFilter> shareFilters = new List<IFilter>();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, userProfileId.Value, UserDataKeysKnown.KEY_ALLOWED_SHARE, out typeIndex, out dataIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              Guid shareId = new Guid(database.ReadDBValue<string>(reader, dataIndex));
+              if (!shares.ContainsKey(shareId))
+                continue;
+              shareFilters.Add(new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, shares[shareId].BaseResourcePath + "%", null, true));
+            }
+          }
+        }
+        if (shareFilters.Count > 0)
+          shareFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, shareFilters.ToArray());
+
+        // Determine allowed age
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataCommand(transaction, userProfileId.Value, UserDataKeysKnown.KEY_ALLOWED_AGE_RATING, 0, out dataIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              string age = database.ReadDBValue<string>(reader, dataIndex);
+              if (!string.IsNullOrEmpty(age) && Convert.ToInt32(age) >= 0)
+              {
+                allowedAge = Convert.ToInt32(age);
+              }
+            }
+          }
+        }
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataCommand(transaction, userProfileId.Value, UserDataKeysKnown.KEY_ALLOW_PARENT_GUIDE_AGE_RATING, 0, out dataIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              string allow = database.ReadDBValue<string>(reader, dataIndex);
+              if (!string.IsNullOrEmpty(allow))
+              {
+                allowParentalGuidedContent = Convert.ToInt32(allow) > 0;
+              }
+            }
+          }
+        }
+
+        // Movie filter
+        if (query.NecessaryRequestedMIATypeIDs.Contains(MovieAspect.ASPECT_ID) && allowedAge.HasValue)
+        {
+          IEnumerable<CertificationMapping> certs = CertificationMapper.GetMovieCertificationsForAge(allowedAge.Value, allowParentalGuidedContent ?? false);
+          var certLimit = certs.Take(MAX_VARIABLES_LIMIT);
+          List<IFilter> filters = new List<IFilter>();
+          while (certLimit.Count() > 0)
+          {
+            filters.Add(new InFilter(MovieAspect.ATTR_CERTIFICATION, certLimit));
+            certLimit = certs.Skip(MAX_VARIABLES_LIMIT * filters.Count).Take(MAX_VARIABLES_LIMIT);
+          }
+          if (filters.Count > 0)
+            movieFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, filters.ToArray());
+        }
+
+        // Series filter
+        if (query.NecessaryRequestedMIATypeIDs.Contains(SeriesAspect.ASPECT_ID) && allowedAge.HasValue)
+        {
+          IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, allowParentalGuidedContent ?? false);
+          var certLimit = certs.Take(MAX_VARIABLES_LIMIT);
+          List<IFilter> filters = new List<IFilter>();
+          while (certLimit.Count() > 0)
+          {
+            filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certLimit));
+            certLimit = certs.Skip(MAX_VARIABLES_LIMIT * filters.Count).Take(MAX_VARIABLES_LIMIT);
+          }
+          if (filters.Count > 0)
+            seriesFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, filters.ToArray());
+        }
+
+        // Series episode filter
+        if (query.NecessaryRequestedMIATypeIDs.Contains(EpisodeAspect.ASPECT_ID) && allowedAge.HasValue)
+        {
+          IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, allowParentalGuidedContent ?? false);
+          var certLimit = certs.Take(MAX_VARIABLES_LIMIT);
+          List<IFilter> filters = new List<IFilter>();
+          while (certLimit.Count() > 0)
+          {
+            filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certLimit));
+            certLimit = certs.Skip(MAX_VARIABLES_LIMIT * filters.Count).Take(MAX_VARIABLES_LIMIT);
+          }
+          if (filters.Count > 0)
+            seriesFilter = new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, filters.ToArray()));
+        }
+      }
+
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery, userProfileId);
       IList<MediaItem> items = null;
       if (database == null || transaction == null)
@@ -1609,6 +1737,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       else
         items = cmiq.QueryList(database, transaction);
       //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
+      //TODO: Remove movies/series found through optional aspects that are not allowed according to user rating filter
       LoadUserDataForMediaItems(database, transaction, userProfileId, items);
 
       if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
@@ -2231,6 +2360,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           continue;
         if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
           //Already stored
+          continue;
+        if (mia.Metadata.IsTransientAspect)
           continue;
         if (mia.Deleted)
           _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia.Metadata.AspectId);
