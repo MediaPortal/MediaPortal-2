@@ -921,7 +921,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             database.AddParameter(command, "PARENT_ROLE" + roleNo, hierarchy.ParentRole, typeof(Guid));
             roleNo++;
           }
-          roleSql = " AND (" + StringUtils.Join(" OR ", ors) + ")";
+          roleSql = " AND ((" + StringUtils.Join(") OR (", ors) + "))";
         }
 
         #region Find Affected Parents
@@ -958,7 +958,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           //Affected media items
           affectedMediaItems = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
             " WHERE NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + 
+            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute +
             " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + "," + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
             " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
 
@@ -991,15 +991,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
           command.ExecuteNonQuery();
 
+          //Only mark childs with parents as virtual. Orphans should be deleted
+          string findParentChildsSql = "SELECT DISTINCT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " FROM " + relationshipAspectTable + " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " IN (" + affectedMediaItems + ")" + roleSql;
+
           //Set virtual tag
           command.CommandText = "UPDATE " + mediaAspectTable + " SET " + virtualAttribute + " = 1, " + stubAttribute + " = 0" +
-            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
+            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " IN (" + findParentChildsSql + ")";
           command.ExecuteNonQuery();
 
           //Non-stub media items with stub resource should be made stubs
           string mediaItemsToCorrect = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
             " WHERE MT." + stubAttribute + " = 0 AND EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + " IN (" +  ProviderResourceAspect.TYPE_STUB + ")" +
+            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + " IN (" + ProviderResourceAspect.TYPE_STUB + ")" +
             " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
 
           //Set stub tag
@@ -1131,34 +1136,34 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             command.CommandText += pathAttribute + " LIKE @LIKE_PATH1 ESCAPE @LIKE_ESCAPE1 OR " + pathAttribute + " LIKE @LIKE_PATH2 ESCAPE @LIKE_ESCAPE2)";
           }
           affectedRows += command.ExecuteNonQuery();
-
-          //Affected media items
-          affectedMediaItems = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
-            " WHERE NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-            " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute + 
-            " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + "," + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
-            " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
-
-          //Delete Fanart
-          command.CommandText = affectedMediaItems;
-          using (IDataReader reader = command.ExecuteReader())
-          {
-            while (reader.Read())
-            {
-              DeleteFanArt(database.ReadDBValue<Guid>(reader, 0));
-            }
-          }
-
-          //Delete relations
-          command.CommandText = "DELETE FROM " + relationshipAspectTable +
-              " WHERE " + linkedIdAttribute + " IN (" + affectedMediaItems + ")";
-          command.ExecuteNonQuery();
-
-          //Delete media items
-          command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
-          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
-          affectedRows += command.ExecuteNonQuery();
         }
+
+        //Affected media items
+        affectedMediaItems = "SELECT DISTINCT MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + mediaAspectTable + " MT" +
+          " WHERE NOT EXISTS (SELECT PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute +
+          " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + "," + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
+          " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
+
+        //Delete Fanart
+        command.CommandText = affectedMediaItems;
+        using (IDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            DeleteFanArt(database.ReadDBValue<Guid>(reader, 0));
+          }
+        }
+
+        //Delete relations
+        command.CommandText = "DELETE FROM " + relationshipAspectTable +
+            " WHERE " + linkedIdAttribute + " IN (" + affectedMediaItems + ")";
+        command.ExecuteNonQuery();
+
+        //Delete media items
+        command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
+        affectedRows += command.ExecuteNonQuery();
 
         //Delete orphan Fanart
         string orphanMediaItems = " SELECT T0." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
@@ -1187,10 +1192,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
           " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + orphanMediaItems + ")";
         affectedRows += command.ExecuteNonQuery();
-
-        //Clean collection tables
-        _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
       }
+
+      //Clean collection tables
+      _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
+
       return affectedRows;
     }
 
