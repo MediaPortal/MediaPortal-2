@@ -43,6 +43,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
   {
     public const int CLIENT_PROFILE = 0;
     public const int USER_PROFILE = 1;
+    public const int ADMIN_PROFILE = 100;
 
     protected Guid _profileId;
     protected string _name;
@@ -92,7 +93,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     }
 
       /// <summary>
-      /// Returns the user password of this profile.
+      /// Returns the hashed password of this profile.
       /// </summary>
       [XmlIgnore]
     public string Password

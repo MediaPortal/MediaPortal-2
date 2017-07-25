@@ -64,6 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       MOVIE_MATCHERS.Add(MovieTheMovieDbMatcher.Instance);
       //MOVIE_MATCHERS.Add(MovieOmDbMatcher.Instance);
+      MOVIE_MATCHERS.Add(MovieSimApiMatcher.Instance);
       MOVIE_MATCHERS.Add(MovieFanArtTvMatcher.Instance);
 
       SERIES_MATCHERS.Add(SeriesTvDbMatcher.Instance);

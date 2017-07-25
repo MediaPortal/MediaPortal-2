@@ -684,8 +684,10 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonCoverControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="2,2,2,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonCoverControlStyle}" 
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Panel.ZIndex="100"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="2,2,2,2" Panel.ZIndex="99"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
