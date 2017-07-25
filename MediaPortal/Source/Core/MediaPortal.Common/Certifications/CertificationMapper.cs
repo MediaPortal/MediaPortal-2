@@ -41,7 +41,7 @@ namespace MediaPortal.Common.Certifications
       {
         //US
         new CertificationMapping("US_G", "US", "G", 0, 0, "G", "Rated G"),
-        new CertificationMapping("US_PG", "US", "PG", 13, 0, "PG", "Rated PG"),
+        new CertificationMapping("US_PG", "US", "PG", 13, 0, "PG", "Rated PG "),
         new CertificationMapping("US_PG13", "US", "PG-13", 0, 0, "PG-13", "Rated PG-13"),
         new CertificationMapping("US_R", "US", "R", 0, 0, "R", "Rated R"),
         new CertificationMapping("US_NC17", "US", "NC-17", 0, 0, "NC-17", "Rated NC-17"),
@@ -452,13 +452,33 @@ namespace MediaPortal.Common.Certifications
 
     private static bool TryFindCertification(List<CertificationMapping> map, string country, string cert, out CertificationMapping certification)
     {
-      certification = map.Where(c => (string.IsNullOrEmpty(country) || c.CountryCode.Equals(country, System.StringComparison.InvariantCultureIgnoreCase)) &&
-        (c.CertificationId.Equals(cert, System.StringComparison.InvariantCultureIgnoreCase) ||
-        c.Notations.Where(n => cert.StartsWith(n, System.StringComparison.InvariantCultureIgnoreCase) ||
-        cert.StartsWith(c.CountryCode + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
-        cert.StartsWith(new RegionInfo(c.CountryCode).EnglishName + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
-        cert.StartsWith(c.CountryCode + ": " + n, System.StringComparison.InvariantCultureIgnoreCase) ||
-        cert.StartsWith(new RegionInfo(c.CountryCode).EnglishName + ": " + n, System.StringComparison.InvariantCultureIgnoreCase)).Any())).FirstOrDefault();
+      certification = null;
+      if (string.IsNullOrEmpty(cert))
+        return false;
+
+      cert = cert.Trim();
+
+      // For long strings like: "Rated PG for rude humor and mild action"
+      if (cert.Length > 10)
+      {
+        certification = map.Where(c => (string.IsNullOrEmpty(country) || c.CountryCode.Equals(country, System.StringComparison.InvariantCultureIgnoreCase)) &&
+          (c.CertificationId.Equals(cert, System.StringComparison.InvariantCultureIgnoreCase) ||
+          c.Notations.Where(n => cert.StartsWith(n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.StartsWith(c.CountryCode + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.StartsWith(new RegionInfo(c.CountryCode).EnglishName + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.StartsWith(c.CountryCode + ": " + n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.StartsWith(new RegionInfo(c.CountryCode).EnglishName + ": " + n, System.StringComparison.InvariantCultureIgnoreCase)).Any())).FirstOrDefault();
+      }
+      else if (cert.Length > 0)
+      {
+        certification = map.Where(c => (string.IsNullOrEmpty(country) || c.CountryCode.Equals(country, System.StringComparison.InvariantCultureIgnoreCase)) &&
+          (c.CertificationId.Equals(cert, System.StringComparison.InvariantCultureIgnoreCase) ||
+          c.Notations.Where(n => cert.Equals(n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.Equals(c.CountryCode + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.Equals(new RegionInfo(c.CountryCode).EnglishName + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.Equals(c.CountryCode + ": " + n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.Equals(new RegionInfo(c.CountryCode).EnglishName + ": " + n, System.StringComparison.InvariantCultureIgnoreCase)).Any())).FirstOrDefault();
+      }
       return certification != null;
     }
 
