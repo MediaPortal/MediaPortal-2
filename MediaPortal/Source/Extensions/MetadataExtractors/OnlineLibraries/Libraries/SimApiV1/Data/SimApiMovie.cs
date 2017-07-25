@@ -52,8 +52,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
   [DataContract]
   public class SimApiMovie
   {
+    private string _title;
+    private string _plot;
+    private string _plotOutline;
+
     [DataMember(Name = "title")]
-    public string Title { get; set; }
+    public string Title
+    {
+      get { return CleanString(_title); }
+      set { _title = value; }
+    }
 
     [DataMember(Name = "mpaa")]
     public string Rated { get; set; }
@@ -83,10 +91,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     public string StrActors { get; set; }
 
     [DataMember(Name = "plot")]
-    public string Plot { get; set; }
+    public string Plot
+    {
+      get { return CleanString(_plot); }
+      set { _plot = value; }
+    }
 
     [DataMember(Name = "plotout")]
-    public string PlotOutline { get; set; }
+    public string PlotOutline
+    {
+      get { return CleanString(_plotOutline); }
+      set { _plotOutline = value; }
+    }
 
     [DataMember(Name = "countries")]
     public string StrCountries { get; set; }
@@ -130,12 +146,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     {
       get
       {
+        if (string.IsNullOrEmpty(StrDuration))
+          return null;
         string[] strings = null;
         if (!string.IsNullOrEmpty(StrDuration)) strings = StrDuration.Split(',');
         if (strings != null)
         {
           foreach(string s in strings)
           {
+            string dur = s;
+            if(s.Contains(':'))
+            {
+              dur = s.Split(':')[1];
+            }
             int duration;
             if (int.TryParse(s, out duration))
               return duration;
@@ -149,6 +172,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     {
       get
       {
+        if (string.IsNullOrEmpty(StrGenre))
+          return null;
         string[] strings = null;
         if (!string.IsNullOrEmpty(StrGenre)) strings = StrGenre.Split(',');
         if (strings != null)
@@ -161,6 +186,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     {
       get
       {
+        if (string.IsNullOrEmpty(StrDirectors))
+          return null;
         string[] strings = null;
         if (!string.IsNullOrEmpty(StrDirectors)) strings = StrDirectors.Split(',');
         if (strings != null)
@@ -173,6 +200,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     {
       get
       {
+        if (string.IsNullOrEmpty(StrWriters))
+          return null;
         string[] strings = null;
         if (!string.IsNullOrEmpty(StrWriters)) strings = StrWriters.Split(',');
         if (strings != null)
@@ -185,6 +214,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     {
       get
       {
+        if (string.IsNullOrEmpty(StrActors))
+          return null;
         string[] strings = null;
         if (!string.IsNullOrEmpty(StrActors)) strings = StrActors.Split(',');
         if (strings != null)
@@ -197,6 +228,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     {
       get
       {
+        if (string.IsNullOrEmpty(StrProducers))
+          return null;
         string[] strings = null;
         if (!string.IsNullOrEmpty(StrProducers)) strings = StrProducers.Split(',');
         if (strings != null)
@@ -209,6 +242,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     {
       get
       {
+        if (string.IsNullOrEmpty(StrCinematogrophers))
+          return null;
         string[] strings = null;
         if (!string.IsNullOrEmpty(StrCinematogrophers)) strings = StrCinematogrophers.Split(',');
         if (strings != null)
@@ -221,6 +256,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     {
       get
       {
+        if (string.IsNullOrEmpty(StrCountries))
+          return null;
         string[] strings = null;
         if (!string.IsNullOrEmpty(StrCountries)) strings = StrCountries.Split(',');
         if (strings != null)
@@ -241,8 +278,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
 
     private string CleanString(string orignString)
     {
-      if (orignString.Contains("(")) orignString = orignString.Substring(0, orignString.IndexOf("("));
-      return orignString.Trim();
+      if (string.IsNullOrEmpty(orignString))
+        return null;
+      return Uri.UnescapeDataString(orignString).Trim();
     }
   }
 }

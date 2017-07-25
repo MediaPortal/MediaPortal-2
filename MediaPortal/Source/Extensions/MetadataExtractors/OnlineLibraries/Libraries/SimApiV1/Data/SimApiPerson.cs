@@ -43,8 +43,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
   [DataContract]
   public class SimApiPerson
   {
+    private string _name;
+    private string _birthPlace;
+
     [DataMember(Name = "name")]
-    public string Name { get; set; }
+    public string Name
+    {
+      get { return CleanString(_name); }
+      set { _name = value; }
+    }
 
     [DataMember(Name = "photo")]
     public string ImageUrl { get; set; }
@@ -56,7 +63,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
     public string StrBirth { get; set; }
 
     [DataMember(Name = "birthplace")]
-    public string BirthPlace { get; set; }
+    public string BirthPlace
+    {
+      get { return CleanString(_birthPlace); }
+      set { _birthPlace = value; }
+    }
 
     [DataMember(Name = "id")]
     public string ID { get; set; }
@@ -80,6 +91,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data
           return year;
         return null;
       }
+    }
+
+    private string CleanString(string orignString)
+    {
+      if (string.IsNullOrEmpty(orignString))
+        return null;
+      return Uri.UnescapeDataString(orignString).Trim();
     }
   }
 }
