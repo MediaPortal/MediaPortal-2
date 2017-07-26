@@ -4,36 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views">
-  
+
   <Grid>
-    <ItemsControl >
+    <ItemsControl ItemsSource="{Binding Path=Packages}">
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel />
-        </ItemsPanelTemplate>
-      </ItemsControl.ItemsPanel>
-      <CheckBox x:Name="CheckClient" FontSize="14" Height="79.742" VerticalAlignment="Top" Margin="10"
-                Foreground="Red" Width="263.574" VerticalContentAlignment="Center" HorizontalAlignment="Center" IsChecked="True">
-        <Image Source="..\resources\client_install.png" Height="53.649" Width="159.933"/>
-      </CheckBox>
-      <CheckBox x:Name="CheckServer" FontSize="14" Height="79.742" VerticalAlignment="Top" Margin="10"
-                Foreground="Red" Width="263.574" VerticalContentAlignment="Center" HorizontalAlignment="Center" IsChecked="True">
-        <Image Source="..\resources\server_install.png" Height="55.019" Width="164.018"/>
-      </CheckBox>
-      <CheckBox x:Name="CheckDX" FontSize="14" Height="79.742" VerticalAlignment="Top" Margin="10"
-                Foreground="Red" Width="263.574" VerticalContentAlignment="Center" HorizontalAlignment="Center" IsChecked="True">
-        <Image Source="..\resources\directx.png" Height="78.279" Width="233.358"/>
-      </CheckBox>
-      <CheckBox x:Name="CheckDN" FontSize="14" Height="79.742" VerticalAlignment="Top" Margin="10"
-                Foreground="Red" Width="263.574" VerticalContentAlignment="Center" HorizontalAlignment="Center" IsChecked="True">
-        <Image Source="..\resources\dokan.png" Height="78.279" Width="233.358"/>
-      </CheckBox>
-      <CheckBox x:Name="CheckLAV" FontSize="14" Height="79.742" VerticalAlignment="Top" Margin="10"
-                Foreground="Red" Width="263.574" VerticalContentAlignment="Center" HorizontalAlignment="Center" IsChecked="True">
-        <Image Source="..\resources\lav_filters.png" Height="78.279" Width="233.358"/>
-      </CheckBox>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Image Source="{Binding}" Height="53.649" Width="159.933" Margin="10"/>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
     </ItemsControl>
-    <ProgressBar HorizontalAlignment="Left" Height="5" Margin="-0.521,503.97,0,0" VerticalAlignment="Top" Width="1023" Foreground="#FFE8641B" Minimum="-1" Value="28" BorderThickness="0"/>
   </Grid>
-  
 </UserControl>

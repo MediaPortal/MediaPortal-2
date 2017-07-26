@@ -134,7 +134,7 @@
     <Resource Include="Resources\banner.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\client_install.png" />
+    <Resource Include="Resources\MP2Client.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\custom_install.png" />
@@ -143,15 +143,26 @@
     <Resource Include="Resources\full_install.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\server_install.png" />
+    <Resource Include="Resources\MP2Server.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\button_back.png" />
     <Resource Include="Resources\button_cancel.png" />
     <Resource Include="Resources\button_next.png" />
-    <Resource Include="Resources\directx.png" />
+    <Resource Include="Resources\directx9.png" />
     <Resource Include="Resources\dokan.png" />
-    <Resource Include="Resources\lav_filters.png" />
+    <Resource Include="Resources\LAVFilters.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\VC2008SP1_x86.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\VC2010_x86.png" />
+    <Resource Include="Resources\VC2013_x86.png" />
+    <Resource Include="Resources\VC2015_x86.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\MP2Common.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

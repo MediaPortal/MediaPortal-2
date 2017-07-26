@@ -29,14 +29,14 @@
     <RadioButton Grid.Column="1" Grid.Row="0" IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.Client}}"
                  HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10,10,10,10" VerticalAlignment="Top" Width="195" Height="149">
       <StackPanel>
-        <Image Source="..\resources\client_install.png" Stretch="Fill" Width="75" Height="75"/>
+        <Image Source="..\resources\MP2Client.png" Stretch="Fill" Width="75" Height="75"/>
         <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Client</Label>
       </StackPanel>
     </RadioButton>
     <RadioButton Grid.Column="2" Grid.Row="0" IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.Server}}"
                  HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10,10,10,10"  VerticalAlignment="Top" Width="195" Height="149">
       <StackPanel>
-        <Image Source="..\resources\server_install.png" Stretch="Fill" Width="65" Height="65"/>
+        <Image Source="..\resources\MP2Server.png" Stretch="Fill" Width="65" Height="65"/>
         <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Server</Label>
       </StackPanel>
     </RadioButton>

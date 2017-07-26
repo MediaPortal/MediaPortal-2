@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.ObjectModel;
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.Models;
 
 namespace MP2BootstrapperApp.ViewModels
@@ -30,6 +32,16 @@ namespace MP2BootstrapperApp.ViewModels
   {
     public InstallOverviewPageViewModel(InstallWizardViewModel viewModel)
     {
+      Packages = new ObservableCollection<string>();
+      foreach (var package in viewModel.BundlePackages)
+      {
+        if (package.RequestedInstallState == RequestState.Present)
+        {
+          Packages.Add(@"..\resources\" + package.Id + ".png");
+        }
+      }
     }
+
+    public ObservableCollection<string> Packages { get; set; }
   }
 }

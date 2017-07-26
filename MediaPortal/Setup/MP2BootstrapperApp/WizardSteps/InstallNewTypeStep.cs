@@ -22,7 +22,9 @@
 
 #endregion
 
+using System.Linq;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.WizardSteps
@@ -34,6 +36,10 @@ namespace MP2BootstrapperApp.WizardSteps
     public InstallNewTypeStep(InstallWizardViewModel wizardViewModel)
     {
       viewModel = wizardViewModel;
+      foreach (var package in viewModel.BundlePackages)
+      {
+        package.RequestedInstallState = RequestState.None;
+      }
     }
 
     public void Next(Wizard wizard)
@@ -50,35 +56,33 @@ namespace MP2BootstrapperApp.WizardSteps
               package.RequestedInstallState = RequestState.Present;
             }
           }
-          wizard.Step = new InstallOverviewStep(viewModel);
-          viewModel.CurrentPage = new InstallOverviewPageViewModel(viewModel);
           break;
         case InstallType.Server:
           foreach (var package in viewModel.BundlePackages)
           {
-            if (package.CurrentInstallState != PackageState.Present || package.Id != "directx9" || package.Id != "LAVFilters")
+            if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Client" || package.Id == "directx9" || package.Id == "LAVFilters")
             {
-              package.RequestedInstallState = RequestState.Present;
+              continue;
             }
+            package.RequestedInstallState = RequestState.Present;
           }
-          wizard.Step = new InstallOverviewStep(viewModel);
-          viewModel.CurrentPage = new InstallOverviewPageViewModel(viewModel);
           break;
         case InstallType.Client:
           foreach (var package in viewModel.BundlePackages)
           {
-            if (package.CurrentInstallState != PackageState.Present)
+            if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Server")
             {
-              package.RequestedInstallState = RequestState.Present;
+              continue;
             }
+            package.RequestedInstallState = RequestState.Present;
           }
-          wizard.Step = new InstallOverviewStep(viewModel);
-          viewModel.CurrentPage = new InstallOverviewPageViewModel(viewModel);
           break;
           case InstallType.Custom:
           // TODO
           break;
       }
+      wizard.Step = new InstallOverviewStep(viewModel);
+      viewModel.CurrentPage = new InstallOverviewPageViewModel(viewModel);
     }
 
     public void Back(Wizard wizard)
