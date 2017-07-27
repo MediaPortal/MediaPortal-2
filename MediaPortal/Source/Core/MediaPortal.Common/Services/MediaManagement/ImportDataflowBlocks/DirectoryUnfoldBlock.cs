@@ -99,6 +99,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
+        importResource.IsSingleResource = await IsSingleResource(importResource.ResourceAccessor);
+
         if (!importResource.IsSingleResource && ImportJobInformation.IncludeSubDirectories)
         {
           var subDirectories = FileSystemResourceNavigator.GetChildDirectories(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
@@ -110,7 +112,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
             await DeleteNoLongerExistingSubdirectoriesFromMediaLibrary(importResource, subDirectories);
 
           foreach (var subDirectory in subDirectories)
-            ParentImportJobController.PostToBlocksOfType(typeof(DirectorySaveBlock), new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, ToString(), ParentImportJobController));
+            this.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, ToString(), ParentImportJobController));
         }
 
         return importResource;
