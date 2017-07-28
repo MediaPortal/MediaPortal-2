@@ -250,7 +250,7 @@ namespace WakeOnLan.Client
         byte[] macAddress;
         if (NetworkInformationHelper.TryGetRemoteHardwareAddress(localAddress, serverAddress, out macAddress))
         {
-          ServiceRegistration.Get<ILogger>().Info("WakeOnLanClient: Updating server hardware address for IP address '{0}'", serverAddress);
+          ServiceRegistration.Get<ILogger>().Info("WakeOnLanClient: Updating server hardware address '{0}' for IP address '{1}'", BitConverter.ToString(macAddress), serverAddress);
           SaveWakeOnLanAddress(new WakeOnLanAddress() { IPAddress = serverAddress.ToString(), HardwareAddress = macAddress });
           return;
         }

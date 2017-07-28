@@ -71,6 +71,9 @@ namespace WakeOnLan.Common
         return true;
       }
 
+      ServiceRegistration.Get<ILogger>().Debug("WakeOnLanHelper: Sending magic packet on {0} interfaces for hardware address {1}",
+        localAddresses.Count, BitConverter.ToString(hwAddress));
+
       //Create the magic packet
       byte[] magicPacket = CreateMagicPacket(hwAddress);
 
@@ -112,15 +115,21 @@ namespace WakeOnLan.Common
     /// <param name="hwAddress">The hardware address of the computer to wake.</param>
     protected static async Task SendWOLPacketAsync(byte[] magicPacket, IPAddress localAddress, int port)
     {
-      IPEndPoint endpoint = new IPEndPoint(localAddress, port);
-      // WOL 'magic' packet is sent over UDP.
-      using (UdpClient client = new UdpClient(endpoint))
+      ServiceRegistration.Get<ILogger>().Debug("WakeOnLanHelper: Sending magic packet from {0}", localAddress);
+      try
       {
-        // Send to: 255.255.255.0 over UDP.
-        client.Connect(IPAddress.Broadcast, port);
-
-        // Send WOL 'magic' packet.
-        await client.SendAsync(magicPacket, magicPacket.Length);
+        IPEndPoint endpoint = new IPEndPoint(localAddress, 0);
+        // WOL 'magic' packet is sent over UDP.
+        using (UdpClient client = new UdpClient(endpoint))
+        {
+          client.EnableBroadcast = true;
+          // Send WOL 'magic' packet to: 255.255.255.0 over UDP.
+          await client.SendAsync(magicPacket, magicPacket.Length, new IPEndPoint(IPAddress.Broadcast, port));
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("WakeOnLanHelper: Failed to send magic packet from {0}", ex, localAddress);
       }
     }
 

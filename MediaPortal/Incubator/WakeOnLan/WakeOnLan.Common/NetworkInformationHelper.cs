@@ -133,17 +133,9 @@ namespace WakeOnLan.Common
             continue;
         }
         var address = new IPAddress(addressBytes);
-        var hwAddress = BytesToHex(row.PhysicalAddress);
+        var hwAddress = BitConverter.ToString(row.PhysicalAddress);
         MediaPortal.Common.ServiceRegistration.Get<MediaPortal.Common.Logging.ILogger>().Info("    {0} ({1}) : {2} - {3}", address, address.ScopeId, row.PhysicalAddressLength, hwAddress);
       }
-    }
-
-    static string BytesToHex(byte[] bytes)
-    {
-      System.Text.StringBuilder hex = new System.Text.StringBuilder(bytes.Length * 2);
-      foreach (byte b in bytes)
-        hex.AppendFormat("{0:x2}", b);
-      return hex.ToString();
     }
 
     static MIB_IPNET_ROW2[] GetIPNetTableRows(ushort family)
