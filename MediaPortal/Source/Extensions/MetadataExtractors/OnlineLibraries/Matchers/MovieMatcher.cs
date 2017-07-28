@@ -54,6 +54,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       public List<string> LastUpdatedMovieCollections { get; set; }
     }
 
+    protected readonly object _initSyncObj = new object();
+    protected bool _isInit = false;
+
     #region Init
 
     public MovieMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
@@ -77,21 +80,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!_enabled)
         return false;
 
-      if (_wrapper != null)
-        return true;
-
-      if (!base.Init())
-        return false;
-
-      LoadConfig();
-
-      if (InitWrapper(UseSecureWebCommunication))
+      lock (_initSyncObj)
       {
-        if(_wrapper != null)
-          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
-        return true;
+        if (_isInit)
+          return true;
+
+        if (!base.Init())
+          return false;
+
+        LoadConfig();
+
+        if (InitWrapper(UseSecureWebCommunication))
+        {
+          if (_wrapper != null)
+            _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+          _isInit = true;
+          return true;
+        }
+        return false;
       }
-      return false;
     }
 
     private void LoadConfig()
@@ -1058,6 +1065,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<MovieInfo> GetLastChangedMovies()
     {
       List<MovieInfo> movies = new List<MovieInfo>();
+
+      if (!Init())
+        return movies;
+
       foreach (string id in _config.LastUpdatedMovies)
       {
         MovieInfo m = new MovieInfo();
@@ -1069,6 +1080,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedMovies()
     {
+      if (!Init())
+        return;
       _config.LastUpdatedMovies.Clear();
       SaveConfig();
     }
@@ -1076,6 +1089,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<MovieCollectionInfo> GetLastChangedMovieCollections()
     {
       List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
+
+      if (!Init())
+        return collections;
+
       foreach (string id in _config.LastUpdatedMovieCollections)
       {
         MovieCollectionInfo c = new MovieCollectionInfo();
@@ -1087,6 +1104,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedMovieCollections()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedMovieCollections.Clear();
       SaveConfig();
     }
@@ -1097,6 +1117,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
+      if (!Init())
+        return false;
+
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
       if (info is MovieInfo)
