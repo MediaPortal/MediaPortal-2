@@ -426,6 +426,9 @@
               SetFocus="{Binding Path=Selected,Mode=OneTime}"
               Command="{Binding Command}"
               >
+            <Button.ContextMenuCommand>
+              <Command Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+            </Button.ContextMenuCommand>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>

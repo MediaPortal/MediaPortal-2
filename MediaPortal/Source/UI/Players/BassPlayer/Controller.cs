@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -34,7 +33,6 @@ using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Players.BassPlayer.Settings;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using MediaPortal.UI.Presentation.Players;
-using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Tags;
 
 namespace MediaPortal.UI.Players.BassPlayer
@@ -89,9 +87,6 @@ namespace MediaPortal.UI.Players.BassPlayer
     protected BassLibraryManager _bassLibraryManager;
     protected PlaybackProcessor _playbackProcessor;
     protected OutputDeviceManager _outputDeviceManager;
-
-    protected volatile bool _isMuted = false;
-    protected volatile int _volume = 100;
 
     protected Thread _playerThread;
     protected AutoResetEvent _playerThreadNotifyEvent = new AutoResetEvent(false);
@@ -207,7 +202,7 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public bool GetMuteState()
     {
-      return _isMuted;
+      return _outputDeviceManager?.OutputDevice?.Mute ?? false;
     }
 
     public void SetMuteState_Async(bool value)
@@ -217,7 +212,7 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public int GetVolume()
     {
-      return _volume;
+      return _outputDeviceManager?.OutputDevice?.Volume ?? 100;
     }
 
     public void SetVolume_Async(int value)
@@ -331,29 +326,17 @@ namespace MediaPortal.UI.Players.BassPlayer
     protected void BASS_SetVolume(int value)
     {
       Log.Debug("Setting global BASS player volume to {0}", value);
-      // value is from 0 to 100 in a linear scale, internal _volume is from 0 to 10000 in a linear scale
-      _volume = value*100;
-      Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_MUSIC, _volume);
-      Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_SAMPLE, _volume);
-      Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_STREAM, _volume);
+      var device = _outputDeviceManager.OutputDevice;
+      if (device != null)
+        device.Volume = value;
     }
 
     protected void BASS_SetMute(bool value)
     {
       Log.Debug("Setting global BASS player mute state to {0}", value);
-      if (value)
-      {
-        Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_MUSIC, 0);
-        Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_SAMPLE, 0);
-        Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_STREAM, 0);
-      }
-      else
-      {
-        Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_MUSIC, _volume);
-        Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_SAMPLE, _volume);
-        Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_STREAM, _volume);
-      }
-      _isMuted = value;
+      var device = _outputDeviceManager.OutputDevice;
+      if (device != null)
+        device.Mute = value;
     }
 
     /// <summary>

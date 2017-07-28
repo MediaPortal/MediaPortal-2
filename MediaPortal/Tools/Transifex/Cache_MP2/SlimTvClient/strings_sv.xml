@@ -68,6 +68,13 @@
   <string name="SlimTvClient.EpgNumberOfRows.Help">Bestämmer hur många rader (kanaler) som visas i TV-tablån</string>
   <string name="SlimTvClient.EpgNumberOfHours">Antal timmar i TV-tablån</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Bestämmer hur många timmar (program) som visas i TV-tablån</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo">Synlig kanalinformation i TV-tablån</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.Help">Bestäm om du vill visa kanalnamn, kanallogotyp och kanalnummer i TV-tablån.</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Kanalnamn</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Kanalnummer</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelLogo">Kanallogotyp</string>
+  <string name="SlimTvClient.ZapFromGuide">Kanalbyte i TV-tablån</string>
+  <string name="SlimTvClient.ZapFromGuide.Help">När funktionen är aktiverad så kan du starta visning av ett pågående program genom att markera programmet i TV-tablån och trycka på \"OK\" knappen.</string>
   <string name="SlimTvClient.AutoStartTv">Starta TV automatiskt</string>
   <string name="SlimTvClient.AutoStartTv.Help">När funktionen är aktiverad så startar senaste använda kanal automatiskt när startsidan för TV väljs.</string>
   <string name="SlimTvClient.ShowSeriesInfo">Visa information om multipla inspelningar</string>

@@ -35,17 +35,9 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
       _type = NumberType.Integer;
       _step = 1;
       _lowerLimit = 0;
-      _upperLimit = 500;
+      _upperLimit = 300;
       _value = SettingsManager.Load<BassPlayerSettings>().PlaybackBufferSizeMilliSecs;
     }
-
-    public override void Save()
-    {
-      BassPlayerSettings settings = SettingsManager.Load<BassPlayerSettings>();
-      settings.PlaybackBufferSizeMilliSecs = (int)_value;
-      SettingsManager.Save(settings);
-    }
-
     #endregion
   }
 }

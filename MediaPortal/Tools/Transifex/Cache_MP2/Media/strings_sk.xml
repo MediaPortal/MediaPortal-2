@@ -8,32 +8,23 @@
   <string name="Media.SeriesMenuItem">Seriály</string>
   <string name="Media.MoviesMenuItem">Filmy</string>
   <string name="Media.ImagesMenuItem">Fotky</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Filtrovať podľa umelca</string>
-  <string name="Media.FilterByAlbumMenuItem">Filtrovať podľa albumu</string>
-  <string name="Media.FilterByAudioGenreMenuItem">Filtrovať podľa žánra</string>
-  <string name="Media.FilterByDecadeMenuItem">Filtrovať podľa dekády</string>
-  <string name="Media.FilterByActorMenuItem">Filtrovať podľa herca</string>
-  <string name="Media.FilterByDirectorMenuItem">Filtrovať podľa režiséra</string>
-  <string name="Media.FilterByWriterMenuItem">Filtrovať podľa autora</string>
-  <string name="Media.FilterByVideoGenreMenuItem">Filtrovať podľa žánra</string>
-  <string name="Media.FilterByVideoYearMenuItem">Filtrovať podľa roka</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">Filtrovať podľa jazyka</string>
-  <string name="Media.FilterByImageSizeMenuItem">Filtrovať podľa veľkosti</string>
-  <string name="Media.FilterByImageYearMenuItem">Filtrovať podľa roku</string>
-  <string name="Media.FilterByImageCountryMenuItem">Filtrovať podľa krajiny</string>
-  <string name="Media.FilterByImageStateMenuItem">Filtrovať podľa štátu</string>
-  <string name="Media.FilterByImageCityMenuItem">Filtrovať podľa mesta</string>
-  <string name="Media.FilterBySystemMenuItem">Filtrovať podľa systému</string>
-  <string name="Media.FilterByMoviesCollectionMenuItem">Filtrovať podľa zbierok</string>
-  <string name="Media.FilterBySeriesNameMenuItem">Filtrovať podľa seriálu</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">Filtrovať podľa sezóny</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrovať podľa epizódy</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">Meno</string>
+  <string name="Media.TitleMenuItem">Názov</string>
+  <string name="Media.ArtistMenuItem">Umelec</string>
+  <string name="Media.GenreMenuItem">Žáner</string>
+  <string name="Media.SizeMenuItem">Veľkosť</string>
+  <string name="Media.SystemMenuItem">Systém</string>
+  <string name="Media.ActorMenuItem">Herec</string>
+  <string name="Media.EpisodeDateMenuItem">Epizóda</string>
+  <string name="Media.AudioLanguageMenuItem">Jazyk</string>
+  <string name="Media.ImageCountryMenuItem">Krajina</string>
+  <string name="Media.ImageStateMenuItem">Stav</string>
+  <string name="Media.ImageCityMenuItem">Mesto</string>
+  <string name="Media.SeriesNameMenuItem">Seriály</string>
   <string name="Media.SimpleSearchFilterMenuItem">Hľadať</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Ukázať všetko</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Zobraziť všetko</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Zobraziť všetko</string>
-  <string name="Media.ShowAllMoviesMenuItem">Ukázať všetko</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">Filter</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Malé</string>
   <string name="Media.ImageFilterMedium">Stredné</string>
@@ -211,6 +202,7 @@
   <string name="Media.VideoDurationLabel">Trvanie:</string>
   <string name="Media.VideoActorsLabel">Herci:</string>
   <string name="Media.VideoStoryPlotLabel">Dej:</string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">Seriál:</string>
   <string name="Media.SeriesSeasonLabel">Sezóna:</string>
@@ -287,27 +279,6 @@
   <string name="Media.LargeGrid">Tabuľka</string>
   <string name="Media.CoverLayout">Obaly</string>
   <string name="Media.SwitchSortingMenuItem">Usporiadanie</string>
-  <string name="Media.SwitchSortingDialogTitle">Usporiadanie</string>
-  <string name="Media.SortByTitle">Usporiadať podľa názvu</string>
-  <string name="Media.SortByAlbumTrack">Usporiadať podľa albumu a stopy</string>
-  <string name="Media.SortByGenre">Usporiadať podľa žánru</string>
-  <string name="Media.SortByAlbum">Usporiadať podľa albumu a názvu</string>
-  <string name="Media.SortByTrack">Usporiadať podľa stopy</string>
-  <string name="Media.SortByArtist">Usporiadať podľa umelca</string>
-  <string name="Media.SortByYear">Usporiadať podľa roku</string>
-  <string name="Media.SortBySize">Usporiadať podľa veľkosti</string>
-  <string name="Media.SortBySystem">Usporiadať podľa systému</string>
-  <string name="Media.SortByActor">Usporiadať podľa herca</string>
-  <string name="Media.SortByDirector">Usporiadať podľa režiséra</string>
-  <string name="Media.SortByWriter">Zoradiť podľa autora</string>
-  <string name="Media.SortByDuration">Usporiadať podľa trvania</string>
-  <string name="Media.SortByAspectRatio">Usporiadať podľa pomeru strán</string>
-  <string name="Media.SortByFirstAiredDate">Zoradiť podľa dátumu vysielania</string>
-  <string name="Media.SortByDate">Usporiadať podľa dátumu záznamu</string>
-  <string name="Media.SortByEpisode">Usporiadať podľa epizód</string>
-  <string name="Media.SortingBrowseDefault">Predvolené usporiadanie</string>
-  <string name="Media.SwitchFilterMenuItem">Filter</string>
-  <string name="Media.SwitchFilterDialogTitle">Filter</string>
   <string name="Settings.Players">Prehrávače</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Zatvoriť prehrávače po dokončení</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Povoľte, ak si prajete aby MediaPortal zatvoril prehrávače automaticky</string>

@@ -9,9 +9,21 @@
   <string name="SystemState.Suspend">Обуставити</string>
   <string name="SystemState.Restart">Рестартуј</string>
   <string name="SystemState.Logoff">Одлогуј се</string>
+  <string name="SystemState.SleepTimerConfig">Подеси време спавања</string>
+  <string name="SystemState.SleepTimerStop">Заустави тајмер за спавање</string>
   <string name="SystemState.MinimizeMP">Минимизирај МедијаПортал</string>
   <string name="SystemState.ShutdownMP">Затвори МедијаПортал</string>
   <string name="SystemState.ShutdownDialogStateDisplayLabel">Опције за затварање програма</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Подешавање менија за гашење програма</string>
+  <string name="SleepTimer.Title">Тајмер за спавање</string>
   <string name="SleepTimer.Start">Почетак</string>
   <string name="SleepTimer.Stop">Стоп</string>
+  <string name="SleepTimer.Action">Акција:</string>
+  <string name="SleepTimer.TimeStr">Време:</string>
+  <string name="SleepTimer.Minutes">мин.</string>
+  <string name="SleepTimer.MediaItem">После тренутне медија ставке</string>
+  <string name="SleepTimer.Playlist">После тренутне листе</string>
+  <string name="SleepTimer.ShutdownTextSingle">{0} за мање од минуте </string>
+  <string name="SleepTimer.ShutdownTextMulti">{0} од {1} минута</string>
+  <string name="SleepTimer.MaxMinutes">Максимално време пре спавања</string>
 </resources>

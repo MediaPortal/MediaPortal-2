@@ -63,18 +63,18 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public OnlineMatcherService()
     {
       MUSIC_MATCHERS.Add(MusicTheAudioDbMatcher.Instance);
-      MUSIC_MATCHERS.Add(CDFreeDbMatcher.Instance);
+      MUSIC_MATCHERS.Add(MusicFreeDbMatcher.Instance);
       MUSIC_MATCHERS.Add(MusicBrainzMatcher.Instance);
       MUSIC_MATCHERS.Add(MusicFanArtTvMatcher.Instance);
 
       MOVIE_MATCHERS.Add(MovieTheMovieDbMatcher.Instance);
-      MOVIE_MATCHERS.Add(MovieOmDbMatcher.Instance);
+      //MOVIE_MATCHERS.Add(MovieOmDbMatcher.Instance);
       MOVIE_MATCHERS.Add(MovieFanArtTvMatcher.Instance);
 
       SERIES_MATCHERS.Add(SeriesTvDbMatcher.Instance);
       SERIES_MATCHERS.Add(SeriesTheMovieDbMatcher.Instance);
       SERIES_MATCHERS.Add(SeriesTvMazeMatcher.Instance);
-      SERIES_MATCHERS.Add(SeriesOmDbMatcher.Instance);
+      //SERIES_MATCHERS.Add(SeriesOmDbMatcher.Instance);
       SERIES_MATCHERS.Add(SeriesFanArtTvMatcher.Instance);
 
       //Load settings
@@ -90,122 +90,38 @@ namespace MediaPortal.Extensions.OnlineLibraries
     private void LoadSettings()
     {
       OnlineLibrarySettings settings = ServiceRegistration.Get<ISettingsManager>().Load<OnlineLibrarySettings>();
-      foreach (MatcherSetting setting in settings.MusicMatchers)
-      {
-        IMusicMatcher matcher = MUSIC_MATCHERS.Find(m => m.Id.Equals(setting.Id, StringComparison.InvariantCultureIgnoreCase));
-        if (matcher != null)
-        {
-          matcher.Primary = setting.Primary;
-          matcher.Enabled = setting.Enabled;
-          matcher.PreferredLanguageCulture = settings.MusicLanguageCulture;
-        }
-      }
+
+      //Music matchers
+      ConfigureMatchers(MUSIC_MATCHERS, settings.MusicMatchers, settings.MusicLanguageCulture);
       if (settings.MusicGenreMappings.Length == 0)
-      {
-        settings.MusicGenreMappings = new GenreMapping[]
-        {
-          new GenreMapping(MusicGenre.CLASSIC, new SerializableRegex(@"Classic|Opera|Orchestral|Choral|Avant|Baroque|Chant", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.SOUNDTRACK, new SerializableRegex(@"Soundtrack|Cinema|Musical|Score", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.NEW_AGE, new SerializableRegex(@"New Age|Environment|Healing|Meditation|Nature|Relax|Travel", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.ROCK, new SerializableRegex(@"Rock|Grunge|Punk", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.METAL, new SerializableRegex(@"Metal", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.COUNTRY, new SerializableRegex(@"Country|Americana|Bluegrass|Cowboy|Honky|Hokum", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.JAZZ, new SerializableRegex(@"Jazz|Big Band|Fusion|Ragtime", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.RB_SOUL, new SerializableRegex(@"R&B|Soul|Disco|Funk|Swing|Blues", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.HIP_HOP_RAP, new SerializableRegex(@"Hop|Rap|Bounce|Turntablism", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.RAGGAE, new SerializableRegex(@"Reggae|Dancehall", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.POP, new SerializableRegex(@"Pop|Beat", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.DANCE, new SerializableRegex(@"Dance|Club|House|Step|Garage|Trance|NRG|Core|Techno", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.ELECTRONIC, new SerializableRegex(@"Electronic|Electro|Experimental|8bit|Chiptune|Downtempo|Industrial", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.COMEDY, new SerializableRegex(@"Comedy|Novelty|Parody", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.FOLK, new SerializableRegex(@"Folk", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.EASY_LISTENING, new SerializableRegex(@"Easy|Lounge|Background|Swing|Bop|Ambient", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.HOLIDAY, new SerializableRegex(@"Holiday|Chanukah|Christmas|Easter|Halloween|Thanksgiving", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.WORLD, new SerializableRegex(@"World|Africa|Afro|Asia|Australia|Cajun|Latin|Calypso|Caribbean|Celtic|Europe|France|America|Polka|Japanese|Indian|Korean|German|Danish|Ballad|Ethnic|Indie", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.ALTERNATIVE, new SerializableRegex(@"Alternative|New Wave|Progressive", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.COMPILATION, new SerializableRegex(@"Compilation|Top", RegexOptions.IgnoreCase)),
-        };
-      }
+        settings.MusicGenreMappings = OnlineLibrarySettings.DEFAULT_MUSIC_GENRES;
       MUSIC_GENRE_MAP = new List<GenreMapping>(settings.MusicGenreMappings);
 
-      foreach (MatcherSetting setting in settings.MovieMatchers)
-      {
-        IMovieMatcher matcher = MOVIE_MATCHERS.Find(m => m.Id.Equals(setting.Id, StringComparison.InvariantCultureIgnoreCase));
-        if (matcher != null)
-        {
-          matcher.Primary = setting.Primary;
-          matcher.Enabled = setting.Enabled;
-          matcher.PreferredLanguageCulture = settings.MovieLanguageCulture;
-        }
-      }
+      //Movie matchers
+      ConfigureMatchers(MOVIE_MATCHERS, settings.MovieMatchers, settings.MovieLanguageCulture);
       if (settings.MovieGenreMappings.Length == 0)
-      {
-        settings.MovieGenreMappings = new GenreMapping[]
-        {
-          new GenreMapping(MovieGenre.ACTION, new SerializableRegex(@"Action", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.ADVENTURE, new SerializableRegex(@"Adventure", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.ANIMATION, new SerializableRegex(@"Animation|Cartoon|Anime", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.COMEDY, new SerializableRegex(@"Comedy", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.CRIME, new SerializableRegex(@"Crime", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.DOCUMENTARY, new SerializableRegex(@"Documentary|Biography", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.DRAMA, new SerializableRegex(@"Drama", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.FAMILY, new SerializableRegex(@"Family", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.FANTASY, new SerializableRegex(@"Fantasy", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.HISTORY, new SerializableRegex(@"History", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.HORROR, new SerializableRegex(@"Horror", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.MUSIC, new SerializableRegex(@"Music", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.MYSTERY, new SerializableRegex(@"Mystery", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.ROMANCE, new SerializableRegex(@"Romance", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.SCIENCE_FICTION, new SerializableRegex(@"Science Fiction|Science-Fiction|Sci-Fi", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.TV_MOVIE, new SerializableRegex(@"TV", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.THRILLER, new SerializableRegex(@"Thriller|Disaster|Suspense", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.WAR, new SerializableRegex(@"War", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.WESTERN, new SerializableRegex(@"Western", RegexOptions.IgnoreCase)),
-        };
-      }
+        settings.MovieGenreMappings = OnlineLibrarySettings.DEFAULT_MOVIE_GENRES;
       MOVIE_GENRE_MAP = new List<GenreMapping>(settings.MovieGenreMappings);
 
-      foreach (MatcherSetting setting in settings.SeriesMatchers)
+      //Series matchers
+      ConfigureMatchers(SERIES_MATCHERS, settings.SeriesMatchers, settings.SeriesLanguageCulture);
+      if (settings.SeriesGenreMappings.Length == 0)
+        settings.SeriesGenreMappings = OnlineLibrarySettings.DEFAULT_SERIES_GENRES;
+      SERIES_GENRE_MAP = new List<GenreMapping>(settings.SeriesGenreMappings);
+    }
+
+    protected void ConfigureMatchers<T>(ICollection<T> matchers, ICollection<MatcherSetting> settings, string languageCulture) where T : IMatcher
+    {
+      foreach (MatcherSetting setting in settings)
       {
-        ISeriesMatcher matcher = SERIES_MATCHERS.Find(m => m.Id.Equals(setting.Id, StringComparison.InvariantCultureIgnoreCase));
+        IMatcher matcher = matchers.FirstOrDefault(m => m.Id.Equals(setting.Id, StringComparison.OrdinalIgnoreCase));
         if (matcher != null)
         {
           matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
-          matcher.PreferredLanguageCulture = settings.SeriesLanguageCulture;
+          matcher.PreferredLanguageCulture = languageCulture;
         }
       }
-      if (settings.SeriesGenreMappings.Length == 0)
-      {
-        settings.SeriesGenreMappings = new GenreMapping[]
-        {
-          new GenreMapping(SeriesGenre.ACTION, new SerializableRegex(@"Action", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.ADVENTURE, new SerializableRegex(@"Adventure", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.ANIMATION, new SerializableRegex(@"Animation|Cartoon|Anime", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.COMEDY, new SerializableRegex(@"Comedy", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.CRIME, new SerializableRegex(@"Crime", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.DOCUMENTARY, new SerializableRegex(@"Documentary|Biography", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.DRAMA, new SerializableRegex(@"Drama", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.FAMILY, new SerializableRegex(@"Family", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.FANTASY, new SerializableRegex(@"Fantasy", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.HISTORY, new SerializableRegex(@"History", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.HORROR, new SerializableRegex(@"Horror", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.MUSIC, new SerializableRegex(@"Music", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.MYSTERY, new SerializableRegex(@"Mystery", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.ROMANCE, new SerializableRegex(@"Romance", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.SCIENCE_FICTION, new SerializableRegex(@"Science Fiction|Science-Fiction|Sci-Fi", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.THRILLER, new SerializableRegex(@"Thriller|Disaster|Suspense", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.WAR, new SerializableRegex(@"War", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.WESTERN, new SerializableRegex(@"Western", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.KIDS, new SerializableRegex(@"Kids|Children|Teen", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.NEWS, new SerializableRegex(@"News", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.REALITY, new SerializableRegex(@"Reality", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.SOAP, new SerializableRegex(@"Soap", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.TALK, new SerializableRegex(@"Talk", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.POLITICS, new SerializableRegex(@"Politic", RegexOptions.IgnoreCase)),
-        };
-      }
-      SERIES_GENRE_MAP = new List<GenreMapping>(settings.SeriesGenreMappings);
     }
 
     private void SaveSettings()
@@ -359,12 +275,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly)
+    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
-        success |= matcher.UpdateTrackPersons(trackInfo, occupation, importOnly);
+        success |= matcher.UpdateTrackPersons(trackInfo, occupation, forAlbum, importOnly);
       }
       return success;
     }

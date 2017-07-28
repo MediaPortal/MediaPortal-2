@@ -431,10 +431,44 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
-    protected Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)
+    /// <summary>
+    /// Checks if the gived <paramref name="resourcePath"/> points to a directory and if it is considered a "single item" media source (like DVD or BD folders on hard drive).
+    /// </summary>
+    /// <param name="resourcePath">Resource path</param>
+    /// <returns><c>true</c> if it is a single item.</returns>
+    protected async Task<bool> IsSingleResourcePath(ResourcePath resourcePath)
+    {
+      try
+      {
+        IResourceAccessor ra;
+        if (resourcePath.TryCreateLocalResourceAccessor(out ra))
+          using (ra)
+          {
+            ILocalFsResourceAccessor lfsra = ra as ILocalFsResourceAccessor;
+            if (lfsra != null)
+              return await IsSingleResource(lfsra);
+          }
+      }
+      catch { }
+      return false;
+    }
+
+    /// <summary>
+    /// Checks if the gived <paramref name="mediaItemAccessor"/> points to a directory and if it is considered a "single item" media source (like DVD or BD folders on hard drive).
+    /// </summary>
+    /// <param name="mediaItemAccessor">Local FS accessor</param>
+    /// <returns><c>true</c> if it is a single item.</returns>
+    protected async Task<bool> IsSingleResource(IFileSystemResourceAccessor mediaItemAccessor)
+    {
+      //ToDo: Replace this with a call to IsSingleResource once this method is implemented in the MetadataExtractors
+      return mediaItemAccessor.IsFile || await ExtractMetadata(mediaItemAccessor, null, true, true) != null;
+    }
+
+    protected Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, 
+      bool importOnly, bool forceQuickMode)
     {
       // ToDo: This is a workaround. MetadataExtractors should have an async ExtractMetadata method that returns a Task.
-      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().ExtractMetadata(mediaItemAccessor, ImportJobInformation.MetadataExtractorIds, existingAspects, importOnly));
+      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().ExtractMetadata(mediaItemAccessor, ImportJobInformation.MetadataExtractorIds, existingAspects, importOnly, forceQuickMode));
     }
 
     #endregion

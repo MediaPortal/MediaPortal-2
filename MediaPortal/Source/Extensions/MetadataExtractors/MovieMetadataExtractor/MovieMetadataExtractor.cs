@@ -279,14 +279,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
 
       // Allow the online lookup to choose best matching language for metadata
-      IList<MultipleMediaItemAspect> audioAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+      if (movieInfo.Languages.Count == 0)
       {
-        foreach (MultipleMediaItemAspect aspect in audioAspects)
+        IList<MultipleMediaItemAspect> audioAspects;
+        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
         {
-          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-          if (!string.IsNullOrEmpty(language))
-            movieInfo.Languages.Add(language);
+          foreach (MultipleMediaItemAspect aspect in audioAspects)
+          {
+            string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+            if (!string.IsNullOrEmpty(language) && !movieInfo.Languages.Contains(language))
+              movieInfo.Languages.Add(language);
+          }
         }
       }
 
@@ -429,10 +432,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
+        if (forceQuickMode)
+          return false;
+
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))

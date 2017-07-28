@@ -463,7 +463,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       ContainerItem containerItem = SelectedItem as ContainerItem;
       if (containerItem != null)
       {
-        MediaItem = containerItem.FirstMediaItem;
+        // Morpheus 2017-04-27: setting the media item for containers lead to unintended layout in views
+        // MediaItem = containerItem.FirstMediaItem;
+        MediaItem = null;
         SimpleTitle = containerItem.SimpleTitle;
         ItemDescription = string.Empty;
         NumItems = containerItem.NumItems;

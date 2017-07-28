@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="Libraries\Common\Data\DownloadData.cs" />
     <Compile Include="Libraries\Common\ExternalIPResolver.cs" />
+    <Compile Include="Libraries\IMatcher.cs" />
     <Compile Include="Libraries\IOnlineMatcherService.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ChangeCollection.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Change.cs" />
@@ -322,7 +323,7 @@
     <Compile Include="Matchers\SeriesTheMovieDbMatcher.cs" />
     <Compile Include="Matchers\MusicFanArtTvMatcher.cs" />
     <Compile Include="Wrappers\FanArtTVWrapper.cs" />
-    <Compile Include="Matchers\CDFreeDbMatcher.cs" />
+    <Compile Include="Matchers\MusicFreeDbMatcher.cs" />
     <Compile Include="Wrappers\FreeDbWrapper.cs" />
     <Compile Include="GeoLocationService.cs" />
     <Compile Include="Libraries\AudioDbV1\Data\AudioDbTracks.cs" />

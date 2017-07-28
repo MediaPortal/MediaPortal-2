@@ -36,13 +36,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// </summary>
   public class MetadataUpdater
   {
-    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing)
+    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, bool overwriteShorterStrings = true)
     {
       bool itemAdded;
-      return SetOrUpdateList(currentList, newList, addMissing, out itemAdded);
+      return SetOrUpdateList(currentList, newList, addMissing, out itemAdded, overwriteShorterStrings);
     }
 
-    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, out bool itemWasAdded)
+    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, out bool itemWasAdded, bool overwriteShorterStrings = true)
     {
       itemWasAdded = false;
       bool changed = false;
@@ -82,28 +82,28 @@ namespace MediaPortal.Extensions.OnlineLibraries
                 {
                   string currentVal = (string)field.GetValue(currentObj);
                   string newVal = (string)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is string)
                 {
                   SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
                   string newVal = (string)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is string && field.GetValue(newObj) is SimpleTitle)
                 {
                   string currentVal = (string)field.GetValue(currentObj);
                   SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is SimpleTitle)
                 {
                   SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
                   SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleRating && field.GetValue(newObj) is SimpleRating)
@@ -167,35 +167,35 @@ namespace MediaPortal.Extensions.OnlineLibraries
                   }
                   else if (listElementType == typeof(string))
                   {
-                    changed |= SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(PersonInfo))
                   {
-                    changed |= SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(CompanyInfo))
                   {
-                    changed |= SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(CharacterInfo))
                   {
-                    changed |= SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(SeasonInfo))
                   {
-                    changed |= SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(EpisodeInfo))
                   {
-                    changed |= SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(MovieInfo))
                   {
-                    changed |= SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else if (listElementType == typeof(TrackInfo))
                   {
-                    changed |= SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true, out itemAdded);
+                    changed |= SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
                   }
                   else
                   {

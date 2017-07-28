@@ -7,10 +7,9 @@
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Modo exclusivo</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normal</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Renderizado</string>
-  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading activado</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Determina si MediaPortal debe realizar cross-fade entre canciones, si es posible</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Duración del Cross fade</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Tiempo para el cross-fade en segundos</string>
 </resources>

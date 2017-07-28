@@ -333,9 +333,9 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       get
       {
         PlaybackSession playbackSession = _playbackSession;
-        if (playbackSession == null)
+        if (playbackSession == null || playbackSession.CurrentInputSource == null)
           return null;
-        return playbackSession.OutputStream;
+        return playbackSession.CurrentInputSource.OutputStream;
       }
     }
 

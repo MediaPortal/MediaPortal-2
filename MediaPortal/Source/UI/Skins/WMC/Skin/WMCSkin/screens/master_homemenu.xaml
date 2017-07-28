@@ -191,19 +191,34 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
 
-        <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}"/>
-        <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}"/>
-
-        <DockPanel Grid.Row="1" LastChildFill="False" Margin="-290,0,10,-140"
-                   IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-
-          <Button DockPanel.Dock="Left" VerticalAlignment="Bottom" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=Right}">
+        <Grid x:Name="LeftButtonGrid" Grid.Row="1" HorizontalAlignment="Left" Margin="-290,0,0,-140" Panel.ZIndex="1000"
+              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button VerticalAlignment="Bottom" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}">
             <Image Stretch="Uniform" Height="50" Source="Right_Menu.PNG"/>
           </Button>
-          <Button DockPanel.Dock="Right" VerticalAlignment="Bottom" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=Left}">
+        </Grid>
+
+        <Grid x:Name="RightButtonGrid" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,-140" Panel.ZIndex="1000"
+              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button VerticalAlignment="Bottom" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNextSubItem}">
             <Image Stretch="Uniform" Height="50" Source="Left_Menu.PNG"/>
           </Button>
-        </DockPanel>
+        </Grid>
+
+        <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}"/>
+        <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}"/>
 
       </Grid>
     </ControlTemplate>

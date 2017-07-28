@@ -33,7 +33,6 @@ using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Players.Video;
-using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -71,6 +70,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     {
       get { return typeof(SlimTvUIContributor); }
     }
+
+    public EventHandler OnBeginZap;
+    public EventHandler OnEndZap;
 
     #endregion
 

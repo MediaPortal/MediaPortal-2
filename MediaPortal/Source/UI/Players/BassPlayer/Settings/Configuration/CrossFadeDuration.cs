@@ -39,13 +39,6 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
       _value = SettingsManager.Load<BassPlayerSettings>().CrossFadeDurationSecs;
     }
 
-    public override void Save()
-    {
-      BassPlayerSettings settings = SettingsManager.Load<BassPlayerSettings>();
-      settings.CrossFadeDurationSecs = _value;
-      SettingsManager.Save(settings);
-    }
-
     #endregion
   }
 }

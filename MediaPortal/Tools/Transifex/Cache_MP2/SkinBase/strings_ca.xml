@@ -98,9 +98,7 @@
   <string name="Settings.Appearance">Aparença</string>
   <string name="Settings.Appearance.Skin">Aparença</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format de data</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Format de data utilitzat a l\'aparença. Seguiu les especificacions de format de la classe DateTime del .net.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format d\'hora</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format d\'hora utilitzat a l\'aparença. Seguiu les especificacions de format de la classe DateTime del .net.</string>
   <string name="Settings.General">General</string>
   <string name="Settings.General.System">Sistema</string>
   <string name="Settings.General.System.Autostart">Inici automàtic</string>

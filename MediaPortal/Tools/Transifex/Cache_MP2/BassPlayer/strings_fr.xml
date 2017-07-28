@@ -7,10 +7,18 @@
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Mode Exclusif</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Mode de transition Audio</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Régler le temps de pause / fondu lors du changement de piste</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normal</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Gapless</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Cross-fading</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Buffer de lecture</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Durée du buffer en ms [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Rendu vidéo</string>
-  <string name="Settings.Players.Rendering.CrossFading">Fondu enchainé</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Fondu enchainé activé</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Activer le Fondu enchainé si MediaPortal l\'autorise</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Durée du fondu enchainé</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Durée de la transition en seconde</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Avance rapide</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Avance rapide en secondes</string>
 </resources>

@@ -40,13 +40,20 @@
 
   <!-- Styles for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid>
-      <Border BorderThickness="0" CornerRadius="0" BorderBrush="Black" Background="#505050" Opacity="1" Width="348.7" Height="270"/>
-      <StackPanel VerticalAlignment="Center" Margin="20" HorizontalAlignment="Center">
-        <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
-          <Image Width="100" Height="100" Stretch="Fill" Source="{Binding BigIconProperty}" Margin="0,0,10,0"/>
-          <StackPanel Orientation="Vertical" Margin="5">
+    <Grid Margin="0" Height="270">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Border BorderThickness="0" CornerRadius="0" BorderBrush="Black" Background="#505050" Opacity="1"/>
+      <StackPanel VerticalAlignment="Center" Margin="5" HorizontalAlignment="Center">
+        <Label FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
+        <Image Width="120" Height="120" Stretch="Fill" Source="{Binding BigIconProperty}" Margin="0,0,10,0"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5">
+          <Image Source="temp_measure.png" Stretch="Uniform" Width="32" Margin="0,0,15,0"/>
+          <StackPanel Orientation="Vertical" VerticalAlignment="Center">
             <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>
             <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
           </StackPanel>
@@ -72,7 +79,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" HorizontalAlignment="Stretch"/>
+          <UniformGrid x:Name="ListItemsHost" IsItemsHost="True" Columns="7" Rows="1" HorizontalAlignment="Stretch"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

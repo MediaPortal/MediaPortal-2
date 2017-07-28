@@ -54,6 +54,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       public List<string> LastUpdatedEpisodes { get; set; }
     }
 
+    protected readonly object _initSyncObj = new object();
+    protected bool _isInit = false;
+
     #region Init
 
     public SeriesMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
@@ -72,8 +75,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _networkMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "NetworkMatches.xml"));
       _seriesNameMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "SeriesNameMatches.xml"));
       _configFile = Path.Combine(cachePath, "SeriesConfig.xml");
-
-      Init();
     }
 
     public override bool Init()
@@ -81,21 +82,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!_enabled)
         return false;
 
-      if (_wrapper != null)
-        return true;
-
-      if (!base.Init())
-        return false;
-
-      LoadConfig();
-
-      if (InitWrapper(UseSecureWebCommunication))
+      lock (_initSyncObj)
       {
-        if (_wrapper != null)
-          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
-        return true;
+        if (_isInit)
+          return true;
+
+        if (!base.Init())
+          return false;
+
+        LoadConfig();
+
+        if (InitWrapper(UseSecureWebCommunication))
+        {
+          if (_wrapper != null)
+            _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+          _isInit = true;
+          return true;
+        }
+        return false;
       }
-      return false;
     }
 
     private void LoadConfig()
@@ -280,7 +285,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (seriesId != null && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
         {
-          altEpisodeId = seriesId + "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.EpisodeNumbers[0];
+          altEpisodeId = seriesId + "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.FirstEpisodeNumber;
         }
         if (GetSeriesEpisodeId(episodeInfo, out episodeId))
         {
@@ -399,7 +404,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               if (episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
               {
-                seriesId += "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.EpisodeNumbers[0];
+                seriesId += "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.FirstEpisodeNumber;
 
                 _memoryCacheEpisode.TryAdd(seriesId, episodeInfo);
               }
@@ -443,7 +448,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.Rating, episodeMatch.Rating);
 
       if (episodeInfo.EpisodeNumbers.Count == 0)
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers.Distinct().ToList(), true);
+      {
+        List<int> tmpList = episodeInfo.EpisodeNumbers.ToList();
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(tmpList, episodeMatch.EpisodeNumbers.Distinct().ToList(), true);
+        episodeInfo.EpisodeNumbers = new HashSet<int>(tmpList);
+      }
       if (episodeInfo.DvdEpisodeNumbers.Count == 0)
         episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers.Distinct().ToList(), true);
       if (episodeInfo.Genres.Count == 0)
@@ -1410,8 +1419,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         // If there is only one language available, use this one.
         if (mediaLanguages.Count == 1)
           return (TLang)Convert.ChangeType(mediaLanguages[0], typeof(TLang));
+
+        // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
+        // Use the preferred language.
+        return (TLang)Convert.ChangeType(mpLocal.TwoLetterISOLanguageName, typeof(TLang));
       }
-      // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
       // By returning null we allow fallback to the default language of the online source (en).
       return default(TLang);
     }
@@ -1548,7 +1560,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<SeriesInfo> GetLastChangedSeries()
     {
       List<SeriesInfo> series = new List<SeriesInfo>();
-      foreach(string id in _config.LastUpdatedSeries)
+
+      if (!Init())
+        return series;
+
+      foreach (string id in _config.LastUpdatedSeries)
       {
         SeriesInfo s = new SeriesInfo();
         if (SetSeriesId(s, id) && !series.Contains(s))
@@ -1559,6 +1575,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedSeries()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedSeries.Clear();
       SaveConfig();
     }
@@ -1566,6 +1585,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<EpisodeInfo> GetLastChangedEpisodes()
     {
       List<EpisodeInfo> episodes = new List<EpisodeInfo>();
+
+      if (!Init())
+        return episodes;
+
       foreach (string id in _config.LastUpdatedEpisodes)
       {
         EpisodeInfo e = new EpisodeInfo();
@@ -1577,6 +1600,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedEpisodes()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedEpisodes.Clear();
       SaveConfig();
     }
@@ -1608,6 +1634,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
+      if (!Init())
+        return false;
+
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
       if (info is SeriesInfo)
@@ -1678,7 +1707,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           if (episodeInfo.EpisodeNumbers.Count > 0)
           {
-            data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.EpisodeNumbers[0].ToString();
+            data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.FirstEpisodeNumber.ToString();
           }
           if (GetSeriesEpisodeId(episodeInfo, out id))
           {
@@ -1970,7 +1999,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    protected virtual bool VerifyFanArtImage(TImg image)
+    protected virtual bool VerifyFanArtImage(TImg image, TLang language)
     {
       return image != null;
     }
@@ -1989,7 +2018,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;
-            if (!VerifyFanArtImage(img))
+            if (!VerifyFanArtImage(img, language))
               continue;
             if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;

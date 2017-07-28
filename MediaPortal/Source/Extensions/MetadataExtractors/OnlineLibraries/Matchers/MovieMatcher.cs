@@ -54,6 +54,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       public List<string> LastUpdatedMovieCollections { get; set; }
     }
 
+    protected readonly object _initSyncObj = new object();
+    protected bool _isInit = false;
+
     #region Init
 
     public MovieMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
@@ -70,8 +73,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _characterMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CharacterMatches.xml"));
       _companyMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CompanyMatches.xml"));
       _configFile = Path.Combine(cachePath, "MovieConfig.xml");
-
-      Init();
     }
 
     public override bool Init()
@@ -79,21 +80,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!_enabled)
         return false;
 
-      if (_wrapper != null)
-        return true;
-
-      if (!base.Init())
-        return false;
-
-      LoadConfig();
-
-      if (InitWrapper(UseSecureWebCommunication))
+      lock (_initSyncObj)
       {
-        if(_wrapper != null)
-          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
-        return true;
+        if (_isInit)
+          return true;
+
+        if (!base.Init())
+          return false;
+
+        LoadConfig();
+
+        if (InitWrapper(UseSecureWebCommunication))
+        {
+          if (_wrapper != null)
+            _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+          _isInit = true;
+          return true;
+        }
+        return false;
       }
-      return false;
     }
 
     private void LoadConfig()
@@ -912,8 +917,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         // If there is only one language available, use this one.
         if (mediaLanguages.Count == 1)
           return (TLang)Convert.ChangeType(mediaLanguages[0], typeof(TLang));
+
+        // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
+        // Use the preferred language.
+        return (TLang)Convert.ChangeType(mpLocal.TwoLetterISOLanguageName, typeof(TLang));
       }
-      // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
       // By returning null we allow fallback to the default language of the online source (en).
       return default(TLang);
     }
@@ -1057,6 +1065,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<MovieInfo> GetLastChangedMovies()
     {
       List<MovieInfo> movies = new List<MovieInfo>();
+
+      if (!Init())
+        return movies;
+
       foreach (string id in _config.LastUpdatedMovies)
       {
         MovieInfo m = new MovieInfo();
@@ -1068,6 +1080,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedMovies()
     {
+      if (!Init())
+        return;
       _config.LastUpdatedMovies.Clear();
       SaveConfig();
     }
@@ -1075,6 +1089,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<MovieCollectionInfo> GetLastChangedMovieCollections()
     {
       List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
+
+      if (!Init())
+        return collections;
+
       foreach (string id in _config.LastUpdatedMovieCollections)
       {
         MovieCollectionInfo c = new MovieCollectionInfo();
@@ -1086,6 +1104,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedMovieCollections()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedMovieCollections.Clear();
       SaveConfig();
     }
@@ -1096,6 +1117,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
+      if (!Init())
+        return false;
+
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
       if (info is MovieInfo)
@@ -1307,17 +1331,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             Logger.Debug(_id + " Download: Downloading images for ID {0} [{1}]", Id, name);
 
-            SaveFanArtImages(images.Id, images.Backdrops, data.MediaItemId, data.Name, FanArtTypes.FanArt);
-            SaveFanArtImages(images.Id, images.Posters, data.MediaItemId, data.Name, FanArtTypes.Poster);
-            SaveFanArtImages(images.Id, images.Banners, data.MediaItemId, data.Name, FanArtTypes.Banner);
-            SaveFanArtImages(images.Id, images.Covers, data.MediaItemId, data.Name, FanArtTypes.Cover);
-            SaveFanArtImages(images.Id, images.Thumbnails, data.MediaItemId, data.Name, FanArtTypes.Thumbnail);
+            SaveFanArtImages(images.Id, images.Backdrops, language, data.MediaItemId, data.Name, FanArtTypes.FanArt);
+            SaveFanArtImages(images.Id, images.Posters, language, data.MediaItemId, data.Name, FanArtTypes.Poster);
+            SaveFanArtImages(images.Id, images.Banners, language, data.MediaItemId, data.Name, FanArtTypes.Banner);
+            SaveFanArtImages(images.Id, images.Covers, language, data.MediaItemId, data.Name, FanArtTypes.Cover);
+            SaveFanArtImages(images.Id, images.Thumbnails, language, data.MediaItemId, data.Name, FanArtTypes.Thumbnail);
 
             if (!OnlyBasicFanArt)
             {
-              SaveFanArtImages(images.Id, images.ClearArt, data.MediaItemId, data.Name, FanArtTypes.ClearArt);
-              SaveFanArtImages(images.Id, images.DiscArt, data.MediaItemId, data.Name, FanArtTypes.DiscArt);
-              SaveFanArtImages(images.Id, images.Logos, data.MediaItemId, data.Name, FanArtTypes.Logo);
+              SaveFanArtImages(images.Id, images.ClearArt, language, data.MediaItemId, data.Name, FanArtTypes.ClearArt);
+              SaveFanArtImages(images.Id, images.DiscArt, language, data.MediaItemId, data.Name, FanArtTypes.DiscArt);
+              SaveFanArtImages(images.Id, images.Logos, language, data.MediaItemId, data.Name, FanArtTypes.Logo);
             }
 
             Logger.Debug(_id + " Download: Finished saving images for ID {0} [{1}]", Id, name);
@@ -1335,12 +1359,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    protected virtual bool VerifyFanArtImage(TImg image)
+    protected virtual bool VerifyFanArtImage(TImg image, TLang language)
     {
       return image != null;
     }
 
-    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, string mediaItemId, string name, string fanartType)
+    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, TLang language, string mediaItemId, string name, string fanartType)
     {
       try
       {
@@ -1354,7 +1378,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;
-            if (!VerifyFanArtImage(img))
+            if (!VerifyFanArtImage(img, language))
               continue;
             if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;

@@ -140,8 +140,12 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_PLAY_VIDEO_IMAGE_ITEMS_PIP = "[Media.PlayVideoImageItemsPiP]";
 
     // Resume playback
-    public static string RES_PLAYBACK_RESUME = "[Media.PlaybackResume]";
-    public static string RES_PLAYBACK_FROMSTART = "[Media.PlaybackFromStart]";
+    public const string RES_PLAYBACK_RESUME = "[Media.PlaybackResume]";
+    public const string RES_PLAYBACK_RESUME_TIME = "[Media.PlaybackResumeTime]";
+    public const string RES_PLAYBACK_FROMSTART = "[Media.PlaybackFromStart]";
+
+    // Media item action confirmation
+    public const string RES_CONFIRM_HEADER = "[Media.ConfirmAction]";
 
     public const string RES_VIDEO_IMAGE_CONTEXT_NAME = "[Media.VideoImageContextName]";
     public const string RES_AUDIO_CONTEXT_NAME = "[Media.AudioContextName]";
@@ -341,13 +345,13 @@ namespace MediaPortal.UiComponents.Media.General
     // Sorting
     public const string RES_SWITCH_SORTING = "[Media.SwitchSortingMenuItem]";
     public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
-    public const string RES_SORT_BY_DATE = "[Media.SortByDate]";                         //no string defined
+    public const string RES_SORT_BY_DATE = "[Media.SortByDate]";
 
     // Grouping
     public const string RES_SWITCH_GROUPING = "[Media.SwitchGroupingMenuItem]";
     public const string RES_NO_GROUPING = "[Media.NoGrouping]";
     public const string RES_GROUP_BY_DATE = "[Media.GroupByDate]";
-    public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";   //no string defined
+    public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";
 
     // Filter
     public const string RES_SWITCH_FILTER = "[Media.SwitchFilterMenuItem]";
@@ -451,7 +455,7 @@ namespace MediaPortal.UiComponents.Media.General
     // Timespans
     public static TimeSpan TS_SEARCH_TEXT_TYPE = TimeSpan.FromMilliseconds(300);
 
-    public static TimeSpan TS_VIDEO_INFO_TIMEOUT = TimeSpan.FromSeconds(5);
+    public static TimeSpan TS_VIDEO_INFO_TIMEOUT = TimeSpan.FromSeconds(3);
 
     public static TimeSpan TS_ADD_TO_PLAYLIST_UPDATE_DIALOG_THRESHOLD = TimeSpan.FromSeconds(3);
 

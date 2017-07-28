@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ServerStatus.NotStarted">Sunucu başlatılmamış</string>
+  <string name="ServerStatus.Attached">Sunucuya eklendi</string>
+  <string name="ServerStatus.Connected">Sunucuya bağlanıldı</string>
+  <string name="ServerStatus.Detached">Sunucudan ayrıldı</string>
+  <string name="ServerStatus.Disconnected">Sunucu ile bağlantı kesildi</string>
+  <string name="ServerStatus.ClientConnected">İstemci(ler) sunucuya bağlandı</string>
+  <string name="MainWindow.ServerStatus">Sunucu durumu</string>
+  <string name="MainWindow.AttachedClients">Bağlı istemciler:</string>
+  <string name="ContextMenu.ShowWin">Pencereyi göster</string>
+  <string name="ContextMenu.HideWin">Pencereyi gizle</string>
+  <string name="ContextMenu.StartService">Hizmeti başlat</string>
+  <string name="ContextMenu.StopService">Hizmeti durdur</string>
+  <string name="ContextMenu.EnableAutostart">Otomatik başlatmayı etkinleştir</string>
+  <string name="ContextMenu.DisableAutostart">Otomatik başlatmayı devre dışı bırak</string>
   <string name="ContextMenu.Exit">Çık</string>
+  <string name="SysTrayToolTip.Info">Diğer seçenekler için sağ tıklayın</string>
 </resources>

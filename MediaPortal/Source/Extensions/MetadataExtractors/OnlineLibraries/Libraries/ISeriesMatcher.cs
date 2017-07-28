@@ -28,13 +28,8 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
-  public interface ISeriesMatcher
+  public interface ISeriesMatcher : IMatcher
   {
-    bool Primary { get; set; }
-    bool Enabled { get; set; }
-    string Id { get; }
-    string PreferredLanguageCulture { get; set; }
-
     List<SeriesInfo> GetLastChangedSeries();
     void ResetLastChangedSeries();
     List<EpisodeInfo> GetLastChangedEpisodes();

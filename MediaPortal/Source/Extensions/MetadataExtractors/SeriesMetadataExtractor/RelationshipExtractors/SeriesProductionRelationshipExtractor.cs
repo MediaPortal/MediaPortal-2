@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -167,7 +168,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       IEnumerable<string> actors = aspect.GetCollectionAttribute<string>(SeriesAspect.ATTR_COMPANIES);
-      List<string> nameList = new List<string>(actors);
+      List<string> nameList = new SafeList<string>(actors);
 
       index = nameList.IndexOf(name);
       return index >= 0;

@@ -64,7 +64,16 @@ namespace MediaPortal.UiComponents.Media.Models
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
 
-      IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < Consts.TS_VIDEO_INFO_TIMEOUT || _inactive;
+      bool timeoutElapsed = true;
+      if (_lastVideoInfoDemand != DateTime.MinValue)
+      {
+        // Consider all inputs to keep OSD alive
+        _lastVideoInfoDemand = inputManager.LastInputTime;
+        timeoutElapsed = DateTime.Now - _lastVideoInfoDemand > Consts.TS_VIDEO_INFO_TIMEOUT;
+        if (timeoutElapsed)
+          _lastVideoInfoDemand = DateTime.MinValue;
+      }
+      IsOSDVisible = inputManager.IsMouseUsed || !timeoutElapsed || _inactive;
       IsPip = pipPlayer != null;
     }
 

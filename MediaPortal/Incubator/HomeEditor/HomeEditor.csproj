@@ -35,6 +35,8 @@
     <Compile Include="Actions\RestoreDefaultsAction.cs" />
     <Compile Include="Actions\AddActionAction.cs" />
     <Compile Include="Actions\AddGroupAction.cs" />
+    <Compile Include="Extensions\HomeEditorRegistrationBuilder.cs" />
+    <Compile Include="Extensions\SkinChangeMonitor.cs" />
     <Compile Include="Groups\DefaultGroups.cs" />
     <Compile Include="Groups\HomeMenuGroup.cs" />
     <Compile Include="Groups\HomeMenuAction.cs" />

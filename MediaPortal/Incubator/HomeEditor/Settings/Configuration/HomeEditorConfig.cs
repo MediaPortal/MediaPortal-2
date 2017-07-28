@@ -22,16 +22,23 @@
 
 #endregion
 
+using HomeEditor.Extensions;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HomeEditor.Settings.Configuration
 {
-  public class HomeEditorConfig : CustomConfigSetting
+  public class HomeEditorConfig : CustomConfigSetting, IDisposable
   {
+    public HomeEditorConfig()
+    {
+      //Only show this configuration if the current skin supports the home menu editor
+      SkinChangeMonitor.Instance.RegisterConfiguration(this);
+    }
+
+    public void Dispose()
+    {
+      SkinChangeMonitor.Instance.UnregisterConfiguration(this);
+    }
   }
 }

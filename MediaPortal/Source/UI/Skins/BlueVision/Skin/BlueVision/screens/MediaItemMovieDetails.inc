@@ -73,6 +73,7 @@
                 </StarRatingPanel.LayoutTransform>
               </StarRatingPanel>
               <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"
+                     IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"
                      FontSize="{ThemeResource SmallerFontSize}" Margin="15,0,5,0">
                 <Label.Content>
                   <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>

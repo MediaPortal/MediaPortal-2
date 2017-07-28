@@ -137,13 +137,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (imgs != null)
           {
             images.Id = movie.MovieDbId.ToString();
-            if (imgs.MovieFanArt != null) images.Backdrops.AddRange(imgs.MovieFanArt.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.MovieBanners != null) images.Banners.AddRange(imgs.MovieBanners.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.MoviePosters != null) images.Posters.AddRange(imgs.MoviePosters.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.MovieCDArt != null) images.DiscArt.AddRange(imgs.MovieCDArt.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.HDMovieClearArt != null) images.ClearArt.AddRange(imgs.HDMovieClearArt.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.HDMovieLogos != null) images.Logos.AddRange(imgs.HDMovieLogos.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.MovieThumbnails != null) images.Thumbnails.AddRange(imgs.MovieThumbnails.OrderByDescending(b => b.Likes).ToList());
+            if (imgs.MovieFanArt != null) images.Backdrops.AddRange(imgs.MovieFanArt.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.MovieBanners != null) images.Banners.AddRange(imgs.MovieBanners.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.MoviePosters != null) images.Posters.AddRange(imgs.MoviePosters.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.MovieCDArt != null) images.DiscArt.AddRange(imgs.MovieCDArt.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.HDMovieClearArt != null) images.ClearArt.AddRange(imgs.HDMovieClearArt.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.HDMovieLogos != null) images.Logos.AddRange(imgs.HDMovieLogos.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.MovieThumbnails != null) images.Thumbnails.AddRange(imgs.MovieThumbnails.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
             return true;
           }
         }
@@ -170,12 +170,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (imgs != null)
           {
             images.Id = series.TvdbId.ToString();
-            if (imgs.SeriesFanArt != null) images.Backdrops.AddRange(imgs.SeriesFanArt.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.SeriesBanners != null) images.Banners.AddRange(imgs.SeriesBanners.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.SeriesPosters != null) images.Posters.AddRange(imgs.SeriesPosters.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.HDSeriesClearArt != null) images.ClearArt.AddRange(imgs.HDSeriesClearArt.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.HDSeriesLogos != null) images.Logos.AddRange(imgs.HDSeriesLogos.OrderByDescending(b => b.Likes).ToList());
-            if (imgs.SeriesThumbnails != null) images.Thumbnails.AddRange(imgs.SeriesThumbnails.OrderByDescending(b => b.Likes).ToList());
+            if (imgs.SeriesFanArt != null) images.Backdrops.AddRange(imgs.SeriesFanArt.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.SeriesBanners != null) images.Banners.AddRange(imgs.SeriesBanners.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.SeriesPosters != null) images.Posters.AddRange(imgs.SeriesPosters.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.HDSeriesClearArt != null) images.ClearArt.AddRange(imgs.HDSeriesClearArt.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.HDSeriesLogos != null) images.Logos.AddRange(imgs.HDSeriesLogos.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
+            if (imgs.SeriesThumbnails != null) images.Thumbnails.AddRange(imgs.SeriesThumbnails.OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
             return true;
           }
         }
@@ -200,11 +200,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           {
             images.Id = season.SeriesTvdbId.ToString();
             if (imgs.SeasonBanners != null) images.Banners.AddRange(imgs.SeasonBanners.FindAll(b => !b.Season.HasValue || b.Season == seasonNo).
-              OrderByDescending(b => b.Likes).ToList());
+              OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
             if (imgs.SeasonPosters != null) images.Posters.AddRange(imgs.SeasonPosters.FindAll(b => !b.Season.HasValue || b.Season == seasonNo).
-              OrderByDescending(b => b.Likes).ToList());
+              OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
             if (imgs.SeasonThumbnails != null) images.Thumbnails.AddRange(imgs.SeasonThumbnails.FindAll(b => !b.Season.HasValue || b.Season == seasonNo).
-              OrderByDescending(b => b.Likes).ToList());
+              OrderBy(b => string.IsNullOrEmpty(b.Language)).ThenByDescending(b => b.Likes).ToList());
             return true;
           }
         }

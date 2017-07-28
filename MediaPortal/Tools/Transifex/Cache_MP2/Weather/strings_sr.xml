@@ -6,6 +6,7 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">Одабери локацију</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Време</string>
+  <string name="Weather.Title.Help">Проверите тренутну временску ситуацију и прогнозу.</string>
   <string name="Weather.ChooseLocation">Одабери локацију</string>
   <string name="Weather.Refresh">Освежи приказ</string>
   <string name="Weather.Updating">Ажурирање</string>
@@ -37,15 +38,15 @@
   <string name="Weather.Showers">Пљусак</string>
   <string name="Weather.Few">Неколико</string>
   <string name="Weather.Scattered">Делимично</string>
-  <string name="Weather.Strong">Јако</string>
+  <string name="Weather.Strong">Јак</string>
   <string name="Weather.Clear">Ведро</string>
   <string name="Weather.Early">Рано</string>
   <string name="Weather.Fog">Магла</string>
   <string name="Weather.Haze">Измаглица</string>
   <string name="Weather.Windy">Ветровито</string>
   <string name="Weather.Drizzle">Ромињање</string>
-  <string name="Weather.Freezing">Замрзнуто</string>
-  <string name="Weather.NA">-</string>
+  <string name="Weather.Freezing">Поледице</string>
+  <string name="Weather.NA">N/A</string>
   <string name="Weather.Mist">Измаглица</string>
   <string name="Weather.Low">Низак</string>
   <string name="Weather.High">Висок</string>
@@ -67,9 +68,9 @@
   <string name="Weather.WSW">Западно-југозападни</string>
   <string name="Weather.WNW">Западно-севернозападни</string>
   <string name="Weather.NNW">Северно-севернозападни</string>
-  <string name="Weather.From">Од {0} у {1} {2}</string>
-  <string name="Weather.Various">Разнолик</string>
-  <string name="Weather.Calm">Смирено</string>
+  <string name="Weather.From">Од {0} до {1} {2}</string>
+  <string name="Weather.Various">Променљиво</string>
+  <string name="Weather.Calm">Мирно</string>
   <string name="Weather.NoWind">Без ветра</string>
   <string name="Weather.InTheVicinity">у близини</string>
   <string name="Weather.Clearing">Разведравање</string>

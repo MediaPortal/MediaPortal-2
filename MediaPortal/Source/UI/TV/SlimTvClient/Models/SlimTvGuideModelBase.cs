@@ -197,7 +197,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       GroupName = CurrentChannelGroup != null ? CurrentChannelGroup.Name : string.Empty;
     }
 
-    protected void ShowProgramActions(IProgram program)
+    protected virtual void ShowProgramActions(IProgram program)
     {
       if (program == null)
         return;
@@ -218,21 +218,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           _programActions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
               {
-                Command = new MethodDelegateCommand(() =>
-                    {
-                      IChannel channel;
-                      if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
-                      {
-                        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-                        SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
-                        if (model != null)
-                        {
-                          model.Tune(channel);
-                          // Always switch to fullscreen
-                          workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
-                        }
-                      }
-                    })
+                Command = new MethodDelegateCommand(() => { TuneChannelByProgram(program); })
               });
         }
 
@@ -270,7 +256,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                                                           bool result;
                                                           // "No Program" placeholder
                                                           if (program.ProgramId == -1)
-                                                            result = _tvHandler.ScheduleControl.CreateScheduleByTime(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, out schedule);
+                                                            result = _tvHandler.ScheduleControl.CreateScheduleByTime(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, ScheduleRecordingType.Once, out schedule);
                                                           else
                                                             result = _tvHandler.ScheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule);
 
@@ -300,6 +286,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(_programActionsDialogName);
+    }
+
+    protected void TuneChannelByProgram(IProgram program)
+    {
+      IChannel channel;
+      if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
+      {
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
+        if (model != null)
+        {
+          model.Tune(channel);
+          // Always switch to fullscreen
+          workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
+        }
+      }
     }
 
     protected virtual bool UpdateRecordingStatus(IProgram program)

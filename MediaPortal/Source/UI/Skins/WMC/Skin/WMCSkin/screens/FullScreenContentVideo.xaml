@@ -25,9 +25,25 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <Image Width="250" Stretch="Uniform" Source="pause.png" Opacity="0.7"
-           HorizontalAlignment="Center" VerticalAlignment="Center"
-           IsVisible="{Binding ElementName=PrimaryOSD, Path=IsPaused}" />
+    <!--Playerstate overlay-->
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center"
+          DataContext="{Binding ElementName=PrimaryOSD}">
+      <Image Width="250" Stretch="Uniform" Opacity="0.7" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {3} : ({1} ? {4} : ({2} ? {5} : {6}))">
+            <Binding Path="IsSeekingForward"/>
+            <Binding Path="IsSeekingBackward"/>
+            <Binding Path="IsPaused"/>
+            <Binding Source="fastforward.png"/>
+            <Binding Source="fastrewind.png"/>
+            <Binding Source="pause.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="SegoeUIBold" Opacity="0.7" Margin="0,0,0,5"
+             Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Grid>
 
     <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
@@ -42,8 +58,9 @@
       </Grid.RowDefinitions>
   
       <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
-          IsVisible="{Binding !IsOSDVisible}"/>
+               IsVisible="{Binding !IsOSDVisible}"/>
     </Grid> <!-- BackgroundPipLayoutGrid -->
+
     <Grid x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0"
         VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding IsOSDVisible}">
       <Grid.ColumnDefinitions>
@@ -53,11 +70,6 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <!--Control x:Name="WindowButtons" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-        <Control.TemplateControl>
-          <Include Source="screens\FSCWindowButtons.inc"/>
-        </Control.TemplateControl>
-      </-->
 
       <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.Column="1"
           LastChildFill="false">
@@ -65,12 +77,6 @@
             Style="{ThemeResource PrimaryVideoOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
       </DockPanel> 
-      <!--DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" LastChildFill="false">
-        <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom"
-            Style="{ThemeResource SecondaryMediaOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-            AutoVisibility="true"/>
-      </--> 
       
     </Grid>
 
@@ -80,6 +86,32 @@
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
         <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7F702D9C-F2DD-42da-9ED8-0BA92F07787F}"/>
+      </StackPanel>
+    </Grid>
+
+    <!-- Mouse control buttons -->
+    <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">
+      <StackPanel Orientation="Horizontal">
+        <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Button x:Name="WindowedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=NormalWindowed}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+          <Button x:Name="MaximizedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=FullScreen}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+          <Button x:Name="ExitButton" Style="{ThemeResource ExitButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=Shutdown}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+        </StackPanel>
       </StackPanel>
     </Grid>
 

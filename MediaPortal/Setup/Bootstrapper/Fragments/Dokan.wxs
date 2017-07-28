@@ -7,21 +7,20 @@
     <util:FileSearch Id="Dokan_1000_Version"
            Variable="Dokan_1000_Version" Path="[SystemFolder]DOKAN1.DLL"
            Result="version"/>
-
     <PackageGroup Id="dokan">
       <ExePackage Id="dokan" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
-                  Name="DokanSetup.exe"
-                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/DokanSetup.exe"
+                  Name="DokanSetup_1.0.3.exe"
+                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/DokanSetup_1.0.3.exe"
                   InstallCommand="/q"
                   InstallCondition="(NOT Dokan_1000_Version >= v1.0.0.0) OR NOT Dokan_1000_Version">
         <RemotePayload
                   CertificatePublicKey="70E450EF45A7F579112248987E26294ACCDC3D2F"
-                  CertificateThumbprint="F8A563CC68F5C1501337A38404F81CC9E1567A14"
-                  Description="Dokan Library 1.0.1.1000 Bundle"
-                  Hash="3D62E6D105CD4941D0B71BDBBE4C880770EB0240"
-                  ProductName="Dokan Library 1.0.1.1000 Bundle"
-                  Size="5759592"
-                  Version="1.0.1.1000" />
+                  CertificateThumbprint="0AC18DDF5466B05A1A00D9D346259C94A5488A9F"
+                  Description="Dokan Library 1.0.3.1000 Bundle"
+                  Hash="DD6B82B9F721EC1422F206795F32CF938574161B"
+                  ProductName="Dokan Library 1.0.3.1000 Bundle"
+                  Size="6829304"
+                  Version="1.0.3.1000" />
       </ExePackage>
     </PackageGroup>
 

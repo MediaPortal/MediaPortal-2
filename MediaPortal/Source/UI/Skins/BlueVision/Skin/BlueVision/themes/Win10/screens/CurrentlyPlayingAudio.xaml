@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare_players.xaml"
+    xmlns:animation="clr-namespace:MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;assembly=SkinEngine" 
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    >
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]"/>
+
+    <ControlTemplate x:Key="Header_Text_Template">
+      <Label x:Name="HeaderLabel" FontFamily="DefaultBold" FontSize="32"
+             VerticalAlignment="Center" HorizontalAlignment="Left" Color="{ThemeResource TextColor}"
+             Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
+      </Label>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.Background>
+              <VisualBrush x:Name="FanartVisualBrush" AnimationEnabled="True">
+                <VisualBrush.Visual>
+                  <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Image x:Name="FanArtImageBackground" Stretch="UniformToFill"
+                           DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                      <Image.Source>
+                        <ImageSourceWrapper Delay="2" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="2">
+                          <ImageSourceWrapper.Source>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt"
+                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="1920" fanart:MaxHeight="1080" fanart:Cache="false"/>
+                          </ImageSourceWrapper.Source>
+                        </ImageSourceWrapper>
+                      </Image.Source>
+                      <Image.Triggers>
+                        <Trigger Property="HasImage" Value="False">
+                          <Setter TargetName="FanartVisualBrush" Property="Animation"/>
+                          <Setter TargetName="FanartVisualBrush" Property="AnimationEnabled" Value="True"/>
+                        </Trigger>
+                        <Trigger Property="HasImage" Value="True">
+                          <Setter TargetName="FanartVisualBrush" Property="AnimationEnabled" Value="True"/>
+                          <Setter TargetName="FanartVisualBrush" Property="Animation">
+                            <Setter.Value>
+                              <animation:KenBurnsAnimator Duration="5"/>
+                            </Setter.Value>
+                          </Setter>
+                        </Trigger>
+                      </Image.Triggers>
+                    </Image>
+                  </Grid>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Grid.Background>
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Client_Template">
+      <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="400"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="400"/>
+            </Grid.ColumnDefinitions>
+
+            <Rectangle Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-75,0,0,50" Opacity="0.9">
+              <Rectangle.Fill>
+                <ImageBrush ImageSource="win10_bg.png"></ImageBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+
+            <StackPanel Margin="-50,70,0,0">
+              <Label x:Name="TrackName" Scroll="Auto" Content="{Binding AudioTrackName}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
+              <Label x:Name="Artists" Scroll="Auto" Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
+              <Label x:Name="AlbumName" Scroll="Auto" Content="{Binding AudioAlbumName}" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="TrackNumber" Color="{ThemeResource TextColor}">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
+                    <Binding Source="Track "/>
+                    <Binding Path="AudioTrackNumber"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label x:Name="Year" Content="{Binding AudioYear}" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="Duration" Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>              
+            </StackPanel>
+
+            <Image x:Name="CDImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
+                Source="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
+                VerticalAlignment="Bottom" Width="240" Height="240" Margin="0,0,130,105">
+              <Image.Resources>
+                <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+                  <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"
+                                    From="0"
+                                    To="360"
+                                    Duration="0:0:2"
+                                    RepeatBehavior="Forever" />
+                </Storyboard>
+              </Image.Resources>
+              <Image.RenderTransform>
+                <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
+              </Image.RenderTransform>
+              <Image.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </Image.Triggers>
+            </Image>
+
+            <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
+                Source="{Binding MediaItem}" FallbackSource="AudioLarge.png" HorizontalAlignment="Right"
+                VerticalAlignment="Bottom" Width="250" Height="250" Margin="0,0,30,100"/>
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

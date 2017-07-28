@@ -166,6 +166,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Ensure that the tables for all necessary MIAs are requested first (INNER JOIN)
       foreach (MediaItemAspectMetadata miaType in _necessaryRequestedMIAs)
       {
+        if (miaType.IsTransientAspect)
+          continue;
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary MIA, so optimize redundant entry
           continue;
@@ -193,6 +195,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // That is necessary to make empty optional MIA types available in the result
       foreach (MediaItemAspectMetadata miaType in _optionalRequestedMIAs)
       {
+        if (miaType.IsTransientAspect)
+          continue;
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary or optional MIA, so optimize redundant entry
           continue;
@@ -209,6 +213,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // + add alias to selectAttributeDeclarations
       foreach (QueryAttribute attr in _selectAttributes)
       {
+        if (attr.Attr.ParentMIAM.IsTransientAspect)
+          continue;
         if (!Include(attr.Attr.ParentMIAM))
           continue;
         RequestedAttribute ra;
@@ -228,6 +234,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // + compile query attribute
       foreach (QueryAttribute attr in compiledFilter.RequiredAttributes)
       {
+        if (attr.Attr.ParentMIAM.IsTransientAspect)
+          continue;
         if (!Include(attr.Attr.ParentMIAM))
           continue;
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
@@ -243,6 +251,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         compiledSortInformation = new List<CompiledSortInformation>();
         foreach (SortInformation sortInformation in _sortInformation)
         {
+          if (sortInformation.AttributeType.ParentMIAM.IsTransientAspect)
+            continue;
           if (!Include(sortInformation.AttributeType.ParentMIAM))
             continue;
           MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;

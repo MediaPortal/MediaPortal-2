@@ -39,6 +39,7 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
   </Register>
@@ -47,23 +48,18 @@
   <Register Location="/Configuration/Settings/Players">
     <ConfigSection
         Id="Codecs"
+        Sort="E170"
         Redundant="true"
         Text="[Settings.Players.Codecs]"/>
   </Register>
 
   <!-- Contents of '/Players/Codecs' section -->
   <Register Location="/Configuration/Settings/Players/Codecs">
-    <ConfigGroup
-        Id="VideoCodecs"
-        Redundant="true"
-        Text="[Settings.Players.Codecs.VideoCodecs]"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/Codecs">
-    <ConfigGroup
+    <ConfigSection
         Id="SourceFilters"
+        Sort="E171"
         Redundant="true"
-        Text="[Settings.Players.Codecs.SourceFilters]"/>
+        Text="[Settings.Players.Codecs.VideoCodecs.Splitter]"/>
   </Register>
 
   <Register Location="/Configuration/Settings/Players/Codecs/SourceFilters">

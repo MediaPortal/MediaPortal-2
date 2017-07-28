@@ -2,8 +2,15 @@
 <resources>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.VideosMenuItem">Видеа</string>
-  <!--Filter titles-->
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">Име</string>
+  <string name="Media.GenreMenuItem">Жанр</string>
+  <string name="Media.SizeMenuItem">Размер</string>
+  <string name="Media.AudioLanguageMenuItem">Език</string>
+  <string name="Media.ImageStateMenuItem">Състояние</string>
   <string name="Media.SimpleSearchFilterMenuItem">Търси</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">Филтър</string>
   <!--Special filters names-->
   <!--Navbar display labels for sub view navigation-->
   <!--For example: "R.E.M."-->
@@ -29,6 +36,7 @@
   <!--Play items dialog-->
   <!--Player context names-->
   <!--Video currently playing-->
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->
@@ -37,8 +45,6 @@
   <string name="Media.RepeatMode.All">Всичко</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
-  <string name="Media.SwitchFilterMenuItem">Филтър</string>
-  <string name="Media.SwitchFilterDialogTitle">Филтър</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>

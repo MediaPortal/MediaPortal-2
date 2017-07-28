@@ -479,7 +479,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public abstract bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule);
 
-    public abstract bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule);
+    public abstract bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule);
 
     public abstract bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType);
 

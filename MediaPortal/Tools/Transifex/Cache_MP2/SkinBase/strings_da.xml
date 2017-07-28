@@ -99,9 +99,7 @@
   <string name="Settings.Appearance">Udseende</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datoformat</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datoformat anvendes i skin. Brug formatet specifikation fra .net DateTime class.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Tidsformat</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tidsformat anvendes i skin. Brug formatet specifikation fra .net DateTime class.</string>
   <string name="Settings.General">General</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>

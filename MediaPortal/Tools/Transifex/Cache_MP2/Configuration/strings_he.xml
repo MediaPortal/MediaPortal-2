@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">הגדרות</string>
+  <string name="Configuration.Name.Help">הגדר מקורות מדיה ושנה את המראה והתחושה של מדיה פורטל</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">הגדרות</string>
   <string name="Configuration.MainSettings">הגדרות ראשיות</string>
   <!--2nd Header for root configuration section-->

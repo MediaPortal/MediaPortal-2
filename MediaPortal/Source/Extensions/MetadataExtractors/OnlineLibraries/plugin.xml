@@ -21,10 +21,6 @@
   </Runtime>
 
   <Register Location="/Services">
-    <!--Audio CD Matchers-->
-    <Service Id="CDFreeDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.CDFreeDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.CDFreeDbMatcher"/>
-    
     <!--Movie Matchers-->
     <Service Id="MovieFanArtTvMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieFanArtTvMatcher"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieFanArtTvMatcher"/>
@@ -52,6 +48,8 @@
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFanArtTvMatcher"/>
     <Service Id="MusicTheAudioDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicTheAudioDbMatcher"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicTheAudioDbMatcher"/>
+    <Service Id="MusicFreeDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFreeDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFreeDbMatcher"/>
     
    <!--Geo Location Service-->
     <Service Id="GeoLocationService" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Libraries.IGeoLocationService"

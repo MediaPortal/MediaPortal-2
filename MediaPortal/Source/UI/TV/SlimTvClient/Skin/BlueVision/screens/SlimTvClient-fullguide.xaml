@@ -16,8 +16,17 @@
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
-
     <tv:SlimTvGuideTimeFormatConverter x:Key="SlimTvGuideTimeFormatConverter" />
+
+    <ResourceWrapper x:Key="DynamicMultiGuideHeaderWidth" EnableBindings="True">
+      <ResourceWrapper.Resource>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? 90 : 0) + ({1} ? 110 : 0) + ({2} ? 200 : 0)">
+          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
+          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
+          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+        </MultiBinding>
+      </ResourceWrapper.Resource>
+    </ResourceWrapper>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
@@ -26,7 +35,8 @@
 
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="{ThemeResource GroupButtonWidth}"/>
-          <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
+          <ColumnDefinition Width="{ThemeResource DynamicMultiGuideHeaderWidth}"/>
+          <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -35,10 +45,10 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Rectangle Grid.Column="0" Grid.ColumnSpan="2" Fill="#66000000" Grid.RowSpan="2" Margin="0,0,15,0" RadiusX="16" RadiusY="16" />
-        <Rectangle Grid.Column="2" Fill="#66000000" Grid.RowSpan="2" Margin="0,0,0,0" RadiusX="16" RadiusY="16"/>
+        <Rectangle Grid.Column="0" Fill="#66000000" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="0,0,15,0" RadiusX="16" RadiusY="16" />
+        <Rectangle Grid.Column="2" Fill="#66000000" Grid.ColumnSpan="2" Grid.RowSpan="2" RadiusX="16" RadiusY="16"/>
 
-        <StackPanel x:Name="Groups" Margin="10,10,0,0" Grid.Column="0" Grid.Row="0"
+        <StackPanel x:Name="Groups" Margin="10,10,0,0" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"
             HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
               Command="{Command PrevGroup}">
@@ -50,11 +60,10 @@
             <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
                    Height="20" Stretch="Uniform" Margin="5"/>
           </Button>
-          <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" VerticalAlignment="Center" 
-                 FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}" Margin="7,0,0,0"/>
         </StackPanel>
 
-        <Grid x:Name="EpgTimeGrid" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,10,0,0">
+        <Grid x:Name="EpgTimeGrid" Grid.Column="2" Grid.ColumnSpan="2" 
+              Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,10,0,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
@@ -110,11 +119,12 @@
           </StackPanel>
         </Grid>
 
-        <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5,0,20"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,5,0,20"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HeaderWidth="{StaticResource DynamicMultiGuideHeaderWidth}"/>
 
         <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
         <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <KeyBinding Key="Guide" Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9C3E6701-6856-49ec-A4CD-0CEB15F385F6}" />
       </Grid>
     </ControlTemplate>
 

@@ -655,7 +655,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\BlueVision\sounds\" />
-    <Folder Include="Skin\BlueVision\superlayers\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\master_bare.xaml" />
@@ -1084,10 +1083,34 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\master_bare_players.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\CurrentlyPlayingAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\FullScreenContentAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\default\styles\AudioSpectrumAnalyzer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\superlayers\SkipStepOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="Skin\BlueVision\themes\Win10\screens\SimpleFilterItems.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\AudioSpectrumAnalyzer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

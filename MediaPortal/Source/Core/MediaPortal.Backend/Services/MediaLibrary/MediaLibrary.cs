@@ -2042,10 +2042,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             //Transfer any transient aspects
             TransferTransientAspects(mediaItemAspects, item);
 
-            if (reconcile)
-              Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
+            bool cancel = cancelToken.IsCancellationRequested;
+            try
+            {
+              if (reconcile && !cancel)
+                Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
+            }
+            catch (Exception e)
+            {
+              Logger.Error("MediaLibrary: Error reconciling media item(s) in path '{0}'", e, (path != null ? path.Serialize() : null));
+              cancel = true;
+            }
+            if(cancelToken.IsCancellationRequested)
+              cancel = true;
 
-            if (cancelToken.IsCancellationRequested)
+            if (cancel)
             {
               //Delete media item so it can be reimported later
               transaction = database.BeginTransaction();
@@ -2066,7 +2077,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Logger.Error("MediaLibrary: Error adding or updating media item(s) in path '{0}'", e, (path != null ? path.Serialize() : null));
         transaction.Rollback();
-        throw;
+        return Guid.Empty;
       }
     }
 
@@ -2176,6 +2187,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
           //Already stored
           continue;
+        if (mia.Metadata.IsTransientAspect)
+          continue;
         if (mia.Deleted)
           _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia.Metadata.AspectId);
         else if (wasCreated)
@@ -2249,6 +2262,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       mediaItemAspects = RemoveInverseRelationships(mediaItemAspects);
       foreach (MediaItemAspect mia in mediaItemAspects)
       {
+        if (mia.Metadata.IsTransientAspect)
+          continue;
         if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
           // Simply skip unknown MIA types. All types should have been added before update.
           continue;
@@ -3153,6 +3168,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 if (command.ExecuteNonQuery() > 0)
                 {
                   Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", key.Key, hierarchy.ParentRole, watchPercentage);
+                }
+
+                keyParam.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
+                int watchCount = watchPercentage < 100 ? 0 : 1;
+                command.CommandText = "UPDATE " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
+                  " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = " + watchCount +
+                  " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+                  " AND " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                  " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY";
+                if (command.ExecuteNonQuery() > 0)
+                {
+                  Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch count = {2}", key.Key, hierarchy.ParentRole, watchCount);
                 }
               }
             }

@@ -6,12 +6,11 @@
   <string name="Media.AudioMenuItem">دەنگ</string>
   <string name="Media.VideosMenuItem">ڤیدیۆ</string>
   <string name="Media.ImagesMenuItem">وێنە</string>
-  <!--Filter titles-->
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.GenreMenuItem">جۆر</string>
+  <string name="Media.EpisodeDateMenuItem">زنجیرە</string>
   <string name="Media.SimpleSearchFilterMenuItem">گەڕان</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">پیشاندانی هەمووی</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">پیشاندانی هەمووی</string>
-  <string name="Media.ShowAllImageItemsMenuItem">پیشاندانی هەمووی</string>
-  <string name="Media.ShowAllMoviesMenuItem">پیشاندانی هەمووی</string>
+  <!--Filter titles-->
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">بچووک</string>
   <string name="Media.ImageFilterMedium">مامناوەند</string>
@@ -56,6 +55,7 @@
   <!--Player context names-->
   <string name="Media.AudioContextName">دەنگ</string>
   <!--Video currently playing-->
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->

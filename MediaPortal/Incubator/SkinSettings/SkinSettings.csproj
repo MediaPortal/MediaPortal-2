@@ -59,6 +59,10 @@
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
+      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
+      <Name>SkinEngine</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />

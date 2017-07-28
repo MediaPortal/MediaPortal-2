@@ -33,7 +33,7 @@
         <Label Grid.Row="0" Content="[SlimTvClient.ProgramLabel]" Color="{ThemeResource TextColor}" Wrap="True" Margin="10,10,10,10"/>
         <TextBox Grid.Row="1" Margin="10,10,20,10" Text="{Binding Path=ProgramSearchText,Mode=TwoWay}" PreferredTextLength="10" SetFocusPrio="DefaultHigh"/>
 
-        <ListView Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" 
+        <ListView x:Name="SearchList" Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" 
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SearchProgramListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"
@@ -50,6 +50,27 @@
             </Control.TemplateControl>
           </Control>
         </Grid>
+
+        <!-- Actual Item / Total items -->
+        <DockPanel VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" IsVisible="{Binding IsItemsValid}" Margin="50,-113,25,-10">
+          <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Top">
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="SearchList" Path="CurrentItem"/>
+                  <Binding ElementName="SearchList" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold"/>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold">
+              <Label.Content>
+                <Binding ElementName="SearchList" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+        </DockPanel>
+
       </Grid>
     </ControlTemplate>
   </Include.Resources>

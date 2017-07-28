@@ -95,9 +95,7 @@
   <string name="Settings.Appearance">Väljanägemine</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">kuupäeva kuju</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Skini kuupäeva kuju. Kasutage .net kuupäeva klassi seadeid</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Aja kuju</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Skini aja kuju. Kasutage .net kuupäeva klassi seadeid</string>
   <string name="Settings.General">Üldine</string>
   <string name="Settings.General.System">Süsteem</string>
   <string name="Settings.General.System.Autostart">Autostart</string>

@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Screen saver timeout</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configure the timespan in minutes when the screen saver should be displayed after the last user input</string>
 
-  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing improves the visual GUI quality but can decrease video performance</string>
   <string name="Settings.Appearance.Skin">Skin</string>    <string name="Settings.Appearance.Skin.SkinAndTheme">Skin and theme</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Change skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Change the look&amp;feel of MediaPortal 2</string>

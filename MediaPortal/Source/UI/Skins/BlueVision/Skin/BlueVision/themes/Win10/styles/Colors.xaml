@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
-
   <ResourceWrapper x:Key="Win10_tile" Resource="#0066CC"/>
   <ResourceWrapper x:Key="GrayBackgroundWithBlurBehind" Resource="#CC777777"/>
 
@@ -13,6 +12,7 @@
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
+  <ResourceWrapper x:Key="MediaItemFallbackBackgroundColor" Resource="#404040"/>
   
 
   <!-- Button background and effects-->
@@ -44,6 +44,16 @@
   <ResourceWrapper x:Key="ButtonBackgroundFill" Resource="#80000000"/>
   <ResourceWrapper x:Key="ButtonBackgroundDisabledFill" Resource="#F0101010"/>
   <ResourceWrapper x:Key="ButtonBackgroundFocusFill" Resource="#70136D96"/>
+
+  <ResourceWrapper x:Key="PlayControlsFillBrush">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Offset="0" Color="#E0A0A0A0"/>
+        <GradientStop Offset="0.5" Color="#F0F0F0F0"/>
+        <GradientStop Offset="1" Color="#E0A0A0A0"/>
+      </LinearGradientBrush >
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
 
   <!-- Player control -->
   <ResourceWrapper x:Key="PlayerControlMediaItemColor" Resource="#FF262626"/>

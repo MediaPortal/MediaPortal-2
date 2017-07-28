@@ -366,9 +366,10 @@ namespace MediaPortal.Common.Services.MediaManagement
       IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
       const bool importOnly = false; // Allow extractions with probably longer runtime.
+      const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
       ResourcePath path = mediaItemAccessor.CanonicalLocalResourcePath;
       ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, path);
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, importOnly);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, importOnly, forceQuickMode);
       if (aspects == null)
         // No metadata could be extracted
         return false;

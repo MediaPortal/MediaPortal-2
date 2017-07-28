@@ -73,6 +73,10 @@
       <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>
       <Name>OnlineLibraries</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
+      <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
+      <Name>Media</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\Images\qr.png" />
@@ -88,6 +92,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\themes\default\styles\TraktConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\dialogTraktSetup.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

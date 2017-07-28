@@ -1,6 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Menu items for the five Media navigation parts-->
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.GenreMenuItem">Loại</string>
+  <string name="Media.SystemMenuItem">Hệ thống</string>
+  <string name="Media.EpisodeDateMenuItem">Episode</string>
   <!--Filter titles-->
   <!--Special filters names-->
   <!--Navbar display labels for sub view navigation-->
@@ -27,6 +31,7 @@
   <!--Play items dialog-->
   <!--Player context names-->
   <!--Video currently playing-->
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->

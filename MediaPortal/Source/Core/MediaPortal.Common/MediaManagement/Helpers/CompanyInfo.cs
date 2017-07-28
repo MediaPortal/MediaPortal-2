@@ -259,8 +259,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return AudioDbId == other.AudioDbId;
       if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) && Type == other.Type)
         return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
+
+      //Name id is generated from name and can be unreliable so should only be used if matches
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
+        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Type == other.Type)
         return true;
 

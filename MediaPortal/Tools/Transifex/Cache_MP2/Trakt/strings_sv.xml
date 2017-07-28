@@ -7,6 +7,7 @@
   <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
   <string name="Trakt.PinCode">Tag emot pinkod</string>
   <string name="Trakt.Authorize">Logga in</string>
+  <string name="Trakt.Sync">Synkronisera med trakt</string>
   <string name="Trakt.SyncMovies">Synkroniserar filmer ...</string>
   <string name="Trakt.SyncSeries">Synkroniserar TV-serier...</string>
   <string name="Trakt.SyncFinished">Synkronisering klar!</string>
@@ -16,6 +17,7 @@
   <string name="Trakt.NotAuthorized">Logga in först!</string>
   <string name="Trakt.CheckPin">Kunde inte logga in på trakt. Fel pinkod?</string>
   <string name="Trakt.LoggedIn">Lyckades logga in!</string>
+  <string name="Trakt.UnableLogin">Kunde inte logga in på trakt.</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Inställningar för Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Ange kontouppgifter för Trakt.tv</string>

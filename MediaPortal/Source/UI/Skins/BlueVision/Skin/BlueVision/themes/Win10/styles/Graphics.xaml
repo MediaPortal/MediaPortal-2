@@ -135,6 +135,42 @@
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="RecordControlTemplate">
+    <Grid x:Name="GrowControl" Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\Record.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
+               Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="ChannelUpControlTemplate">
+    <Grid x:Name="GrowControl" Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\Up.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
+               Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="ChannelDownControlTemplate">
+    <Grid x:Name="GrowControl" Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
+      <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >
+        <Border.Background>
+          <SolidColorBrush Color="#333333"/>
+        </Border.Background>
+        <Image Source="PlayerControls.Large\Down.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
+               Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
   <ControlTemplate x:Key="SkipBackControlTemplate">
     <Grid x:Name="GrowControl" Width="72" Height="72" Margin="0,0,0,0" VerticalAlignment="Center">
       <Border Width="72" Height="72" BorderBrush="White" BorderThickness="0" Margin="0" VerticalAlignment="Center" >

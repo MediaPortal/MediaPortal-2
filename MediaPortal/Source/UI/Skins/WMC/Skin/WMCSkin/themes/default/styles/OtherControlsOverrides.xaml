@@ -5,9 +5,11 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:wmc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Controls;assembly=WMCSkin"
     xmlns:wmcc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Converters;assembly=WMCSkin"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     DependsOnStyleResources="Colors,Buttons,Consts,OtherControls,Animations"
     >
 
@@ -22,6 +24,8 @@
   <StringFormatConverter x:Key="StringFormatConverter"/>
   <wmcc:IncludeItemsListActionFilter x:Key="IncludeItemsListActionFilter"/>
   <wmcc:ExcludeItemsListActionFilter x:Key="ExcludeItemsListActionFilter"/>
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
+  <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
 
   <!--
   Workflow ActionIds that will be shown in MediaMenu by default. Other actions are excluded 
@@ -192,7 +196,9 @@
             </Grid.RowDefinitions>
             <!-- Content -->
             <wmc:SubItemsContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
-                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableSubMenuAnimations}">
+                                          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                          EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableSubMenuAnimations}"
+                                          CurrentIndex="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItemIndex, Mode=OneWayToSource}">
               <wmc:SubItemsContentPresenter.Triggers>
                 <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
                   <EventTrigger.Actions>
@@ -275,6 +281,19 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
+      <Grid.Triggers>
+        <!--Triggers the ContentPresenter to auto scroll the item to center-->
+        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+          <DataTrigger.EnterActions>
+            <TriggerCommand>
+              <TriggerCommand.Command>
+                <Command ElementName="ItemControl" Path="BringIntoView"/>
+              </TriggerCommand.Command>
+            </TriggerCommand>
+          </DataTrigger.EnterActions>
+        </DataTrigger>
+      </Grid.Triggers>
+      
       <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" 
              Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8">
         <Image.Source>
@@ -761,34 +780,55 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
+          <Grid x:Name="ProgressBarGrid" HorizontalAlignment="Stretch"
+                UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
+            <Image Source="PlayerControl\seekbarshadow.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="-15,-1,-15,0">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"/>
+                  <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+
+            <Image Source="PlayerControl\seekbardummy.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="-15,-1,-15,0">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"/>
+                  <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+
+            <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                       RadiusX="3.5" RadiusY="3.5" Height="10" Fill="{ThemeResource ProgressBarBackgroundColor}" Opacity="0.8"/>
             
-            <Image Source="PlayerControl\seekbar.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="0,-1,0,0"/>
-            <StackPanel Orientation="Horizontal" Margin="-5,0,5,0">
+            <StackPanel Orientation="Horizontal" Margin="-27,0,-27,0">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
               <Image Source="PlayerControl\Current.Position.Shadow.png" Width="55" Height="55" Stretch="Fill" Margin="-10"
                      VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
             <Grid x:Name="ProgressBarIndicator" HorizontalAlignment="Left" VerticalAlignment="Center">
-              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-90,-85,-70,0" Height="114">
+              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-100,-85,-95,0" Height="114">
                 <Image Source="PlayerControl\Time.Indicator.png" Height="114" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.9"/>
                 <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0" Content="{Binding CurrentTime}" Opacity="0.9"
-                          HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,24" FontFamily="SegoeUIBold"
-                          Color="Black" FontSize="{ThemeResource SmallFontSize}"/>
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,24" FontFamily="SegoeUIBold"
+                       Color="Black" FontSize="{ThemeResource SmallFontSize}"/>
               </Grid>
-              <Rectangle  Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                          RadiusX="3.5" RadiusY="3.5" Height="9" Fill="{ThemeResource ProgressBarFillColor}" Margin="16,0,25,0"/>
+              <Rectangle Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                         RadiusX="3.5" RadiusY="3.5" Height="10" Fill="{ThemeResource ProgressBarFillColor}" Margin="0,0,0,0"/>
             </Grid>
-            <StackPanel Orientation="Horizontal" Margin="-5,0,5,0">
+            <StackPanel Orientation="Horizontal" Margin="-21,0,-21,0">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
                 <Image Source="PlayerControl\Current.Position.png" Width="40" Height="40" Stretch="Fill"
-                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
           </Grid>
         </ControlTemplate>

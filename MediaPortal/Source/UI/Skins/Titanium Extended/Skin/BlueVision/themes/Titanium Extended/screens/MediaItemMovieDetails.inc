@@ -37,12 +37,18 @@
             </Grid.ColumnDefinitions>
 
             <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                                   Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                   Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" >
               <media:UserDataWrapper.Template>
                 <ControlTemplate>
-                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" HorizontalAlignment="Stretch"
                         IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
-                    <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,0,0,0" >
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Fill" Width="95" Height="95" Margin="0,0,0,0" >
                       <Image.Source>
                         <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
                       </Image.Source>
@@ -63,7 +69,8 @@
                 </StarRatingPanel.LayoutTransform>
               </StarRatingPanel>
 
-              <Label x:Name="RatingCountLabel" Color="{ThemeResource EmphasisTextColor}"  Margin="8,0,0,5">
+              <Label x:Name="RatingCountLabel" Color="{ThemeResource EmphasisTextColor}" Margin="8,0,0,5"
+                     IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
                   <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
                 </Label.Content>

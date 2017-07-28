@@ -53,8 +53,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
-    <Reference Include="taglib-sharp, Version=2.1.0.2, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TagLib.2.1.0.2\lib\net45\taglib-sharp.dll</HintPath>
+    <Reference Include="taglib-sharp, Version=2.1.0.3, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TagLib.2.1.0.3\lib\net45\taglib-sharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -63,7 +63,6 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="FanArtHandlers\AudioFanArtHandler.cs" />
-    <Compile Include="MergeHandlers\TrackMergeHandler.cs" />
     <Compile Include="Matchers\AudioCDMatcher.cs" />
     <Compile Include="Metadata\TempAlbumAspect.cs" />
     <Compile Include="Metadata\TempPersonAspect.cs" />
@@ -72,8 +71,8 @@
     <Compile Include="RelationshipExtractors\AlbumArtistRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\AlbumLabelRelationshipExtractor.cs" />
     <Compile Include="Matchers\MusicNameMatcher.cs" />
-    <Compile Include="RelationshipExtractors\AlbumTrackRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\IAudioRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\TrackAlbumArtistRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\TrackComposerRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\TrackArtistRelationshipExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

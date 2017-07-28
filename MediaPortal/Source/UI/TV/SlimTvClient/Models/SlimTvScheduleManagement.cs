@@ -353,8 +353,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IChannel channel;
       if (_tvHandler.ChannelAndGroupInfo.GetChannel(currentSchedule.ChannelId, out channel))
         item.SetLabel("ChannelName", channel.Name);
-      item.SetLabel("StartTime", schedule.StartTime.FormatProgramTime());
-      item.SetLabel("EndTime", schedule.EndTime.FormatProgramTime());
+      item.SetLabel("StartTime", schedule.StartTime.FormatProgramStartTime());
+      item.SetLabel("EndTime", schedule.EndTime.FormatProgramEndTime());
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
       item.AdditionalProperties["SCHEDULE"] = currentSchedule;
       return item;
@@ -448,6 +448,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _startTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
         _endTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
+        _isInitialized = true;
       }
       base.InitModel();
     }

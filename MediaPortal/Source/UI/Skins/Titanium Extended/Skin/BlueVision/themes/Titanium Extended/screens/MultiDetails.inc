@@ -5,13 +5,19 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
-  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,0,0,0"
-  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
     <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
   </Grid.Resources>
 
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+  </Grid.ColumnDefinitions>
+  
   <Control x:Name="AudioDetails">
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">

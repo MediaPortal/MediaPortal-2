@@ -75,6 +75,12 @@
       Name="RecordingsNavigation-Root"
       DisplayLabel="[SlimTvClient.RecordingsMenuItem]"
       WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>   <!-- Workflow model = Media model -->
+    
+    <DialogState Id="DFAFCA6B-92AC-432D-98E7-3E50E3AD2F61"
+      Name="ManualSchedule"
+      DisplayLabel="[SlimTvClient.ManualSchedule]"
+      DialogScreen="SlimTvClient-manualschedule"
+      WorkflowModel="B2428C91-6B70-42E1-9519-1D5AA9D558A3"/>  <!-- Workflow model = SlimTvManualSchedule Model -->
 
   </Register>
 
@@ -95,6 +101,7 @@
   <Builder Name="SlimTvExtensionBuilder" ClassName="MediaPortal.Plugins.SlimTv.Interfaces.Extensions.SlimTvExtensionBuilder"/>
   <Register Location="/SlimTv/Extensions">
     <SlimTvExtensionBuilder Id="{197B0299-B411-4FC7-BA96-765371C77B3B}" Caption="[SlimTvClient.ExtendedSchedule]" ClassName="MediaPortal.Plugins.SlimTv.Client.Extensions.ExtendedSchedule"/>
+    <SlimTvExtensionBuilder Id="{EB212395-2D24-4ECC-A1AB-F30784E1579F}" Caption="[SlimTvClient.CreateManualSchedule]" ClassName="MediaPortal.Plugins.SlimTv.Client.Extensions.ManualSchedule"/>
     <!--
     Morpheus_xx:
     This is an example for adding more actions for programs in TV Guide. Uncomment this item to see the "Example" action added.
@@ -122,6 +129,7 @@
     <Model Id="EB9CB370-9CD6-4D72-8354-73E446104438" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvExtScheduleModel"/>
     <Model Id="71F1D594-21BF-4639-9F8A-3CE8D8170333" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvProgramSearchModel"/>
     <Model Id="7610403A-4488-47A4-8C27-FD1FE833E52B" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvScheduleManagement"/>
+    <Model Id="B2428C91-6B70-42E1-9519-1D5AA9D558A3" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvManualScheduleModel"/>
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
     <Model Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375" Name="ChannelZapModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.ChannelZapModel" />
   </Register>
@@ -132,25 +140,24 @@
 
   <!-- Root Sections -->
   <Register Location="/Configuration/Settings">
-    <ConfigSection
-        Id="Plugins"
-        Redundant="true"
-        Text="[Settings.Plugins]"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Plugins">
-    <ConfigSection
+   <ConfigSection
         Id="TV"
+        Sort="F100"
         Redundant="true"
         Text="[Settings.Plugins.TV]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Plugins/TV">
+  <Register Location="/Configuration/Settings/TV">
     <ConfigSetting
         Id="AutoStartTvSetting"
         Text="[SlimTvClient.AutoStartTv]"
         HelpText="[SlimTvClient.AutoStartTv.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.AutoStartTvSetting"/>
+    <ConfigSetting
+        Id="ZapFromGuideSetting"
+        Text="[SlimTvClient.ZapFromGuide]"
+        HelpText="[SlimTvClient.ZapFromGuide.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ZapFromGuideSetting"/>
     <ConfigSetting
         Id="HideAllChannelsGroupSetting"
         Text="[SlimTvClient.HideAllChannelsGroup]"
@@ -186,5 +193,10 @@
         Text="[SlimTvClient.ZapTimeout]"
         HelpText="[SlimTvClient.ZapTimeout.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ZapTimeoutSetting"/>
+    <ConfigSetting
+        Id="ChannelLogoStyle"
+        Text="[SlimTvClient.ChannelLogoStyle]"
+        HelpText="[SlimTvClient.ChannelLogoStyle.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ChannelLogoStyleSetting"/>
   </Register>
 </Plugin>

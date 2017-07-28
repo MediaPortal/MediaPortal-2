@@ -83,13 +83,8 @@
           </Grid.ColumnDefinitions>
 
           <StackPanel Orientation="Vertical" Grid.RowSpan="2">
-            <StackPanel Orientation="Horizontal">
-              <Label x:Name="ProgramStart" Color="{ThemeResource TextColor}"
-                     Content="{Binding Path=SelectedCurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
-              <!--Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
-              <Label x:Name="ProgramEnd" Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                  Color="{ThemeResource TextColor}"/-->
-            </StackPanel>
+            <!-- Common control for program duration formatting -->
+            <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=SelectedCurrentProgram}" />
             <Label x:Name="Channel" Scroll="Auto" Content="{Binding SelectedChannelName}" Color="{ThemeResource TextColor}"/>
             <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}"
                    Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
@@ -109,7 +104,7 @@
                    Content="{Binding Path=SelectedCurrentProgram.Title}"
                    Color="{ThemeResource TextColor}"/>
             <Label Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" Opacity="0.6"
-                   IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource ReferenceToBoolConverter}}">
+                   IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
               <Label.Content>
                 <Binding Path="SelectedCurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
               </Label.Content>
@@ -117,7 +112,7 @@
           </Grid>
 
           <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 Wrap="True" TextTrimming="WordEllipsis" Opacity="0.6"
+                 Wrap="True" Scroll="Auto" ScrollDelay="5" ScrollSpeed="10" Opacity="0.6"
                  Content="{Binding Path=SelectedCurrentProgram.Description}"
                  Color="{ThemeResource TextColor}" Margin="0,0,0,5" />
         </Grid>

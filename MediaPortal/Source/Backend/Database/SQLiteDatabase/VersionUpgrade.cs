@@ -117,6 +117,10 @@ namespace MediaPortal.Database.SQLite
 
     private void SetCompatibleVersion(VersionInfo versionInfo)
     {
+      // Make sure the directory exists, on fresh installation it could not be created yet.
+      if (!Directory.Exists(_dataDirectory))
+        Directory.CreateDirectory(_dataDirectory);
+
       using (var fileStream = new FileStream(_versionInfoFile, FileMode.Create))
       {
         _serializer.Serialize(fileStream, versionInfo);

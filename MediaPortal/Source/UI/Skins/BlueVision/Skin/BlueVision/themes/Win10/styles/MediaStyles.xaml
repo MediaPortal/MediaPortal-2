@@ -16,8 +16,6 @@
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
   <Model x:Key="GeneralPlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
 
-  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
-
   <!-- 
     Media Navigation styles.
     We provide different control styles for thumbnail list and grid views for each navigation item (filter, audio, video,...).
@@ -132,7 +130,7 @@
         </Label.Opacity>
       </Label>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
+      <!--Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
                Template="{ThemeResource FilterCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -155,7 +153,7 @@
             </ScaleTransform.ScaleY>
           </ScaleTransform>
         </Control.LayoutTransform>
-      </Control>
+      </-->
 
       <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
             HorizontalAlignment="Stretch"
@@ -173,27 +171,34 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3,2,3,2">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" 
+          Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0,0,0,0" Source="Container.png">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.8"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
-      <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
-           Color="Black" FontSize="{ThemeResource TinyFontSize}" Margin="15,0,25,25" />
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border BorderThickness="0" Background="Black" Opacity="0.15" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+        <Label x:Name="ItemLabel" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Scroll="None" ScrollDelay="0"
+               FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25">
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+              <Setter TargetName="ItemLabel" Property="TextTrimming" Value="None"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
+        <Label x:Name="NumItems" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" Margin="15,3,25,25" Opacity="0.6"/>
+      </Grid>
     </Grid>
   </ControlTemplate>
 
@@ -274,7 +279,7 @@
         </Label.Opacity>
       </Label>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
+      <!--Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="8,0,8,0"
                Template="{ThemeResource ContainerCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Control.LayoutTransform>
@@ -297,7 +302,7 @@
             </ScaleTransform.ScaleY>
           </ScaleTransform>
         </Control.LayoutTransform>
-      </Control>
+      </-->
 
       <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
             HorizontalAlignment="Stretch"
@@ -317,25 +322,32 @@
   <ControlTemplate x:Key="GridViewContainerItemTemplate">
     <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" 
           Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Fill" Source="Container.png">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.7"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
-      <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
-           Color="Black" FontSize="{ThemeResource TinyFontSize}" Margin="15,0,25,25" />
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border BorderThickness="0" Background="Black" Opacity="0.15" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+        <Label x:Name="ItemLabel" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Scroll="None" ScrollDelay="0"
+               FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25">
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+              <Setter TargetName="ItemLabel" Property="TextTrimming" Value="None"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
+        <Label x:Name="NumItems" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" Margin="15,3,25,25" Opacity="0.6"/>
+      </Grid>
     </Grid>
   </ControlTemplate>
 
@@ -439,33 +451,47 @@
   
   <ControlTemplate x:Key="GridViewSeriesFilterItemTemplate">
     <Grid Margin="2,2,2,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
-      <Grid>
-        <Border CornerRadius="0" Background="#ff333333" Opacity="1" Margin="0" BorderThickness="0"/>
-        <Image Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}" Stretch="Fill" FallbackSource="VideoWide.png"
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Image x:Name="Thumb" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}" Stretch="Fill"
                HorizontalAlignment="Center" VerticalAlignment="Center">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                       fanart:MaxWidth="{StaticResource MEDIA_BANNER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_BANNER_HEIGHT}"/>
           </Image.Source>
         </Image>
+        <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
 
     <ControlTemplate x:Key="CoverViewSeriesFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" >
-      <Border Background="#BF666666" BorderThickness="0" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}"/>
-      <Image Stretch="Fill" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" 
-             FallbackSource="VideoLarge.png">
+    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}">
+      <Image x:Name="Thumb" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource MEDIA_COVERFLOW_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_COVERFLOW_HEIGHT}"/>
         </Image.Source>
       </Image>
+      <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+             Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
-        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
      
@@ -549,30 +575,44 @@
 
   <ControlTemplate x:Key="GridViewSeriesSeasonFilterItemTemplate">
     <Grid Margin="2,2,2,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
-      <Grid>
-        <Border CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
-        <Image Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}" Stretch="Fill" FallbackSource="VideoWide.png"
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Image x:Name="Thumb" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}" Stretch="Fill"
                HorizontalAlignment="Center" VerticalAlignment="Center">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                       fanart:MaxWidth="{StaticResource MEDIA_BANNER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_BANNER_HEIGHT}"/>
           </Image.Source>
         </Image>
+        <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewSeriesSeasonFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" >
-      <Border Background="#BF666666" BorderThickness="0" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}"/>
-      <Image Stretch="Fill" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" 
-             FallbackSource="VideoLarge.png" >
+    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}">
+      <Image x:Name="Thumb" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource MEDIA_COVERFLOW_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_COVERFLOW_HEIGHT}"/>
         </Image.Source>
       </Image>
+      <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+             Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
         IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
@@ -635,7 +675,8 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewEpisodeItemTemplate">
-    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -643,12 +684,11 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"></Border>
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
-               HorizontalAlignment="Center" VerticalAlignment="Center">
-        </Image>
+        <Image x:Name="Thumb" Source="{Binding MediaItem}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
       </Grid>
+      <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+             Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
@@ -662,19 +702,20 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Grid Grid.Row="1" Background="#BF666666" >
+      <Grid Grid.Row="1" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Image Stretch="Uniform">
+        <Image x:Name="Thumb" Stretch="Uniform">
           <Image.Source>
-            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
-                                Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" />
+            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0" Source="{Binding MediaItem}"/>
           </Image.Source>
         </Image>
+        <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
       </Grid>
@@ -683,33 +724,48 @@
 
   <!-- Movie Collection Filter -->
   <ControlTemplate x:Key="GridViewMovieFilterItemTemplate">
-    <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Grid>
-        <Border CornerRadius="0" Background="#ff333333" Opacity="1" Margin="0" BorderThickness="0"></Border>
-        <Image  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" FallbackSource="VideoLarge.png">
+    <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" 
+          Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Image x:Name="Thumb" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                       fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
           </Image.Source>
         </Image>
+        <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewMovieFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" >
-      <Border Background="#BF666666" BorderThickness="0" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}"/>
-      <Image Stretch="Fill" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" 
-             FallbackSource="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}">
+      <Image x:Name="Thumb" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource MEDIA_COVERFLOW_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_COVERFLOW_HEIGHT}"/>
         </Image.Source>
       </Image>
+      <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+             Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
-        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -776,33 +832,53 @@
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
   <ControlTemplate x:Key="GridViewMovieItemTemplate">
-    <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Grid>
-        <Border CornerRadius="0" Background="#ff333333" Opacity="1" Margin="0" BorderThickness="0"> </Border>
-        <Image  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" FallbackSource="VideoLarge.png">
+    <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Image x:Name="Thumb" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" >
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                       fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
           </Image.Source>
         </Image>
+        <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewMovieItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" >
-      <Border Background="#BF666666" BorderThickness="0" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}"/>
-      <Image Stretch="Fill" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" 
-             FallbackSource="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl" Margin="3" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Image x:Name="Thumb" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource MEDIA_COVERFLOW_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_COVERFLOW_HEIGHT}"/>
         </Image.Source>
       </Image>
+      <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+             Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
-        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -884,21 +960,21 @@
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>  
-      <Grid Grid.Row="1" Background="#BF666666" >
+      </Grid.ColumnDefinitions>
+      <Grid Grid.Row="1" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Border Background="#BF666666" BorderThickness="0" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}"/>
-        <Image Stretch="Uniform">
+        <Image x:Name="Thumb" Stretch="Uniform">
           <Image.Source>
-            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
-                                Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" />
+            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0" Source="{Binding MediaItem}"/>
           </Image.Source>
         </Image>
+        <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>      
       </Grid>
@@ -906,29 +982,30 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewVideoItemTemplate">
-    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
+        <Image x:Name="Thumb" Source="{Binding MediaItem}" Stretch="Uniform" 
                HorizontalAlignment="Center" VerticalAlignment="Center">
         </Image>
       </Grid>
+      <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="VideoCoverTemplate">
     <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Image Height="128" Stretch="Uniform" FallbackSource="VideoNormal.png"
-                 HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" >
-        </Image>
-      </Grid>
+      <Image Height="128" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}">
+      </Image>
+    </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewVideoItemTemplate">
@@ -989,9 +1066,7 @@
 
   <ControlTemplate x:Key="AudioCoverTemplate">
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Image Stretch="Fill" 
-             HorizontalAlignment="Center" VerticalAlignment="Center"
-             Source="{Binding MediaItem}" FallbackSource="Audio_square.png" 
+      <Image Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" 
              Width="{StaticResource MEDIA_THUMB_Audio}" Height="{StaticResource MEDIA_THUMB_Audio}">
       </Image>
     </Grid>
@@ -1068,20 +1143,21 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{ThemeResource MEDIA_THUMB_Audio}"/>
       </Grid.RowDefinitions>
-      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
-      <Grid>
-        <Image x:Name="ItemTypeAudio" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="Audio_square.png">
-        </Image>
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+        <Image x:Name="Thumb" Stretch="Fill" Source="{Binding MediaItem}"/>
+        <Image Stretch="Uniform" Source="1190A648-90F3-413D-88AC-DA89684E9766.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       </Grid>
     </Grid>
   </ControlTemplate>
 
 
   <ControlTemplate x:Key="CoverViewAudioItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" Height="{ThemeResource AUDIO_COVERFLOW}" Width="{ThemeResource AUDIO_COVERFLOW}">
-      <Border Background="#BF666666" BorderThickness="0" Height="{ThemeResource AUDIO_COVERFLOW}" Width="{ThemeResource AUDIO_COVERFLOW}"/>
-      <Image Stretch="Fill" FallbackSource="Audio_square.png" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}">
-      </Image>
+    <Grid x:Name="ItemControl" Margin="3" Height="{ThemeResource AUDIO_COVERFLOW}" Width="{ThemeResource AUDIO_COVERFLOW}"
+          Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+      <Image x:Name="Thumb" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}"/>
+      <Image Stretch="Uniform" Source="1190A648-90F3-413D-88AC-DA89684E9766.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+             Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
@@ -1093,8 +1169,7 @@
 
   <ControlTemplate x:Key="AudioAlbumCoverTemplate">
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Image Stretch="Fill" FallbackSource="Audio_square.png" Margin="0,0,8,0"
-             HorizontalAlignment="Center" VerticalAlignment="Center"
+      <Image Stretch="Fill" Margin="0,0,8,0" HorizontalAlignment="Center" VerticalAlignment="Center"
              Width="{StaticResource MEDIA_THUMB_Audio}" Height="{StaticResource MEDIA_THUMB_Audio}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
@@ -1161,29 +1236,32 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{ThemeResource MEDIA_THUMB_Audio}"/>
       </Grid.RowDefinitions>
-      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
-      <Grid>
-        <Image x:Name="ItemTypeAudio" Stretch="Fill" FallbackSource="Audio_square.png"  >
+      <Grid Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+        <Image x:Name="Thumb" Stretch="Fill">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                       fanart:MaxWidth="{StaticResource MEDIA_THUMB_Audio}" fanart:MaxHeight="{StaticResource MEDIA_THUMB_Audio}"/>
           </Image.Source>
         </Image>
+        <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       </Grid>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewAlbumItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" Height="{ThemeResource AUDIO_COVERFLOW}" Width="{ThemeResource AUDIO_COVERFLOW}">
-      <Border Background="#BF666666" BorderThickness="0" Height="{ThemeResource AUDIO_COVERFLOW}" Width="{ThemeResource AUDIO_COVERFLOW}"/>
-      <Image Stretch="Fill" FallbackSource="Audio_square.png" VerticalAlignment="Center" HorizontalAlignment="Center">
+    <Grid x:Name="ItemControl" Margin="3" Height="{ThemeResource AUDIO_COVERFLOW}" Width="{ThemeResource AUDIO_COVERFLOW}"
+          Background="{ThemeResource MediaItemFallbackBackgroundColor}">
+      <Image x:Name="Thumb" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource AUDIO_COVERFLOW}" fanart:MaxHeight="{StaticResource AUDIO_COVERFLOW}"/>
         </Image.Source>
       </Image>
+      <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+             Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
-        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
   
@@ -1259,23 +1337,25 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewImageItemTemplate"> 
-    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
+  <ControlTemplate x:Key="GridViewImageItemTemplate">
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource MediaItemFallbackBackgroundColor}"
+          Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Border Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
-      <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="Image.png"
-             HorizontalAlignment="Center" VerticalAlignment="Center">
-      </Image>
+      <Image x:Name="Thumb" Source="{Binding MediaItem}" Stretch="Uniform"
+             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Image Stretch="Uniform" Source="E1748A80-347C-4E1A-8A26-DABEC246A540.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+             Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewImageItemTemplate">
-    <Grid Margin="3,2,3,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="{StaticResource MEDIA_COVERFLOW_HEIGHT}" Width="{StaticResource MEDIA_COVERFLOW_WIDTH}">
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+          Height="{StaticResource MEDIA_COVERFLOW_HEIGHT}" Width="{StaticResource MEDIA_COVERFLOW_WIDTH}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
         <RowDefinition Height="Auto"/>
@@ -1283,19 +1363,20 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Grid Grid.Row="1" Background="#BF666666" >
+      <Grid Grid.Row="1" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Image Stretch="Uniform">
+        <Image x:Name="Thumb" Stretch="Uniform">
           <Image.Source>
-            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
-                                Source="{Binding MediaItem}" FallbackSource="Image.png" />
+            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0" Source="{Binding MediaItem}"/>
           </Image.Source>
         </Image>
+        <Image Stretch="Uniform" Source="E1748A80-347C-4E1A-8A26-DABEC246A540.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
       </Grid>
@@ -1307,7 +1388,7 @@
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
   <ControlTemplate x:Key="GridViewPersonFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="2">
+    <Grid x:Name="ItemControl" Margin="2" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{StaticResource MEDIA_THUMB_Audio}"/>
       </Grid.ColumnDefinitions>
@@ -1320,10 +1401,7 @@
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" 
-              IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Opacity="0.2">
-      </Border>
-      <Image Stretch="Uniform" Source="person.png" Margin="0,0,0,25"
+      <Image Stretch="Uniform" Source="person.png" Margin="0,0,0,25" Opacity="0.6"
              IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
       </Image>
       <Grid Width="{StaticResource MEDIA_THUMB_Audio}" VerticalAlignment="Bottom">
@@ -1401,9 +1479,9 @@
       </Image>
       <Border Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" 
               Height="{StaticResource AUDIO_COVERFLOW}" Width="{StaticResource AUDIO_COVERFLOW}"
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Background="#BF666666">
+              IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Background="{ThemeResource MediaItemFallbackBackgroundColor}">
       </Border>
-      <Image Grid.Row="1" Height="{StaticResource AUDIO_COVERFLOW}" Width="{StaticResource AUDIO_COVERFLOW}" Margin="0,0,0,25"
+      <Image Grid.Row="1" Height="{StaticResource AUDIO_COVERFLOW}" Width="{StaticResource AUDIO_COVERFLOW}" Margin="0,0,0,25" Opacity="0.6"
              Source="person.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       <Grid Grid.Row="1" Width="{StaticResource MEDIA_COVER_WIDTH}" VerticalAlignment="Bottom">
         <Grid.ColumnDefinitions>
@@ -1878,18 +1956,8 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
-        <!--Label x:Name="CurrentTimeLabel" Grid.Column="0" Content="{Binding CurrentTime}"
-                        Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                        FontSize="{ThemeResource SmallFontSize}"/-->
-
         <ProgressBar x:Name="ProgressBar" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
-                        Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
-
-        <!--Label x:Name="VideoDurationLabel" Grid.Column="2" Content="{Binding Duration}"
-                        Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                        FontSize="{ThemeResource SmallFontSize}"/-->
-
+                     Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
       </Grid>
     </DockPanel>
   </ControlTemplate>
@@ -1920,15 +1988,15 @@
           <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
                   Command="{Command Previous}"/>
           <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
-                              Command="{Command SeekBackward}"/>
+                  Command="{Command SeekBackward}"/>
           <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                              Command="{Command Play}"/>
+                  Command="{Command Play}"/>
           <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                              Command="{Command Pause}"/>
+                  Command="{Command Pause}"/>
           <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
-                              Command="{Command Stop}"/>
+                  Command="{Command Stop}"/>
           <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
-                              Command="{Command SeekForward}"/>
+                  Command="{Command SeekForward}"/>
           <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
                   Command="{Command Next}"/>
           <DockPanel LastChildFill="False">
@@ -1959,23 +2027,96 @@
     </DockPanel>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="GenericAudioOSDControlsControl">
+    <DockPanel x:Name="PlayControlsPanel" VerticalAlignment="Top" HorizontalAlignment="Stretch" LastChildFill="True">
+
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Context="{Service Window}" HorizontalAlignment="Left">
+        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,0,5,0" Height="71"
+                HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+        <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+      </StackPanel>
+
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <Button x:Name="VolUpButton" Style="{ThemeResource VolUpButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top"/>
+        <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top"/>
+        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="4,9,0,-8">
+          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+        </Grid>
+      </StackPanel>
+
+      <DockPanel LastChildFill="False" Margin="80,0,80,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Left" Margin="0,0,40,0">
+          <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
+                  Command="{Command Previous}"/>
+          <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
+                  Command="{Command SeekBackward}"/>
+          <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
+                  Command="{Command Play}"/>
+          <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
+                  Command="{Command Pause}"/>
+          <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
+                  Command="{Command Stop}"/>
+          <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
+                  Command="{Command SeekForward}"/>
+          <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
+                  Command="{Command Next}"/>
+          <DockPanel LastChildFill="False">
+            <Label DockPanel.Dock="Top" x:Name="DurationLabel" Content="{Binding Duration}" Margin="10,10,20,0"
+                   Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold"/>
+            <Label DockPanel.Dock="Bottom" x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}" Margin="10,0,20,10"
+                   Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="DefaultBold"/>
+          </DockPanel>
+        </StackPanel>
+      </DockPanel>
+    </DockPanel>
+  </ControlTemplate>
+
   <Style x:Key="PrimaryVideoOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-
-          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
-                <Grid>
-                  <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
-                         FallbackSource="{Binding MediaItem}">
+
+                <Grid Grid.Row="1" Grid.RowSpan="2">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+
+                  <!--Poster for movies-->
+                  <Image x:Name="MoviePoster" Stretch="Uniform" FallbackSource="{Binding MediaItem}" Margin="0,20,0,20">
+                    <Image.IsVisible>
+                      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                        <Binding Path="MediaItem" />
+                        <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                      </MultiBinding>
+                    </Image.IsVisible>
                     <Image.Source>
-                      <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem}"
-                          fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster"
+                                                fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
+                                                fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
                     </Image.Source>
                   </Image>
+
+                  <!--Fallback to thumb for other video types-->
+                  <Image x:Name="VideoThumb" Stretch="Uniform" Source="{Binding MediaItem}" Margin="0,20,0,20">
+                    <Image.IsVisible>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {VisibilityEnum}.{Hidden}">
+                        <Binding ElementName="MoviePoster" Path="Visibility"/>
+                      </MultiBinding>
+                    </Image.IsVisible>
+                  </Image>
                 </Grid>
+
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_InfoArea_Template">
@@ -1986,44 +2127,17 @@
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="15"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="150"/>
                   </Grid.RowDefinitions>
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                        FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="DefaultBold" Grid.Row="1"
-                        Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                         FontFamily="DefaultBold" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
 
-                  <media:MediaAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.Column="1" Margin="15,-5,0,0">
-                    <media:MediaAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Label x:Name="Year" FontSize="{ThemeResource SmallerFontSize}"
-                                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                 Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
-                      </ControlTemplate>
-                    </media:MediaAspectWrapper.Template>
-                  </media:MediaAspectWrapper>
-
-                  <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-                    <media:VideoAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                          <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                          </Grid.ColumnDefinitions>
-                          <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                          </Grid.RowDefinitions>
-                          <Label x:Name="StoryPlot" Wrap="True" Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
-                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                 FontSize="{ThemeResource SmallFontSize}"
-                                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                 Content="{Binding Path=StoryPlot}" Color="{ThemeResource TextColor}" />
-                        </Grid>
-                      </ControlTemplate>
-                    </media:VideoAspectWrapper.Template>
-                  </media:VideoAspectWrapper>
+                  <Label x:Name="StoryPlot" Wrap="True" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,-5"
+                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextTrimming="WordEllipsis"
+                         Content="{Binding Path=VideoStoryPlot}" Color="{ThemeResource TextColor}" Opacity="0.6" />
                 </Grid>
               </ControlTemplate>
 
@@ -2037,16 +2151,30 @@
 
             </Control.Resources>
           </Control>
-          <!--<ControlTemplate.Triggers>
-            <Trigger Property="IsCurrentPlayer" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>-->
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
+  </Style>
+
+  <Style x:Key="PrimaryAudioOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Control.Resources>
+
+              <ControlTemplate x:Key="OSD_Progress_Template">
+                <Control Template="{ThemeResource GenericVideoOSDProgressControl}" />
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Controls_Template">
+                <Control Template="{ThemeResource GenericAudioOSDControlsControl}" />
+              </ControlTemplate>
+
+            </Control.Resources>
+          </Control>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

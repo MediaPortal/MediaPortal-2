@@ -204,7 +204,7 @@ public void Init(MediaItem mediaItem)
   TotalRating = (double?) aspect[EpisodeAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[EpisodeAspect.ATTR_RATING_COUNT];
   // Sorting
-  Episode = Episode?.OrderBy(e => e);
+  Episode = Episode?.Distinct()?.OrderBy(e => e);
   DvdEpisode = DvdEpisode?.OrderBy(e => e);
 }
 

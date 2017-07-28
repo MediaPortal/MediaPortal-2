@@ -67,7 +67,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     #endregion
 
     protected FanArtHandlerMetadata _metadata;
-    private SynchronizedCollection<Guid> _checkCache = new SynchronizedCollection<Guid>();
+    private readonly SynchronizedCollection<Guid> _checkCache = new SynchronizedCollection<Guid>();
 
     public MovieFanArtHandler()
     {
@@ -116,7 +116,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           {
             int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
             if (index.HasValue && actors.Count > index.Value && index.Value >= 0)
-              actorMediaItems.Add((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], actors[index.Value]);
+              actorMediaItems[(Guid)relation[RelationshipAspect.ATTR_LINKED_ID]] = actors[index.Value];
           }
         }
       }
@@ -144,7 +144,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         {
           if (!MovieMetadataExtractor.SkipFanArtDownload)
             OnlineMatcherService.Instance.DownloadMovieFanArt(collectionMediaItemId.Value, collectionInfo, forceFanart);
-          _checkCache.Contains(collectionMediaItemId.Value);
+          _checkCache.Add(collectionMediaItemId.Value);
         }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
@@ -243,9 +243,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             return;
 
           MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
-          byte[] binaryData = null;
           foreach (string pattern in patterns.Keys)
           {
+            byte[] binaryData;
             if (mkvReader.GetAttachmentByName(pattern, out binaryData))
             {
               string fanArtType = patterns[pattern];
@@ -255,8 +255,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                   return;
 
                 FanArtCache.InitFanArtCache(mediaItemId, movieTitle);
-                string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
-                  "File." + pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
+                string cacheFile = GetCacheFileName(mediaItemId, fanArtType, "File." + pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
                 if (!File.Exists(cacheFile))
                 {
                   using (MemoryStream ms = new MemoryStream(binaryData))

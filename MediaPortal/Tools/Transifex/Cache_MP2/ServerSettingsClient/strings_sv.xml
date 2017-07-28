@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Serverinställningar</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Enhetsbeteckning för nätverksmappen </string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Konfigurerar enhetsbeteckningar för nätverksmappar på servern</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Loginuppgifter för nätverket</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Konfigurerar användarnamn och lösenord för att komma åt nätverksmappar från servern</string>
   <string name="Settings.ServerSettings.UseCredentials">Använd användarnamn och lösenord för att komma åt nätverket</string>
@@ -19,7 +17,7 @@
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary">Källor på Internet som används vid import av nya media-filer.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary.Help">Välj vilka källor på Internet som ska användas vid import av nya media-filer. Välj bort internet källor för att importen ska gå fortare, men då kan vissa metadata endast bli tillgängliga efter en återimport.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData">Data som ska hämtas från Internet källor.</string>
-  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help">Välj vilka data som ska hämtas från Internet källor.</string>
+  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help">Välj vilka data som ska laddas ner från webben</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.MediaFanArt">Hämta information om ljudfiler(t ex musik) och Fanart</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Media">Hämta endast information om ljudfiler(t ex musik) </string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.FanArt">Hämta endast Fanart för ljudfiler(t ex musik) </string>

@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using System.Linq;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -100,7 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       int count = 0;
       if (!AudioMetadataExtractor.SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_COMPOSER, importOnly);
+        OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_COMPOSER, false, importOnly);
         count = trackInfo.Composers.Where(p => p.HasExternalId).Count();
         if (!trackInfo.IsRefreshed)
           trackInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
@@ -172,7 +173,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
 
       IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(AudioAspect.ATTR_COMPOSERS);
-      List<string> nameList = new List<string>(persons);
+      List<string> nameList = new SafeList<string>(persons);
 
       index = nameList.IndexOf(name);
       return index >= 0;
