@@ -82,7 +82,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public override bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
     {
-      // Don't allow OMDB during first import cycle because it is english only
+      // Don't allow SimApi during first import cycle because it is english only
       // If it was allowed it would prevent the update of metadata with preferred language
       // during refresh cycle that also allows searches which might be needed to find metadata 
       // in the preferred language

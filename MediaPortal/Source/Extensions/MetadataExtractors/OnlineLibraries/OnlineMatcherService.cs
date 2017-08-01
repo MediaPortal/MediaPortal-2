@@ -89,21 +89,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       //Music matchers
       ConfigureMatchers(MUSIC_MATCHERS, settings.MusicMatchers, settings.MusicLanguageCulture);
-      if (settings.MusicGenreMappings.Length == 0)
-        settings.MusicGenreMappings = OnlineLibrarySettings.DEFAULT_MUSIC_GENRES;
-      MUSIC_GENRE_MAP = new List<GenreMapping>(settings.MusicGenreMappings);
 
       //Movie matchers
       ConfigureMatchers(MOVIE_MATCHERS, settings.MovieMatchers, settings.MovieLanguageCulture);
-      if (settings.MovieGenreMappings.Length == 0)
-        settings.MovieGenreMappings = OnlineLibrarySettings.DEFAULT_MOVIE_GENRES;
-      MOVIE_GENRE_MAP = new List<GenreMapping>(settings.MovieGenreMappings);
 
       //Series matchers
       ConfigureMatchers(SERIES_MATCHERS, settings.SeriesMatchers, settings.SeriesLanguageCulture);
-      if (settings.SeriesGenreMappings.Length == 0)
-        settings.SeriesGenreMappings = OnlineLibrarySettings.DEFAULT_SERIES_GENRES;
-      SERIES_GENRE_MAP = new List<GenreMapping>(settings.SeriesGenreMappings);
     }
 
     protected void ConfigureMatchers<T>(ICollection<T> matchers, ICollection<MatcherSetting> settings, string languageCulture) where T : IMatcher
