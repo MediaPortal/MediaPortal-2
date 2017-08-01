@@ -15,8 +15,6 @@
   <string name="Media.ImagesMenuItem">Images</string>
   <string name="Media.ImagesMenuItem.Help">Browse the media library for images. Get additional information as locations, year and image details. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.LatestMediaMenuItem">Latest media</string>
-  <string name="Media.LastWatchedMediaMenuItem">Last watched media</string>
-  <string name="Media.FavoriteMediaMenuItem">Favorite media</string>
   
   <!-- General strings used in filter/sort/group menus -->
   <string name="Media.NameMenuItem">Name</string>
@@ -131,8 +129,6 @@
   <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Movies library</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Image library</string>
   <string name="Media.LatestMediaWorkflowNavigationContextDisplayLabel">Latest media</string>
-  <string name="Media.LastWatchedMediaWorkflowNavigationContextDisplayLabel">Last watched media</string>
-  <string name="Media.FavoriteMediaWorkflowNavigationContextDisplayLabel">Favorite media</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Current video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Fullscreen video</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Current audio</string>
