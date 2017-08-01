@@ -56,6 +56,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       public List<string> LastUpdatedEpisodes { get; set; }
     }
 
+    protected readonly object _initSyncObj = new object();
+    protected bool _isInit = false;
+
     #region Init
 
     public SeriesMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
@@ -81,21 +84,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!_enabled)
         return false;
 
-      if (_wrapper != null)
-        return true;
-
-      if (!base.Init())
-        return false;
-
-      LoadConfig();
-
-      if (InitWrapper(UseSecureWebCommunication))
+      lock (_initSyncObj)
       {
-        if (_wrapper != null)
-          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
-        return true;
+        if (_isInit)
+          return true;
+
+        if (!base.Init())
+          return false;
+
+        LoadConfig();
+
+        if (InitWrapper(UseSecureWebCommunication))
+        {
+          if (_wrapper != null)
+            _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+          _isInit = true;
+          return true;
+        }
+        return false;
       }
-      return false;
     }
 
     private void LoadConfig()
@@ -1402,7 +1409,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<SeriesInfo> GetLastChangedSeries()
     {
       List<SeriesInfo> series = new List<SeriesInfo>();
-      foreach(string id in _config.LastUpdatedSeries)
+
+      if (!Init())
+        return series;
+
+      foreach (string id in _config.LastUpdatedSeries)
       {
         SeriesInfo s = new SeriesInfo();
         if (SetSeriesId(s, id) && !series.Contains(s))
@@ -1413,6 +1424,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedSeries()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedSeries.Clear();
       SaveConfig();
     }
@@ -1420,6 +1434,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<EpisodeInfo> GetLastChangedEpisodes()
     {
       List<EpisodeInfo> episodes = new List<EpisodeInfo>();
+
+      if (!Init())
+        return episodes;
+
       foreach (string id in _config.LastUpdatedEpisodes)
       {
         EpisodeInfo e = new EpisodeInfo();
@@ -1431,6 +1449,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedEpisodes()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedEpisodes.Clear();
       SaveConfig();
     }
@@ -1462,6 +1483,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
+      if (!Init())
+        return false;
+
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
       if (info is SeriesInfo)

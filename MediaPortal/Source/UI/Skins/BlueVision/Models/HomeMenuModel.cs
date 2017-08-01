@@ -352,7 +352,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         if (_menuSettings != null)
         {
           CreateRegularGroupItems();
-          CreateShortcutItems();
+          CreateShortcutItems(_mainMenuGroupList);
           SetFallbackSelection();
         }
       }
@@ -394,19 +394,42 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         return;
 
       // Do not remove the "CP" button, because when the WF state is active, the menu item will not be part of available menu items.
-      if (!IsCurrentPlaying())
-      {
-        foreach (var shortutItem in _mainMenuGroupList.Where(groupItem => ((GroupMenuListItem)groupItem).AdditionalProperties.ContainsKey("ActionId")).ToList())
-        {
-          _mainMenuGroupList.Remove(shortutItem);
-        }
-      }
+      bool includeCurrentlyPlaying = !IsCurrentPlaying();
+      var currentShortcuts = _mainMenuGroupList.Where(groupItem => IsShortcutItem(groupItem, includeCurrentlyPlaying)).ToList();
+      //Get new shortcuts
+      var newShortcuts = new List<ListItem>();
+      CreateShortcutItems(newShortcuts);
 
-      CreateShortcutItems();
+      //if shortcuts haven't changed just return to avoid unnecessary menu updates
+      if (ShortcutsAreEqual(currentShortcuts, newShortcuts))
+        return;
+
+      //remove old shortcuts
+      foreach (var item in currentShortcuts)
+        _mainMenuGroupList.Remove(item);
+
+      //add new shortcuts
+      foreach (var item in newShortcuts)
+        _mainMenuGroupList.Add(item);
+
       _mainMenuGroupList.FireChange();
     }
 
-    private void CreateShortcutItems()
+    private bool IsShortcutItem(ListItem item, bool includeCurrentlyPlaying)
+    {
+      return item.AdditionalProperties.ContainsKey("ActionId") &&
+        (includeCurrentlyPlaying || !string.Equals(item.AdditionalProperties["Id"] as string, MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase));
+    }
+
+    protected bool ShortcutsAreEqual(ICollection<ListItem> currentShortcuts, ICollection<ListItem> newShortcuts)
+    {
+      if (currentShortcuts.Count != newShortcuts.Count)
+        return false;
+      var ids = currentShortcuts.Select(cs => cs.AdditionalProperties["Id"] as string).ToList();
+      return newShortcuts.All(ns => ids.Contains(ns.AdditionalProperties["Id"] as string));
+    }
+
+    private void CreateShortcutItems(ICollection<ListItem> itemsList)
     {
       foreach (var menuItem in MenuItems)
       {
@@ -432,7 +455,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
         groupItem.AdditionalProperties["Id"] = groupId;
         groupItem.AdditionalProperties["ActionId"] = wfAction.ActionId;
-        _mainMenuGroupList.Add(groupItem);
+        itemsList.Add(groupItem);
       }
     }
 

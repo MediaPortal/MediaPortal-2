@@ -86,39 +86,36 @@ namespace MediaPortal.Extensions.OnlineLibraries
     private void LoadSettings()
     {
       OnlineLibrarySettings settings = ServiceRegistration.Get<ISettingsManager>().Load<OnlineLibrarySettings>();
-      foreach (MatcherSetting setting in settings.MusicMatchers)
-      {
-        IMusicMatcher matcher = MUSIC_MATCHERS.Find(m => m.Id.Equals(setting.Id, StringComparison.InvariantCultureIgnoreCase));
-        if (matcher != null)
-        {
-          matcher.Primary = setting.Primary;
-          matcher.Enabled = setting.Enabled;
-          matcher.PreferredLanguageCulture = settings.MusicLanguageCulture;
-          matcher.Init();
-        }
-      }
 
-      foreach (MatcherSetting setting in settings.MovieMatchers)
-      {
-        IMovieMatcher matcher = MOVIE_MATCHERS.Find(m => m.Id.Equals(setting.Id, StringComparison.InvariantCultureIgnoreCase));
-        if (matcher != null)
-        {
-          matcher.Primary = setting.Primary;
-          matcher.Enabled = setting.Enabled;
-          matcher.PreferredLanguageCulture = settings.MovieLanguageCulture;
-          matcher.Init();
-        }
-      }
+      //Music matchers
+      ConfigureMatchers(MUSIC_MATCHERS, settings.MusicMatchers, settings.MusicLanguageCulture);
+      if (settings.MusicGenreMappings.Length == 0)
+        settings.MusicGenreMappings = OnlineLibrarySettings.DEFAULT_MUSIC_GENRES;
+      MUSIC_GENRE_MAP = new List<GenreMapping>(settings.MusicGenreMappings);
 
-      foreach (MatcherSetting setting in settings.SeriesMatchers)
+      //Movie matchers
+      ConfigureMatchers(MOVIE_MATCHERS, settings.MovieMatchers, settings.MovieLanguageCulture);
+      if (settings.MovieGenreMappings.Length == 0)
+        settings.MovieGenreMappings = OnlineLibrarySettings.DEFAULT_MOVIE_GENRES;
+      MOVIE_GENRE_MAP = new List<GenreMapping>(settings.MovieGenreMappings);
+
+      //Series matchers
+      ConfigureMatchers(SERIES_MATCHERS, settings.SeriesMatchers, settings.SeriesLanguageCulture);
+      if (settings.SeriesGenreMappings.Length == 0)
+        settings.SeriesGenreMappings = OnlineLibrarySettings.DEFAULT_SERIES_GENRES;
+      SERIES_GENRE_MAP = new List<GenreMapping>(settings.SeriesGenreMappings);
+    }
+
+    protected void ConfigureMatchers<T>(ICollection<T> matchers, ICollection<MatcherSetting> settings, string languageCulture) where T : IMatcher
+    {
+      foreach (MatcherSetting setting in settings)
       {
-        ISeriesMatcher matcher = SERIES_MATCHERS.Find(m => m.Id.Equals(setting.Id, StringComparison.InvariantCultureIgnoreCase));
+        IMatcher matcher = matchers.FirstOrDefault(m => m.Id.Equals(setting.Id, StringComparison.OrdinalIgnoreCase));
         if (matcher != null)
         {
           matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
-          matcher.PreferredLanguageCulture = settings.SeriesLanguageCulture;
-          matcher.Init();
+          matcher.PreferredLanguageCulture = languageCulture;
         }
       }
     }
