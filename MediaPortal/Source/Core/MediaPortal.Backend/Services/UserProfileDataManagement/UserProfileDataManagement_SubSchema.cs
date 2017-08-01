@@ -50,7 +50,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     internal const string USER_PROFILE_ID_COL_NAME = "PROFILE_ID";
     internal const string USER_DATA_KEY_COL_NAME = "DATA_KEY";
     internal const string USER_DATA_VALUE_COL_NAME = "MEDIA_ITEM_DATA";
-    internal const string USER_DATA_VALUE_NO_COL_NAME = "VALUE_NO";
+    internal const string USER_DATA_VALUE_NO_COL_NAME = "DATA_NO";
     internal const string USER_ADDITIONAL_DATA_VALUE_COL_NAME = "ADDITIONAL_DATA";
 
     #endregion
@@ -287,7 +287,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string dataKey, out int dataNoIndex, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT VALUE_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY";
+      result.CommandText = "SELECT DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
