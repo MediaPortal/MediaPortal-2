@@ -29,8 +29,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.Login
 {

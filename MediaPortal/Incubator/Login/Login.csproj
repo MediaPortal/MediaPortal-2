@@ -69,19 +69,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
-    <Content Include="Skin\default\workflow\login-actions.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
-  <ItemGroup>
-    <Folder Include="Skin\default\themes\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\Login.xaml" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>
