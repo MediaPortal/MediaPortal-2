@@ -171,8 +171,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary MIA, so optimize redundant entry
           continue;
-        if (!Include(miaType))
-          continue;
+
         TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
         miaTypeTableQueries.Add(miaType, tqd);
         RequestedAttribute ra;
@@ -200,8 +199,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary or optional MIA, so optimize redundant entry
           continue;
-        if (!Include(miaType))
-            continue;
         TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
         miaTypeTableQueries.Add(miaType, tqd);
         tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqd,
@@ -214,8 +211,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       foreach (QueryAttribute attr in _selectAttributes)
       {
         if (attr.Attr.ParentMIAM.IsTransientAspect)
-          continue;
-        if (!Include(attr.Attr.ParentMIAM))
           continue;
         RequestedAttribute ra;
         RequestSimpleAttribute(attr, tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes, miaTypeTableQueries,
@@ -236,8 +231,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         if (attr.Attr.ParentMIAM.IsTransientAspect)
           continue;
-        if (!Include(attr.Attr.ParentMIAM))
-          continue;
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
         // Tables of Inline and MTO attributes, which are part of a filter, are joined with main table
@@ -252,8 +245,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         foreach (SortInformation sortInformation in _sortInformation)
         {
           if (sortInformation.AttributeType.ParentMIAM.IsTransientAspect)
-            continue;
-          if (!Include(sortInformation.AttributeType.ParentMIAM))
             continue;
           MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
           if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
@@ -358,8 +349,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     {
       return new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
     }
-
-    protected abstract bool Include(MediaItemAspectMetadata miam);
 
     /// <summary>
     /// Generates the SQL statement for the underlaying query specification.
