@@ -40,6 +40,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -129,6 +130,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
+    private Regex seriesTitleYearRegex = new Regex(@"(?<title>.*)\((?<year>\d{4})\)", RegexOptions.IgnoreCase);
 
     protected override string MatchesSettingsFile
     {
@@ -362,6 +364,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (matchFound && episodeMatch != null)
         {
+          string title;
+          int year;
+          if(!episodeMatch.SeriesName.IsEmpty && TryFixTitle(episodeMatch.SeriesName.Text, out title, out year))
+          {
+            episodeMatch.SeriesName.Text = title;
+            if(!episodeMatch.SeriesFirstAired.HasValue)
+            {
+              episodeMatch.SeriesFirstAired = new DateTime(year, 1, 1);
+            }
+          }
+
           MergeEpisodes(episodeInfo, episodeMatch);
 
           //Store person matches
@@ -541,6 +554,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             seriesInfo.HasChanged = true;
           }
 
+          string title;
+          int year;
+          if (!seriesMatch.SeriesName.IsEmpty && TryFixTitle(seriesMatch.SeriesName.Text, out title, out year))
+          {
+            seriesMatch.SeriesName.Text = title;
+            if (!seriesMatch.FirstAired.HasValue)
+            {
+              seriesMatch.FirstAired = new DateTime(year, 1, 1);
+            }
+          }
+
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvdbId, seriesMatch.TvdbId);
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.ImdbId, seriesMatch.ImdbId);
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.MovieDbId, seriesMatch.MovieDbId);
@@ -697,6 +721,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          string title;
+          int year;
+          if (!seasonMatch.SeriesName.IsEmpty && TryFixTitle(seasonMatch.SeriesName.Text, out title, out year))
+          {
+            seasonMatch.SeriesName.Text = title;
+          }
+
           seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvdbId, seasonMatch.TvdbId);
           seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.ImdbId, seasonMatch.ImdbId);
           seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.MovieDbId, seasonMatch.MovieDbId);
@@ -1380,6 +1411,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #endregion
 
     #region Metadata update helpers
+
+    private bool TryFixTitle(string seriesTitle, out string title, out int year)
+    {
+      title = null;
+      year = 0;
+
+      Match match = seriesTitleYearRegex.Match(seriesTitle);
+      if(match.Success)
+      {
+        if(int.TryParse(match.Groups["year"].Value, out year) && year > 1900)
+        {
+          title = match.Groups["title"].Value.Trim();
+          return true;
+        }
+      }
+      return false;
+    }
 
     private void StoreSeriesMatch(SeriesInfo seriesSearch, SeriesInfo seriesMatch)
     {
