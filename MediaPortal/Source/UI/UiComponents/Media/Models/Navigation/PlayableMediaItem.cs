@@ -63,14 +63,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (!_mediaItem.Equals(mediaItem))
         throw new ArgumentException("Update can only be done for the same MediaItem!", "mediaItem");
 
-      int? currentPlayCount = null;
       SingleMediaItemAspect mediaAspect;
       if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
       {
         Title = (string)mediaAspect[MediaAspect.ATTR_TITLE];
         SortString = (string)mediaAspect[MediaAspect.ATTR_SORT_TITLE];
         Rating = (int?)mediaAspect[MediaAspect.ATTR_RATING] ?? 0;
-        currentPlayCount = (int?)mediaAspect[MediaAspect.ATTR_PLAYCOUNT] ?? 0;
         Virtual = (bool?)mediaAspect[MediaAspect.ATTR_ISVIRTUAL];
       }
 
@@ -123,8 +121,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           TimeSpan resumePosition = positionResume.ResumePosition;
           if (duration.Value.TotalSeconds > 0)
             WatchPercentage = ((int)(resumePosition.TotalSeconds * 100 / duration.Value.TotalSeconds)).ToString();
-          else if (currentPlayCount > 0)
-            WatchPercentage = "100";
           else
             WatchPercentage = "0";
         }
@@ -133,10 +129,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
       {
         PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
-      }
-      else if(currentPlayCount.HasValue)
-      {
-        PlayCount = currentPlayCount.Value;
       }
 
       FireChange();

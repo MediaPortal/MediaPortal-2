@@ -2176,6 +2176,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           // Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update ImporterAspect");
         }
       }
+
+      int? playCount = null;
       foreach (MediaItemAspect mia in mediaItemAspects)
       {
         if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
@@ -2195,6 +2197,32 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia, true);
         else
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
+
+        if(mia.Metadata.AspectId == MediaAspect.ASPECT_ID)
+        {
+          playCount = mia.GetAttributeValue<int?>(MediaAspect.ATTR_PLAYCOUNT);
+        }
+      }
+
+      //Check if user watch count need to be updated
+      if (wasCreated && playCount.HasValue && playCount.Value > 0)
+      {
+        //Update user watch data
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          command.CommandText = "INSERT INTO USER_MEDIA_ITEM_DATA (PROFILE_ID, MEDIA_ITEM_ID, DATA_KEY, MEDIA_ITEM_DATA) " +
+            "SELECT PROFILE_ID, @MEDIA_ITEM_ID, @DATA_KEY, @MEDIA_ITEM_DATA FROM USER_PROFILES";
+          database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId.Value, typeof(Guid));
+          IDbDataParameter dataKey = database.AddParameter(command, "DATA_KEY", UserDataKeysKnown.KEY_PLAY_PERCENTAGE, typeof(string));
+          IDbDataParameter dataValue = database.AddParameter(command, "MEDIA_ITEM_DATA", "100", typeof(string));
+          command.ExecuteNonQuery();
+          dataKey.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
+          dataValue.Value = playCount.Value.ToString();
+          command.ExecuteNonQuery();
+        }
+
+        //Update parent watch data
+        UpdateAllParentPlayUserData(database, transaction, mediaItemId.Value);
       }
 
       Logger.Info("Media item {0} with name {1} ({2}) added/updated ({3} ms)", mediaItemId.Value, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
