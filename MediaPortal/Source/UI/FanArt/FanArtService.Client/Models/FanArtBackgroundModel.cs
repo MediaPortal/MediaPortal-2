@@ -22,23 +22,22 @@
 
 #endregion
 
-using System;
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UI.SkinEngine.Controls.ImageSources;
-using MediaPortal.UiComponents.Media.Models.Navigation;
-using MediaPortal.UI.SkinEngine.MpfElements;
-using System.Collections.Generic;
-using MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Exceptions;
-using MediaPortal.Common.FanArt;
+using MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.SkinEngine.Controls.ImageSources;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 {
@@ -88,7 +87,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new[] { WorkflowManagerMessaging.CHANNEL });
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { ScreenManagerMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -103,12 +102,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      if (message.ChannelName == ScreenManagerMessaging.CHANNEL)
       {
-        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
+        ScreenManagerMessaging.MessageType messageType = (ScreenManagerMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
-          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+          case ScreenManagerMessaging.MessageType.ShowScreen:
             SelectedItem = null; // Clear current data for new screen
             break;
         }
