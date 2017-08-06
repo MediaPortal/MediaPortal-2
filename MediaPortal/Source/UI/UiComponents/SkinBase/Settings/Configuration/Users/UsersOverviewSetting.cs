@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -22,18 +22,11 @@
 
 #endregion
 
-using System;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.Common.UserProfileDataManagement
+namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares
 {
-  public class UserDataKeysKnown
+  public class UsersOverviewSetting : CustomConfigSetting
   {
-    public const string KEY_PLAY_COUNT = "PlayCount";
-    public const string KEY_PLAY_PERCENTAGE = "PlayPercentage";
-    public const string KEY_PLAY_DATE = "PlayDate";
-    public const string KEY_ALLOWED_SHARE = "AllowedShare";
-    public const string KEY_ALLOWED_AGE_RATING = "AllowedAgeRating";
-    public const string KEY_ALLOW_PARENT_GUIDE_AGE_RATING = "AllowParentalGuideAgeRating";
-    public const string KEY_AGE_RATING_SYSTEM_COUNTRY = "AgeRatingSystemCountry";
   }
 }

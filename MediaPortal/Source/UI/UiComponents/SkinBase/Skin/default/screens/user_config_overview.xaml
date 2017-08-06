@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[UserConfig.UserConfiguration.Title]"/>
+
+    <!-- User configuration model -->
+    <Model x:Key="Model" Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <UniformGrid Columns="1" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Row="0" Margin="10" Content="[UserConfig.Users]" Color="{ThemeResource TextColor}"/>
+          <ListView Name="ServerSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource SharesConfigListViewStyle}"
+              IsVisible="{Binding IsHomeServerConnected}"
+              ItemsSource="{Binding Path=UserList,Mode=OneTime}"/>
+          <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
+              Content="[UserConfig.NoConfigUserHomeServerNotConnected]" Wrap="true"
+              Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        </Grid>
+      </UniformGrid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
