@@ -157,9 +157,9 @@ namespace Test.Backend
 
       Assert.AreEqual(new List<object> {
         "test"," IN(",
-        "SELECT R1.","MEDIA_ITEM_ID"," FROM ","M_RELATIONSHIP"," R1"," WHERE R1.LINKEDID","=@V0"," AND R1.","ROLE","=@V1"," AND R1.","LINKEDROLE","=@V2",
+        "SELECT R1.","MEDIA_ITEM_ID"," FROM ","M_RELATIONSHIP"," R1"," WHERE"," R1.","LINKEDID","=@V0"," AND"," R1.","ROLE","=@V1"," AND"," R1.","LINKEDROLE","=@V2",
         " UNION ",
-        "SELECT R2.","LINKEDID"," FROM ","M_RELATIONSHIP"," R2"," WHERE R2.MEDIA_ITEM_ID","=@V0"," AND R2.","LINKEDROLE","=@V1"," AND R2.","ROLE","=@V2",")"
+        "SELECT R1.","LINKEDID"," FROM ","M_RELATIONSHIP"," R1"," WHERE"," R1.","MEDIA_ITEM_ID","=@V0"," AND"," R1.","LINKEDROLE","=@V1"," AND"," R1.","ROLE","=@V2",")"
         }, parts, "Parts");
 
       Assert.AreEqual(new List<BindVar>
@@ -319,8 +319,8 @@ namespace Test.Backend
       Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
       Assert.AreEqual(new Dictionary<QueryAttribute, string>(), attributeAliases, "Attribute aliases");
       Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
-        " WHERE T0.MEDIA_ITEM_ID IN(SELECT R1.MEDIA_ITEM_ID FROM M_RELATIONSHIP R1 WHERE R1.LINKEDID=@V0 AND R1.ROLE=@V1 AND R1.LINKEDROLE=@V2 UNION SELECT R2.LINKEDID "+
-        "FROM M_RELATIONSHIP R2 WHERE R2.MEDIA_ITEM_ID=@V0 AND R2.LINKEDROLE=@V1 AND R2.ROLE=@V2)", statementStr, "Statement");
+        " WHERE T0.MEDIA_ITEM_ID IN(SELECT R1.MEDIA_ITEM_ID FROM M_RELATIONSHIP R1 WHERE R1.LINKEDID=@V0 AND R1.ROLE=@V1 AND R1.LINKEDROLE=@V2 " +
+        "UNION SELECT R1.LINKEDID FROM M_RELATIONSHIP R1 WHERE R1.MEDIA_ITEM_ID=@V0 AND R1.LINKEDROLE=@V1 AND R1.ROLE=@V2)", statementStr, "Statement");
       Assert.AreEqual(new List<BindVar>
             {
                 new BindVar("V0", movieId, typeof(Guid)),

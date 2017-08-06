@@ -120,7 +120,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         }
 
         if (albumChangedFilter != null)
-          filters.Add(new FilteredRelationshipFilter(AudioAspect.ROLE_TRACK, albumChangedFilter), 1);
+          filters.Add(new FilteredRelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, albumChangedFilter), 1);
       }
 
       //Add filters for changed audio tracks
