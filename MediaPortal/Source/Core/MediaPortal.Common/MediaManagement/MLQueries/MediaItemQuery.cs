@@ -71,6 +71,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]
     [XmlElement("FilterRelationship", typeof(FilteredRelationshipFilter))]
+    [XmlElement("CertificationAge", typeof(CertificationAgeFilter))]
     public object XML_Filter
     {
       get { return _filter; }
@@ -298,6 +299,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]
     [XmlElement("FilterRelationship", typeof(FilteredRelationshipFilter))]
+    [XmlElement("CertificationAge", typeof(CertificationAgeFilter))]
     // Necessary to have an object here, else the serialization algorithm cannot cope with polymorph values
     public object XML_Filter
     {

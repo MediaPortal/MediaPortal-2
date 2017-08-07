@@ -114,6 +114,7 @@
     <Compile Include="MediaManagement\MLQueries\DataSortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AttributeSortInformation.cs" />
+    <Compile Include="MediaManagement\MLQueries\CertificationAgeFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\ISortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
