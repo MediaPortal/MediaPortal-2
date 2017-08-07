@@ -35,6 +35,8 @@ namespace MediaPortal.Common.Certifications
     private static readonly List<CertificationMapping> SERIES_CERTIFICATION_MAP = new List<CertificationMapping>();
     private static string DEFAULT_COUNTRY = "US";
 
+    public const int MAX_AGE = 18;
+
     static CertificationMapper()
     {
       MOVIE_CERTIFICATION_MAP = new List<CertificationMapping>()
@@ -61,7 +63,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("GB_12", "GB", "12", 12, 12, "12", "Rated 12"),
         new CertificationMapping("GB_15", "GB", "15", 15, 15, "15", "Rated 15"),
         new CertificationMapping("GB_18", "GB", "18", 18, 18, "18", "Rated 18"),
-        new CertificationMapping("GB_R18", "GB", "R18", 25, 18, "R18", "Rated R18"),
+        new CertificationMapping("GB_R18", "GB", "R18", 18, 18, "R18", "Rated R18"),
 
         //RU
         new CertificationMapping("RU_Y", "RU", "Y", 0, 0, "Y", "0+" ),
@@ -125,8 +127,8 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("AU_M", "AU", "M", 15, 0, "M" ),
         new CertificationMapping("AU_MA15", "AU", "MA15+", 15, 15, "MA15+" ),
         new CertificationMapping("AU_R18", "AU", "R18+", 18, 18, "R18+" ),
-        new CertificationMapping("AU_X18", "AU", "X18+", 25, 18, "X18+" ),
-        new CertificationMapping("AU_RC", "AU", "RC", 25, 25, "RC" ),
+        new CertificationMapping("AU_X18", "AU", "X18+", 18, 18, "X18+" ),
+        new CertificationMapping("AU_RC", "AU", "RC", 18, 18, "RC" ),
 
         //CZ
         new CertificationMapping("CZ_U", "CZ", "U", 0, 0, "U" ),
@@ -134,14 +136,14 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("CZ_12", "CZ", "12", 12, 12, "12" ),
         new CertificationMapping("CZ_15", "CZ", "15", 15, 15, "15" ),
         new CertificationMapping("CZ_18", "CZ", "18", 18, 18, "18" ),
-        new CertificationMapping("CZ_E", "CZ", "E", 25, 25, "E" ),
+        new CertificationMapping("CZ_E", "CZ", "E", 18, 18, "E" ),
 
         //DK
         new CertificationMapping("DK_A", "DK", "A", 0, 0, "A" ),
         new CertificationMapping("DK_7", "DK", "7", 7, 0, "7" ),
         new CertificationMapping("DK_11", "DK", "11", 11, 11, "11" ),
         new CertificationMapping("DK_15", "DK", "15", 15, 15, "15" ),
-        new CertificationMapping("DK_F", "DK", "F", 25, 25, "F" ),
+        new CertificationMapping("DK_F", "DK", "F", 18, 18, "F" ),
 
         //EE
         new CertificationMapping("EE_PERE", "EE", "PERE", 0, 0, "PERE" ),
@@ -166,7 +168,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("FI_12", "FI", "12", 12, 12, "12", "K-12" ),
         new CertificationMapping("FI_16", "FI", "16", 16, 16, "16", "K-16" ),
         new CertificationMapping("FI_18", "FI", "18", 18, 18, "18", "K-18" ),
-        new CertificationMapping("FI_KK", "FI", "KK", 25, 18, "KK" ),
+        new CertificationMapping("FI_KK", "FI", "KK", 18, 18, "KK" ),
 
         //HU
         new CertificationMapping("HU_KN", "HU", "KN", 0, 0, "KN" ),
@@ -208,7 +210,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("NZ_RP13", "NZ", "RP13", 13, 0, "RP13" ),
         new CertificationMapping("NZ_RP16", "NZ", "RP16", 16, 0, "RP16" ),
         new CertificationMapping("NZ_RP18", "NZ", "RP18", 18, 0, "RP18" ),
-        new CertificationMapping("NZ_R", "NZ", "R", 25, 18, "R" ),
+        new CertificationMapping("NZ_R", "NZ", "R", 18, 18, "R" ),
 
         //NO
         new CertificationMapping("NO_A", "NO", "A", 0, 0, "A" ),
@@ -234,7 +236,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("RO_12", "RO", "12", 12, 0, "12", "AP-12", "AP12" ),
         new CertificationMapping("RO_15", "RO", "15", 15, 15, "15", "N-15", "N15" ),
         new CertificationMapping("RO_18", "RO", "18", 18, 18, "18", "IM-18", "IM18" ),
-        new CertificationMapping("RO_18X", "RO", "18*", 25, 18, "18*", "IM-18-XXX", "IM18XXX" ),
+        new CertificationMapping("RO_18X", "RO", "18*", 18, 18, "18*", "IM-18-XXX", "IM18XXX" ),
 
         //BG
         new CertificationMapping("BG_A", "BG", "A", 0, 0, "A" ),
@@ -274,7 +276,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("TH_15", "TH", "15+", 15, 15, "15+" ),
         new CertificationMapping("TH_18", "TH", "18+", 18, 18, "18+" ),
         new CertificationMapping("TH_20", "TH", "20+", 20, 20, "20+" ),
-        new CertificationMapping("TH_B", "TH", "Banned", 25, 25, "Banned" ),
+        new CertificationMapping("TH_B", "TH", "Banned", 18, 18, "Banned" ),
 
         //PH
         new CertificationMapping("PH_G", "PH", "G", 0, 0, "G" ),
@@ -282,7 +284,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("PH_R13", "PH", "R-13", 13, 13, "R-13" ),
         new CertificationMapping("PH_R16", "PH", "R-16", 16, 16, "R-16" ),
         new CertificationMapping("PH_R18", "PH", "R-18", 18, 18, "R-18" ),
-        new CertificationMapping("PH_X", "PH", "X", 25, 18, "X" ),
+        new CertificationMapping("PH_X", "PH", "X", 18, 18, "X" ),
 
         //PT
         new CertificationMapping("PT_T", "PT", "Públicos", 0, 0, "Públicos", "T", "Para todos os públicos" ),
@@ -292,7 +294,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("PT_M14", "PT", "M/14", 14, 14, "M/14", "M_14" ),
         new CertificationMapping("PT_M16", "PT", "M/16", 16, 16, "M/16", "M_16" ),
         new CertificationMapping("PT_M18", "PT", "M/18", 18, 18, "M/18", "M_18" ),
-        new CertificationMapping("PT_P", "PT", "P", 25, 18, "P" ),
+        new CertificationMapping("PT_P", "PT", "P", 18, 18, "P" ),
 
         //MY
         new CertificationMapping("MY_U", "MY", "U", 0, 0, "U" ),
@@ -328,7 +330,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("GB_12", "GB", "12", 12, 12, "12", "Rated 12"),
         new CertificationMapping("GB_15", "GB", "15", 15, 15, "15", "Rated 15"),
         new CertificationMapping("GB_18", "GB", "18", 18, 18, "18", "Rated 18"),
-        new CertificationMapping("GB_R18", "GB", "R18", 25, 18, "R18", "Rated R18"),
+        new CertificationMapping("GB_R18", "GB", "R18", 18, 18, "R18", "Rated R18"),
 
         //RU
         new CertificationMapping("RU_Y", "RU", "Y", 0, 0, "Y", "0+" ),
@@ -381,8 +383,8 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("AU_MA15", "AU", "MA15+", 15, 15, "MA15+" ),
         new CertificationMapping("AU_AV15", "AU", "AV15+", 15, 15, "AV15+" ),
         new CertificationMapping("AU_R18", "AU", "R18+", 18, 18, "R18+" ),
-        new CertificationMapping("AU_X18", "AU", "X18+", 25, 18, "X18+" ),
-        new CertificationMapping("AU_RC", "AU", "RC", 25, 25, "RC" ),
+        new CertificationMapping("AU_X18", "AU", "X18+", 18, 18, "X18+" ),
+        new CertificationMapping("AU_RC", "AU", "RC", 18, 18, "RC" ),
 
         //BR
         new CertificationMapping("BR_L", "BR", "L", 0, 0, "L" ),
