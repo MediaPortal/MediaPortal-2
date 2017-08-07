@@ -155,11 +155,6 @@
   <string name="Settings.Shares.Overview.SharesOverview">Media sources overview</string> <!-- Setting -->
   <string name="Settings.Shares.Overview.SharesOverview.Help">Global overview over media sources</string>
 
-  <string name="Settings.Users">Users</string> <!-- Section name -->
-  <string name="Settings.Users.Overview">User management</string> <!-- Group name -->
-  <string name="Settings.Users.Overview.UserOverview">User management</string> <!-- Setting -->
-  <string name="Settings.Users.Overview.UserOverview.Help">Manage the users on the home server</string>
-
   <string name="Settings.Shares.Imports.ReImportAllShares">ReImport all media sources</string>
 
   <string name="Settings.Plugins">Plugins</string>
@@ -175,13 +170,6 @@
   <string name="Shares.Offline">Offline</string>
   <string name="Shares.ReImport">ReImport</string>
   <string name="Shares.Importing">Importing...</string>
-
-  <!-- User configuration workflow -->
-
-  <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">User management</string>
-  <string name="UserConfig.UserConfiguration.Title">User management</string>
-  <string name="UserConfig.Users">Users</string>
-  <string name="UserConfig.NoConfigUserHomeServerNotConnected">The home server is currently not connected, so server users cannot be managed at the moment.</string>
 
   <!-- Shares configuration workflow -->
 

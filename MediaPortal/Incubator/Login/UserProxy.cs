@@ -23,18 +23,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Timers;
 using MediaPortal.Common.General;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UiComponents.SkinBase.General;
-using MediaPortal.Utilities;
 using MediaPortal.Common.UserProfileDataManagement;
 
-namespace MediaPortal.UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.Login.Models
 {
   /// <summary>
   /// Base data class which has two orthogonal jobs:

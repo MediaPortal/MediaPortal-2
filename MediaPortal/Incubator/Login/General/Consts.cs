@@ -22,11 +22,18 @@
 
 #endregion
 
-using MediaPortal.Common.Configuration.ConfigurationClasses;
+using System;
 
-namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares
+namespace MediaPortal.UiComponents.Login.General
 {
-  public class UsersOverviewSetting : CustomConfigSetting
+  public class Consts
   {
+    // Workflow states
+    public const string STR_WF_STATE_ID_USERS_OVERVIEW = "75488A94-7BEC-44FF-836D-7A2A8C7AFEF0";
+    public static readonly Guid WF_STATE_ID_USERS_OVERVIEW = new Guid(STR_WF_STATE_ID_USERS_OVERVIEW);
+
+    // Keys for the ListItem's Labels in the ItemsLists
+    public const string KEY_NAME = "Name";
+    public const string KEY_USER_PROXY = "UserProxy";
   }
 }

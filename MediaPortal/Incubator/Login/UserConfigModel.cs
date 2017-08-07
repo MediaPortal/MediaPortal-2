@@ -26,10 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
-using MediaPortal.Common.Commands;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
@@ -39,12 +37,11 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
-using MediaPortal.UiComponents.SkinBase.General;
-using MediaPortal.Utilities;
+using MediaPortal.UiComponents.Login.General;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 
-namespace MediaPortal.UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.Login.Models
 {
   /// <summary>
   /// Provides a workflow model to attend the complex configuration process for server and client shares
@@ -270,15 +267,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     #endregion
 
     #region Private and protected methods
-
-    protected ICollection<Share> GetSelectedShares(ItemsList sharesItemsList)
-    {
-      lock (_syncObj)
-        // Fill the result inside this method to make it possible to lock other threads out while looking at the shares list
-        return new List<Share>(sharesItemsList.Where(
-            shareItem => shareItem.Selected).Select(
-            shareItem => (Share)shareItem.AdditionalProperties[Consts.KEY_SHARE]));
-    }
 
     protected internal void UpdateUserLists_NoLock(bool create)
     {

@@ -144,9 +144,6 @@ namespace MediaPortal.UiComponents.SkinBase.General
     /// </summary>
     public static Guid WF_STATE_ID_DETACH_FROM_SERVER = new Guid(STR_WF_STATE_ID_DETACH_FROM_SERVER);
 
-    public const string STR_WF_STATE_ID_USERS_OVERVIEW = "75488A94-7BEC-44FF-836D-7A2A8C7AFEF0";
-    public static readonly Guid WF_STATE_ID_USERS_OVERVIEW = new Guid(STR_WF_STATE_ID_USERS_OVERVIEW);
-
     public const string STR_WF_STATE_ID_SHARES_OVERVIEW = "36B3F24A-29B4-4cb4-BC7D-434C51491CD2";
     public static readonly Guid WF_STATE_ID_SHARES_OVERVIEW = new Guid(STR_WF_STATE_ID_SHARES_OVERVIEW);
 
@@ -212,8 +209,6 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string KEY_IMPORTING_PROGRESS = "ImportingProgress";
     public const string KEY_IS_CONNECTED = "IsConnected";
     public const string KEY_REIMPORT_ENABLED = "ReImportEnabled";
-
-    public const string KEY_USER_PROXY = "UserProxy";
 
     public const string KEY_ITEM_ACTION = "MenuModel: Item-Action";
     public const string KEY_REGISTERED_ACTIONS = "MenuModel: RegisteredActions";

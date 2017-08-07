@@ -35,7 +35,6 @@
     <Model Id="0F1B04C1-0914-4AEB-BBE6-44708BADB25D" Name="SharesOverviewModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.SharesOverviewModel"/>
     <Model Id="A2F24149-B44C-498b-AE93-288213B87A1A" Name="GeneralPlayerModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.GeneralPlayerModel"/>
     <Model Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037" Name="PlayerConfigurationDialogModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.PlayerConfigurationDialogModel"/>
-    <Model Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D" Name="UserConfigModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.UserConfigModel"/>
 
     <Model Id="95DD6923-058A-4481-AF33-2455CEBB7A03" Name="PlayerConfigurationContributorModel" ClassName="MediaPortal.UiComponents.SkinBase.Actions.PlayerConfigurationAction"/>
     <Model Id="04854BDB-0933-4194-8AAE-DEC50062F37F" Name="CurrentMediaContributorModel" ClassName="MediaPortal.UiComponents.SkinBase.Actions.CurrentMediaAction"/>
@@ -59,15 +58,6 @@
   </Register>
 
   <Register Location="/Workflow/States">
-    <!-- User configuration -->
-
-    <!-- Overview screen for all users at the server -->
-    <WorkflowState Id="75488A94-7BEC-44FF-836D-7A2A8C7AFEF0"
-        Name="UserConfigurationOverview"
-        DisplayLabel="[UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel]"
-        MainScreen="user_config_overview"
-        WorkflowModel="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/> <!-- User config model -->
-    
     <!-- Shares configuration -->
     
     <!-- Overview screen for all configured shares at the server and at the client -->
@@ -261,11 +251,6 @@
         Sort="G100"
         Redundant="true"
         Text="[Settings.Plugins]"/>
-    <ConfigSection
-        Id="Users"
-        Sort="H100"
-        Redundant="true"
-        Text="[Settings.Users]"/>
   </Register>
 
   <!-- Contents of '/Appearance' section -->
@@ -382,15 +367,5 @@
         HelpText="[Settings.Shares.Overview.SharesOverview.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesOverviewSetting"
         AdditionalData="WorkflowState=53139C8E-F7CE-4D49-AEAF-7B061DE175F8,ConfAppPanel=..."/>
-  </Register>
-
-  <!-- Contents of '/Users' section -->
-  <Register Location="/Configuration/Settings/Users">
-    <CustomConfigSetting
-        Id="UserOverview"
-        Text="[Settings.Users.Overview.UserOverview]"
-        HelpText="[Settings.Users.Overview.UserOverview.Help]"
-        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.UsersOverviewSetting"
-        AdditionalData="WorkflowState=75488A94-7BEC-44FF-836D-7A2A8C7AFEF0,ConfAppPanel=..."/>
   </Register>
 </Plugin>

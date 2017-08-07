@@ -31,6 +31,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.SkinBase.General;
+using MediaPortal.UiComponents.Login.Settings;
 
 namespace MediaPortal.UiComponents.Login
 {
@@ -72,13 +73,6 @@ namespace MediaPortal.UiComponents.Login
           return;
       }
 
-      //u1.NeedsPassword = true;
-      //u1.LastLogin = new DateTime(2007, 10, 25, 12, 20, 30);
-      //u1.UserImage = SystemInformation.ComputerName.ToLower() + ".jpg";
-      //IUser u2 = userService.AddUser(SystemInformation.UserName.ToLower());
-      //u2.NeedsPassword = false;
-      //u2.LastLogin = new DateTime(2007, 10, 26, 10, 30, 13);
-      //u2.UserImage = SystemInformation.UserName.ToLower() + ".jpg";
       RefreshUserList();
     }
 
@@ -94,7 +88,7 @@ namespace MediaPortal.UiComponents.Login
       {
         userProfileDataManagement.CurrentUser = userProfile;
       }
-      CurrentUser = userProfile;
+      CurrentUserProperty.SetValue(userProfile);
     }
 
     /// <summary>
@@ -159,7 +153,11 @@ namespace MediaPortal.UiComponents.Login
     public UserProfile CurrentUser
     {
       get { return (UserProfile)_currentUser.GetValue(); }
-      set { _currentUser.SetValue(value); }
+    }
+
+    public bool EnableUserLogin
+    {
+      get { return UserSetting.UserLoginEnabled; }
     }
 
     /// <summary>

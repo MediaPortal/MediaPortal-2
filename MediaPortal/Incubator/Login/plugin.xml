@@ -14,6 +14,9 @@
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
   </DependsOn>
 
   <Runtime>
@@ -22,6 +25,42 @@
 
   <Register Location="/Models">
     <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.LoginModel"/>
+    <Model Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D" Name="UserConfigModel" ClassName="MediaPortal.UiComponents.Login.Models.UserConfigModel"/>
   </Register>
 
+  <Register Location="/Workflow/States">
+    <!-- Overview screen for all users at the server -->
+    <WorkflowState Id="75488A94-7BEC-44FF-836D-7A2A8C7AFEF0"
+        Name="UserConfigurationOverview"
+        DisplayLabel="[UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel]"
+        MainScreen="user_config_overview"
+        WorkflowModel="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/> <!-- User config model -->
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="LoginLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location = "/Resources/Skin">
+    <Resource Id="LoginSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Root configuration sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Users"
+        Sort="X100"
+        Redundant="true"
+        Text="[Settings.Users]"/>
+  </Register>
+
+  <!-- Contents of '/Users' section -->
+  <Register Location="/Configuration/Settings/Users">
+    <CustomConfigSetting
+        Id="UserOverview"
+        Text="[Settings.Users.Overview.UserOverview]"
+        HelpText="[Settings.Users.Overview.UserOverview.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UsersOverviewSetting"
+        AdditionalData="WorkflowState=75488A94-7BEC-44FF-836D-7A2A8C7AFEF0,ConfAppPanel=..."/>
+  </Register>
 </Plugin>

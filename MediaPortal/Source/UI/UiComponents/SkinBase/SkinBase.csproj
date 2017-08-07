@@ -77,8 +77,6 @@
     <Compile Include="Actions\FullscreenContentAction.cs" />
     <Compile Include="Actions\PlayerConfigurationAction.cs" />
     <Compile Include="Actions\SetupDefaultSharesAction.cs" />
-    <Compile Include="Models\UserConfigModel.cs" />
-    <Compile Include="Models\UserProxy.cs" />
     <Compile Include="Services\ConnectionListenerService.cs" />
     <Compile Include="Services\CommonNotificationService.cs" />
     <Compile Include="General\Consts.cs" />
@@ -112,7 +110,6 @@
     <Compile Include="Settings\Configuration\Regional\MainLanguage.cs" />
     <Compile Include="Settings\Configuration\Shares\SharesOverviewSetting.cs" />
     <Compile Include="Settings\Configuration\Shares\SharesConfigSetting.cs" />
-    <Compile Include="Settings\Configuration\Users\UsersOverviewSetting.cs" />
     <Compile Include="Settings\SkinBaseSettings.cs" />
     <Compile Include="Settings\Configuration\General\Autostart.cs" />
     <Compile Include="SkinMessaging.cs" />
@@ -259,11 +256,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogPlayerChooseSubtitle.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\user_config_overview.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
