@@ -28,12 +28,12 @@ namespace MediaPortal.Common.UserProfileDataManagement
 {
   public class UserDataKeysKnown
   {
-    public const string KEY_PLAY_COUNT = "PlayCount";
-    public const string KEY_PLAY_PERCENTAGE = "PlayPercentage";
-    public const string KEY_PLAY_DATE = "PlayDate";
-    public const string KEY_ALLOWED_SHARE = "AllowedShare";
-    public const string KEY_ALLOWED_AGE_RATING = "AllowedAgeRating";
-    public const string KEY_ALLOW_PARENT_GUIDE_AGE_RATING = "AllowParentalGuideAgeRating";
-    public const string KEY_AGE_RATING_SYSTEM_COUNTRY = "AgeRatingSystemCountry";
+    public const string KEY_PLAY_COUNT = "PlayCount"; //Number of times a user played an media item
+    public const string KEY_PLAY_PERCENTAGE = "PlayPercentage"; //Percentage of media item played during last playback
+    public const string KEY_PLAY_DATE = "PlayDate"; //Date the media item was last played
+    public const string KEY_ALLOWED_SHARE = "AllowedShare"; //Shares to which a user has access
+    public const string KEY_ALLOWED_AGE_RATING = "AllowedAgeRating"; //The maximum age for which a user can find media items based on content rating systems
+    public const string KEY_INCLUDE_PARENT_GUIDED_CONTENT = "IncludeParentGuidedContent"; //Include media items for which a parent is required
+    public const string KEY_AGE_RATING_SYSTEM_COUNTRY = "AgeRatingSystemCountry"; //The content rating system country which the user prefers
   }
 }
