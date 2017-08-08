@@ -163,8 +163,8 @@ namespace Test.Backend
       multipleReader2.AddResult(itemId, itemId, "2_1", 21);
       multipleReader2.AddResult(itemId, itemId, "2_2", 22);
 
-      MockReader multipleReader3 = MockDBUtils.AddReader(3, "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T0.ATTR_ID A0, T0.ATTR_STRING A1, T1.ATTR_ID A2, T1.ATTR_INTEGER A3 FROM M_MULTIPLE1 T0 "+
-        "INNER JOIN M_MULTIPLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID = @V0", "A4");
+      MockReader multipleReader3 = MockDBUtils.AddReader(3, "SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_MULTIPLE1 T0 " +
+        "INNER JOIN M_MULTIPLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID = @V0", "A0");
       multipleReader3.AddResult(itemId, itemId, itemId, "1_1", "oneone", "1_1", 11);
       multipleReader3.AddResult(itemId, itemId, itemId, "2_2", "twotwo", "2_2", 22);
 
@@ -198,11 +198,11 @@ namespace Test.Backend
 
       IFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new List<IFilter> { new LikeFilter(mia1.ATTR_STRING, "%", null), new LikeFilter(mia2.ATTR_STRING, "%", null) });
 
-      MockReader reader = MockDBUtils.AddReader(1, "SELECT T0.MEDIA_ITEM_ID A6, T0.MEDIA_ITEM_ID A7, T1.MEDIA_ITEM_ID A8, T2.MEDIA_ITEM_ID A9, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1, T1.ATTR_ID A2, T1.ATTR_STRING A3, T2.ATTR_ID A4, "+
-        "T2.ATTR_INTEGER A5 FROM M_SINGLE1 T0 INNER JOIN M_MULTIPLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_MULTIPLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
-        " WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE ATTR_STRING LIKE @V0) AND T0.ATTR_STRING LIKE @V1", "A6", "A7", "A8", "A9", "A0", "A1", "A2");
-      reader.AddResult(itemId0, itemId0, itemId0, itemId0, "zero", 0, "0_0");
-      reader.AddResult(itemId1, itemId1, itemId1, itemId1, "one", 1, "1_1");
+      MockReader reader = MockDBUtils.AddReader(1, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T1.MEDIA_ITEM_ID A4, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1 " +
+        "FROM M_SINGLE1 T0 INNER JOIN M_MULTIPLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID " +
+        " WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE ATTR_STRING LIKE @V0) AND T0.ATTR_STRING LIKE @V1", "A2", "A3", "A4", "A0", "A1");
+      reader.AddResult(itemId0, itemId0, itemId0, "zero", 0, "0_0");
+      reader.AddResult(itemId1, itemId1, itemId1, "one", 1, "1_1");
 
       MockReader multipleReader2 = MockDBUtils.AddReader(2, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_STRING A1 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1)", "A2", "A3", "A0", "A1");
       multipleReader2.AddResult(itemId0, itemId0, "0_0", "zerozero");

@@ -2450,7 +2450,7 @@
   </DataTemplate>
 
   <Style x:Key="MediaItemsListListViewStyle2" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
-    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeScreenItemTemplate}"/>
     <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>

@@ -2465,7 +2465,7 @@
   </DataTemplate>
 
   <Style x:Key="MediaItemsListListViewStyle2" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
-    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeScreenItemTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MediaItemCoverWithContextMenuContainerStyle}"/>

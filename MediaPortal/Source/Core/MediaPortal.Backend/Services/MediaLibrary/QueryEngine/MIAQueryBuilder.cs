@@ -41,23 +41,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         {
         }
 
-        protected override bool Include(MediaItemAspectMetadata miam)
-        {
-            return (miam is SingleMediaItemAspectMetadata || miam is MultipleMediaItemAspectMetadata);
-        }
-
-        /// <summary>
-        /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute
-        /// values and a count column containing the size of each group.
-        /// </summary>
-        /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
-        /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
-        /// <param name="statementStr">SQL statement which was built by this method.</param>
-        /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
-        public void GenerateSqlGroupByStatement(out string groupSizeAlias, out IDictionary<QueryAttribute, string> attributeAliases,
-            out string statementStr, out IList<BindVar> bindVars)
-        {
-            GenerateSqlStatement(true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
-        }
+    /// <summary>
+    /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute
+    /// values and a count column containing the size of each group.
+    /// </summary>
+    /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
+    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
+    /// <param name="statementStr">SQL statement which was built by this method.</param>
+    /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
+    public void GenerateSqlGroupByStatement(out string groupSizeAlias, out IDictionary<QueryAttribute, string> attributeAliases,
+        out string statementStr, out IList<BindVar> bindVars)
+    {
+      GenerateSqlStatement(true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
     }
+  }
 }

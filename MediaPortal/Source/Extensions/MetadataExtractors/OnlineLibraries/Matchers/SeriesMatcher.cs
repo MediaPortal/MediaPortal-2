@@ -42,6 +42,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -110,7 +111,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _config = Settings.Load<SeriresMatcherSettings>(_configFile);
       if (_config == null)
         _config = new SeriresMatcherSettings();
-      if(_config.LastRefresh != null)
+      if (_config.LastRefresh != null)
         _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
       if (_config.LastUpdatedSeries == null)
         _config.LastUpdatedSeries = new List<string>();
@@ -131,6 +132,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
+    private Regex seriesTitleYearRegex = new Regex(@"(?<title>.*)\((?<year>\d{4})\)", RegexOptions.IgnoreCase);
 
     protected override string MatchesSettingsFile
     {
@@ -364,6 +366,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (matchFound && episodeMatch != null)
         {
+          string title;
+          int year;
+          if (!episodeMatch.SeriesName.IsEmpty && TryFixTitle(episodeMatch.SeriesName.Text, out title, out year))
+          {
+            episodeMatch.SeriesName.Text = title;
+            if (!episodeMatch.SeriesFirstAired.HasValue)
+            {
+              episodeMatch.SeriesFirstAired = new DateTime(year, 1, 1);
+            }
+          }
           episodeInfo.MergeWith(episodeMatch, true);
 
           //Store person matches
@@ -1229,6 +1241,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #endregion
 
     #region Metadata update helpers
+
+    private bool TryFixTitle(string seriesTitle, out string title, out int year)
+    {
+      title = null;
+      year = 0;
+
+      Match match = seriesTitleYearRegex.Match(seriesTitle);
+      if (match.Success)
+      {
+        if (int.TryParse(match.Groups["year"].Value, out year) && year > 1900)
+        {
+          title = match.Groups["title"].Value.Trim();
+          return true;
+        }
+      }
+      return false;
+    }
 
     private void StoreSeriesMatch(SeriesInfo seriesSearch, SeriesInfo seriesMatch)
     {

@@ -509,12 +509,12 @@
         <ControlTemplate>
           <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}">
             <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
-              <Label x:Name="GroupLabel" VerticalAlignment="Center" HorizontalAlignment="Center"
+              <!--Label x:Name="GroupLabel" VerticalAlignment="Center" HorizontalAlignment="Center"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                      Opacity="0.6" Content="[SlimTvClient.ChannelGroupButton]"/>
               <Label VerticalAlignment="Center" HorizontalAlignment="Center"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Opacity="0.6" Content=": "/>
+                     Opacity="0.6" Content=": "/-->
               <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                      Opacity="0.6" Content="{Binding GroupName}" VerticalAlignment="Center"/>
               <StackPanel.LayoutTransform>

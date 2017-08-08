@@ -46,11 +46,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           return new InverseRelationshipCompiledFilter(_miaManagement, (MediaItemIdFilter)_filter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
         }
 
-        protected override bool Include(MediaItemAspectMetadata miam)
-        {
-          return true;
-        }
-
         /// <summary>
         /// Generates the SQL statement for the underlaying query specification.
         /// </summary>

@@ -3290,14 +3290,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         using (IDbCommand command = transaction.CreateCommand())
         {
-          string mediaAspectTable = _miaManagement.GetMIATableName(MediaAspect.Metadata);
-          string virtualAttribute = _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL);
-          string stubAttribute = _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISSTUB);
-          string relationshipAspectTable = _miaManagement.GetMIATableName(RelationshipAspect.Metadata);
-          string linkedIdAttribute = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID);
-          string roleAttribute = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE);
-          string linkedRoleAttribute = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE);
-
           int roleNo = 0;
           //Find parents
           if (isParentId)

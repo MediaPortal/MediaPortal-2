@@ -247,6 +247,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
+      ListItem item = e.FirstAddedItem as ListItem;
+      if (item != null)
+        SelectedItem = item;
+    }
+
+    public void SetSelectedItemOrNull(object sender, SelectionChangedEventArgs e)
+    {
       SelectedItem = e.FirstAddedItem as ListItem;
     }
 
