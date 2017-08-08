@@ -45,6 +45,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
     public const int EXPECTED_SCHEMA_VERSION_MINOR = 1;
 
+    internal const string USER_TABLE_NAME = "USER_PROFILES";
     internal const string USER_DATA_TABLE_NAME = "USER_ADDITIONAL_DATA";
     internal const string USER_MEDIA_ITEM_DATA_TABLE_NAME = "USER_MEDIA_ITEM_DATA";
     internal const string USER_PROFILE_ID_COL_NAME = "PROFILE_ID";
