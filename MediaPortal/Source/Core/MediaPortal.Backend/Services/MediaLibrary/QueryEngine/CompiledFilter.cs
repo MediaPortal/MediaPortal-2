@@ -614,13 +614,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultBindVars.Add(linkedRoleVar);
       }
 
-      //At least 1 of role or linked role should be set
-      if (roleVar == null && linkedRoleVar == null)
-      {
-        resultParts.Add("1 = 1");
-        return;
-      }
-
       //Complex relationship filter with linked filter
       string sqlStatement = null;
       IList<BindVar> bindVars = null;
@@ -674,6 +667,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       resultParts.Add(" FROM ");
       resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
       resultParts.Add(" R1");
+
+      //Check if we actually have any conditions
+      if (roleVar == null && linkedRoleVar == null && linkedIdVar == null && string.IsNullOrEmpty(sqlStatement))
+        return;
 
       resultParts.Add(" WHERE");
 
