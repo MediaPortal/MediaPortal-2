@@ -1387,6 +1387,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
+      NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
+    }
+
+    private void PrepareDatabaseQueries()
+    {
       //Prepare SQLs
       SELECT_MEDIAITEM_ID_FROM_PATH_SQL = "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + _miaManagement.GetMIATableName(ProviderResourceAspect.Metadata) +
             " WHERE " + _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID) + " = @SYSTEM_ID AND " +
@@ -1510,7 +1515,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
         ")";
       UPDATE_USER_PLAY_DATA_FROM_ID_SQL = "UPDATE " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-        " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = @USER_DATA_VALUE" + 
+        " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = @USER_DATA_VALUE" +
         " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
         " AND " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
         " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY";
@@ -1558,11 +1563,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         " AND R.{3} = @PARENT_ROLE_ID" +
         " AND R.{2} = @ITEM_ID";
 
-      NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
 
     public void ActivateImporterWorker()
     {
+      PrepareDatabaseQueries();
       InitShareWatchers();
 
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
