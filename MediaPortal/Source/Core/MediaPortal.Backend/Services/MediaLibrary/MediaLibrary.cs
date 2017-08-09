@@ -2994,13 +2994,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           foreach (var childParent in parentsToDelete)
           {
-            Logger.Debug("MediaLibrary: Delete virtual parent media item {0}", childParent.Key);
-
             if (childParent.Value) //Parent has a parent
             {
+              Logger.Debug("MediaLibrary: Update virtual parent media item {0}", childParent.Key);
               UpdateVirtualParents(database, transaction, childParent.Key);
             }
-            DeleteMediaItemAndReleationships(transaction, childParent.Key);
+            else
+            {
+              Logger.Debug("MediaLibrary: Delete virtual parent media item {0}", childParent.Key);
+              DeleteMediaItemAndReleationships(transaction, childParent.Key);
+            }
           }
 
           if (!hasParent)
