@@ -371,7 +371,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private static string SELECT_CHILDS_FROM_PARENT_AND_ROLES_SQL = null;
     private static string SELECT_ORPHAN_COUNT_SQL = null;
     private static string SELECT_CHILD_COLLECTIONS_FROM_PARENT_AND_ROLES_SQL = null;
-    private static string UPDATE_PARENT_VIRTUAL_ATTRIBUTE_SQL = null;
+    private static string UPDATE_PARENT_REMOVE_VIRTUAL_ATTRIBUTE_SQL = null;
     private static string UPDATE_PARENT_CHILD_COUNT_ATTRIBUTE_SQL = null;
     private static string UPDATE_USER_PLAY_DATA_FROM_ID_SQL = null;
     private static string INSERT_USER_PLAY_DATA_FOR_ID_SQL = null;
@@ -387,7 +387,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private static string SELECT_USER_FROM_USER_DATA_SQL = null;
     private static string SELECT_PLAY_DATA_FROM_PARENT_ID_SQL = null;
     private static string SELECT_USER_DATA_FROM_PARENT_ID_SQL = null;
-    private static string UPDATE_PARENT_STUB_ATTRIBUTE_SQL = null;
+    private static string UPDATE_PARENT_SET_VIRTUAL_ATTRIBUTE_SQL = null;
     private static string SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL = null;
 
     #endregion
@@ -1270,6 +1270,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       _miaManagement = new MIA_Management();
 
+      NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
+    }
+
+    private void PrepareDatabaseQueries()
+    {
       //Prepare SQLs
       DELETE_MEDIAITEM_RESOURCE_FROM_ID_SQL = "DELETE FROM " + _miaManagement.GetMIATableName(ProviderResourceAspect.Metadata) +
         " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " = @ITEM_ID" +
@@ -1307,7 +1312,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         foreach (RelationshipHierarchy hierarchy in _miaManagement.ManagedMediaItemHierarchies)
         {
           ors.Add(_miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @CHILD_ROLE" +
-            roleNo + " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @PARENT_ROLE" + roleNo);
+            roleNo + " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE" + roleNo);
           roleNo++;
         }
         SELECT_PARENTS_FROM_ID_AND_ROLES_SQL += " AND (" + StringUtils.Join(" OR ", ors) + ")";
@@ -1318,7 +1323,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID";
       SELECT_PARENT_RELATIONSHIP_FROM_ROLES_SQL = "SELECT DISTINCT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + ", " +
         _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + ", " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) +
-        " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata);
+        " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
       if (_miaManagement.ManagedMediaItemHierarchies.Count > 0)
       {
         int roleNo = 0;
@@ -1402,8 +1408,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
         " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
         " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
-        " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE_ID" +
+        " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @CHILD_ROLE" +
+        " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE" +
         " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID";
       SELECT_ORPHAN_COUNT_SQL = "SELECT COUNT(*) FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
         " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
@@ -1429,14 +1435,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @CHILD_ROLE" +
         " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE" +
         " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID";
-      UPDATE_PARENT_VIRTUAL_ATTRIBUTE_SQL = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
-        " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = @PARAM_VAL" +
+      UPDATE_PARENT_REMOVE_VIRTUAL_ATTRIBUTE_SQL = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
+        " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 0" +
         " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
-      UPDATE_PARENT_STUB_ATTRIBUTE_SQL = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
-        " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISSTUB) + " = @PARAM_VAL" +
+      UPDATE_PARENT_SET_VIRTUAL_ATTRIBUTE_SQL = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
+        " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 1, " +
+        _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISSTUB) + " = 0" +
         " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
       UPDATE_PARENT_CHILD_COUNT_ATTRIBUTE_SQL = "UPDATE {0} SET {1} = {2}" +
-        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
+        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
       UPDATE_USER_PLAY_DATA_FROM_ID_SQL = "UPDATE " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
         " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = @USER_DATA_VALUE" +
         " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
@@ -1447,15 +1454,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + ", " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + ")" +
         " VALUES (@USER_PROFILE_ID, @ITEM_ID, @USER_DATA_KEY, @USER_DATA_VALUE)";
       SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL = "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + "," + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + "," +
-        UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + 
+        UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
         " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
         " WHERE " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + "=@PROFILE_ID AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN({0})";
-
-      NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
 
     public void ActivateImporterWorker()
     {
+      PrepareDatabaseQueries();
       InitShareWatchers();
 
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
@@ -1652,7 +1658,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDsWithProvierResourceAspect);
         loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
-        CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
+        CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery, userProfileId);
         var result = cmiq.QueryMediaItem();
 
         // This is the second part of the rework as decribed above (remove ProviderResourceAspect if it wasn't requested)
@@ -2022,6 +2028,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             int remaining = mediaItems.Count - currentItem;
             int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
             command.Parameters.Clear();
+            database.AddParameter(command, "PROFILE_ID", userProfileId.Value, typeof(Guid));
             for (int index = currentItem; index < endItem; index++)
               database.AddParameter(command, "MI" + index, mediaItems[index].MediaItemId, typeof(Guid));
             command.CommandText = string.Format(SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL,
@@ -3126,73 +3133,78 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
           }
 
-          command.CommandText = SELECT_CHILDS_FROM_PARENT_AND_ROLES_SQL;
-          foreach (var parent in parents)
+          if (parents.Count > 0)
           {
-            hasParent = true;
-
-            command.Parameters.Clear();
-            database.AddParameter(command, "ITEM_ID", parent.Key, typeof(Guid));
-            database.AddParameter(command, "PARENT_ROLE", parent.Value.Item1, typeof(Guid));
-            database.AddParameter(command, "CHILD_ROLE", parent.Value.Item2, typeof(Guid));
-
-            //Find all childs
-            List<Guid> childs = new List<Guid>();
-            bool? allChildsAreVirtual = null;
-            using (IDataReader reader = command.ExecuteReader())
+            command.CommandText = SELECT_CHILDS_FROM_PARENT_AND_ROLES_SQL;
+            foreach (var parent in parents)
             {
-              while (reader.Read())
-              {
-                if (allChildsAreVirtual == null)
-                  allChildsAreVirtual = true;
+              hasParent = true;
 
-                Guid childId = database.ReadDBValue<Guid>(reader, 0);
-                bool? childVirtual = database.ReadDBValue<bool?>(reader, 1);
-                childs.Add(childId);
-                if (childVirtual == false)
+              command.Parameters.Clear();
+              database.AddParameter(command, "ITEM_ID", parent.Key, typeof(Guid));
+              database.AddParameter(command, "PARENT_ROLE", parent.Value.Item1, typeof(Guid));
+              database.AddParameter(command, "CHILD_ROLE", parent.Value.Item2, typeof(Guid));
+
+              //Find all childs
+              List<Guid> childs = new List<Guid>();
+              bool? allChildsAreVirtual = null;
+              using (IDataReader reader = command.ExecuteReader())
+              {
+                while (reader.Read())
                 {
-                  allChildsAreVirtual = false;
-                  break;
+                  if (allChildsAreVirtual == null)
+                    allChildsAreVirtual = true;
+
+                  Guid childId = database.ReadDBValue<Guid>(reader, 0);
+                  bool? childVirtual = database.ReadDBValue<bool?>(reader, 1);
+                  childs.Add(childId);
+                  if (childVirtual == false)
+                  {
+                    allChildsAreVirtual = false;
+                    break;
+                  }
                 }
               }
-            }
 
-            //Only delete if has no parent and is virtual
-            if (allChildsAreVirtual == true)
-            {
-              //Logger.Debug("MediaLibrary: All {0} children with role {1} of parent media item {2} with role {3} are virtual", childs.Count, childRole, parentId.Value, parentRole);
-
-              foreach (Guid childId in childs)
+              if (allChildsAreVirtual == true)
               {
-                if (!childsToDelete.Contains(childId))
-                  childsToDelete.Add(childId);
+                //Logger.Debug("MediaLibrary: All {0} children with role {1} of parent media item {2} with role {3} are virtual", childs.Count, childRole, parentId.Value, parentRole);
+
+                foreach (Guid childId in childs)
+                {
+                  if (!childsToDelete.Contains(childId))
+                    childsToDelete.Add(childId);
+                }
+
+                if (!parentsToDelete.ContainsKey(parent.Key))
+                  parentsToDelete.Add(parent.Key, _miaManagement.ManagedMediaItemHierarchies.Where(h => h.ChildRole == parent.Value.Item1 && h.ParentCountAttribute != null).Any());
               }
-
-              if (!parentsToDelete.ContainsKey(parent.Key))
-                parentsToDelete.Add(parent.Key, _miaManagement.ManagedMediaItemHierarchies.Where(h => h.ChildRole == parent.Value.Item1 && h.ParentCountAttribute != null).Any());
+              else
+              {
+                allParentsDeleted = false;
+              }
             }
-            else
+
+            foreach (Guid childId in childsToDelete)
             {
-              allParentsDeleted = false;
+              Logger.Debug("MediaLibrary: Delete virtual child media item {0}", childId);
+
+              DeleteMediaItemAndReleationships(transaction, childId);
             }
-          }
 
-          foreach (Guid childId in childsToDelete)
-          {
-            Logger.Debug("MediaLibrary: Delete virtual child media item {0}", childId);
-
-            DeleteMediaItemAndReleationships(transaction, childId);
-          }
-
-          foreach (var childParent in parentsToDelete)
-          {
-            Logger.Debug("MediaLibrary: Delete virtual parent media item {0}", childParent.Key);
-
-            if (childParent.Value) //Parent has a parent
+            foreach (var childParent in parentsToDelete)
             {
-              UpdateVirtualParents(database, transaction, childParent.Key, false);
+              if (childParent.Value) //Parent has a parent
+              {
+                Logger.Debug("MediaLibrary: Update virtual parent media item {0}", childParent.Key);
+                UpdateVirtualParents(database, transaction, childParent.Key, false);
+              }
+              else
+              {
+                Logger.Debug("MediaLibrary: Delete virtual parent media item {0}", childParent.Key);
+                DeleteMediaItemAndReleationships(transaction, childParent.Key);
+              }
             }
-            DeleteMediaItemAndReleationships(transaction, childParent.Key);
           }
 
           if (!hasParent)
@@ -3386,13 +3398,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
 
               //Set parent virtual flag
-              command.CommandText = UPDATE_PARENT_VIRTUAL_ATTRIBUTE_SQL;
-              var paramVal = database.AddParameter(command, "PARAM_VAL", isVirtual, typeof(int));
-              command.ExecuteNonQuery();
               if (isVirtual == 1)
               {
-                command.CommandText = UPDATE_PARENT_STUB_ATTRIBUTE_SQL;
-                paramVal.Value = 0;
+                command.CommandText = UPDATE_PARENT_SET_VIRTUAL_ATTRIBUTE_SQL;
+                command.ExecuteNonQuery();
+              }
+              else
+              {
+                command.CommandText = UPDATE_PARENT_REMOVE_VIRTUAL_ATTRIBUTE_SQL;
                 command.ExecuteNonQuery();
               }
 
