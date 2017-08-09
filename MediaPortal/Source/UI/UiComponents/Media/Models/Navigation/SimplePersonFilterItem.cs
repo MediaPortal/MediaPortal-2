@@ -25,7 +25,7 @@
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
-  /// Holds a GUI item which represents an actor filter choice.
+  /// Holds a GUI item which represents an actor/director/writer/character attribute filter choice.
   /// </summary>
   public class SimplePersonFilterItem : FilterItem
   {
