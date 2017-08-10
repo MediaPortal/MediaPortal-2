@@ -327,7 +327,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         case "metric":
           unit = "°C";
           break;
-        case "imperial":
+        case "fahrenheit":
           unit = "°F";
           break;
         default:
