@@ -1,5 +1,5 @@
 <Theme xmlns="http://schemas.datacontract.org/2004/07/MediaPortal.LogoManager.Design" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
-  <DesignName>Flat</DesignName>
+  <DesignName>Flat-WhiteBlur</DesignName>
   <Effects xmlns:a="http://schemas.datacontract.org/2004/07/MediaPortal.LogoManager.Effects">
     <a:AbstractEffect i:type="a:EffectAutoCrop">
       <a:ActivePart>Undefined</a:ActivePart>
