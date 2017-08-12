@@ -238,7 +238,7 @@
       </Grid.ColumnDefinitions>
       <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="74" Height="50.5" Stretch="Uniform" HorizontalAlignment="Left" Margin="5,1,0,1">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image> 
@@ -270,7 +270,7 @@
 
       <Image x:Name="ChannelLogo" Grid.Column="0" Width="74" Height="50.5" Stretch="Uniform" HorizontalAlignment="Left" Margin="5,1,0,1">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding [ChannelLogoType]}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
                                     fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
@@ -699,7 +699,7 @@
       <Control Style="{ThemeResource ButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
       <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Height="{ThemeResource ChannelLogoSmall}" Stretch="Uniform">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
       <ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -733,7 +733,7 @@
 
       <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Width="{ThemeResource ChannelLogoMedium}" Height="{ThemeResource ChannelLogoMedium}" Stretch="Uniform" Margin="5,2,2,2">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
 
@@ -769,7 +769,7 @@
 
       <Image x:Name="ChannelLogo" Grid.Column="0" Width="74" Height="50.5" Stretch="Uniform" HorizontalAlignment="Left" Margin="5,1,0,1">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}"
                                     fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
@@ -998,7 +998,7 @@
               <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,0,0,0" Width="100"
                      Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
                 <Image.Source>
-                  <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
                                             fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                 </Image.Source>
                 <Image.IsVisible>
