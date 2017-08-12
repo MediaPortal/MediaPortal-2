@@ -1,0 +1,21 @@
+<Theme xmlns="http://schemas.datacontract.org/2004/07/MediaPortal.LogoManager.Design" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+  <DesignName>Default</DesignName>
+  <Effects xmlns:a="http://schemas.datacontract.org/2004/07/MediaPortal.LogoManager.Effects">
+    <a:AbstractEffect i:type="a:EffectAutoCrop">
+      <a:ActivePart>Undefined</a:ActivePart>
+    </a:AbstractEffect>
+    <a:AbstractEffect i:type="a:EffectResize">
+      <a:ActivePart>Undefined</a:ActivePart>
+      <a:MaxSize xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing">
+        <b:height>110</b:height>
+        <b:width>200</b:width>
+      </a:MaxSize>
+      <a:MinSize i:nil="true" xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing"/>
+      <a:TargetSize xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing">
+        <b:height>110</b:height>
+        <b:width>300</b:width>
+      </a:TargetSize>
+    </a:AbstractEffect>
+  </Effects>
+  <ThemeName>Default</ThemeName>
+</Theme>
