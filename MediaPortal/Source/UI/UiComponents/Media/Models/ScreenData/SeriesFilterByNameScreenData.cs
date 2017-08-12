@@ -26,6 +26,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -48,9 +50,15 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     }
 
     //Special case for series screen, it can support series filters and episode filters
-    public override bool CanFilter(AbstractScreenData parentScreen)
+    public override bool CanFilter(IEnumerable<Guid> necessaryMIATypeIds)
     {
-      return base.CanFilter(parentScreen) || parentScreen.FilteredMias.Contains(SeriesAspect.ASPECT_ID);
+      return base.CanFilter(necessaryMIATypeIds) || necessaryMIATypeIds.Contains(SeriesAspect.ASPECT_ID);
+    }
+    
+    public void SetRootMiaTypes(ICollection<Guid> necessaryLinkedMIATypeIds, ICollection<Guid> optionalLinkedMIATypeIds)
+    {
+      _necessaryLinkedMIATypeIds = necessaryLinkedMIATypeIds;
+      _optionalLinkedMIATypeIds = optionalLinkedMIATypeIds;
     }
   }
 }

@@ -70,7 +70,6 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       _metricSystem = new RegionInfo(currentCulture.LCID).IsMetric ? MetricSystem.Metric : MetricSystem.Imperial;
       if (!Enum.TryParse(currentCulture.TwoLetterISOLanguageName, true, out _language))
         _language = OpenWeatherMapLanguage.EN;
-      _metricSystem = MetricSystem.Metric;
 
       #region Weather code translation
 
@@ -328,7 +327,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         case "metric":
           unit = "°C";
           break;
-        case "imperial":
+        case "fahrenheit":
           unit = "°F";
           break;
         default:

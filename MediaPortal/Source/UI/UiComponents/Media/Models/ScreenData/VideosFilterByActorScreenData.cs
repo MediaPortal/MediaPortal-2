@@ -30,7 +30,7 @@ using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class VideosFilterByActorScreenData : AbstractVideosFilterScreenData<ActorFilterItem>
+  public class VideosFilterByActorScreenData : AbstractVideosFilterScreenData<SimplePersonFilterItem>
   {
     public VideosFilterByActorScreenData() :
         base(Consts.SCREEN_VIDEOS_FILTER_BY_ACTOR, Consts.RES_COMMON_BY_ACTOR_MENU_ITEM,
@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         _availableMias = _availableMias.Union(Consts.OPTIONAL_PERSON_MIAS);
     }
 
-    public override AbstractFiltersScreenData<ActorFilterItem> Derive()
+    public override AbstractFiltersScreenData<SimplePersonFilterItem> Derive()
     {
       return new VideosFilterByActorScreenData();
     }

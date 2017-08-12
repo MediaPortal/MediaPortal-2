@@ -109,7 +109,7 @@
                    Content="{Binding Path=SelectedChannelName}" Color="{ThemeResource TextColor}"/>
             <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoWidth}" Stretch="Uniform" Margin="5,5,5,5" Grid.Column="1">
               <Image.Source>
-                <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding SelectedChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding SelectedChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding SelectedChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
               </Image.Source>
             </Image>
           </Grid>

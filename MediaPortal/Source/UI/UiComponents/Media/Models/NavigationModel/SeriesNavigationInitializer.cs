@@ -33,6 +33,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
   {
     internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Series }; // "Series"
 
+    protected SeriesFilterByNameScreenData _seriesScreen;
+
     public SeriesNavigationInitializer()
     {
       _mediaNavigationMode = Models.MediaNavigationMode.Series;
@@ -43,10 +45,19 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
+    public override void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
+    {
+      base.InitMediaNavigation(out mediaNavigationMode, out navigationData);
+      //Series filters modify the necessary/optional mia types of the current query view specification.
+      //The series screen needs to return them back to the root episode mias so it needs to know what they are.
+      //We need to set them after we have called InitMediaNavigation above as that call may modify the optional mia types.
+      _seriesScreen.SetRootMiaTypes(navigationData.BaseViewSpecification.NecessaryMIATypeIds, navigationData.BaseViewSpecification.OptionalMIATypeIds);
+    }
+
     protected override void Prepare()
     {
       base.Prepare();
-      _defaultScreen = new SeriesFilterByNameScreenData();
+      _defaultScreen = _seriesScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),

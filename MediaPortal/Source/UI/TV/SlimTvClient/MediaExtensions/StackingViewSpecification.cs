@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
 
     public StackingViewSpecification(string viewDisplayName, IFilter filter,
         IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
-      base(viewDisplayName, filter, necessaryMIATypeIDs, optionalMIATypeIDs, onlyOnline, null)
+      base(viewDisplayName, filter, necessaryMIATypeIDs, optionalMIATypeIDs, onlyOnline)
     {
       SortedSubViews = true; // Stacking view has special sorting included.
       CustomItemsListSorting = SortByRecordingDate;
