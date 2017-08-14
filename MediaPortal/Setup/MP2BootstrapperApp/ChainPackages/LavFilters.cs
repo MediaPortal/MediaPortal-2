@@ -22,42 +22,32 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.Models;
-using MP2BootstrapperApp.ViewModels;
+using System;
+using System.IO;
 
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp.ChainPackages
 {
-  public class InstallOverviewStep : IStep
+  public class LavFilters : IPackage
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly IPackageChecker _packageChecker;
 
-    public InstallOverviewStep(InstallWizardViewModel wizardViewModel)
+    public LavFilters(IPackageChecker packageChecker)
     {
-      _viewModel = wizardViewModel;
+      _packageChecker = packageChecker;
     }
 
-    public void Next(Wizard wizard)
+    public bool IsInstalled()
     {
-      wizard.Step = new InstallFinishStep(_viewModel);
-      _viewModel.CurrentPage = new InstallFinishPageViewModel(_viewModel);
-      _viewModel.Install();
-    }
+      // TODO: add registry check to find the installed path
 
-    public void Back(Wizard wizard)
-    {
-      wizard.Step = new InstallNewTypeStep(_viewModel);
-      _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
-    }
+      string lavFiltersPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "LAV Filters\\x86\\LAVSplitter.ax");
 
-    public bool CanGoNext()
-    {
-      return true;
-    }
+      if (!_packageChecker.Exists(lavFiltersPath))
+      {
+        return false;
+      }
 
-    public bool CanGoBack()
-    {
-      return true;
+      return _packageChecker.IsEqualOrHigherVersion(lavFiltersPath, new Version(0, 70, 0, 0));
     }
   }
 }

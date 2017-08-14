@@ -22,42 +22,21 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.Models;
-using MP2BootstrapperApp.ViewModels;
-
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp.ChainPackages
 {
-  public class InstallOverviewStep : IStep
+  public class Vc2008Sp1 : IPackage
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly IPackageChecker _packageChecker;
 
-    public InstallOverviewStep(InstallWizardViewModel wizardViewModel)
+    public Vc2008Sp1(IPackageChecker packageChecker)
     {
-      _viewModel = wizardViewModel;
+      _packageChecker = packageChecker;
     }
 
-    public void Next(Wizard wizard)
+    public bool IsInstalled()
     {
-      wizard.Step = new InstallFinishStep(_viewModel);
-      _viewModel.CurrentPage = new InstallFinishPageViewModel(_viewModel);
-      _viewModel.Install();
-    }
-
-    public void Back(Wizard wizard)
-    {
-      wizard.Step = new InstallNewTypeStep(_viewModel);
-      _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
-    }
-
-    public bool CanGoNext()
-    {
-      return true;
-    }
-
-    public bool CanGoBack()
-    {
-      return true;
+      // TODO check the registry for presence
+      return false;
     }
   }
 }

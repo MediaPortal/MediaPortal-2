@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  
   <Fragment>
-    <util:FileSearch Id="LAV_Filters_Version_x86"
-              Variable="LAV_Filters_Version_x86" Path="[ProgramFilesFolder]\LAV Filters\x86\LAVSplitter.ax"
-              Result="version"/>
-    
     <PackageGroup Id="LAVFilters">
       <ExePackage Id="LAVFilters" Cache="yes" Permanent="yes" Vital="yes" Compressed="no"
                   Name="LAVFilters.exe"
                   DownloadUrl="http://install.team-mediaportal.com/MP2/install/LAVFilters.exe"
-                  InstallCommand="/SILENT /SP-"
-                  InstallCondition="(NOT LAV_Filters_Path >= v0.70.0.0) OR NOT LAV_Filters_Version_x86">
-      
+                  InstallCommand="/VERYSILENT /SP-">
         <RemotePayload 
                   CertificatePublicKey="13D546F374FB43B26E99D5E16F9CC35FEEE9F890" 
                   CertificateThumbprint="394983FFD62B9BEB9FA2C1B0F4BD50BFA71B088E" 

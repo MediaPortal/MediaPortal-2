@@ -6,12 +6,19 @@
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views">
 
   <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
     <ItemsControl ItemsSource="{Binding Path=Packages}">
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel />
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
       <ItemsControl.ItemTemplate>
         <DataTemplate>
           <Image Source="{Binding}" Height="53.649" Width="159.933" Margin="10"/>

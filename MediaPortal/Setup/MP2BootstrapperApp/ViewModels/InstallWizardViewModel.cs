@@ -31,6 +31,7 @@ using System.Reflection;
 using System.Windows.Input;
 using System.Xml.Linq;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
 using Prism.Commands;
@@ -55,6 +56,10 @@ namespace MP2BootstrapperApp.ViewModels
     private InstallWizardPageViewModelBase _currentPage;
     private ReadOnlyCollection<BundlePackage> _bundlePackages;
     private InstallState _state;
+    private int _progress;
+    private int _cacheProgress;
+    private int _executeProgress;
+    private PackageContext _packageContext;
 
     #endregion
 
@@ -62,6 +67,7 @@ namespace MP2BootstrapperApp.ViewModels
     {
       _bootstrapperApplicationModel = model;
       State = InstallState.Initializing;
+      _packageContext = new PackageContext();
 
       WireUpEventHandlers();
       ComputeBundlePackages();
@@ -124,6 +130,16 @@ namespace MP2BootstrapperApp.ViewModels
       get { return _bundlePackages; }
     }
 
+    public int Progress
+    {
+      get { return _progress; }
+      set
+      {
+        _progress = value;
+        RaisePropertyChanged();
+      }
+    }
+
     private void CancelInstall()
     {
       _bootstrapperApplicationModel.LogMessage("Cancelling...");
@@ -137,11 +153,19 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
+    public void Install()
+    {
+      _bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
+    }
+
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs e)
     {
-      if (e.PackageId.Equals("MP2-Setup.msi", StringComparison.Ordinal))
+      var package = BundlePackages.FirstOrDefault(pkg => pkg.Id == e.PackageId);
+
+      if (package != null)
       {
-        State = e.State == PackageState.Present ? InstallState.Present : InstallState.NotPresent;
+        PackageId id = (PackageId)Enum.Parse(typeof(PackageId), package.Id);
+        package.CurrentInstallState = _packageContext.CheckInstallState(id) ? PackageState.Present : PackageState.Absent;
       }
     }
 
@@ -222,6 +246,19 @@ namespace MP2BootstrapperApp.ViewModels
           args.Result = Result.Ok;
         }
       };
+
+      _bootstrapperApplicationModel.BootstrapperApplication.CacheAcquireProgress +=
+        (sender, args) =>
+        {
+          _cacheProgress = args.OverallPercentage;
+          Progress = (_cacheProgress + _executeProgress) / 2;
+        };
+      _bootstrapperApplicationModel.BootstrapperApplication.ExecuteProgress +=
+        (sender, args) =>
+        {
+          _executeProgress = args.OverallPercentage;
+          Progress = (_cacheProgress + _executeProgress) / 2;
+        };
     }
 
     private void ComputeBundlePackages()

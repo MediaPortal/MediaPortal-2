@@ -31,12 +31,12 @@ namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallNewTypeStep : IStep
   {
-    private InstallWizardViewModel viewModel;
+    private InstallWizardViewModel _viewModel;
 
     public InstallNewTypeStep(InstallWizardViewModel wizardViewModel)
     {
-      viewModel = wizardViewModel;
-      foreach (var package in viewModel.BundlePackages)
+      _viewModel = wizardViewModel;
+      foreach (var package in _viewModel.BundlePackages)
       {
         package.RequestedInstallState = RequestState.None;
       }
@@ -44,12 +44,12 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public void Next(Wizard wizard)
     {
-      InstallNewTypePageViewModel page = viewModel.CurrentPage as InstallNewTypePageViewModel;
+      InstallNewTypePageViewModel page = _viewModel.CurrentPage as InstallNewTypePageViewModel;
 
       switch (page?.InstallType)
       {
         case InstallType.ClientServer:
-          foreach (var package in viewModel.BundlePackages)
+          foreach (var package in _viewModel.BundlePackages)
           {
             if (package.CurrentInstallState != PackageState.Present)
             {
@@ -58,7 +58,7 @@ namespace MP2BootstrapperApp.WizardSteps
           }
           break;
         case InstallType.Server:
-          foreach (var package in viewModel.BundlePackages)
+          foreach (var package in _viewModel.BundlePackages)
           {
             if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Client" || package.Id == "directx9" || package.Id == "LAVFilters")
             {
@@ -68,7 +68,7 @@ namespace MP2BootstrapperApp.WizardSteps
           }
           break;
         case InstallType.Client:
-          foreach (var package in viewModel.BundlePackages)
+          foreach (var package in _viewModel.BundlePackages)
           {
             if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Server")
             {
@@ -81,26 +81,26 @@ namespace MP2BootstrapperApp.WizardSteps
           // TODO
           break;
       }
-      wizard.Step = new InstallOverviewStep(viewModel);
-      viewModel.CurrentPage = new InstallOverviewPageViewModel(viewModel);
+      wizard.Step = new InstallOverviewStep(_viewModel);
+      _viewModel.CurrentPage = new InstallOverviewPageViewModel(_viewModel);
     }
 
     public void Back(Wizard wizard)
     {
-      wizard.Step = new InstallWelcomeStep(viewModel);
-      viewModel.CurrentPage = new InstallWelcomePageViewModel(viewModel);
+      wizard.Step = new InstallWelcomeStep(_viewModel);
+      _viewModel.CurrentPage = new InstallWelcomePageViewModel( _viewModel);
     }
 
     public bool CanGoNext()
     {
-      InstallNewTypePageViewModel page = viewModel.CurrentPage as InstallNewTypePageViewModel;
+      InstallNewTypePageViewModel page = _viewModel.CurrentPage as InstallNewTypePageViewModel;
 
       return true;
     }
 
     public bool CanGoBack()
     {
-      InstallNewTypePageViewModel page = viewModel.CurrentPage as InstallNewTypePageViewModel;
+      InstallNewTypePageViewModel page = _viewModel.CurrentPage as InstallNewTypePageViewModel;
 
       return true;
     }

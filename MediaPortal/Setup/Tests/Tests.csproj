@@ -74,7 +74,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="LAVFiltersTests.cs" />
+    <Compile Include="PackagesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +88,10 @@
     <ProjectReference Include="..\CustomActions\CustomActions.csproj">
       <Project>{461696fb-ab81-4bf8-8907-e648f51ccdf0}</Project>
       <Name>CustomActions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MP2BootstrapperApp\MP2BootstrapperApp.csproj">
+      <Project>{690C4618-718B-4D07-916D-456B5C211A7A}</Project>
+      <Name>MP2BootstrapperApp</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

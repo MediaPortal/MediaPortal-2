@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2-Setup", "MP2-Setup\MP2-Setup.wixproj", "{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -47,6 +47,8 @@ EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2Server", "MP2Server\MP2Server.wixproj", "{109958FB-395A-4311-9BD9-3BE80CE3E54F}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2Common", "MP2Common\MP2Common.wixproj", "{0E06FDDF-CC58-44FA-AC74-C97F9B0E66BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{EB0083EF-7363-4473-BADC-D72A3ECC4156}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -219,6 +221,18 @@ Global
 		{0E06FDDF-CC58-44FA-AC74-C97F9B0E66BE}.Test|Any CPU.Build.0 = Release|x86
 		{0E06FDDF-CC58-44FA-AC74-C97F9B0E66BE}.Test|x86.ActiveCfg = Release|x86
 		{0E06FDDF-CC58-44FA-AC74-C97F9B0E66BE}.Test|x86.Build.0 = Release|x86
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Debug|x86.Build.0 = Debug|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Release|x86.ActiveCfg = Release|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Release|x86.Build.0 = Release|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Test|Any CPU.Build.0 = Release|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Test|x86.ActiveCfg = Release|Any CPU
+		{EB0083EF-7363-4473-BADC-D72A3ECC4156}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

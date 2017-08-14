@@ -22,42 +22,30 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.Models;
-using MP2BootstrapperApp.ViewModels;
+using System;
+using System.IO;
 
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp.ChainPackages
 {
-  public class InstallOverviewStep : IStep
+  public class Vc2010 : IPackage
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly IPackageChecker _packageChecker;
 
-    public InstallOverviewStep(InstallWizardViewModel wizardViewModel)
+    public Vc2010(IPackageChecker packageChecker)
     {
-      _viewModel = wizardViewModel;
+      _packageChecker = packageChecker;
     }
 
-    public void Next(Wizard wizard)
+    public bool IsInstalled()
     {
-      wizard.Step = new InstallFinishStep(_viewModel);
-      _viewModel.CurrentPage = new InstallFinishPageViewModel(_viewModel);
-      _viewModel.Install();
-    }
+      string vc2010Path = Path.Combine(Environment.SystemDirectory, "mfc100.dll");
 
-    public void Back(Wizard wizard)
-    {
-      wizard.Step = new InstallNewTypeStep(_viewModel);
-      _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
-    }
+      if (!_packageChecker.Exists(vc2010Path))
+      {
+        return false;
+      }
 
-    public bool CanGoNext()
-    {
-      return true;
-    }
-
-    public bool CanGoBack()
-    {
-      return true;
+      return _packageChecker.IsEqualOrHigherVersion(vc2010Path, new Version(10, 0, 30319, 1));
     }
   }
 }

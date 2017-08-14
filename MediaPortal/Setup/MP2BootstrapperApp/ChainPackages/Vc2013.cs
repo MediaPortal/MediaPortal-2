@@ -22,42 +22,30 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.Models;
-using MP2BootstrapperApp.ViewModels;
+using System;
+using System.IO;
 
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp.ChainPackages
 {
-  public class InstallOverviewStep : IStep
+  public class Vc2013 : IPackage
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly IPackageChecker _packageChecker;
 
-    public InstallOverviewStep(InstallWizardViewModel wizardViewModel)
+    public Vc2013(IPackageChecker packageChecker)
     {
-      _viewModel = wizardViewModel;
+      _packageChecker = packageChecker;
     }
 
-    public void Next(Wizard wizard)
+    public bool IsInstalled()
     {
-      wizard.Step = new InstallFinishStep(_viewModel);
-      _viewModel.CurrentPage = new InstallFinishPageViewModel(_viewModel);
-      _viewModel.Install();
-    }
+      string vc2013Path = Path.Combine(Environment.SystemDirectory, "mfc120.dll");
 
-    public void Back(Wizard wizard)
-    {
-      wizard.Step = new InstallNewTypeStep(_viewModel);
-      _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
-    }
+      if (!_packageChecker.Exists(vc2013Path))
+      {
+        return false;
+      }
 
-    public bool CanGoNext()
-    {
-      return true;
-    }
-
-    public bool CanGoBack()
-    {
-      return true;
+      return _packageChecker.IsEqualOrHigherVersion(vc2013Path, new Version(12, 0, 21005, 1));
     }
   }
 }

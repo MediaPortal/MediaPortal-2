@@ -34,6 +34,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\WiX Toolset v3.11\SDK\BootstrapperCore.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Deployment.WindowsInstaller, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ce35f76fcda82bad, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\WiX Toolset v3.11\SDK\Microsoft.Deployment.WindowsInstaller.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="Prism, Version=6.3.0.0, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
@@ -55,6 +59,21 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChainPackages\DirectX.cs" />
+    <Compile Include="ChainPackages\Dokan.cs" />
+    <Compile Include="ChainPackages\IPackageChecker.cs" />
+    <Compile Include="ChainPackages\IPackage.cs" />
+    <Compile Include="ChainPackages\LavFilters.cs" />
+    <Compile Include="ChainPackages\MP2Client.cs" />
+    <Compile Include="ChainPackages\MP2Common.cs" />
+    <Compile Include="ChainPackages\MP2Server.cs" />
+    <Compile Include="ChainPackages\PackageChecker.cs" />
+    <Compile Include="ChainPackages\PackageContext.cs" />
+    <Compile Include="ChainPackages\PackageId.cs" />
+    <Compile Include="ChainPackages\Vc2010.cs" />
+    <Compile Include="ChainPackages\Vc2013.cs" />
+    <Compile Include="ChainPackages\Vc2015.cs" />
+    <Compile Include="ChainPackages\Vc2008Sp1.cs" />
     <Compile Include="EnumToBooleanConverter.cs" />
     <Compile Include="InstallType.cs" />
     <Compile Include="WizardSteps\InstallFinishStep.cs" />

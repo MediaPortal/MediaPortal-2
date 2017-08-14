@@ -22,42 +22,31 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.Models;
-using MP2BootstrapperApp.ViewModels;
+using System;
+using System.IO;
 
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp.ChainPackages
 {
-  public class InstallOverviewStep : IStep
+  public class DirectX : IPackage
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly IPackageChecker _packageChecker;
 
-    public InstallOverviewStep(InstallWizardViewModel wizardViewModel)
+    public DirectX(IPackageChecker packageChecker)
     {
-      _viewModel = wizardViewModel;
+      _packageChecker = packageChecker;
     }
 
-    public void Next(Wizard wizard)
+    public bool IsInstalled()
     {
-      wizard.Step = new InstallFinishStep(_viewModel);
-      _viewModel.CurrentPage = new InstallFinishPageViewModel(_viewModel);
-      _viewModel.Install();
-    }
+      string dx41Path = Path.Combine(Environment.SystemDirectory, "D3DX9_41.dll");
+      string dx43Path = Path.Combine(Environment.SystemDirectory, "D3DX9_43.dll");
 
-    public void Back(Wizard wizard)
-    {
-      wizard.Step = new InstallNewTypeStep(_viewModel);
-      _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
-    }
+      if (!_packageChecker.Exists(dx41Path) || !_packageChecker.Exists(dx43Path))
+      {
+        return false;
+      }
 
-    public bool CanGoNext()
-    {
-      return true;
-    }
-
-    public bool CanGoBack()
-    {
-      return true;
+      return _packageChecker.IsEqualOrHigherVersion(dx41Path, new Version(9, 26, 952, 2844)) && _packageChecker.IsEqualOrHigherVersion(dx43Path, new Version(9, 29, 952, 3111));
     }
   }
 }
