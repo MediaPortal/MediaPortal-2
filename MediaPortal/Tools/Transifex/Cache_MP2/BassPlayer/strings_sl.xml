@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Predvajalniki</string>
-  <string name="Settings.Players.AudioPlayer">Avdio predvajalnik</string>
   <string name="Settings.Players.BassPlayer.Setup">Konfiguriraj izhodno napravo</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Konfigurira BassPlayer izhodno napravo in možnosti</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>

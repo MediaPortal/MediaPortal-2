@@ -2,19 +2,36 @@
 <resources>
   <string name="Menu.Audio">Audio</string>
   <string name="Menu.Image">Gambar</string>
+  <string name="Menu.MediaHub">Hab video</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Berita</string>
   <string name="Menu.Weather">Cuaca</string>
   <string name="Menu.Settings">Setelan</string>
   <string name="Menu.Others">Lainnya</string>
   <string name="Menu.Home">Mulai</string>
+  <string name="Menu.Main">Menu Utama</string>
   <string name="Movies.Title">Film</string>
   <string name="Series.Title">Serial</string>
   <string name="Audio.Title">Audio</string>
   <string name="Recordings.Title">Rekaman</string>
   <string name="Images.Title">Gambar</string>
   <string name="Videos.Title">Video</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Subtitel</string>
   <string name="News.Title">Berita</string>
   <string name="Weather.Title">Cuaca</string>
   <string name="General.Title">Umum</string>
+  <string name="CastCrew.Title">Pemeran + Kru</string>
+  <string name="MediaInfo.Title">Info Media</string>
+  <string name="Media.AudioAlbumArtistsLabel">Album:</string>
+  <string name="Media.AudioTrackLabel">Trek:</string>
+  <string name="Media.AudioBitRateLabel">Bitrat:</string>
+  <string name="Media.AudioComposersLabel">Komposer:</string>
+  <string name="Media.AudioMimeTypeLabel">Jenis:</string>
+  <string name="BlueVision.Configuration">Konfigurasi BlueVision</string>
+  <string name="BlueVision.Configuration.Help">Izinkan kustomisasi skin BlueVision</string>
+  <string name="BlueVision.DisableHomeTab">Nonaktifkan tab \"Utama\"</string>
+  <string name="BlueVision.DisableAutoSelection">Nonaktifkan seleksi menu tab otomatis</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">Gunakan layar kocakan BlueVision</string>
+  <string name="BlueVision.ResetMenuLayout">Reset susun atur menu ke standar</string>
 </resources>

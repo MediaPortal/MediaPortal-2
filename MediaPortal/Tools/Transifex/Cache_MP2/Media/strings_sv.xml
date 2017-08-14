@@ -41,7 +41,7 @@
   <string name="Media.AiredDateMenuItem">Sändningsdatum</string>
   <string name="Media.RecordingDateMenuItem">Inspelningsdatum</string>
   <string name="Media.AddedDateMenuItem">Tlllagd datum</string>
-  <string name="Media.EpisodeDateMenuItem">Avsnitt</string>
+  <string name="Media.EpisodeMenuItem">Avsnitt</string>
   <string name="Media.DVDEpisodeMenuItem">DVD avsnitt</string>
   <string name="Media.TVNetworkMenuItem">TV-bolag</string>
   <string name="Media.MusicLabelMenuItem">Musikbolag</string>
@@ -158,7 +158,7 @@
   <string name="Media.ChooseTvNetworkHeader">TV-bolag</string>
   <string name="Media.ChooseAudioDecadeHeader">Årtionden</string>
   <string name="Media.ChooseAlbumHeader">Album</string>
-  <string name="Media.ChooseAudioHeader">Ljudobjekt</string>
+  <string name="Media.ChooseAudioHeader">Ljudfiler</string>
   <string name="Media.ChooseArtistHeader">Artist(er)</string>
   <string name="Media.ChooseComposerHeader">Kompositörer</string>
   <string name="Media.ChooseAlbumArtistHeader">Album artister</string>
@@ -182,7 +182,7 @@
   <string name="Media.PlaylistDetailsHeader">Spellistedetaljer</string>
   <string name="Media.PlaylistLoadNoPlaylistText">Ingen spellista att ladda</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Fel vid laddning av spellista</string>
-  <string name="Media.CannotSavePlaylistWithLocalMediaItems">En spellista kan endast sparas om alla objekt hämtades från hemmaservern (dvs. inte med frånkopplad lokal medianavigering)</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">En spellista kan endast sparas om alla media-filer hämtades från hemmaservern (dvs. inte med frånkopplad lokal medianavigering)</string>
   <!--View occupation names-->
   <string name="Media.ArtistOccupationName">Artist</string>
   <string name="Media.ActorOccupationName">Skådespelare: </string>
@@ -203,7 +203,7 @@
   <string name="Media.SimpleSearchViewName">Enkel sökning</string>
   <!--General strings used in views-->
   <string name="Media.ViewInvalid">Denna vy kunde in skapas</string>
-  <string name="Media.ViewEmpty">&lt;Inga objekt att visa&gt;</string>
+  <string name="Media.ViewEmpty">&lt;Inga filer att visa&gt;</string>
   <string name="Media.NoItems">Inga media-filer</string>
   <!--Shown in the header of an items list-->
   <string name="Media.OneItem">En media-fil</string>
@@ -252,6 +252,7 @@
   <string name="Media.SetWatched">Markera som sedda</string>
   <string name="Media.SetUnwatched">Markera som inte sedda</string>
   <string name="Media.DeleteFromStorage">Ta bort filen.</string>
+  <string name="Media.ConfirmAction">Bekräfta</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spela media-fil</string>
   <string name="Media.PlayAudioItems">Spela ljud-fil</string>
@@ -269,6 +270,7 @@
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Visa video-/bild-fil i bakgrunden &amp; fortsätt samtidigt spela ljud-fil</string>
   <string name="Media.PlayVideoImageItemPiP">Visa video-/bild-fil i bild-i-bild</string>
   <string name="Media.PlaybackResume">Återuppta uppspelning</string>
+  <string name="Media.PlaybackResumeTime">Återuppta uppspelning från: \'{0}\'</string>
   <string name="Media.PlaybackFromStart">Spela från början</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Video/bild</string>
@@ -370,6 +372,8 @@
   <string name="Media.SwitchSortingMenuItem">Sortering</string>
   <string name="Media.SwitchSortingDialogTitle">Sortera på</string>
   <string name="Media.SortingBrowseDefault">Förvald sortering</string>
+  <string name="Media.SortByDate">Datum</string>
+  <string name="Media.GroupingBrowseDefault">Förvald</string>
   <string name="Media.SwitchGroupingMenuItem">Gruppering</string>
   <string name="Media.SwitchGroupingDialogTitle">Gruppera på</string>
   <string name="Media.NoGrouping">Ingen gruppering</string>
@@ -386,7 +390,7 @@
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, hur nya spelare ska positioneras bland redan öppna spelare</string>
   <string name="Settings.Players.WatchedPlayPercentage">Gräns för markering som sedd i procent </string>
   <string name="Settings.Players.WatchedPlayPercentage.Help">Sätt gräns för hur många procent av en video som behöver visas innan den markeras som sedd. </string>
-  <string name="Settings.Media">Media</string>
+  <string name="Settings.Media">Mediabibliotek</string>
   <string name="Settings.Media.ShowVirtual">Visa all känd media</string>
   <string name="Settings.Media.ShowVirtual.Help">Välj om alla kända media ska visas även det inte finns någon lokal fil,</string>
   <string name="Settings.Media.ShowVirtual.Audio">Visa alla kända albumspår</string>

@@ -7,7 +7,7 @@
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.GenreMenuItem">Жанр</string>
   <string name="Media.SystemMenuItem">Система</string>
-  <string name="Media.EpisodeDateMenuItem">Епізод</string>
+  <string name="Media.EpisodeMenuItem">Епізод</string>
   <string name="Media.AudioLanguageMenuItem">Мова</string>
   <!--Filter titles-->
   <!--Special filters names-->

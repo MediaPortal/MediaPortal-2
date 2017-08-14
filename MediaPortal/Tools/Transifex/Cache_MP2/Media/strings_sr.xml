@@ -41,7 +41,7 @@
   <string name="Media.AiredDateMenuItem">Датум првог емитовања</string>
   <string name="Media.RecordingDateMenuItem">Датум снимања</string>
   <string name="Media.AddedDateMenuItem">Датум додавања</string>
-  <string name="Media.EpisodeDateMenuItem">Епизода</string>
+  <string name="Media.EpisodeMenuItem">Епизода</string>
   <string name="Media.DVDEpisodeMenuItem">ДВД епизоде</string>
   <string name="Media.TVNetworkMenuItem">ТВ мрежа</string>
   <string name="Media.MusicLabelMenuItem">Назив музике</string>
@@ -370,6 +370,8 @@
   <string name="Media.SwitchSortingMenuItem">Ређање</string>
   <string name="Media.SwitchSortingDialogTitle">Сортирај по</string>
   <string name="Media.SortingBrowseDefault">Подразумевано сортирање</string>
+  <string name="Media.SortByDate">Датум</string>
+  <string name="Media.GroupingBrowseDefault">Подразумевано</string>
   <string name="Media.SwitchGroupingMenuItem">Прављење група</string>
   <string name="Media.SwitchGroupingDialogTitle">Групиши по</string>
   <string name="Media.NoGrouping">Без груписања</string>
@@ -386,7 +388,6 @@
   <string name="Settings.Players.OpenPlayerStrategy.Help">Понашање плејера приликом отварања када су други плрејери већ отворени</string>
   <string name="Settings.Players.WatchedPlayPercentage">Одгледано у процентима</string>
   <string name="Settings.Players.WatchedPlayPercentage.Help">Одабери проценат одгледаности медија пре него се обележи да као већ гледано</string>
-  <string name="Settings.Media">Медија</string>
   <string name="Settings.Media.ShowVirtual">Прикажи све познате медија ставке</string>
   <string name="Settings.Media.ShowVirtual.Help">Да ли да се прикажу све познате медија ставке чак и ако нема референце на локални фајл</string>
   <string name="Settings.Media.ShowVirtual.Audio">Прикажи све познате песме из албума</string>

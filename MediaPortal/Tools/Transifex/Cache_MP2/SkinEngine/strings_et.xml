@@ -9,8 +9,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Sea, ekraanisäästja kasutamisel</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Ekraanisäästja ooteaeg</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Sea aeg, mille möödumisel viimasest sisestusest ekraanisäästja sisse lülitub.</string>
-  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing parandab kasutusliidese kvaliteeti videovõimekuse arvel</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skin and teema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Vaheta skin</string>

@@ -1,8 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players">Players</string>
+  <string name="Settings.Players">Player</string>
+  <string name="Settings.Players.AudioPlayer">Player audio</string>
+  <string name="Settings.Players.BassPlayer.Setup">Configura il dispositivo di uscita</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Configura il dispositivo di uscita BassPlayer e le sue opzioni</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Modalità esclusiva</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Modalità transizione brani</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Imposta la pausa  e/o la dissolvenza al cambio traccia</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normale</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Senza pausa</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">dissolvenza incrociata</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Buffer riproduzione</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Tempo da tenere nel buffer [0-300] ms</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Rendering</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Durata Cross fade</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Tempo di cross-fade in secondi</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Durata dissolvenza incrociata</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Durata dissolvenza incrociata in secondi</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Secondi di avanzamento in ricerca </string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Testo di aiuto in ricerca...</string>
 </resources>

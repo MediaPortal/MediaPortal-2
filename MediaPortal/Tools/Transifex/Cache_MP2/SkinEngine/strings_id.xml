@@ -9,8 +9,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Konfigurasikan bila screen saver harus ditampilkan</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Rentang screen saver</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Konfigurasikan lamanya waktu dalam menit saat screen saver harus tampil setelah masukan terakhir dari pengguna</string>
-  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing meningkatkan kualitas visual GUI tetapi dapat menurunkan kinerja video</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skin dan tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Ubah skin</string>

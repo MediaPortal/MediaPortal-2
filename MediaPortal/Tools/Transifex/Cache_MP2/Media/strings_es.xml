@@ -24,7 +24,7 @@
   <string name="Media.SizeMenuItem">Tamaño</string>
   <string name="Media.SystemMenuItem">Sistema</string>
   <string name="Media.ActorMenuItem">Actor</string>
-  <string name="Media.EpisodeDateMenuItem">Episode</string>
+  <string name="Media.EpisodeMenuItem">Episode</string>
   <string name="Media.AudioLanguageMenuItem">Idioma</string>
   <string name="Media.ImageCountryMenuItem">País</string>
   <string name="Media.ImageStateMenuItem">Estado</string>
@@ -299,6 +299,8 @@
   <string name="Media.Watched">Visto</string>
   <string name="Media.Unwatched">No visto</string>
   <string name="Media.SwitchSortingMenuItem">Clasificación</string>
+  <string name="Media.SortByDate">Fecha</string>
+  <string name="Media.GroupingBrowseDefault">Por defecto</string>
   <string name="Settings.Players">Reproducciones</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Cerrar reproducciones cuando terminen</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activar esta opción para que MediaPortal cierre automáticamente las reproducciones finalizadas</string>

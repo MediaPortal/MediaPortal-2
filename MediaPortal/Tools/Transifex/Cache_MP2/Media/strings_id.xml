@@ -15,7 +15,7 @@
   <string name="Media.GenreMenuItem">Genre</string>
   <string name="Media.SizeMenuItem">Ukuran</string>
   <string name="Media.SystemMenuItem">Sistem</string>
-  <string name="Media.EpisodeDateMenuItem">Episode</string>
+  <string name="Media.EpisodeMenuItem">Episode</string>
   <string name="Media.AudioLanguageMenuItem">Bahasa</string>
   <string name="Media.ImageStateMenuItem">Kondisi</string>
   <string name="Media.SeriesNameMenuItem">Serial</string>
@@ -265,6 +265,8 @@
   <string name="Media.LargeGrid">Jala</string>
   <string name="Media.CoverLayout">Sampul</string>
   <string name="Media.SwitchSortingMenuItem">Mengurutkan</string>
+  <string name="Media.SortByDate">Tanggal</string>
+  <string name="Media.GroupingBrowseDefault">Baku</string>
   <string name="Settings.Players">Pemutar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Tutup pemutar bila selesai</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aktifkan setelan ini untuk membuat MediaPortal secara otomatis menutup pemutar yang telah selesai</string>

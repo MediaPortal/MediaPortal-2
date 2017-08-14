@@ -16,7 +16,7 @@
   <string name="Media.SizeMenuItem">גודל</string>
   <string name="Media.SystemMenuItem">מערכת</string>
   <string name="Media.ActorMenuItem">שחקן</string>
-  <string name="Media.EpisodeDateMenuItem">פרק</string>
+  <string name="Media.EpisodeMenuItem">פרק</string>
   <string name="Media.AudioLanguageMenuItem">שפה</string>
   <string name="Media.ImageCountryMenuItem">מדינה</string>
   <string name="Media.ImageStateMenuItem">מצב</string>
@@ -277,6 +277,8 @@
   <string name="Media.LargeGrid">רשת:</string>
   <string name="Media.CoverLayout">עטיפות שער</string>
   <string name="Media.SwitchSortingMenuItem">מיון</string>
+  <string name="Media.SortByDate">תאריך</string>
+  <string name="Media.GroupingBrowseDefault">ברירת מחדל</string>
   <string name="Settings.Players">נגנים</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">סגור נגן בעת סיום</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">סמן אפשרות זו כדי לגרום למדיה פורטל לסגור נגנים שהסתיימו בצורה אוטומטית</string>

@@ -17,7 +17,7 @@
   <string name="Media.SizeMenuItem">Dydis</string>
   <string name="Media.SystemMenuItem">Sistema</string>
   <string name="Media.ActorMenuItem">Aktorius</string>
-  <string name="Media.EpisodeDateMenuItem">Epizodas</string>
+  <string name="Media.EpisodeMenuItem">Epizodas</string>
   <string name="Media.AudioLanguageMenuItem">Kalba</string>
   <string name="Media.ImageCountryMenuItem">Šalis</string>
   <string name="Media.ImageStateMenuItem">Salis</string>
@@ -287,6 +287,8 @@
   <string name="Media.CoverLayout">Viršeliai</string>
   <string name="Media.Watched">Peržiūrėta</string>
   <string name="Media.SwitchSortingMenuItem">Rūšiuojama</string>
+  <string name="Media.SortByDate">Data</string>
+  <string name="Media.GroupingBrowseDefault">Standartinis</string>
   <string name="Settings.Players">Grotuvai</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Baigus uždaryti grotuvus</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Įgalinus MediaPortal automatiškai uždarys pabaigtus grotuvus</string>

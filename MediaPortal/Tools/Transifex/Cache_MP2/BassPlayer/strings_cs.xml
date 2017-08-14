@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Přehrávače</string>
-  <string name="Settings.Players.AudioPlayer">Hudební přehrávač</string>
   <string name="Settings.Players.BassPlayer.Setup">Nastavení výstupního zařízení</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Nastavuje výstupní zařízení aplikace BassPlayer a jeho možnosti</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>

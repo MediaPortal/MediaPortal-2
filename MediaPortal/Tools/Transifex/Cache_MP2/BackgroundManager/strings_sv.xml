@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Appearance.Skin.Background.VideoBackground">Videobakgrund</string>
-  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Aktivera videobakgrund och välj video</string>
-  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Aktivera videobakgrund</string>
-  <string name="Settings.Appearance.Skin.Background.Setup">Konfigurera videobakgrund</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Bakgrundsvideo</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Aktivera bakgrundsvideo och välj videofil</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Aktivera bakgrundsvideo</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Konfigurera bakgrundsvideo</string>
   <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Videofil</string>
   <string name="Settings.Appearance.Skin.Background.Setup.Select">Välj</string>
   <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Välj video som ska visas som bakgrund</string>
