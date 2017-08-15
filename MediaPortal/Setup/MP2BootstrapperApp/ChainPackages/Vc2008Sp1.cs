@@ -35,8 +35,8 @@ namespace MP2BootstrapperApp.ChainPackages
 
     public bool IsInstalled()
     {
-      // TODO check the registry for presence
-      return false;
+      string vc2008Sp1x86ProductCode = "{9A25302D-30C0-39D9-BD6F-21E6EC160475}";
+      return _packageChecker.CheckInstallPresenceByMsiProductCode(vc2008Sp1x86ProductCode);
     }
   }
 }

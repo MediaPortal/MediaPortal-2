@@ -20,7 +20,7 @@
   <Window.Resources>
 
     <DataTemplate DataType="{x:Type viewModels:InstallWelcomePageViewModel}">
-      <view:InstallExistTypePageView />
+      <view:InstallWelcomePageView />
     </DataTemplate>
     
     <DataTemplate DataType="{x:Type viewModels:InstallExistTypePageViewModel}">

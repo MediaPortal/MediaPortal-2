@@ -39,6 +39,7 @@ namespace MP2BootstrapperApp.ChainPackages
     public bool IsInstalled()
     {
       // TODO: add registry check to find the installed path
+      // TODO: does the LAV filters installer allows at all a custom install path?
 
       string lavFiltersPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "LAV Filters\\x86\\LAVSplitter.ax");
 

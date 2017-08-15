@@ -45,7 +45,7 @@ namespace MP2BootstrapperApp.ChainPackages
         return false;
       }
 
-      return !_packageChecker.IsEqualOrHigherVersion(dokanPath, new Version(1, 0, 3, 1000));
+      return _packageChecker.IsEqualOrHigherVersion(dokanPath, new Version(1, 0, 3, 1000));
     }
   }
 }

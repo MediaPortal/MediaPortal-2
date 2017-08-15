@@ -70,5 +70,12 @@ namespace MP2BootstrapperApp.ChainPackages
     /// <param name="onlineVersion"></param>
     /// <returns></returns>
     bool IsEqualOrHigherVersion(string pathToInstalledVersion, Version onlineVersion);
+
+    /// <summary>
+    /// Checks the presence of an MSI package by its product code.
+    /// </summary>
+    /// <param name="productCode">The MSI product code to check.</param>
+    /// <returns>true if the MSI is installed, otherwise false.</returns>
+    bool CheckInstallPresenceByMsiProductCode(string productCode);
   }
 }
