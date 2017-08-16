@@ -105,14 +105,5 @@
       <ComponentGroupRef Id="ServiceMonitor.Heat" />
     </Feature>
 
-    <InstallExecuteSequence>
-      <Custom Action="LaunchServiceMonitor" After="InstallFinalize"><![CDATA[&ServiceMonitor=3]]></Custom>
-    </InstallExecuteSequence>
-
-    <CustomAction Id="LaunchServiceMonitor"
-                  FileKey="ServiceMonitor.exe"
-                  ExeCommand=" -m"
-                  Return="asyncNoWait" />
-
   </Fragment>
 </Wix>

@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Diagnostics;
+using System.ServiceProcess;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 
@@ -29,7 +31,7 @@ namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallFinishStep : IStep
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly InstallWizardViewModel _viewModel;
 
     public InstallFinishStep(InstallWizardViewModel wizardViewModel)
     {
@@ -38,23 +40,65 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public void Next(Wizard wizard)
     {
-      // do nothing
+      InstallFinishPageViewModel page = _viewModel.CurrentPage as InstallFinishPageViewModel;
+
+      if (page != null)
+      {
+        if (page.StartMp2Server)
+        {
+          StartServer();
+        }
+
+        if (page.StartMp2Client)
+        {
+          StartClient();
+        }
+
+        if (page.StartMp2ServiceMonitor)
+        {
+          StartServiceMonitor();
+        }
+
+        if (page.StartMp2TvServerConfiguration)
+        {
+          StartTvConfiguration();
+        }
+      }
+
+      _viewModel.CloseWizard();
     }
 
     public void Back(Wizard wizard)
     {
-      wizard.Step = new InstallOverviewStep(_viewModel);
-      _viewModel.CurrentPage = new InstallOverviewPageViewModel(_viewModel);
+      // not allowed
     }
 
     public bool CanGoNext()
     {
-      return false;
+      return true;
     }
 
     public bool CanGoBack()
     {
-      return true;
+      return false;
+    }
+
+    private void StartTvConfiguration()
+    {
+      
+    }
+
+    private void StartServiceMonitor()
+    {
+    }
+
+    private void StartClient()
+    {
+      
+    }
+
+    private void StartServer()
+    {
     }
   }
 }

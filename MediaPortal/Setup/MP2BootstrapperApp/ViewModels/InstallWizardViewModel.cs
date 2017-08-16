@@ -55,11 +55,12 @@ namespace MP2BootstrapperApp.ViewModels
     private readonly BootstrapperApplicationModel _bootstrapperApplicationModel;
     private InstallWizardPageViewModelBase _currentPage;
     private ReadOnlyCollection<BundlePackage> _bundlePackages;
+    private string _header;
     private InstallState _state;
     private int _progress;
     private int _cacheProgress;
     private int _executeProgress;
-    private PackageContext _packageContext;
+    private readonly PackageContext _packageContext;
 
     #endregion
 
@@ -94,7 +95,11 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
-    public string Header { get; set; }
+    public string Header
+    {
+      get { return _header; }
+      set { SetProperty(ref _header, value); }
+    }
 
     public ICommand CancelCommand { get; private set; }
     public ICommand NextCommand { get; private set; }
@@ -155,7 +160,12 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
-    public void Install()
+    internal void CloseWizard()
+    {
+      MP2BootstrapperApplication.Dispatcher.InvokeShutdown();
+    }
+
+    internal void Install()
     {
       _bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
     }
@@ -205,8 +215,8 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
+      CurrentPage = new InstallFinishPageViewModel(this);
       _bootstrapperApplicationModel.FinalResult = e.Status;
-      MP2BootstrapperApplication.Dispatcher.InvokeShutdown();
     }
 
     protected void PlanPackageBegin(object sender, PlanPackageBeginEventArgs planPackageBeginEventArgs)

@@ -22,14 +22,47 @@
 
 #endregion
 
+using System.Windows.Input;
 using MP2BootstrapperApp.Models;
 
 namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallFinishPageViewModel : InstallWizardPageViewModelBase
   {
+    private bool _startMp2Server;
+    private bool _startMp2Client;
+    private bool _startMp2ServiceMonitor;
+    private bool _startMp2TvServerConfiguration;
+
     public InstallFinishPageViewModel(InstallWizardViewModel viewModel)
     {
+      viewModel.Header = "Finish page header";
     }
+
+    public bool StartMp2Server
+    {
+      get { return _startMp2Server; }
+      set { SetProperty(ref _startMp2Server, value); }
+    }
+
+    public bool StartMp2Client
+    {
+      get { return _startMp2Client; }
+      set { SetProperty(ref _startMp2Client, value); }
+    }
+
+    public bool StartMp2ServiceMonitor
+    {
+      get { return _startMp2ServiceMonitor; }
+      set { SetProperty(ref _startMp2ServiceMonitor, value); }
+    }
+
+    public bool StartMp2TvServerConfiguration
+    {
+      get { return _startMp2TvServerConfiguration; }
+      set { SetProperty(ref _startMp2TvServerConfiguration, value); }
+    }
+
+
   }
 }

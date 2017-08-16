@@ -134,7 +134,7 @@
                     Style="{StaticResource ToggleButtonWindowClose}" BorderBrush="White" Foreground="White" />
     </Grid>
 
-    <HeaderedContentControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="40" Content="{Binding Path=CurrentPage}" Header="{Binding Path=Header}"/>
+    <HeaderedContentControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="40" Content="{Binding Path=CurrentPage}" Header="{Binding Path=Header}" FontSize="32" Foreground="Green"/>
 
     <Grid Grid.Column="0" Grid.Row="2">
       <Grid.ColumnDefinitions>

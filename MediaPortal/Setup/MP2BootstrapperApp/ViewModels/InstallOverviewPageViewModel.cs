@@ -32,6 +32,7 @@ namespace MP2BootstrapperApp.ViewModels
   {
     public InstallOverviewPageViewModel(InstallWizardViewModel viewModel)
     {
+      viewModel.Header = "Install overview page header";
       Packages = new ObservableCollection<string>();
       foreach (var package in viewModel.BundlePackages)
       {

@@ -28,6 +28,7 @@ namespace MP2BootstrapperApp.ViewModels
   {
     public InstallWelcomePageViewModel(InstallWizardViewModel viewModel)
     {
+      viewModel.Header = "Welcome page header";
     }
   }
 }

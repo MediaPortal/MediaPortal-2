@@ -5,6 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views">
     <Grid>
-            
-    </Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+    <CheckBox Grid.Row="0" IsChecked="{Binding Path=StartMp2Server}" Foreground="Yellow" FontSize="24">Start MP2 Server</CheckBox>
+    <CheckBox Grid.Row="1" IsChecked="{Binding Path=StartMp2Client}" Foreground="Yellow" FontSize="24">Start MP2 Client</CheckBox>
+    <CheckBox Grid.Row="2" IsChecked="{Binding Path=StartMp2ServiceMonitor}" Foreground="Yellow" FontSize="24">Start MP2 Service monitor</CheckBox>
+    <CheckBox Grid.Row="3" IsChecked="{Binding Path=StartMp2TvServerConfiguration}" Foreground="Yellow" FontSize="24">Start MP2 TV-Server configuration</CheckBox>
+  </Grid>
 </UserControl>
