@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">נגנים</string>
-  <string name="Settings.Players.AudioPlayer">נגן מוזיקה</string>
   <string name="Settings.Players.BassPlayer.Setup">הגדר התקן יציאה</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">הגדר את יציאת ה BassPlayer והאפשרויות</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
@@ -19,6 +18,4 @@
   <string name="Settings.Players.Rendering">רינדור</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">משך זמן של cross fade</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">משך הזמן של cross-fade בשניות</string>
-  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">הגדלת החיפוש</string>
-  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">הגדלת חיפוש לפי שניות</string>
 </resources>

@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">设置是否显示屏保</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">屏保超时</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">配置启动屏保的时间(分钟)</string>
-  <string name="Settings.Appearance.System.Antialiasing">用户图形界面抗锯齿</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">抗锯齿能够提高显示效果但是会降低视频效果</string>
   <string name="Settings.Appearance.Skin">皮肤</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">皮肤和主题</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">改变皮肤</string>

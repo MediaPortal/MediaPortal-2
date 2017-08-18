@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.Players">Players</string>
 
-  <string name="Settings.Players.AudioPlayer">Audio player</string>
+  <string name="Settings.Players.AudioPlayer">Audio Player</string>
   <string name="Settings.Players.BassPlayer.Setup">Configure output device</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Configures the BassPlayer output device and options</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>

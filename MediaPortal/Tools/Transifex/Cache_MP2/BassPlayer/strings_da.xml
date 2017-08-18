@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Afspillere</string>
-  <string name="Settings.Players.AudioPlayer">Lyd afspiller</string>
   <string name="Settings.Players.BassPlayer.Setup">Konfigurer udgangs enheder</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Konfigurerer BassPlayer, Udgangs enheder og optioner</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>

@@ -15,7 +15,7 @@
   <string name="Media.GenreMenuItem">Žanr</string>
   <string name="Media.SizeMenuItem">Maht</string>
   <string name="Media.SystemMenuItem">Süsteem</string>
-  <string name="Media.EpisodeDateMenuItem">Episood</string>
+  <string name="Media.EpisodeMenuItem">Episood</string>
   <string name="Media.AudioLanguageMenuItem">Keel</string>
   <string name="Media.ImageStateMenuItem">Riik</string>
   <string name="Media.SeriesNameMenuItem">Seeriad</string>
@@ -251,6 +251,8 @@
   <string name="Media.LargeList">Suur nimekiri</string>
   <string name="Media.LargeGrid">Võrk</string>
   <string name="Media.SwitchSortingMenuItem">Sorteerimine</string>
+  <string name="Media.SortByDate">Kuupäev</string>
+  <string name="Media.GroupingBrowseDefault">Vaikimisi</string>
   <string name="Settings.Players">Pleierid</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sule pleierid kui lõpetavad</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Sule lõpetanud pleierid automaatselt</string>

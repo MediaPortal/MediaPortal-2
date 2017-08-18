@@ -16,7 +16,7 @@
   <string name="Media.SizeMenuItem">Velikost</string>
   <string name="Media.SystemMenuItem">Systém</string>
   <string name="Media.ActorMenuItem">Herec:</string>
-  <string name="Media.EpisodeDateMenuItem">Epizoda</string>
+  <string name="Media.EpisodeMenuItem">Epizoda</string>
   <string name="Media.AudioLanguageMenuItem">Jazyk</string>
   <string name="Media.ImageCountryMenuItem">Země</string>
   <string name="Media.ImageStateMenuItem">Stav</string>
@@ -282,6 +282,8 @@
   <string name="Media.LargeGrid">Mřížka</string>
   <string name="Media.CoverLayout">Obaly</string>
   <string name="Media.SwitchSortingMenuItem">Řazení</string>
+  <string name="Media.SortByDate">Datum</string>
+  <string name="Media.GroupingBrowseDefault">Výchozí</string>
   <string name="Settings.Players">Přehrávače</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Zavřít přehrávače po dokončení</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Povolte toto nastavení, aby MediaPortal zavíral dokončené přehrávače automaticky</string>

@@ -98,7 +98,6 @@
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Uruchom MediaPortal automatycznie po uruchomieniu Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Litera dysku do podłączenia zasobów</string>
   <string name="Settings.General.Connectivity">Łączność</string>
   <string name="Settings.General.Connectivity.HomeServer">Serwer główny</string>
   <string name="Settings.General.Connectivity.ServerListener">Nasłuch serwera</string>

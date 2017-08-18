@@ -1,6 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">Notizie</string>
+  <string name="News.Title.Help">Leggi le notizie dai tuoi siti preferiti</string>
   <string name="News.FeedsStateDisplayLabel">Notizie</string>
+  <string name="News.Published">Pubblicato</string>
+  <string name="News.ConfiguredFeeds">Feed configurati</string>
+  <string name="News.AddFeed">Aggiungi feed notizie</string>
+  <string name="News.EnterFeedName">Inserisci il nome del feed</string>
+  <string name="News.EnterFeedUrl">Inserisci l\'indirizzo del feed</string>
   <string name="Settings.Plugins.News">Notizie</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Gestisci feed</string>
+  <string name="Settings.Plugins.News.FeedsSetup.Help">Configura i feed che verranno usati per aggregare le notizie</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Intervallo aggiornamento</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Scarica i dati dei feed ogni ... minuti</string>
 </resources>

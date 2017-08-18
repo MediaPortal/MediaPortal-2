@@ -15,7 +15,7 @@
   <string name="Media.GenreMenuItem">流派</string>
   <string name="Media.SizeMenuItem">大小</string>
   <string name="Media.SystemMenuItem">系统</string>
-  <string name="Media.EpisodeDateMenuItem">集</string>
+  <string name="Media.EpisodeMenuItem">集</string>
   <string name="Media.AudioLanguageMenuItem">语言</string>
   <string name="Media.ImageStateMenuItem">状态</string>
   <string name="Media.SeriesNameMenuItem">系列</string>
@@ -275,6 +275,8 @@
   <string name="Media.Watched">已观看</string>
   <string name="Media.Unwatched">未观看</string>
   <string name="Media.SwitchSortingMenuItem">排序</string>
+  <string name="Media.SortByDate">日期</string>
+  <string name="Media.GroupingBrowseDefault">默认</string>
   <string name="Settings.Players">播放器</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">结束后关闭播放器</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">启用自动关闭播放器</string>

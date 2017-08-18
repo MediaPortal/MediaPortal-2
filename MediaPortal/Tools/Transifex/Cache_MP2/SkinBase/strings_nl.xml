@@ -109,8 +109,6 @@
   <string name="Settings.General.System">Systeem</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Start MediaPortal automatisch tijdens het opstarten van Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Schijfletter voor bronbestanden.</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Configureert de schijfletter voor het koppelen van externe bronnen op deze client.</string>
   <string name="Settings.General.Connectivity">Verbindingen</string>
   <string name="Settings.General.Connectivity.HomeServer">Thuisserver</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Thuisserver informatie, verbinding maken en verwijderen naar de thuisserver</string>

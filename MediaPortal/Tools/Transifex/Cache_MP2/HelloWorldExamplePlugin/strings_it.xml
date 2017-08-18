@@ -5,6 +5,6 @@
   <string name="HelloWorld.ScreenTitle">Schermata ciao mondo</string>
   <string name="HelloWorld.HelloWorldText">Premendo il pulsante cambierà il testo</string>
   <string name="HelloWorld.SampleText">Questo è una schermata di esempio del plugin Ciao Mondo</string>
-  <string name="HelloWorld.ButtonText">Premi</string>
-  <string name="HelloWorld.ButtonTextCommandExecuted">Congratulazioni, hai appena inviato un Commando!</string>
+  <string name="HelloWorld.ButtonText">Premi qui</string>
+  <string name="HelloWorld.ButtonTextCommandExecuted">Congratulazioni, hai appena inviato un comando!</string>
 </resources>

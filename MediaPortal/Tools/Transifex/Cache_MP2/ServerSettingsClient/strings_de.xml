@@ -7,8 +7,8 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Benutzername und Passwort</string>
   <string name="Settings.ServerSettings.Username">Benutzername:</string>
   <string name="Settings.ServerSettings.Password">Passwort:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Importeinstellungen für Medienquellen konfigurieren</string>
-  <string name="Settings.ServerSettings.ImporterWorker.Help">Automatische Aktualisierung der Freigaben konfigurieren</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Automatische Aktualisierung der Medien-Shares</string>
+  <string name="Settings.ServerSettings.ImporterWorker.Help">Automatische Aktualisierung der Medien-Shares konfigurieren</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Automatische Aktualisierung aktivieren</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Zu dieser Stunde ausführen (24h Basis)</string>
   <string name="Settings.ServerSettings.AudioMDESettings">Audio-Import Einstellungen</string>
@@ -23,9 +23,9 @@ Das Abwählen von Quellen erhöht die Import-Geschwindigkeit, aber manche Metada
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.MediaFanArt">Audio-Informationen und FanArt laden</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Media">Nur Audio-Informationen laden</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.FanArt">Nur FanArt laden</string>
-  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.None">Keine Daten laden</string>
+  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.None">Keine Online-Daten herunterladen</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter">Filterkriterien während Import füllen</string>
-  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.Help">Legt die Filter fest, die beim Import eingepflegt werden. Weniger Filter erhöhen die Ladegeschwindigkeit. </string>
+  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.Help">Legt die Filter fest, die beim Online-Import eingepflegt werden. Weniger Filter erhöhen die Ladegeschwindigkeit. </string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.Artists">Interpret</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.Composers">Komponist</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.MusicLabels">Musiklabel</string>
@@ -45,7 +45,7 @@ Das Abwählen von Quellen erhöht die Import-Geschwindigkeit, aber manche Metada
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.MediaFanArt">Film-Informationen und FanArt laden</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.Media">Nur Film-Informationen laden</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.FanArt">Nur Film-FanArt laden</string>
-  <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.None">Keine Daten laden</string>
+  <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.None">Keine Online-Daten herunterladen</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEFilter">Filterkriterien während Import füllen</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEFilter.Help">Legt die Filter fest, die beim Import eingepflegt werden. Weniger Filter erhöhen die Ladegeschwindigkeit. </string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEFilter.Actors">Schauspieler</string>
@@ -69,7 +69,7 @@ Das Abwählen von Quellen erhöht die Import-Geschwindigkeit, aber manche Metada
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.MediaFanArt">Serien-Informationen und FanArt laden</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.Media">Nur Serien-Informationen laden</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.FanArt">Nur Serien-FanArt laden</string>
-  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.None">Keine Daten laden</string>
+  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.None">Keine Online-Daten herunterladen</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter">Filterkriterien während Import füllen</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Help">Legt die Filter fest, die beim Import eingepflegt werden. Weniger Filter erhöhen die Ladegeschwindigkeit. </string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Actors">Schauspieler</string>

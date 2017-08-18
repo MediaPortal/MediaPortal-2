@@ -14,7 +14,7 @@
   <string name="Media.GenreMenuItem">Rodzaj</string>
   <string name="Media.SizeMenuItem">Rozmiar</string>
   <string name="Media.SystemMenuItem">System</string>
-  <string name="Media.EpisodeDateMenuItem">Odcinek</string>
+  <string name="Media.EpisodeMenuItem">Odcinek</string>
   <string name="Media.AudioLanguageMenuItem">Język</string>
   <string name="Media.ImageStateMenuItem">Stan</string>
   <string name="Media.SeriesNameMenuItem">Serial</string>
@@ -184,6 +184,8 @@
   <string name="Media.RepeatMode.All">Wszystkie</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.SortByDate">Data</string>
+  <string name="Media.GroupingBrowseDefault">Domyślne</string>
   <string name="Settings.Players">Odtwarzacze</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

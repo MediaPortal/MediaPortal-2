@@ -17,7 +17,7 @@
   <string name="Media.SizeMenuItem">Grootte</string>
   <string name="Media.SystemMenuItem">Systeem</string>
   <string name="Media.ActorMenuItem">acteur</string>
-  <string name="Media.EpisodeDateMenuItem">Aflevering</string>
+  <string name="Media.EpisodeMenuItem">Aflevering</string>
   <string name="Media.AudioLanguageMenuItem">Taal</string>
   <string name="Media.ImageCountryMenuItem">Land</string>
   <string name="Media.ImageStateMenuItem">Status</string>
@@ -286,6 +286,8 @@
   <string name="Media.CoverLayout">Covers</string>
   <string name="Media.Watched">Bekeken</string>
   <string name="Media.SwitchSortingMenuItem">Sortering</string>
+  <string name="Media.SortByDate">Datum</string>
+  <string name="Media.GroupingBrowseDefault">Standaard</string>
   <string name="Settings.Players">Spelers</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sluit spelers wanneer gereed</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Schakel deze instelling in om MediaPortal automatisch gereed zijnde spelers af te sluiten</string>

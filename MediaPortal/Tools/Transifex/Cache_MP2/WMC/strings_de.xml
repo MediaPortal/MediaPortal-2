@@ -10,7 +10,7 @@
   <string name="WMC.Configuration.EnableWatchedFlags.GridView">Rasteransicht</string>
   <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Coveransicht</string>
   <string name="WMC.Configuration.EnableAgeCertificationLogos">Alterseinstufungs-Logos anzeigen</string>
-  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Zeigt die Logos für die Altersfreigabe zusammen mit den Medieninformationen an</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Zeigt Altersfreigabe-Logos zusammen mit den Medieninformationen an</string>
   <string name="WMC.Configuration.EnableBanners">Banner anzeigen</string>
   <string name="WMC.Configuration.EnableBanners.Help">Legt fest, ob in der Rasteransicht Banner anstelle von Covern angezeigt werden sollen</string>
   <string name="WMC.Configuration.EnableBanners.Movies">Filme</string>

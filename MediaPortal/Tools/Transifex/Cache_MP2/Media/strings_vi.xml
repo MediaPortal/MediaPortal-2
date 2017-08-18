@@ -4,7 +4,7 @@
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.GenreMenuItem">Loại</string>
   <string name="Media.SystemMenuItem">Hệ thống</string>
-  <string name="Media.EpisodeDateMenuItem">Episode</string>
+  <string name="Media.EpisodeMenuItem">Episode</string>
   <!--Filter titles-->
   <!--Special filters names-->
   <!--Navbar display labels for sub view navigation-->
