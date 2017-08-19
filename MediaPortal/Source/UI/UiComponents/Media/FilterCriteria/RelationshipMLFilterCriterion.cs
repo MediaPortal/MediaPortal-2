@@ -72,15 +72,15 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
       IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
-      IFilter queryFilter;
-      if (filter != null)
-        queryFilter = new FilteredRelationshipFilter(_role, filter);
-      else
-        queryFilter = new RelationshipFilter(_role, _linkedRole, Guid.Empty);
+
+      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds);
+      IFilter queryFilter = CreateQueryFilter(necessaryMIATypeIds, filter, showVirtual);
+
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
       if (_sortInformation != null)
         query.SortInformation = new List<ISortInformation> { _sortInformation };
-      IList<MediaItem> items = cd.Search(query, true, userProfile, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+
+      IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)
       {
@@ -93,6 +93,36 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           this));
       }
       return result;
+    }
+
+    /// <summary>
+    /// Creates the filter that will be used when getting the available values for this filter criterion.
+    /// </summary>
+    /// <param name="necessaryMIATypeIds">Media item aspects which need to be available in the media items, from which
+    /// the available relations will be collected.</param>
+    /// <param name="filter">Base filter for the media items from which the available values will be collected.</param>
+    /// <param name="showVirtual">Whether the query includes virtual items.</param>
+    /// <returns>Filter that will be used to get the available values for this criterion.</returns>
+    protected virtual IFilter CreateQueryFilter(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, bool showVirtual)
+    {
+      if (filter == null)
+        //No filter just Create a simple relationship filter
+        return new RelationshipFilter(_role, _linkedRole, Guid.Empty);
+
+      //The showVirtual flag is handled by the server for the main query however
+      //the FilteredRelationshipFilter uses a subquery to get the linked ids.
+      //If showVirtual is false, we need to manually add a filter to the subquery to
+      //ensure that it doesn't return virtual linked ids.
+      //TODO: Add proper subquery support to the server so we can also handle the onlyOnline filter 
+      //in subqueries as this is not possible to add here as we don't know the online systems.
+      IFilter subFilter = showVirtual ? filter : AddOnlyNonVirtualFilter(filter);
+      return new FilteredRelationshipFilter(_role, _linkedRole, subFilter);
+    }
+    
+    protected IFilter AddOnlyNonVirtualFilter(IFilter innerFilter)
+    {
+      IFilter nonVirtualFilter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, false);
+      return innerFilter == null ? nonVirtualFilter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, innerFilter, nonVirtualFilter);
     }
 
     protected virtual string GetDisplayName(object groupKey)

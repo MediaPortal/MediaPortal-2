@@ -109,7 +109,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
 
         if (collectionChangedFilter != null)
-          filters.Add(new FilteredRelationshipFilter(MovieAspect.ROLE_MOVIE, collectionChangedFilter), 1);
+          filters.Add(new FilteredRelationshipFilter(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, collectionChangedFilter), 1);
       }
 
       //Add filters for changed movies

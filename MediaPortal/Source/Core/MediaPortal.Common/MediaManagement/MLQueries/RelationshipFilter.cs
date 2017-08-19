@@ -32,13 +32,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   /// </summary>
   public class RelationshipFilter : AbstractRelationshipFilter
   {
-    protected Guid _linkedRole;
     protected Guid _linkedMediaItemId;
 
     public RelationshipFilter(Guid role, Guid linkedRole, Guid linkedMediaItemId) :
-      base(role)
+      base(role, linkedRole)
     {
-      _linkedRole = linkedRole;
       _linkedMediaItemId = linkedMediaItemId;
     }
 
@@ -49,16 +47,9 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _linkedMediaItemId = value; }
     }
 
-    [XmlIgnore]
-    public Guid LinkedRole
-    {
-      get { return _linkedRole; }
-      set { _linkedRole = value; }
-    }
-
     public override string ToString()
     {
-      return "(LINKED_ID = '" + _linkedMediaItemId + "'" + (_role != Guid.Empty ? " AND ROLE='" + _role + "'" : "") + " AND LINKED_ROLE='" + _linkedRole + "')";
+      return "(LINKED_ID = '" + _linkedMediaItemId + "' AND ROLE = '" + _role + "' AND LINKED_ROLE = '" + _linkedRole + "')";
     }
 
     #region Additional members for the XML serialization
@@ -73,16 +64,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _linkedMediaItemId; }
       set { _linkedMediaItemId = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlAttribute("LinkedRole")]
-    public Guid XML_LinkedRole
-    {
-      get { return _linkedRole; }
-      set { _linkedRole = value; }
     }
 
     #endregion

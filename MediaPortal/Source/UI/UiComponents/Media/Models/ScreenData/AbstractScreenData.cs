@@ -304,16 +304,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public abstract void UpdateItems();
 
     /// <summary>
-    /// Whether this screen can filter items shown by the <paramref name="parentScreen"/>.
-    /// The default implementation checks whether at least one of the <see cref="FilteredMias"/> is present in the <paramref name="parentScreen"/>'s <see cref="FilteredMias"/>
-    /// or whether <see cref="FilteredMias"/> is null on this or the parent screen.
-    /// Can be overriden in derived classes.
+    /// Whether this screen can filter and display items with the specified aspects.
     /// </summary>
-    /// <param name="parentScreen">The screen that is currently shown.</param>
-    /// <returns>True if this screen can handle items shown by the <paramref name="parentScreen"/></returns>
-    public virtual bool CanFilter(AbstractScreenData parentScreen)
+    /// <param name="necessaryMIATypeIds">The ids of the media item aspects contained in the items to filter.</param>
+    /// <returns></returns>
+    public virtual bool CanFilter(IEnumerable<Guid> necessaryMIATypeIds)
     {
-      return _filteredMias == null || parentScreen == null || parentScreen.FilteredMias == null || _filteredMias.Intersect(parentScreen.FilteredMias).Count() > 0;
+      return _filteredMias == null || necessaryMIATypeIds == null || _filteredMias.Intersect(necessaryMIATypeIds).Any();
     }
 
     /// <summary>

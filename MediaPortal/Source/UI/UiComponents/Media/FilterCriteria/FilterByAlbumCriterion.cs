@@ -40,5 +40,14 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         new AttributeSortInformation(AudioAlbumAspect.ATTR_ALBUM, SortDirection.Ascending))
     {
     }
+
+    protected override IFilter CreateQueryFilter(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, bool showVirtual)
+    {
+      //If previous filter is an album filter we can just use it directly
+      if (filter != null && necessaryMIATypeIds != null && necessaryMIATypeIds.Contains(AudioAlbumAspect.ASPECT_ID))
+        return filter;
+      //else we'll use the default relationship filter
+      return base.CreateQueryFilter(necessaryMIATypeIds, filter, showVirtual);
+    }
   }
 }

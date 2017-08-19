@@ -22,17 +22,12 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.General;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Exceptions;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.SystemCommunication;
-using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -46,6 +41,15 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         new AttributeSortInformation(SeriesAspect.ATTR_SERIES_NAME, SortDirection.Ascending))
     {
       
+    }
+
+    protected override IFilter CreateQueryFilter(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, bool showVirtual)
+    {
+      //If previous filter is a series filter we can just use it directly
+      if (filter != null && necessaryMIATypeIds != null && necessaryMIATypeIds.Contains(SeriesAspect.ASPECT_ID))
+        return filter;
+      //else we'll use the default relationship filter
+      return base.CreateQueryFilter(necessaryMIATypeIds, filter, showVirtual);
     }
   }
 }

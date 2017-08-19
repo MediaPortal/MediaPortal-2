@@ -128,7 +128,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
 
         if (seriesChangedFilter != null)
-          filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, seriesChangedFilter), 1);
+          filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, seriesChangedFilter), 1);
       }
 
       if (includeFullSeriesFilter)
@@ -136,7 +136,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         includeFullSeriesFilter = false;
 
         //Add filter for outdated next episode
-        filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE,
+        filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES,
           BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           new RelationalFilter(SeriesAspect.ATTR_ENDED, RelationalOperator.EQ, false),
           new RelationalFilter(SeriesAspect.ATTR_NEXT_AIR_DATE, RelationalOperator.LT, DateTime.Now),

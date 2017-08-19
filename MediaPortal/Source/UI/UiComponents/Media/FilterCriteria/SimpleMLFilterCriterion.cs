@@ -98,12 +98,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           if (name == string.Empty)
             numEmptyEntries += (int)group.Value;
           else
-          {
-            IFilter queryFilter = new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key);
-            if (filter != null)
-              queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
-            result.Add(new FilterValue(valueKeys[group.Key], name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
-          }
+            result.Add(new FilterValue(valueKeys[group.Key], name, new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key), null, (int)group.Value, this));
         }
         else
         {
@@ -111,21 +106,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           if (name == string.Empty)
             numEmptyEntries += (int)group.Value;
           else
-          {
-            IFilter queryFilter = new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key);
-            if (filter != null)
-              queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
-            result.Add(new FilterValue(name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
-          }
+            result.Add(new FilterValue(name, new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key), null, (int)group.Value, this));
         }
       }
       if (numEmptyEntries > 0)
-      {
-        IFilter queryFilter = new EmptyFilter(_valueAttributeType);
-        if (filter != null)
-          queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
-        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, numEmptyEntries, this));
-      }
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_valueAttributeType), null, numEmptyEntries, this));
+
       return result;
     }
 

@@ -22,21 +22,13 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
-
-namespace MediaPortal.UiComponents.Media.Models.ScreenData
+namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
-  public abstract class AbstractAlbumFilterScreenData<T> : AbstractFiltersScreenData<T> where T : FilterItem, new()
+  /// <summary>
+  /// Holds a GUI item which represents an actor/director/writer/character attribute filter choice.
+  /// </summary>
+  public class SimplePersonFilterItem : FilterItem
   {
-    protected AbstractAlbumFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
-        MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion)
-    {
-      _necessaryLinkedMIATypeIds = Consts.NECESSARY_ALBUM_MIAS;
-      _optionalLinkedMIATypeIds = Consts.OPTIONAL_ALBUM_MIAS;
-      _filteredMias = new[] { AudioAlbumAspect.ASPECT_ID };
-    }
+
   }
 }

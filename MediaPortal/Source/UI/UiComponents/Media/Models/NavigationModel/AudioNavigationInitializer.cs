@@ -33,6 +33,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
   {
     internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Audio }; // "Audio"
 
+    protected AudioFilterByAlbumScreenData _albumScreen;
+
     public AudioNavigationInitializer()
     {
       _mediaNavigationMode = Models.MediaNavigationMode.Audio;
@@ -43,11 +45,21 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
+    public override void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
+    {
+      base.InitMediaNavigation(out mediaNavigationMode, out navigationData);
+      //Album filters modify the necessary/optional mia types of the current query view specification.
+      //The album screen needs to return them back to the root episode mias so it needs to know what they are.
+      //We need to set them after we have called InitMediaNavigation above as that call may modify the optional mia types.
+      _albumScreen.SetRootMiaTypes(navigationData.BaseViewSpecification.NecessaryMIATypeIds, navigationData.BaseViewSpecification.OptionalMIATypeIds);
+    }
+
     protected override void Prepare()
     {
       base.Prepare();
 
       _defaultScreen = new AudioFilterByArtistScreenData();
+      _albumScreen = new AudioFilterByAlbumScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
           new AudioShowItemsScreenData(_genericPlayableItemCreatorDelegate),
@@ -56,7 +68,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new AudioFilterByComposerScreenData(),
           new AudioFilterByConductorScreenData(),
           new AudioFilterByAlbumArtistScreenData(),
-          new AudioFilterByAlbumScreenData(),
+          _albumScreen,
           new AudioFilterByAlbumLabelScreenData(),
           new AudioFilterByDiscNumberScreenData(),
           new AudioFilterByCompilationScreenData(),

@@ -27,6 +27,7 @@ using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -49,9 +50,15 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     }
 
     //Special case for album screen, it can support album filters and track filters
-    public override bool CanFilter(AbstractScreenData parentScreen)
+    public override bool CanFilter(IEnumerable<Guid> necessaryMIATypeIds)
     {
-      return base.CanFilter(parentScreen) || parentScreen.FilteredMias.Contains(AudioAlbumAspect.ASPECT_ID);
+      return base.CanFilter(necessaryMIATypeIds) || necessaryMIATypeIds.Contains(AudioAlbumAspect.ASPECT_ID);
+    }
+
+    public void SetRootMiaTypes(ICollection<Guid> necessaryLinkedMIATypeIds, ICollection<Guid> optionalLinkedMIATypeIds)
+    {
+      _necessaryLinkedMIATypeIds = necessaryLinkedMIATypeIds;
+      _optionalLinkedMIATypeIds = optionalLinkedMIATypeIds;
     }
   }
 }
