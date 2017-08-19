@@ -37,6 +37,20 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
   public class UserProfileDataManagement : IUserProfileDataManagement
   {
+    private ICollection<UserProfile> _userCache = new List<UserProfile>();
+    private object _userCacheSync = new object();
+
+    public IEnumerable<UserProfile> UserCache
+    {
+      get
+      {
+        lock (_userCacheSync)
+        {
+          return _userCache.AsEnumerable();
+        }
+      }
+    }
+
     #region Public methods
 
     public void Startup()
@@ -51,6 +65,11 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         throw new IllegalCallException(string.Format(
             "Unable to update the UserProfileDataManagement's subschema version to expected version {0}.{1}",
             UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
+
+      lock(_userCacheSync)
+      {
+        _userCache = GetProfiles();
+      }
     }
 
     public void Shutdown()
@@ -62,7 +81,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     #region Protected methods
 
-    protected ICollection<UserProfile> GetProfiles(Guid? profileId, string name)
+    protected ICollection<UserProfile> GetProfiles(Guid? profileId, string name, bool loadData = true)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.CreateTransaction();
@@ -74,10 +93,10 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         int passwordIndex;
         int imageIndex;
         int lastLoginIndex;
+        ICollection<UserProfile> result = new List<UserProfile>();
         using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserProfilesCommand(transaction, profileId, name,
             out profileIdIndex, out nameIndex, out profileTypeIndex, out passwordIndex, out imageIndex, out lastLoginIndex))
         {
-          ICollection<UserProfile> result = new List<UserProfile>();
           using (IDataReader reader = command.ExecuteReader())
           {
             while (reader.Read())
@@ -87,8 +106,30 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
               );
             }
           }
-          return result;
         }
+
+        if (loadData)
+        {
+          foreach (var user in result)
+          {
+            using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, user.ProfileId, null,
+                out nameIndex, out profileIdIndex, out imageIndex))
+            {
+              using (IDataReader reader = command.ExecuteReader())
+              {
+                while (reader.Read())
+                {
+                  string key = database.ReadDBValue<string>(reader, nameIndex);
+                  if (!user.AdditionalData.ContainsKey(key))
+                    user.AdditionalData.Add(key, new Dictionary<int, string>());
+                  user.AdditionalData[key].Add(database.ReadDBValue<int>(reader, profileIdIndex), database.ReadDBValue<string>(reader, imageIndex));
+                }
+              }
+            }
+          }
+        }
+
+        return result;
       }
       finally
       {
@@ -143,6 +184,10 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         transaction.Rollback();
         throw;
       }
+      lock (_userCacheSync)
+      {
+        _userCache.Add(new UserProfile(profileId, profileName));
+      }
       return profileId;
     }
 
@@ -168,6 +213,10 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         transaction.Rollback();
         throw;
       }
+      lock (_userCacheSync)
+      {
+        _userCache.Add(new UserProfile(profileId, profileName, profileType, profilePassword, profileImage));
+      }
       return profileId;
     }
 
@@ -181,6 +230,12 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         using (IDbCommand command = UserProfileDataManagement_SubSchema.UpdateUserProfileNameCommand(transaction, profileId, newName))
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
+        lock (_userCacheSync)
+        {
+          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
+          if (profile != null)
+            profile.Rename(newName);
+        }
         return result;
       }
       catch (Exception e)
@@ -201,6 +256,13 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserProfileCommand(transaction, profileId))
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
+
+        lock (_userCacheSync)
+        {
+          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
+          if (profile != null)
+            _userCache.Remove(profile);
+        }
         return result;
       }
       catch (Exception e)
@@ -221,6 +283,13 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         using (IDbCommand command = UserProfileDataManagement_SubSchema.LoginUserProfileCommand(transaction, profileId))
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
+
+        lock (_userCacheSync)
+        {
+          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
+          if (profile != null)
+            profile.LastLogin = DateTime.Now;
+        }
         return result;
       }
       catch (Exception e)
@@ -391,6 +460,18 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, profileId, key, 0, data))
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
+
+        lock (_userCacheSync)
+        {
+          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
+          if (profile != null)
+          {
+            if (!profile.AdditionalData.ContainsKey(key))
+              profile.AdditionalData.Add(key, new Dictionary<int, string>());
+            profile.AdditionalData[key].Clear();
+            profile.AdditionalData[key].Add(0, data);
+          }
+        }
         return result;
       }
       catch (Exception e)
@@ -441,6 +522,20 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, profileId, key, dataNo, data))
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
+
+        lock (_userCacheSync)
+        {
+          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
+          if (profile != null)
+          {
+            if (!profile.AdditionalData.ContainsKey(key))
+              profile.AdditionalData.Add(key, new Dictionary<int, string>());
+            if (profile.AdditionalData[key].ContainsKey(dataNo))
+              profile.AdditionalData[key][dataNo] = data;
+            else
+              profile.AdditionalData[key].Add(dataNo, data);
+          }
+        }
         return result;
       }
       catch (Exception e)
@@ -482,6 +577,39 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
+    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.CreateTransaction();
+      try
+      {
+        int dataNoIndex;
+        int dataIndex;
+        int keyIndex;
+        List<Tuple<string, int, string>> list = new List<Tuple<string, int, string>>();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, profileId,
+            keys, out keyIndex, out dataNoIndex, out dataIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              list.Add(new Tuple<string, int, string>(database.ReadDBValue<string>(reader, keyIndex), database.ReadDBValue<int>(reader, dataNoIndex), 
+                database.ReadDBValue<string>(reader, dataIndex)));
+            }
+          }
+        }
+        data = null;
+        if (list.Count > 0)
+          data = list;
+        return data != null;
+      }
+      finally
+      {
+        transaction.Dispose();
+      }
+    }
+
     #endregion
 
     #region Cleanup user data
@@ -499,6 +627,15 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, profileId, null, null))
           command.ExecuteNonQuery();
         transaction.Commit();
+
+        lock (_userCacheSync)
+        {
+          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
+          if (profile != null)
+          {
+            profile.AdditionalData.Clear();
+          }
+        }
         return true;
       }
       catch (Exception e)
@@ -537,6 +674,16 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, profileId, null, key))
           command.ExecuteNonQuery();
         transaction.Commit();
+
+        lock (_userCacheSync)
+        {
+          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
+          if (profile != null)
+          {
+            if (profile.AdditionalData.ContainsKey(key))
+              profile.AdditionalData[key].Clear();
+          }
+        }
         return true;
       }
       catch (Exception e)

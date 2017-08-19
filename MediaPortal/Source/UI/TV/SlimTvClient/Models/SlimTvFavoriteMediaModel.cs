@@ -116,9 +116,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected static void FillRecordingList(IContentDirectory contentDirectory, Guid[] necessaryMIAs, ItemsList list, MediaItemToListItemAction converterAction)
     {
       Guid? userProfile = null;
+      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
+      }
+      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(necessaryMIAs);
 
       MediaItemQuery query = new MediaItemQuery(necessaryMIAs, null)
       {
@@ -127,7 +132,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
       };
 
-      var items = contentDirectory.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(necessaryMIAs));
+      var items = contentDirectory.Search(query, false, userProfile, showVirtual, applyUserRestrictions);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

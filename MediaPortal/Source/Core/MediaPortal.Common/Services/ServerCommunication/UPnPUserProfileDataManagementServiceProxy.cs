@@ -237,7 +237,24 @@ namespace MediaPortal.Common.Services.ServerCommunication
             key
         };
       IList<object> outParameters = action.InvokeAction(inParameters);
-      data = MarshallingHelper.ParseCsvTupleCollection((string)outParameters[0]).Select(t => new Tuple<int, string>(Convert.ToInt32(t.Item1), t.Item2));
+      data = null;
+      if (outParameters[0] != null)
+        data = MarshallingHelper.ParseCsvTuple2Collection((string)outParameters[0]).Select(t => new Tuple<int, string>(Convert.ToInt32(t.Item1), t.Item2));
+      return (bool)outParameters[1];
+    }
+
+    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data)
+    {
+      CpAction action = GetAction("GetUserSelectedAdditionalDataList");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(profileId),
+            MarshallingHelper.SerializeStringEnumerationToCsv(keys)
+        };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      data = null;
+      if (outParameters[0] != null)
+        data = MarshallingHelper.ParseCsvTuple3Collection((string)outParameters[0]).Select(t => new Tuple<string, int, string>(t.Item1, Convert.ToInt32(t.Item2), t.Item3));
       return (bool)outParameters[1];
     }
 

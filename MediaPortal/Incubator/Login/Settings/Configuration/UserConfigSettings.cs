@@ -22,11 +22,34 @@
 
 #endregion
 
+using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Login.Settings.Configuration
 {
-  public class UsersOverviewSetting : CustomConfigSetting
+  public class UserConfigSettings : YesNo
   {
+    public override void Load()
+    {
+      if (!Enabled)
+        return;
+      ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
+      UserSettings settings = localSettings.Load<UserSettings>();
+      Yes = settings.EnableUserLogin;
+    }
+
+    public override void Save()
+    {
+      if (!Enabled)
+        return;
+
+      base.Save();
+
+      ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
+      UserSettings settings = localSettings.Load<UserSettings>();
+      settings.EnableUserLogin = Yes;
+      localSettings.Save(settings);
+    }
   }
 }

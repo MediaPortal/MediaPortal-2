@@ -22,28 +22,11 @@
 
 #endregion
 
-using MediaPortal.Common.Services.Settings;
-using System;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.UiComponents.Login.Settings
+namespace MediaPortal.UiComponents.Login.Settings.Configuration
 {
-  public static class UserSetting
+  public class UserManagementSetting : CustomConfigSetting
   {
-    private static SettingsChangeWatcher<UserSettings> _settingsWatcher;
-
-    static UserSetting()
-    {
-      _settingsWatcher = new SettingsChangeWatcher<UserSettings>();
-      _settingsWatcher.SettingsChanged += SettingsChanged;
-
-      UserLoginEnabled = _settingsWatcher.Settings.EnableUserLogin;
-    }
-
-    private static void SettingsChanged(object sender, EventArgs e)
-    {
-      UserLoginEnabled = _settingsWatcher.Settings.EnableUserLogin;
-    }
-
-    public static bool UserLoginEnabled { get; private set; }
   }
 }

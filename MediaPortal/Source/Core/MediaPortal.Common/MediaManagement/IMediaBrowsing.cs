@@ -61,12 +61,15 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="necessaryRequestedMIATypeIDs">Necessary MIA ids the returned items must support.</param>
     /// <param name="optionalRequestedMIATypeIDs">Optional MIA ids the returned items can support.</param>
     /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Include virtual media items.</param>
+    /// <param name="applyUserRestrictions">Apply restrictions setup on the user.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Collection of media items.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
     IList<MediaItem> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
+        IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includeVirtual, bool applyUserRestrictions, 
+        uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Marks media items that have updated metadata available.

@@ -31,9 +31,12 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public const string KEY_PLAY_COUNT = "PlayCount"; //Number of times a user played an media item
     public const string KEY_PLAY_PERCENTAGE = "PlayPercentage"; //Percentage of media item played during last playback
     public const string KEY_PLAY_DATE = "PlayDate"; //Date the media item was last played
-    public const string KEY_ALLOWED_SHARE = "AllowedShare"; //Shares to which a user has access
-    public const string KEY_ALLOWED_AGE_RATING = "AllowedAgeRating"; //The maximum age for which a user can find media items based on content rating systems
+    public const string KEY_ALLOWED_SHARE = "AllowedShare"; //Share ID's to which a user has access
+    public const string KEY_ALLOW_ALL_SHARES = "AllowAllShare"; //All user access to all shares
+    public const string KEY_ALLOWED_AGE = "AllowedAge"; //The maximum age for which a user can find media items based on content certification systems
+    public const string KEY_ALLOW_ALL_AGES = "AllowAllAges"; //All user access to all content regardless of content certification
     public const string KEY_INCLUDE_PARENT_GUIDED_CONTENT = "IncludeParentGuidedContent"; //Include media items for which a parent is required
-    public const string KEY_AGE_RATING_SYSTEM_COUNTRY = "AgeRatingSystemCountry"; //The content rating system country which the user prefers
+    public const string KEY_SERIES_CONTENT_CERTIFICATION_SYSTEM_COUNTRY = "SeriesAgeCertificationSystemCountry"; //The content certification system country for series which the user prefers
+    public const string KEY_MOVIE_CONTENT_CERTIFICATION_SYSTEM_COUNTRY = "MovieAgeCertificationSystemCountry"; //The content certification system country for movies which the user prefers
   }
 }

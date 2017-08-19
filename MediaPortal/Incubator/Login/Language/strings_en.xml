@@ -4,9 +4,11 @@
   <string name="Login.Title.Help">Change user profile</string>
 
   <string name="Settings.Users">Users</string> <!-- Section name -->
-  <string name="Settings.Users.Overview">User management</string> <!-- Group name -->
-  <string name="Settings.Users.Overview.UserOverview">User management</string> <!-- Setting -->
-  <string name="Settings.Users.Overview.UserOverview.Help">Manage the users on the home server</string>
+  <string name="Settings.Users.Config">User management</string> <!-- Group name -->
+  <string name="Settings.Users.Config.UserManagement">User management</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserManagement.Help">Manage the users on the home server</string>
+  <string name="Settings.Users.Config.UserEnable">Enable user logins and restrictions</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">Enable users to login, change the current user and apply user specific settings</string>
 
   <!-- User configuration workflow -->
 
@@ -14,4 +16,18 @@
   <string name="UserConfig.UserConfiguration.Title">User management</string>
   <string name="UserConfig.Users">Users</string>
   <string name="UserConfig.NoConfigUserHomeServerNotConnected">The home server is currently not connected, so server users cannot be managed at the moment.</string>
+
+  <string name="UserConfig.ClientProfileType">Client Profile</string>
+  <string name="UserConfig.UserProfileType">User Profile</string>
+  <string name="UserConfig.AdminProfileType">Administrator Profile</string>
+
+  <string name="UserConfig.NewUserText">New User</string>
+  <string name="UserConfig.SharesText">Shares</string>
+  <string name="UserConfig.AnyText">Any</string>
+  <string name="UserConfig.LocalShare">Client media source</string>
+  <string name="UserConfig.LocalShares">Client media sources</string>
+  <string name="UserConfig.GlobalShare">Server media source</string>
+  <string name="UserConfig.GlobalShares">Server media sources</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">The home server is currently not connected, so server media sources cannot be managed at the moment.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">The home server is located at the same machine, so only server media sources can be configured.</string>
 </resources>

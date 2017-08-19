@@ -40,6 +40,13 @@ using MediaPortal.UI.Shares;
 using MediaPortal.UiComponents.Login.General;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Certifications;
+using System.Globalization;
+using System.IO;
+using MediaPortal.Utilities.Graphics;
+using System.Drawing.Imaging;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -53,6 +60,8 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public const string STR_MODEL_ID_USERCONFIG = "9B20B421-DF2E-42B6-AFF2-7EB6B60B601D";
     public static readonly Guid MODEL_ID_USERCONFIG = new Guid(STR_MODEL_ID_USERCONFIG);
+    public static int MAX_IMAGE_WIDTH = 64;
+    public static int MAX_IMAGE_HEIGHT = 64;
 
     #endregion
 
@@ -60,10 +69,22 @@ namespace MediaPortal.UiComponents.Login.Models
 
     protected object _syncObj = new object();
     protected bool _updatingProperties = false;
-    protected ItemsList _sharesList = null;
+    protected ItemsList _serverSharesList = null;
+    protected ItemsList _localSharesList = null;
     protected ItemsList _userList = null;
+    protected ItemsList _profileList = null;
+    protected ItemsList _movieRegionList = null;
+    protected ItemsList _seriesRegionList = null;
     protected UserProxy _userProxy = null; // Encapsulates state and communication of user configuration
     protected AbstractProperty _isHomeServerConnectedProperty;
+    protected AbstractProperty _showLocalSharesProperty;
+    protected AbstractProperty _isLocalHomeServerProperty;
+    protected AbstractProperty _anyShareAvailableProperty;
+    protected AbstractProperty _selectShareInfoProperty;
+    protected AbstractProperty _profileTypeNameProperty;
+    protected AbstractProperty _preferredMovieCertificationCountryNameProperty;
+    protected AbstractProperty _preferredSeriesCertificationCountryNameProperty;
+    protected AbstractProperty _isUserSelectedProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
 
     #endregion
@@ -73,13 +94,79 @@ namespace MediaPortal.UiComponents.Login.Models
     public UserConfigModel()
     {
       _isHomeServerConnectedProperty = new WProperty(typeof(bool), false);
+      _showLocalSharesProperty = new WProperty(typeof(bool), false);
+      _isLocalHomeServerProperty = new WProperty(typeof(bool), false);
+      _anyShareAvailableProperty = new WProperty(typeof(bool), false);
+      _selectShareInfoProperty = new WProperty(typeof(string), string.Empty);
+      _profileTypeNameProperty = new WProperty(typeof(string), string.Empty);
+      _preferredMovieCertificationCountryNameProperty = new WProperty(typeof(string), string.Empty);
+      _preferredSeriesCertificationCountryNameProperty = new WProperty(typeof(string), string.Empty);
+      _isUserSelectedProperty = new WProperty(typeof(bool), false);
+
+      _profileList = new ItemsList();
+      ListItem item = new ListItem();
+      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
+      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.CLIENT_PROFILE;
+      _profileList.Add(item);
+      item = new ListItem();
+      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
+      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.USER_PROFILE;
+      _profileList.Add(item);
+      item = new ListItem();
+      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_ADMIN_PROFILE_TEXT));
+      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.ADMIN_PROFILE;
+      _profileList.Add(item);
+
+      _movieRegionList = new ItemsList();
+      item = new ListItem();
+      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_ANY_TEXT));
+      item.AdditionalProperties[Consts.KEY_COUNTRY] = string.Empty;
+      _movieRegionList.Add(item);
+      foreach (string country in CertificationMapper.GetSupportedMovieCertificationCountries())
+      {
+        item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, new RegionInfo(country).DisplayName);
+        item.AdditionalProperties[Consts.KEY_COUNTRY] = country;
+        _movieRegionList.Add(item);
+      }
+
+      _seriesRegionList = new ItemsList();
+      item = new ListItem();
+      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_ANY_TEXT));
+      item.AdditionalProperties[Consts.KEY_COUNTRY] = string.Empty;
+      _seriesRegionList.Add(item);
+      foreach (string country in CertificationMapper.GetSupportedSeriesCertificationCountries())
+      {
+        item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, new RegionInfo(country).DisplayName);
+        item.AdditionalProperties[Consts.KEY_COUNTRY] = country;
+        _seriesRegionList.Add(item);
+      }
+
+      UserProxy = new UserProxy();
+      UserProxy.PreferredMovieCertificationCountryProperty.Attach(OnMovieCountryChanged);
+      UserProxy.PreferredSeriesCertificationCountryProperty.Attach(OnSeriesCountryChanged);
+      UserProxy.ProfileTypeProperty.Attach(OnProfileTypeChanged);
+
+      ProfileTypeName = ProfileTypeList.FirstOrDefault(i => (int)i.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType)?.Labels[Consts.KEY_NAME].Evaluate();
+      PreferredMovieCertificationCountryName = MovieCountryList.
+          FirstOrDefault(i => (string)i.AdditionalProperties[Consts.KEY_COUNTRY] == UserProxy.PreferredMovieCertificationCountry)?.Labels[Consts.KEY_NAME].Evaluate();
+      PreferredSeriesCertificationCountryName = SeriesCountryList.
+          FirstOrDefault(i => (string)i.AdditionalProperties[Consts.KEY_COUNTRY] == UserProxy.PreferredSeriesCertificationCountry)?.Labels[Consts.KEY_NAME].Evaluate();
+
+      UpdateUserLists_NoLock(true);
+      UpdateShareLists_NoLock(true);
     }
 
     public void Dispose()
     {
       UserProxy = null;
-      _sharesList = null;
+      _serverSharesList = null;
+      _localSharesList = null;
       _userList = null;
+      _profileList = null;
+      _movieRegionList = null;
+      _seriesRegionList = null;
     }
 
     #endregion
@@ -122,12 +209,12 @@ namespace MediaPortal.UiComponents.Login.Models
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
-            UpdateProperties_NoLock();
             UpdateUserLists_NoLock(false);
+            UpdateShareLists_NoLock(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-            UpdateProperties_NoLock();
             UpdateUserLists_NoLock(false);
+            UpdateShareLists_NoLock(false);
             break;
         }
       }
@@ -137,8 +224,7 @@ namespace MediaPortal.UiComponents.Login.Models
         switch (messageType)
         {
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
-            UpdateProperties_NoLock();
-            UpdateUserLists_NoLock(false);
+            UpdateShareLists_NoLock(false);
             break;
         }
       }
@@ -149,8 +235,7 @@ namespace MediaPortal.UiComponents.Login.Models
         {
           case SharesMessaging.MessageType.ShareAdded:
           case SharesMessaging.MessageType.ShareRemoved:
-            UpdateProperties_NoLock();
-            UpdateUserLists_NoLock(false);
+            UpdateShareLists_NoLock(false);
             break;
         }
       }
@@ -172,14 +257,70 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
-    public ItemsList SharesList
+    public ItemsList ServerSharesList
     {
-      get { return _sharesList; }
+      get
+      {
+        lock (_syncObj)
+          return _serverSharesList;
+      }
+    }
+
+    public ItemsList LocalSharesList
+    {
+      get
+      {
+        lock (_syncObj)
+          return _localSharesList;
+      }
     }
 
     public ItemsList UserList
     {
-      get { return _userList; }
+      get
+      {
+        lock (_syncObj)
+          return _userList;
+      }
+    }
+
+    public ItemsList ProfileTypeList
+    {
+      get
+      {
+        foreach (var item in _profileList)
+        {
+          if (UserProxy != null)
+            item.Selected = (int)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType;
+        }
+        return _profileList;
+      }
+    }
+
+    public ItemsList MovieCountryList
+    {
+      get
+      {
+        foreach (var item in _movieRegionList)
+        {
+          if (UserProxy != null)
+            item.Selected = (string)item.AdditionalProperties[Consts.KEY_COUNTRY] == UserProxy.PreferredMovieCertificationCountry;
+        }
+        return _movieRegionList;
+      }
+    }
+
+    public ItemsList SeriesCountryList
+    {
+      get
+      {
+        foreach (var item in _seriesRegionList)
+        {
+          if (UserProxy != null)
+            item.Selected = (string)item.AdditionalProperties[Consts.KEY_COUNTRY] == UserProxy.PreferredSeriesCertificationCountry;
+        }
+        return _seriesRegionList;
+      }
     }
 
     public AbstractProperty IsHomeServerConnectedProperty
@@ -187,24 +328,199 @@ namespace MediaPortal.UiComponents.Login.Models
       get { return _isHomeServerConnectedProperty; }
     }
 
-    /// <summary>
-    /// <c>true</c> if a home server is attached and it is currently connected.
-    /// </summary>
     public bool IsHomeServerConnected
     {
       get { return (bool)_isHomeServerConnectedProperty.GetValue(); }
       set { _isHomeServerConnectedProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsLocalHomeServerProperty
+    {
+      get { return _isLocalHomeServerProperty; }
+    }
+
+    public bool IsLocalHomeServer
+    {
+      get { return (bool)_isLocalHomeServerProperty.GetValue(); }
+      set { _isLocalHomeServerProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ShowLocalSharesProperty
+    {
+      get { return _showLocalSharesProperty; }
+    }
+
+    public bool ShowLocalShares
+    {
+      get { return (bool)_showLocalSharesProperty.GetValue(); }
+      set { _showLocalSharesProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AnyShareAvailableProperty
+    {
+      get { return _anyShareAvailableProperty; }
+    }
+
+    public bool AnyShareAvailable
+    {
+      get { return (bool)_anyShareAvailableProperty.GetValue(); }
+      set { _anyShareAvailableProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SelectedSharesInfoProperty
+    {
+      get { return _selectShareInfoProperty; }
+    }
+
+    public string SelectedSharesInfo
+    {
+      get { return (string)_selectShareInfoProperty.GetValue(); }
+      set { _selectShareInfoProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ProfileTypeNameProperty
+    {
+      get { return _profileTypeNameProperty; }
+    }
+
+    public string ProfileTypeName
+    {
+      get { return (string)_profileTypeNameProperty.GetValue(); }
+      set { _profileTypeNameProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PreferredMovieCertificationCountryNameProperty
+    {
+      get { return _preferredMovieCertificationCountryNameProperty; }
+    }
+
+    public string PreferredMovieCertificationCountryName
+    {
+      get { return (string)_preferredMovieCertificationCountryNameProperty.GetValue(); }
+      set { _preferredMovieCertificationCountryNameProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PreferredSeriesCertificationCountryNameProperty
+    {
+      get { return _preferredSeriesCertificationCountryNameProperty; }
+    }
+
+    public string PreferredSeriesCertificationCountryName
+    {
+      get { return (string)_preferredSeriesCertificationCountryNameProperty.GetValue(); }
+      set { _preferredSeriesCertificationCountryNameProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsUserSelectedProperty
+    {
+      get { return _isUserSelectedProperty; }
+    }
+
+    public bool IsUserSelected
+    {
+      get { return (bool)_isUserSelectedProperty.GetValue(); }
+      set { _isUserSelectedProperty.SetValue(value); }
+    }
+
+    public string ImagePath
+    {
+      get { return ""; }
+      set
+      {
+        if(File.Exists(value))
+        {
+          using(FileStream stream = new FileStream(value, FileMode.Open))
+          using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT))
+          {
+            if (resized != null)
+              UserProxy.Image = resized.ToArray();
+          }
+        }
+      }
+    }
+
     #endregion
 
     #region Public methods
 
-    public void RemoveSelectedUserAndFinish()
+    public void OpenChooseProfileTypeDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseProfileType");
+    }
+
+    public void OpenChooseMovieCountryDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMovieCountry");
+    }
+
+    public void OpenChooseSeriesCountryDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseSeriesCountry");
+    }
+
+    public void OpenSelectSharesDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectShares",
+        (string name, System.Guid id) =>
+        {
+          UserProxy.SelectedShares.Clear();
+          foreach (ListItem item in _serverSharesList.Where(i => i.Selected))
+            UserProxy.SelectedShares.Add(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
+          foreach (ListItem item in _localSharesList.Where(i => i.Selected))
+            UserProxy.SelectedShares.Add(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
+          SetSelectedShares();
+        });
+    }
+
+    public void AddUser()
     {
       try
       {
-        NavigateBackToOverview();
+        UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProfile.USER_PROFILE);
+
+        ListItem item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, user.Name);
+        item.AdditionalProperties[Consts.KEY_USER] = user;
+        item.SelectedProperty.Attach(OnUserItemSelectionChanged);
+        item.Selected = true;
+
+        lock (_syncObj)
+          _userList.Add(item);
+
+        _userList.FireChange();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems adding user", e);
+      }
+    }
+
+    public void DeleteUser()
+    {
+      try
+      {
+        ListItem item = _userList.FirstOrDefault(i => i.Selected);
+        if (item == null)
+          return;
+
+        UserProfile user = (UserProfile)item.AdditionalProperties[Consts.KEY_USER];
+
+        lock (_syncObj)
+          _userList.Remove(item);
+
+        if (user.ProfileId != Guid.Empty)
+        {
+          IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+          if (userManagement != null && userManagement.UserProfileDataManagement != null)
+          {
+            if (!userManagement.UserProfileDataManagement.DeleteProfile(user.ProfileId))
+            {
+              ServiceRegistration.Get<ILogger>().Warn("UserConfigModel: Problems deleting user '{0}' (name '{1}')", user.ProfileId, user.Name);
+            }
+          }
+        }
+
+        _userList.FireChange();
       }
       catch (NotConnectedException)
       {
@@ -212,15 +528,69 @@ namespace MediaPortal.UiComponents.Login.Models
       }
       catch (Exception e)
       {
-        ErrorEditShare(e);
+        ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems deleting user", e);
       }
     }
 
-    public void FinishUserConfiguration()
+    public void SaveUser()
     {
       try
       {
+        if (UserProxy.IsUserValid)
+        {
+          int shareCount = 0;
+          IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+          if (userManagement != null && userManagement.UserProfileDataManagement != null)
+          {
+            if (UserProxy.Id == Guid.Empty)
+            {
+              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.UserName, UserProxy.ProfileType, UserProxy.Password, UserProxy.Image);
+            }
+            if (UserProxy.Id == Guid.Empty)
+            {
+              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving user '{0}'", UserProxy.UserName);
+              return;
+            }
 
+            bool success = true;
+            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
+            success &= userManagement.UserProfileDataManagement.ClearUserAdditionalDataKey(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE);
+            foreach (var shareId in UserProxy.SelectedShares)
+              success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
+            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.AllowAllAges ? "1" : "0");
+            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.AllowAllShares ? "1" : "0");
+            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
+            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_MOVIE_CONTENT_CERTIFICATION_SYSTEM_COUNTRY, UserProxy.PreferredMovieCertificationCountry);
+            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_SERIES_CONTENT_CERTIFICATION_SYSTEM_COUNTRY, UserProxy.PreferredSeriesCertificationCountry);
+
+            if (!success)
+            {
+              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving setup for user '{0}'", UserProxy.UserName);
+              return;
+            }
+          }
+
+          ListItem item = _userList.FirstOrDefault(i => i.Selected);
+          if (item == null)
+            return;
+
+          shareCount = 0;
+          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, UserProxy.Password, UserProxy.Image);
+          user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
+          foreach (var shareId in UserProxy.SelectedShares)
+            user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
+          user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.AllowAllAges ? "1" : "0");
+          user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.AllowAllShares ? "1" : "0");
+          user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
+          user.AddAdditionalData(UserDataKeysKnown.KEY_MOVIE_CONTENT_CERTIFICATION_SYSTEM_COUNTRY, UserProxy.PreferredMovieCertificationCountry);
+          user.AddAdditionalData(UserDataKeysKnown.KEY_SERIES_CONTENT_CERTIFICATION_SYSTEM_COUNTRY, UserProxy.PreferredSeriesCertificationCountry);
+
+          item.SetLabel(Consts.KEY_NAME, user.Name);
+          item.AdditionalProperties[Consts.KEY_USER] = user;
+          _userList.FireChange();
+
+          SetUser(user);
+        }
       }
       catch (NotConnectedException)
       {
@@ -228,45 +598,116 @@ namespace MediaPortal.UiComponents.Login.Models
       }
       catch (Exception e)
       {
-        ErrorEditShare(e);
+        ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving user", e);
       }
     }
 
-    public void EditCurrentUser()
+    public void SelectProfileType(ListItem item)
     {
-      try
-      {
-        _userProxy.EditMode = UserProxy.UserEditMode.EditUser;
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        //workflowManager.NavigatePush(Consts.WF_STATE_ID_SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER);
-      }
-      catch (NotConnectedException)
-      {
-        DisconnectedError();
-      }
-      catch (Exception e)
-      {
-        ErrorEditShare(e);
-      }
+      int profileType = (int)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE];
+      UserProxy.ProfileType = profileType;
     }
 
-    protected void ErrorEditShare(Exception exc)
+    public void SelectMovieCountry(ListItem item)
     {
-      ServiceRegistration.Get<ILogger>().Warn("UserConfigModel: Problem adding/editing user", exc);
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      //screenManager.ShowScreen(Consts.SCREEN_SHARES_CONFIG_PROBLEM);
+      string country = (string)item.AdditionalProperties[Consts.KEY_COUNTRY];
+      UserProxy.PreferredMovieCertificationCountry = country;
     }
 
-    public void NavigateBackToOverview()
+    public void SelectSeriesCountry(ListItem item)
     {
-      UserProxy = null;
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      //workflowManager.NavigatePopToState(Consts.WF_STATE_ID_SHARES_OVERVIEW, false);
+      string country = (string)item.AdditionalProperties[Consts.KEY_COUNTRY];
+      UserProxy.PreferredSeriesCertificationCountry = country;
     }
 
     #endregion
 
     #region Private and protected methods
+
+    private void SetUser(UserProfile userProfile)
+    {
+      try
+      {
+        if (userProfile != null && UserProxy != null)
+        {
+          UserProxy.Id = userProfile.ProfileId;
+          UserProxy.UserName = userProfile.Name;
+          UserProxy.Password = userProfile.Password;
+          UserProxy.ProfileType = userProfile.ProfileType;
+          UserProxy.LastLogin = userProfile.LastLogin ?? DateTime.MinValue;
+
+          UserProxy.SelectedShares.Clear();
+          int allowedAge = 5;
+          bool allowAllAges = true;
+          bool allowAllShares = true;
+          bool includeParentContent = false;
+          string preferredMovieCountry = string.Empty;
+          string preferredSeriesCountry = string.Empty;
+
+          foreach (var data in userProfile.AdditionalData)
+          {
+            foreach (var val in data.Value)
+            {
+              if (data.Key == UserDataKeysKnown.KEY_ALLOWED_AGE)
+                allowedAge = Convert.ToInt32(val.Value);
+              else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_AGES)
+                allowAllAges = Convert.ToInt32(val.Value) > 0;
+              else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
+                allowAllShares = Convert.ToInt32(val.Value) > 0;
+              else if (data.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
+              {
+                Guid shareId = Guid.Parse(val.Value);
+                if (_localSharesList.Where(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId).Any() ||
+                  _serverSharesList.Where(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId).Any())
+                  UserProxy.SelectedShares.Add(shareId);
+              }
+              else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT)
+                includeParentContent = Convert.ToInt32(val.Value) > 0;
+              else if (data.Key == UserDataKeysKnown.KEY_MOVIE_CONTENT_CERTIFICATION_SYSTEM_COUNTRY)
+                preferredMovieCountry = val.Value;
+              else if (data.Key == UserDataKeysKnown.KEY_SERIES_CONTENT_CERTIFICATION_SYSTEM_COUNTRY)
+                preferredSeriesCountry = val.Value;
+            }
+          }
+
+          UserProxy.AllowAllAges = allowAllAges;
+          UserProxy.AllowAllShares = allowAllShares;
+          UserProxy.AllowedAge = allowedAge;
+          UserProxy.IncludeParentGuidedContent = includeParentContent;
+          UserProxy.PreferredMovieCertificationCountry = preferredMovieCountry;
+          UserProxy.PreferredSeriesCertificationCountry = preferredSeriesCountry;
+        }
+        else if (UserProxy != null)
+        {
+          UserProxy.Id = Guid.Empty;
+          UserProxy.UserName = String.Empty;
+          UserProxy.Password = String.Empty;
+          UserProxy.ProfileType = UserProfile.USER_PROFILE;
+          UserProxy.LastLogin = DateTime.MinValue;
+
+          UserProxy.SelectedShares.Clear();
+
+          UserProxy.AllowAllAges = true;
+          UserProxy.AllowAllShares = true;
+          UserProxy.AllowedAge = 5;
+          UserProxy.IncludeParentGuidedContent = false;
+          UserProxy.PreferredMovieCertificationCountry = String.Empty;
+          UserProxy.PreferredSeriesCertificationCountry = String.Empty;
+        }
+
+        SetSelectedShares();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Error selecting user", e);
+      }
+    }
+
+    private void SetSelectedShares()
+    {
+      if (UserProxy != null)
+        SelectedSharesInfo = string.Format("{0}: {1}", LocalizationHelper.Translate(Consts.RES_SHARES_TEXT), UserProxy.SelectedShares.Count);
+    }
 
     protected internal void UpdateUserLists_NoLock(bool create)
     {
@@ -281,16 +722,29 @@ namespace MediaPortal.UiComponents.Login.Models
       try
       {
         IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-        if (userManagement.UserProfileDataManagement == null)
+        if (userManagement == null || userManagement.UserProfileDataManagement == null)
           return;
+
         // add users to expose them
         var users = userManagement.UserProfileDataManagement.GetProfiles();
-        foreach (UserProfile user in users.Where(u => u != null))
+        _userList.Clear();
+        foreach (UserProfile user in users)
         {
           ListItem item = new ListItem();
           item.SetLabel(Consts.KEY_NAME, user.Name);
-          _userList.Add(item);
+          item.AdditionalProperties[Consts.KEY_USER] = user;
+          item.SelectedProperty.Attach(OnUserItemSelectionChanged);
+          lock (_syncObj)
+            _userList.Add(item);
         }
+      }
+      catch (NotConnectedException)
+      {
+        throw;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Problems updating users", e);
       }
       finally
       {
@@ -299,59 +753,96 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
-    protected void UpdateProperties_NoLock()
+    private void OnUserItemSelectionChanged(AbstractProperty property, object oldValue)
+    {
+      UserProfile userProfile = null;
+      lock (_syncObj)
+      {
+        userProfile = _userList.Where(i => i.Selected).Select(i => (UserProfile)i.AdditionalProperties[Consts.KEY_USER]).FirstOrDefault();
+      }
+      SetUser(userProfile);
+      IsUserSelected = userProfile != null;
+    }
+
+    private void OnProfileTypeChanged(AbstractProperty property, object oldValue)
+    {
+      ProfileTypeName = ProfileTypeList.FirstOrDefault(i => (int)i.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType)?.Labels[Consts.KEY_NAME].Evaluate();
+    }
+
+    private void OnMovieCountryChanged(AbstractProperty property, object oldValue)
+    {
+      PreferredMovieCertificationCountryName = MovieCountryList.
+        FirstOrDefault(i => (string)i.AdditionalProperties[Consts.KEY_COUNTRY] == UserProxy.PreferredMovieCertificationCountry)?.Labels[Consts.KEY_NAME].Evaluate();
+    }
+
+    private void OnSeriesCountryChanged(AbstractProperty property, object oldValue)
+    {
+      PreferredSeriesCertificationCountryName = SeriesCountryList.
+        FirstOrDefault(i => (string)i.AdditionalProperties[Consts.KEY_COUNTRY] == UserProxy.PreferredSeriesCertificationCountry)?.Labels[Consts.KEY_NAME].Evaluate();
+    }
+
+    protected internal void UpdateShareLists_NoLock(bool create)
     {
       lock (_syncObj)
       {
         if (_updatingProperties)
           return;
         _updatingProperties = true;
+        if (create)
+        {
+          _serverSharesList = new ItemsList();
+          _localSharesList = new ItemsList();
+        }
       }
       try
       {
-        IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-        IsHomeServerConnected = serverConnectionManager.IsHomeServerConnected;
-        SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
-        lock (_syncObj)
+        ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
+        var shares = sharesManagement.Shares.Values;
+        _localSharesList.Clear();
+        foreach (Share share in shares)
         {
-          IsHomeServerConnected = homeServerSystem != null;
+          ListItem item = new ListItem();
+          item.SetLabel(Consts.KEY_NAME, share.Name);
+          item.AdditionalProperties[Consts.KEY_SHARE] = share;
+          if (UserProxy != null)
+            item.Selected = UserProxy.SelectedShares.Contains(share.ShareId);
+          lock (_syncObj)
+            _localSharesList.Add(item);
         }
+
+        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+        if (scm == null || scm.ContentDirectory == null)
+          return;
+
+        // add users to expose them
+        shares = scm.ContentDirectory.GetShares(scm.HomeServerSystemId, SharesFilter.All);
+        _serverSharesList.Clear();
+        foreach (Share share in shares)
+        {
+          ListItem item = new ListItem();
+          item.SetLabel(Consts.KEY_NAME, share.Name);
+          item.AdditionalProperties[Consts.KEY_SHARE] = share;
+          if (UserProxy != null)
+            item.Selected = UserProxy.SelectedShares.Contains(share.ShareId);
+          lock (_syncObj)
+            _serverSharesList.Add(item);
+        }
+        IsHomeServerConnected = scm.LastHomeServerSystem != null;
+        ShowLocalShares = !IsLocalHomeServer || _localSharesList.Count > 0;
+        AnyShareAvailable = _serverSharesList.Count > 0 || _localSharesList.Count > 0;
+      }
+      catch (NotConnectedException)
+      {
+        throw;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Problems updating shares", e);
       }
       finally
       {
         lock (_syncObj)
           _updatingProperties = false;
-      }
-    }
-
-    /// <summary>
-    /// Prepares the internal data of this model to match the specified new
-    /// <paramref name="workflowState"/>. This method will be called in result of a
-    /// forward state navigation as well as for a backward navigation.
-    /// </summary>
-    /// <param name="workflowState">The workflow state to prepare.</param>
-    /// <param name="push">Set to <c>true</c>, if the given <paramref name="workflowState"/> has been pushed onto
-    /// the workflow navigation stack. Else, set to <c>false</c>.</param>
-    protected void PrepareState(Guid workflowState, bool push)
-    {
-      try
-      {
-        if (workflowState == Consts.WF_STATE_ID_USERS_OVERVIEW)
-        {
-          UpdateUserLists_NoLock(true);
-        }
-        else if (!push)
-        {
-          return;
-        }
-      }
-      catch (NotConnectedException)
-      {
-        DisconnectedError();
-      }
-      catch (Exception e)
-      {
-        ErrorEditShare(e);
       }
     }
 
@@ -359,9 +850,10 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       lock (_syncObj)
       {
-        UserProxy = null;
-        _sharesList = null;
+        //UserProxy = null;
         _userList = null;
+        _localSharesList = null;
+        _serverSharesList = null;
       }
     }
 
@@ -389,8 +881,8 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       SubscribeToMessages();
       ClearData();
-      UpdateProperties_NoLock();
-      PrepareState(newContext.WorkflowState.StateId, true);
+      UpdateUserLists_NoLock(true);
+      UpdateShareLists_NoLock(true);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
@@ -401,7 +893,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      PrepareState(newContext.WorkflowState.StateId, push);
+
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
@@ -411,7 +903,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      PrepareState(newContext.WorkflowState.StateId, false);
+
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)

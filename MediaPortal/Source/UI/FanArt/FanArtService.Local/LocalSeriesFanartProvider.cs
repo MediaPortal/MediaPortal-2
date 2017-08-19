@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       }
       MediaItemQuery episodeQuery = new MediaItemQuery(NECESSARY_MIAS, filter);
       episodeQuery.Limit = 1;
-      IList<MediaItem> items = mediaLibrary.Search(episodeQuery, false, null, false);
+      IList<MediaItem> items = mediaLibrary.Search(episodeQuery, false, null, false, false);
       if (items == null || items.Count == 0)
         return false;
 

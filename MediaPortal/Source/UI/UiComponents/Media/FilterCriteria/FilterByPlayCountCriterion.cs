@@ -56,10 +56,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0"));
 
       IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.GT, "0");
-
-      int numUnwatchedItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, unwatchedFilter), true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
-      int numWatchedItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, watchedFilter), true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
-
+      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds);
+      int numUnwatchedItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, unwatchedFilter), true,
+        userProfileDataManagement.CurrentUser.ProfileId, showVirtual, userProfileDataManagement.ApplyUserRestriction);
+      int numWatchedItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, watchedFilter), true,
+        userProfileDataManagement.CurrentUser.ProfileId, showVirtual, userProfileDataManagement.ApplyUserRestriction);
       return new List<FilterValue>(new FilterValue[]
         {
             new FilterValue(Consts.RES_VALUE_UNWATCHED, unwatchedFilter, null, numUnwatchedItems, this),

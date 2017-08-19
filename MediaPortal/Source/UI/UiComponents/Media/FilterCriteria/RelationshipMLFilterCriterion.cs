@@ -66,9 +66,13 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         throw new NotConnectedException("The MediaLibrary is not connected");
 
       Guid? userProfile = null;
+      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
+      }
 
       IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
@@ -80,7 +84,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (_sortInformation != null)
         query.SortInformation = new List<ISortInformation> { _sortInformation };
 
-      IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual);
+      IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual, applyUserRestrictions);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)
       {

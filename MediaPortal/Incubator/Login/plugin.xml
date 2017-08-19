@@ -31,9 +31,9 @@
   <Register Location="/Workflow/States">
     <!-- Overview screen for all users at the server -->
     <WorkflowState Id="75488A94-7BEC-44FF-836D-7A2A8C7AFEF0"
-        Name="UserConfigurationOverview"
+        Name="UserManagement"
         DisplayLabel="[UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel]"
-        MainScreen="user_config_overview"
+        MainScreen="UserManagement"
         WorkflowModel="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/> <!-- User config model -->
   </Register>
 
@@ -56,11 +56,16 @@
 
   <!-- Contents of '/Users' section -->
   <Register Location="/Configuration/Settings/Users">
+    <ConfigSetting
+        Id="EnableUserLogin"
+        Text="[Settings.Users.Config.UserEnable]"
+        HelpText="[Settings.Users.Config.UserEnable.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserConfigSettings"/>
     <CustomConfigSetting
         Id="UserOverview"
-        Text="[Settings.Users.Overview.UserOverview]"
-        HelpText="[Settings.Users.Overview.UserOverview.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UsersOverviewSetting"
+        Text="[Settings.Users.Config.UserManagement]"
+        HelpText="[Settings.Users.Config.UserManagement.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserManagementSetting"
         AdditionalData="WorkflowState=75488A94-7BEC-44FF-836D-7A2A8C7AFEF0,ConfAppPanel=..."/>
   </Register>
 </Plugin>

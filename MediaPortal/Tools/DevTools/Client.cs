@@ -189,7 +189,7 @@ namespace MediaPortal.DevTools
       Guid[] types = new Guid[] { VideoStreamAspect.ASPECT_ID };
       IFilter filter = new LikeFilter(MediaAspect.ATTR_TITLE, "%", null, false);
 
-      return GetContentDirectory().CountMediaItems(types, filter, true, true);
+      return GetContentDirectory().CountMediaItems(types, filter, true, null, true, false);
     }
 
     public int GetSeriesCount()
@@ -197,7 +197,7 @@ namespace MediaPortal.DevTools
       Guid[] types = new Guid[] { SeriesAspect.ASPECT_ID };
       IFilter filter = new LikeFilter(SeriesAspect.ATTR_SERIES_NAME, "%", null, false);
 
-      return GetContentDirectory().CountMediaItems(types, filter, true, true);
+      return GetContentDirectory().CountMediaItems(types, filter, true, null, true, false);
     }
 
     public IList<MediaItem> SearchSeries(string text)
@@ -211,7 +211,7 @@ namespace MediaPortal.DevTools
       IFilter seriesFilter = new LikeFilter(EpisodeAspect.ATTR_SERIES_NAME, string.Format("%{0}%", text), null, false);
       IFilter filter = new BooleanCombinationFilter(BooleanOperator.Or, new IFilter[] { titleFilter, actorsFilter, directorsFilter, writersFilter, episodeFilter, seriesFilter });
 
-      return GetContentDirectory().Search(new MediaItemQuery(types, new Guid[] { SeriesAspect.ASPECT_ID }, filter), true, null, true);
+      return GetContentDirectory().Search(new MediaItemQuery(types, new Guid[] { SeriesAspect.ASPECT_ID }, filter), true, null, true, false);
     }
   }
 }

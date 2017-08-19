@@ -22,7 +22,9 @@
 
 #endregion
 
+using MediaPortal.Utilities.UPnP;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -51,6 +53,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     protected byte[] _image;
     protected DateTime? _lastLogin;
     protected int _profileType;
+    protected IDictionary<string, IDictionary<int, string>> _userData = new Dictionary<string, IDictionary<int, string>>();
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
@@ -63,6 +66,25 @@ namespace MediaPortal.Common.UserProfileDataManagement
       _image = image;
       _lastLogin = lastLogin;
       _profileType = profileType;
+    }
+
+    public void Rename(string newName)
+    {
+      _name = newName;
+    }
+
+    public void AddAdditionalData(string key, string value)
+    {
+      if (!AdditionalData.ContainsKey(key))
+        AdditionalData.Add(key, new Dictionary<int, string>());
+      AdditionalData[key].Add(0, value);
+    }
+
+    public void AddAdditionalData(string key, int valueNo, string value)
+    {
+      if(!AdditionalData.ContainsKey(key))
+        AdditionalData.Add(key, new Dictionary<int, string>());
+      AdditionalData[key].Add(valueNo, value);
     }
 
     /// <summary>
@@ -92,10 +114,10 @@ namespace MediaPortal.Common.UserProfileDataManagement
       get { return _profileType; }
     }
 
-      /// <summary>
-      /// Returns the hashed password of this profile.
-      /// </summary>
-      [XmlIgnore]
+    /// <summary>
+    /// Returns the hashed password of this profile.
+    /// </summary>
+    [XmlIgnore]
     public string Password
     {
       get { return _password; }
@@ -117,6 +139,16 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public DateTime? LastLogin
     {
       get { return _lastLogin; }
+      set { _lastLogin = value; }
+    }
+
+    /// <summary>
+    /// Returns the data of this profile.
+    /// </summary>
+    [XmlIgnore]
+    public IDictionary<string, IDictionary<int, string>> AdditionalData
+    {
+      get { return _userData; }
     }
 
     /// <summary>
@@ -254,6 +286,42 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       get { return _lastLogin.HasValue ? _lastLogin.Value.Ticks : 0; }
       set { _lastLogin = value == 0 ? (DateTime?)null : new DateTime(value); }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("AdditionalData")]
+    public string XML_AdditionalData
+    {
+      get
+      {
+        List<Tuple<string, string, string>> convert = new List<Tuple<string, string, string>>();
+        foreach (var key in _userData)
+        {
+          foreach (var val in key.Value)
+          {
+            convert.Add(new Tuple<string, string, string>(key.Key, val.Key.ToString(), val.Value));
+          }
+        }
+        if(convert.Count > 0)
+          return MarshallingHelper.SerializeTuple3EnumerationToCsv(convert);
+        return null;
+      }
+      set
+      {
+        _userData = new Dictionary<string, IDictionary<int, string>>();
+        IEnumerable<Tuple<string, string, string>> convert = MarshallingHelper.ParseCsvTuple3Collection(value);
+        if (convert == null)
+          return;
+
+        foreach(var data in convert)
+        {
+          if (!_userData.ContainsKey(data.Item1))
+            _userData.Add(data.Item1, new Dictionary<int, string>());
+          _userData[data.Item1].Add(Convert.ToInt32(data.Item2), data.Item3);
+        }
+      }
     }
 
     #endregion

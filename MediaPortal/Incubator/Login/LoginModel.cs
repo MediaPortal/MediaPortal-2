@@ -104,7 +104,7 @@ namespace MediaPortal.UiComponents.Login
         return;
       // add users to expose them
       var users = userManagement.UserProfileDataManagement.GetProfiles();
-      foreach (UserProfile user in users.Where(u => u != null))
+      foreach (UserProfile user in users.Where(u => u.ProfileType != UserProfile.CLIENT_PROFILE))
       {
         ListItem item = new ListItem();
         item.SetLabel(Consts.KEY_NAME, user.Name);
@@ -157,7 +157,7 @@ namespace MediaPortal.UiComponents.Login
 
     public bool EnableUserLogin
     {
-      get { return UserSetting.UserLoginEnabled; }
+      get { return UserSettingWatcher.UserLoginEnabled; }
     }
 
     /// <summary>

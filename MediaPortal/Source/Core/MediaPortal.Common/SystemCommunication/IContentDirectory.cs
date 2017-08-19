@@ -176,12 +176,13 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
     /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <param name="applyUserRestrictions">Apply any user restrictions on what media items to find.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Result collection of media items at the given location.</returns>
     IList<MediaItem> Browse(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
-        Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
+        Guid? userProfile, bool includeVirtual, bool applyUserRestrictions, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items.
@@ -191,12 +192,14 @@ namespace MediaPortal.Common.SystemCommunication
     /// are currently online are returned.</param>
     /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <param name="applyUserRestrictions">Apply any user restrictions on what media items to find.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of matching media items with the media item aspects of the given
     /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
     /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
-    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
+    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual, bool applyUserRestrictions,
+      uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items which searches items by a given <paramref name="searchText"/> and which is constrained
@@ -213,12 +216,13 @@ namespace MediaPortal.Common.SystemCommunication
     /// insensitive.</param>
     /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <param name="applyUserRestrictions">Apply any user restrictions on what media items to find.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of matching media items.</returns>
     IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
-      Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
+      Guid? userProfile, bool includeVirtual, bool applyUserRestrictions, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given
@@ -234,11 +238,14 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
     /// systems which are currently online.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <param name="applyUserRestrictions">Apply any user restrictions on what media items to find.</param>
     /// <returns>Mapping set of existing attribute values to their occurence count for the given
     /// <paramref name="attributeType"/> (long).</returns>
     HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, Guid? userProfile,
+        bool includeVirtual, bool applyUserRestrictions);
 
     /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given
@@ -260,7 +267,8 @@ namespace MediaPortal.Common.SystemCommunication
     /// <paramref name="valueAttributeType"/> (long) in Item1 and values to their keys
     /// for the given <paramref name="valueAttributeType"/> in Item2.</returns>
     Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
-      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, Guid? userProfile, bool includeVirtual, 
+      bool applyUserRestrictions);
 
     /// <summary>
     /// Executes <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
@@ -275,11 +283,14 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
     /// systems which are currently online.</param>
     /// <param name="groupingFunction">Determines, how result values are grouped.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <param name="applyUserRestrictions">Apply any user restrictions on what media items to find.</param>
     /// <returns>List of value groups for the given query.</returns>
     IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
-        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual);
+        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, Guid? userProfile, bool includeVirtual, 
+        bool applyUserRestrictions);
 
     /// <summary>
     /// Counts the count of media items matching the given criteria.
@@ -289,9 +300,12 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="filter">Filter specifying the media items which will be counted.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only items hosted by systems which are currently online
     /// are counted.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <param name="applyUserRestrictions">Apply any user restrictions on what media items to find.</param>
     /// <returns>Number of matching media items.</returns>
-    int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
+    int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, Guid? userProfile, 
+      bool includeVirtual, bool applyUserRestrictions);
 
     #endregion
 

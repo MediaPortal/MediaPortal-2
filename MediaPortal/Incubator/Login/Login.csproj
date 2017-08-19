@@ -42,6 +42,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -52,9 +53,10 @@
     <Compile Include="General\Consts.cs" />
     <Compile Include="LoginModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\UserSetting.cs" />
     <Compile Include="Settings\UserSettings.cs" />
-    <Compile Include="Settings\Configuration\UsersOverviewSetting.cs" />
+    <Compile Include="Settings\UserSettingWatcher.cs" />
+    <Compile Include="Settings\Configuration\UserConfigSettings.cs" />
+    <Compile Include="Settings\Configuration\UserManagementSetting.cs" />
     <Compile Include="UserConfigModel.cs" />
     <Compile Include="UserProxy.cs" />
   </ItemGroup>
@@ -69,14 +71,22 @@
       <Name>MediaPortal.UI</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\UiComponents\SkinBase\SkinBase.csproj">
       <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
       <Name>SkinBase</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
-    <Content Include="plugin.xml" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
@@ -87,8 +97,28 @@
     <Folder Include="Skin\default\workflow\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\user_config_overview.xaml">
+    <Content Include="Skin\default\screens\UserManagement.xaml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogSelectShares.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\default\screens\DialogChooseMovieCountry.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\default\screens\DialogChooseSeriesCountry.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\default\screens\DialogChooseProfileType.xaml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
 </Project>

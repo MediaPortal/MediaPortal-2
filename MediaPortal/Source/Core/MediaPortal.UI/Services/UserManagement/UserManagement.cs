@@ -36,6 +36,7 @@ namespace MediaPortal.UI.Services.UserManagement
     public static UserProfile UNKNOWN_USER = new UserProfile(Guid.Empty, "Unknown");
 
     private UserProfile _currentUser = null;
+    private bool _applyRestrictions = false;
 
     public bool IsValidUser
     {
@@ -55,6 +56,12 @@ namespace MediaPortal.UI.Services.UserManagement
         UPnPClientControlPoint controlPoint = ServiceRegistration.Get<IServerConnectionManager>().ControlPoint;
         return controlPoint != null ? controlPoint.UserProfileDataManagementService : null;
       }
+    }
+
+    public bool ApplyUserRestriction
+    {
+      get { return _applyRestrictions; }
+      set { _applyRestrictions = value; }
     }
 
     public UserProfile GetOrCreateDefaultUser()

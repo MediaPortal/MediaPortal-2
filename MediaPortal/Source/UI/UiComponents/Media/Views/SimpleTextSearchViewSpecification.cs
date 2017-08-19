@@ -96,9 +96,14 @@ namespace MediaPortal.UiComponents.Media.Views
         return;
 
       Guid? userProfile = null;
+      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
+      }
+      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds);
 
       try
       {
@@ -106,7 +111,7 @@ namespace MediaPortal.UiComponents.Media.Views
         {
           Limit = Consts.MAX_NUM_ITEMS_VISIBLE
         };
-        mediaItems = cd.Search(query, true, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
+        mediaItems = cd.Search(query, true, userProfile, showVirtual, applyUserRestrictions);
       }
       catch (UPnPRemoteException e)
       {

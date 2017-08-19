@@ -271,7 +271,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     }
 
     // User additional data
-
     public static IDbCommand SelectUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey, int dataNo, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
@@ -295,6 +294,22 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
       dataNoIndex = 0;
       additionalDataIndex = 1;
+      return result;
+    }
+
+    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string[] dataKeys, 
+      out int additionalDataKeyIndex, out int dataNoIndex, out int additionalDataIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = @"SELECT DATA_KEY, DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID";
+      if(dataKeys != null && dataKeys.Length > 0)
+        result.CommandText += " AND DATA_KEY IN ('" + string.Join("','", dataKeys) + "')";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+
+      additionalDataKeyIndex = 0;
+      dataNoIndex = 1;
+      additionalDataIndex = 2;
       return result;
     }
 

@@ -34,6 +34,16 @@ namespace MediaPortal.UiComponents.Login.General
 
     // Keys for the ListItem's Labels in the ItemsLists
     public const string KEY_NAME = "Name";
-    public const string KEY_USER_PROXY = "UserProxy";
+    public const string KEY_USER = "User";
+    public const string KEY_SHARE = "Share";
+    public const string KEY_PROFILE_TYPE = "ProfileType";
+    public const string KEY_COUNTRY = "Country";
+
+    public const string RES_CLIENT_PROFILE_TEXT = "[UserConfig.ClientProfileType]";
+    public const string RES_USER_PROFILE_TEXT = "[UserConfig.UserProfileType]";
+    public const string RES_ADMIN_PROFILE_TEXT = "[UserConfig.AdminProfileType]";
+    public const string RES_SHARES_TEXT = "[UserConfig.SharesText]";
+    public const string RES_ANY_TEXT = "[UserConfig.AnyText]";
+    public const string RES_NEW_USER_TEXT = "[UserConfig.NewUserText]";
   }
 }

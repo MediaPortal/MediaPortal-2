@@ -114,19 +114,25 @@ namespace MediaPortal.UiComponents.Media.Models
       AllItems.FireChange();
     }
 
-    protected static void FillList(IContentDirectory contentDirectory, Guid[] necessaryMIAs, ItemsList list, MediaItemToListItemAction converterAction)
+    protected static void FillList(IContentDirectory contentDirectory, Guid[] necessaryMIATypeIds, ItemsList list, MediaItemToListItemAction converterAction)
     {
-      MediaItemQuery query = new MediaItemQuery(necessaryMIAs, null)
+      MediaItemQuery query = new MediaItemQuery(necessaryMIATypeIds, null)
       {
         Limit = QUERY_LIMIT, // Last 5 imported items
         SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
+
       Guid? userProfile = null;
+      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
+      }
+      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds);
 
-      var items = contentDirectory.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(necessaryMIAs));
+      var items = contentDirectory.Search(query, false, userProfile, showVirtual, applyUserRestrictions);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

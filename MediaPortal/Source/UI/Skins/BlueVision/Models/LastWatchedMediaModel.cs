@@ -160,9 +160,13 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected void FillList(IContentDirectory contentDirectory, Guid[] necessaryMIAs, ItemsList list, MediaItemToListItemAction converterAction)
     {
       Guid? userProfile = null;
+      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
+      }
 
       MediaItemQuery query = new MediaItemQuery(necessaryMIAs, null)
       {
@@ -171,7 +175,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
       };
 
-      var items = contentDirectory.Search(query, false, userProfile, false);
+      var items = contentDirectory.Search(query, false, userProfile, false, applyUserRestrictions);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

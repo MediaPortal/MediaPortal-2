@@ -274,6 +274,17 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           });
       AddAction(getUserAdditionalDataListAction);
 
+      DvAction getUserSelectedAdditionalDataListAction = new DvAction("GetUserSelectedAdditionalDataList", OnGetUserSelectedAdditionalDataList,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("Keys", A_ARG_TYPE_String, ArgumentDirection.In)
+          },
+          new DvArgument[] {
+            new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(getUserSelectedAdditionalDataListAction);
+
       // Cleanup user data
       DvAction clearAllUserDataAction = new DvAction("ClearAllUserData", OnClearAllUserData,
           new DvArgument[] {
@@ -512,7 +523,23 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataList(profileId, key, out list)))
         data = null;
       else
-        data = MarshallingHelper.SerializeTupleEnumerationToCsv(list.Select(t => new Tuple<string, string>(t.Item1.ToString(), t.Item2)));
+        data = MarshallingHelper.SerializeTuple2EnumerationToCsv(list.Select(t => new Tuple<string, string>(t.Item1.ToString(), t.Item2)));
+      outParams = new List<object> { data, success };
+      return null;
+    }
+
+    static UPnPError OnGetUserSelectedAdditionalDataList(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string[] keys = MarshallingHelper.ParseCsvStringCollection((string)inParams[1]).ToArray();
+      string data;
+      IEnumerable<Tuple<string, int, string>> list; 
+      bool success;
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataList(profileId, keys, out list)))
+        data = null;
+      else
+        data = MarshallingHelper.SerializeTuple3EnumerationToCsv(list.Select(t => new Tuple<string, string, string>(t.Item1, t.Item2.ToString(), t.Item3)));
       outParams = new List<object> { data, success };
       return null;
     }

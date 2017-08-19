@@ -33,7 +33,6 @@ namespace MediaPortal.Common.Certifications
   {
     private static readonly List<CertificationMapping> MOVIE_CERTIFICATION_MAP = new List<CertificationMapping>();
     private static readonly List<CertificationMapping> SERIES_CERTIFICATION_MAP = new List<CertificationMapping>();
-    private static string DEFAULT_COUNTRY = "US";
 
     public const int MAX_AGE = 18;
 
@@ -530,7 +529,7 @@ namespace MediaPortal.Common.Certifications
         return SERIES_CERTIFICATION_MAP.Where(c => c.AllowedAge <= age);
     }
 
-    public static IEnumerable<CertificationMapping> GetSeriesCertificationsForAge(string country,int age, bool includeParentalGuided)
+    public static IEnumerable<CertificationMapping> GetSeriesCertificationsForAge(string country, int age, bool includeParentalGuided)
     {
       if (includeParentalGuided)
         return SERIES_CERTIFICATION_MAP.Where(c => c.CountryCode.Equals(country, System.StringComparison.InvariantCultureIgnoreCase) && 
@@ -538,6 +537,80 @@ namespace MediaPortal.Common.Certifications
       else
         return SERIES_CERTIFICATION_MAP.Where(c => c.CountryCode.Equals(country, System.StringComparison.InvariantCultureIgnoreCase) && 
           c.AllowedAge <= age);
+    }
+
+    public static IEnumerable<string> GetSupportedMovieCertificationCountries()
+    {
+      return MOVIE_CERTIFICATION_MAP.Select(c => c.CountryCode).Distinct();
+    }
+
+    public static IEnumerable<string> GetSupportedSeriesCertificationCountries()
+    {
+      return SERIES_CERTIFICATION_MAP.Select(c => c.CountryCode).Distinct();
+    }
+
+    public static CertificationMapping FindMatchingMovieCertification(string country, string cert)
+    {
+      if (string.IsNullOrEmpty(country))
+        return null;
+      CertificationMapping current;
+      IEnumerable<CertificationMapping> matches = null;
+      CertificationMapping bestMatch = null;
+      if (TryFindMovieCertification(cert, out current))
+      {
+        if (current.CountryCode == country)
+        {
+          return current;
+        }
+        matches = GetMovieCertificationsForAge(country, current.AllowedAge, current.AllowedAge > current.AllowedParentalGuidedAge);
+        if (matches != null)
+        {
+          foreach (CertificationMapping match in matches)
+          {
+            if (match.AllowedAge <= current.AllowedAge && match.AllowedParentalGuidedAge <= current.AllowedParentalGuidedAge)
+            {
+              if (bestMatch == null || bestMatch.AllowedAge < match.AllowedAge ||
+                (bestMatch.AllowedAge == match.AllowedAge && bestMatch.AllowedParentalGuidedAge < match.AllowedParentalGuidedAge))
+              {
+                bestMatch = match;
+              }
+            }
+          }
+        }
+      }
+      return bestMatch;
+    }
+
+    public static CertificationMapping FindMatchingSeriesCertification(string country, string cert)
+    {
+      if (string.IsNullOrEmpty(country))
+        return null;
+      CertificationMapping current;
+      IEnumerable<CertificationMapping> matches = null;
+      CertificationMapping bestMatch = null;
+      if (TryFindSeriesCertification(cert, out current))
+      {
+        if (current.CountryCode == country)
+        {
+          return current;
+        }
+        matches = GetSeriesCertificationsForAge(country, current.AllowedAge, current.AllowedAge > current.AllowedParentalGuidedAge);
+        if (matches != null)
+        {
+          foreach (CertificationMapping match in matches)
+          {
+            if (match.AllowedAge <= current.AllowedAge && match.AllowedParentalGuidedAge <= current.AllowedParentalGuidedAge)
+            {
+              if (bestMatch == null || bestMatch.AllowedAge < match.AllowedAge ||
+                (bestMatch.AllowedAge == match.AllowedAge && bestMatch.AllowedParentalGuidedAge < match.AllowedParentalGuidedAge))
+              {
+                bestMatch = match;
+              }
+            }
+          }
+        }
+      }
+      return bestMatch;
     }
 
     public static ILogger Logger

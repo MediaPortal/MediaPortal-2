@@ -293,27 +293,28 @@ namespace MediaPortal.Common.Services.ServerCommunication
       action.InvokeAction(inParameters);
     }
 
-    public IList<MediaItem> Browse(Guid parentDirectory,
-      IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile, 
-      bool includeVirtual, uint? offset = null, uint? limit = null)
+    public IList<MediaItem> Browse(Guid parentDirectoryId,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+        Guid? userProfile, bool includeVirtual, bool applyUserRestrictions, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_Browse");
       IList<object> inParameters = new List<object>
       {
-        MarshallingHelper.SerializeGuid(parentDirectory),
+        MarshallingHelper.SerializeGuid(parentDirectoryId),
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
+        includeVirtual,
+        applyUserRestrictions,
         offset,
         limit,
-        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
-        includeVirtual
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>)outParameters[0];
     }
 
     public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual, 
-      uint? offset = null, uint? limit = null)
+      bool applyUserRestrictions, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_Search");
       String onlineStateStr = SerializeOnlineState(onlyOnline);
@@ -321,18 +322,19 @@ namespace MediaPortal.Common.Services.ServerCommunication
       {
         query,
         onlineStateStr,
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
+        includeVirtual,
+        applyUserRestrictions,
         offset,
         limit,
-        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
-        includeVirtual
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
 
-    public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes,
-      IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
-      Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null)
+    public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+      IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
+      Guid? userProfile, bool includeVirtual, bool applyUserRestrictions, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_SimpleTextSearch");
       String searchModeStr = SerializeExcludeClobs(excludeCLOBs);
@@ -343,16 +345,23 @@ namespace MediaPortal.Common.Services.ServerCommunication
         searchText,
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
-        filter, searchModeStr, onlineStateStr, capitalizationMode, offset, limit,
+        filter,
+        searchModeStr,
+        onlineStateStr,
+        capitalizationMode,
         userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
-        includeVirtual
+        includeVirtual,
+        applyUserRestrictions,
+        offset,
+        limit,
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>)outParameters[0];
     }
 
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, Guid? userProfile,
+        bool includeVirtual, bool applyUserRestrictions)
     {
       CpAction action = GetAction("X_MediaPortal_GetValueGroups");
       string projectionFunctionStr = SerializeProjectionFunction(projectionFunction);
@@ -366,14 +375,17 @@ namespace MediaPortal.Common.Services.ServerCommunication
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         filter,
         onlineStateStr,
-        includeVirtual
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
+        includeVirtual,
+        applyUserRestrictions
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (HomogenousMap) outParameters[0];
     }
 
-    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
-      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
+    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, Guid? userProfile, bool includeVirtual,
+      bool applyUserRestrictions)
     {
       CpAction action = GetAction("X_MediaPortal_GetKeyValueGroups");
       string projectionFunctionStr = SerializeProjectionFunction(projectionFunction);
@@ -389,7 +401,9 @@ namespace MediaPortal.Common.Services.ServerCommunication
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         filter,
         onlineStateStr,
-        includeVirtual
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
+        includeVirtual,
+        applyUserRestrictions
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return new Tuple<HomogenousMap, HomogenousMap>((HomogenousMap)outParameters[0], (HomogenousMap)outParameters[1]);
@@ -397,7 +411,8 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
-        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual)
+        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, Guid? userProfile, bool includeVirtual,
+        bool applyUserRestrictions)
     {
       CpAction action = GetAction("X_MediaPortal_GroupValueGroups");
       string projectionFunctionStr = SerializeProjectionFunction(projectionFunction);
@@ -420,13 +435,16 @@ namespace MediaPortal.Common.Services.ServerCommunication
         filter,
         onlineStateStr,
         groupingFunctionStr,
-        includeVirtual
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
+        includeVirtual,
+        applyUserRestrictions
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MLQueryResultGroup>) outParameters[0];
     }
 
-    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
+    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, Guid? userProfile,
+      bool includeVirtual, bool applyUserRestrictions)
     {
       CpAction action = GetAction("X_MediaPortal_CountMediaItems");
       string onlineStateStr = SerializeOnlineState(onlyOnline);
@@ -435,7 +453,9 @@ namespace MediaPortal.Common.Services.ServerCommunication
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         filter,
         onlineStateStr,
-        includeVirtual
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
+        includeVirtual,
+        applyUserRestrictions
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (int)(uint) outParameters[0];

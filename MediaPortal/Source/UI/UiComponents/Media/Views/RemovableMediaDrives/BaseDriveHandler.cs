@@ -35,6 +35,8 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -85,9 +87,13 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       IList<MediaItem> existingItems;
       IFilter filter = null;
       Guid? userProfile = null;
+      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
+      }
 
       //Try merge handlers
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
@@ -102,7 +108,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
             new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true));
           if (filter != null)
           {
-            existingItems = cd.Search(new MediaItemQuery(mergeHandler.MergeableAspects, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, true);
+            existingItems = cd.Search(new MediaItemQuery(mergeHandler.MergeableAspects, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, true, applyUserRestrictions);
             foreach (MediaItem existingItem in existingItems)
             {
               if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
@@ -124,7 +130,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       {
         filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(AudioAspect.ATTR_TRACK, RelationalOperator.EQ, trackNo));
       }
-      existingItems = cd.Search(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, true);
+      existingItems = cd.Search(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, true, applyUserRestrictions);
       if (existingItems != null && existingItems.Count == 1)
       {
         MediaItem existingItem = existingItems.First();
@@ -147,6 +153,99 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       }
 
       return mediaItem;
+    }
+    public static bool ProcessMediaItem(MediaItem mediaItem, UserProfile user)
+    {
+      if (user == null)
+        return true;
+
+      string movieCertificationSystemCountry = null;
+      string seriesCertificationSystemCountry = null;
+      int? allowedAge = null;
+      bool? includeParentalGuidedContent = null;
+      bool allowAllAges = true;
+      foreach (var key in user.AdditionalData)
+      {
+        foreach (var val in key.Value)
+        {
+          if (key.Key == UserDataKeysKnown.KEY_ALLOW_ALL_AGES)
+          {
+            string allow = val.Value;
+            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
+            {
+              allowAllAges = Convert.ToInt32(allow) > 0;
+            }
+          }
+          else if (key.Key == UserDataKeysKnown.KEY_ALLOWED_AGE)
+          {
+            string age = val.Value;
+            if (!string.IsNullOrEmpty(age) && Convert.ToInt32(age) >= 0)
+            {
+              allowedAge = Convert.ToInt32(age);
+            }
+          }
+          else if (key.Key == UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT)
+          {
+            string allow = val.Value;
+            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
+            {
+              includeParentalGuidedContent = Convert.ToInt32(allow) > 0;
+            }
+          }
+          else if (key.Key == UserDataKeysKnown.KEY_MOVIE_CONTENT_CERTIFICATION_SYSTEM_COUNTRY)
+          {
+            movieCertificationSystemCountry = val.Value;
+            if (string.IsNullOrEmpty(movieCertificationSystemCountry))
+            {
+              movieCertificationSystemCountry = null;
+            }
+          }
+          else if (key.Key == UserDataKeysKnown.KEY_SERIES_CONTENT_CERTIFICATION_SYSTEM_COUNTRY)
+          {
+            seriesCertificationSystemCountry = val.Value;
+            if (string.IsNullOrEmpty(seriesCertificationSystemCountry))
+            {
+              seriesCertificationSystemCountry = null;
+            }
+          }
+        }
+      }
+
+      //Convert certification system if needed
+      if (!string.IsNullOrEmpty(movieCertificationSystemCountry) || !string.IsNullOrEmpty(seriesCertificationSystemCountry))
+      {
+        //Find all possible matches
+        string certification = null;
+        CertificationMapping bestMatch = null;
+        if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID) && !string.IsNullOrEmpty(movieCertificationSystemCountry))
+        {
+          if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_CERTIFICATION, out certification))
+            bestMatch = CertificationMapper.FindMatchingMovieCertification(movieCertificationSystemCountry, certification);
+        }
+        if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID) && !string.IsNullOrEmpty(seriesCertificationSystemCountry))
+        {
+          if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_CERTIFICATION, out certification))
+            bestMatch = CertificationMapper.FindMatchingSeriesCertification(seriesCertificationSystemCountry, certification);
+        }
+
+        //Assign new certification value
+        if (bestMatch != null)
+        {
+          if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+            MediaItemAspect.SetAttribute<string>(mediaItem.Aspects, MovieAspect.ATTR_CERTIFICATION, bestMatch.CertificationId);
+          else if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+            MediaItemAspect.SetAttribute<string>(mediaItem.Aspects, SeriesAspect.ATTR_CERTIFICATION, bestMatch.CertificationId);
+        }
+        else
+        {
+          if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+            MediaItemAspect.SetAttribute<string>(mediaItem.Aspects, MovieAspect.ATTR_CERTIFICATION, null);
+          else if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+            MediaItemAspect.SetAttribute<string>(mediaItem.Aspects, SeriesAspect.ATTR_CERTIFICATION, null);
+        }
+      }
+
+      return true;
     }
   }
 }
