@@ -51,6 +51,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public AbstractProperty EpisodeTitleProperty { get; set; }
     public AbstractProperty SeriesProperty { get; set; }
     public AbstractProperty ChannelNameProperty { get; set; }
+    public AbstractProperty ChannelLogoTypeProperty { get; set; }
 
     /// <summary>
     /// Gets or Sets the Title.
@@ -179,6 +180,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       set { ChannelNameProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public string ChannelLogoType
+    {
+      get { return (string)ChannelLogoTypeProperty.GetValue(); }
+      set { ChannelLogoTypeProperty.SetValue(value); }
+    }
+
     public ProgramProperties()
     {
       ProgramIdProperty = new WProperty(typeof(int), 0);
@@ -195,6 +205,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       EpisodeTitleProperty = new WProperty(typeof(String), String.Empty);
       SeriesProperty = new WProperty(typeof(String), String.Empty);
       ChannelNameProperty = new WProperty(typeof(String), String.Empty);
+      ChannelLogoTypeProperty = new WProperty(typeof(String), String.Empty);
       Attach();
     }
 
@@ -233,7 +244,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           if (channelAndGroupInfo != null && channelAndGroupInfo.GetChannel(program.ChannelId, out channel))
             ChannelName = channel.Name;
         }
-
+        ChannelLogoType = channel.GetFanArtMediaType();
         _settingProgram = true;
         IProgramSeries series = program as IProgramSeries;
         if (series != null)

@@ -11,7 +11,7 @@
   <string name="Media.ArtistMenuItem">Izvođač</string>
   <string name="Media.GenreMenuItem">Žanr</string>
   <string name="Media.SystemMenuItem">Sustav</string>
-  <string name="Media.EpisodeDateMenuItem">Epizoda</string>
+  <string name="Media.EpisodeMenuItem">Epizoda</string>
   <string name="Media.AudioLanguageMenuItem">Jezik</string>
   <string name="Media.ImageCityMenuItem">Grad</string>
   <string name="Media.SeriesNameMenuItem">Serije</string>

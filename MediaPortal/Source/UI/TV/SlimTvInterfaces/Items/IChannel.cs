@@ -61,4 +61,17 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     /// </summary>
     MediaType MediaType { get; set; }
   }
+
+  public static class ChannelExtensions
+  {
+    /// <summary>
+    /// Returns a matching fanart MediaType that will be used to get channel logos. If a <c>null</c> value is given, the result defaults to "TV".
+    /// </summary>
+    /// <param name="channel">Channel</param>
+    /// <returns>Fanart MediaType</returns>
+    public static string GetFanArtMediaType(this IChannel channel)
+    {
+      return channel != null && channel.MediaType == MediaType.Radio ? "ChannelRadio" : "ChannelTv";
+    }
+  }
 }

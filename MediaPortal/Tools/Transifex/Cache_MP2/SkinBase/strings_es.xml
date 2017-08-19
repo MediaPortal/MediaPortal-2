@@ -110,8 +110,6 @@
   <string name="Settings.General.System">Sistema</string>
   <string name="Settings.General.System.Autostart">Autocomenzar</string>
   <string name="Settings.General.System.Autostart.Help">Ejecutar MediaPortal automaticamente al iniciar Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Letra de montaje del recurso:</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Configura la letra de unidad para montar los recursos remotos en este cliente.</string>
   <string name="Settings.General.Connectivity">Conectividad</string>
   <string name="Settings.General.Connectivity.HomeServer">Servidor de casa</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Información del servidor de Inicio, unirse o desunirse al servidor de inicio</string>

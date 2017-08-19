@@ -15,7 +15,7 @@
   <string name="Media.GenreMenuItem">Žanr</string>
   <string name="Media.SizeMenuItem">Velikost</string>
   <string name="Media.SystemMenuItem">Sistem</string>
-  <string name="Media.EpisodeDateMenuItem">Epizoda</string>
+  <string name="Media.EpisodeMenuItem">Epizoda</string>
   <string name="Media.AudioLanguageMenuItem">Jezik</string>
   <string name="Media.ImageCountryMenuItem">Država</string>
   <string name="Media.ImageStateMenuItem">Država</string>
@@ -280,6 +280,8 @@
   <string name="Media.LargeGrid">Mreža</string>
   <string name="Media.CoverLayout">Ovitki</string>
   <string name="Media.SwitchSortingMenuItem">Urejanje</string>
+  <string name="Media.SortByDate">Datum</string>
+  <string name="Media.GroupingBrowseDefault">Privzeto</string>
   <string name="Settings.Players">Predvajalniki</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Zapri predvajalnike ob koncu</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Vključi to nastavitev, da bo MediaPortal ob koncu zaprl predvajalnike</string>

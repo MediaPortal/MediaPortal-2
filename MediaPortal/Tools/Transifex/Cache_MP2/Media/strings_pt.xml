@@ -13,7 +13,7 @@
   <string name="Media.ArtistMenuItem">Artista</string>
   <string name="Media.GenreMenuItem">Género</string>
   <string name="Media.SystemMenuItem">Systema</string>
-  <string name="Media.EpisodeDateMenuItem">Episódio</string>
+  <string name="Media.EpisodeMenuItem">Episódio</string>
   <string name="Media.AudioLanguageMenuItem">Linguagem</string>
   <string name="Media.SeriesNameMenuItem">Séries</string>
   <string name="Media.SimpleSearchFilterMenuItem">Procurar</string>
@@ -266,6 +266,7 @@
   <string name="Media.LargeGrid">Grade</string>
   <string name="Media.CoverLayout">Capas</string>
   <string name="Media.SwitchSortingMenuItem">Ordenando</string>
+  <string name="Media.GroupingBrowseDefault">Por defeito</string>
   <string name="Settings.Players">Reprodutores</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Fechar reprodutores quando terminados</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Habilite esta configuração para fazer o MediaPortal fechar os reprodutores terminados automaticamente</string>

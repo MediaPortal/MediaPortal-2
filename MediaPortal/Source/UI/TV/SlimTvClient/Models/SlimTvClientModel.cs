@@ -87,6 +87,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _selectedCurrentProgramProperty = null;
     protected AbstractProperty _selectedNextProgramProperty = null;
     protected AbstractProperty _selectedChannelNameProperty = null;
+    protected AbstractProperty _selectedChannelLogoTypeProperty = null;
     protected AbstractProperty _selectedProgramProgressProperty = null;
 
     // properties for playing channel and program (OSD)
@@ -95,6 +96,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _programProgressProperty = null;
     protected AbstractProperty _timeshiftProgressProperty = null;
     protected AbstractProperty _currentChannelNameProperty = null;
+    protected AbstractProperty _currentChannelLogoTypeProperty = null;
 
     // PiP Control properties
     protected AbstractProperty _piPAvailableProperty = null;
@@ -191,6 +193,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public string ChannelLogoType
+    {
+      get { return (string)_currentChannelLogoTypeProperty.GetValue(); }
+      set { _currentChannelLogoTypeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public AbstractProperty ChannelLogoTypeProperty
+    {
+      get { return _currentChannelLogoTypeProperty; }
+    }
+
+    /// <summary>
     /// Exposes the selected channel name to the skin.
     /// </summary>
     public string SelectedChannelName
@@ -205,6 +224,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty SelectedChannelNameProperty
     {
       get { return _selectedChannelNameProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the selected channel logo type to the skin.
+    /// </summary>
+    public string SelectedChannelLogoType
+    {
+      get { return (string)_selectedChannelLogoTypeProperty.GetValue(); }
+      set { _selectedChannelLogoTypeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the selected channel logo type to the skin.
+    /// </summary>
+    public AbstractProperty SelectedChannelLogoTypeProperty
+    {
+      get { return _selectedChannelLogoTypeProperty; }
     }
 
     /// <summary>
@@ -416,6 +452,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               nextProgram = channelItem.Programs[1].AdditionalProperties["PROGRAM"] as IProgram;
             }
           SelectedChannelName = channelItem.Channel.Name;
+          SelectedChannelLogoType = channelItem.Channel.GetFanArtMediaType();
           SelectedCurrentProgram.SetProgram(currentProgram, channelItem.Channel);
           SelectedNextProgram.SetProgram(nextProgram, channelItem.Channel);
           double progress = currentProgram != null ?
@@ -791,11 +828,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _currentGroupNameProperty = new WProperty(typeof(string), string.Empty);
 
         _selectedChannelNameProperty = new WProperty(typeof(string), string.Empty);
+        _selectedChannelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _selectedCurrentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _selectedNextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _selectedProgramProgressProperty = new WProperty(typeof(double), 0d);
 
         _currentChannelNameProperty = new WProperty(typeof(string), string.Empty);
+        _currentChannelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _nextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _programProgressProperty = new WProperty(typeof(double), 0d);
@@ -926,6 +965,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           {
             channel = context.Channel;
             ChannelName = channel.Name;
+            ChannelLogoType = channel.GetFanArtMediaType();
             if (_tvHandler.ProgramInfo != null && _tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram) && currentProgram != null)
             {
               double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /

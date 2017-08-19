@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Spelers</string>
-  <string name="Settings.Players.AudioPlayer">Audiospeler</string>
   <string name="Settings.Players.BassPlayer.Setup">Configureer uitgangsaparaat</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Configureerd het BassPlayer uitgangsaparaat en opties</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>

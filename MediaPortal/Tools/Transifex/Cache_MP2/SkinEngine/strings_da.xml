@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Vælg om pauseskærm skal vises</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Pauseskærm timeout</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Indstil hvor længe der skal gå før pauseskærmet vises efter sidste brugerinput</string>
-  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing forbedrer GUI, men kan forringe videoperformancen</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skin og tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Ændre skin</string>

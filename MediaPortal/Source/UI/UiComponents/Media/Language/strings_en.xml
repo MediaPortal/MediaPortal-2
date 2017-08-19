@@ -276,7 +276,7 @@
   <string name="Media.SetWatched">Set watched</string>
   <string name="Media.SetUnwatched">Set unwatched</string>
   <string name="Media.DeleteFromStorage">Delete from storage</string>
-  <string name="Media.DeleteFromStorage.Confirmation">Are you sure to finally delete this item? This action cannot be undone.</string>
+  <string name="Media.DeleteFromStorage.Confirmation">Are you sure that you want to delete this item? This cannot be undone.</string>
   <string name="Media.ConfirmAction">Confirm action</string>
 
   <!-- Play items dialog -->

@@ -13,7 +13,7 @@
   <string name="Media.MoviesMenuItem">Filme</string>
   <string name="Media.MoviesMenuItem.Help">Durchsuchen der Medienbibliothek nach Spielfilmen. Laden von weiteren Informationen wie Genre, Schauspieler oder Ratings . Filter erlauben eine Anpassung der Ansicht an die eigenen Wünsche.</string>
   <string name="Media.ImagesMenuItem">Bilder</string>
-  <string name="Media.ImagesMenuItem.Help">Durchsuchen der Medienbibliothek nach Bildern. Es werden Zusatzinformationen wie etwa Geodaten, Datum oder EXIF-Informationen angezeigt. Man kann Filter verwenden, um die Auswahl an die eigenen Wünsche anzupassen.</string>
+  <string name="Media.ImagesMenuItem.Help">Durchsuchen der Medienbibliothek nach Bildern. Es werden Zusatzinformationen wie etwa Geodaten, Datum oder EXIF-Informationen angezeigt. Filter erlauben eine Anpassung der Ansicht an die eigenen Wünsche.</string>
   <string name="Media.LatestMediaMenuItem">Neueste Medien</string>
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.NameMenuItem">Name</string>
@@ -41,9 +41,9 @@
   <string name="Media.AiredDateMenuItem">Ausgestrahlt</string>
   <string name="Media.RecordingDateMenuItem">Aufnahmedatum</string>
   <string name="Media.AddedDateMenuItem">Hinzugefügt</string>
-  <string name="Media.EpisodeDateMenuItem">Episode</string>
+  <string name="Media.EpisodeMenuItem">Episode</string>
   <string name="Media.DVDEpisodeMenuItem">DVD Episode</string>
-  <string name="Media.TVNetworkMenuItem">TV-Netzwerk</string>
+  <string name="Media.TVNetworkMenuItem">Medienkonzern</string>
   <string name="Media.MusicLabelMenuItem">Musiklabel</string>
   <string name="Media.CompanyMenuItem">Studio</string>
   <string name="Media.ShowAllMenuItem">Alles anzeigen</string>
@@ -52,7 +52,7 @@
   <string name="Media.ImageCountryMenuItem">Land</string>
   <string name="Media.ImageStateMenuItem">Status</string>
   <string name="Media.ImageCityMenuItem">Stadt</string>
-  <string name="Media.MoviesCollectionMenuItem">Sammlung</string>
+  <string name="Media.MoviesCollectionMenuItem">Filmreihe</string>
   <string name="Media.SeriesNameMenuItem">Serien</string>
   <string name="Media.SeriesSeasonMenuItem">Staffel</string>
   <string name="Media.SimpleSearchFilterMenuItem">Suche</string>
@@ -85,7 +85,7 @@
   <string name="Media.FilterActorNavbarDisplayLabel">Schauspieler: {0}</string>
   <string name="Media.FilterCharacterNavbarDisplayLabel">Rolle: {0}</string>
   <string name="Media.FilterDirectorNavbarDisplayLabel">Regisseur: {0}</string>
-  <string name="Media.FilterWriterNavbarDisplayLabel">Autor: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Drehbuch: {0}</string>
   <string name="Media.FilterCompanyNavbarDisplayLabel">Produktionsstudio: {0}</string>
   <string name="Media.FilterTvNetworkNavbarDisplayLabel">Medienkonzern: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Genre: {0}</string>
@@ -134,7 +134,7 @@
   <string name="Media.BrowseMediaNavigationHeader">Medienbibliothek durchsuchen</string>
   <string name="Media.LocalMediaNavigationHeader">Lokale Medien durchsuchen</string>
   <string name="Media.MediaItemsHeader">Medien</string>
-  <string name="Media.VideoItemsHeader">Videos</string>
+  <string name="Media.VideoItemsHeader">Video(s)</string>
   <string name="Media.AudioItemsHeader">Audiotitel</string>
   <string name="Media.EpisodeItemsHeader">Episoden</string>
   <string name="Media.SeasonItemsHeader">Staffel(n)</string>
@@ -182,7 +182,7 @@
   <string name="Media.PlaylistDetailsHeader">Playlist-Details</string>
   <string name="Media.PlaylistLoadNoPlaylistText">Keine Playlist zum Laden vorhanden</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Fehler beim Laden der Playlist</string>
-  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Eine Playlist kann nur gespeichert werden, wenn alle Medien mit dem MP2-Server abgeglichen wurden (z. B. nicht bei lokaler Medien-Navigation)</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Eine Playlist kann nur gespeichert werden, wenn alle Medien mit dem MP2-Server abgeglichen wurden (d. h. nicht bei lokaler Medien-Navigation)</string>
   <!--View occupation names-->
   <string name="Media.ArtistOccupationName">Interpret</string>
   <string name="Media.ActorOccupationName">Darsteller</string>
@@ -252,6 +252,8 @@
   <string name="Media.SetWatched">Als gesehen markieren</string>
   <string name="Media.SetUnwatched">Als ungesehen markieren</string>
   <string name="Media.DeleteFromStorage">Von Speicher löschen</string>
+  <string name="Media.DeleteFromStorage.Confirmation">Soll das gewählte Element endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+  <string name="Media.ConfirmAction">Bestätigung</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Element abspielen</string>
   <string name="Media.PlayAudioItems">Audiotitel abspielen</string>
@@ -269,6 +271,7 @@
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Video/Bild im Hintergrund abspielen und Audiowiedergabe fortsetzen</string>
   <string name="Media.PlayVideoImageItemPiP">Video/Bild im PiP Modus abspielen</string>
   <string name="Media.PlaybackResume">Wiedergabe fortsetzen</string>
+  <string name="Media.PlaybackResumeTime">Wiedergabe fortsetzen bei: \'{0}\'</string>
   <string name="Media.PlaybackFromStart">Von Anfang an wiedergeben</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Video/Bild</string>
@@ -291,7 +294,7 @@
   <string name="Media.SeriesTitleLabel">Serie:</string>
   <string name="Media.SeriesSeasonLabel">Staffel:</string>
   <string name="Media.SeriesEpisodeLabel">Folge(n):</string>
-  <string name="Media.FirstAiredLabel">Veröffentlicht:</string>
+  <string name="Media.FirstAiredLabel">Gesendet:</string>
   <string name="Media.SeriesEpisodeNameLabel">Folgentitel:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Aktuelle Bild-Informationen</string>
@@ -370,6 +373,8 @@
   <string name="Media.SwitchSortingMenuItem">Sortierung</string>
   <string name="Media.SwitchSortingDialogTitle">Sortieren nach</string>
   <string name="Media.SortingBrowseDefault">Standard-Sortierung</string>
+  <string name="Media.SortByDate">Datum</string>
+  <string name="Media.GroupingBrowseDefault">Standard</string>
   <string name="Media.SwitchGroupingMenuItem">Gruppieren</string>
   <string name="Media.SwitchGroupingDialogTitle">Gruppieren nach</string>
   <string name="Media.NoGrouping">Keine Gruppierung</string>
@@ -385,8 +390,8 @@
   <string name="Settings.Players.OpenPlayerStrategy">Playeröffnungs-Strategie</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Option, wie neu geöffnete Player unter anderen bereits geöffneten Playern positioniert werden</string>
   <string name="Settings.Players.WatchedPlayPercentage">Gesehen-Prozent</string>
-  <string name="Settings.Players.WatchedPlayPercentage.Help">Legt eine Prozentangabe fest, ab der ein Medienelement als \"gesehen\" markiert wird</string>
-  <string name="Settings.Media">Medien</string>
+  <string name="Settings.Players.WatchedPlayPercentage.Help">Legt eine Prozentangabe fest, ab der ein Medienelement als \"Gesehen\" markiert wird</string>
+  <string name="Settings.Media">Medien-Bibliothek</string>
   <string name="Settings.Media.ShowVirtual">Alle bekannten Medienelemente anzeigen</string>
   <string name="Settings.Media.ShowVirtual.Help">Legt fest, ob auch Informationen zu bekannten Medienelementen angezeigt werden, die nicht in der Medienbibliothek verfügbar sind</string>
   <string name="Settings.Media.ShowVirtual.Audio">Alle bekannten Album-Titel anzeigen</string>

@@ -15,7 +15,7 @@
   <string name="Media.GenreMenuItem">Flokkun</string>
   <string name="Media.SizeMenuItem">Stærð</string>
   <string name="Media.SystemMenuItem">Kerfi</string>
-  <string name="Media.EpisodeDateMenuItem">Þáttur</string>
+  <string name="Media.EpisodeMenuItem">Þáttur</string>
   <string name="Media.AudioLanguageMenuItem">Tungumál</string>
   <string name="Media.SeriesNameMenuItem">Þættir</string>
   <string name="Media.SimpleSearchFilterMenuItem">Leita</string>
@@ -259,6 +259,8 @@
   <string name="Media.LargeList">Stór listi</string>
   <string name="Media.LargeGrid">Stöðva</string>
   <string name="Media.SwitchSortingMenuItem">Flokka</string>
+  <string name="Media.SortByDate">Dags.</string>
+  <string name="Media.GroupingBrowseDefault">Sjálfgefið</string>
   <string name="Settings.Players">Spilarar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Loka spilara þegar spilun er lokið</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Virkið þessa stillingu til að MediaPortal lokið óvirkum spilurum sjálfvirkt</string>

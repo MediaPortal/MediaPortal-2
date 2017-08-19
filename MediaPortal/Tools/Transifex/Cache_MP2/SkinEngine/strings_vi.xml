@@ -9,8 +9,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Chỉnh sửa cách trình bảo vệ màn hình về mặt hiển thị</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Thời gian cho trình bảo vệ màn hình</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Chỉnh sửa độ dài thời gian bằng phút khi trình bảo vệ màn hình được hiển thị dựa vào lần thao tác cuối cùng của người dùng</string>
-  <string name="Settings.Appearance.System.Antialiasing">Khử dạng răng cưa trong hiển thị</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Khử dạng răng cưa trong hiển thị sẽ làm tăng chất lượng hiển thị của giao diện, nhưng có thể làm giảm tính biểu thị của video</string>
   <string name="Settings.Appearance.Skin">Giao diện</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Giao diện</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Thay đổi giao diện</string>

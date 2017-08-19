@@ -76,7 +76,7 @@
             <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="0" Grid.Column="0"
                    Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-5,0,0">
               <Image.Source>
-                <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
                                           fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
               </Image.Source>
             </Image>

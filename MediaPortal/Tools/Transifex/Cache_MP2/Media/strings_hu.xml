@@ -11,7 +11,7 @@
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.GenreMenuItem">Műfaj</string>
   <string name="Media.SystemMenuItem">Rendszer</string>
-  <string name="Media.EpisodeDateMenuItem">Epizód</string>
+  <string name="Media.EpisodeMenuItem">Epizód</string>
   <string name="Media.AudioLanguageMenuItem">Nyelv</string>
   <string name="Media.SeriesNameMenuItem">Sorozatok</string>
   <string name="Media.SimpleSearchFilterMenuItem">Keresés</string>

@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="WMC.Configuration.EnableFanart">Abilita FanArt</string>
+  <string name="WMC.Configuration.EnableFanart.Help">Scegli se visualizzare le FanArt</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity">Visibilità FanArt</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity.Help">Regola l\'opacità della sovrapposizione delle FanArt sullo sfondo. Un valore inferire incrementa la visibilità della FanArt (l\'impostazione predefinita è 1.0)</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Abilita il marcatore \"già visti\"</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Modalità visualizzazione delle icone \"già visto\" nella visualizzazione scelta</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">Modalità lista</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Modalità griglia</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Modalità copertina</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos">Abilita la certificazione età dei logo</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Scegli se mostrare la certificazione età nelle schermate media.</string>
+  <string name="WMC.Configuration.EnableBanners">Mostra i banner</string>
+  <string name="WMC.Configuration.EnableBanners.Help">Scegli se mostrare i banner in modalità griglia invece che in modalità copertina</string>
   <string name="WMC.Configuration.EnableBanners.Movies">Film</string>
-  <string name="WMC.Configuration.EnableBanners.Series">Serie</string>
+  <string name="WMC.Configuration.EnableBanners.Series">Serie TV</string>
   <string name="WMC.Configuration.EnableBanners.Seasons">Stagioni</string>
-  </resources>
+  <string name="WMC.Configuration.EnableAnimatedBackground">Abilita gli sfondi animati</string>
+  <string name="WMC.Configuration.EnableAnimatedBackground.Help">Scegli se mostrare la animazione Aurora nella schermata principale</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView">Abilita elementi multimediali nella vista dettaglii</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Scegli se mostrare i dettagli del contenuto al posto di riprodurlo direttamente.</string>
+</resources>

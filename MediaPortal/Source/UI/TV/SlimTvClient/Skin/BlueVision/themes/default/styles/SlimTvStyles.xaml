@@ -48,7 +48,7 @@
               <ControlTemplate x:Key="OSD_Cover_Template">
                 <Image x:Name="ChannelLogo" Stretch="Uniform" Width="180" Margin="10" VerticalAlignment="Top">
                   <Image.Source>
-                    <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
+                    <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource SlimTvClient}, Path=ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
                                               fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                   </Image.Source>
                 </Image>
@@ -551,8 +551,8 @@
               <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,-1,0,-1" Width="92" HorizontalAlignment="Center"
                      Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
                 <Image.Source>
-                  <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
-                                            fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
+                                            fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0" />
                 </Image.Source>
                 <Image.IsVisible>
                   <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
@@ -931,7 +931,7 @@
 
       <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoMedium}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
 
@@ -1000,7 +1000,7 @@
 
       <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoMedium}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
 
@@ -1066,7 +1066,7 @@
 
       <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoMedium}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
 
@@ -1130,7 +1130,7 @@
       <StackPanel Orientation="Horizontal" Grid.Column="0" x:Name="Channel">
         <Image x:Name="ChannelLogo" Height="40" Stretch="Uniform" Margin="5,2,5,2">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
+            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding [ChannelLogoType]}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
                                       fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
         </Image>
@@ -1184,7 +1184,7 @@
       <StackPanel Orientation="Horizontal" Grid.Column="0" x:Name="Channel">
         <Image x:Name="ChannelLogo" Height="40" Stretch="Uniform" Margin="5,2,5,2">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
+            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding [ChannelLogoType]}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
                                       fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
         </Image>

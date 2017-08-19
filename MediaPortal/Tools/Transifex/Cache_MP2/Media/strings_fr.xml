@@ -41,7 +41,7 @@
   <string name="Media.AiredDateMenuItem">Date de diffusion</string>
   <string name="Media.RecordingDateMenuItem">Date d\'enregistrement</string>
   <string name="Media.AddedDateMenuItem">Date d\'ajout</string>
-  <string name="Media.EpisodeDateMenuItem">Épisode</string>
+  <string name="Media.EpisodeMenuItem">Épisode</string>
   <string name="Media.DVDEpisodeMenuItem">DVD episode</string>
   <string name="Media.TVNetworkMenuItem">Réseau TV</string>
   <string name="Media.MusicLabelMenuItem">Label musical</string>
@@ -370,6 +370,8 @@
   <string name="Media.SwitchSortingMenuItem">Tri</string>
   <string name="Media.SwitchSortingDialogTitle">Trier par</string>
   <string name="Media.SortingBrowseDefault">Tri par Défaut</string>
+  <string name="Media.SortByDate">Date</string>
+  <string name="Media.GroupingBrowseDefault">Par défaut</string>
   <string name="Media.SwitchGroupingMenuItem">Regroupement</string>
   <string name="Media.SwitchGroupingDialogTitle">Grouper par</string>
   <string name="Media.NoGrouping">Aucun regroupement</string>
@@ -386,7 +388,6 @@
   <string name="Settings.Players.OpenPlayerStrategy.Help">Gestion de la place du lecteur nouvellement ouvert, parmi les lecteurs déjà ouverts</string>
   <string name="Settings.Players.WatchedPlayPercentage">Pourcentage de lecture</string>
   <string name="Settings.Players.WatchedPlayPercentage.Help">Sélectionnez à partir de quel pourcentage, le média est indiqué comme vu. </string>
-  <string name="Settings.Media">Media</string>
   <string name="Settings.Media.ShowVirtual">Afficher tout les médias connus</string>
   <string name="Settings.Media.ShowVirtual.Help">Indiquer si, tout les fichier média connus doivent être afficher, même si aucun élément n\'est disponible en local</string>
   <string name="Settings.Media.ShowVirtual.Audio">Afficher tous les titres de l\'album connu</string>

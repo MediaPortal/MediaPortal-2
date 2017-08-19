@@ -32,8 +32,10 @@
   <string name="SlimTvClient.RecordNow">Record now</string>
   <string name="SlimTvClient.DeleteSchedule">Delete schedule</string>
   <string name="SlimTvClient.CreateSchedule">Schedule recording</string>
+  <string name="SlimTvClient.CreateManualSchedule">Schedule recording manually</string>
 
   <string name="SlimTvClient.ProgramSearch">Search programs</string>
+  <string name="SlimTvClient.ProgramSearch.Help">Search for program titles in the EPG and find your desired shows</string>
 
   <!-- Extended recording features -->
   <string name="SlimTvClient.RecordActions">Recording actions</string>
@@ -73,6 +75,7 @@
   <string name="SlimTvClient.ExtendedSchedule">Extended scheduling</string>
   <string name="SlimTvClient.ScheduleManagement">Manage schedules</string>
   <string name="SlimTvClient.ScheduleModeSeries">Manage series schedules</string>
+  <string name="SlimTvClient.NewSchedule">New manual schedule</string>
 
   <string name="SlimTvClient.ErrorNoTvProvider">No TV provider available (yet)</string>
 
@@ -98,6 +101,8 @@
   <string name="SlimTvClient.ZapTimeout.Help">Configures the delay until tuning starts.</string>
   <string name="SlimTvClient.HideAllChannelsGroup">Hide "All Channels" group</string>
   <string name="SlimTvClient.HideAllChannelsGroup.Help">If enabled, the inbuilt "All Channels" group will be hidden.</string>
+  <string name="SlimTvClient.ChannelLogoStyle">Channel logo style</string>
+  <string name="SlimTvClient.ChannelLogoStyle.Help">Select channel logo style. Server and Clients needs to be restarted after changes.</string>
 
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.Recordings.Help">Here you can find a list of your recorded programs for playback.</string>

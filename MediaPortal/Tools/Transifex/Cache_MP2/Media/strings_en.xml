@@ -42,7 +42,7 @@
   <string name="Media.AiredDateMenuItem">Aired date</string>
   <string name="Media.RecordingDateMenuItem">Recording date</string>
   <string name="Media.AddedDateMenuItem">Added date</string>
-  <string name="Media.EpisodeDateMenuItem">Episode</string>
+  <string name="Media.EpisodeMenuItem">Episode</string>
   <string name="Media.DVDEpisodeMenuItem">DVD episode</string>
   <string name="Media.TVNetworkMenuItem">TV network</string>
   <string name="Media.MusicLabelMenuItem">Music label</string>
@@ -261,6 +261,8 @@
   <string name="Media.SetWatched">Set watched</string>
   <string name="Media.SetUnwatched">Set unwatched</string>
   <string name="Media.DeleteFromStorage">Delete from storage</string>
+  <string name="Media.DeleteFromStorage.Confirmation">Are you sure that you want to delete this item? This cannot be undone.</string>
+  <string name="Media.ConfirmAction">Confirm action</string>
 
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>
@@ -284,6 +286,7 @@
   <string name="Media.PlayVideoImageItemPiP">Play video/image item in PiP mode</string>
 
   <string name="Media.PlaybackResume">Resume playback</string>
+  <string name="Media.PlaybackResumeTime">Resume playback from: \'{0}\'</string>
   <string name="Media.PlaybackFromStart">Play from start</string>
 
   <!-- Player context names -->
@@ -408,6 +411,9 @@
   <string name="Media.SwitchSortingDialogTitle">Sort by</string>
   <string name="Media.SortingBrowseDefault">Default Sorting</string>
 
+  <string name="Media.SortByDate">Date</string>
+  <string name="Media.GroupingBrowseDefault">Default</string>
+
   <string name="Media.SwitchGroupingMenuItem">Grouping</string>
   <string name="Media.SwitchGroupingDialogTitle">Group by</string>
   <string name="Media.NoGrouping">No grouping</string>
@@ -432,7 +438,7 @@
   <string name="Settings.Players.WatchedPlayPercentage">Watched play percentage</string>
   <string name="Settings.Players.WatchedPlayPercentage.Help">Select what percentage of a media item needs to be played before it is marked as watched</string>
 
-  <string name="Settings.Media">Media</string>
+  <string name="Settings.Media">Media library</string>
   
   <string name="Settings.Media.ShowVirtual">Show all known media items</string>
   <string name="Settings.Media.ShowVirtual.Help">Select whether to show all known media items even if there is not a local file reference</string>
