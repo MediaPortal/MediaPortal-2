@@ -52,30 +52,8 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       _currentUser = new WProperty(typeof(UserProfile), null);
 
-      LoadUsers();
-      SetCurrentUser();
-    }
-
-    /// <summary>
-    /// will load the users from somewhere
-    /// </summary>
-    private void LoadUsers()
-    {
-      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userManagement.UserProfileDataManagement == null)
-        return;
-
-      UserProfile u1;
-      string profileName = SystemInformation.ComputerName.ToLower();
-      if (!userManagement.UserProfileDataManagement.GetProfileByName(profileName, out u1))
-      {
-        // add a few dummy users, later this should be more flexible and handled by a login manager / user account control
-        Guid userId1 = userManagement.UserProfileDataManagement.CreateProfile(profileName);
-        if (!userManagement.UserProfileDataManagement.GetProfile(userId1, out u1))
-          return;
-      }
-
       RefreshUserList();
+      SetCurrentUser();
     }
 
     private void SetCurrentUser(UserProfile userProfile = null)
