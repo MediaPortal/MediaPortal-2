@@ -33,7 +33,7 @@ using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.Login.Settings;
 
-namespace MediaPortal.UiComponents.Login
+namespace MediaPortal.UiComponents.Login.Models
 {
   /// <summary>
   /// viewmodel for handling logins
@@ -42,7 +42,8 @@ namespace MediaPortal.UiComponents.Login
   {
     private readonly ItemsList _usersExposed = new ItemsList();
     private AbstractProperty _currentUser;
-    const string KEY_PROFILE_ID = "ProfileId";
+
+    public const string KEY_PROFILE_ID = "ProfileId";
 
     /// <summary>
     /// constructor
@@ -50,6 +51,7 @@ namespace MediaPortal.UiComponents.Login
     public LoginModel()
     {
       _currentUser = new WProperty(typeof(UserProfile), null);
+
       LoadUsers();
       SetCurrentUser();
     }
@@ -82,6 +84,7 @@ namespace MediaPortal.UiComponents.Login
       if (userProfile == null)
       {
         // Init with system default
+        userProfileDataManagement.CurrentUser = null;
         userProfile = userProfileDataManagement.CurrentUser;
       }
       else

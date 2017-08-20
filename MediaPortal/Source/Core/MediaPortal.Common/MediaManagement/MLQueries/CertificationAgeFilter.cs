@@ -22,9 +22,10 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Xml.Serialization;
-using MediaPortal.Utilities;
+using System;
+using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Common.MediaManagement.MLQueries
 {
@@ -36,12 +37,36 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     protected int _age;
     protected bool _includeRestrictedContent;
     protected bool _includeUnratedContent;
+    protected Guid _contentTypeId;
 
-    public CertificationAgeFilter(int requiredMinimumAge, bool includeParentGuidedContent = false, bool includeUnrated = false)
+    public CertificationAgeFilter(Guid contentMIATypeId, int requiredMinimumAge, bool includeParentGuidedContent = false, bool includeUnrated = false)
     {
+      _contentTypeId = contentMIATypeId;
       _age = requiredMinimumAge;
       _includeRestrictedContent = includeParentGuidedContent;
       _includeUnratedContent = includeUnrated;
+    }
+    //Necessary
+    public CertificationAgeFilter(IEnumerable<Guid> queryNecessaryMIATypeId, int requiredMinimumAge, bool includeParentGuidedContent = false, bool includeUnrated = false)
+    {
+      foreach(var miaId in queryNecessaryMIATypeId)
+      {
+        if(miaId == MovieAspect.ASPECT_ID || miaId == EpisodeAspect.ASPECT_ID || miaId == SeriesAspect.ASPECT_ID)
+        {
+          _contentTypeId = miaId;
+          break;
+        }
+      }
+      _age = requiredMinimumAge;
+      _includeRestrictedContent = includeParentGuidedContent;
+      _includeUnratedContent = includeUnrated;
+    }
+
+    [XmlIgnore]
+    public Guid ContentMIATypeId
+    {
+      get { return _contentTypeId; }
+      set { _contentTypeId = value; }
     }
 
     [XmlIgnore]
@@ -74,6 +99,13 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
 
     internal CertificationAgeFilter() { }
 
+    [XmlAttribute("UnratedContent")]
+    public bool XML_IncludeUnratedContent
+    {
+      get { return _includeUnratedContent; }
+      set { _includeUnratedContent = value; }
+    }
+
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
@@ -91,11 +123,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _includeRestrictedContent = value; }
     }
 
-    [XmlAttribute("UnratedContent")]
-    public bool XML_IncludeUnratedContent
+    [XmlAttribute("ContentMIATypeId")]
+    public string XML_ContentMIATypeId
     {
-      get { return _includeUnratedContent; }
-      set { _includeUnratedContent = value; }
+      get { return SerializationHelper.SerializeGuid(_contentTypeId); }
+      set { _contentTypeId = SerializationHelper.DeserializeGuid(value); }
     }
 
     #endregion

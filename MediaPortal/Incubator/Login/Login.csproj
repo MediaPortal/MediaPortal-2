@@ -51,13 +51,14 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="General\Consts.cs" />
-    <Compile Include="LoginModel.cs" />
+    <Compile Include="LoginPlugin.cs" />
+    <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\UserSettings.cs" />
     <Compile Include="Settings\UserSettingWatcher.cs" />
     <Compile Include="Settings\Configuration\UserConfigSettings.cs" />
     <Compile Include="Settings\Configuration\UserManagementSetting.cs" />
-    <Compile Include="UserConfigModel.cs" />
+    <Compile Include="Models\UserConfigModel.cs" />
     <Compile Include="UserProxy.cs" />
   </ItemGroup>
   <ItemGroup>

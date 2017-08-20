@@ -1203,7 +1203,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return innerFilter;
     }
 
-    protected IFilter AddUserFilter(IFilter innerFilter, Guid userProfileId, out string movieCertificationSystemCountry, out string seriesCertificationSystemCountry)
+    protected IFilter AddUserFilter(IEnumerable<Guid> necesaryMIATypeIds, IFilter innerFilter, Guid userProfileId, out string movieCertificationSystemCountry, out string seriesCertificationSystemCountry)
     {
       movieCertificationSystemCountry = null;
       seriesCertificationSystemCountry = null;
@@ -1300,7 +1300,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       // Content filter
       if (allowedAge.HasValue && allowAllAges == false)
-        filters.Add(new CertificationAgeFilter(allowedAge.Value, includeParentalGuidedContent ?? false));
+        filters.Add(new CertificationAgeFilter(necesaryMIATypeIds, allowedAge.Value, includeParentalGuidedContent ?? false));
 
       if (filters.Count > 1)
         innerFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filters.ToArray());
@@ -1899,7 +1899,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         if (userProfileId.HasValue && applyUserRestrictions)
         {
-          executeQuery.Filter = AddUserFilter(executeQuery.Filter, userProfileId.Value, out movieCertificationSystemCountry, out seriesCertificationSystemCountry);
+          executeQuery.Filter = AddUserFilter(executeQuery.NecessaryRequestedMIATypeIDs, executeQuery.Filter, userProfileId.Value, 
+            out movieCertificationSystemCountry, out seriesCertificationSystemCountry);
         }
 
         CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery, userProfileId);
@@ -1955,7 +1956,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (userProfileId.HasValue && applyUserRestrictions)
       {
         string temp;
-        filter = AddUserFilter(filter, userProfileId.Value, out temp, out temp);
+        filter = AddUserFilter(necessaryMIATypeIDs, filter, userProfileId.Value, out temp, out temp);
       }
 
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
@@ -1998,7 +1999,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (userProfileId.HasValue && applyUserRestrictions)
       {
         string temp;
-        filter = AddUserFilter(filter, userProfileId.Value, out temp, out temp);
+        filter = AddUserFilter(necessaryMIATypeIDs, filter, userProfileId.Value, out temp, out temp);
       }
 
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
@@ -2052,7 +2053,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (userProfileId.HasValue && applyUserRestrictions)
       {
         string temp;
-        filter = AddUserFilter(filter, userProfileId.Value, out temp, out temp);
+        filter = AddUserFilter(necessaryMIATypeIDs, filter, userProfileId.Value, out temp, out temp);
       }
 
       CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,

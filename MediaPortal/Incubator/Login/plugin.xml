@@ -4,7 +4,8 @@
     PluginId="{C9673F22-7B6F-40a9-ABEB-6EA63CC94E95}"
     Author="Team MediaPortal"
     Copyright="GPL"
-    Description="Login Plugin">
+    Description="Login Plugin"
+    AutoActivate="True">
 
   <Version
     PluginVersion="1.0"
@@ -21,10 +22,11 @@
 
   <Runtime>
     <Assembly FileName="Login.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.Login.LoginPlugin"/>
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.LoginModel"/>
+    <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.Models.LoginModel"/>
     <Model Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D" Name="UserConfigModel" ClassName="MediaPortal.UiComponents.Login.Models.UserConfigModel"/>
   </Register>
 

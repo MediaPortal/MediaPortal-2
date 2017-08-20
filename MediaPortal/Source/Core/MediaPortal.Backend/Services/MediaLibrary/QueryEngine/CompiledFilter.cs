@@ -383,16 +383,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (certificationAgeFilter.RequiredMinimumAge < CertificationMapper.MAX_AGE && certificationAgeFilter.RequiredMinimumAge >= 0)
         {
           IEnumerable<CertificationMapping> certs = null;
-          if (_requiredMIATypes.Contains(MovieAspect.Metadata))
+          if (certificationAgeFilter.ContentMIATypeId == MovieAspect.ASPECT_ID)
           {
             certs = CertificationMapper.GetMovieCertificationsForAge(certificationAgeFilter.RequiredMinimumAge, certificationAgeFilter.IncludeParentGuidedContent);
           }
-          else if (_requiredMIATypes.Contains(SeriesAspect.Metadata) || _requiredMIATypes.Contains(EpisodeAspect.Metadata))
+          else if (certificationAgeFilter.ContentMIATypeId == SeriesAspect.ASPECT_ID || certificationAgeFilter.ContentMIATypeId == EpisodeAspect.ASPECT_ID)
           {
             certs = CertificationMapper.GetSeriesCertificationsForAge(certificationAgeFilter.RequiredMinimumAge, certificationAgeFilter.IncludeParentGuidedContent);
           }
 
-          if (_requiredMIATypes.Contains(EpisodeAspect.Metadata) && certs != null)
+          if (certificationAgeFilter.ContentMIATypeId == EpisodeAspect.ASPECT_ID && certs != null)
           {
             BindVar roleVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), EpisodeAspect.ROLE_EPISODE, typeof(Guid));
             resultBindVars.Add(roleVar);
@@ -406,7 +406,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             sqlStatement.Append(" WHERE ");
             sqlStatement.Append(miaManagement.GetMIAAttributeColumnName(MovieAspect.ATTR_CERTIFICATION));
             sqlStatement.Append(" IN(");
-            sqlStatement.Append("'" + string.Join("','", certs.Select(c => c.Name)) + "'");
+            sqlStatement.Append("'" + string.Join("','", certs.Select(c => c.CertificationId)) + "'");
             sqlStatement.Append(")");
             if (certificationAgeFilter.IncludeUnratedContent)
             {
@@ -478,7 +478,28 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
             resultParts.Add(")");
           }
-          else if (certs != null)
+          else if (certificationAgeFilter.ContentMIATypeId == SeriesAspect.ASPECT_ID && certs != null)
+          {
+            resultParts.Add(outerMIIDJoinVariable);
+            resultParts.Add(" IN(");
+            resultParts.Add("SELECT ");
+            resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+            resultParts.Add(" FROM ");
+            resultParts.Add(miaManagement.GetMIATableName(SeriesAspect.Metadata));
+            resultParts.Add(" WHERE ");
+            resultParts.Add(miaManagement.GetMIAAttributeColumnName(SeriesAspect.ATTR_CERTIFICATION));
+            resultParts.Add(" IN(");
+            resultParts.Add("'" + string.Join("','", certs.Select(c => c.CertificationId)) + "'");
+            resultParts.Add(")");
+            if (certificationAgeFilter.IncludeUnratedContent)
+            {
+              resultParts.Add(" OR ");
+              resultParts.Add(miaManagement.GetMIAAttributeColumnName(SeriesAspect.ATTR_CERTIFICATION));
+              resultParts.Add(" IS NULL");
+            }
+            resultParts.Add(")");
+          }
+          else if (certificationAgeFilter.ContentMIATypeId == MovieAspect.ASPECT_ID && certs != null)
           {
             resultParts.Add(outerMIIDJoinVariable);
             resultParts.Add(" IN(");
@@ -489,7 +510,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             resultParts.Add(" WHERE ");
             resultParts.Add(miaManagement.GetMIAAttributeColumnName(MovieAspect.ATTR_CERTIFICATION));
             resultParts.Add(" IN(");
-            resultParts.Add("'" + string.Join("','", certs.Select(c => c.Name)) + "'");
+            resultParts.Add("'" + string.Join("','", certs.Select(c => c.CertificationId)) + "'");
             resultParts.Add(")");
             if (certificationAgeFilter.IncludeUnratedContent)
             {
@@ -498,6 +519,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               resultParts.Add(" IS NULL");
             }
             resultParts.Add(")");
+          }
+          else
+          {
+            resultParts.Add("3 = 3");
           }
         }
         return;

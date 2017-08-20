@@ -854,6 +854,7 @@ namespace MediaPortal.UiComponents.Login.Models
         _userList = null;
         _localSharesList = null;
         _serverSharesList = null;
+        SetUser(null);
       }
     }
 
