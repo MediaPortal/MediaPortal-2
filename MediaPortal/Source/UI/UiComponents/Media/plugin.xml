@@ -272,6 +272,14 @@
       Text="[Settings.General]"/>
   </Register>
 
+  <Register Location="/Configuration/Settings/Media">
+    <ConfigSection
+        Id="Certifications"
+        Sort="X100"
+        Redundant="true"
+        Text="[Settings.Media.Certification]"/>
+  </Register>
+
   <!-- Contents of '/Players' section -->
   <Register Location="/Configuration/Settings/Players/General">
     <ConfigSetting
@@ -320,6 +328,22 @@
         HelpText="[Settings.Media.ShowVirtual.Help]"
         ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.ShowVirtual"/>
     
+  </Register>
+
+  <!-- Contents of '/Certifications' section -->
+  <Register Location="/Configuration/Settings/Media/Certifications">
+    <ConfigSetting
+        Id="MovieCertification"
+        Text="[Settings.Media.Certification.Movie]"
+        HelpText="[Settings.Media.Certification.Movie.Help]"
+        ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.MovieCertificationCountry"/>
+
+    <ConfigSetting
+        Id="SeriesCertification"
+        Text="[Settings.Media.Certification.Series]"
+        HelpText="[Settings.Media.Certification.Series.Help]"
+        ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.SeriesCertificationCountry"/>
+
   </Register>
   
 </Plugin>

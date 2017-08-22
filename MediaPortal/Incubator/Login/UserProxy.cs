@@ -47,8 +47,6 @@ namespace MediaPortal.UiComponents.Login.Models
     protected AbstractProperty _profileTypeProperty;
     protected AbstractProperty _allowAllAgesProperty;
     protected AbstractProperty _allowAllSharesProperty;
-    protected AbstractProperty _preferredMovieCertificationCountryProperty;
-    protected AbstractProperty _preferredSeriesCertificationCountryProperty;
     protected AbstractProperty _allowedAgeProperty;
     protected AbstractProperty _includeParentGuidedAgesProperty;
     protected AbstractProperty _passwordProperty;
@@ -74,8 +72,6 @@ namespace MediaPortal.UiComponents.Login.Models
       _allowedAgeProperty = new WProperty(typeof(int), 5);
       _passwordProperty = new WProperty(typeof(string), string.Empty);
       _includeParentGuidedAgesProperty = new WProperty(typeof(bool), false);
-      _preferredMovieCertificationCountryProperty = new WProperty(typeof(string), string.Empty);
-      _preferredSeriesCertificationCountryProperty = new WProperty(typeof(string), string.Empty);
       _lastLoginProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       _imageProperty = new WProperty(typeof(byte[]), null);
 
@@ -195,28 +191,6 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (bool)_includeParentGuidedAgesProperty.GetValue(); }
       set { _includeParentGuidedAgesProperty.SetValue(value); }
-    }
-
-    public AbstractProperty PreferredMovieCertificationCountryProperty
-    {
-      get { return _preferredMovieCertificationCountryProperty; }
-    }
-
-    public string PreferredMovieCertificationCountry
-    {
-      get { return (string)_preferredMovieCertificationCountryProperty.GetValue(); }
-      set { _preferredMovieCertificationCountryProperty.SetValue(value); }
-    }
-
-    public AbstractProperty PreferredSeriesCertificationCountryProperty
-    {
-      get { return _preferredSeriesCertificationCountryProperty; }
-    }
-
-    public string PreferredSeriesCertificationCountry
-    {
-      get { return (string)_preferredSeriesCertificationCountryProperty.GetValue(); }
-      set { _preferredSeriesCertificationCountryProperty.SetValue(value); }
     }
 
     public AbstractProperty LastLoginProperty

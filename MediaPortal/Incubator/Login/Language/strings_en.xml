@@ -23,7 +23,6 @@
 
   <string name="UserConfig.NewUserText">New User</string>
   <string name="UserConfig.SharesText">Shares</string>
-  <string name="UserConfig.AnyText">Any</string>
   <string name="UserConfig.LocalShare">Client media source</string>
   <string name="UserConfig.LocalShares">Client media sources</string>
   <string name="UserConfig.GlobalShare">Server media source</string>

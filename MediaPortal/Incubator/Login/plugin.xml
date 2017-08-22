@@ -37,6 +37,12 @@
         DisplayLabel="[UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel]"
         MainScreen="UserManagement"
         WorkflowModel="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/> <!-- User config model -->
+    
+    <WorkflowState Id="2529B0F0-8415-4A4E-971B-38D6CDD2406A" 
+        Name="Login" 
+        MainScreen="Login"
+        DisplayLabel="[Login.Title]"
+        WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- User config model -->/>
   </Register>
 
   <Register Location="/Resources/Language">
