@@ -68,7 +68,7 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
         RegionInfo ri = _regions[i];
         _items.Add(LocalizationHelper.CreateStaticString(string.Format(REGION_FORMAT, ri.DisplayName, ri.Name)));
         if (ri.Name == settings.DisplaySeriesCertificationCountry)
-          selected = i;
+          selected = i + 1;
       }
       Selected = selected;
     }

@@ -132,7 +132,9 @@ namespace MediaPortal.UiComponents.Media.Views
       }
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
 
-      return cd.Search(_query, _onlyOnline, userProfile, showVirtual);
+      IList<MediaItem> mediaItems = cd.Search(_query, _onlyOnline, userProfile, showVirtual);
+      CertificationHelper.ConvertCertifications(mediaItems);
+      return mediaItems;
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -180,6 +182,7 @@ namespace MediaPortal.UiComponents.Media.Views
         }
         // Else: No grouping
         mediaItems = cd.Search(_query, _onlyOnline, userProfile, showVirtual);
+        CertificationHelper.ConvertCertifications(mediaItems);
         subViewSpecifications = new List<ViewSpecification>(0);
       }
       catch (UPnPRemoteException e)
