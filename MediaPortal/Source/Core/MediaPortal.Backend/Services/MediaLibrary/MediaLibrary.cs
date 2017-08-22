@@ -54,7 +54,6 @@ using MediaPortal.Common.UserProfileDataManagement;
 using System.Diagnostics;
 using MediaPortal.Common.Services.MediaManagement;
 using System.Threading.Tasks;
-using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -101,11 +100,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       public IList<MediaItem> Browse(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId,
-          bool includeVirtual, bool applyUserRestrictions, uint? offset = null, uint? limit = null)
+          bool includeVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, applyUserRestrictions, offset, limit);
+          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit);
         }
         catch (Exception)
         {
@@ -351,8 +350,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private readonly Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
     protected object _shareImportSync = new object();
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
-    protected object _shareCacheSync = new object();
-    protected ICollection<Share> _shareCache = new List<Share>();
+    protected object _shareImportCacheSync = new object();
+    protected ICollection<Share> _importingSharesCache;
 
     #endregion
 
@@ -378,7 +377,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private static string DELETE_MEDIAITEM_RESOURCE_FROM_ID_SQL = null;
     private static string UPDATE_MEDIAITEM_STUB_ATTRIBUTE_FROM_ID_SQL = null;
     private static string UPDATE_MEDIAITEMS_DIRTY_ATTRIBUTE_FROM_ID_SQL = null;
-    private static string SELECT_USER_SEARCH_DATA_FROM_ID_SQL = null;
     private static string SELECT_PARENTS_FROM_ID_AND_ROLES_SQL = null;
     private static string SELECT_PARENT_RELATIONSHIP_FROM_ID_SQL = null;
     private static string SELECT_PARENT_RELATIONSHIP_FROM_ROLES_SQL = null;
@@ -438,9 +436,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             {
               ResourcePath path = (ResourcePath)message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH];
               Share share = null;
-              lock (_shareCacheSync)
+              lock (_shareImportCacheSync)
               {
-                share = _shareCache.BestContainingPath(path);
+                if (_importingSharesCache == null || messageType == ImporterWorkerMessaging.MessageType.ImportStarted)
+                  _importingSharesCache = GetShares(null).Values;
+                share = _importingSharesCache.BestContainingPath(path);
               }
               if (share == null)
                 break;
@@ -480,9 +480,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 foreach (ImportJobInformation importJobInfo in progress.Keys)
                 {
                   Share share = null;
-                  lock (_shareCacheSync)
+                  lock (_shareImportCacheSync)
                   {
-                    share = _shareCache.BestContainingPath(importJobInfo.BasePath);
+                    if (_importingSharesCache == null)
+                      _importingSharesCache = GetShares(null).Values;
+                    share = _importingSharesCache.BestContainingPath(importJobInfo.BasePath);
                   }
                   if (share == null)
                     continue;
@@ -1203,113 +1205,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return innerFilter;
     }
 
-    protected IFilter AddUserFilter(IEnumerable<Guid> necesaryMIATypeIds, IFilter innerFilter, Guid userProfileId, out string movieCertificationSystemCountry, out string seriesCertificationSystemCountry)
-    {
-      movieCertificationSystemCountry = null;
-      seriesCertificationSystemCountry = null;
-
-      UserProfile user = null;
-      IUserProfileDataManagement userManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
-      if (userManagement != null)
-      {
-        user = ((UserProfileDataManagement.UserProfileDataManagement)userManagement).UserCache.FirstOrDefault(u => u.ProfileId == userProfileId);
-      }
-      if (user == null)
-        return innerFilter;
-
-      ICollection<Share> shares = null;
-      lock(_shareCacheSync)
-      {
-        shares = _shareCache.Where(s => s.SystemId == LocalSystemId).ToList();
-      }
-      
-      int? allowedAge = null;
-      bool? includeParentalGuidedContent = null;
-      bool allowAllShares = true;
-      bool allowAllAges = true;
-      List<IFilter> shareFilters = new List<IFilter>();
-      foreach(var key in user.AdditionalData)
-      {
-        foreach(var val in key.Value)
-        {
-          if (key.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
-          {
-            string allow = val.Value;
-            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
-            {
-              allowAllShares = Convert.ToInt32(allow) > 0;
-            }
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
-          {
-            Guid shareId = new Guid(val.Value);
-            if (shares == null || !shares.Where(s => s.ShareId == shareId).Any())
-              continue;
-            shareFilters.Add(new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, shares.Where(s => s.ShareId == shareId).First().BaseResourcePath + "%", null, true));
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_ALLOW_ALL_AGES)
-          {
-            string allow = val.Value;
-            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
-            {
-              allowAllAges = Convert.ToInt32(allow) > 0;
-            }
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_ALLOWED_AGE)
-          {
-            string age = val.Value;
-            if (!string.IsNullOrEmpty(age) && Convert.ToInt32(age) >= 0)
-            {
-              allowedAge = Convert.ToInt32(age);
-            }
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT)
-          {
-            string allow = val.Value;
-            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
-            {
-              includeParentalGuidedContent = Convert.ToInt32(allow) > 0;
-            }
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_MOVIE_CONTENT_CERTIFICATION_SYSTEM_COUNTRY)
-          {
-            movieCertificationSystemCountry = val.Value;
-            if (string.IsNullOrEmpty(movieCertificationSystemCountry))
-            {
-              movieCertificationSystemCountry = null;
-            }
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_SERIES_CONTENT_CERTIFICATION_SYSTEM_COUNTRY)
-          {
-            seriesCertificationSystemCountry = val.Value;
-            if (string.IsNullOrEmpty(seriesCertificationSystemCountry))
-            {
-              seriesCertificationSystemCountry = null;
-            }
-          }
-        }
-      }
-
-      List<IFilter> filters = new List<IFilter>();
-      if (innerFilter != null)
-        filters.Add(innerFilter);
-
-      // Shares filter
-      if (shareFilters.Count > 0 && allowAllShares == false)
-        filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, shareFilters.ToArray()));
-
-      // Content filter
-      if (allowedAge.HasValue && allowAllAges == false)
-        filters.Add(new CertificationAgeFilter(necesaryMIATypeIds, allowedAge.Value, includeParentalGuidedContent ?? false));
-
-      if (filters.Count > 1)
-        innerFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filters.ToArray());
-      else if (filters.Count > 0)
-        innerFilter = filters[0];
-
-      return innerFilter;
-    }
-
     protected ICollection<string> GetShareMediaCategories(ITransaction transaction, Guid shareId)
     {
       int mediaCategoryIndex;
@@ -1408,11 +1303,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       UPDATE_MEDIAITEMS_DIRTY_ATTRIBUTE_FROM_ID_SQL = "UPDATE " + _miaManagement.GetMIATableName(ImporterAspect.Metadata) +
         " SET " + _miaManagement.GetMIAAttributeColumnName(ImporterAspect.ATTR_DIRTY) + " = 1" +
         " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN ({0})";
-      SELECT_USER_SEARCH_DATA_FROM_ID_SQL = "SELECT " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + ", " + UserProfileDataManagement_SubSchema.USER_ADDITIONAL_DATA_VALUE_COL_NAME +
-        " FROM " + UserProfileDataManagement_SubSchema.USER_DATA_TABLE_NAME + " WHERE " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @PROFILE_ID" +
-        " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " IN('" +
-        string.Join("','", new string[] { UserDataKeysKnown.KEY_ALLOWED_AGE, UserDataKeysKnown.KEY_ALLOWED_SHARE, UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserDataKeysKnown.KEY_ALLOW_ALL_AGES,
-          UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserDataKeysKnown.KEY_MOVIE_CONTENT_CERTIFICATION_SYSTEM_COUNTRY, UserDataKeysKnown.KEY_SERIES_CONTENT_CERTIFICATION_SYSTEM_COUNTRY }) + "')";
       SELECT_PARENTS_FROM_ID_AND_ROLES_SQL = "SELECT DISTINCT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + ", " +
         _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + ", " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) +
         " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
@@ -1785,7 +1675,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public IList<MediaItem> Browse(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
-        Guid? userProfileId, bool includeVirtual, bool applyUserRestrictions, uint? offset = null, uint? limit = null)
+        Guid? userProfileId, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
       lock (_syncObj)
       {
@@ -1794,7 +1684,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         browseQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
         browseQuery.Limit = limit;
         browseQuery.Offset = offset;
-        return Search(browseQuery, false, userProfileId, includeVirtual, applyUserRestrictions);
+        return Search(browseQuery, false, userProfileId, includeVirtual);
       }
     }
 
@@ -1828,7 +1718,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   MediaItemQuery changeQuery = new MediaItemQuery(requiredAspects, changeFilter.Key);
                   if (changeFilter.Value > 0)
                     changeQuery.Limit = changeFilter.Value;
-                  IList<MediaItem> foundItems = Search(changeQuery, false, null, false, false);
+                  IList<MediaItem> foundItems = Search(changeQuery, false, null, false);
                   if (foundItems != null)
                   {
                     int currentItem = 0;
@@ -1865,16 +1755,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual, bool applyUserRestrictions)
+    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
     {
-      return Search(null, null, query, filterOnlyOnline, userProfileId, includeVirtual, applyUserRestrictions);
+      return Search(null, null, query, filterOnlyOnline, userProfileId, includeVirtual);
     }
 
-    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual, bool applyUserRestrictions)
+    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
     {
       IList<MediaItem> items = new List<MediaItem>();
-      string movieCertificationSystemCountry = null;
-      string seriesCertificationSystemCountry = null;
 
       // We add the provider resource aspect to the necessary aspect types be able to filter online systems
       MediaItemQuery executeQuery = query;
@@ -1895,19 +1783,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ITransaction searchTransaction = transaction;
       if (transaction == null)
         searchTransaction = database.CreateTransaction();
+
       try
       {
-        if (userProfileId.HasValue && applyUserRestrictions)
-        {
-          executeQuery.Filter = AddUserFilter(executeQuery.NecessaryRequestedMIATypeIDs, executeQuery.Filter, userProfileId.Value, 
-            out movieCertificationSystemCountry, out seriesCertificationSystemCountry);
-        }
-
         CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery, userProfileId);
         items = cmiq.QueryList(database, searchTransaction);
         //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
         //TODO: Remove movies/series found through optional aspects that are not allowed according to user rating filter
-        LoadUserDataForMediaItems(database, searchTransaction, userProfileId, items, movieCertificationSystemCountry, seriesCertificationSystemCountry);
+        LoadUserDataForMediaItems(database, searchTransaction, userProfileId, items);
       }
       finally
       {
@@ -1924,8 +1807,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, Guid? userProfileId, 
-        bool includeVirtual, bool applyUserRestrictions)
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
       SelectProjectionFunction selectProjectionFunctionImpl;
       Type projectionValueType;
@@ -1953,12 +1835,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         filter = AddVirtualFilter(filter);
       }
 
-      if (userProfileId.HasValue && applyUserRestrictions)
-      {
-        string temp;
-        filter = AddUserFilter(necessaryMIATypeIDs, filter, userProfileId.Value, out temp, out temp);
-      }
-
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
           filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] { ProviderResourceAspect.ASPECT_ID }) : necessaryMIATypeIDs,
           attributeType, saf, selectProjectionFunctionImpl, projectionValueType,
@@ -1967,8 +1843,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
-      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual, 
-      bool applyUserRestrictions)
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
       SelectProjectionFunction selectProjectionFunctionImpl;
       Type projectionValueType;
@@ -1996,12 +1871,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         filter = AddVirtualFilter(filter);
       }
 
-      if (userProfileId.HasValue && applyUserRestrictions)
-      {
-        string temp;
-        filter = AddUserFilter(necessaryMIATypeIDs, filter, userProfileId.Value, out temp, out temp);
-      }
-
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
           filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] { ProviderResourceAspect.ASPECT_ID }) : necessaryMIATypeIDs,
           keyAttributeType, valueAttributeType, saf, selectProjectionFunctionImpl, projectionValueType,
@@ -2011,7 +1880,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs,
-        IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction, Guid? userProfileId, bool includeVirtual, bool applyUserRestrictions)
+        IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction, bool includeVirtual)
     {
       IDictionary<object, MLQueryResultGroup> groups = new Dictionary<object, MLQueryResultGroup>();
       IGroupingFunctionImpl groupingFunctionImpl;
@@ -2025,7 +1894,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           break;
       }
       foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, selectAttributeFilter,
-          projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline, userProfileId, includeVirtual, applyUserRestrictions))
+          projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline, includeVirtual))
       {
         object valueGroupKey = resultItem.Key;
         int resultGroupItemCount = (int)resultItem.Value;
@@ -2043,17 +1912,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual, bool applyUserRestrictions)
+    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
       if (!includeVirtual)
       {
         filter = AddVirtualFilter(filter);
-      }
-
-      if (userProfileId.HasValue && applyUserRestrictions)
-      {
-        string temp;
-        filter = AddUserFilter(necessaryMIATypeIDs, filter, userProfileId.Value, out temp, out temp);
       }
 
       CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,
@@ -2066,8 +1929,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       LoadUserDataForMediaItems(null, null, userProfileId, new[] { mediaItem });
     }
 
-    private void LoadUserDataForMediaItems(ISQLDatabase database, ITransaction transaction, Guid? userProfileId, IList<MediaItem> mediaItems, 
-      string movieCertificationCountry = null, string seriesCertificationCountry = null)
+    private void LoadUserDataForMediaItems(ISQLDatabase database, ITransaction transaction, Guid? userProfileId, IList<MediaItem> mediaItems)
     {
       if (!userProfileId.HasValue)
         return;
@@ -2078,79 +1940,34 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (transaction == null)
         loadTransaction = database.CreateTransaction();
 
-      Dictionary<Guid, Dictionary<string, string>> mediaItemData = new Dictionary<Guid, Dictionary<string, string>>();
-      if (mediaItems != null)
-      {
-        int currentItem = 0;
-        using (IDbCommand command = loadTransaction.CreateCommand())
-        {
-          while (currentItem < mediaItems.Count)
-          {
-            int remaining = mediaItems.Count - currentItem;
-            int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
-            command.Parameters.Clear();
-            database.AddParameter(command, "PROFILE_ID", userProfileId.Value, typeof(Guid));
-            for (int index = currentItem; index < endItem; index++)
-              database.AddParameter(command, "MI" + index, mediaItems[index].MediaItemId, typeof(Guid));
-            command.CommandText = string.Format(SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL,
-              string.Join(",", mediaItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + index)));
-            using (IDataReader reader = command.ExecuteReader())
-            {
-              while (reader.Read())
-              {
-                if (!mediaItemData.ContainsKey(database.ReadDBValue<Guid>(reader, 0)))
-                  mediaItemData.Add(database.ReadDBValue<Guid>(reader, 0), new Dictionary<string, string>());
-                mediaItemData[database.ReadDBValue<Guid>(reader, 0)].Add(database.ReadDBValue<string>(reader, 1), database.ReadDBValue<string>(reader, 2));
-              }
-            }
-            currentItem = endItem;
-          }
-        }
-      }
-
       try
       {
-        foreach (MediaItem mediaItem in mediaItems)
+        Dictionary<Guid, Dictionary<string, string>> mediaItemData = new Dictionary<Guid, Dictionary<string, string>>();
+        if (mediaItems != null)
         {
-          //Add user data
-          mediaItem.UserData.Clear();
-          if (mediaItemData.ContainsKey(mediaItem.MediaItemId))
+          int currentItem = 0;
+          using (IDbCommand command = loadTransaction.CreateCommand())
           {
-            foreach (var data in mediaItemData[mediaItem.MediaItemId])
-              mediaItem.UserData.Add(data.Key, data.Value);
-          }
-
-          //Convert certification system if needed
-          if(!string.IsNullOrEmpty(movieCertificationCountry) || !string.IsNullOrEmpty(seriesCertificationCountry))
-          {
-            //Find all possible matches
-            string certification = null;
-            CertificationMapping bestMatch = null;
-            if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID) && !string.IsNullOrEmpty(movieCertificationCountry))
+            while (currentItem < mediaItems.Count)
             {
-              if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_CERTIFICATION, out certification))
-                bestMatch = CertificationMapper.FindMatchingMovieCertification(movieCertificationCountry, certification);
-            }
-            if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID) && !string.IsNullOrEmpty(seriesCertificationCountry))
-            {
-              if(MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_CERTIFICATION, out certification))
-                bestMatch = CertificationMapper.FindMatchingSeriesCertification(seriesCertificationCountry, certification);
-            }
-
-            //Assign new certification value
-            if(bestMatch != null)
-            {
-              if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
-                MediaItemAspect.SetAttribute<string>(mediaItem.Aspects, MovieAspect.ATTR_CERTIFICATION, bestMatch.CertificationId);
-              else if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
-                MediaItemAspect.SetAttribute<string>(mediaItem.Aspects, SeriesAspect.ATTR_CERTIFICATION, bestMatch.CertificationId);
-            }
-            else
-            {
-              if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
-                MediaItemAspect.SetAttribute<string>(mediaItem.Aspects, MovieAspect.ATTR_CERTIFICATION, null);
-              else if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
-                MediaItemAspect.SetAttribute<string>(mediaItem.Aspects, SeriesAspect.ATTR_CERTIFICATION, null);
+              int remaining = mediaItems.Count - currentItem;
+              int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
+              command.Parameters.Clear();
+              database.AddParameter(command, "PROFILE_ID", userProfileId.Value, typeof(Guid));
+              for (int index = currentItem; index < endItem; index++)
+                database.AddParameter(command, "MI" + index, mediaItems[index].MediaItemId, typeof(Guid));
+              command.CommandText = string.Format(SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL,
+                string.Join(",", mediaItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + index)));
+              using (IDataReader reader = command.ExecuteReader())
+              {
+                while (reader.Read())
+                {
+                  if (!mediaItemData.ContainsKey(database.ReadDBValue<Guid>(reader, 0)))
+                    mediaItemData.Add(database.ReadDBValue<Guid>(reader, 0), new Dictionary<string, string>());
+                  mediaItemData[database.ReadDBValue<Guid>(reader, 0)].Add(database.ReadDBValue<string>(reader, 1), database.ReadDBValue<string>(reader, 2));
+                }
+              }
+              currentItem = endItem;
             }
           }
         }
@@ -2307,7 +2124,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       query.Offset = offset;
       // Sort media items
       IDictionary<Guid, MediaItem> searchResult = new Dictionary<Guid, MediaItem>();
-      foreach (MediaItem item in Search(query, false, null, false, false))
+      foreach (MediaItem item in Search(query, false, null, false))
         searchResult[item.MediaItemId] = item;
       IList<MediaItem> result = new List<MediaItem>(searchResult.Count);
       foreach (Guid mediaItemId in mediaItemIds)
@@ -2442,7 +2259,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         if (!merged)
         {
-          MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId.Value)), false, null, true, false).FirstOrDefault();
+          MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId.Value)), false, null, true).FirstOrDefault();
           if (item != null)
           {
             //Transfer any transient aspects
@@ -2652,7 +2469,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private ICollection<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, ICollection<Guid> mediaItemIds, IEnumerable<Guid> necessaryRequestedMIATypeIds, IEnumerable<Guid> optionalRequestedMIATypeIds, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual, bool applyUserRestrictions)
     {
       if (mediaItemIds.Count < MAX_VARIABLES_LIMIT)
-        return Search(database, transaction, new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds, new MediaItemIdFilter(mediaItemIds)), filterOnlyOnline, userProfileId, includeVirtual, applyUserRestrictions);
+        return Search(database, transaction, new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds, new MediaItemIdFilter(mediaItemIds)), filterOnlyOnline, userProfileId, includeVirtual);
 
       //If mediaItemIds count is greater than MAX_VARIABLES_LIMIT 'page' the requests to avoid exceeding sqlite's max variable limit when creating the IN(id,id,...) statement
       IDictionary<Guid, MediaItem> results = new Dictionary<Guid, MediaItem>();
@@ -2663,7 +2480,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
         var query = new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds,
           new MediaItemIdFilter(mediaItemIds.Where((id, index) => index >= currentItem && index < endItem)));
-        foreach (var mediaItem in Search(database, transaction, query, filterOnlyOnline, userProfileId, includeVirtual, applyUserRestrictions))
+        foreach (var mediaItem in Search(database, transaction, query, filterOnlyOnline, userProfileId, includeVirtual))
           results[mediaItem.MediaItemId] = mediaItem;
         currentItem = endItem;
       }
@@ -2701,7 +2518,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       if (reconcile)
       {
-        MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false, null, true, false).FirstOrDefault();
+        MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
         Reconcile(mediaItemId, item.Aspects, isRefresh, cancelToken);
       }
     }
@@ -2803,7 +2620,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         //by requesting only the MergeHandlers match aspects, the rest of the aspects are loaded if a match is found.
         bool loadAllAspects = mergeHandler.RequiresMerge(extractedAspects);
         IEnumerable<Guid> optionalAspectIds = loadAllAspects ? allAspectIds : mergeHandler.MatchAspects.Where(a => a != RelationshipAspect.ASPECT_ID);
-        IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true, false);
+        IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
         foreach (MediaItem existingItem in existingItems)
         {
           //Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
@@ -2815,7 +2632,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             else
               //ensure all aspects are loaded
               matchedItem = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, allAspectIds,
-                  new MediaItemIdFilter(existingItem.MediaItemId)), false, null, true, false).FirstOrDefault();
+                  new MediaItemIdFilter(existingItem.MediaItemId)), false, null, true).FirstOrDefault();
 
             if (matchedItem != null)
             {
@@ -3034,7 +2851,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       //Logger.Debug("Searching for external items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", linkedRoleAspectIds.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-      IList<MediaItem> externalItems = Search(database, transaction, new MediaItemQuery(linkedRoleAspectIds, optionalAspectIds.Except(linkedRoleAspectIds), filter), false, null, true, false);
+      IList<MediaItem> externalItems = Search(database, transaction, new MediaItemQuery(linkedRoleAspectIds, optionalAspectIds.Except(linkedRoleAspectIds), filter), false, null, true);
       foreach (MediaItem externalItem in externalItems)
       {
         //Logger.Debug("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
@@ -3829,9 +3646,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ICollection<Guid> result = new List<Guid>();
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       // Shares of media library
-      _shareCache = GetShares(null).Values;
+      _importingSharesCache = GetShares(null).Values;
       CollectionUtils.AddAll(result, importerWorker.ImportJobs.Where(importJobInfo => importJobInfo.State == ImportJobState.Active).
-          Select(importJobInfo => _shareCache.BestContainingPath(importJobInfo.BasePath)).Where(share => share != null).Select(share => share.ShareId));
+          Select(importJobInfo => _importingSharesCache.BestContainingPath(importJobInfo.BasePath)).Where(share => share != null).Select(share => share.ShareId));
       // Client shares
       IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
       lock (clientManager.SyncObj)
@@ -3850,7 +3667,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void NotifyPlayback(Guid mediaItemId, bool watched)
     {
-      MediaItem item = Search(new MediaItemQuery(new Guid[] { MediaAspect.ASPECT_ID }, null, new MediaItemIdFilter(mediaItemId)), false, null, true, false).FirstOrDefault();
+      MediaItem item = Search(new MediaItemQuery(new Guid[] { MediaAspect.ASPECT_ID }, null, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
       if (item == null)
         return;
       SingleMediaItemAspect mediaAspect;
@@ -4023,11 +3840,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         transaction.Commit();
 
-        lock (_shareCacheSync)
-        {
-          _shareCache.Add(share);
-        }
-
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
 
         TryScheduleLocalShareImport(share);
@@ -4071,11 +3883,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           transaction.Commit();
 
-          lock (_shareCacheSync)
-          {
-            _shareCache.Remove(share);
-          }
-
           ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
         }
         catch (Exception e)
@@ -4109,13 +3916,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         DeleteAllMediaItemsUnderPathCombined(transaction, systemId, null, true);
 
         transaction.Commit();
-
-        lock (_shareCacheSync)
-        {
-          _shareCache.Clear();
-          foreach (Share share in GetShares(null).Values)
-            _shareCache.Add(share);
-        }
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
@@ -4176,13 +3976,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             break;
         }
         transaction.Commit();
-
-        lock (_shareCacheSync)
-        {
-          _shareCache.Clear();
-          foreach (Share loadShare in GetShares(null).Values)
-            _shareCache.Add(loadShare);
-        }
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
 

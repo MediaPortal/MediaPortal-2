@@ -34,7 +34,7 @@ using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -125,16 +125,14 @@ namespace MediaPortal.UiComponents.Media.Views
         return new List<MediaItem>();
 
       Guid? userProfile = null;
-      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
       {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
       }
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
 
-      return cd.Search(_query, _onlyOnline, userProfile, showVirtual, applyUserRestrictions);
+      return cd.Search(_query, _onlyOnline, userProfile, showVirtual);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -146,14 +144,12 @@ namespace MediaPortal.UiComponents.Media.Views
         return;
 
       Guid? userProfile = null;
-      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
       {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
       }
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
 
       try
       {
@@ -164,7 +160,7 @@ namespace MediaPortal.UiComponents.Media.Views
           // We request the groups first to make it faster for the many items case. In the case of few items, both groups and items
           // are requested which doesn't take so long because there are only few items.
           IList<MLQueryResultGroup> groups = cd.GroupValueGroups(MediaAspect.ATTR_TITLE, null, ProjectionFunction.None,
-              _query.NecessaryRequestedMIATypeIDs, _query.Filter, _onlyOnline, GroupingFunction.FirstCharacter, userProfile, showVirtual, applyUserRestrictions);
+              _query.NecessaryRequestedMIATypeIDs, _query.Filter, _onlyOnline, GroupingFunction.FirstCharacter, showVirtual);
           long numItems = groups.Aggregate<MLQueryResultGroup, long>(0, (current, group) => current + group.NumItemsInGroup);
           if (numItems > MaxNumItems.Value)
           { // Group items
@@ -183,7 +179,7 @@ namespace MediaPortal.UiComponents.Media.Views
           // Else: No grouping
         }
         // Else: No grouping
-        mediaItems = cd.Search(_query, _onlyOnline, userProfile, showVirtual, applyUserRestrictions);
+        mediaItems = cd.Search(_query, _onlyOnline, userProfile, showVirtual);
         subViewSpecifications = new List<ViewSpecification>(0);
       }
       catch (UPnPRemoteException e)

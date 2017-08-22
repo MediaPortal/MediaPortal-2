@@ -35,6 +35,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -73,15 +74,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
-      Guid? userProfile = null;
-      bool applyUserRestrictions = false;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
-      {
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
-      }
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds);
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
 
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds;
@@ -89,15 +82,13 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       HomogenousMap valueKeys = null;
       if (_keyAttributeType != null)
       {
-        Tuple<HomogenousMap, HomogenousMap> values = cd.GetKeyValueGroups(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true,
-          userProfile, showVirtual, applyUserRestrictions);
+        Tuple<HomogenousMap, HomogenousMap> values = cd.GetKeyValueGroups(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
         valueGroups = values.Item1;
         valueKeys = values.Item2;
       }
       else
       {
-        valueGroups = cd.GetValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true,
-          userProfile, showVirtual, applyUserRestrictions);
+        valueGroups = cd.GetValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
       }
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -137,20 +128,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
-      Guid? userProfile = null;
-      bool applyUserRestrictions = false;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
-      {
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
-      }
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds);
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
 
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds.ToList();
       IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None,
-          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, userProfile, showVirtual, applyUserRestrictions);
+          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, showVirtual);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (MLQueryResultGroup group in valueGroups)

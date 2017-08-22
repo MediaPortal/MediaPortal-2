@@ -91,7 +91,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
       MediaItemQuery mediaQuery = new MediaItemQuery(necessaryMias, filter);
       mediaQuery.Limit = 1;
-      items = mediaLibrary.Search(mediaQuery, false, null, false, false);
+      items = mediaLibrary.Search(mediaQuery, false, null, false);
       if (items == null || items.Count == 0)
         return false;
 

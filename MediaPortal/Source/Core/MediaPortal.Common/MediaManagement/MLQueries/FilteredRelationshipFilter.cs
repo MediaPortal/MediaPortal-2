@@ -72,7 +72,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]
     [XmlElement("FilteredRelationship", typeof(FilteredRelationshipFilter))]
-    [XmlElement("CertificationAge", typeof(CertificationAgeFilter))]
     public object XML_Filter
     {
       get { return _filter; }

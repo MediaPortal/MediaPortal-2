@@ -549,6 +549,17 @@ namespace MediaPortal.Common.Certifications
       return SERIES_CERTIFICATION_MAP.Select(c => c.CountryCode).Distinct();
     }
 
+    public static bool IsAgeAllowed(CertificationMapping cert, int age, bool includeParentalGuided)
+    {
+      if (cert == null)
+        return true;
+      if (cert.AllowedAge <= age && !includeParentalGuided)
+        return true;
+      if (cert.AllowedParentalGuidedAge <= age && includeParentalGuided)
+        return true;
+      return false;
+    }
+
     public static CertificationMapping FindMatchingMovieCertification(string country, string cert)
     {
       if (string.IsNullOrEmpty(country))

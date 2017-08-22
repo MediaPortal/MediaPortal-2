@@ -29,8 +29,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities.FileSystem;
 using System.Linq;
-using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.Common;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -88,24 +87,11 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       if (mediaType == MultiMediaType.None)
         return null;
 
+      mediaItems = CertificationHelper.ProcessMediaItems(mediaItems).ToList();
       MediaItem[] miArray = mediaItems.ToArray();
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser && userProfileDataManagement.ApplyUserRestriction)
-      {
-        for (int mediaItemIdx = 0; mediaItemIdx < miArray.Length; mediaItemIdx++)
-        {
-          miArray[mediaItemIdx] = FindStub(driveInfo, miArray[mediaItemIdx]);
-          if (!ProcessMediaItem(miArray[mediaItemIdx], userProfileDataManagement.CurrentUser))
-            miArray[mediaItemIdx] = null;
-        }
-        return new MultimediaDriveHandler(driveInfo, miArray.Where(mi => mi != null).Select(mi => mi), mediaType);
-      }
-      else
-      {
-        for (int mediaItemIdx = 0; mediaItemIdx < miArray.Length; mediaItemIdx++)
-          miArray[mediaItemIdx] = FindStub(driveInfo, miArray[mediaItemIdx]);
-        return new MultimediaDriveHandler(driveInfo, miArray, mediaType);
-      }
+      for (int mediaItemIdx = 0; mediaItemIdx < miArray.Length; mediaItemIdx++)
+        miArray[mediaItemIdx] = FindStub(driveInfo, miArray[mediaItemIdx]);
+      return new MultimediaDriveHandler(driveInfo, miArray, mediaType);
     }
 
     public MultiMediaType MediaType

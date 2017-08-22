@@ -36,7 +36,5 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public const string KEY_ALLOWED_AGE = "AllowedAge"; //The maximum age for which a user can find media items based on content certification systems
     public const string KEY_ALLOW_ALL_AGES = "AllowAllAges"; //All user access to all content regardless of content certification
     public const string KEY_INCLUDE_PARENT_GUIDED_CONTENT = "IncludeParentGuidedContent"; //Include media items for which a parent is required
-    public const string KEY_SERIES_CONTENT_CERTIFICATION_SYSTEM_COUNTRY = "SeriesAgeCertificationSystemCountry"; //The content certification system country for series which the user prefers
-    public const string KEY_MOVIE_CONTENT_CERTIFICATION_SYSTEM_COUNTRY = "MovieAgeCertificationSystemCountry"; //The content certification system country for movies which the user prefers
   }
 }

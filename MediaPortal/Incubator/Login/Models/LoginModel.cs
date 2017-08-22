@@ -24,7 +24,6 @@
 
 using System;
 using System.Linq;
-using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.UserProfileDataManagement;
@@ -32,18 +31,23 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.Login.Settings;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Workflow;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
   /// <summary>
   /// viewmodel for handling logins
   /// </summary>
-  public class LoginModel
+  public class LoginModel : IWorkflowModel, IDisposable
   {
-    private readonly ItemsList _usersExposed = new ItemsList();
+    private ItemsList _usersExposed = null;
     private AbstractProperty _currentUser;
 
     public const string KEY_PROFILE_ID = "ProfileId";
+    public const string STR_MODEL_ID_LOGIN = "82582433-FD64-41bd-9059-7F662DBDA713";
+    public static readonly Guid MODEL_ID_LOGIN = new Guid(STR_MODEL_ID_LOGIN);
 
     /// <summary>
     /// constructor
@@ -78,7 +82,7 @@ namespace MediaPortal.UiComponents.Login.Models
     private void RefreshUserList()
     {
       // clear the exposed users list
-      Users.Clear();
+      _usersExposed = new ItemsList();
 
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       if (userManagement.UserProfileDataManagement == null)
@@ -95,10 +99,10 @@ namespace MediaPortal.UiComponents.Login.Models
         item.SetLabel("HasImage", user.Image != null ? "true" : "false");
         item.SetLabel("HasPassword", !string.IsNullOrEmpty(user.Password) ? "true" : "false");
         item.SetLabel("LastLogin", user.LastLogin.HasValue ? user.LastLogin.Value.ToString("G") : "");
-        Users.Add(item);
+        _usersExposed.Add(item);
       }
       // tell the skin that something might have changed
-      Users.FireChange();
+      _usersExposed.FireChange();
     }
 
     /// <summary>
@@ -117,6 +121,56 @@ namespace MediaPortal.UiComponents.Login.Models
         return;
       SetCurrentUser(userProfile);
       userManagement.UserProfileDataManagement.LoginProfile(profileId);
+    }
+
+    public Guid ModelId
+    {
+      get { return MODEL_ID_LOGIN; }
+    }
+
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
+    }
+
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      RefreshUserList();
+    }
+
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+
+    }
+
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+
+    }
+
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+
+    }
+
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+
+    }
+
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
+    {
+
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
+    }
+
+    public void Dispose()
+    {
+      _usersExposed = null;
     }
 
     /// <summary>

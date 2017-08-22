@@ -37,20 +37,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
   public class UserProfileDataManagement : IUserProfileDataManagement
   {
-    private ICollection<UserProfile> _userCache = new List<UserProfile>();
-    private object _userCacheSync = new object();
-
-    public IEnumerable<UserProfile> UserCache
-    {
-      get
-      {
-        lock (_userCacheSync)
-        {
-          return _userCache.AsEnumerable();
-        }
-      }
-    }
-
     #region Public methods
 
     public void Startup()
@@ -65,11 +51,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         throw new IllegalCallException(string.Format(
             "Unable to update the UserProfileDataManagement's subschema version to expected version {0}.{1}",
             UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, UserProfileDataManagement_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
-
-      lock(_userCacheSync)
-      {
-        _userCache = GetProfiles();
-      }
     }
 
     public void Shutdown()
@@ -184,10 +165,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         transaction.Rollback();
         throw;
       }
-      lock (_userCacheSync)
-      {
-        _userCache.Add(new UserProfile(profileId, profileName));
-      }
       return profileId;
     }
 
@@ -213,10 +190,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         transaction.Rollback();
         throw;
       }
-      lock (_userCacheSync)
-      {
-        _userCache.Add(new UserProfile(profileId, profileName, profileType, profilePassword, profileImage));
-      }
       return profileId;
     }
 
@@ -230,12 +203,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         using (IDbCommand command = UserProfileDataManagement_SubSchema.UpdateUserProfileNameCommand(transaction, profileId, newName))
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
-        lock (_userCacheSync)
-        {
-          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
-          if (profile != null)
-            profile.Rename(newName);
-        }
+
         return result;
       }
       catch (Exception e)
@@ -257,12 +225,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
 
-        lock (_userCacheSync)
-        {
-          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
-          if (profile != null)
-            _userCache.Remove(profile);
-        }
         return result;
       }
       catch (Exception e)
@@ -284,12 +246,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
 
-        lock (_userCacheSync)
-        {
-          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
-          if (profile != null)
-            profile.LastLogin = DateTime.Now;
-        }
         return result;
       }
       catch (Exception e)
@@ -461,17 +417,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
 
-        lock (_userCacheSync)
-        {
-          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
-          if (profile != null)
-          {
-            if (!profile.AdditionalData.ContainsKey(key))
-              profile.AdditionalData.Add(key, new Dictionary<int, string>());
-            profile.AdditionalData[key].Clear();
-            profile.AdditionalData[key].Add(0, data);
-          }
-        }
         return result;
       }
       catch (Exception e)
@@ -523,19 +468,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
 
-        lock (_userCacheSync)
-        {
-          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
-          if (profile != null)
-          {
-            if (!profile.AdditionalData.ContainsKey(key))
-              profile.AdditionalData.Add(key, new Dictionary<int, string>());
-            if (profile.AdditionalData[key].ContainsKey(dataNo))
-              profile.AdditionalData[key][dataNo] = data;
-            else
-              profile.AdditionalData[key].Add(dataNo, data);
-          }
-        }
         return result;
       }
       catch (Exception e)
@@ -628,14 +560,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           command.ExecuteNonQuery();
         transaction.Commit();
 
-        lock (_userCacheSync)
-        {
-          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
-          if (profile != null)
-          {
-            profile.AdditionalData.Clear();
-          }
-        }
         return true;
       }
       catch (Exception e)
@@ -675,15 +599,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           command.ExecuteNonQuery();
         transaction.Commit();
 
-        lock (_userCacheSync)
-        {
-          UserProfile profile = _userCache.FirstOrDefault(u => u.ProfileId == profileId);
-          if (profile != null)
-          {
-            if (profile.AdditionalData.ContainsKey(key))
-              profile.AdditionalData[key].Clear();
-          }
-        }
         return true;
       }
       catch (Exception e)

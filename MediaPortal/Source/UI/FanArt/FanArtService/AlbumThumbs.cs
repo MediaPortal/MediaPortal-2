@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
           Limit = 1, // Only one needed
         };
 
-      var items = mediaLibrary.Search(query, false, null, true, false);
+      var items = mediaLibrary.Search(query, false, null, true);
       result = new List<FanArtImage>();
       foreach (var mediaItem in items)
       {

@@ -38,6 +38,10 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.Media.Views;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.Certifications;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -205,6 +209,10 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           ServiceRegistration.Get<ILogger>().Warn("Cannot add Media navigation filter with id '{0}'", e, itemMetadata.Id);
         }
       }
+
+      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+      if (userFilter != null)
+        _filters.Add(userFilter);
 
       if (_filters.Count == 0)
       {

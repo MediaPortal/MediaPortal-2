@@ -11,8 +11,8 @@ namespace MediaPortal.UiComponents.Login
   {
     public void Activated(PluginRuntime pluginRuntime)
     {
-      var meta = pluginRuntime.Metadata;
-      Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
+      //var meta = pluginRuntime.Metadata;
+      //Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
       UserSettingWatcher.Refresh();
     }
