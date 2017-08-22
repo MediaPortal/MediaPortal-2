@@ -42,7 +42,7 @@ namespace MediaPortal.Common.Certifications
       {
         //US
         new CertificationMapping("US_G", "US", "G", 0, 0, "G", "Rated G"),
-        new CertificationMapping("US_PG", "US", "PG", 13, 0, "PG", "Rated PG "),
+        new CertificationMapping("US_PG", "US", "PG", 10, 0, "PG", "Rated PG "),
         new CertificationMapping("US_PG13", "US", "PG-13", 13, 13, "PG-13", "Rated PG-13"),
         new CertificationMapping("US_R", "US", "R", 17, 13, "R", "Rated R"),
         new CertificationMapping("US_NC17", "US", "NC-17", 17, 17, "NC-17", "Rated NC-17"),
@@ -317,7 +317,7 @@ namespace MediaPortal.Common.Certifications
         //DE
         new CertificationMapping("DE_FSK0", "DE", "FSK 0", 0, 0, "FSK 0", "FSK0", "0"),
         new CertificationMapping("DE_FSK6", "DE", "FSK 6", 6, 6, "FSK 6", "FSK6", "6", "ab 6"),
-        new CertificationMapping("DE_FSK12", "DE", "FSK 12", 12, 8, "FSK 12", "FSK12", "12", "ab 12"),
+        new CertificationMapping("DE_FSK12", "DE", "FSK 12", 12, 6, "FSK 12", "FSK12", "12", "ab 12"),
         new CertificationMapping("DE_FSK16", "DE", "FSK 16", 16, 16, "FSK 16", "FSK16", "16", "ab 16"),
         new CertificationMapping("DE_FSK18", "DE", "FSK 18", 18, 18, "FSK 18", "FSK18", "18", "ab 18"),
 
@@ -564,27 +564,25 @@ namespace MediaPortal.Common.Certifications
     {
       if (string.IsNullOrEmpty(country))
         return null;
-      CertificationMapping current;
+      CertificationMapping current = MOVIE_CERTIFICATION_MAP.Where(c => c.CertificationId.Equals(cert, System.StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
       IEnumerable<CertificationMapping> matches = null;
       CertificationMapping bestMatch = null;
-      if (TryFindMovieCertification(cert, out current))
+      if (current != null)
       {
         if (current.CountryCode == country)
         {
           return current;
         }
-        matches = GetMovieCertificationsForAge(country, current.AllowedAge, current.AllowedAge > current.AllowedParentalGuidedAge);
+        matches = MOVIE_CERTIFICATION_MAP.Where(c => c.CountryCode.Equals(country, System.StringComparison.InvariantCultureIgnoreCase) &&
+          c.AllowedAge >= current.AllowedAge && c.AllowedParentalGuidedAge >= current.AllowedParentalGuidedAge);
         if (matches != null)
         {
           foreach (CertificationMapping match in matches)
           {
-            if (match.AllowedAge <= current.AllowedAge && match.AllowedParentalGuidedAge <= current.AllowedParentalGuidedAge)
+            if (bestMatch == null || bestMatch.AllowedAge > match.AllowedAge ||
+              (bestMatch.AllowedAge == match.AllowedAge && bestMatch.AllowedParentalGuidedAge > match.AllowedParentalGuidedAge))
             {
-              if (bestMatch == null || bestMatch.AllowedAge < match.AllowedAge ||
-                (bestMatch.AllowedAge == match.AllowedAge && bestMatch.AllowedParentalGuidedAge < match.AllowedParentalGuidedAge))
-              {
-                bestMatch = match;
-              }
+              bestMatch = match;
             }
           }
         }
@@ -596,27 +594,25 @@ namespace MediaPortal.Common.Certifications
     {
       if (string.IsNullOrEmpty(country))
         return null;
-      CertificationMapping current;
+      CertificationMapping current = SERIES_CERTIFICATION_MAP.Where(c => c.CertificationId.Equals(cert, System.StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
       IEnumerable<CertificationMapping> matches = null;
       CertificationMapping bestMatch = null;
-      if (TryFindSeriesCertification(cert, out current))
+      if (current != null)
       {
         if (current.CountryCode == country)
         {
           return current;
         }
-        matches = GetSeriesCertificationsForAge(country, current.AllowedAge, current.AllowedAge > current.AllowedParentalGuidedAge);
+        matches = SERIES_CERTIFICATION_MAP.Where(c => c.CountryCode.Equals(country, System.StringComparison.InvariantCultureIgnoreCase) &&
+          c.AllowedAge >= current.AllowedAge && c.AllowedParentalGuidedAge >= current.AllowedParentalGuidedAge);
         if (matches != null)
         {
           foreach (CertificationMapping match in matches)
           {
-            if (match.AllowedAge <= current.AllowedAge && match.AllowedParentalGuidedAge <= current.AllowedParentalGuidedAge)
+            if (bestMatch == null || bestMatch.AllowedAge > match.AllowedAge ||
+              (bestMatch.AllowedAge == match.AllowedAge && bestMatch.AllowedParentalGuidedAge > match.AllowedParentalGuidedAge))
             {
-              if (bestMatch == null || bestMatch.AllowedAge < match.AllowedAge ||
-                (bestMatch.AllowedAge == match.AllowedAge && bestMatch.AllowedParentalGuidedAge < match.AllowedParentalGuidedAge))
-              {
-                bestMatch = match;
-              }
+              bestMatch = match;
             }
           }
         }
