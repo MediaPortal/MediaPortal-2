@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -55,6 +55,7 @@ namespace MediaPortal.Common.UPnP
     public static readonly UPnPExtendedDataType DtUserProfile = new UPnPDtUserProfile();
     public static readonly UPnPExtendedDataType DtUserProfileEnumeration = new UPnPDtUserProfileEnumeration();
     public static readonly UPnPExtendedDataType DtDictionaryGuidDateTime = new UPnPDtDictionary<Guid, DateTime>();
+    public static readonly UPnPExtendedDataType DtDictionaryGuidInt32 = new UPnPDtDictionary<Guid, int>();
 
     protected static IDictionary<string, UPnPExtendedDataType> _dataTypes = new Dictionary<string, UPnPExtendedDataType>();
 
@@ -82,6 +83,7 @@ namespace MediaPortal.Common.UPnP
       AddDataType(DtUserProfile);
       AddDataType(DtUserProfileEnumeration);
       AddDataType(DtDictionaryGuidDateTime);
+      AddDataType(DtDictionaryGuidInt32);
     }
 
     public static void AddDataType(UPnPExtendedDataType type)

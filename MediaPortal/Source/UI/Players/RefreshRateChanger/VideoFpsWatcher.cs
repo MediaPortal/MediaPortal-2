@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -68,8 +68,12 @@ namespace MediaPortal.Plugins.RefreshRateChanger
       if (mediaItem == null)
         return;
 
-      int intFps;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_FPS, out intFps))
+      IList<MultipleMediaItemAspect> videoAspects;
+      if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out videoAspects))
+        return;
+
+      int intFps = Convert.ToInt32(videoAspects[0].GetAttributeValue<float>(VideoStreamAspect.ATTR_FPS));
+      if (intFps > 0)
       {
         int mappedIntFps;
         if (!_settings.Settings.RateMappings.TryGetValue(intFps, out mappedIntFps) || mappedIntFps <= 0)
@@ -173,7 +177,8 @@ namespace MediaPortal.Plugins.RefreshRateChanger
       if (screenControl == null || screenControl.VideoPlayerSynchronizationStrategy == null)
         return;
 
-      _timer.Close();
+      if(_timer != null)
+        _timer.Close();
       _timer = null;
 
       screenControl.VideoPlayerSynchronizationStrategy.SynchronizeToVideoPlayerFramerate += SyncToPlayer;

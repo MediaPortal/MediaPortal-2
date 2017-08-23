@@ -30,7 +30,7 @@
 
   <ResourceWrapper x:Key="ChannelWithLogoAndProgramMargin" Resource="0,1,0,1"/>
 
-  <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="140"/>
+  <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="155"/>
 
   <ResourceWrapper x:Key="SeriesRecIndicatorHeight" Resource="57"/>
 

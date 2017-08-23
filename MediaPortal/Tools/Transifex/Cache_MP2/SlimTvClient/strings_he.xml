@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">זמן התחלה</string>
   <string name="SlimTvClient.ProgramEndLabel">זמן סיום</string>
   <string name="SlimTvClient.EpisodeLabel">פרק</string>
+  <string name="SlimTvClient.Progress">התקדמות</string>
   <string name="SlimTvClient.Guide">מדריך הטלויזיה</string>
   <string name="SlimTvClient.NoProgram">אין מידע</string>
   <string name="SlimTvClient.ChooseProgramAction">בחר פעולה על התוכנית...</string>
@@ -21,6 +22,8 @@
   <string name="SlimTvClient.DeleteSchedule">מחק תזמונים</string>
   <string name="SlimTvClient.CreateSchedule">תזמן הקלטה</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">הקלטות לפי שם</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">הקלטות לפי שם</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">אין ספק טלויזיה פנוי (בינתיים)</string>
   <!--Settings-->

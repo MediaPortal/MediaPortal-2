@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -320,13 +320,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
-    public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
+    public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
       Schedule tvSchedule = ScheduleFactory.CreateSchedule(channel.ChannelId, "Manual", from, to);
       tvSchedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
       tvSchedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
-      tvSchedule.ScheduleType = (int)ScheduleRecordingType.Once;
+      tvSchedule.ScheduleType = (int)recordingType;
       scheduleService.SaveSchedule(tvSchedule);
       schedule = tvSchedule.ToSchedule();
       return true;

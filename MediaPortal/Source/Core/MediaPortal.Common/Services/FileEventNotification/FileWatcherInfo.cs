@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -110,8 +110,8 @@ namespace MediaPortal.Common.Services.FileEventNotification
     private bool IsWatchedDirectory(string path)
     {
       var directoryName = System.IO.Path.GetDirectoryName(path).ToLowerInvariant() + @"\";
-      return (directoryName == _path
-              || (_includeSubdirectories && directoryName.StartsWith(_path)));
+      return (string.Equals(directoryName, _path, System.StringComparison.InvariantCultureIgnoreCase)
+              || (_includeSubdirectories && directoryName.StartsWith(_path, System.StringComparison.InvariantCultureIgnoreCase)));
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <returns></returns>
     private bool CompliesToFilterStrings(string path)
     {
-      if (path == _path || _filter.Count == 0)
+      if (string.Equals(path, _path, System.StringComparison.InvariantCultureIgnoreCase) || _filter.Count == 0)
         return true;
       var filename = System.IO.Path.GetFileName(path);
       lock (_filter)
@@ -141,7 +141,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
           if (string.IsNullOrEmpty(filterString) || filterString == "*")
             return true;
           // Match the pattern to the filename.
-          if (Regex.Match(filename, WildcardToRegex(filterString)).Success)
+          if (Regex.Match(filename, WildcardToRegex(filterString), RegexOptions.IgnoreCase).Success)
             return true;
         }
       }

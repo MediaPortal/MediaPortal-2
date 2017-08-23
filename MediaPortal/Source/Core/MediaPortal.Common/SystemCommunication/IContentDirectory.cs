@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -83,6 +83,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="shareId">Id of the share to be changed.</param>
     /// <param name="baseResourcePath">Lookup path for the provider resource chain in the share's system.</param>
     /// <param name="shareName">Name of the share.</param>
+    /// <param name="useShareWatcher">Indicates if changes on share should be monitored by a share watcher.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
@@ -90,7 +91,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library.</param>
     /// <returns>Number of relocated or removed media items.</returns>
-    int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
+    int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
 
 
@@ -138,9 +139,10 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
     /// If the media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <returns></returns>
     MediaItem LoadItem(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile);
 
     /// <summary>
     /// Lists all media items with the given parent directory.
@@ -149,12 +151,14 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
     /// If a media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Result collection of media items at the given location.</returns>
     IList<MediaItem> Browse(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
-      uint? offset = null, uint? limit = null);
+        Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items.
@@ -162,10 +166,14 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="query">Query object which specifies the search parameters.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
     /// are currently online are returned.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of matching media items with the media item aspects of the given
     /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
     /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
-    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
+    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items which searches items by a given <paramref name="searchText"/> and which is constrained
@@ -180,12 +188,14 @@ namespace MediaPortal.Common.SystemCommunication
     /// are currently online are returned.</param>
     /// <param name="caseSensitive">If set to <c>true</c>, the query is done case sensitive, else it is done case
     /// insensitive.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of matching media items.</returns>
     IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
-      uint? offset = null, uint? limit = null);
+      Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given
@@ -201,10 +211,33 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
     /// systems which are currently online.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>Mapping set of existing attribute values to their occurence count for the given
     /// <paramref name="attributeType"/> (long).</returns>
     HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
+
+    /// <summary>
+    /// Returns a map of existing attribute values mapped to their occurence count for the given
+    /// <paramref name="attributeType"/> for the media items specified by the <paramref name="filter"/>.
+    /// </summary>
+    /// <param name="keyAttributeType">Attribute type, whose keys will be returned.</param>
+    /// <param name="valueAttributeType">Attribute type, whose values will be returned.</param>
+    /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="attributeType"/> to restrict the
+    /// result values.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    /// <paramref name="keyAttributeType"/>.</param>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types, which need to be present in each media item
+    /// whose attribute values are part of the result collection.</param>
+    /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    /// systems which are currently online.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <returns>Mapping set of existing attribute values to their occurence count for the given
+    /// <paramref name="valueAttributeType"/> (long) in Item1 and values to their keys
+    /// for the given <paramref name="valueAttributeType"/> in Item2.</returns>
+    Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
 
     /// <summary>
     /// Executes <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
@@ -219,10 +252,11 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
     /// systems which are currently online.</param>
     /// <param name="groupingFunction">Determines, how result values are grouped.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>List of value groups for the given query.</returns>
     IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
-        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction);
+        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual);
 
     /// <summary>
     /// Counts the count of media items matching the given criteria.
@@ -232,8 +266,9 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="filter">Filter specifying the media items which will be counted.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only items hosted by systems which are currently online
     /// are counted.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>Number of matching media items.</returns>
-    int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
+    int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
 
     #endregion
 
@@ -328,7 +363,7 @@ namespace MediaPortal.Common.SystemCommunication
 
     #region Playback
 
-    void NotifyPlayback(Guid mediaItemId);
+    void NotifyPlayback(Guid mediaItemId, bool watched);
 
     #endregion
   }

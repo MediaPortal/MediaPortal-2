@@ -38,6 +38,20 @@
           </ListView.Resources>
         </ListView>
 
+        <!-- Max Sleep Time -->
+        <Grid Height="10"/>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Label Grid.Column="0" Content="[SleepTimer.MaxMinutes]" Color="{ThemeResource TextColor}"/>
+          <TextBox Text="{Binding Path=MaxMinutes,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="100" HorizontalAlignment="Right"/>
+        </Grid>
+        <Grid Height="10"/>
         <!-- OK & Abort button -->
         <Grid HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>

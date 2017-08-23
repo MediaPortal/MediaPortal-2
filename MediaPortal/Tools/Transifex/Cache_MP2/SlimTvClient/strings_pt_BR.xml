@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.Progress">Processo</string>
   <!--Extended recording features-->
   <!--Schedule management-->
   <!--Settings-->

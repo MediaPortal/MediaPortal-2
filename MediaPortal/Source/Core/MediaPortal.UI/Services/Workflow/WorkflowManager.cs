@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -1050,6 +1050,20 @@ namespace MediaPortal.UI.Services.Workflow
     public IDictionary<Guid, WorkflowAction> MenuStateActions
     {
       get { return _menuActions; }
+    }
+
+    public bool TryExecuteAction(Guid actionId)
+    {
+      WorkflowAction action;
+      if (!MenuStateActions.TryGetValue(actionId, out action))
+        return false;
+
+      if (action.IsEnabled(CurrentNavigationContext) && action.IsVisible(CurrentNavigationContext))
+      {
+        action.Execute();
+        return true;
+      }
+      return false;
     }
 
     public Stack<NavigationContext> NavigationContextStack

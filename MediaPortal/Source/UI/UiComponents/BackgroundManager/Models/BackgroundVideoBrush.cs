@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,7 +28,7 @@ using MediaPortal.UI.SkinEngine.Players;
 
 namespace MediaPortal.UiComponents.BackgroundManager.Models
 {
-  public class BackgroundVideoBrush: VideoBrush
+  public class BackgroundVideoBrush : VideoBrush
   {
     protected AbstractProperty _videoPlayerProperty;
 
@@ -39,11 +39,17 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public ISharpDXVideoPlayer VideoPlayer
     {
-      get { return (ISharpDXVideoPlayer) _videoPlayerProperty.GetValue(); }
+      get
+      {
+        // Workaround for virtual member call by base constructor
+        return _videoPlayerProperty == null ? 
+          null : 
+          (ISharpDXVideoPlayer)_videoPlayerProperty.GetValue();
+      }
       set { _videoPlayerProperty.SetValue(value); }
     }
 
-    public BackgroundVideoBrush ()
+    public BackgroundVideoBrush()
     {
       _videoPlayerProperty = new SProperty(typeof(ISharpDXVideoPlayer), null);
     }
@@ -51,7 +57,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     public override void DeepCopy(Utilities.DeepCopy.IDeepCopyable source, Utilities.DeepCopy.ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      BackgroundVideoBrush b = (BackgroundVideoBrush) source;
+      BackgroundVideoBrush b = (BackgroundVideoBrush)source;
       VideoPlayer = b.VideoPlayer;
     }
 

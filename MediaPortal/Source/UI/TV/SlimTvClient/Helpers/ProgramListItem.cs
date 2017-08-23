@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -101,8 +101,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       _progressProperty = new WProperty(typeof(double), 0d);
       SetLabel(Consts.KEY_NAME, program.Title);
       SetLabel("Title", program.Title);
-      SetLabel("StartTime", program.StartTime.FormatProgramTime());
-      SetLabel("EndTime", program.EndTime.FormatProgramTime());
+      SetLabel("StartTime", program.StartTime.FormatProgramStartTime());
+      SetLabel("EndTime", program.EndTime.FormatProgramEndTime());
       SetLabel("Series", BuildSeriesText(program));
       Update();
     }

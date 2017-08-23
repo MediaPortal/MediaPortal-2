@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -129,7 +129,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     /// <summary>
-    /// ID column name which is both primary key and foreign key referencing the ID in the main media item's table.
+    /// ID column name which is foreign key referencing the ID in the main media item's table.
     /// This column name is used both for each MIA main table and for MIA attribute collection tables.
     /// </summary>
     protected internal const string MIA_MEDIA_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
@@ -137,14 +137,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// <summary>
     /// ID column name for MIA collection attribute tables
     /// </summary>
-    // TODO: Rename to VALUE_ID - will break an existing media library
-    protected internal const string FOREIGN_COLL_ATTR_ID_COL_NAME = "ID";
+    protected internal const string FOREIGN_COLL_ATTR_ID_COL_NAME = "VALUE_ID";
 
     /// <summary>
     /// Value column name for MIA collection attribute tables.
     /// </summary>
-    // TODO: Rename to VALUE - will break an existing media library
-    protected internal const string COLL_ATTR_VALUE_COL_NAME = "ATTRIBUTE_VALUE";
+    protected internal const string COLL_ATTR_VALUE_COL_NAME = "VALUE";
+
+    /// <summary>
+    /// Value order column name for MIA collection attribute tables.
+    /// </summary>
+    protected internal const string COLL_ATTR_VALUE_ORDER_COL_NAME = "VALUE_ORDER";
 
     protected readonly IDictionary<string, string> _nameAliases = new Dictionary<string, string>();
 
@@ -321,8 +324,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// <param name="objectIdentifier">Technical indentifier to be mapped to a table name for our DB.</param>
     /// <param name="desiredName">Root name to start the name generation. Will be converted to a valid SQL identifier
     /// and clipped, if necessary.</param>
+    /// <param name="allowExisting">Allow same name to exist in cache. This usually only true for having the same column
+    /// name in multiple tables.
     /// <returns>Table name corresponding to the specified table identifier.</returns>
-    private string GenerateDBObjectName(ITransaction transaction, Guid aspectId, string objectIdentifier, string desiredName)
+    private string GenerateDBObjectName(ITransaction transaction, Guid aspectId, string objectIdentifier, string desiredName, bool allowExisting = false)
     {
       lock (_syncObj)
       {
@@ -333,7 +338,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         uint ct = 0;
         string result;
         desiredName = SqlUtils.ToSQLIdentifier(desiredName);
-        if (!NamePresent(desiredName))
+        if (!NamePresent(desiredName) || allowExisting)
           result = desiredName;
         else
           while (NamePresent(result = ConcatNameParts(desiredName, ct, maxLen)))
@@ -365,19 +370,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     internal string GenerateMIAAttributeColumnName(ITransaction transaction, MediaItemAspectMetadata.AttributeSpecification spec)
     {
       string identifier = GetMIAAttributeColumnIdentifier(spec);
-      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, spec.AttributeName);
+      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, spec.AttributeName, true);
     }
 
     internal string GenerateMIACollectionAttributeTableName(ITransaction transaction, MediaItemAspectMetadata.AttributeSpecification spec)
     {
       string identifier = GetMIACollectionAttributeTableIdentifier(spec);
-      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, "V_" + spec.AttributeName);
+      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, "V_" + spec.ParentMIAM.Name + "_" + spec.AttributeName);
     }
 
     internal string GenerateMIACollectionAttributeNMTableName(ITransaction transaction, MediaItemAspectMetadata.AttributeSpecification spec)
     {
       string identifier = GetMIACollectionAttributeNMTableIdentifier(spec);
-      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, "NM_" + spec.AttributeName);
+      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, "NM_" + spec.ParentMIAM.Name + "_" + spec.AttributeName);
     }
 
     #endregion
@@ -423,7 +428,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ICollection<string> miamSerializations = SelectAllMediaItemAspectMetadataSerializations().Values;
       IList<MediaItemAspectMetadata> result = new List<MediaItemAspectMetadata>(miamSerializations.Count);
       foreach (string serialization in miamSerializations)
-        result.Add(MediaItemAspectMetadata.Deserialize(serialization));
+      {
+        try
+        {
+          result.Add(MediaItemAspectMetadata.Deserialize(serialization));
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("MIA Management: Skipping incompatible MediaItemAspectMetadata: {0} ({1})", ex.Message, serialization.Substring(0, 50));
+        }
+      }
       return result;
     }
 
@@ -473,8 +487,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " WHERE " +
-            MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
-
+            MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
+            " ORDER BY " + COLL_ATTR_VALUE_ORDER_COL_NAME;
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
         Type valueType = spec.AttributeType;
@@ -498,7 +512,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + miaTableName + " MAIN ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = MAIN." + mainTableAttrName +
-            " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
+            " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
+            " ORDER BY " + "V." + COLL_ATTR_VALUE_ORDER_COL_NAME;
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
@@ -522,7 +537,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + nmTableName + " NM ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME +
-            " WHERE NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
+            " WHERE NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
+            " ORDER BY " + "V." + COLL_ATTR_VALUE_ORDER_COL_NAME;
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
@@ -610,13 +626,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ISQLDatabase database = transaction.Database;
       IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       // Add new entries - commands for insert and update are the same here
+      int order = 0;
       foreach (object value in values)
       {
         using (IDbCommand command = transaction.CreateCommand())
         {
           command.CommandText = "INSERT INTO " + collectionAttributeTableName + "(" +
-              MIA_MEDIA_ITEM_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ") SELECT @MEDIA_ITEM_ID, @COLL_ATTR_VALUE FROM " +
-              databaseManager.DummyTableName +
+              MIA_MEDIA_ITEM_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ", " + COLL_ATTR_VALUE_ORDER_COL_NAME + 
+              ") SELECT @MEDIA_ITEM_ID, @COLL_ATTR_VALUE, " + order++ + " FROM " + databaseManager.DummyTableName +
               " WHERE NOT EXISTS(SELECT " + MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + collectionAttributeTableName + " WHERE " +
               MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID AND " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
@@ -627,6 +644,28 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           command.ExecuteNonQuery();
         }
       }
+    }
+
+    public void CleanupAllOrphanedAttributeValues(ITransaction transaction)
+    {
+      foreach (MediaItemAspectMetadata miaType in ManagedMediaItemAspectTypes.Values)
+        if(miaType != null && !miaType.IsTransientAspect)
+          foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
+            switch (spec.Cardinality)
+            {
+              case Cardinality.Inline:
+              case Cardinality.OneToMany:
+                break;
+              case Cardinality.ManyToOne:
+                CleanupManyToOneOrphanedAttributeValues(transaction, spec);
+                break;
+              case Cardinality.ManyToMany:
+                CleanupManyToManyOrphanedAttributeValues(transaction, spec);
+                break;
+              default:
+                throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
+                    spec.Cardinality, spec.ParentMIAM.AspectId, spec.AttributeName));
+            }
     }
 
     protected void CleanupAllManyToOneOrphanedAttributeValues(ITransaction transaction, MediaItemAspectMetadata miaType)
@@ -694,7 +733,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           // ... if not, insert it
           valuePk = Guid.NewGuid();
           command.CommandText = "INSERT INTO " + collectionAttributeTableName + " (" +
-              FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ") VALUES (@FOREIGN_COLL_ATTR_ID, @COLL_ATTR_VALUE)";
+              FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ", " + COLL_ATTR_VALUE_ORDER_COL_NAME +
+              ") VALUES (@FOREIGN_COLL_ATTR_ID, @COLL_ATTR_VALUE, 0)";
 
           database.AddParameter(command, "FOREIGN_COLL_ATTR_ID", valuePk, typeof(Guid));
 
@@ -756,7 +796,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     protected void InsertOrUpdateManyToManyMIAAttributeValue(ITransaction transaction,
-        MediaItemAspectMetadata.AttributeSpecification spec, Guid mediaItemId, object value)
+        MediaItemAspectMetadata.AttributeSpecification spec, Guid mediaItemId, object value, int order)
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
       IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
@@ -765,7 +805,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "INSERT INTO " + collectionAttributeTableName + " (" +
-            FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ") SELECT @FOREIGN_COLL_ATTR, @COLL_ATTR_VALUE FROM " +
+            FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ", " + COLL_ATTR_VALUE_ORDER_COL_NAME +
+            ") SELECT @FOREIGN_COLL_ATTR, @COLL_ATTR_VALUE, " + order + " FROM " +
             databaseManager.DummyTableName + " WHERE NOT EXISTS(SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME +
             " FROM " + collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
@@ -804,8 +845,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (!insert)
           DeleteManyToManyAttributeAssociationsNotInEnumeration(transaction, spec, mediaItemId, values);
         if (values != null)
+        {
+          int order = 0;
           foreach (object value in values)
-            InsertOrUpdateManyToManyMIAAttributeValue(transaction, spec, mediaItemId, value);
+            InsertOrUpdateManyToManyMIAAttributeValue(transaction, spec, mediaItemId, value, order++);
+        }
         if (!insert)
           CleanupManyToManyOrphanedAttributeValues(transaction, spec);
       }
@@ -881,8 +925,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         if (_managedMIATypes.ContainsKey(miam.AspectId))
           return false;
+        if (miam.IsTransientAspect)
+        {
+          _managedMIATypes.Add(miam.AspectId, miam);
+          return true;
+        }
         _managedMIATypes.Add(miam.AspectId, null);
       }
+      
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       ServiceRegistration.Get<ILogger>().Info("MIA_Management: Adding media library storage for media item aspect '{0}' (id '{1}')",
@@ -898,9 +948,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         StringBuilder mainStatementBuilder = new StringBuilder("CREATE TABLE " + miaTableName + " (" +
             MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", ");
         IList<string> terms = new List<string>();
+        IList<string> keyColumns = new List<string>();
         IList<string> additionalAttributesConstraints = new List<string>();
         string collectionAttributeTableName;
         string pkConstraintName;
+
+        keyColumns.Add(MIA_MEDIA_ITEM_ID_COL_NAME);
 
         // Attributes: First run
         foreach (MediaItemAspectMetadata.AttributeSpecification spec in miam.AttributeSpecifications.Values)
@@ -908,10 +961,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string sqlType = spec.AttributeType == typeof(string) ? database.GetSQLVarLengthStringType(spec.MaxNumChars) :
               database.GetSQLType(spec.AttributeType);
           string attributeColumnName = GenerateMIAAttributeColumnName(transaction, spec);
+          string attributeColumnIdentifier = GetMIAAttributeColumnIdentifier(spec);
           switch (spec.Cardinality)
           {
             case Cardinality.Inline:
               terms.Add(attributeColumnName + " " + sqlType);
+              if (miam is MultipleMediaItemAspectMetadata && ((MultipleMediaItemAspectMetadata)miam).UniqueAttributeSpecifications.Values.Contains(spec))
+                keyColumns.Add(attributeColumnName);
               break;
             case Cardinality.OneToMany:
               GenerateMIACollectionAttributeTableName(transaction, spec);
@@ -920,13 +976,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               // Create foreign table - the join attribute will be located in the main MIA table
               // We need to create the "One" table first because the main table references on it
               collectionAttributeTableName = GenerateMIACollectionAttributeTableName(transaction, spec);
-              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_PK", "PK");
+              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_PK", "PK");
 
               using (IDbCommand command = transaction.CreateCommand())
               {
                 command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
+                    COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                     ")";
                 ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating MTO table '{0}' for attribute '{1}' in media item aspect '{2}'",
@@ -935,7 +992,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
 
               // Create foreign table - the join attribute will be located in the main MIA table
-              string fkMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, "MIA_" + collectionAttributeTableName + "_FK", "FK");
+              string fkMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_FK", "FK");
 
               terms.Add(attributeColumnName + " " + database.GetSQLType(typeof(Guid)));
               additionalAttributesConstraints.Add("CONSTRAINT " + fkMediaItemConstraintName +
@@ -951,19 +1008,64 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           }
         }
 
+        //Add dependency if any
+        bool foreignKeyAdded = false;
+        SingleMediaItemAspectMetadata smiam = miam as SingleMediaItemAspectMetadata;
+        MultipleMediaItemAspectMetadata mmiam = miam as MultipleMediaItemAspectMetadata;
+        if ((smiam != null && smiam.ReferencingAspectId.HasValue) || (mmiam != null && mmiam.ReferencingAspectId.HasValue))
+        {
+          MediaItemAspectMetadata.AttributeSpecification[] fkSpecifications = null;
+          MediaItemAspectMetadata refMiam = null;
+          MediaItemAspectMetadata.AttributeSpecification[] refSpecifications = null;
+          if (smiam != null && smiam.ReferencingAspectId.HasValue && _managedMIATypes.ContainsKey(smiam.ReferencingAspectId.Value))
+          {
+            fkSpecifications = smiam.ReferencedAttributeSpecifications.Values.Count > 0 ? smiam.ReferencedAttributeSpecifications.Values.ToArray() : null;
+            refMiam = _managedMIATypes[smiam.ReferencingAspectId.Value];
+            if (refMiam is MultipleMediaItemAspectMetadata && ((MultipleMediaItemAspectMetadata)refMiam).UniqueAttributeSpecifications.Values.Count > 0)
+              refSpecifications = ((MultipleMediaItemAspectMetadata)refMiam).UniqueAttributeSpecifications.Values.ToArray();
+          }
+          else if (mmiam != null && mmiam.ReferencingAspectId.HasValue && _managedMIATypes.ContainsKey(mmiam.ReferencingAspectId.Value))
+          {
+            fkSpecifications = mmiam.ReferencedAttributeSpecifications.Values.Count > 0 ? mmiam.ReferencedAttributeSpecifications.Values.ToArray() : null;
+            refMiam = _managedMIATypes[mmiam.ReferencingAspectId.Value];
+            if (refMiam is MultipleMediaItemAspectMetadata && ((MultipleMediaItemAspectMetadata)refMiam).UniqueAttributeSpecifications.Values.Count > 0)
+              refSpecifications = ((MultipleMediaItemAspectMetadata)refMiam).UniqueAttributeSpecifications.Values.ToArray();
+          }
+          if (refMiam != null)
+          {
+            string refMiaTableName = GetMIATableName(refMiam);
+            string fkDependencyMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_" + refMiaTableName + "_FK", "FK");
+            List<string> fkColumns = new List<string>(new string[] { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME });
+            if(fkSpecifications != null)
+              fkColumns.AddRange(fkSpecifications.Select(s => GetMIAAttributeColumnName(s)));
+            List<string> refColumns = new List<string>(new string[] { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME });
+            if (refSpecifications != null)
+              refColumns.AddRange(refSpecifications.Select(s => GetMIAAttributeColumnName(s)));
+
+            additionalAttributesConstraints.Add("CONSTRAINT " + fkDependencyMediaItemConstraintName +
+                    " FOREIGN KEY (" + string.Join(", ", fkColumns) + ")" +
+                    " REFERENCES " + refMiaTableName + " (" + string.Join(", ", refColumns) + ") ON DELETE CASCADE");
+            foreignKeyAdded = true;
+          }
+        }
+        
         // Main table
         foreach (string term in terms)
         {
           mainStatementBuilder.Append(term);
           mainStatementBuilder.Append(", ");
         }
-        string pkConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_PK", "PK");
+        string pkConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_PK", miaTableName + "_PK");
         string fkMediaItemConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_MEDIA_ITEMS_FK", "FK");
         mainStatementBuilder.Append(
-            "CONSTRAINT " + pkConstraintName1 + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "), " +
-            "CONSTRAINT " + fkMediaItemConstraintName1 +
-            " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ") REFERENCES " +
-                MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE");
+            "CONSTRAINT " + pkConstraintName1 + " PRIMARY KEY (" + string.Join(",", keyColumns) + ")");
+        if(!foreignKeyAdded)
+        {
+          //Avoid circular foreign keys
+          additionalAttributesConstraints.Add("CONSTRAINT " + fkMediaItemConstraintName1 +
+                  " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
+                  " REFERENCES " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE");
+        }
         if (additionalAttributesConstraints.Count > 0)
         {
           mainStatementBuilder.Append(", ");
@@ -983,7 +1085,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             indexName, miam.AspectId);
         using (IDbCommand command = transaction.CreateCommand())
         {
-          command.CommandText = "CREATE UNIQUE INDEX " + indexName + " ON " + miaTableName + "(" + MIA_MEDIA_ITEM_ID_COL_NAME + ")";
+          command.CommandText = "CREATE UNIQUE INDEX " + indexName + " ON " + miaTableName + "(" + string.Join(",", keyColumns) + ")";
           command.ExecuteNonQuery();
         }
 
@@ -993,13 +1095,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string sqlType = spec.AttributeType == typeof(string) ? database.GetSQLVarLengthStringType(spec.MaxNumChars) :
               database.GetSQLType(spec.AttributeType);
           string attributeColumnName = GetMIAAttributeColumnName(spec); // Name was already generated in previous loop
+          string attributeColumnIdentifier = GetMIAAttributeColumnIdentifier(spec);
           switch (spec.Cardinality)
           {
             case Cardinality.Inline:
               if (spec.IsIndexed)
               {
                 // Value index
-                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnName + "_IDX", "IDX");
+                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_IDX", "IDX");
                 using (IDbCommand command = transaction.CreateCommand())
                 {
                   command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" + attributeColumnName + ")";
@@ -1013,14 +1116,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             case Cardinality.OneToMany:
               // Create foreign table with the join attribute inside
               collectionAttributeTableName = GetMIACollectionAttributeTableName(spec); // Name was already generated in previous loop
-              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_PK", "PK");
-              string fkMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_MEDIA_ITEM_FK", "FK");
+              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_PK", "PK");
+              string fkMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_MEDIA_ITEM_FK", "FK");
 
               using (IDbCommand command = transaction.CreateCommand())
               {
                 command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
+                    COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "), " +
                     "CONSTRAINT " + fkMediaItemConstraintName +
                     " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
@@ -1033,7 +1137,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
 
               // Foreign key index
-              indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_FK_IDX", "IDX");
+              indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_FK_IDX", "IDX");
               using (IDbCommand command = transaction.CreateCommand())
               {
                 command.CommandText = "CREATE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
@@ -1046,7 +1150,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               if (spec.IsIndexed)
               {
                 // Value index
-                indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_VAL_IDX", "IDX");
+                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_VAL_IDX", "IDX");
                 using (IDbCommand command = transaction.CreateCommand())
                 {
                   command.CommandText = "CREATE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
@@ -1064,7 +1168,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               if (spec.IsIndexed)
               {
                 // Foreign key index
-                indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_FK_IDX", "IDX");
+                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_FK_IDX", "IDX");
                 using (IDbCommand command = transaction.CreateCommand())
                 {
                   command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" +
@@ -1077,7 +1181,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
 
               // Value index
-              indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_VAL_IDX", "IDX");
+              indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_VAL_IDX", "IDX");
               using (IDbCommand command = transaction.CreateCommand())
               {
                 command.CommandText = "CREATE UNIQUE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
@@ -1091,7 +1195,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             case Cardinality.ManyToMany:
               // Create foreign table and additional table for the N:M join attributes
               collectionAttributeTableName = GetMIACollectionAttributeTableName(spec); // Name was already generated in previous loop
-              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_PK", "PK");
+              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_PK", "PK");
               string nmTableName = GenerateMIACollectionAttributeNMTableName(transaction, spec);
               string pkNMConstraintName = GenerateDBObjectName(transaction, miam.AspectId, nmTableName + "_PK", "PK");
               string fkMainTableConstraintName = GenerateDBObjectName(transaction, miam.AspectId, nmTableName + "_MAIN_FK", "FK");
@@ -1102,6 +1206,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
+                    COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" + ")";
                 ServiceRegistration.Get<ILogger>().Debug(
                     "MIA_Management: Creating MTM value table '{0}' for attribute '{1}' in media item aspect '{2}'",
@@ -1153,7 +1258,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               if (spec.IsIndexed)
               {
                 // Value index
-                indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_VAL_IDX", "IDX");
+                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_VAL_IDX", "IDX");
                 using (IDbCommand command = transaction.CreateCommand())
                 {
                   command.CommandText = "CREATE UNIQUE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
@@ -1186,13 +1291,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool RemoveMediaItemAspectStorage(Guid aspectId)
     {
+      MediaItemAspectMetadata miam = GetMediaItemAspectMetadata(aspectId);
       lock (_syncObj)
       {
         if (!_managedMIATypes.ContainsKey(aspectId))
           return false;
-        _managedMIATypes[aspectId] = null;
+        _managedMIATypes.Remove(aspectId);
       }
-      MediaItemAspectMetadata miam = GetMediaItemAspectMetadata(aspectId);
+      if (miam.IsTransientAspect)
+        return true;
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       ServiceRegistration.Get<ILogger>().Info("MIA_Management: Removing media library storage for media item aspect '{0}' (id '{1}')",
@@ -1327,11 +1434,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region MIA management
 
-    public bool MIAExists(ITransaction transaction, Guid mediaItemId, Guid aspectId)
+    public bool MIAExists(ITransaction transaction, Guid mediaItemId, MediaItemAspect mia)
     {
       MediaItemAspectMetadata miam;
-      if (!_managedMIATypes.TryGetValue(aspectId, out miam) || miam == null)
-        throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", aspectId));
+      if (!_managedMIATypes.TryGetValue(mia.Metadata.AspectId, out miam) || miam == null)
+        throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", mia.Metadata.AspectId));
+      if (miam.IsTransientAspect)
+        return false;
       string miaTableName = GetMIATableName(miam);
 
       ISQLDatabase database = transaction.Database;
@@ -1341,6 +1450,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
+
+        MultipleMediaItemAspectMetadata mmiam = miam as MultipleMediaItemAspectMetadata;
+        if (mmiam != null)
+        {
+          foreach (MediaItemAspectMetadata.AttributeSpecification spec in mmiam.UniqueAttributeSpecifications.Values.Where(x => !x.IsCollectionAttribute))
+          {
+            string name = GetMIAAttributeColumnName(spec);
+            command.CommandText += " AND " + name + " = @" + name;
+            database.AddParameter(command, name, mia[spec], spec.AttributeType);
+          }
+        }
 
         return command.ExecuteScalar() != null;
       }
@@ -1352,8 +1472,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (!_managedMIATypes.TryGetValue(aspectId, out miaType) || miaType == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", aspectId));
 
-      MediaItemAspect result = new MediaItemAspect(miaType);
-
+      MediaItemAspect result;
+      if(miaType is MultipleMediaItemAspectMetadata)
+        result = new MultipleMediaItemAspect((MultipleMediaItemAspectMetadata)miaType);
+      else
+        result = new SingleMediaItemAspect((SingleMediaItemAspectMetadata)miaType);
+      if (miaType.IsTransientAspect)
+        return result;
+    
       Namespace ns = new Namespace();
       string miaTableName = GetMIATableName(miaType);
       IList<string> terms = new List<string>();
@@ -1381,6 +1507,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 spec.Cardinality, miaType.AspectId, spec.AttributeName));
         }
       }
+      // TODO: More where clause for multiple MIA
+    
       StringBuilder mainQueryBuilder = new StringBuilder("SELECT ");
       mainQueryBuilder.Append(StringUtils.Join(", ", terms));
       mainQueryBuilder.Append(" FROM ");
@@ -1388,6 +1516,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       mainQueryBuilder.Append(" WHERE ");
       mainQueryBuilder.Append(MIA_MEDIA_ITEM_ID_COL_NAME);
       mainQueryBuilder.Append(" = @MEDIA_ITEM_ID");
+      // TODO: More where clause for multiple MIA
 
       ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
@@ -1395,6 +1524,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         command.CommandText = mainQueryBuilder.ToString();
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
+
+        // TODO: More where clause for multiple MIA
 
         using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
         {
@@ -1421,9 +1552,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (!_managedMIATypes.TryGetValue(mia.Metadata.AspectId, out miaType) || miaType == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist",
           mia.Metadata.AspectId));
+      if (miaType.IsTransientAspect)
+        return;
 
       IList<string> terms1 = new List<string>();
       IList<string> terms2 = new List<string>();
+      IList<string> terms3 = new List<string>();
       IList<BindVar> bindVars = new List<BindVar>();
       int ct = 0;
       string miaTableName = GetMIATableName(miaType);
@@ -1433,6 +1567,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         if (mia.IsIgnore(spec))
           continue;
+        MultipleMediaItemAspectMetadata mmiam = mia.Metadata as MultipleMediaItemAspectMetadata;
         string attrColName;
         object attributeValue;
         string bindVarName = "V" + ct++;
@@ -1446,7 +1581,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               terms2.Add("@" + bindVarName);
             }
             else
-              terms1.Add(attrColName + " = @" + bindVarName);
+            {
+              // Unique attributes cannot be set in an update (they are part of the where clause)
+              if (mmiam != null && mmiam.UniqueAttributeSpecifications.Values.Contains(spec))
+                terms3.Add("AND " + attrColName + " = @" + bindVarName);
+              else
+                terms1.Add(attrColName + " = @" + bindVarName);
+            }
             attributeValue = mia.GetAttributeValue(spec);
             attributeValue = TruncateBigValue(attributeValue, spec);
             bindVars.Add(new BindVar(bindVarName, AttributeIsEmpty(attributeValue) ? null : attributeValue, spec.AttributeType));
@@ -1485,7 +1626,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       // terms = all inline attributes
       // sqlValues = all inline attribute values
-      if (add || terms1.Count > 0)
+      if (add || terms1.Count > 0 || terms3.Count > 0)
       {
         // Main query
         StringBuilder mainQueryBuilder = new StringBuilder();
@@ -1520,7 +1661,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           mainQueryBuilder.Append(" WHERE ");
           mainQueryBuilder.Append(MIA_MEDIA_ITEM_ID_COL_NAME); // Use the ID column in WHERE condition
           mainQueryBuilder.Append(" = @MEDIA_ITEM_ID");
+          if (terms3.Count > 0)
+            mainQueryBuilder.Append(" " + StringUtils.Join(" ", terms3));
         }
+
         ISQLDatabase database = transaction.Database;
         using (IDbCommand command = transaction.CreateCommand())
         {
@@ -1565,7 +1709,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// <param name="mia">Media item aspect to write to DB.</param>
     public void AddOrUpdateMIA(ITransaction transaction, Guid mediaItemId, MediaItemAspect mia)
     {
-      AddOrUpdateMIA(transaction, mediaItemId, mia, !MIAExists(transaction, mediaItemId, mia.Metadata.AspectId));
+      AddOrUpdateMIA(transaction, mediaItemId, mia, !MIAExists(transaction, mediaItemId, mia));
     }
 
     public bool RemoveMIA(ITransaction transaction, Guid mediaItemId, Guid aspectId)
@@ -1573,6 +1717,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItemAspectMetadata miaType;
       if (!_managedMIATypes.TryGetValue(aspectId, out miaType) || miaType == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", aspectId));
+      if (miaType.IsTransientAspect)
+        return true;
       string miaTableName = GetMIATableName(miaType);
 
       // Cleanup/delete attribute value entries

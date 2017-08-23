@@ -11,4 +11,8 @@
   <string name="SystemState.Logoff">注销</string>
   <string name="SystemState.MinimizeMP">最小化MediaPortal</string>
   <string name="SystemState.ShutdownMP">关闭MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">关机菜单</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">关机菜单配置</string>
+  <string name="SleepTimer.Start">开始</string>
+  <string name="SleepTimer.Stop">停止</string>
 </resources>

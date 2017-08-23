@@ -6,17 +6,6 @@
     Source="screens\SimpleFilterItems.xaml"
     >
   <Include.Resources>
-    <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.SeriesItemsHeader]"/>
-
-    <!-- Control template for the MediaItem details (cover, thumbs, duration, genres...)-->
-    <ControlTemplate x:Key="Media_Details_Template">
-      <Include Source="screens\MediaItemSeries_Details.inc"/>
-    </ControlTemplate>
-
-    <ControlTemplate x:Key="Cover_Details_Template">
-      <Include Source="screens\MediaItemSeries_DetailsCover.inc"/>
-    </ControlTemplate>
-    
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.ChooseSeriesHeader]"/>
   </Include.Resources>
 </Include>

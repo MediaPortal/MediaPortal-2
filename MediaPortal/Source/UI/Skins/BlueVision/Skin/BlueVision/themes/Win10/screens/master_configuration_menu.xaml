@@ -31,12 +31,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_bare.xaml"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
-    >
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine">
+  
   <Include.Resources>
 
+    <ControlTemplate x:Key="Header_Text_Template">
+      <Label x:Name="HeaderLabel" FontFamily="DefaultBold" FontSize="32" Content="[Configuration.Name]"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Color="{ThemeResource TextColor}">
+      </Label>
+    </ControlTemplate>
+
     <ControlTemplate x:Key="Menu_Button_DummyConfig">
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,8,0"
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               IsEnabled="False">
       </Button>
@@ -45,11 +51,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Defines the default margins for the content area -->
     <ResourceWrapper x:Key="DefaultContentMargin" Resource="0" />
 
-    <!-- Header has to be defined by the includer: "Header_Text" -->
-
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True">
+
+        <Rectangle Fill="Black" Opacity="0.5" Margin="-69,-9,-66,62" DockPanel.Dock="Center">
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
        
         <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="0,20,-90,0" >
           <Grid.ColumnDefinitions>
@@ -69,7 +79,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <SolidColorBrush Color="Gray" Opacity="1"/>
             </Border.Background>
           </Border>
-          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Margin="-15,5,10,0" Style="{ThemeResource MainMenuListViewStyle}"
+          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Margin="-15,5,30,0" Style="{ThemeResource MainMenuListViewStyle}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>
@@ -86,10 +96,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-
           <Border Grid.Column="0" Grid.Row="0" Margin="0,-19,0,21">
             <Border.Background>
-              <SolidColorBrush Color="#555555" Opacity="1"/>
+              <SolidColorBrush Color="#555555" Opacity="0.8"/>
             </Border.Background>
           </Border>
 

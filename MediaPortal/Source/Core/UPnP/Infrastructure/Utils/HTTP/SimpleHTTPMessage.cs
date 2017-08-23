@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,11 +42,17 @@ namespace UPnP.Infrastructure.Utils.HTTP
   public abstract class SimpleHTTPMessage
   {
     public const string DEFAULT_HTTP_VERSION = "HTTP/1.1";
-    public const char CR = '\r';
-    public const char LF = '\n';
-    static readonly string CRLF = string.Format("{0}{1}", CR, LF);
-    static readonly byte[] LFLF = { (byte)LF, (byte)LF };
-    static readonly byte[] CRLFCRLF = { (byte)CR, (byte)LF, (byte)CR, (byte)LF };
+    public const byte CR = (byte)'\r';
+    public const byte LF = (byte)'\n';
+    static readonly string CRLF = "\r\n";
+    /// <summary>
+    /// Patterns that will be used to separate HTTP header from body.
+    /// </summary>
+    static readonly List<byte[]> HEADER_SEPARATOR_PATTERNS = new List<byte[]> { new[] { CR, LF, CR, LF }, new[] { LF, LF } };
+    /// <summary>
+    /// Additional fallback patterns to check "header only" messages that are not properly ended.
+    /// </summary>
+    static readonly List<byte[]> HEADER_END_PATTERNS = new List<byte[]> { new[] { CR, LF }, new[] { LF } };
 
     const int HEADER_BUF_INC = 2048;
     const int BODY_BUFF_INC = 4096;
@@ -149,17 +155,34 @@ namespace UPnP.Infrastructure.Utils.HTTP
     {
       byte[] data = stream.ToArray();
       int splitSize = 4;
-      var splitIndex = FindIndexSinglePattern(data, CRLFCRLF);
+      int splitIndex = -1;
+      // Standard way, considers two CRLF / LF
+      foreach (byte[] pattern in HEADER_SEPARATOR_PATTERNS)
+      {
+        splitSize = pattern.Length;
+        splitIndex = FindIndexSinglePattern(data, pattern);
+        if (splitIndex != -1)
+          break;
+      }
+      bool useLF = splitSize == 2;
+
+      // Fallback for non-standard "header only" messages without 2nd empty line.
       if (splitIndex == -1)
       {
-        splitSize = 2;
-        splitIndex = FindIndexSinglePattern(data, LFLF);
-        if (splitIndex == -1)
-          throw new InvalidDataException("No end of HTTP header marker found");
+        foreach (byte[] pattern in HEADER_END_PATTERNS)
+        {
+          splitSize = pattern.Length;
+          splitIndex = FindIndexSinglePatternEnd(data, pattern);
+          if (splitIndex != -1)
+            break;
+        }
+        useLF = splitSize == 1;
       }
+      if (splitIndex == -1)
+        throw new InvalidDataException("No end of HTTP header marker found.");
 
       string header = Encoding.UTF8.GetString(data, 0, splitIndex);
-      string[] lines = header.Split(splitSize == 2 ? new[] { LF.ToString() } : new[] { CRLF }, StringSplitOptions.None);
+      string[] lines = header.Split(useLF ? new[] { ((char)LF).ToString() } : new[] { CRLF }, StringSplitOptions.None);
       if (lines.Length < 1)
         throw new InvalidDataException("Invalid empty HTTP header");
 
@@ -173,7 +196,10 @@ namespace UPnP.Infrastructure.Utils.HTTP
         throw new InvalidDataException("Invalid HTTP content length: header {0}, actual body: {1}", contentLength, bodySize);
     }
 
-    // Finds the starting index of the given byte pattern
+    /// <summary>
+    /// Finds the starting index of the given byte <paramref name="pattern"/>.
+    /// </summary>
+    /// <returns>StartIndex of pattern if found or <c>-1</c> if not.</returns>
     public int FindIndexSinglePattern(byte[] data, byte[] pattern)
     {
       var matchCount = 0;
@@ -184,6 +210,23 @@ namespace UPnP.Infrastructure.Utils.HTTP
           return i - matchCount + 1;
       }
       return -1;
+    }
+
+    /// <summary>
+    /// Checks if the <paramref name="data"/> ends with the given <paramref name="pattern"/>.
+    /// </summary>
+    /// <returns>StartIndex of pattern if found or <c>-1</c> if not.</returns>
+    public int FindIndexSinglePatternEnd(byte[] data, byte[] pattern)
+    {
+      if (pattern.Length > data.Length)
+        return -1;
+      int dataIndex = data.Length - pattern.Length;
+      for (int i = 0; i < pattern.Length; i++)
+      {
+        if (data[dataIndex + i] != pattern[i])
+          return -1;
+      }
+      return dataIndex;
     }
 
     private void ParseHeaderLines(string[] lines)

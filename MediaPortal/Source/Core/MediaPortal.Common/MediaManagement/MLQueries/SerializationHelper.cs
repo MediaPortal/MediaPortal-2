@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,6 +49,16 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
         return null;
       }
       return result;
+    }
+
+    public static string SerializeGuid(Guid guid)
+    {
+      return guid.ToString("B");
+    }
+
+    public static Guid DeserializeGuid(string guidStr)
+    {
+      return new Guid(guidStr);
     }
   }
 }

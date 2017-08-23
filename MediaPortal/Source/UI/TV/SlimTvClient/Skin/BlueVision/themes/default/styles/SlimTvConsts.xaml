@@ -22,8 +22,9 @@
   <ResourceWrapper x:Key="MiniGuideWidth" Resource="900"/>
   <ResourceWrapper x:Key="MiniGuideDetailsWidth" Resource="500"/>
 
+  <ResourceWrapper x:Key="GroupButtonWidth" Resource="60"/>
   <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="350"/>
-  <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="60"/>
+  <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="50"/>
   <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="250"/>
 
   <ResourceWrapper x:Key="SingleGuideProgramWidth" Resource="750"/>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,6 +38,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     #region Protected fields
 
     protected UIElement _element;
+    protected bool _triggerState;
     protected AbstractProperty _enterActionsProperty;
     protected AbstractProperty _exitActionsProperty;
     protected AbstractProperty _settersProperty;
@@ -145,6 +146,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     protected void ExecuteTriggerStartActions()
     {
+      if (_triggerState)
+        return;
+      _triggerState = true;
       foreach (TriggerAction action in EnterActions)
         action.Execute(_element);
       foreach (Setter s in Setters)
@@ -153,6 +157,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     protected void ExecuteTriggerEndActions()
     {
+      if (!_triggerState)
+        return;
+      _triggerState = false;
       foreach (TriggerAction action in ExitActions)
         action.Execute(_element);
       foreach (Setter s in Setters)
@@ -164,8 +171,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       object obj = null;
       try
       {
-        if (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
-            Equals(triggerValue, obj))
+        if ((triggerValue == null && checkValue == null) || (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
+            Equals(triggerValue, obj)))
           ExecuteTriggerStartActions();
         else
           ExecuteTriggerEndActions();

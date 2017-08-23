@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -51,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
 
     public void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      WorkflowSaveRestoreStateAction w = (WorkflowSaveRestoreStateAction) source;
+      WorkflowSaveRestoreStateAction w = (WorkflowSaveRestoreStateAction)source;
       _targetObject = copyManager.GetCopy(w._targetObject);
     }
 
@@ -80,7 +80,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
       {
         // Mapping of context variable name -> UI state
         IDictionary<string, IDictionary<string, object>> state =
-            (IDictionary<string, IDictionary<string, object>>) _context.GetContextVariable(_contextVariable, false);
+            (IDictionary<string, IDictionary<string, object>>)_context.GetContextVariable(_contextVariable, false);
         if (state == null)
           return;
         Screen screen = targetElement.Screen;
@@ -94,9 +94,18 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
       }
       else if (eventname == Screen.CLOSE_EVENT)
       {
+        // Check if the UI state is already persisted, then we don't do it here again.
+        // This is especially required if the layout already changed before screen is closed (like done in MediaNavigationModel)
+        bool? uiStatePeristed = _context.GetContextVariable(_contextVariable + "_persisted", false) as bool?;
+        if (uiStatePeristed.HasValue && uiStatePeristed.Value)
+        {
+          _context.ResetContextVariable(_contextVariable + "_persisted");
+          return;
+        }
+
         // Mapping of context variable name -> UI state
         IDictionary<string, IDictionary<string, object>> state =
-            (IDictionary<string, IDictionary<string, object>>) _context.GetContextVariable(_contextVariable, false) ??
+            (IDictionary<string, IDictionary<string, object>>)_context.GetContextVariable(_contextVariable, false) ??
             new Dictionary<string, IDictionary<string, object>>(10);
         Screen screen = targetElement.Screen;
         string screenName = screen == null ? "ScreenState" : screen.ResourceName;

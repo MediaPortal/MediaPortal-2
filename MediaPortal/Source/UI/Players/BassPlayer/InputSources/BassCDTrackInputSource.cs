@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -152,7 +152,10 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
     {
       _drive = drive;
       _trackNo = trackNo;
-      _length = TimeSpan.FromSeconds(BassCd.BASS_CD_GetTrackLength(drive, BassTrackNo));
+      int bassDrive = BassUtils.Drive2BassID(_drive);
+      // Note: CD audio is always 44100hz stereo 16-bit. That's 176400 bytes per second. So dividing the track length by 176400 gives the length in seconds. 
+      int cdLength = BassCd.BASS_CD_GetTrackLength(bassDrive, BassTrackNo);
+      _length = TimeSpan.FromSeconds((double)cdLength / 176400);
     }
 
     /// <summary>

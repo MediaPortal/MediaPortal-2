@@ -7,12 +7,12 @@
     Description="Library plugin providing online libaries access (TMDB, TheTvDB...) needed for some default metadata extractors">
 
   <Version
-    PluginVersion="1.0"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
-    CurrentAPI="1"/>
+    PluginVersion="1.1"
+    ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
+    CurrentAPI="2"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
   </DependsOn>
 
@@ -21,12 +21,42 @@
   </Runtime>
 
   <Register Location="/Services">
-    <Service Id="SeriesTvDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"/>
-    <Service Id="MovieTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.MovieTheMovieDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.MovieTheMovieDbMatcher"/>
+    <!--Movie Matchers-->
+    <Service Id="MovieFanArtTvMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieFanArtTvMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieFanArtTvMatcher"/>
+    <Service Id="MovieOmDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieOmDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieOmDbMatcher"/>
+    <Service Id="MovieTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieTheMovieDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieTheMovieDbMatcher"/>
+    
+    <!--Series Matchers-->
+    <Service Id="SeriesTvDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTvDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTvDbMatcher"/>
+    <Service Id="SeriesFanArtTvMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesFanArtTvMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesFanArtTvMatcher"/>
+    <Service Id="SeriesOmDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesOmDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesOmDbMatcher"/>
+    <Service Id="SeriesTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTheMovieDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTheMovieDbMatcher"/>
+    <Service Id="SeriesTvMazeMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTvMazeMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTvMazeMatcher"/>
+    
+    <!--Music Matchers-->
+    <Service Id="MusicBrainzMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicBrainzMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicBrainzMatcher"/>
+    <Service Id="MusicFanArtTvMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFanArtTvMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFanArtTvMatcher"/>
+    <Service Id="MusicTheAudioDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicTheAudioDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicTheAudioDbMatcher"/>
+    <Service Id="MusicFreeDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFreeDbMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFreeDbMatcher"/>
+    
+   <!--Geo Location Service-->
     <Service Id="GeoLocationService" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Libraries.IGeoLocationService"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.GeoLocationService"/>
+    <!--Online Matcher Service-->
+    <Service Id="OnlineMatcherService" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Libraries.IOnlineMatcherService"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.OnlineMatcherService"/>
   </Register>
 
 </Plugin>

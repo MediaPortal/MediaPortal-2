@@ -18,7 +18,8 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <NuGetPackageImportStamp>f532db6e</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -47,12 +48,10 @@
     <Reference Include="FreeImageNET, Version=3.15.1.0, Culture=neutral, processorArchitecture=x86">
       <HintPath>..\..\..\Packages\FreeImageNET.3.15.1\lib\net20\FreeImageNET.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SharpDX">
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Direct3D9, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SharpDX.Direct3D9">
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -132,8 +131,14 @@
     <Compile Include="Controls\ImageSources\ImageSource.cs" />
     <Compile Include="Controls\ImageSources\BinaryTextureImageSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSource.cs" />
+    <Compile Include="Controls\Panels\AnimatedStackPanel.cs" />
+    <Compile Include="Controls\Panels\AnimatedWrapPanel.cs" />
+    <Compile Include="Controls\Panels\IGroupingValueProvider.cs" />
+    <Compile Include="Controls\Visuals\GroupHeaderItem.cs" />
+    <Compile Include="Controls\Panels\IGroupedItemProvider.cs" />
     <Compile Include="Controls\Panels\IVirtualizingPanel.cs" />
     <Compile Include="Controls\Panels\VirtualizingWrapPanel.cs" />
+    <Compile Include="Controls\Visuals\AnimatedScrollContentPresenter.cs" />
     <Compile Include="Controls\Visuals\BackgroundEffect.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />
@@ -147,6 +152,7 @@
     <Compile Include="Controls\Visuals\Effects\ShaderEffect.cs" />
     <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
     <Compile Include="Controls\Panels\StarRatingPanel.cs" />
+    <Compile Include="Controls\Visuals\ListViewGroupHeader.cs" />
     <Compile Include="Controls\Visuals\Star.cs" />
     <Compile Include="Controls\Visuals\Styles\EventSetter.cs" />
     <Compile Include="Controls\Visuals\Styles\SetterBaseCollection.cs" />
@@ -171,7 +177,10 @@
     <Compile Include="Controls\Visuals\TextControl.cs" />
     <Compile Include="Controls\Visuals\AbstractTextInputHandler.cs" />
     <Compile Include="Controls\Visuals\TreeView.cs" />
+    <Compile Include="Controls\Visuals\Triggers\Condition.cs" />
+    <Compile Include="Controls\Visuals\Triggers\ConditionCollection.cs" />
     <Compile Include="Controls\Visuals\Triggers\DataTrigger.cs" />
+    <Compile Include="Controls\Visuals\Triggers\MultiTrigger.cs" />
     <Compile Include="Controls\Visuals\Triggers\SoundPlayerAction.cs" />
     <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerBase.cs" />
@@ -314,6 +323,8 @@
     <Compile Include="MpfElements\Converters\expr\Variable.cs" />
     <Compile Include="MpfElements\Converters\DurationConverter.cs" />
     <Compile Include="MpfElements\Converters\MPFConverter.cs" />
+    <Compile Include="MpfElements\Converters\GetIndexMultiConverter.cs" />
+    <Compile Include="MpfElements\Converters\MultiAspectAttributeConverter.cs" />
     <Compile Include="MpfElements\Converters\PriorityBindingConverter.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
@@ -358,7 +369,6 @@
     <Compile Include="Utils\UIResourcesHelper.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverTimeout.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverEnabled.cs" />
-    <Compile Include="Settings\Configuration\Appearance\Antialiasing.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\CellPhoneInputStyle.cs" />

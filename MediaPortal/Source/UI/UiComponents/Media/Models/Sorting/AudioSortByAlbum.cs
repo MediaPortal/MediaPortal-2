@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class AudioSortByAlbum : AbstractSortByComparableObjectAttribute<string>
   {
-    public AudioSortByAlbum() : base(Consts.RES_SORT_BY_ALBUM, AudioAspect.ATTR_ALBUM) {}
+    public AudioSortByAlbum() : base(Consts.RES_COMMON_BY_ALBUM_MENU_ITEM, Consts.RES_COMMON_BY_ALBUM_MENU_ITEM, new[] { AudioAspect.ATTR_ALBUM, AudioAlbumAspect.ATTR_ALBUM })
+    {
+      _includeMias = new[] { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID };
+    }
   }
 }

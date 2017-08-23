@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    >
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
   <ResourceWrapper x:Key="MEDIA_THUMB_Audio" Resource="175"/>
   
-  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="220"/>
-  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="405"/>
-  <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="125"/>
+  <ResourceWrapper x:Key="MEDIA_AUDIO_WIDTH" Resource="182"/>
+  <ResourceWrapper x:Key="MEDIA_AUDIO_HEIGHT" Resource="175"/>
+  <ResourceWrapper x:Key="MEDIA_AUDIO_COVER" Resource="363"/>
 
-  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="150"/>
-  <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="81.25"/>
-  <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="175"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="246"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="175"/>
+
+  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="380"/>
+  <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="82"/>  
+  
+  <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="115"/>
+  <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="177"/>
+
+  <ResourceWrapper x:Key="MEDIA_COVER_WIDTH" Resource="285"/>
+  <ResourceWrapper x:Key="MEDIA_COVER_HEIGHT" Resource="455"/>
 
   <ResourceWrapper x:Key="GRIDVIEW_FILTER_WIDTH" Resource="225"/>
   <ResourceWrapper x:Key="GRIDVIEW_FILTER_HEIGHT" Resource="130"/>
@@ -25,5 +32,12 @@
   <ResourceWrapper x:Key="SmallRadius" Resource="11"/>
   <ResourceWrapper x:Key="MediumRadius" Resource="14"/>
   <ResourceWrapper x:Key="LargeRadius" Resource="18"/>
+
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_S" Resource="0"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_M" Resource="100"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_L" Resource="150"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_S" Resource="0"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_M" Resource="53"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_L" Resource="83"/>
 
 </ResourceDictionary>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -309,8 +309,8 @@ namespace MediaPortal.UiComponents.Media.Models
         IPlayerContext playerContext = playerContextManager.GetPlayerContext(_playerContext);
 
         _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
-        MediaItemAspect imageAspect;
-        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out imageAspect))
+        SingleMediaItemAspect imageAspect;
+        if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, ImageAspect.Metadata, out imageAspect))
           imageAspect = null;
 
         if (imageAspect == null)

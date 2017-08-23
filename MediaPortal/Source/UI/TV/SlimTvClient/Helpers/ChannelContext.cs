@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,8 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
-using MediaPortal.Plugins.SlimTv.Client.Messaging;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
@@ -68,14 +71,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       InitChannelGroups();
     }
 
-    private void InitChannelGroups()
+    public void InitChannelGroups()
     {
       IList<IChannelGroup> channelGroups;
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
       if (tvHandler != null && tvHandler.ChannelAndGroupInfo.GetChannelGroups(out channelGroups))
       {
         ChannelGroups.Clear();
-        ChannelGroups.AddRange(channelGroups);
+        ChannelGroups.AddRange(FilterGroups(channelGroups));
         ChannelGroups.FireListChanged();
 
         int selectedChannelGroupId = tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId;
@@ -84,6 +87,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
         ChannelGroups.FireCurrentChanged(-1);
       }
+    }
+
+    public static bool IsSameChannel(IChannel channel1, IChannel channel2)
+    {
+      if (channel1 == channel2)
+        return true;
+
+      if (channel1 != null && channel2 != null)
+        return channel1.ChannelId == channel2.ChannelId && channel1.MediaType == channel2.MediaType;
+      return false;
+    }
+
+    /// <summary>
+    /// Applies a filter to channel groups. This will be used to remove "All Channels" group if needed.
+    /// </summary>
+    /// <param name="channelGroups">Groups</param>
+    /// <returns>Filtered groups</returns>
+    private static IList<IChannelGroup> FilterGroups(IList<IChannelGroup> channelGroups)
+    {
+      if (!ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>().HideAllChannelsGroup)
+        return channelGroups;
+      return channelGroups.Where(g => g.Name != "All Channels").ToList();
     }
 
     /// <summary>
@@ -97,16 +122,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
       if (tvHandler != null && tvHandler.ChannelAndGroupInfo.GetChannels(ChannelGroups.Current, out channels))
       {
-        Channels.Clear();
+        Channels.ClearAndReset();
         Channels.AddRange(channels);
         Channels.FireListChanged();
+        // Check user zapping setting for channel index vs. number preferance
+        SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+        if (settings.ZapByChannelIndex)
+        {
+          for (int i = 0; i < Channels.Count; i++)
+            Channels[i].ChannelNumber = i + 1;
+        }
         // Check if the current channel is part of new group and select it
         int selectedChannelId = tvHandler.ChannelAndGroupInfo.SelectedChannelId;
         if (tvHandler.ChannelAndGroupInfo != null && selectedChannelId != 0)
           Channels.MoveTo(channel => channel.ChannelId == selectedChannelId);
       }
-      // Notify listeners about group change
-      SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
     }
   }
 
@@ -121,6 +151,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public EventHandler OnListChanged;
 
     private int _current;
+
+    public void ClearAndReset()
+    {
+      Clear();
+      _current = 0;
+    }
 
     public T Current
     {
@@ -180,9 +216,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         if (!condition.Invoke(item))
           continue;
         _current = index;
+        FireCurrentChanged(oldIndex);
         return true;
       }
-      FireCurrentChanged(oldIndex);
       return false;
     }
 

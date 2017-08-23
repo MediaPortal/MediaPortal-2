@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,18 +33,29 @@ namespace MediaPortal.UI.Presentation.Players.ResumeState
   public class PositionResumeState : ResumeStateBase
   {
     public TimeSpan ResumePosition { get; set; }
+    public int ActiveResourceLocatorIndex { get; set; }
 
     public override void InitFromString(string value)
     {
-      double totalSeconds;
-      if (!double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out totalSeconds))
-        return;
-      ResumePosition = TimeSpan.FromSeconds(totalSeconds);
+      string[] parts = (value ?? string.Empty).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+      if (parts.Length > 0)
+      {
+        double totalSeconds;
+        if (!double.TryParse(parts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out totalSeconds))
+          return;
+        ResumePosition = TimeSpan.FromSeconds(totalSeconds);
+      }
+      if (parts.Length > 1)
+      {
+        int index;
+        if (int.TryParse(parts[1], out index))
+          ActiveResourceLocatorIndex = index;
+      }
     }
 
     public override string ToString()
     {
-      return ResumePosition.TotalSeconds.ToString(CultureInfo.InvariantCulture);
+      return string.Format("{0};{1}", ResumePosition.TotalSeconds.ToString(CultureInfo.InvariantCulture), ActiveResourceLocatorIndex);
     }
   }
 }

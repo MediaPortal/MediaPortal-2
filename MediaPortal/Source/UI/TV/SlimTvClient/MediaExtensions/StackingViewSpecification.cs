@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,10 +28,12 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.UiComponents.Media.Views;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
 {
@@ -47,6 +49,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       base(viewDisplayName, filter, necessaryMIATypeIDs, optionalMIATypeIDs, onlyOnline)
     {
       SortedSubViews = true; // Stacking view has special sorting included.
+      CustomItemsListSorting = SortByRecordingDate;
     }
 
     #endregion
@@ -61,14 +64,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       try
       {
         var mediaItemsResults = mediaItems;
-        var lookup = mediaItemsResults.ToLookup(GetBestTitle, r => r).ToLookup(r => r.Count() == 1);
+        var lookup = mediaItemsResults.ToLookup(SortByRecordingDateDesc.GetBestTitle, r => r).ToLookup(r => r.Count() == 1);
         // [true] --> Single media items
         // [false]--> Multi media items
         subViewSpecifications = new List<ViewSpecification>(0);
-        var groupedItems = lookup[false].OrderByDescending(g => g.Max(r => GetBestDate(r)));
+        var groupedItems = lookup[false].OrderByDescending(g => g.Max(r => SortByRecordingDateDesc.GetBestDate(r)));
         foreach (IGrouping<string, MediaItem> group in groupedItems)
         {
-          StackingSubViewSpecification subViewSpecification = new StackingSubViewSpecification(group.Key, NecessaryMIATypeIds, OptionalMIATypeIds, group.ToList());
+          StackingSubViewSpecification subViewSpecification = new StackingSubViewSpecification(group.Key, NecessaryMIATypeIds, OptionalMIATypeIds, group.OrderByDescending(SortByRecordingDateDesc.GetBestDate).ToList());
           subViewSpecifications.Add(subViewSpecification);
         }
         // Only one item per group, so first takes the only one
@@ -82,26 +85,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       }
     }
 
-    private string GetBestTitle(MediaItem mediaItem)
+    public void SortByRecordingDate(ItemsList items, Sorting sorting)
     {
-      string name;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_MOVIE_NAME, out name))
-        return name;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out name))
-        return name;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_TITLE, out name))
-        return name;
-      return string.Empty;
-    }
+      var sorted = items.ToList();
+      sorted.Sort((item1, item2) =>
+      {
+        PlayableMediaItem pmi1 = item1 as PlayableMediaItem;
+        ViewItem vi1 = item1 as ViewItem;
+        PlayableMediaItem pmi2 = item2 as PlayableMediaItem;
+        ViewItem vi2 = item2 as ViewItem;
 
-    private DateTime GetBestDate(MediaItem mediaItem)
-    {
-      DateTime recordingDate;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, RecordingAspect.ATTR_ENDTIME, out recordingDate))
-        return recordingDate;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-        return recordingDate;
-      return DateTime.MinValue;
+        MediaItem mi1 = pmi1 != null ? pmi1.MediaItem : (vi1 != null ? vi1.FirstMediaItem : null);
+        MediaItem mi2 = pmi2 != null ? pmi2.MediaItem : (vi2 != null ? vi2.FirstMediaItem : null);
+        return sorting.Compare(mi1, mi2);
+      });
+      items.Clear();
+      CollectionUtils.AddAll(items, sorted);
     }
   }
 }

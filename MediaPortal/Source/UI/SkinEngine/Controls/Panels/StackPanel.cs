@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,6 +33,8 @@ using SharpDX;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -57,6 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected AbstractProperty _orientationProperty;
     protected AbstractProperty _loopScrollProperty;
+    protected AbstractProperty _scrollMarginProperty;
     protected float _totalHeight;
     protected float _totalWidth;
 
@@ -74,6 +77,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     // Index of the last visible child item. When scrolling, this index denotes the "opposite children" to the
     // child denoted by the _actualFirstVisibleChildIndex.
     protected int _actualLastVisibleChildIndex = -1;
+
+    //Includes additional items that are rendered in the scroll margin
+    protected int _actualFirstRenderedChildIndex;
+    protected int _actualLastRenderedChildIndex;
+
+    protected float _pendingPhysicalOffset = 0;
+    protected float _actualPhysicalOffset = 0;
+    protected bool _forcedOpacityMask = false;
 
     #endregion
 
@@ -95,16 +106,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       _orientationProperty = new SProperty(typeof(Orientation), Orientation.Vertical);
       _loopScrollProperty = new SProperty(typeof(bool), false);
+      _scrollMarginProperty = new SProperty(typeof(Thickness), new Thickness());
     }
 
     void Attach()
     {
       _orientationProperty.Attach(OnMeasureGetsInvalid);
+      _scrollMarginProperty.Attach(OnMeasureGetsInvalid);
     }
 
     void Detach()
     {
       _orientationProperty.Detach(OnMeasureGetsInvalid);
+      _scrollMarginProperty.Detach(OnMeasureGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -115,6 +129,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Orientation = p.Orientation;
       LoopScroll = p.LoopScroll;
       DoScroll = p.DoScroll;
+      ScrollMargin = p.ScrollMargin;
       Attach();
     }
 
@@ -146,6 +161,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _loopScrollProperty.SetValue(value); }
     }
 
+    public AbstractProperty ScrollMarginProperty
+    {
+      get { return _scrollMarginProperty; }
+    }
+
+    public Thickness ScrollMargin
+    {
+      get { return (Thickness)_scrollMarginProperty.GetValue(); }
+      set { _scrollMarginProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Layouting
@@ -160,16 +186,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// </remarks>
     /// <param name="childIndex">Index to scroll to.</param>
     /// <param name="first">Make the child with the given <paramref name="childIndex"/> the first or last shown element.</param>
-    public virtual void SetScrollIndex(int childIndex, bool first)
+    public void SetScrollIndex(int childIndex, bool first)
     {
+      SetScrollIndex(childIndex, first, false);
+    }
+
+    /// <summary>
+    /// Sets the scrolling index to a value that the child with the given <paramref name="childIndex"/> is the
+    /// first (in case <paramref name="first"/> is set to <c>true</c>) or last (<paramref name="first"/> is set to <c>false</c>)
+    /// visible child.
+    /// </summary>
+    /// <remarks>
+    /// The scroll index might be corrected by the layout system to a better value, if necessary.
+    /// </remarks>
+    /// <param name="childIndex">Index to scroll to.</param>
+    /// <param name="first">Make the child with the given <paramref name="childIndex"/> the first or last shown element.</param>
+    /// <param name="force">Whether the scroll should happen immediately and not be delayed/animated.</param>
+    public virtual void SetScrollIndex(double childIndex, bool first, bool force)
+    {
+      int index = (int)childIndex;
+      float offset = (float)(childIndex % 1);
       lock (_renderLock)
       {
-        if (_pendingScrollIndex == childIndex && _scrollToFirst == first ||
-            (!_pendingScrollIndex.HasValue &&
-             ((_scrollToFirst && _actualFirstVisibleChildIndex == childIndex) ||
-              (!_scrollToFirst && _actualLastVisibleChildIndex == childIndex))))
+        if (_pendingScrollIndex == index && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
+            (!_pendingScrollIndex.HasValue && _actualPhysicalOffset == offset &&
+             ((_scrollToFirst && _actualFirstVisibleChildIndex == index) ||
+              (!_scrollToFirst && _actualLastVisibleChildIndex == index))))
           return;
-        _pendingScrollIndex = childIndex;
+        _pendingScrollIndex = index;
+        _pendingPhysicalOffset = offset;
         _scrollToFirst = first;
       }
       InvalidateLayout(false, true);
@@ -223,9 +268,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
         // For Orientation == vertical, this is ActualWidth, for horizontal it is ActualHeight
         float actualExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, actualSize);
+        //get scroll margins in scroll direction
+        float scrollMarginBefore;
+        float scrollMarginAfter;
+        GetScrollMargin(out scrollMarginBefore, out scrollMarginAfter);
         // Hint: We cannot skip the arrangement of children above _actualFirstVisibleChildIndex or below _actualLastVisibleChildIndex
         // because the rendering and focus system also needs the bounds of the currently invisible children
-        float startPosition = 0;
+        float startPosition = scrollMarginBefore;
+
+        //Percentage of child size to offset child positions
+        float physicalOffset = _actualPhysicalOffset;
+
         // If set to true, we'll check available space from the last to first visible child.
         // That is necessary if we want to scroll a specific child to the last visible position.
         bool invertLayouting = false;
@@ -234,11 +287,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           {
             fireScrolled = true;
             int pendingSI = _pendingScrollIndex.Value;
+            physicalOffset = _actualPhysicalOffset = _pendingPhysicalOffset;
             if (_scrollToFirst)
               _actualFirstVisibleChildIndex = pendingSI;
             else
             {
               _actualLastVisibleChildIndex = pendingSI;
+              //If we have an offset then there will be part of an additional item visible
+              if (physicalOffset != 0)
+                _actualLastVisibleChildIndex++;
               invertLayouting = true;
             }
             _pendingScrollIndex = null;
@@ -247,10 +304,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // 1) Calculate scroll indices
         if (_doScroll)
         { // Calculate last visible child
-          float spaceLeft = actualExtendsInOrientationDirection;
+          //Substract scroll margins from avalable space, additional items in the margin will be added later
+          float spaceLeft = actualExtendsInOrientationDirection - scrollMarginBefore - scrollMarginAfter;
           if (invertLayouting)
           {
             CalcHelper.Bound(ref _actualLastVisibleChildIndex, 0, numVisibleChildren - 1);
+
+            //Allow space for partially visible items at top and bottom
+            if (physicalOffset != 0)
+            {
+              float offsetItemSize = GetExtendsInOrientationDirection(Orientation, visibleChildren[_actualLastVisibleChildIndex].DesiredSize);
+              spaceLeft += offsetItemSize;
+              startPosition -= offsetItemSize * physicalOffset;
+            }
+
             _actualFirstVisibleChildIndex = _actualLastVisibleChildIndex + 1;
             while (_actualFirstVisibleChildIndex > 0)
             {
@@ -278,6 +345,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           else
           {
             CalcHelper.Bound(ref _actualFirstVisibleChildIndex, 0, numVisibleChildren - 1);
+
+            //Allow space for partially visible items at top and bottom
+            if (physicalOffset != 0)
+            {
+              float offsetItemSize = GetExtendsInOrientationDirection(Orientation, visibleChildren[_actualFirstVisibleChildIndex].DesiredSize);
+              spaceLeft += offsetItemSize;
+              startPosition -= offsetItemSize * physicalOffset;
+            }
+
             _actualLastVisibleChildIndex = _actualFirstVisibleChildIndex - 1;
             while (_actualLastVisibleChildIndex < numVisibleChildren - 1)
             {
@@ -307,6 +383,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         {
           _actualFirstVisibleChildIndex = 0;
           _actualLastVisibleChildIndex = numVisibleChildren - 1;
+        }
+
+        _actualFirstRenderedChildIndex = _actualFirstVisibleChildIndex;
+        _actualLastRenderedChildIndex = _actualLastVisibleChildIndex;
+        //calculate additional items in the scroll margin
+        float inactiveSpaceLeft = scrollMarginBefore;
+        while (_actualFirstRenderedChildIndex > 0)
+        {
+          inactiveSpaceLeft -= GetExtendsInOrientationDirection(Orientation, visibleChildren[_actualFirstRenderedChildIndex - 1].DesiredSize);
+          if (inactiveSpaceLeft + DELTA_DOUBLE < 0)
+            break;
+          _actualFirstRenderedChildIndex--;
+        }
+        inactiveSpaceLeft = scrollMarginAfter;
+        while (_actualLastRenderedChildIndex < visibleChildren.Count - 1)
+        {
+          inactiveSpaceLeft -= GetExtendsInOrientationDirection(Orientation, visibleChildren[_actualLastRenderedChildIndex].DesiredSize);
+          if (inactiveSpaceLeft + DELTA_DOUBLE < 0)
+            break;
+          _actualLastRenderedChildIndex++;
         }
 
         // 2) Calculate start position
@@ -375,11 +471,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       else
       {
-        _actualFirstVisibleChildIndex = 0;
-        _actualLastVisibleChildIndex = -1;
+        _actualFirstVisibleChildIndex = _actualFirstRenderedChildIndex = 0;
+        _actualLastVisibleChildIndex = _actualLastRenderedChildIndex = -1;
       }
       if (fireScrolled)
         InvokeScrolled();
+    }
+
+    protected void GetScrollMargin(out float widthBefore, out float widthAfter)
+    {
+      Thickness thickness = ScrollMargin ?? new Thickness();
+      if (Orientation == Orientation.Horizontal)
+      {
+        widthBefore = thickness.Left;
+        widthAfter = thickness.Right;
+      }
+      else
+      {
+        widthBefore = thickness.Top;
+        widthAfter = thickness.Bottom;
+      }
     }
 
     protected void InvokeScrolled()
@@ -576,9 +687,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public override void BringIntoView(int index)
     {
       if (index < _actualFirstVisibleChildIndex)
-        SetScrollIndex(index, true);
+        SetScrollIndex(index, true, true);
       else if (index > _actualLastVisibleChildIndex)
-        SetScrollIndex(index, false);
+        SetScrollIndex(index, false, true);
     }
 
     public override void SaveUIState(IDictionary<string, object> state, string prefix)
@@ -593,7 +704,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       object first;
       int? iFirst;
       if (state.TryGetValue(prefix + "/FirstVisibleChild", out first) && (iFirst = first as int?).HasValue)
-        SetScrollIndex(iFirst.Value, true);
+        SetScrollIndex(iFirst.Value, true, true);
     }
 
     #endregion
@@ -602,7 +713,38 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
-      return GetVisibleChildren().Skip(_actualFirstVisibleChildIndex).Take(_actualLastVisibleChildIndex - _actualFirstVisibleChildIndex + 1);
+      return GetVisibleChildren().Skip(_actualFirstRenderedChildIndex).Take(_actualLastRenderedChildIndex - _actualFirstRenderedChildIndex + 1);
+    }
+
+    /// <summary>
+    /// Required to clip any items that are partially within the panel's bounds
+    /// </summary>
+    /// <param name="parentRenderContext"></param>
+    public override void Render(RenderContext parentRenderContext)
+    {
+      if (OpacityMask == null && _actualPhysicalOffset != 0)
+      {
+        SolidColorBrush brush = new SolidColorBrush { Color = Color.Black };
+        OpacityMask = brush;
+        _forcedOpacityMask = true;
+      }
+      else if (_forcedOpacityMask && _actualPhysicalOffset == 0 && OpacityMask != null)
+      {
+        OpacityMask.Dispose();
+        OpacityMask = null;
+        _opacityMaskContext.Dispose();
+        _opacityMaskContext = null;
+        _forcedOpacityMask = false;
+      }
+      base.Render(parentRenderContext);
+    }
+
+    public override void RenderOverride(RenderContext localRenderContext)
+    {
+      base.RenderOverride(localRenderContext); // Do the actual rendering
+      // After rendering our children the following line resets the RenderContext's bounds so
+      // that rendering with an OpacityMask will clip the final output correctly to our scrolled viewport.
+      localRenderContext.SetUntransformedBounds(ActualBounds);
     }
 
     #endregion
@@ -770,7 +912,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       if (visibleChildren.Count == 0)
         return false;
-      SetScrollIndex(0, true);
+      SetScrollIndex(0, true, true);
       visibleChildren[0].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }
@@ -780,7 +922,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       if (visibleChildren.Count == 0)
         return false;
-      SetScrollIndex(int.MaxValue, false);
+      SetScrollIndex(int.MaxValue, false, true);
       visibleChildren[visibleChildren.Count - 1].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }

@@ -13,11 +13,12 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
   </DependsOn>
 
   <Runtime>
+    <Assembly FileName="SlimTv.Interfaces.dll"/>
     <Assembly FileName="SlimTv.Resources.dll"/>
     <Assembly FileName="FanArtService.Interfaces.dll"/>
   </Runtime>

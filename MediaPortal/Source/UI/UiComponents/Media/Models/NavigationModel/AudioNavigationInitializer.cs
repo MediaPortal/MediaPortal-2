@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,13 +33,25 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
   {
     internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Audio }; // "Audio"
 
+    protected AudioFilterByAlbumScreenData _albumScreen;
+
     public AudioNavigationInitializer()
     {
       _mediaNavigationMode = Models.MediaNavigationMode.Audio;
       _mediaNavigationRootState = Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT;
       _viewName = Consts.RES_AUDIO_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
+      _optionalMias = Consts.OPTIONAL_AUDIO_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+    }
+
+    public override void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
+    {
+      base.InitMediaNavigation(out mediaNavigationMode, out navigationData);
+      //Album filters modify the necessary/optional mia types of the current query view specification.
+      //The album screen needs to return them back to the root episode mias so it needs to know what they are.
+      //We need to set them after we have called InitMediaNavigation above as that call may modify the optional mia types.
+      _albumScreen.SetRootMiaTypes(navigationData.BaseViewSpecification.NecessaryMIATypeIds, navigationData.BaseViewSpecification.OptionalMIATypeIds);
     }
 
     protected override void Prepare()
@@ -47,13 +59,17 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       base.Prepare();
 
       _defaultScreen = new AudioFilterByArtistScreenData();
+      _albumScreen = new AudioFilterByAlbumScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
           new AudioShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           // C# doesn't like it to have an assignment inside a collection initializer
           _defaultScreen,
+          new AudioFilterByComposerScreenData(),
           new AudioFilterByAlbumArtistScreenData(),
-          new AudioFilterByAlbumScreenData(),
+          _albumScreen,
+          new AudioFilterByAlbumLabelScreenData(),
+          new AudioFilterByDiscNumberScreenData(),
           new AudioFilterByGenreScreenData(),
           new AudioFilterByDecadeScreenData(),
           new AudioFilterBySystemScreenData(),
@@ -64,12 +80,40 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _availableSortings = new List<Sorting.Sorting>
         {
           _defaultSorting,
+          new AudioSortByTitle(),
           new SortByTitle(),
+          new SortBySortTitle(),
+          new SortByName(),
           new AudioSortByFirstGenre(),
+          new AudioAlbumSortByFirstArtist(),
+          new AudioAlbumSortByFirstMusicLabel(),
+          new AudioSortByFirstArtist(),
+          new AudioSortByFirstComposer(),
+          new AudioSortByAlbum(),
+          new AudioSortByTrack(),
+          new SortByYear(),
+          new SortByAddedDate(),
+          new SortBySystem(),
+        };
+
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new AudioSortByAlbumTrack(),
+          new AudioSortByTitle(),
+          new SortByTitle(),
+          new SortBySortTitle(),
+          new SortByName(),
+          new AudioSortByFirstGenre(),
+          new AudioAlbumSortByFirstArtist(),
+          new AudioAlbumSortByFirstMusicLabel(),
+          new AudioSortByFirstComposer(),
           new AudioSortByFirstArtist(),
           new AudioSortByAlbum(),
           new AudioSortByTrack(),
           new SortByYear(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
     }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,12 +35,14 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
   class MkvAttachmentsProvider : IBinaryFanArtProvider
   {
-    private static readonly Guid[] NECESSARY_MIAS = { VideoAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
+    private static readonly Guid[] NECESSARY_MIAS = { VideoStreamAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
     private static ICollection<string> SUPPORTED_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
     {
       ".mkv",
@@ -48,6 +50,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
     };
 
     #region Implementation of IFanArtProvider
+
+    public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
 
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
@@ -67,11 +71,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         return false;
 
       IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false);
+      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, true);
       if (items == null || items.Count == 0)
         return false;
 
       MediaItem mediaItem = items.First();
+      var resourceLocator = mediaItem.GetResourceLocator();
+      // Virtual resources won't have any local fanart
+      if (resourceLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        return false;
 
       string fileSystemPath = string.Empty;
       IList<string> patterns = new List<string>();
@@ -99,7 +107,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       // File based access
       try
       {
-        var resourceLocator = mediaItem.GetResourceLocator();
         using (var accessor = resourceLocator.CreateAccessor())
         {
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;

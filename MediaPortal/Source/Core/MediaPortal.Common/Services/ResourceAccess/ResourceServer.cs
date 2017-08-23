@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -120,7 +120,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         }
         catch (SocketException e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server ({0})", addressType, e);
+          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server ({0})", e, addressType);
         }
       }
     }

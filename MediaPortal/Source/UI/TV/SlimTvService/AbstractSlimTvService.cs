@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,7 +28,6 @@ using System.Data.Common;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Timers;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
@@ -44,11 +43,12 @@ using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
-using Timer = System.Timers.Timer;
+using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
-  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
+  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, IMessageReceiver
   {
     public static readonly MediaCategory Series = new MediaCategory("Series", null);
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
@@ -56,11 +56,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected const int MAX_WAIT_MS = 10000;
     public const string LOCAL_USERNAME = "Local";
     public const string TVDB_NAME = "MP2TVE";
-    protected Timer _timer;
     protected DbProviderFactory _dbProviderFactory;
     protected string _cloneConnection;
     protected string _providerName;
     protected string _serviceName;
+    private bool _abortInit = false;
 
     public string Name
     {
@@ -69,31 +69,43 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool Init()
     {
-      _timer = new Timer(500) { AutoReset = true };
-      _timer.Elapsed += InitAsync;
-      _timer.Start();
+      ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
       return true;
+    }
+
+    public void Receive(SystemMessage message)
+    {
+      if (message.MessageType as SystemMessaging.MessageType? == SystemMessaging.MessageType.SystemStateChanged)
+      {
+        SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+        if (newState == SystemState.Running)
+        {
+          InitAsync();
+        }
+        else if (newState == SystemState.ShuttingDown)
+        {
+          _abortInit = true;
+        }
+      }
     }
 
     #region Database and program data initialization
 
-    private void InitAsync(object sender, ElapsedEventArgs args)
+    private void InitAsync()
     {
-      ISQLDatabase database;
-      lock (_timer)
+      ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialising");
+
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
+      if (database == null)
       {
-        database = ServiceRegistration.Get<ISQLDatabase>(false);
-        if (database == null)
-          return;
-        _timer.Close();
-        _timer.Dispose();
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Database not available.");
+        return;
       }
 
       using (var transaction = database.BeginTransaction())
       {
         // Prepare TV database if required.
         PrepareTvDatabase(transaction);
-
         PrepareConnection(transaction);
       }
 
@@ -108,9 +120,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       // Run the actual TV core thread(s)
       InitTvCore();
+      if (_abortInit)
+      {
+        DeInit();
+        return;
+      }
 
       // Prepare the MP2 integration
       PrepareMediaSources();
+
+      ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialised");
     }
 
     /// <summary>
@@ -221,7 +240,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected void ImportRecording(string fileName)
     {
       List<Share> possibleShares; // Shares can point to different depth, we try to find the deepest one
-      if (!GetSharesForPath(fileName, out possibleShares))
+      var resourcePath = BuildResourcePath(fileName);
+      if (!GetSharesForPath(resourcePath, out possibleShares))
       {
         ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Received notifaction of new recording but could not find a media source. Have you added recordings folder as media source? File: {0}", fileName);
         return;
@@ -232,21 +252,20 @@ namespace MediaPortal.Plugins.SlimTv.Service
       importerWorker.ScheduleRefresh(usedShare.BaseResourcePath, usedShare.MediaCategories, true);
     }
 
-    protected bool GetSharesForPath(string fileName, out List<Share> possibleShares)
+    protected bool GetSharesForPath(ResourcePath resourcePath, out List<Share> possibleShares)
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       string localSystemId = systemResolver.LocalSystemId;
-      return GetSharesForPath(fileName, localSystemId, out possibleShares);
+      return GetSharesForPath(resourcePath, localSystemId, out possibleShares);
     }
 
-    protected bool GetSharesForPath(string fileName, string localSystemId, out List<Share> possibleShares)
+    protected bool GetSharesForPath(ResourcePath resourcePath, string localSystemId, out List<Share> possibleShares)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       possibleShares = new List<Share>();
       foreach (var share in mediaLibrary.GetShares(localSystemId).Values)
       {
-        var dir = LocalFsResourceProviderBase.ToDosPath(share.BaseResourcePath.LastPathSegment.Path);
-        if (dir != null && fileName.StartsWith(dir, StringComparison.InvariantCultureIgnoreCase))
+        if (resourcePath.ToString().StartsWith(share.BaseResourcePath.ToString(), StringComparison.InvariantCultureIgnoreCase))
           possibleShares.Add(share);
       }
       return possibleShares.Count > 0;
@@ -291,13 +310,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
         {
           List<Share> shares;
           // Check if there are already share(s) for the folder
-          if (GetSharesForPath(folderTypes.Key, out shares))
+          var path = folderTypes.Key;
+          var resourcePath = BuildResourcePath(path);
+
+          if (GetSharesForPath(resourcePath, out shares))
             continue;
 
-          var folderPath = LocalFsResourceProviderBase.ToProviderPath(folderTypes.Key);
           var mediaCategories = folderTypes.Value.Select(mc => mc.CategoryName);
-          Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, folderPath),
-            string.Format("Recordings ({0})", cnt), mediaCategories);
+
+          Share sd = Share.CreateNewLocalShare(resourcePath, string.Format("Recordings ({0})", cnt),
+            // Important: don't monitor recording sources by ShareWatcher, we manage them during recording start / end events!
+            false,
+            mediaCategories);
 
           mediaLibrary.RegisterShare(sd);
           cnt++;
@@ -307,6 +331,29 @@ namespace MediaPortal.Plugins.SlimTv.Service
           ServiceRegistration.Get<ILogger>().Error("SlimTvService: Error registering new MediaSource.", ex);
         }
       }
+    }
+
+    /// <summary>
+    /// Helper method to create a valid <see cref="ResourcePath"/> from the given path. This method supports both local and UNC paths and will use the right ResourceProviderId.
+    /// </summary>
+    /// <param name="path">Path or file name</param>
+    /// <returns></returns>
+    protected static ResourcePath BuildResourcePath(string path)
+    {
+      Guid providerId;
+      if (path.StartsWith("\\\\"))
+      {
+        // NetworkNeighborhoodResourceProvider
+        providerId = new Guid("{03DD2DA6-4DA8-4D3E-9E55-80E3165729A3}");
+        // Cut-off the first \
+        path = path.Substring(1);
+      }
+      else
+        providerId = LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID;
+
+      string folderPath = LocalFsResourceProviderBase.ToProviderPath(path);
+      var resourcePath = ResourcePath.BuildBaseProviderPath(providerId, folderPath);
+      return resourcePath;
     }
 
     /// <summary>
@@ -432,7 +479,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public abstract bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule);
 
-    public abstract bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule);
+    public abstract bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule);
 
     public abstract bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType);
 

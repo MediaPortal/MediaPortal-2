@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,11 +35,14 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class MediaItemThumbs : IBinaryFanArtProvider
   {
+    public FanArtProviderSource Source { get { return FanArtProviderSource.Database; } }
+
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
     {
       result = null;
@@ -62,7 +65,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         thumbGuids.Add(ImageAspect.ASPECT_ID);
 
       IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(thumbGuids, filter), false);
+      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(thumbGuids, filter), false, null, true);
       if (items == null || items.Count == 0)
         return false;
 

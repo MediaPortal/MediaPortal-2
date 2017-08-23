@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,6 +37,7 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Globalization;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -76,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of MediaItemAspects to write the Attribute to</param>
     /// <returns><c>true</c> if metadata was written to the Attribute; else <c>false</c></returns>
-    protected delegate bool TryWriteAttributeDelegate(IDictionary<Guid, MediaItemAspect> extractedAspectData);
+    protected delegate bool TryWriteAttributeDelegate(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData);
 
     #endregion
 
@@ -112,6 +113,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     protected long _miNumber;
 
     /// <summary>
+    /// If true, this is an import only cycle meaning no refresh of existing media
+    /// </summary>
+    protected bool _importOnly;
+
+    /// <summary>
     /// If true, no long lasting operations such as parsing pictures are performed
     /// </summary>
     protected bool _forceQuickMode;
@@ -139,7 +145,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Properties defined in a settings class derived from <see cref="NfoMetadataExtractorSettingsBase"/> can only be accessed by the
     /// respective derived reader class.
     /// </remarks>
-    protected readonly NfoMetadataExtractorSettingsBase _settings;
+    protected NfoMetadataExtractorSettingsBase _settings;
 
     #endregion
 
@@ -150,13 +156,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="debugLogger">Debug logger to log to</param>
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
+    /// <param name="importOnly">If <c>true</c>, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If <c>true</c>, no long lasting operations such as parsing pictures are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the NfoMetadataExtractor</param>
-    protected NfoReaderBase(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
+    protected NfoReaderBase(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
     {
       _debugLogger = debugLogger;
       _miNumber = miNumber;
+      _importOnly = importOnly;
       _forceQuickMode = forceQuickMode;
       _httpDownloadClient = httpClient;
       _settings = settings;
@@ -236,7 +244,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="extractedAspectData"></param> must not be <c>null</c>. If it does not contain a MediaItemAspect, in which this method wants
     /// to store metadata, this MediaItemAspect is added to <param name="extractedAspectData"></param>.
     /// </remarks>
-    public bool TryWriteMetadata(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryWriteMetadata(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       var stubObjectsLogged = false;
       var result = false;
@@ -423,7 +431,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         _debugLogger.Warn("[#{0}]: The following element was supposed to contain a simple value, but it contains child elements: {1}", _miNumber, element);
         return null;
       }
-      var result = element.Value.Trim();
+      var result = element.Value.Trim().Trim(new char[] { '|' });
       if (_settings.IgnoreStrings != null && _settings.IgnoreStrings.Contains(result, StringComparer.OrdinalIgnoreCase))
         return null;
       return String.IsNullOrEmpty(result) ? null : result;
@@ -462,13 +470,42 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns>
     /// <c>null</c> if <see cref="ParseSimpleString"/> returns <c>null</c> for <paramref name="element"/>
     /// or <see cref="ParseSimpleString"/> for <paramref name="element"/> does not contain a valid <see cref="decimal"/> value;
-    /// otherwise (decimal?)<paramref name="element"/>
+    /// otherwise (decimal?)<paramref name="element"/>.
+    /// If a fraction or ratio is found it will try to convert those to a decimal value.
     /// </returns>
     protected decimal? ParseSimpleDecimal(XElement element)
     {
       var decimalString = ParseSimpleString(element);
       if (decimalString == null)
         return null;
+
+      //Decimal defined as fraction
+      if (decimalString.Contains("/"))
+      {
+        string[] numbers = decimalString.Split('/');
+        return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
+      }
+
+      //Decimal defined as ratio
+      if (decimalString.Contains(":"))
+      {
+        string[] numbers = decimalString.Split(':');
+        return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
+      }
+
+      decimal val;
+      //Decimal defined as neutral localized string
+      if (decimal.TryParse(decimalString, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
+      {
+        return val;
+      }
+
+      //Decimal defined as localized string
+      if (decimal.TryParse(decimalString, NumberStyles.Float, CultureInfo.CurrentCulture, out val))
+      {
+        return val;
+      }
+
       decimal? result = null;
       try
       {
@@ -523,6 +560,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the parent directory of the nfo-file</param>
     /// <returns>
     /// <c>null</c> if
+    ///   - <see cref="_importOnly"/> is <c>true</c>; or
     ///   - <see cref="_forceQuickMode"/> is <c>true</c>; or
     ///   - a call to <see cref="ParseSimpleString"/> for <paramref name="element"/> returns <c>null</c>
     ///   - <paramref name="element"/>.Value does not contain a valid and existing (absolute) http URL to an image; or
@@ -544,6 +582,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     protected async Task<byte[]> ParseSimpleImageAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       if (_forceQuickMode)
+        return null;
+      if (_importOnly)
         return null;
 
       var imageFileString = ParseSimpleString(element);

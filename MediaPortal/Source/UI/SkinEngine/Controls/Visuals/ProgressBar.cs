@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,7 +22,10 @@
 
 #endregion
 
+using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -65,28 +68,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      ProgressBar pb = (ProgressBar) source;
+      ProgressBar pb = (ProgressBar)source;
       Value = pb.Value;
       Attach();
     }
 
     #endregion
 
-    void OnValueChanged(AbstractProperty property, object oldValue)
-    {
-      CalcPartIndicatorWidth();
-    }
-
-    protected void CalcPartIndicatorWidth()
-    {
-      PartIndicatorWidth = (float) (ActualWidth*Value/100.0);
-    }
-
-    protected override void ArrangeOverride()
-    {
-      base.ArrangeOverride();
-      CalcPartIndicatorWidth();
-    }
+    #region Properties
 
     public AbstractProperty ValueProperty
     {
@@ -95,7 +84,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public float Value
     {
-      get { return (float) _valueProperty.GetValue(); }
+      get { return (float)_valueProperty.GetValue(); }
       set { _valueProperty.SetValue(value); }
     }
 
@@ -106,9 +95,44 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public float PartIndicatorWidth
     {
-      get { return (float) _partIndicatorWidthProperty.GetValue(); }
+      get { return (float)_partIndicatorWidthProperty.GetValue(); }
       set { _partIndicatorWidthProperty.SetValue(value); }
     }
+
+    public void OnMouseClick(object sender, MouseButtonEventArgs e)
+    {
+      var position = e.GetPosition(sender as UIElement);
+      var value = (float)(position.X /ActualWidth) * 100;
+
+      ServiceRegistration.Get<ILogger>().Debug("ProgressBar: Seeking to {0}% after mouse click", value);
+      Value = value;
+    }
+
+    #endregion
+
+    #region Overrides
+
+    protected override void ArrangeOverride()
+    {
+      base.ArrangeOverride();
+      CalcPartIndicatorWidth();
+    }
+
+    #endregion
+
+    #region Private members
+
+    void OnValueChanged(AbstractProperty property, object oldValue)
+    {
+      CalcPartIndicatorWidth();
+    }
+
+    protected void CalcPartIndicatorWidth()
+    {
+      PartIndicatorWidth = (float)(ActualWidth * Value / 100.0);
+    }
+
+    #endregion
   }
 }
 

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,6 +30,7 @@ using System.Text;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 {
@@ -44,6 +45,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// Enables gzip/deflate compression for web requests.
     /// </summary>
     public bool EnableCompression { get; set; }
+
+    private ReaderWriterLockSlim _jsonLock = new ReaderWriterLockSlim();
+    private ReaderWriterLockSlim _fileLock = new ReaderWriterLockSlim();
 
     public Downloader()
     {
@@ -61,6 +65,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     public TE Download<TE>(string url, string saveCacheFile = null)
     {
       string json = DownloadJSON(url);
+      if (string.IsNullOrEmpty(json))
+        return default(TE);
+      //Console.WriteLine("JSON: {0}", json);
       if (!string.IsNullOrEmpty(saveCacheFile))
         WriteCache(saveCacheFile, json);
       return JsonConvert.DeserializeObject<TE>(json);
@@ -73,11 +80,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns>JSON result</returns>
     protected virtual string DownloadJSON(string url)
     {
-      CompressionWebClient webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 };
-      foreach (KeyValuePair<string, string> headerEntry in Headers)
-        webClient.Headers[headerEntry.Key] = headerEntry.Value;
+      return DownloadString(url);
+    }
 
-      return webClient.DownloadString(url);
+    public string DownloadString(string url)
+    {
+      using (CompressionWebClient webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 })
+      {
+        foreach (KeyValuePair<string, string> headerEntry in Headers)
+          webClient.Headers[headerEntry.Key] = headerEntry.Value;
+
+        return webClient.DownloadString(url);
+      }
     }
 
     /// <summary>
@@ -92,14 +106,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
         return true;
       try
       {
-        WebClient webClient = new CompressionWebClient();
-        webClient.DownloadFile(url, downloadFile);
-        return true;
+        try
+        {
+          _fileLock.EnterWriteLock();
+          if (File.Exists(downloadFile))
+            return true;
+          using (WebClient webClient = new CompressionWebClient())
+            webClient.DownloadFile(url, downloadFile);
+          return true;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when downloading file {0} from {1} ({2})", downloadFile, url, ex.Message);
+          return false;
+        }
       }
-      catch (Exception ex)
+      finally
       {
-        ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when downloading file {0} from {1} ({2})", downloadFile, url, ex.Message);
-        return false;
+        _fileLock.ExitWriteLock();
       }
     }
 
@@ -113,14 +137,156 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       if (string.IsNullOrEmpty(cachePath))
         return;
 
-      using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
+      try
       {
-        using (StreamWriter sw = new StreamWriter(fs))
+        _jsonLock.EnterWriteLock();
+        if (string.IsNullOrEmpty(cachePath))
+          return;
+        using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
         {
-          sw.Write(json);
-          sw.Close();
+          using (StreamWriter sw = new StreamWriter(fs))
+          {
+            sw.Write(json);
+            sw.Close();
+          }
+          fs.Close();
         }
-        fs.Close();
+      }
+      finally
+      {
+        _jsonLock.ExitWriteLock();
+      }
+    }
+
+    /// <summary>
+    /// Reads the requested information from the cached JSON file and deserializes the response to the requested <typeparam name="TE">Type</typeparam>.
+    /// </summary>
+    /// <typeparam name="TE">Target type</typeparam>
+    /// <param name="cacheFile">Name for the cached response</param>
+    /// <returns>Cached object</returns>
+    public TE ReadCache<TE>(string cacheFile)
+    {
+      if (string.IsNullOrEmpty(cacheFile))
+        return default(TE);
+
+      try
+      {
+        try
+        {
+          _jsonLock.EnterReadLock();
+          if (string.IsNullOrEmpty(cacheFile))
+            return default(TE);
+          string json = File.ReadAllText(cacheFile, Encoding.UTF8);
+          return JsonConvert.DeserializeObject<TE>(json);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading cache {0} ({1})", cacheFile, ex.Message);
+          return default(TE);
+        }
+      }
+      finally
+      {
+        _jsonLock.ExitReadLock();
+      }
+    }
+
+    /// <summary>
+    /// Checks if a cached file is above a specified age.
+    /// </summary>
+    /// <param name="cacheFile">Name for the cached response</param>
+    /// <param name="maxAgeInDays">Maximum age of the cached response in days</param>
+    /// <returns>Cached object</returns>
+    public bool IsCacheExpired(string cacheFile, double maxAgeInDays)
+    {
+      if (string.IsNullOrEmpty(cacheFile))
+        return false;
+
+      try
+      {
+        try
+        {
+          _jsonLock.EnterReadLock();
+          if (string.IsNullOrEmpty(cacheFile))
+            return false;
+          FileInfo info = new FileInfo(cacheFile);
+          if ((DateTime.Now - info.CreationTime).TotalDays > maxAgeInDays)
+            return true;
+
+          return false;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when determining cache {0} age ({1})", cacheFile, ex.Message);
+          return false;
+        }
+      }
+      finally
+      {
+        _jsonLock.ExitReadLock();
+      }
+    }
+
+    /// <summary>
+    /// Deletes the cached response.
+    /// </summary>
+    /// <param name="cacheFile">Name for the cached response</param>
+    /// <returns>Cached object</returns>
+    public bool DeleteCache(string cacheFile)
+    {
+      if (string.IsNullOrEmpty(cacheFile))
+        return true;
+
+      try
+      {
+        try
+        {
+          _jsonLock.EnterWriteLock();
+          if (string.IsNullOrEmpty(cacheFile))
+            return true;
+
+          File.Delete(cacheFile);
+          return true;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when determining cache {0} age ({1})", cacheFile, ex.Message);
+          return false;
+        }
+      }
+      finally
+      {
+        _jsonLock.ExitWriteLock();
+      }
+    }
+
+    /// <summary>
+    /// Returns contents of a file <paramref name="downloadFile"/> downloaded earlier.
+    /// </summary>
+    /// <param name="downloadedFile">Target file name</param>
+    /// <returns>File contents</returns>
+    public byte[] ReadDownloadedFile(string downloadedFile)
+    {
+      if (File.Exists(downloadedFile))
+        return null;
+      try
+      {
+        try
+        {
+          _fileLock.EnterReadLock();
+          if (File.Exists(downloadedFile))
+            return null;
+          return File.ReadAllBytes(downloadedFile);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading file {0} ({1})", downloadedFile, ex.Message);
+          return null;
+        }
+      }
+      finally
+      {
+        _fileLock.ExitReadLock();
       }
     }
   }

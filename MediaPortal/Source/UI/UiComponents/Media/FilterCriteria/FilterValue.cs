@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,16 +22,19 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterValue
   {
+    protected object _id = null;
     protected string _title;
     protected IFilter _filter;
     protected IFilter _selectAttributeFilter;
     protected int? _numItems = null;
+    protected MediaItem _item = null;
     protected MLFilterCriterion _criterion;
 
     public FilterValue(string title, IFilter filter, IFilter selectAttributeFilter, MLFilterCriterion criterion)
@@ -51,6 +54,30 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       _criterion = criterion;
     }
 
+    public FilterValue(object id, string title, IFilter filter, IFilter selectAttributeFilter, int numItems, MLFilterCriterion criterion)
+    {
+      _id = id;
+      _title = title;
+      _filter = filter;
+      _selectAttributeFilter = selectAttributeFilter;
+      _numItems = numItems;
+      _criterion = criterion;
+    }
+
+    public FilterValue(string title, IFilter filter, IFilter selectAttributeFilter, MediaItem item, MLFilterCriterion criterion)
+    {
+      _title = title;
+      _filter = filter;
+      _selectAttributeFilter = selectAttributeFilter;
+      _item = item;
+      _criterion = criterion;
+    }
+
+    public string Id
+    {
+      get { return _id == null ? null : _id.ToString(); }
+    }
+
     public string Title
     {
       get { return _title; }
@@ -59,6 +86,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     public int? NumItems
     {
       get { return _numItems; }
+    }
+
+    public MediaItem Item
+    {
+      get { return _item; }
     }
 
     public MLFilterCriterion Criterion

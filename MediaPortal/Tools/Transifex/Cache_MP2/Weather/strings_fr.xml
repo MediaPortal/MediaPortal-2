@@ -6,6 +6,7 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">Choisir la ville</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Météo</string>
+  <string name="Weather.Title.Help">Vérifiez la situation météorologique actuelle et les prévisions.</string>
   <string name="Weather.ChooseLocation">Choisir la ville</string>
   <string name="Weather.Refresh">Rafraîchir</string>
   <string name="Weather.Updating">Mise à jour...</string>
@@ -45,10 +46,10 @@
   <string name="Weather.Windy">Venteux</string>
   <string name="Weather.Drizzle">Bruine</string>
   <string name="Weather.Freezing">Gel</string>
-  <string name="Weather.NA">-</string>
+  <string name="Weather.NA">S.O.</string>
   <string name="Weather.Mist">Brouillard</string>
-  <string name="Weather.Low">Bas</string>
-  <string name="Weather.High">Haut</string>
+  <string name="Weather.Low">bas</string>
+  <string name="Weather.High">haut</string>
   <string name="Weather.Thunder">Eclair</string>
   <string name="Weather.Late">Tard</string>
   <string name="Weather.N">Nord</string>

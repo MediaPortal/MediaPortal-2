@@ -8,6 +8,9 @@
   <Target Name="AfterBuild">
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(TargetDir)OpenWeatherMap.dll" />
+      <PluginFiles Include="$(TargetDir)Microsoft.*.dll" />
+      <PluginFiles Include="$(TargetDir)System.*.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
   

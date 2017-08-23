@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -769,7 +769,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
-    public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
+    public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
       Channel indexChannel = channel as Channel;
       schedule = null;
@@ -781,7 +781,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       try
       {
-        return TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, "Manual", from, to, WebScheduleType.Once);
+        return TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, "Manual", from, to, (WebScheduleType)recordingType);
       }
       catch
       {

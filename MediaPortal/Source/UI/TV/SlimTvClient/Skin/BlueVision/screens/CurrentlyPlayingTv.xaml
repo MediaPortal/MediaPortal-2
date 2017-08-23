@@ -13,13 +13,11 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.CurrentlyPlayingInformationHeader]"/>
 
     <ControlTemplate x:Key="Client_Template">
-      <GroupBox Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" Style="{ThemeResource ContentGroupBoxStyle}">
         <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Context="{StaticResource SlimTvClient}">
           <Control.TemplateControl>
             <Include Source="screens\ProgramInfo.inc"/>
           </Control.TemplateControl>
         </Control>
-      </GroupBox>
     </ControlTemplate>
 
   </Include.Resources>

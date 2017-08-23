@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -89,9 +89,9 @@ namespace MediaPortal.UI.Players.Video
         {
           player.SetMediaItem(locator, title);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-          LogError("Error playing media item '{0}'", locator);
+          ServiceRegistration.Get<ILogger>().Warn("Error playing media item '{0}'", ex, locator);
           player.Dispose();
           return null;
         }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,15 +26,19 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MovieFilterByCollectionScreenData : AbstractMovieFilterScreenData
+  public class MovieFilterByCollectionScreenData : AbstractMovieFilterScreenData<MovieFilterItem>
   {
     public MovieFilterByCollectionScreenData() :
-      base(Consts.SCREEN_MOVIES_FILTER_BY_COLLECTION, Consts.RES_FILTER_BY_MOVIES_COLLECTION_MENU_ITEM,
-        Consts.RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(MovieAspect.ATTR_COLLECTION_NAME))
+      base(Consts.SCREEN_MOVIES_FILTER_BY_COLLECTION, Consts.RES_COMMON_BY_MOVIES_COLLECTION_MENU_ITEM,
+        Consts.RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL, new FilterByMovieCollectionCriterion())
     {
+      _availableMias = Consts.NECESSARY_MOVIE_COLLECTION_MIAS;
+      if (Consts.OPTIONAL_MOVIE_COLLECTION_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_MOVIE_COLLECTION_MIAS);
     }
 
     public override AbstractFiltersScreenData<MovieFilterItem> Derive()

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,6 +48,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Controls
@@ -63,8 +64,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     protected AsynchronousMessageQueue _messageQueue = null;
     protected AbstractProperty _headerWidthProperty;
+    protected AbstractProperty _groupButtonWidthProperty;
     protected AbstractProperty _programTemplateProperty;
     protected AbstractProperty _headerTemplateProperty;
+    protected AbstractProperty _groupButtonTemplateProperty;
     protected AbstractProperty _timeIndicatorTemplateProperty;
     protected bool _childrenCreated = false;
     protected int _channelViewOffset;
@@ -75,6 +78,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     protected Control _timeIndicatorControl;
     protected Timer _timer = null;
     protected long _updateInterval = 10000; // Update every 10 seconds
+    protected int? _lastFocusedRow;
 
     #endregion
 
@@ -90,8 +94,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       _perCellTime = _visibleHours * 60 / _numberOfColumns; // Time in minutes per grid cell.
 
       _headerWidthProperty = new SProperty(typeof(Double), 200d);
+      _groupButtonWidthProperty = new SProperty(typeof(Double), 60d);
       _programTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       _headerTemplateProperty = new SProperty(typeof(ControlTemplate), null);
+      _groupButtonTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       _timeIndicatorTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       Attach();
       SubscribeToMessages();
@@ -213,7 +219,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       base.DeepCopy(source, copyManager);
 
       EpgGrid c = (EpgGrid)source;
+      HeaderWidth = c.HeaderWidth;
+      GroupButtonWidth = c.GroupButtonWidth;
       HeaderTemplate = copyManager.GetCopy(c.HeaderTemplate);
+      GroupButtonTemplate = copyManager.GetCopy(c.GroupButtonTemplate);
       ProgramTemplate = copyManager.GetCopy(c.ProgramTemplate);
       TimeIndicatorTemplate = copyManager.GetCopy(c.TimeIndicatorTemplate);
 
@@ -227,6 +236,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       UnsubscribeFromMessages();
       MPF.TryCleanupAndDispose(HeaderTemplate);
       MPF.TryCleanupAndDispose(ProgramTemplate);
+      MPF.TryCleanupAndDispose(GroupButtonTemplate);
       base.Dispose();
     }
 
@@ -277,6 +287,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       set { _headerTemplateProperty.SetValue(value); }
     }
 
+    public AbstractProperty GroupButtonTemplateProperty
+    {
+      get { return _groupButtonTemplateProperty; }
+    }
+
+    public ControlTemplate GroupButtonTemplate
+    {
+      get { return (ControlTemplate)_groupButtonTemplateProperty.GetValue(); }
+      set { _groupButtonTemplateProperty.SetValue(value); }
+    }
+
     public AbstractProperty TimeIndicatorTemplateProperty
     {
       get { return _timeIndicatorTemplateProperty; }
@@ -297,6 +318,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       get { return (double)_headerWidthProperty.GetValue(); }
       set { _headerWidthProperty.SetValue(value); }
+    }
+
+    public AbstractProperty GroupButtonWidthProperty
+    {
+      get { return _groupButtonWidthProperty; }
+    }
+
+    public double GroupButtonWidth
+    {
+      get { return (double)_groupButtonWidthProperty.GetValue(); }
+      set { _groupButtonWidthProperty.SetValue(value); }
     }
 
     #endregion
@@ -348,12 +380,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       ColumnDefinitions.Clear();
       RowDefinitions.Clear();
 
+      // Only reserve space if a template is set
+      double headersOffset = 0d;
+      if (GroupButtonEnabled)
+      {
+        headersOffset = GroupButtonWidth;
+        ColumnDefinition groupButtonColumn = new ColumnDefinition { Width = new GridLength(GridUnitType.Pixel, headersOffset) };
+        ColumnDefinitions.Add(groupButtonColumn);
+      }
+
       double headerWidth = HeaderWidth;
+      headersOffset += headerWidth;
       ColumnDefinition rowHeaderColumn = new ColumnDefinition { Width = new GridLength(GridUnitType.Pixel, headerWidth) };
       ColumnDefinitions.Add(rowHeaderColumn);
 
       double rowHeight = ActualHeight / _numberOfRows;
-      double colWidth = (ActualWidth - headerWidth) / _numberOfColumns;
+      double colWidth = (ActualWidth - headersOffset) / _numberOfColumns;
       for (int c = 0; c < _numberOfColumns; c++)
       {
         ColumnDefinition cd = new ColumnDefinition { Width = new GridLength(GridUnitType.Pixel, colWidth) };
@@ -365,7 +407,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         RowDefinitions.Add(cd);
       }
 
-      RecreateAndArrangeChildren();
+      SetInitialViewOffset();
+      RecreateAndArrangeChildren(true);
+    }
+
+    private bool GroupButtonEnabled
+    {
+      get { return GroupButtonTemplate != null; }
     }
 
     private void RecreateAndArrangeChildren(bool keepViewOffset = false)
@@ -374,6 +422,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         _channelViewOffset = 0;
       _childrenCreated = false;
       CreateVisibleChildren(false);
+    }
+
+    /// <summary>
+    /// Tries to find the current channel in the current group and makes sure it will be inside the visible area.
+    /// </summary>
+    private void SetInitialViewOffset()
+    {
+      int currentChannelIndex = 0;
+      foreach (var channelsProgram in ChannelsPrograms.OfType<ChannelProgramListItem>())
+      {
+        if (ChannelContext.IsSameChannel(channelsProgram.Channel, ChannelContext.Instance.Channels.Current))
+        {
+          if (currentChannelIndex >= _numberOfRows)
+            _channelViewOffset = currentChannelIndex - _numberOfRows + 1;
+          break;
+        }
+        currentChannelIndex++;
+      }
     }
 
     private void CreateVisibleChildren(bool updateOnly)
@@ -389,6 +455,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         {
           _timeIndicatorControl = null;
           Children.Clear();
+
+          if (GroupButtonEnabled)
+            CreateGroupButton();
         }
 
         SetTimeIndicator();
@@ -406,6 +475,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       }
     }
 
+    private void CreateGroupButton()
+    {
+      Control btnGroup = CreateControl(null);
+      SetGrid(btnGroup, 0, 0, 1, _numberOfRows);
+
+      // Deep copy the styles to each program button.
+      btnGroup.Template = MpfCopyManager.DeepCopyCutLVPs(GroupButtonTemplate);
+      Children.Add(btnGroup);
+    }
+
     private bool CreateOrUpdateRow(bool updateOnly, ref int channelIndex, int rowIndex)
     {
       if (channelIndex >= ChannelsPrograms.Count)
@@ -418,7 +497,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       DateTime viewportStart = SlimTvMultiChannelGuideModel.GuideStartTime;
       DateTime viewportEnd = SlimTvMultiChannelGuideModel.GuideEndTime;
 
-      int colIndex = 0;
+      int colIndex = GroupButtonEnabled ? 1 : 0;
       if (!updateOnly)
       {
         Control btnHeader = CreateControl(channel);
@@ -452,9 +531,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         removeList.ForEach(Children.Remove);
       }
 
-      colIndex = 1; // After header
+      colIndex++; // After header (and optional GroupButton)
       int programIndex = 0;
-      while (programIndex < channel.Programs.Count && colIndex < _numberOfColumns)
+      while (programIndex < channel.Programs.Count && colIndex <= _numberOfColumns)
       {
         ProgramListItem program = channel.Programs[programIndex] as ProgramListItem;
         if (program == null || program.Program.StartTime > viewportEnd)
@@ -473,6 +552,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
         Control btnEpg = GetOrCreateControl(program, rowIndex);
         SetGrid(btnEpg, colIndex, rowIndex, colSpan);
+
+        if (ChannelContext.IsSameChannel(channel.Channel, ChannelContext.Instance.Channels.Current) && program.IsRunning && !updateOnly)
+        {
+          btnEpg.SetFocusPrio = SetFocusPriority.Highest;
+        }
 
         programIndex++;
         colIndex += colSpan; // Skip spanned columns.
@@ -499,9 +583,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       DateTime programViewStart = program.Program.StartTime < viewportStart ? viewportStart : program.Program.StartTime;
 
       double minutesSinceStart = (programViewStart - viewportStart).TotalMinutes;
+      int headersOffset = GroupButtonEnabled ? 2 : 1;
       if (lastEndTime != null)
       {
-        int newColIndex = (int)Math.Round(minutesSinceStart / _perCellTime) + 1; // Header offset
+        int newColIndex = (int)Math.Round(minutesSinceStart / _perCellTime) + headersOffset; // Header offset
         if (lastEndTime != program.Program.StartTime)
           colIndex = Math.Max(colIndex, newColIndex); // colIndex is already set to new position. Calculation is only done to support gaps in programs.
 
@@ -510,8 +595,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
       colSpan = (int)Math.Round((program.Program.EndTime - programViewStart).TotalMinutes / _perCellTime);
 
-      if (colIndex + colSpan > _numberOfColumns + 1)
-        colSpan = _numberOfColumns - colIndex + 1;
+      if (colIndex + colSpan > _numberOfColumns + headersOffset)
+        colSpan = _numberOfColumns - colIndex + headersOffset;
 
       if (colSpan == 0)
         colSpan = 1;
@@ -584,27 +669,29 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private void SetTimeIndicator()
     {
-      if (_timeIndicatorControl == null)
+      var timeIndicatorControl = _timeIndicatorControl;
+      if (timeIndicatorControl == null)
       {
-        _timeIndicatorControl = new Control { LogicalParent = this };
+        timeIndicatorControl = _timeIndicatorControl = new Control { LogicalParent = this };
         // Deep copy the styles to each program button.
-        _timeIndicatorControl.Template = MpfCopyManager.DeepCopyCutLVPs(TimeIndicatorTemplate);
-        SetRow(_timeIndicatorControl, 0);
-        SetRowSpan(_timeIndicatorControl, _numberOfRows);
-        Children.Add(_timeIndicatorControl);
+        timeIndicatorControl.Template = MpfCopyManager.DeepCopyCutLVPs(TimeIndicatorTemplate);
+        SetRow(timeIndicatorControl, 0);
+        SetRowSpan(timeIndicatorControl, _numberOfRows);
+        Children.Add(timeIndicatorControl);
       }
       DateTime viewportStart = SlimTvMultiChannelGuideModel.GuideStartTime;
-      int currentTimeColumn = (int)Math.Round((DateTime.Now - viewportStart).TotalMinutes / _perCellTime) + 1; // Header offset
-      if (currentTimeColumn <= 1 || currentTimeColumn > _numberOfColumns + 1) // Outside viewport
+      var headerOffset = GroupButtonEnabled ? 2 : 1;
+      int currentTimeColumn = (int)Math.Round((DateTime.Now - viewportStart).TotalMinutes / _perCellTime) + headerOffset; // Header offset
+      if (currentTimeColumn <= headerOffset || currentTimeColumn > _numberOfColumns + headerOffset) // Outside viewport
       {
-        _timeIndicatorControl.IsVisible = false;
+        timeIndicatorControl.IsVisible = false;
       }
       else
       {
-        _timeIndicatorControl.IsVisible = true;
-        SetZIndex(_timeIndicatorControl, 100);
-        SetColumn(_timeIndicatorControl, currentTimeColumn);
-        _timeIndicatorControl.InvalidateLayout(true, true); // Required to arrange control on new position
+        timeIndicatorControl.IsVisible = true;
+        SetZIndex(timeIndicatorControl, 100);
+        SetColumn(timeIndicatorControl, currentTimeColumn);
+        timeIndicatorControl.InvalidateLayout(true, true); // Required to arrange control on new position
       }
     }
 
@@ -615,11 +702,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     /// <param name="colIndex">"Grid.Column"</param>
     /// <param name="rowIndex">"Grid.Row"</param>
     /// <param name="colSpan">"Grid.ColumnSpan"</param>
-    private static void SetGrid(Control gridControl, int colIndex, int rowIndex, int colSpan)
+    /// <param name="rowSpan">Grid.RowSpan</param>
+    private static void SetGrid(Control gridControl, int colIndex, int rowIndex, int colSpan, int rowSpan = 1)
     {
       SetRow(gridControl, rowIndex);
       SetColumn(gridControl, colIndex);
       SetColumnSpan(gridControl, colSpan);
+      SetRowSpan(gridControl, rowSpan);
+    }
+
+    /// <summary>
+    /// Returns the header control from Grid for row with index <paramref name="rowIndex"/>.
+    /// </summary>
+    /// <param name="rowIndex">RowIndex.</param>
+    /// <returns>Header Control.</returns>
+    private Control GetRowHeader(int rowIndex)
+    {
+      return Children.OfType<Control>().FirstOrDefault(el => GetRow(el) == rowIndex && el.Context is ChannelProgramListItem);
     }
 
     /// <summary>
@@ -629,7 +728,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     /// <returns>Controls.</returns>
     private IEnumerable<Control> GetRowItems(int rowIndex)
     {
-      return GetProgramItems().Where(el => GetRow(el) == rowIndex);
+      return GetProgramItems().Where(el => GetRow(el) == rowIndex).OrderBy(GetColumn);
     }
 
     /// <summary>
@@ -714,62 +813,54 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private bool OnDown()
     {
-      if (!MoveFocus1(MoveFocusDirection.Down))
-      {
-        if (IsViewPortAtBottom)
-          return false;
-
-        _channelViewOffset++;
-        UpdateViewportVertical(-1);
-        return MoveFocus1(MoveFocusDirection.Down); // After we created a new row, try to set focus again
-      }
-      return true;
+      return ScrollVertical(-1);
     }
 
     private bool OnUp()
     {
-      if (!MoveFocus1(MoveFocusDirection.Up))
-      {
-        if (IsViewPortAtTop)
-          return false;
-
-        _channelViewOffset--;
-        UpdateViewportVertical(+1);
-        return MoveFocus1(MoveFocusDirection.Up); // After we created a new row, try to set focus again
-      }
-      return true;
+      return ScrollVertical(+1);
     }
 
     private bool OnHome()
     {
-      if (IsViewPortAtTop)
-        return false;
-
-      _channelViewOffset = 0;
-      RecreateAndArrangeChildren();
-      FocusFirstProgramInRow(_channelViewOffset);
+      bool pageIndexChanged = false;
+      if (_channelViewOffset != 0)
+      {
+        pageIndexChanged = true;
+        _channelViewOffset = 0;
+        RecreateAndArrangeChildren();
+      }
+      FocusFirstProgramInRow(_channelViewOffset, pageIndexChanged);
       return true;
     }
 
     private bool OnEnd()
     {
-      if (IsViewPortAtBottom)
-        return false;
-
-      _channelViewOffset = ChannelsPrograms.Count - _numberOfRows;
-      RecreateAndArrangeChildren(true);
-      FocusFirstProgramInRow(Math.Min(ChannelsPrograms.Count, _numberOfRows) - 1);
+      bool pageIndexChanged = false;
+      var lastDataIndex = Math.Max(ChannelsPrograms.Count - _numberOfRows, 0);
+      if (_channelViewOffset != lastDataIndex)
+      {
+        pageIndexChanged = true;
+        _channelViewOffset = lastDataIndex;
+        RecreateAndArrangeChildren(true);
+      }
+      var lastViewIndex = Math.Min(ChannelsPrograms.Count, _numberOfRows) - 1;
+      FocusFirstProgramInRow(lastViewIndex, pageIndexChanged);
       return true;
     }
 
     private bool OnPageDown()
     {
-      return MoveDown(_numberOfRows);
+      MoveDown(_numberOfRows);
+      FocusFirstProgramInRow(Math.Min(ChannelsPrograms.Count, _numberOfRows) - 1, false);
+      return true;
     }
 
     private bool OnPageUp()
     {
-      return MoveUp(_numberOfRows);
+      MoveUp(_numberOfRows);
+      FocusFirstProgramInRow(0, false);
+      return true;
     }
 
     private bool MoveDown(int moveRows)
@@ -788,16 +879,39 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       return true;
     }
 
-    private void FocusFirstProgramInRow(int rowIndex)
+    private void FocusFirstProgramInRow(int rowIndex, bool pageIndexChanged)
     {
       var firstItem = GetRowItems(rowIndex).FirstOrDefault();
-      if (firstItem != null)
+      FocusControl(pageIndexChanged, firstItem);
+    }
+
+    private void FocusHeaderInRow(int rowIndex, bool pageIndexChanged)
+    {
+      var firstItem = GetRowHeader(rowIndex);
+      FocusControl(pageIndexChanged, firstItem);
+    }
+
+    private void FocusControl(bool pageIndexChanged, Control firstItem)
+    {
+      if (firstItem == null)
+        return;
+      if (pageIndexChanged)
         firstItem.SetFocus = true;
+      else
+        firstItem.TrySetFocus(true);
     }
 
     private bool OnRight()
     {
-      if (!MoveFocus1(MoveFocusDirection.Right))
+      if (MoveFocus1(MoveFocusDirection.Right))
+      {
+        if (_lastFocusedRow.HasValue)
+        {
+          FocusHeaderInRow(_lastFocusedRow.Value, false);
+          _lastFocusedRow = null;
+        }
+      }
+      else
       {
         SlimTvMultiChannelGuideModel.Scroll(TimeSpan.FromMinutes(30));
         UpdateViewportHorizontal();
@@ -807,12 +921,174 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private bool OnLeft()
     {
+      // As the group button spans all rows, we remember the last row to restore it when moving back right
+      if (GroupButtonEnabled)
+      {
+        int row;
+        ProgramListItem program;
+        FrameworkElement header;
+        if (GetFocusedRowAndStartTime(out program, out header, out row) && header != null)
+        {
+          _lastFocusedRow = row;
+        }
+      }
       if (!MoveFocus1(MoveFocusDirection.Left))
       {
         SlimTvMultiChannelGuideModel.Scroll(TimeSpan.FromMinutes(-30));
         UpdateViewportHorizontal();
       }
       return true;
+    }
+
+    private bool ScrollVertical(int scrollDirection)
+    {
+      int row;
+      ProgramListItem program;
+      FrameworkElement header;
+      if (!GetFocusedRowAndStartTime(out program, out header, out row))
+        return false;
+
+      if (scrollDirection < 0)
+      {
+        if (row == _numberOfRows - 1)
+        {
+          if (IsViewPortAtBottom)
+            return false;
+          // Scroll down
+          UpdateViewportVertical(scrollDirection);
+        }
+        else
+          row++;
+      }
+      else
+      {
+        if (row == 0)
+        {
+          if (IsViewPortAtTop)
+            return false;
+          // Scroll up
+          UpdateViewportVertical(scrollDirection);
+        }
+        else
+          row--;
+      }
+      // Focus was on channel header
+      if (header != null)
+      {
+        int colIndex = GroupButtonEnabled ? 1 : 0;
+        var nextHeader = Children.FirstOrDefault(c => GetRow(c) == row && GetColumn(c) == colIndex);
+        if (nextHeader != null)
+        {
+          return nextHeader.TrySetFocus(true);
+        }
+        return false;
+      }
+
+      // Focus was on program, first check if the program is the currently running, in this case we will also prefer currently running of next row
+      if (program.IsRunning)
+      {
+        return FocusNextRunningProgram(row);
+      }
+
+      // Then try to find "nearest" program in new row.
+      FrameworkElement control;
+      var startTime = program.Program.StartTime;
+      // If program is running already, compare with viewport start
+      if (startTime < SlimTvMultiChannelGuideModel.GuideStartTime)
+        startTime = SlimTvMultiChannelGuideModel.GuideStartTime;
+
+      if (FindNearestProgram(startTime, row, out control))
+      {
+        return control.TrySetFocus(true);
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Gets the currently focused program or header control and its Grid.Row.
+    /// </summary>
+    /// <param name="program">Focused program</param>
+    /// <param name="headerControl">Focused header</param>
+    /// <param name="row">The focused row</param>
+    /// <returns><c>true</c> if matching program could be found</returns>
+    private bool GetFocusedRowAndStartTime(out ProgramListItem program, out FrameworkElement headerControl, out int row)
+    {
+      program = null;
+      headerControl = null;
+      row = 0;
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+
+      while (currentElement != null)
+      {
+        if (currentElement.DataContext != null)
+        {
+          // Check for program
+          var item = currentElement.DataContext.Source as ProgramListItem;
+          if (item != null)
+          {
+            program = item;
+            row = GetRow(currentElement);
+            return true;
+          }
+          // Check for channel header
+          var channel = currentElement.DataContext.Source as ChannelProgramListItem;
+          if (channel != null)
+          {
+            headerControl = currentElement;
+            row = GetRow(currentElement);
+            return true;
+          }
+        }
+        currentElement = currentElement.LogicalParent as Control;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Perfers the running item of the next row.
+    /// </summary>
+    /// <param name="row">Row</param>
+    /// <returns><c>true</c> if matching program could be found</returns>
+    private bool FocusNextRunningProgram(int row)
+    {
+      var nextRowRunningItem = Children.FirstOrDefault(c => GetRow(c) == row && c.DataContext != null && c.DataContext.Source is ProgramListItem && ((ProgramListItem)c.DataContext.Source).IsRunning);
+      if (nextRowRunningItem != null)
+        return nextRowRunningItem.TrySetFocus(true);
+      return false;
+    }
+
+    /// <summary>
+    /// Finds the nearest program relative to given <paramref name="startTime"/>. The "nearest" one is checked by comparing program start times.
+    /// If the start time is before the current view port, the SlimTvMultiChannelGuideModel.GuideStartTime will be used.
+    /// </summary>
+    /// <param name="startTime">Start time of currently focused program</param>
+    /// <param name="row">New row to focus</param>
+    /// <param name="programControl">Returns the next program's control to focus</param>
+    /// <returns><c>true</c> if matching program could be found</returns>
+    private bool FindNearestProgram(DateTime startTime, int row, out FrameworkElement programControl)
+    {
+      var rowItems = Children.Where(c => GetRow(c) == row && c.DataContext != null).ToList();
+      double minDiff = Double.MaxValue;
+      FrameworkElement nearestStartItem = null;
+      foreach (var program in rowItems)
+      {
+        var pi = program.DataContext.Source as ProgramListItem;
+        if (pi == null)
+          continue;
+
+        var programStartTime = pi.Program.StartTime;
+        if (programStartTime < SlimTvMultiChannelGuideModel.GuideStartTime)
+          programStartTime = SlimTvMultiChannelGuideModel.GuideStartTime;
+
+        var diff = Math.Abs((startTime - programStartTime).TotalMinutes);
+        if (nearestStartItem == null || diff < minDiff)
+        {
+          minDiff = diff;
+          nearestStartItem = program;
+        }
+      }
+      programControl = nearestStartItem;
+      return programControl != null;
     }
 
     private void UpdateViewportHorizontal()
@@ -825,11 +1101,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       lock (Children.SyncRoot)
       {
+        _channelViewOffset -= moveOffset;
         List<FrameworkElement> removeList = new List<FrameworkElement>();
         foreach (FrameworkElement element in Children)
         {
           // Indicator must not be removed, its position is fixed
-          if (element == _timeIndicatorControl)
+          if (ShouldKeepControl(element))
             continue;
           int row = GetRow(element);
           int targetRow = row + moveOffset;
@@ -845,6 +1122,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         CreateOrUpdateRow(false, ref channelIndex, rowIndex);
       }
       ArrangeOverride();
+    }
+
+    /// <summary>
+    /// Indicates if a control should be kept during partial updates (scrolling through channels)
+    /// </summary>
+    private bool ShouldKeepControl(FrameworkElement element)
+    {
+      return element == _timeIndicatorControl || GroupButtonEnabled && GetColumn(element) == 0;
     }
 
     #endregion

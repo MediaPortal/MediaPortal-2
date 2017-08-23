@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_entry.xaml"
+    >
+<Include.Resources>
+    <Model x:Key="Model" Id="1EA86870-CB4D-4B24-AEC1-13D018C92410"/>
+
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.Players.BassPlayer.PlaybackBuffer.Setup]"/>
+
+  <!-- Contents -->
+  <ControlTemplate x:Key="Contents_Template">
+    <Grid DataContext="{Binding Source={StaticResource Model}}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <StackPanel>
+        
+        <GroupBox x:Name="DirectSound buffer size" Header="[Settings.Players.Rendering.DirectSoundBufferSize]" Grid.Row="1" Grid.Column="0" Margin="10"
+               Style="{ThemeResource ContentGroupBoxStyle}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          
+        <DockPanel LastChildFill="False" DockPanel.Dock="Center"  HorizontalAlignment="Center">
+        <Button Style="{ThemeResource ArrowButtonUpStyle}" Width="30" Height="30" Margin="0,0,0,2"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=IsDirectSoundBufferSizeUpEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=DirectSoundBufferSizeUp}" />
+
+        <TextBox x:Name="DirectSound" Margin="0,0,0,0" Width="80"
+                    Text="{Binding Source={StaticResource Model},Path=DirectSoundBufferSize,Mode=TwoWay}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <Button Style="{ThemeResource ArrowButtonDownStyle}" Width="30" Height="30"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=IsDirectSoundBufferSizeDownEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=DirectSoundBufferSizeDown}"/>
+
+         </DockPanel>
+        </GroupBox>
+        
+        <Label x:Name="DsErrorText" Grid.Column="0" Grid.Row="1" Margin="10,20,10,10" Wrap="true"
+          HorizontalAlignment="Center"
+          Color="{ThemeResource ErrorTextColor}" Content="{Binding Source={StaticResource Model},Path=DsErrorText}"/>
+        
+        <GroupBox x:Name="Wasapi buffer size" Header="[Settings.Players.Rendering.WasapiBufferSize]" Grid.Row="1" Grid.Column="0" Margin="10"
+               Style="{ThemeResource ContentGroupBoxStyle}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+        <DockPanel LastChildFill="False" DockPanel.Dock="Center"  HorizontalAlignment="Center">
+        <Button Style="{ThemeResource ArrowButtonUpStyle}" Width="30" Height="30" Margin="0,0,0,2"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=IsWasapiBufferSizeUpEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=WasapiBufferSizeUp}" />
+
+        <TextBox x:Name="Wasapi" Margin="0,0,0,0" Width="80"
+                    Text="{Binding Source={StaticResource Model},Path=WasapiBufferSize,Mode=TwoWay}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <Button Style="{ThemeResource ArrowButtonDownStyle}" Width="30" Height="30"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=IsWasapiBufferSizeDownEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=WasapiBufferSizeDown}"/>
+
+         </DockPanel>
+        </GroupBox>
+
+        <Label x:Name="WasapiErrorText" Grid.Column="0" Grid.Row="1" Margin="10,20,10,10" Wrap="true"
+           HorizontalAlignment="Center"
+           Color="{ThemeResource ErrorTextColor}" Content="{Binding Source={StaticResource Model},Path=WasapiErrorText}"/>
+        
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+          <Button.IsEnabled>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+              <Binding Source="{StaticResource Model}" Path="IsDsValid"/>
+              <Binding Source="{StaticResource Model}" Path="IsWasapiValid"/>
+            </MultiBinding>
+          </Button.IsEnabled>
+          <Button.Command>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="SaveSettings"/>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+
+      </StackPanel>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

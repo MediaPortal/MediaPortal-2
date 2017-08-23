@@ -47,8 +47,26 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <DockPanel LastChildFill="True">
         <DockPanel.Resources>
           <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
-          <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
         </DockPanel.Resources>
+
+        <DockPanel.Triggers>
+          <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageLeft">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideInLeft_BeginStoryboard" Storyboard="{ThemeResource SlideInLeft}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="SlideInLeft_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+          <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageRight">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideInRight_BeginStoryboard" Storyboard="{ThemeResource SlideInRight}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="SlideInRight_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </DockPanel.Triggers>
 
         <!--Begin Home Screen-->
         <!--Footer-->
@@ -221,7 +239,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Content="[Movies.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource LatestMovieItemsListListViewStyle}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
@@ -300,7 +318,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Row="0" Content="[Games.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <!--Label Grid.Row="0" Content="[Games.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/-->
             <ListView x:Name="Cames" Grid.Row="1" ItemsSource="{Binding Games}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
@@ -372,7 +390,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <!--End Home Screen-->
 
-        <Grid x:Name="MainLayoutPanel" DockPanel.Dock="Center" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="11,0,0,-2">
+        <Grid x:Name="MainLayoutPanel" DockPanel.Dock="Center" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="11,0,0,-2" IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -384,11 +402,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <bv:GridListView x:Name="MainMenu" Grid.Row="1" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0"
               VerticalAlignment="Top" SetFocusPrio="Fallback"
+              BeginNavigation="{Binding Source={StaticResource MenuModel},Path=BeginNavigation,Mode=TwoWay}"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
               IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
             <bv:GridListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </bv:GridListView.Resources>
+            <bv:GridListView.RenderTransform>
+              <TranslateTransform X="0" Y="0"/>
+            </bv:GridListView.RenderTransform>
+          </bv:GridListView>
+
+          <bv:GridListView x:Name="NextPage" Grid.Row="1" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
+            VerticalAlignment="Stretch" IsEnabled="False"
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=NextPageItems,Mode=OneTime}"
+            AnimationStarted="{Binding Source={StaticResource MenuModel},Path=AnimationStarted,Mode=OneWayToSource}"
+            AnimationCompleted="{Binding Source={StaticResource MenuModel},Path=AnimationCompleted,Mode=OneWayToSource}"
+            IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
+            <bv:GridListView.Resources>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </bv:GridListView.Resources>
+            <bv:GridListView.RenderTransform>
+              <TranslateTransform X="-1920" Y="0"/>
+            </bv:GridListView.RenderTransform>
           </bv:GridListView>
 
           <!-- On HomeScreen we won't have any content visible, so we use this Panel to contain our shutdown button -->
@@ -399,21 +435,117 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+            <Grid.Resources>
+              <Model x:Key="PowerMenuModel" Id="54F798AF-03E1-4A82-938E-D0D0DC608B1A"/>
+            </Grid.Resources>
             <!-- Navigates to ShutdownManager.ShutdownDialog, defined by its DialogState ID -->
-            <Button Style="{ThemeResource ButtonWideStyle_GrowOnly}" Opacity="0.1"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"
-                    IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
-              <Image Source="ShutdownIcon.png" />
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter Property="Opacity" Value="1.0" />
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </Grid>
-        </Grid>
+            <Image Source="ShutdownIcon_dark.png" Stretch="Uniform" Height="45" Margin="0,90,0,-82"
+                   IsVisible="{Binding Source={StaticResource PowerMenuModel},Path=!IsMenuOpen}"/>
 
-      </DockPanel>  
+            <Label Margin="0,5,0,-30" Height="80" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Opacity="0.6"
+                   DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}"
+                   Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True">
+              <Label.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
+                  <Binding Source="{StaticResource MenuModel}" Path="IsHomeScreen"/>
+                  <Binding Source="{StaticResource MenuModel}" Path="!IsHome"/>
+                </MultiBinding>
+              </Label.IsVisible>
+            </Label>
+          </Grid>
+
+          <Grid x:Name="PowerBottomPanel" Margin="30,5,-30,-800" VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="2"
+                  Width="550" HorizontalAlignment="Center">
+            <Grid.Resources>
+              <Model x:Key="PowerMenuModel" Id="54F798AF-03E1-4A82-938E-D0D0DC608B1A"/>
+              <Storyboard x:Key="SlideUpStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PowerBottomPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.25" Value="-600"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+              <Storyboard x:Key="SlideDownStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PowerBottomPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-600"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.25" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Grid.Resources>
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="IsKeyboardFocusWithin" Value="False" />
+                  <Condition Property="IsMouseOver" Value="False" />
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                  <TriggerCommand Command="{Command Source={StaticResource PowerMenuModel}, Path=CloseMenu}"/>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                  <TriggerCommand Command="{Command Source={StaticResource PowerMenuModel}, Path=OpenMenu}"/>
+                </MultiTrigger.ExitActions>
+              </MultiTrigger>
+              
+              <!-- Setting default state of menu to hidden -->
+              <EventTrigger RoutedEvent="Screen.Show">
+                <TriggerCommand Command="{Command Source={StaticResource PowerMenuModel}, Path=CloseMenu}"/>
+                <StopStoryboard BeginStoryboardName="SlideDown_BeginStoryboard"/>
+              </EventTrigger>
+              
+              <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
+              <DataTrigger Binding="{Binding Source={StaticResource PowerMenuModel},Path=IsMenuOpen}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="SlideUp_BeginStoryboard" Storyboard="{ThemeResource SlideUpStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="SlideDown_BeginStoryboard" Storyboard="{ThemeResource SlideDownStoryboard}"/>
+                  <StopStoryboard BeginStoryboardName="SlideUp_BeginStoryboard"/>
+                </DataTrigger.ExitActions>
+                <Setter TargetName="PowerMenu" Property="SetFocusPrio" Value="Highest" />
+                <Setter TargetName="PowerMenu" Property="SetFocus" Value="True" />
+              </DataTrigger>              
+            </Grid.Triggers>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="650"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="500"/>
+              <RowDefinition Height="200"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TranslateTransform Y="0"/>
+            </Grid.RenderTransform>
+            <!--Image Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-65,-168,-50,-50">
+          </Image-->
+            <Rectangle RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}"
+                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,67,0">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}"/>
+                  <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <Image Source="ShutdownIcon_dark.png" Stretch="Uniform" VerticalAlignment="Top" HorizontalAlignment="Center" 
+                   Margin="-60,45,0,0" Height="45" Opacity="0.8"/>
+            <ListView x:Name="PowerMenu" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="20,100,80,10"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
+                ItemsSource="{Binding Source={StaticResource PowerMenuModel},Path=MenuItems,Mode=OneTime}"
+                IsEnabled="{Binding Source={StaticResource PowerMenuModel},Path=IsMenuOpen}">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView>
+            <Button x:Name="PowerButton" Content=" " Style="{ThemeResource ButtonWideStyle_GrowOnly}"
+                    Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Center" Height="45" Margin="0,-45,0,60"
+                    IsEnabled="{Binding Source={StaticResource PowerMenuModel},Path=!IsMenuOpen}"
+                    IsVisible="{Binding Source={StaticResource PowerMenuModel},Path=!IsMenuOpen}"
+                    Command="{Command Source={StaticResource PowerMenuModel}, Path=ToggleMenu}">
+              <!--Image Source="ShutdownIcon.png" Stretch="Uniform" Height="45" Margin="-40,0,0,0"/-->
+            </Button>
+          </Grid>        
+        </Grid>
+      </DockPanel>
+      
     </ControlTemplate>
 
     <ControlTemplate x:Key="Alternative_Header_Template">

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -164,6 +164,11 @@ namespace MediaPortal.UI.Services.Players
       get { return _itemList; }
     }
 
+    public int PlayableItemsCount
+    {
+      get { return _itemList.Sum(mi => mi.MaximumResourceLocatorIndex + 1); }
+    }
+
     public int ItemListIndex
     {
       get { return GetItemListIndex(0); }
@@ -183,7 +188,7 @@ namespace MediaPortal.UI.Services.Players
         {
           if (_repeatMode == RepeatMode.One)
             return _currentPlayIndex > -1;
-          return _currentPlayIndex > 0 || _repeatMode == RepeatMode.All;
+          return _currentPlayIndex > 0 || _repeatMode == RepeatMode.All || HasPreviousResourceIndex;
         }
       }
     }
@@ -196,7 +201,7 @@ namespace MediaPortal.UI.Services.Players
         {
           if (_repeatMode == RepeatMode.One)
             return _currentPlayIndex > -1;
-          return _currentPlayIndex < _itemList.Count - 1 || _repeatMode == RepeatMode.All;
+          return _currentPlayIndex < _itemList.Count - 1 || _repeatMode == RepeatMode.All || HasNextResourceIndex;
         }
       }
     }
@@ -218,7 +223,7 @@ namespace MediaPortal.UI.Services.Players
       get
       {
         lock (_syncObj)
-          return _currentPlayIndex >= _itemList.Count;
+          return _currentPlayIndex >= _itemList.Count && IsLastResourceIndex;
       }
     }
 
@@ -237,6 +242,12 @@ namespace MediaPortal.UI.Services.Players
       {
         if (_repeatMode == RepeatMode.One)
           return Current;
+        // Skip back for multi-resource media items
+        if (HasPreviousResourceIndex)
+        {
+          Current.ActiveResourceLocatorIndex--;
+          return Current;
+        }
         int oldPlayIndex = _currentPlayIndex;
         if (_currentPlayIndex > -1)
           _currentPlayIndex--;
@@ -254,6 +265,12 @@ namespace MediaPortal.UI.Services.Players
       {
         if (_repeatMode == RepeatMode.One)
           return Current;
+        // Skip forward for multi-resource media items
+        if (HasNextResourceIndex)
+        {
+          Current.ActiveResourceLocatorIndex++;
+          return Current;
+        }
         if (_currentPlayIndex < _itemList.Count)
           _currentPlayIndex++;
         if (AllPlayed && _repeatMode == RepeatMode.All)
@@ -296,6 +313,21 @@ namespace MediaPortal.UI.Services.Players
       }
       ItemListIndex = selectionIndex;
       EndBatchUpdate();
+    }
+
+    private bool HasPreviousResourceIndex
+    {
+      get { return Current != null && Current.ActiveResourceLocatorIndex > 0; }
+    }
+
+    private bool HasNextResourceIndex
+    {
+      get { return Current != null && Current.ActiveResourceLocatorIndex < Current.MaximumResourceLocatorIndex; }
+    }
+
+    private bool IsLastResourceIndex
+    {
+      get { return Current == null || Current.ActiveResourceLocatorIndex == Current.MaximumResourceLocatorIndex; }
     }
 
     /// <summary>

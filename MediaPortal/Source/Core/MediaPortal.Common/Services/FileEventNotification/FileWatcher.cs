@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -194,7 +194,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <param name="fileWatcherInfo">The <see cref="fileWatcherInfo"/> to add.</param>
     public void AddSubscription(FileWatcherInfo fileWatcherInfo)
     {
-      if (fileWatcherInfo.Path != _watchedPath.Path.FullName)
+      if (!_watchedPath.IsEquivalentPath(fileWatcherInfo.Path))
         throw new InvalidFileWatchInfoException("The specified path does not equal the watched path.");
       lock (_subscriptions)
       {
@@ -235,7 +235,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
       if (_isDisposed)
         return;
       _isDisposed = true;
-      string path = _watchedPath.Path.FullName;
+      string path = _watchedPath != null ? _watchedPath.Path.FullName : null;
       if (_notifyTimer != null)
         _notifyTimer.Dispose();
       if (_watchedPath != null)
@@ -245,7 +245,8 @@ namespace MediaPortal.Common.Services.FileEventNotification
       if (_events != null)
         _events.Clear();
       _watching = false;
-      RaiseSingleEvent(path, FileWatchChangeType.Disposed);
+      if (path != null)
+        RaiseSingleEvent(path, FileWatchChangeType.Disposed);
       if (Disposed != null)
         Disposed(this, new EventArgs());
     }
@@ -304,8 +305,6 @@ namespace MediaPortal.Common.Services.FileEventNotification
       try
       {
         _watcher = InitializeFileSystemWatcher(_watchedPath.Path.FullName);
-        _watcher.IncludeSubdirectories = true;
-        _watcher.EnableRaisingEvents = true;
         _watching = true;
         _notifyTimer = new SystemTimer(EventsConsolidationInterval);
         _notifyTimer.Elapsed += NotifyTimer_Elapsed;
@@ -346,6 +345,8 @@ namespace MediaPortal.Common.Services.FileEventNotification
       watcher.Renamed += FileSystemEventHandler;
       watcher.Error += ErrorEventHandler;
       watcher.Disposed += FileSystemWatcher_Disposed;
+      watcher.EnableRaisingEvents = true;
+      GC.KeepAlive(watcher);
       return watcher;
     }
 
@@ -475,7 +476,9 @@ namespace MediaPortal.Common.Services.FileEventNotification
     private void FileSystemEventHandler(object sender, FileSystemEventArgs e)
     {
       lock (_events)
+      {
         _events.Add(new FileWatchEvent(e));
+      }
     }
 
     /// <summary>
@@ -487,7 +490,49 @@ namespace MediaPortal.Common.Services.FileEventNotification
     {
       // An error occured, disable the watch.
       if (sender == _watcher)
-        DisableWatch();
+      {
+        if(!HandleNotAccessibleError((FileSystemWatcher)sender, e))
+          DisableWatch();
+      }
+    }
+
+    private bool HandleNotAccessibleError(FileSystemWatcher source, ErrorEventArgs e)
+    {
+      int maxAttempts = 120;
+      int timeOut = 1500;
+      int attempt = 0;
+      while ((!Directory.Exists(source.Path) || source.EnableRaisingEvents == false) && attempt < maxAttempts)
+      {
+        attempt += 1;
+        try
+        {
+          if (_watcher == null)
+            return false;
+
+          source.EnableRaisingEvents = false;
+          if (!Directory.Exists(source.Path))
+          {
+            Thread.Sleep(timeOut);
+          }
+          else
+          {
+            // ReInitialize the Component
+            string path = source.Path;
+            source.Dispose();
+            source = null;
+
+            InitializeFileSystemWatcher(path);
+            _watching = true;
+            return true;
+          }
+        }
+        catch
+        {
+          source.EnableRaisingEvents = false;
+          Thread.Sleep(timeOut);
+        }
+      }
+      return false;
     }
 
     /// <summary>
@@ -520,7 +565,8 @@ namespace MediaPortal.Common.Services.FileEventNotification
         return true;
       try
       {
-        return new DriveInfo(path).DriveFormat == "NTFS";
+        DriveInfo info = new DriveInfo(path);
+        return info.DriveFormat == "NTFS" || info.DriveFormat == "CoveFS";
       }
       catch (ArgumentException)
       {

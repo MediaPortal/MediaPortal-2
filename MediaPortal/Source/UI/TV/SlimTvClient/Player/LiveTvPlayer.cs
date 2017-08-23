@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,7 +33,6 @@ using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Players.Video;
-using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -71,6 +70,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     {
       get { return typeof(SlimTvUIContributor); }
     }
+
+    public EventHandler OnBeginZap;
+    public EventHandler OnEndZap;
 
     #endregion
 
@@ -150,7 +152,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       // Set indicator for zapping to blank the video surface with black.
       _zapping = true;
       // Tell the TsReader that we are zapping, before we actually tune the new channel.
-      ((ITsReader)_sourceFilter).OnZapping(0x80);
+      _tsReader.OnZapping(0x80);
     }
 
     public void EndZap()
@@ -255,9 +257,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     #region IReusablePlayer members
 
-    public event RequestNextItemDlgt NextItemRequest;
-
-    public bool NextItem(MediaItem mediaItem, StartTime startTime)
+    public override bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
       string mimeType;
       string title;

@@ -53,10 +53,10 @@
                 <Label x:Name="Temperature" FontSize="48" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
                     Content="{Binding CurrentLocation.Condition.Temperature}" VerticalAlignment="Center"/>
               </StackPanel>
-              <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"
+              <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="55" Color="{ThemeResource TextColor}"
                   Content="{Binding CurrentLocation.Name}"/>
             </StackPanel>
-            <Grid x:Name="CurrentConditionDetail" Grid.Column="2" Grid.Row="0"
+            <Grid x:Name="CurrentConditionDetail" Grid.Column="2" Grid.Row="0" Margin="0,30,0,0"
                 HorizontalAlignment="Left" VerticalAlignment="Center">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -68,24 +68,22 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
-              <Label Grid.Column="0" Grid.Row="2" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Wind]" Opacity="0.6" HorizontalAlignment="Right"/>
-              <Label Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Wind}"/>
-              <Label Grid.Column="0" Grid.Row="3" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Humidity]" Opacity="0.6" HorizontalAlignment="Right" />
-              <Label Grid.Column="2" Grid.Row="3" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Humidity}"/>
-              <Label Grid.Column="0" Grid.Row="4" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Precipitation]" Opacity="0.6" HorizontalAlignment="Right" />
-              <Label Grid.Column="2" Grid.Row="4" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Precipitation}"/>
-              <Label Grid.Column="0" Grid.Row="5" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Pressure]" Opacity="0.6" HorizontalAlignment="Right" />
-              <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Pressure}"/>
+              <Label Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Wind]" Opacity="0.6" HorizontalAlignment="Right"/>
+              <Label Grid.Column="2" Grid.Row="0" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Wind}"/>
+              <Label Grid.Column="0" Grid.Row="1" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Humidity]" Opacity="0.6" HorizontalAlignment="Right" />
+              <Label Grid.Column="2" Grid.Row="1" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Humidity}"/>
+              <Label Grid.Column="0" Grid.Row="2" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Precipitation]" Opacity="0.6" HorizontalAlignment="Right" />
+              <Label Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Precipitation}"/>
+              <Label Grid.Column="0" Grid.Row="3" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Pressure]" Opacity="0.6" HorizontalAlignment="Right" />
+              <Label Grid.Column="2" Grid.Row="3" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Pressure}"/>
             </Grid>
           </Grid>
 
           <!-- Forecasts (dynamic count) -->
-          <ListView Margin="-75,30,-70,20" HorizontalAlignment="Left" VerticalAlignment="Center"
-                Style="{ThemeResource ForecastListViewStyle}"
-                ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" >
+          <ListView Margin="-75,-25,-73,85" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                    Style="{ThemeResource ForecastListViewStyle}"
+                    ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" >
           </ListView>
           
           <StackPanel HorizontalAlignment="Right" Margin="-80,15,-70,0">
@@ -93,7 +91,6 @@
             <Label x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
                 HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource TextColor}"/>
           </StackPanel>
-          <Image Margin="0,20,-70,0" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         </StackPanel>
       </Grid>
     </ControlTemplate>

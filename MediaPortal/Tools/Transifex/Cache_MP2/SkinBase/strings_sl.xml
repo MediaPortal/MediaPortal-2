@@ -101,18 +101,15 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Način povečave</string>
   <string name="Players.ChoosePlayerEffect">Efekt</string>
+  <string name="Players.ChoosePlayerSubtitle">Podnapis</string>
   <string name="Settings.Appearance">Videz</string>
   <string name="Settings.Appearance.Skin">Izgled</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format datuma</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Format datuma, ki ga izgled uporablja. Uporabi specifikacijo datumskega formata .net razreda DateTime.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format ure</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format ure, ki ga izgled uporablja. Uporabi specifikacijo datumskega formata .net razreda DateTime.</string>
   <string name="Settings.General">Splošno</string>
   <string name="Settings.General.System">Sistem</string>
   <string name="Settings.General.System.Autostart">Avtomatski zagon</string>
   <string name="Settings.General.System.Autostart.Help">Ob zagonu Windows sistema zaženi MediaPortal</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Črka pogona vpetih virov</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Določa črko pogona za vpenjanje omrežnih virov na strežniku.</string>
   <string name="Settings.General.Connectivity">Povezljivost</string>
   <string name="Settings.General.Connectivity.HomeServer">Domači strežnik</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informacije o strežnikih, prijava in odjava od strežnika</string>

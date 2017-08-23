@@ -1,16 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">נגנים</string>
-  <string name="Settings.Players.AudioPlayer">נגן מוזיקה</string>
   <string name="Settings.Players.BassPlayer.Setup">הגדר התקן יציאה</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">הגדר את יציאת ה BassPlayer והאפשרויות</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">מצב מותאם אישית</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">אפשרות מעבר שירים</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">קבע עצירה/חילוף חלק בעת העברת שירים</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">רגיל</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">ללא השהייה בין שירים</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">חילוף חלק</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">מטמון לניגון</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">זמן מטמון במילי-שניות [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">אודיו ישיר</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">רינדור</string>
-  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading מופעל</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">מגדיר האם מדיה פורטל יפעיל cross-fade בשירים, באם אפשרי.</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">משך זמן של cross fade</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">משך הזמן של cross-fade בשניות</string>
 </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
@@ -57,15 +56,21 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           _defaultSorting,
           new SortByTitle(),
           new SortByDate(),
+          new SortByAddedDate(),
           // We could offer sortings here which are specific for one media item type but which will cope with all three item types (and sort items of the three types in a defined order)
         };
 
-      var optionalMias = new[]
-      {
-        AudioAspect.ASPECT_ID,
-        VideoAspect.ASPECT_ID,
-        ImageAspect.ASPECT_ID
-      }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new SortByTitle(),
+          new SortByDate(),
+          new SortByAddedDate(),
+        };
+
+      var optionalMias = Consts.OPTIONAL_LOCAL_BROWSING_MIAS
+        .Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 
       _customRootViewSpecification = new AddedRemovableMediaViewSpecificationFacade(
         new LocalMediaRootProxyViewSpecification(_viewName, _necessaryMias, optionalMias));

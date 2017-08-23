@@ -4,20 +4,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
-  <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#FF9CB9D5"/>
+  <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#9CB9D5"/>
 
   <!-- Program guide colors -->
-  <ResourceWrapper x:Key="ProgramFocusedFill" Resource="#902EA1AD"/>
-
-  <ResourceWrapper x:Key="ProgramRunningFill" Resource="#90232426"/>
-  
+  <ResourceWrapper x:Key="ProgramBaseFill" Resource="#000000"/>
+  <ResourceWrapper x:Key="ProgramFocusedFill" Resource="#244563"/>
+  <ResourceWrapper x:Key="ProgramRunningFill" Resource="#004444"/>
+  <ResourceWrapper x:Key="ProgramRecordFill" Resource="#8F0000"/>
   <ResourceWrapper x:Key="ProgramScheduledFill">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-      <GradientStop Color="#908F0000" Offset="0"/>
-      <GradientStop Color="#008F0000" Offset="1"/>
+      <GradientStop Color="Transparent" Offset="0"/>
+      <GradientStop Color="#8F0000" Offset="1"/>
     </LinearGradientBrush>
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="MiniguideDetailBackground" Resource="#A0000000"/>
-
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#D9FFFFFF"/>
+  
 </ResourceDictionary>

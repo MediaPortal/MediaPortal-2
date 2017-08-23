@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="HomeEditor.OthersMenuItem">Extras</string>
+  <string name="HomeEditor.Configuration">Édition de l\'Accueil</string>
+  <string name="HomeEditor.Configuration.Header">Groupe des menu de l\'acceuil </string>
+  <string name="HomeEditor.Configuration.Help">Modifier le menu d\'accueil</string>
+  <string name="HomeEditor.Configuration.Label">Groupe de menu de l\'acceuil </string>
+  <string name="HomeEditor.Configuration.AddGroup">Ajouter un groupe</string>
+  <string name="HomeEditor.Configuration.GroupEdit.Header">Modifier le groupe</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Header">Supprimer le groupe</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Label">Choisissez le groupe à supprimer</string>
+  <string name="HomeEditor.Configuration.DisplayName">Afficher un nom</string>
+  <string name="HomeEditor.Configuration.RestoreDefaults">Réinitialiser</string>
+  
+  <string name="HomeEditor.Configuration.GroupEdit.Label">Groupe du menu actions</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Header">Modifier cette action</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Header">Supprimer cette action</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Label">Choisissez l\'actions à supprimer</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Label">Choisir une action</string>
+  <string name="HomeEditor.Configuration.AddAction">Ajouter une action</string>
+</resources>

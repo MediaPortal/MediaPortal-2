@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -124,7 +124,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     public MovieCollection Collection { get; set; }
 
     [DataMember(Name = "genres")]
-    public List<Genre> Genres { get; set; }
+    public List<Genre> Genres
+    {
+      get
+      {
+        return _corectedGenres;
+      }
+      set
+      {
+        _corectedGenres = new List<Genre>();
+        foreach (Genre genre in value)
+        {
+          if (genre.Name.Contains("&"))
+          {
+            foreach (string splitGenre in genre.Name.Split('&'))
+              _corectedGenres.Add(new Genre() { Id = genre.Id, Name = splitGenre.Trim() });
+          }
+          else
+          {
+            _corectedGenres.Add(genre);
+          }
+        }
+      }
+    }
+
+    private List<Genre> _corectedGenres { get; set; }
 
     [DataMember(Name = "production_companies")]
     public List<ProductionCompany> ProductionCompanies { get; set; }

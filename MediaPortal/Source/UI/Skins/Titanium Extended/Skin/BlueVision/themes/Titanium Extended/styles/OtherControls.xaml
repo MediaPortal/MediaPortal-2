@@ -92,7 +92,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -116,7 +116,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid" Margin="20,0,20,0">
+          <Grid x:Name="ProgressBarGrid" Margin="20,0,20,0" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -321,7 +321,7 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="None"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
               <ScrollContentPresenter.OpacityMask>
 			          <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -2353,11 +2353,6 @@
           <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}">
-            <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="marker" Property="IsVisible" Value="True"/>
-              </Trigger>
-            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -2366,18 +2361,21 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <DockPanel>
-    <Image x:Name="marker" DockPanel.Dock="Center" Source="marker.png" Height="5" Stretch="Fill" IsVisible="False" VerticalAlignment="Top"/>
-    <Label x:Name="ItemLabel" DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="7,0,7,0" FontSize="{ThemeResource DialogTitleFontSize}" Color="{ThemeResource TextColor}"
-           Content="{Binding Path=[Name]}">
-    </Label>
-    </DockPanel>
+    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="40" Height="40" Stretch="Fill" Margin="0,0,0,0">
+      <Image.Source>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
+          <Binding Source="GroupMenu\"/>
+          <Binding Path="AdditionalProperties[Id]"/>
+          <Binding Source=".png"/>
+        </MultiBinding>
+      </Image.Source>
+    </Image>
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->
   <Style x:Key="HomeGroupListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
-    <Setter Property="Template">
+    <!--Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource AutoCenterScrollViewerStyle}"
@@ -2386,7 +2384,7 @@
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
-    </Setter>
+    </Setter-->
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
@@ -2525,24 +2523,26 @@
                 <Label x:Name="PlayerTitle" Grid.Row="0" Grid.Column="2" Color="{ThemeResource HomeNonFocusedColor}" FontSize="{ThemeResource SmallFontSize}"
                     Content="{Binding Title}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="20,0,0,0"/>
               </Grid>
-              <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0">
+              <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0"> 
                 <!-- Workaround to avoid layouting problems with LayoutTransform -->
                 <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal" IsVisible="True">
                   <!--{Binding ShowMouseControls}-->
-                  <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
+                  <Button x:Name="SkipBackButton" Style="{ThemeResource DarkSkipBackwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
                       Command="{Command Previous}"/>
-                  <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
+                  <Button x:Name="RewindButton" Style="{ThemeResource DarkRewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
                       Command="{Command SeekBackward}"/>
-                  <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                  <Button x:Name="PlayButton" Style="{ThemeResource DarkPlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
                       Command="{Command Play}"/>
-                  <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                  <Button x:Name="PauseButton" Style="{ThemeResource DarkPauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
                       Command="{Command Pause}"/>
-                  <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
+                  <Button x:Name="StopButton" Style="{ThemeResource DarkStopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
                       Command="{Command Stop}"/>
-                  <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
+                  <Button x:Name="ForwardButton" Style="{ThemeResource DarkForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
                       Command="{Command SeekForward}"/>
-                  <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
+                  <Button x:Name="SkipForwardButton" Style="{ThemeResource DarkSkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                       Command="{Command Next}"/>
+                  <Button x:Name="ToogleFullScreen" Style="{ThemeResource DarkToogleFullScreenStyle}" Margin="5,-3,5,3" 
+                      Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/> 
                 </StackPanel>
                 <StackPanel.LayoutTransform>
                   <TransformGroup>

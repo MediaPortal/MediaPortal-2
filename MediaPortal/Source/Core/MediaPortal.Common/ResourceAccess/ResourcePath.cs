@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Cache;
@@ -471,6 +472,19 @@ namespace MediaPortal.Common.ResourceAccess
       ICollection<string> thisPathSegments = UnrollPathSegments(this);
       ICollection<string> thatPathSegments = UnrollPathSegments(other);
       return thisPathSegments.Count < thatPathSegments.Count && thatPathSegments.StartsWith(thisPathSegments, StringComparer.InvariantCulture);
+    }
+
+    public static string GetFileNameWithoutExtension(ResourcePath rp)
+    {
+      return GetFileNameWithoutExtension(UnrollPathSegments(rp).Last());
+    }
+
+    public static string GetFileNameWithoutExtension(string lastPart)
+    {
+      int lastIndex = lastPart.LastIndexOf('.');
+      if (lastIndex > 0)
+        return lastPart.Substring(0, lastIndex);
+      return lastPart;
     }
 
     #region IEnumerable<ProviderPathSegment> implementation

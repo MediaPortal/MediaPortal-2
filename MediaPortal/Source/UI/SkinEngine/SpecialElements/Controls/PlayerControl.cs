@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,6 +42,8 @@ using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.Common.Runtime;
 using Timer = System.Timers.Timer;
+using MediaPortal.Common.MediaManagement.Helpers;
+using System.Linq;
 
 namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 {
@@ -139,6 +141,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _videoStoryPlotProperty;
     protected AbstractProperty _audioArtistsProperty;
     protected AbstractProperty _audioYearProperty;
+    protected AbstractProperty _audioTrackNumberProperty;
+    protected AbstractProperty _audioTrackNameProperty;
+    protected AbstractProperty _audioAlbumNameProperty;
     protected AbstractProperty _imageSourceLocatorProperty;
     protected AbstractProperty _imageRotateDegreesProperty;
     protected AbstractProperty _imageFlipXProperty;
@@ -214,6 +219,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
       _audioArtistsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _audioYearProperty = new SProperty(typeof(int?), null);
+      _audioTrackNumberProperty = new SProperty(typeof(int?), null);
+      _audioTrackNameProperty = new SProperty(typeof(string), string.Empty);
+      _audioAlbumNameProperty = new SProperty(typeof(string), string.Empty);
 
       _fullscreenContentWFStateIDProperty = new SProperty(typeof(Guid?), null);
       _currentlyPlayingWFStateIDProperty = new SProperty(typeof(Guid?), null);
@@ -228,6 +236,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _playerContextProperty.Attach(OnPropertyChanged);
       _autoVisibilityProperty.Attach(OnPropertyChanged);
       _isMutedProperty.Attach(OnMuteChanged);
+      _percentPlayedProperty.Attach(OnPercentageChanged);
 
       VisibilityProperty.Attach(OnVisibilityChanged);
     }
@@ -237,6 +246,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _playerContextProperty.Detach(OnPropertyChanged);
       _autoVisibilityProperty.Detach(OnPropertyChanged);
       _isMutedProperty.Detach(OnMuteChanged);
+      _percentPlayedProperty.Detach(OnPercentageChanged);
 
       VisibilityProperty.Detach(OnVisibilityChanged);
     }
@@ -245,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      PlayerControl pc = (PlayerControl) source;
+      PlayerControl pc = (PlayerControl)source;
 
       PlayerContext = pc.PlayerContext;
       AutoVisibility = pc.AutoVisibility;
@@ -267,6 +277,15 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     #endregion
 
     #region Private & protected methods
+
+    private void OnPercentageChanged(AbstractProperty property, object oldvalue)
+    {
+      // Check if the change is done by ourself, then ignore it
+      if (_updating)
+        return;
+
+      SeekPlayer(PercentPlayed);
+    }
 
     void OnVisibilityChanged(AbstractProperty property, object oldvalue)
     {
@@ -339,7 +358,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       {
         if (_timer != null)
           return;
-        _timer = new Timer(200) {Enabled = true};
+        _timer = new Timer(200) { Enabled = true };
         _timer.Elapsed += OnTimerElapsed;
       }
     }
@@ -365,7 +384,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         UpdateProperties();
       else if (message.ChannelName == SystemMessaging.CHANNEL)
       {
-        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
         if (messageType == SystemMessaging.MessageType.SystemStateChanged)
         {
           ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
@@ -473,12 +492,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           else if (FixedImageWidth > 0f)
           { // Calculate the image height from the width
             ImageWidth = FixedImageWidth;
-            ImageHeight = FixedImageWidth*vp.VideoAspectRatio.Height/vp.VideoAspectRatio.Width;
+            ImageHeight = FixedImageWidth * vp.VideoAspectRatio.Height / vp.VideoAspectRatio.Width;
           }
           else
           { // FixedImageHeight > 0f
             ImageHeight = FixedImageHeight;
-            ImageWidth = FixedImageHeight*vp.VideoAspectRatio.Width/vp.VideoAspectRatio.Height;
+            ImageWidth = FixedImageHeight * vp.VideoAspectRatio.Width / vp.VideoAspectRatio.Height;
           }
         }
         if (pp == null)
@@ -498,12 +517,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           else if (FixedImageWidth > 0f)
           { // Calculate the image height from the width
             ImageWidth = FixedImageWidth;
-            ImageHeight = FixedImageWidth*pp.ImageSize.Height/pp.ImageSize.Width;
+            ImageHeight = FixedImageWidth * pp.ImageSize.Height / pp.ImageSize.Width;
           }
           else
           { // FixedImageHeight > 0f
             ImageHeight = FixedImageHeight;
-            ImageWidth = FixedImageHeight*pp.ImageSize.Width/pp.ImageSize.Height;
+            ImageWidth = FixedImageHeight * pp.ImageSize.Width / pp.ImageSize.Height;
           }
           ImageSourceLocator = pp.CurrentImageResourceLocator;
           ImageRotation rotation;
@@ -517,15 +536,18 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           }
         }
 
-        MediaItemAspect mediaAspect;
-        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+        SingleMediaItemAspect mediaAspect;
+        if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
           mediaAspect = null;
-        MediaItemAspect videoAspect;
-        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
-          videoAspect = null;
-        MediaItemAspect audioAspect;
-        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
-          audioAspect = null;
+        MovieInfo movie = new MovieInfo();
+        if (_currentMediaItem == null || !_currentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID) || !movie.FromMetadata(_currentMediaItem.Aspects))
+          movie = null;
+        EpisodeInfo episode = new EpisodeInfo();
+        if (_currentMediaItem == null || !_currentMediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID) || !episode.FromMetadata(_currentMediaItem.Aspects))
+          episode = null;
+        TrackInfo track = new TrackInfo();
+        if (_currentMediaItem == null || !_currentMediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID) || !track.FromMetadata(_currentMediaItem.Aspects))
+          track = null;
 
         if (player == null)
         {
@@ -591,8 +613,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           }
           else
           {
-            MediaItemAspect nextMediaAspect;
-            if (nextMediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out nextMediaAspect))
+            SingleMediaItemAspect nextMediaAspect;
+            if (MediaItemAspect.TryGetAspect(nextMediaItem.Aspects, MediaAspect.Metadata, out nextMediaAspect))
             {
               NextMediaItemTitle = nextMediaAspect[MediaAspect.ATTR_TITLE] as string;
               HasNextMediaItem = !string.IsNullOrEmpty(NextMediaItemTitle);
@@ -614,7 +636,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           }
           else
           {
-            PercentPlayed = (float) (100*currentTime.TotalMilliseconds/duration.TotalMilliseconds);
+            PercentPlayed = (float)(100 * currentTime.TotalMilliseconds / duration.TotalMilliseconds);
             CurrentTime = FormattingUtils.FormatMediaDuration(currentTime);
             Duration = FormattingUtils.FormatMediaDuration(duration);
           }
@@ -703,11 +725,28 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
         else
         {
-          DateTime? recordingTime = (DateTime?) mediaAspect[MediaAspect.ATTR_RECORDINGTIME];
-          VideoYear = recordingTime.HasValue ? (int?) recordingTime.Value.Year : null;
+          DateTime? recordingTime = (DateTime?)mediaAspect[MediaAspect.ATTR_RECORDINGTIME];
+          VideoYear = recordingTime.HasValue ? (int?)recordingTime.Value.Year : null;
           AudioYear = VideoYear;
         }
-        if (videoAspect == null)
+        
+        if (movie != null)
+        {
+          VideoGenres = movie.Genres.Select(g => g.Name);
+          VideoActors = movie.Actors.Select(a => a.Name);
+          VideoDirectors = movie.Directors.Select(a => a.Name);
+          VideoWriters = movie.Writers.Select(a => a.Name);
+          VideoStoryPlot = movie.Summary.ToString();
+        }
+        else if (episode != null)
+        {
+          VideoGenres = episode.Genres.Select(g => g.Name);
+          VideoActors = episode.Actors.Select(p => p.Name);
+          VideoDirectors = episode.Directors.Select(p => p.Name);
+          VideoWriters = episode.Writers.Select(p => p.Name);
+          VideoStoryPlot = episode.Summary.ToString();
+        }
+        else
         {
           VideoGenres = EMPTY_NAMES_COLLECTION;
           VideoActors = EMPTY_NAMES_COLLECTION;
@@ -715,21 +754,19 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           VideoWriters = EMPTY_NAMES_COLLECTION;
           VideoStoryPlot = string.Empty;
         }
-        else
-        {
-          VideoGenres = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_GENRES];
-          VideoActors = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_ACTORS];
-          VideoDirectors = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_DIRECTORS];
-          VideoWriters = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_WRITERS];
-          VideoStoryPlot = (string) videoAspect[VideoAspect.ATTR_STORYPLOT];
-        }
-        if (audioAspect == null)
+        if (track == null)
         {
           AudioArtists = EMPTY_NAMES_COLLECTION;
+          AudioTrackNumber = null;
+          AudioTrackName = string.Empty;
+          AudioAlbumName = string.Empty;
         }
         else
         {
-          AudioArtists = (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS];
+          AudioArtists = track.Artists.Select(p => p.Name);
+          AudioTrackNumber = track.TrackNum > 0 ? track.TrackNum : (int?)null;
+          AudioTrackName = track.TrackName ?? string.Empty;
+          AudioAlbumName = track.Album ?? string.Empty;
         }
         IsMuted = playerManager.Muted;
         CheckShowMouseControls();
@@ -754,6 +791,17 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       }
     }
 
+    private void SeekPlayer(float percentPlayed)
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerContext);
+      IPlayer player = playerContext == null ? null : playerContext.CurrentPlayer;
+      IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
+
+      if (mediaPlaybackControl != null)
+        mediaPlaybackControl.CurrentTime = TimeSpan.FromMilliseconds(mediaPlaybackControl.Duration.TotalMilliseconds * percentPlayed / 100);
+    }
+
     #endregion
 
     #region Public members to be accessed via the GUI
@@ -770,7 +818,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public PlayerChoice PlayerContext
     {
-      get { return (PlayerChoice) _playerContextProperty.GetValue(); }
+      get { return (PlayerChoice)_playerContextProperty.GetValue(); }
       set { _playerContextProperty.SetValue(value); }
     }
 
@@ -785,7 +833,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool AutoVisibility
     {
-      get { return (bool) _autoVisibilityProperty.GetValue(); }
+      get { return (bool)_autoVisibilityProperty.GetValue(); }
       set { _autoVisibilityProperty.SetValue(value); }
     }
 
@@ -827,7 +875,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsPlayerPresent
     {
-      get { return (bool) _isPlayerPresentProperty.GetValue(); }
+      get { return (bool)_isPlayerPresentProperty.GetValue(); }
       internal set { _isPlayerPresentProperty.SetValue(value); }
     }
 
@@ -841,7 +889,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsVideoPlayerPresent
     {
-      get { return (bool) _isVideoPlayerPresentProperty.GetValue(); }
+      get { return (bool)_isVideoPlayerPresentProperty.GetValue(); }
       internal set { _isVideoPlayerPresentProperty.SetValue(value); }
     }
 
@@ -855,7 +903,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsImagePlayerPresent
     {
-      get { return (bool) _isImagePlayerPresentProperty.GetValue(); }
+      get { return (bool)_isImagePlayerPresentProperty.GetValue(); }
       internal set { _isImagePlayerPresentProperty.SetValue(value); }
     }
 
@@ -869,7 +917,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public string Title
     {
-      get { return (string) _titleProperty.GetValue(); }
+      get { return (string)_titleProperty.GetValue(); }
       internal set { _titleProperty.SetValue(value); }
     }
 
@@ -883,7 +931,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public MediaItem MediaItem
     {
-      get { return (MediaItem) _mediaItemProperty.GetValue(); }
+      get { return (MediaItem)_mediaItemProperty.GetValue(); }
       internal set { _mediaItemProperty.SetValue(value); }
     }
 
@@ -897,7 +945,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public string MediaItemTitle
     {
-      get { return (string) _mediaItemTitleProperty.GetValue(); }
+      get { return (string)_mediaItemTitleProperty.GetValue(); }
       internal set { _mediaItemTitleProperty.SetValue(value); }
     }
 
@@ -911,7 +959,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public string NextMediaItemTitle
     {
-      get { return (string) _nextMediaItemTitleProperty.GetValue(); }
+      get { return (string)_nextMediaItemTitleProperty.GetValue(); }
       set { _nextMediaItemTitleProperty.SetValue(value); }
     }
 
@@ -926,7 +974,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool HasNextMediaItem
     {
-      get { return (bool) _hasNextMediaItemProperty.GetValue(); }
+      get { return (bool)_hasNextMediaItemProperty.GetValue(); }
       set { _hasNextMediaItemProperty.SetValue(value); }
     }
 
@@ -940,7 +988,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool HasAudio
     {
-      get { return (bool) _hasAudioProperty.GetValue(); }
+      get { return (bool)_hasAudioProperty.GetValue(); }
       internal set { _hasAudioProperty.SetValue(value); }
     }
 
@@ -954,7 +1002,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public int Volume
     {
-      get { return (int) _volumeProperty.GetValue(); }
+      get { return (int)_volumeProperty.GetValue(); }
       internal set { _volumeProperty.SetValue(value); }
     }
 
@@ -968,7 +1016,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsAudio
     {
-      get { return (bool) _isAudioProperty.GetValue(); }
+      get { return (bool)_isAudioProperty.GetValue(); }
       internal set { _isAudioProperty.SetValue(value); }
     }
 
@@ -982,7 +1030,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsMuted
     {
-      get { return (bool) _isMutedProperty.GetValue(); }
+      get { return (bool)_isMutedProperty.GetValue(); }
       internal set { _isMutedProperty.SetValue(value); }
     }
 
@@ -996,7 +1044,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsPlaying
     {
-      get { return (bool) _isPlayingProperty.GetValue(); }
+      get { return (bool)_isPlayingProperty.GetValue(); }
       internal set { _isPlayingProperty.SetValue(value); }
     }
 
@@ -1010,7 +1058,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsPaused
     {
-      get { return (bool) _isPausedProperty.GetValue(); }
+      get { return (bool)_isPausedProperty.GetValue(); }
       internal set { _isPausedProperty.SetValue(value); }
     }
 
@@ -1024,7 +1072,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsSeekingForward
     {
-      get { return (bool) _isSeekingForwardProperty.GetValue(); }
+      get { return (bool)_isSeekingForwardProperty.GetValue(); }
       internal set { _isSeekingForwardProperty.SetValue(value); }
     }
 
@@ -1038,7 +1086,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsSeekingBackward
     {
-      get { return (bool) _isSeekingBackwardProperty.GetValue(); }
+      get { return (bool)_isSeekingBackwardProperty.GetValue(); }
       internal set { _isSeekingBackwardProperty.SetValue(value); }
     }
 
@@ -1052,7 +1100,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public string SeekHint
     {
-      get { return (string) _seekHintProperty.GetValue(); }
+      get { return (string)_seekHintProperty.GetValue(); }
       internal set { _seekHintProperty.SetValue(value); }
     }
 
@@ -1066,7 +1114,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsCurrentPlayer
     {
-      get { return (bool) _isCurrentPlayerProperty.GetValue(); }
+      get { return (bool)_isCurrentPlayerProperty.GetValue(); }
       internal set { _isCurrentPlayerProperty.SetValue(value); }
     }
 
@@ -1080,8 +1128,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public float PercentPlayed
     {
-      get { return (float) _percentPlayedProperty.GetValue(); }
-      internal set { _percentPlayedProperty.SetValue(value); }
+      get { return (float)_percentPlayedProperty.GetValue(); }
+      set { _percentPlayedProperty.SetValue(value); }
     }
 
     public AbstractProperty CurrentTimeProperty
@@ -1094,7 +1142,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public string CurrentTime
     {
-      get { return (string) _currentTimeProperty.GetValue(); }
+      get { return (string)_currentTimeProperty.GetValue(); }
       internal set { _currentTimeProperty.SetValue(value); }
     }
 
@@ -1108,7 +1156,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public string Duration
     {
-      get { return (string) _durationProperty.GetValue(); }
+      get { return (string)_durationProperty.GetValue(); }
       internal set { _durationProperty.SetValue(value); }
     }
 
@@ -1122,7 +1170,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public string PlayerStateText
     {
-      get { return (string) _playerStateTextProperty.GetValue(); }
+      get { return (string)_playerStateTextProperty.GetValue(); }
       internal set { _playerStateTextProperty.SetValue(value); }
     }
 
@@ -1136,7 +1184,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool ShowMouseControls
     {
-      get { return (bool) _showMouseControlsProperty.GetValue(); }
+      get { return (bool)_showMouseControlsProperty.GetValue(); }
       internal set { _showMouseControlsProperty.SetValue(value); }
     }
 
@@ -1151,7 +1199,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool CanPlay
     {
-      get { return (bool) _canPlayProperty.GetValue(); }
+      get { return (bool)_canPlayProperty.GetValue(); }
       internal set { _canPlayProperty.SetValue(value); }
     }
 
@@ -1166,7 +1214,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool CanPause
     {
-      get { return (bool) _canPauseProperty.GetValue(); }
+      get { return (bool)_canPauseProperty.GetValue(); }
       internal set { _canPauseProperty.SetValue(value); }
     }
 
@@ -1181,7 +1229,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool CanStop
     {
-      get { return (bool) _canStopProperty.GetValue(); }
+      get { return (bool)_canStopProperty.GetValue(); }
       internal set { _canStopProperty.SetValue(value); }
     }
 
@@ -1196,7 +1244,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool CanSkipForward
     {
-      get { return (bool) _canSkipForwardProperty.GetValue(); }
+      get { return (bool)_canSkipForwardProperty.GetValue(); }
       internal set { _canSkipForwardProperty.SetValue(value); }
     }
 
@@ -1211,7 +1259,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool CanSkipBack
     {
-      get { return (bool) _canSkipBackProperty.GetValue(); }
+      get { return (bool)_canSkipBackProperty.GetValue(); }
       internal set { _canSkipBackProperty.SetValue(value); }
     }
 
@@ -1226,7 +1274,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool CanSeekForward
     {
-      get { return (bool) _canSeekForwardProperty.GetValue(); }
+      get { return (bool)_canSeekForwardProperty.GetValue(); }
       internal set { _canSeekForwardProperty.SetValue(value); }
     }
 
@@ -1241,7 +1289,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool CanSeekBackward
     {
-      get { return (bool) _canSeekBackwardProperty.GetValue(); }
+      get { return (bool)_canSeekBackwardProperty.GetValue(); }
       internal set { _canSeekBackwardProperty.SetValue(value); }
     }
 
@@ -1256,7 +1304,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsPlayerActive
     {
-      get { return (bool) _isPlayerActiveProperty.GetValue(); }
+      get { return (bool)_isPlayerActiveProperty.GetValue(); }
       internal set { _isPlayerActiveProperty.SetValue(value); }
     }
 
@@ -1270,7 +1318,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public bool IsPip
     {
-      get { return (bool) _isPipProperty.GetValue(); }
+      get { return (bool)_isPipProperty.GetValue(); }
       internal set { _isPipProperty.SetValue(value); }
     }
 
@@ -1290,7 +1338,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </remarks>
     public float ImageWidth
     {
-      get { return (float) _imageWidthProperty.GetValue(); }
+      get { return (float)_imageWidthProperty.GetValue(); }
       internal set { _imageWidthProperty.SetValue(value); }
     }
 
@@ -1310,7 +1358,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </remarks>
     public float ImageHeight
     {
-      get { return (float) _imageHeightProperty.GetValue(); }
+      get { return (float)_imageHeightProperty.GetValue(); }
       internal set { _imageHeightProperty.SetValue(value); }
     }
 
@@ -1325,7 +1373,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public int? VideoYear
     {
-      get { return (int?) _videoYearProperty.GetValue(); }
+      get { return (int?)_videoYearProperty.GetValue(); }
       internal set { _videoYearProperty.SetValue(value); }
     }
 
@@ -1340,7 +1388,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public IEnumerable<string> VideoGenres
     {
-      get { return (IEnumerable<string>) _videoGenresProperty.GetValue(); }
+      get { return (IEnumerable<string>)_videoGenresProperty.GetValue(); }
       internal set { _videoGenresProperty.SetValue(value); }
     }
 
@@ -1355,7 +1403,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public IEnumerable<string> VideoActors
     {
-      get { return (IEnumerable<string>) _videoActorsProperty.GetValue(); }
+      get { return (IEnumerable<string>)_videoActorsProperty.GetValue(); }
       internal set { _videoActorsProperty.SetValue(value); }
     }
 
@@ -1370,7 +1418,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public IEnumerable<string> VideoDirectors
     {
-      get { return (IEnumerable<string>) _videoDirectorsProperty.GetValue(); }
+      get { return (IEnumerable<string>)_videoDirectorsProperty.GetValue(); }
       internal set { _videoDirectorsProperty.SetValue(value); }
     }
 
@@ -1385,7 +1433,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public IEnumerable<string> VideoWriters
     {
-      get { return (IEnumerable<string>) _videoWritersProperty.GetValue(); }
+      get { return (IEnumerable<string>)_videoWritersProperty.GetValue(); }
       internal set { _videoWritersProperty.SetValue(value); }
     }
 
@@ -1400,7 +1448,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public string VideoStoryPlot
     {
-      get { return (string) _videoStoryPlotProperty.GetValue(); }
+      get { return (string)_videoStoryPlotProperty.GetValue(); }
       internal set { _videoStoryPlotProperty.SetValue(value); }
     }
 
@@ -1414,7 +1462,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public IResourceLocator ImageSourceLocator
     {
-      get { return (IResourceLocator) _imageSourceLocatorProperty.GetValue(); }
+      get { return (IResourceLocator)_imageSourceLocatorProperty.GetValue(); }
       set { _imageSourceLocatorProperty.SetValue(value); }
     }
 
@@ -1428,7 +1476,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public int ImageRotateDegrees
     {
-      get { return (int) _imageRotateDegreesProperty.GetValue(); }
+      get { return (int)_imageRotateDegreesProperty.GetValue(); }
       set { _imageRotateDegreesProperty.SetValue(value); }
     }
 
@@ -1439,7 +1487,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     public bool ImageFlipX
     {
-      get { return (bool) _imageFlipXProperty.GetValue(); }
+      get { return (bool)_imageFlipXProperty.GetValue(); }
       set { _imageFlipXProperty.SetValue(value); }
     }
 
@@ -1450,7 +1498,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     public bool ImageFlipY
     {
-      get { return (bool) _imageFlipYProperty.GetValue(); }
+      get { return (bool)_imageFlipYProperty.GetValue(); }
       set { _imageFlipYProperty.SetValue(value); }
     }
 
@@ -1465,7 +1513,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public IEnumerable<string> AudioArtists
     {
-      get { return (IEnumerable<string>) _audioArtistsProperty.GetValue(); }
+      get { return (IEnumerable<string>)_audioArtistsProperty.GetValue(); }
       set { _audioArtistsProperty.SetValue(value); }
     }
 
@@ -1480,8 +1528,53 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public int? AudioYear
     {
-      get { return (int?) _audioYearProperty.GetValue(); }
+      get { return (int?)_audioYearProperty.GetValue(); }
       set { _audioYearProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AudioTrackNumberProperty
+    {
+      get { return _audioTrackNumberProperty; }
+    }
+
+    /// <summary>
+    /// Gets the track number of the currently playing audio, if the current media item is an audio item and if this
+    /// information is available.
+    /// </summary>
+    public int? AudioTrackNumber
+    {
+      get { return (int?)_audioTrackNumberProperty.GetValue(); }
+      set { _audioTrackNumberProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AudioTrackNameProperty
+    {
+      get { return _audioTrackNameProperty; }
+    }
+
+    /// <summary>
+    /// Gets the track name of the currently playing audio, if the current media item is an audio item and if this
+    /// information is available.
+    /// </summary>
+    public string AudioTrackName
+    {
+      get { return (string)_audioTrackNameProperty.GetValue(); }
+      set { _audioTrackNameProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AudioAlbumNameProperty
+    {
+      get { return _audioAlbumNameProperty; }
+    }
+
+    /// <summary>
+    /// Gets the album name of the currently playing audio, if the current media item is an audio item and if this
+    /// information is available.
+    /// </summary>
+    public string AudioAlbumName
+    {
+      get { return (string)_audioAlbumNameProperty.GetValue(); }
+      set { _audioAlbumNameProperty.SetValue(value); }
     }
 
     public AbstractProperty FullscreenContentWFStateIDProperty
@@ -1494,7 +1587,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public Guid? FullscreenContentWFStateID
     {
-      get { return (Guid?) _fullscreenContentWFStateIDProperty.GetValue(); }
+      get { return (Guid?)_fullscreenContentWFStateIDProperty.GetValue(); }
       internal set { _fullscreenContentWFStateIDProperty.SetValue(value); }
     }
 
@@ -1508,7 +1601,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public Guid? CurrentlyPlayingWFStateID
     {
-      get { return (Guid?) _currentlyPlayingWFStateIDProperty.GetValue(); }
+      get { return (Guid?)_currentlyPlayingWFStateIDProperty.GetValue(); }
       internal set { _currentlyPlayingWFStateIDProperty.SetValue(value); }
     }
 
@@ -1575,7 +1668,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       IPlayerContext pc = GetPlayerContext();
       if (pc == null)
         return;
-      switch (pc.PlaybackState) {
+      switch (pc.PlaybackState)
+      {
         case PlaybackState.Playing:
           pc.Pause();
           break;

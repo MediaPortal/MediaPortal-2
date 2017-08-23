@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -99,6 +100,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return result;
     }
 
+    /// <summary>
+    /// Sets the <see cref="ListViewItem.ItemIndex"/> for all contained elements.
+    /// </summary>
+    public void SetItemIndexes()
+    {
+      lock (_syncObj)
+        for (int i = 0; i < _elements.Count; i++)
+        {
+          ListViewItem lvi = _elements[i] as ListViewItem;
+          if (lvi != null)
+            lvi.ItemIndex = i;
+        }
+    }
+
     #region ICollection implementation
 
     public void Add(object element)
@@ -145,11 +160,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public int Count
     {
-      get
-      {
-        lock (_syncObj)
-          return _elements.Count;
-      }
+      get { return _elements.Count; }
     }
 
     public bool IsReadOnly

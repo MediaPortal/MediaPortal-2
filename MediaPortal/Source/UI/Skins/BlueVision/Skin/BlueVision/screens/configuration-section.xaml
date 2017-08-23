@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?> 
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="False">
-        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="20,0,20,20"
+        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="-420,0,20,-170"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Label Color="{ThemeResource HintTextColor}" DockPanel.Dock="Center"
               HorizontalAlignment="Stretch"
@@ -27,7 +27,7 @@
         <ListView x:Name="ConfigItemsList"
             DockPanel.Dock="Center"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            Style="{ThemeResource ContentsMenuListViewStyle}"
+            Style="{ThemeResource SettingsMenuListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
             ItemsSource="{Binding ConfigSettings}">
           <ListView.Resources>

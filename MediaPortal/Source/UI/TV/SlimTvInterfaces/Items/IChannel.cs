@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,17 +42,36 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
   {
     /// <summary>
     /// Gets or Sets the Channel ID.
-    /// </summary>    
+    /// </summary>
     int ChannelId { get; set; }
 
     /// <summary>
+    /// Gets or Sets the Channel number. This can be either a logical channel number or 
+    /// the index inside the current group (depending on user choice for zapping).
+    /// </summary>
+    int ChannelNumber { get; set; }
+
+    /// <summary>
     /// Gets or Sets the Name.
-    /// </summary>      
+    /// </summary>
     String Name { get; set; }
 
     /// <summary>
     /// Gets or Sets the MediaType.
     /// </summary>
     MediaType MediaType { get; set; }
+  }
+
+  public static class ChannelExtensions
+  {
+    /// <summary>
+    /// Returns a matching fanart MediaType that will be used to get channel logos. If a <c>null</c> value is given, the result defaults to "TV".
+    /// </summary>
+    /// <param name="channel">Channel</param>
+    /// <returns>Fanart MediaType</returns>
+    public static string GetFanArtMediaType(this IChannel channel)
+    {
+      return channel != null && channel.MediaType == MediaType.Radio ? "ChannelRadio" : "ChannelTv";
+    }
   }
 }

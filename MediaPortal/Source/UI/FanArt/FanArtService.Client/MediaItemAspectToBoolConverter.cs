@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,11 +32,33 @@ using MediaPortal.UI.SkinEngine.Xaml;
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 {
   /// <summary>
+  /// <see cref="InvertedMediaItemAspectToBoolConverter"/> checks the <see cref="MediaItem.Aspects"/> for the absence of a given <see cref="MediaItemAspect"/>.
+  /// </summary>
+  public class InvertedMediaItemAspectToBoolConverter : MediaItemAspectToBoolConverter
+  {
+    public override bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
+    {
+      result = false;
+      // Special case: here we don't know if the MediaItem was null or the aspect was missing, so we need to check here again
+      if (values.Length != 2 || !(values[0].Value is MediaItem))
+        return false;
+
+      object originalResult;
+      if (base.Convert(values, targetType, parameter, out originalResult))
+      {
+        result = !(bool)originalResult;
+        return true;
+      }
+      return false;
+    }
+  }
+
+  /// <summary>
   /// <see cref="MediaItemAspectToBoolConverter"/> checks the <see cref="MediaItem.Aspects"/> for the existance of a given <see cref="MediaItemAspect"/>.
   /// </summary>
   public class MediaItemAspectToBoolConverter : IMultiValueConverter
   {
-    public bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
+    public virtual bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
     {
       result = false;
       if (values.Length != 2)

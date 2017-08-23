@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -86,7 +86,9 @@ namespace MediaInfoLib
       if (string.IsNullOrEmpty(strValue))
         return null;
       int result;
-      return int.TryParse(strValue, out result) ? result : new int?();
+      if (strValue.IndexOf("(") > 1)
+        strValue = strValue.Substring(0, strValue.IndexOf("(")).Trim();
+      return int.TryParse(strValue, NumberStyles.Number, CultureInfo.InvariantCulture, out result) ? result : new int?();
     }
 
     /// <summary>
@@ -101,7 +103,7 @@ namespace MediaInfoLib
       if (string.IsNullOrEmpty(strValue))
         return null;
       long result;
-      return long.TryParse(strValue, out result) ? result : new long?();
+      return long.TryParse(strValue, NumberStyles.Number, CultureInfo.InvariantCulture, out result) ? result : new long?();
     }
 
     /// <summary>
@@ -117,6 +119,27 @@ namespace MediaInfoLib
         return null;
       float result;
       return float.TryParse(strValue, NumberStyles.Float, CultureInfo.InvariantCulture, out result) ? result : new float?();
+    }
+
+    /// <summary>
+    /// Extracts a bool value from the specified <paramref name="strValue"/> parameter, if it has the correct
+    /// format.
+    /// </summary>
+    /// <param name="strValue">String to extract the value from.</param>
+    /// <returns>Extracted value or <c>null</c>, if the <paramref name="strValue"/> doesn't have the correct
+    /// format.</returns>
+    protected static bool? GetBoolOrNull(string strValue)
+    {
+      if (string.IsNullOrEmpty(strValue))
+        return null;
+      bool result;
+      if (bool.TryParse(strValue, out result))
+        return result;
+      if (strValue.Equals("No", StringComparison.InvariantCultureIgnoreCase))
+        return false;
+      if (strValue.Equals("Yes", StringComparison.InvariantCultureIgnoreCase))
+        return true;
+      return null;
     }
 
     #endregion
@@ -272,6 +295,19 @@ namespace MediaInfoLib
     }
 
     /// <summary>
+    /// Returns the steam id of the specified video <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>ID of video stream or <c>null</c>, if the specified audio stream doesn't exist.</returns>
+    public int? GetVideoStreamID(int stream)
+    {
+      string id = _mediaInfo.Get(StreamKind.Video, stream, "ID/String");
+      if (string.IsNullOrEmpty(id))
+        return null;
+      return GetIntOrNull(id);
+    }
+
+    /// <summary>
     /// Returns the framerate of the video in the specified video <paramref name="stream"/>.
     /// </summary>
     /// <param name="stream">Number of video stream to examine.</param>
@@ -319,6 +355,21 @@ namespace MediaInfoLib
         CultureInfo cultureInfo = new CultureInfo(lang2);
         return cultureInfo.TwoLetterISOLanguageName;
       }
+      catch (CultureNotFoundException)
+      {
+        try
+        {
+          if (lang2.Contains("/"))
+            lang2 = lang2.Substring(0, lang2.IndexOf("/")).Trim();
+
+          CultureInfo cultureInfo = new CultureInfo(lang2);
+          return cultureInfo.TwoLetterISOLanguageName;
+        }
+        catch
+        {
+          return null;
+        }
+      }
       catch (ArgumentException)
       {
         return null;
@@ -333,6 +384,124 @@ namespace MediaInfoLib
     public long? GetAudioBitrate(int stream)
     {
       return GetLongOrNull(_mediaInfo.Get(StreamKind.Audio, stream, "BitRate"));
+    }
+
+    /// <summary>
+    /// Returns the number of channels of the specified audio <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of audio stream to examine.</param>
+    /// <returns>Number of audio channels or <c>null</c>, if the specified audio stream doesn't exist.</returns>
+    public int? GetAudioChannels(int stream)
+    {
+      return GetIntOrNull(_mediaInfo.Get(StreamKind.Audio, stream, "Channel(s)"));
+    }
+
+    /// <summary>
+    /// Returns the sample rate of the specified audio <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of audio stream to examine.</param>
+    /// <returns>Number of audio channels or <c>null</c>, if the specified audio stream doesn't exist.</returns>
+    public long? GetAudioSampleRate(int stream)
+    {
+      return GetLongOrNull(_mediaInfo.Get(StreamKind.Audio, stream, "SamplingRate"));
+    }
+
+    /// <summary>
+    /// Returns the steam id of the specified audio <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of audio stream to examine.</param>
+    /// <returns>ID of audio stream or <c>null</c>, if the specified audio stream doesn't exist.</returns>
+    public int? GetAudioStreamID(int stream)
+    {
+      string id = _mediaInfo.Get(StreamKind.Audio, stream, "ID/String");
+      if (string.IsNullOrEmpty(id))
+        return null;
+      return GetIntOrNull(id);
+    }
+
+    /// <summary>
+    /// Returns the number of subtitle streams in the media resource.
+    /// </summary>
+    /// <returns>Number of subtitle streams. If the media resource doesn't have a subtitle stream, <c>0</c> will
+    /// be returned.</returns>
+    public int GetSubtitleCount()
+    {
+      int result;
+      return int.TryParse(_mediaInfo.Get(StreamKind.Text, 0, "StreamCount"), out result) ? result : 0;
+    }
+
+    /// <summary>
+    /// Returns the name of the subtitle codec in the specified subtitle <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of subtitle stream to examine.</param>
+    /// <returns>Name of the subtitle codec or <c>null</c>, if the specified subtitle stream doesn't exist.</returns>
+    public string GetSubtitleCodec(int stream)
+    {
+      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Text, stream, "CodecID"));
+    }
+
+    /// <summary>
+    /// Returns the name of the subtitle format in the specified subtitle <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of subtitle stream to examine.</param>
+    /// <returns>Name of the subtitle format or <c>null</c>, if the specified subtitle stream doesn't exist.</returns>
+    public string GetSubtitleFormat(int stream)
+    {
+      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Text, stream, "Format"));
+    }
+
+    /// <summary>
+    /// Returns the language of the specified subtitle <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of subtitle stream to examine.</param>
+    /// <returns><see cref="CultureInfo.TwoLetterISOLanguageName"/> if a valid language was matched, or <c>null</c>.</returns>
+    public string GetSubtitleLanguage(int stream)
+    {
+      string lang2 = StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Text, stream, "Language/String2"));
+      if (lang2 == null)
+        return null;
+      try
+      {
+        CultureInfo cultureInfo = new CultureInfo(lang2);
+        return cultureInfo.TwoLetterISOLanguageName;
+      }
+      catch (ArgumentException)
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// Returns the default parameter of the specified subtitle <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of subtitle stream to examine.</param>
+    /// <returns>Is subtitle default or <c>null</c>, if the specified subtitle stream doesn't exist.</returns>
+    public bool? GetSubtitleDefault(int stream)
+    {
+      return GetBoolOrNull(_mediaInfo.Get(StreamKind.Text, stream, "Default"));
+    }
+
+    /// <summary>
+    /// Returns the forced parameter of the specified subtitle <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of subtitle stream to examine.</param>
+    /// <returns>Is subtitle forced or <c>null</c>, if the specified subtitle stream doesn't exist.</returns>
+    public bool? GetSubtitleForced(int stream)
+    {
+      return GetBoolOrNull(_mediaInfo.Get(StreamKind.Text, stream, "Forced"));
+    }
+
+    /// <summary>
+    /// Returns the steam id of the specified subtitle <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of subtitle stream to examine.</param>
+    /// <returns>ID of subtitle stream or <c>null</c>, if the specified subtitle stream doesn't exist.</returns>
+    public int? GetSubtitleStreamID(int stream)
+    {
+      string id = _mediaInfo.Get(StreamKind.Text, stream, "ID/String");
+      if (string.IsNullOrEmpty(id))
+        return null;
+      return GetIntOrNull(id);
     }
 
     // TODO: (cover art, ....)

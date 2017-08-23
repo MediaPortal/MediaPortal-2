@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -47,17 +47,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
 
     private string BuildUrl(IPAddress address)
     {
-      return string.Format("http://freegeoip.net/json/{0}", address.ToString());
+      return string.Format("http://freegeoip.net/json/{0}", address);
     }
 
     private bool TryLookupInternal(out CivicAddress address, out GeoCoordinate coordinates)
     {
-      TraceRoute trace = new TraceRoute();
-      TraceRouteResponse response;
-      trace.TrySearchForFirstExternalAddress(Dns.GetHostEntry("google.com").AddressList[0], 30,
-                                          out response);
-
-      return TryLookupInternal(response.FirstResponseIP, out address, out coordinates);
+      address = null;
+      coordinates = null;
+      IPAddress ip;
+      return ExternalIPResolver.GetExternalIPAddress(out ip) && TryLookupInternal(ip, out address, out coordinates);
     }
 
     private bool TryLookupInternal(IPAddress ip, out CivicAddress address, out GeoCoordinate coordinates)

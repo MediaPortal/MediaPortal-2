@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">הגדרות שרת</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">שם כונן הטענת משאבים</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">מגדיר את שם הכונן לצורך הטענת משאבים לשרת</string>
   <string name="Settings.ServerSettings.NetworkCredentials">אישורי רשת</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">מגדיר שם משתמש וסיסמא לצורך גישה למשאבי רשת מהשרת</string>
   <string name="Settings.ServerSettings.UseCredentials">שם משתמש וסיסמא לגישה לרשת</string>

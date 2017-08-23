@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,11 +41,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
     {
       changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
-      WorkflowAction action;
-      if (!ServiceRegistration.Get<IWorkflowManager>().MenuStateActions.TryGetValue(ACTION_ID_ADD_ALL_TO_PLAYLIST, out action))
-        return false;
-      action.Execute();
-      return true;
+      return ServiceRegistration.Get<IWorkflowManager>().TryExecuteAction(ACTION_ID_ADD_ALL_TO_PLAYLIST);
     }
   }
 }

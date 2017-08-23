@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.PluginManager;
@@ -58,6 +59,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected ItemsList _mediaItemActionItems = new ItemsList();
     private readonly List<MediaItemActionExtension> _actions = new List<MediaItemActionExtension>();
     private IPluginItemStateTracker _mediaActionPluginItemStateTracker; // Lazy initialized
+    private DialogCloseWatcher _dialogCloseWatcher;
 
     #endregion
 
@@ -93,11 +95,37 @@ namespace MediaPortal.UiComponents.Media.Models
       if (!item.AdditionalProperties.TryGetValue(Consts.KEY_MEDIA_ITEM_ACTION, out actionObj) || !item.AdditionalProperties.TryGetValue(Consts.KEY_MEDIA_ITEM, out mediaItemObj))
         return;
 
+      IMediaItemActionConfirmation confirmation = actionObj as IMediaItemActionConfirmation;
       IMediaItemAction action = actionObj as IMediaItemAction;
       MediaItem mediaItem = mediaItemObj as MediaItem;
       if (action == null || mediaItem == null)
         return;
 
+      if (confirmation != null)
+        ShowConfirmation(confirmation, mediaItem);
+      else
+        InvokeAction(action, mediaItem);
+    }
+
+    protected void ShowConfirmation(IMediaItemActionConfirmation confirmation, MediaItem mediaItem)
+    {
+      IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+      string header = LocalizationHelper.Translate(Consts.RES_CONFIRM_HEADER);
+      string text = LocalizationHelper.Translate(confirmation.ConfirmationMessage);
+      Guid handle = dialogManager.ShowDialog(header, text, DialogType.YesNoDialog, false, DialogButtonType.No);
+      _dialogCloseWatcher = new DialogCloseWatcher(this, handle,
+        dialogResult =>
+        {
+          if (dialogResult == DialogResult.Yes)
+          {
+            InvokeAction(confirmation, mediaItem);
+          }
+          _dialogCloseWatcher?.Dispose();
+        });
+    }
+
+    protected void InvokeAction(IMediaItemAction action, MediaItem mediaItem)
+    {
       try
       {
         ContentDirectoryMessaging.MediaItemChangeType changeType;
@@ -129,7 +157,7 @@ namespace MediaPortal.UiComponents.Media.Models
         try
         {
           MediaItemActionExtension mediaExtension = pluginManager.RequestPluginItem<MediaItemActionExtension>(
-              MediaItemActionBuilder.MEDIA_EXTENSION_PATH, itemMetadata.Id, _mediaActionPluginItemStateTracker);
+            MediaItemActionBuilder.MEDIA_EXTENSION_PATH, itemMetadata.Id, _mediaActionPluginItemStateTracker);
           if (mediaExtension == null)
             ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Media extension with id '{0}'", itemMetadata.Id);
           else

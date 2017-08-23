@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,10 +25,10 @@
 using System;
 using System.Net;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Network;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.Utilities.DeepCopy;
@@ -54,7 +54,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public string FanArtMediaType
     {
-      get { return (string) _fanArtMediaTypeProperty.GetValue(); }
+      get { return (string)_fanArtMediaTypeProperty.GetValue(); }
       set { _fanArtMediaTypeProperty.SetValue(value); }
     }
 
@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public string FanArtName
     {
-      get { return (string) _fanArtNameProperty.GetValue(); }
+      get { return (string)_fanArtNameProperty.GetValue(); }
       set { _fanArtNameProperty.SetValue(value); }
     }
 
@@ -87,7 +87,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public int MaxWidth
     {
-      get { return (int) _maxWidthProperty.GetValue(); }
+      get { return (int)_maxWidthProperty.GetValue(); }
       set { _maxWidthProperty.SetValue(value); }
     }
 
@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     public int MaxHeight
     {
-      get { return (int) _maxHeightProperty.GetValue(); }
+      get { return (int)_maxHeightProperty.GetValue(); }
       set { _maxHeightProperty.SetValue(value); }
     }
 
@@ -114,7 +114,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     /// </summary>
     public bool Cache
     {
-      get { return (bool) _cacheProperty.GetValue(); }
+      get { return (bool)_cacheProperty.GetValue(); }
       set { _cacheProperty.SetValue(value); }
     }
 
@@ -142,7 +142,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      FanArtImageSource fanArtImageSource = (FanArtImageSource) source;
+      FanArtImageSource fanArtImageSource = (FanArtImageSource)source;
       FanArtType = fanArtImageSource.FanArtType;
       FanArtMediaType = fanArtImageSource.FanArtMediaType;
       FanArtName = fanArtImageSource.FanArtName;

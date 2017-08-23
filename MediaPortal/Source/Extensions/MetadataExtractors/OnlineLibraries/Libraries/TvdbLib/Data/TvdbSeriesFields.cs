@@ -20,10 +20,47 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Comparer;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
 {
+  #region Internal class
+
+  public class UniqueList<T> : List<T>
+    where T : TvdbEpisode
+  {
+    public new void Add(T item)
+    {
+      // Ignore same Season/Episode if the existing Id is higher. This assumes that entries with higher id for same episode
+      // are newer.
+      var itemsToRemove = this.Where(existingItem => existingItem.SeasonNumber == item.SeasonNumber && existingItem.EpisodeNumber == item.EpisodeNumber).ToList();
+      foreach (var existingItem in itemsToRemove)
+      {
+        if (existingItem.Id > item.Id)
+        {
+          // We already have a newer entry for same episode, so ignore new item.
+          return;
+        }
+        if (existingItem.Id <= item.Id)
+        {
+          Remove(existingItem);
+        }
+      }
+      base.Add(item);
+    }
+
+    public new void AddRange(IEnumerable<T> otherList)
+    {
+      foreach (T item in otherList)
+      {
+        Add(item);
+      }
+    }
+  }
+
+  #endregion
+
   /// <summary>
   /// This class represents all fields that are available on http://thetvdb.com and
   /// a list of episodefields. This is used for localised series information.
@@ -41,6 +78,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
   ///       <Network>ABC</Network>
   ///       <Overview>After Oceanic Air flight 815...</Overview>
   ///       <Rating>8.9</Rating>
+  ///       <RatingCount>8</RatingCount>
   ///       <Runtime>60</Runtime>
   ///       <SeriesID>24313</SeriesID>
   ///       <SeriesName>Lost</SeriesName>
@@ -64,9 +102,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     private List<String> _genre;
     private String _imdbId;
     private TvdbLanguage _language;
+    private int _networkId;
     private String _network;
     private String _overview;
     private double _rating;
+    private int _ratingCount;
     private double _runtime;
     private int _tvDotComId;
     private String _status;
@@ -76,7 +116,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     private DateTime _lastUpdated;
     private String _zap2itId;
     private bool _episodesLoaded;
-    private List<TvdbEpisode> _episodes;
+    private UniqueList<TvdbEpisode> _episodes;
     #endregion
 
     /// <summary>
@@ -84,7 +124,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     /// </summary>
     public TvdbSeriesFields()
     {
-      _episodes = new List<TvdbEpisode>();
+      _episodes = new UniqueList<TvdbEpisode>();
       _episodesLoaded = false;
     }
 
@@ -100,10 +140,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     /// <summary>
     /// List of episodes for this translation
     /// </summary>
-    public List<TvdbEpisode> Episodes
+    public UniqueList<TvdbEpisode> Episodes
     {
-      get { return _episodes; }
-      set { _episodes = value; }
+      get
+      {
+        return _episodes;
+      }
+      set
+      {
+        _episodes = new UniqueList<TvdbEpisode>();
+        _episodes.AddRange(value);
+      }
     }
 
     /// <summary>
@@ -116,7 +163,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     public List<TvdbEpisode> GetEpisodes(int season, TvdbEpisode.EpisodeOrdering order)
     {
       List<TvdbEpisode> episodes = new List<TvdbEpisode>();
-      _episodes.ForEach(delegate(TvdbEpisode e) { if (e.SeasonNumber == season) episodes.Add(e); });
+      _episodes.ForEach(delegate (TvdbEpisode e) { if (e.SeasonNumber == season) episodes.Add(e); });
 
       switch (order)
       {
@@ -170,6 +217,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     {
       get { return _seriesName; }
       set { _seriesName = value; }
+    }
+
+    /// <summary>
+    /// Series network ID
+    /// </summary>
+    public int NetworkID
+    {
+      get { return _networkId; }
+      set { _networkId = value; }
     }
 
     /// <summary>
@@ -281,6 +337,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     }
 
     /// <summary>
+    /// Rating count of the series
+    /// </summary>
+    public int RatingCount
+    {
+      get { return _ratingCount; }
+      set { _ratingCount = value; }
+    }
+
+    /// <summary>
     /// Overview of the series
     /// </summary>
     public String Overview
@@ -361,8 +426,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
       ImdbId = fields.ImdbId;
       Language = fields.Language;
       Network = fields.Network;
+      NetworkID = fields.NetworkID;
       Overview = fields.Overview;
       Rating = fields.Rating;
+      RatingCount = fields.RatingCount;
       Runtime = fields.Runtime;
       TvDotComId = fields.TvDotComId;
       SeriesName = fields.SeriesName;
@@ -393,7 +460,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
         }
         EpisodesLoaded = fields.EpisodesLoaded;
         if (Episodes == null)
-          Episodes = new List<TvdbEpisode>();
+          Episodes = new UniqueList<TvdbEpisode>();
         else
           Episodes.Clear();
         Episodes.AddRange(fields.Episodes);

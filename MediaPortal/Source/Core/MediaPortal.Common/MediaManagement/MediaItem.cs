@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -45,7 +46,8 @@ namespace MediaPortal.Common.MediaManagement
     #region Protected fields
 
     protected Guid _id;
-    protected readonly IDictionary<Guid, MediaItemAspect> _aspects;
+    protected readonly IDictionary<Guid, IList<MediaItemAspect>> _aspects;
+    protected readonly IDictionary<string, string> _userData = new Dictionary<string, string>();
 
     #endregion
 
@@ -63,13 +65,23 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     /// <param name="mediaItemId">Id of the media item in the media library. For local media items, this must be <c>Guid.Empty</c>.</param>
     /// <param name="aspects">Dictionary of media item aspects for the new media item instance.</param>
-    public MediaItem(Guid mediaItemId, IDictionary<Guid, MediaItemAspect> aspects)
+    public MediaItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       _id = mediaItemId;
-      _aspects = new Dictionary<Guid, MediaItemAspect>(aspects);
-      if (!_aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
-        throw new ArgumentException(string.Format("Media items always have to contain the '{0}' aspect",
-            typeof(ProviderResourceAspect).Name));
+      _aspects = new Dictionary<Guid, IList<MediaItemAspect>>(aspects);
+    }
+
+    /// <summary>
+    /// Creates a new media item.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the media item in the media library. For local media items, this must be <c>Guid.Empty</c>.</param>
+    /// <param name="aspects">Dictionary of media item aspects for the new media item instance.</param>
+    /// <param name="userData">Dictionary of user specific data for the new media item instance.</param>
+    public MediaItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<string,string> userData)
+    {
+      _id = mediaItemId;
+      _aspects = new Dictionary<Guid, IList<MediaItemAspect>>(aspects);
+      _userData = new Dictionary<string, string>(userData);
     }
 
     public Guid MediaItemId
@@ -77,9 +89,14 @@ namespace MediaPortal.Common.MediaManagement
       get { return _id; }
     }
 
-    public IDictionary<Guid, MediaItemAspect> Aspects
+    public IDictionary<Guid, IList<MediaItemAspect>> Aspects
     {
       get { return _aspects; }
+    }
+
+    public IDictionary<string, string> UserData
+    {
+      get { return _userData; }
     }
 
     /// <summary>
@@ -91,12 +108,48 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="mediaItemAspectId">Id of the media item aspect to retrieve.</param>
     /// <returns>Media item aspect of the specified <paramref name="mediaItemAspectId"/>, or <c>null</c>,
     /// if the aspect is not contained in this instance.</returns>
-    public MediaItemAspect this[Guid mediaItemAspectId]
+    public IList<MediaItemAspect> this[Guid mediaItemAspectId]
     {
       get
       {
-        MediaItemAspect result;
+        IList<MediaItemAspect> result;
         return _aspects.TryGetValue(mediaItemAspectId, out result) ? result : null;
+      }
+    }
+
+    /// <summary>
+    /// If this <see cref="MediaItem"/> represents multi-file media, this index points to the active part for 
+    /// that the <see cref="GetResourceLocator"/> will return the locator.
+    /// </summary>
+    public int ActiveResourceLocatorIndex { get; set; }
+
+    /// <summary>
+    /// Gets the primary resources of current MediaItem (presents physical parts of multi-file items) that can be used to start playback.
+    /// Secondary resources (like subtitles) are not considered here.
+    /// </summary>
+    public IList<MultipleMediaItemAspect> PrimaryResources
+    {
+      get
+      {
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return new List<MultipleMediaItemAspect>();
+
+        // Consider only primary resources (physical main parts), but not extra resources (like subtitles)
+        return providerAspects.Where(pra => pra.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY)).ToList();
+      }
+    }
+
+    /// <summary>
+    /// Returns the maximum zero-based index of available primary resource locators. For single media this will be always <c>0</c>.
+    /// If no <see cref="ProviderResourceAspect"/> is available, the result is <c>-1</c>.
+    /// Note: extra resources like subtitles are not considered here.
+    /// </summary>
+    public int MaximumResourceLocatorIndex
+    {
+      get
+      {
+        return PrimaryResources.Count - 1;
       }
     }
 
@@ -104,13 +157,11 @@ namespace MediaPortal.Common.MediaManagement
     /// Returns a resource locator instance for this item.
     /// </summary>
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
-    public IResourceLocator GetResourceLocator()
+    public virtual IResourceLocator GetResourceLocator()
     {
-      MediaItemAspect providerAspect;
-      if (!_aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out providerAspect))
-        return null;
-      string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
-      string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+      var aspect = PrimaryResources[ActiveResourceLocatorIndex];
+      string systemId = (string)aspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
+      string resourceAccessorPath = (string)aspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
@@ -118,12 +169,22 @@ namespace MediaPortal.Common.MediaManagement
     {
       mimeType = null;
       mediaItemTitle = null;
-      MediaItemAspect mediaAspect = this[MediaAspect.ASPECT_ID];
-      if (mediaAspect == null)
+      SingleMediaItemAspect mediaAspect = null;
+      if(!MediaItemAspect.TryGetAspect(this.Aspects, MediaAspect.Metadata, out mediaAspect))
         return false;
-      mimeType = (string) mediaAspect[MediaAspect.ATTR_MIME_TYPE];
-      mediaItemTitle = (string) mediaAspect[MediaAspect.ATTR_TITLE];
-      return true;
+      IList<MultipleMediaItemAspect> resourceAspects = null;
+      if (!MediaItemAspect.TryGetAspects(this.Aspects, ProviderResourceAspect.Metadata, out resourceAspects))
+        return false;
+      foreach (MultipleMediaItemAspect pra in resourceAspects)
+      {
+        if (pra.GetAttributeValue<bool?>(ProviderResourceAspect.ATTR_PRIMARY) == true)
+        {
+          mimeType = (string)pra[ProviderResourceAspect.ATTR_MIME_TYPE];
+          mediaItemTitle = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+          return true;
+        }
+      }
+      return false;
     }
 
     XmlSchema IXmlSerializable.GetSchema()
@@ -148,8 +209,37 @@ namespace MediaPortal.Common.MediaManagement
       }
       while (reader.NodeType != XmlNodeType.EndElement)
       {
-        MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
-        _aspects[mia.Metadata.AspectId] = mia;
+        if (reader.Name == "Aspect")
+        {
+          MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
+          if (mia is SingleMediaItemAspect)
+          {
+            MediaItemAspect.SetAspect(_aspects, (SingleMediaItemAspect)mia);
+          }
+          else if (mia is MultipleMediaItemAspect)
+          {
+            MediaItemAspect.AddOrUpdateAspect(_aspects, (MultipleMediaItemAspect)mia);
+          }
+        }
+        else if (reader.Name == "UserData")
+        {
+          string key = null;
+          string data = null;
+
+          if (reader.MoveToAttribute("Key"))
+            key = reader.ReadContentAsString();
+          if (reader.MoveToAttribute("Data"))
+            data = reader.ReadContentAsString();
+
+          if(key != null && data != null)
+            _userData.Add(key, data);
+
+          reader.Read();
+        }
+        else
+        {
+          reader.Read();
+        }
       }
       reader.ReadEndElement(); // MI
     }
@@ -157,8 +247,19 @@ namespace MediaPortal.Common.MediaManagement
     void IXmlSerializable.WriteXml(XmlWriter writer)
     {
       writer.WriteAttributeString("Id", _id.ToString("D"));
-      foreach (MediaItemAspect mia in _aspects.Values)
-        mia.Serialize(writer);
+      foreach (IList<MediaItemAspect> list in _aspects.Values)
+        foreach(MediaItemAspect mia in list)
+          mia.Serialize(writer);
+
+      foreach (string key in _userData.Keys)
+      {
+        writer.WriteStartElement("UserData");
+
+        writer.WriteAttributeString("Key", key);
+        writer.WriteAttributeString("Data", _userData[key]);
+
+        writer.WriteEndElement();
+      }
     }
 
     public void Serialize(XmlWriter writer)
@@ -190,10 +291,11 @@ namespace MediaPortal.Common.MediaManagement
     {
       if (other == null)
         return false;
-      MediaItemAspect myProviderAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
-      MediaItemAspect otherProviderAspect = other._aspects[ProviderResourceAspect.ASPECT_ID];
-      return myProviderAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH] ==
-          otherProviderAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+      IList<MediaItemAspect> myProviderAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
+      IList<MediaItemAspect> otherProviderAspect = other._aspects[ProviderResourceAspect.ASPECT_ID];
+	  // TODO: FIX THIS
+      return myProviderAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH] ==
+          otherProviderAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
     }
 
     #endregion
@@ -202,8 +304,9 @@ namespace MediaPortal.Common.MediaManagement
 
     public override int GetHashCode()
     {
-      MediaItemAspect providerAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
-      return providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH].GetHashCode();
+      IList<MediaItemAspect> providerAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
+	  // TODO: FIX THIS
+      return providerAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH].GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -217,7 +320,7 @@ namespace MediaPortal.Common.MediaManagement
 
     internal MediaItem()
     {
-      _aspects = new Dictionary<Guid, MediaItemAspect>();
+      _aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
     }
 
     #endregion

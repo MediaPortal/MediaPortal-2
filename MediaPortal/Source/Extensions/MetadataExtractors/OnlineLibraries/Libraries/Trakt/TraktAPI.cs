@@ -1,720 +1,707 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Web;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Enums;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Extension;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Web;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TraktAPI;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 {
-  #region Enumerables
-
-  // ReSharper disable InconsistentNaming
-  
-  /// <summary>
-  /// List of Scrobble States
-  /// </summary>
-  public enum TraktScrobbleStates
+  public static class TraktAPI
   {
-    watching,
-    scrobble,
-    cancelwatching
-  }
+    #region Trakt Methods
 
-  /// <summary>
-  /// List of Sync Modes
-  /// </summary>
-  public enum TraktSyncModes
-  {
-    library,
-    seen,
-    unlibrary,
-    unseen,
-    watchlist,
-    unwatchlist
-  }
+    #region Sync
 
-  /// <summary>
-  /// List of Clearing Modes
-  /// </summary>
-  public enum TraktClearingModes
-  {
-    all,
-    movies,
-    episodes
-  }
-
-  /// <summary>
-  /// List of Item Types
-  /// </summary>
-  public enum TraktItemType
-  {
-    episode,
-    season,
-    show,
-    movie
-  }
-
-  /// <summary>
-  /// List of Rate Values
-  /// </summary>
-  public enum TraktRateValue
-  {
-    unrate,
-    one,
-    two,
-    three,
-    four,
-    five,
-    six,
-    seven,
-    eight,
-    nine,
-    ten,
-    love, //deprecated - ten
-    hate  //deprecated - one
-  }
-
-  /// <summary>
-  /// Trakt Connection States
-  /// </summary>
-  public enum ConnectionState
-  {
-    Connected,
-    Connecting,
-    Disconnected,
-    Invalid,
-    Pending
-  }
-
-  /// <summary>
-  /// Privacy Level for Lists
-  /// </summary>
-  public enum ListPrivacyLevel
-  {
-    Public,
-    Private,
-    Friends
-  }
-
-  /// <summary>
-  /// Defaults to all, but you can instead send a comma delimited list of actions. 
-  /// For example, /all or /watching,scrobble,seen or /rating.
-  /// </summary>
-  public enum ActivityAction
-  {
-    all,
-    watching,
-    scrobble,
-    checkin,
-    seen,
-    collection,
-    rating,
-    watchlist,
-    review,
-    shout,
-    created,
-    item_added
-  }
-
-  /// <summary>
-  /// Defaults to all, but you can instead send a comma delimited list of types.
-  /// For example, /all or /movie,show or /list.
-  /// </summary>
-  public enum ActivityType
-  {
-    all,
-    episode,
-    show,
-    movie,
-    list
-  }
-
-  [Flags]
-  public enum SearchType
-  {
-    none = 0,
-    movies = 1,
-    shows = 2,
-    episodes = 4,
-    people = 8,
-    users = 16
-  }
-  // ReSharper restore InconsistentNaming
-
-  #endregion
-
-  /// <summary>
-  /// Object that communicates with the Trakt API
-  /// </summary>
-  public class TraktAPI
-  {
-    #region Transmit Events
-    // these events can be used to log data sent / received from trakt
-    internal delegate void OnDataSendDelegate(string url, string postData);
-    internal delegate void OnDataReceivedDelegate(string response);
-    internal delegate void OnDataErrorDelegate(string error);
-
-    internal static event OnDataSendDelegate OnDataSend;
-    internal static event OnDataReceivedDelegate OnDataReceived;
-    internal static event OnDataErrorDelegate OnDataError;
-    #endregion
-
-    #region Settings
-
-    public static string Username { get; set; }
-    public static string Password { get; set; }
-    public static string UserAgent { get; set; }
-
-    #endregion
-
-    #region Scrobbling
-
-    /// <summary>
-    /// Sends Scrobble data to Trakt
-    /// </summary>
-    /// <param name="scrobbleData">The Data to send</param>
-    /// <param name="status">The mode to send it as</param>
-    /// <returns>The response from Trakt</returns>
-    public static TraktResponse ScrobbleMovieState(TraktMovieScrobble scrobbleData, TraktScrobbleStates status)
+    public static TraktLastSyncActivities GetLastSyncActivities()
     {
-      //If we are cancelling a scrobble we don't need data
-      if (status != TraktScrobbleStates.cancelwatching)
-      {
-        // check that we have everything we need
-        // server can accept title if movie id is not supplied
-        if (scrobbleData == null)
-        {
-          TraktResponse error = new TraktResponse
-          {
-            Error = "Not enough information to send to server",
-            Status = "failure"
-          };
-          return error;
-        }
-      }
-
-      // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.ScrobbleMovie, status), scrobbleData.ToJSON());
-
-      // return success or failure
-      return response.FromJSON<TraktResponse>();
-    }
-
-    /// <summary>
-    /// Sends Scrobble data to Trakt
-    /// </summary>
-    /// <param name="scrobbleData">The Data to send</param>
-    /// <param name="status">The mode to send it as</param>
-    /// <returns>The response from Trakt</returns>
-    public static TraktResponse ScrobbleEpisodeState(TraktEpisodeScrobble scrobbleData, TraktScrobbleStates status)
-    {
-      // check that we have everything we need
-      // server can accept title if movie id is not supplied
-      if (status != TraktScrobbleStates.cancelwatching)
-      {
-        if (scrobbleData == null)
-        {
-          TraktResponse error = new TraktResponse
-          {
-            Error = "Not enough information to send to server",
-            Status = "failure"
-          };
-          return error;
-        }
-      }
-
-      // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.ScrobbleShow, status), scrobbleData.ToJSON());
-
-      // return success or failure
-      return response.FromJSON<TraktResponse>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncLastActivities);
+      return response.FromJSON<TraktLastSyncActivities>();
     }
 
     #endregion
 
-    #region Syncing
+    #region Playback
 
-    /// <summary>
-    /// Sends movie sync data to Trakt
-    /// </summary>
-    /// <param name="syncData">The sync data to send</param>
-    /// <param name="mode">The sync mode to use</param>
-    /// <returns>The response from trakt</returns>
-    public static TraktSyncResponse SyncMovieLibrary(TraktMovieSync syncData, TraktSyncModes mode)
+    public static IEnumerable<TraktSyncPausedMovie> GetPausedMovies()
     {
-      // check that we have everything we need
-      // server can accept title/year if imdb id is not supplied
-      if (syncData == null || syncData.MovieList.Count == 0)
-      {
-        TraktSyncResponse error = new TraktSyncResponse
-        {
-          Error = "Not enough information to send to server",
-          Status = "failure"
-        };
-        return error;
-      }
-
-      // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.SyncMovieLibrary, mode), syncData.ToJSON());
-
-      // return success or failure
-      return response.FromJSON<TraktSyncResponse>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncPausedMovies);
+      return response.FromJSONArray<TraktSyncPausedMovie>();
     }
 
-    /// <summary>
-    /// Add/Remove show to/from watchlist
-    /// </summary>
-    /// <param name="syncData">The sync data to send</param>
-    /// <param name="mode">The sync mode to use</param>
-    /// <returns>The response from trakt</returns>
-    public static TraktResponse SyncShowWatchList(TraktShowSync syncData, TraktSyncModes mode)
+    public static IEnumerable<TraktSyncPausedEpisode> GetPausedEpisodes()
     {
-      // check that we have everything we need            
-      if (syncData == null || syncData.Shows.Count == 0)
-      {
-        TraktResponse error = new TraktResponse
-        {
-          Error = "Not enough information to send to server",
-          Status = "failure"
-        };
-        return error;
-      }
-
-      // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.SyncShowWatchList, mode), syncData.ToJSON());
-
-      // return success or failure
-      return response.FromJSON<TraktResponse>();
-    }
-
-    /// <summary>
-    /// Add/Remove episode to/from watchlist
-    /// </summary>
-    /// <param name="syncData">The sync data to send</param>
-    /// <param name="mode">The sync mode to use</param>
-    /// <returns>The response from trakt</returns>
-    public static TraktResponse SyncEpisodeWatchList(TraktEpisodeSync syncData, TraktSyncModes mode)
-    {
-      // check that we have everything we need
-      if (syncData == null || syncData.EpisodeList.Count == 0)
-      {
-        TraktResponse error = new TraktResponse
-        {
-          Error = "Not enough information to send to server",
-          Status = "failure"
-        };
-        return error;
-      }
-
-      // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.SyncEpisodeWatchList, mode), syncData.ToJSON());
-
-      // return success or failure
-      return response.FromJSON<TraktResponse>();
-    }
-
-    /// <summary>
-    /// Sends episode sync data to Trakt
-    /// </summary>
-    /// <param name="syncData">The sync data to send</param>
-    /// <param name="mode">The sync mode to use</param>
-    public static TraktResponse SyncEpisodeLibrary(TraktEpisodeSync syncData, TraktSyncModes mode)
-    {
-      // check that we have everything we need
-      // server can accept title/year if imdb id is not supplied
-      if (syncData == null || string.IsNullOrEmpty(syncData.SeriesID) && string.IsNullOrEmpty(syncData.Title) && string.IsNullOrEmpty(syncData.Year))
-      {
-        TraktResponse error = new TraktResponse
-        {
-          Error = "Not enough information to send to server",
-          Status = "failure"
-        };
-        return error;
-      }
-
-      // serialize Scrobble object to JSON and send to server
-      string response = Transmit(string.Format(TraktURIs.SyncEpisodeLibrary, mode), syncData.ToJSON());
-
-      // return success or failure
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktResponse SyncShowAsSeen(TraktShowSeen show)
-    {
-      string response = Transmit(TraktURIs.ShowSeen, show.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktResponse SyncSeasonAsSeen(TraktSeasonSeen showSeason)
-    {
-      string response = Transmit(TraktURIs.SeasonSeen, showSeason.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktResponse SyncShowAsLibrary(TraktShowLibrary show)
-    {
-      string response = Transmit(TraktURIs.ShowLibrary, show.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktResponse SyncSeasonAsLibrary(TraktSeasonLibrary showSeason)
-    {
-      string response = Transmit(TraktURIs.SeasonLibrary, showSeason.ToJSON());
-      return response.FromJSON<TraktResponse>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncPausedEpisodes);
+      return response.FromJSONArray<TraktSyncPausedEpisode>();
     }
 
     #endregion
 
-    #region Trakt Library Calls
+    #region Collection
 
-    /// <summary>
-    /// Gets the trakt movie library for a user
-    /// </summary>
-    /// <param name="user">The user to get</param>
-    /// <returns>The trakt movie library</returns>
-    public static IEnumerable<TraktLibraryMovies> GetMovieCollectionForUser(string user)
+    public static IEnumerable<TraktMovieCollected> GetCollectedMovies()
     {
-      // get the library
-      string moviesForUser = Transmit(string.Format(TraktURIs.UserMoviesCollection, user), GetUserAuthentication());
-
-      // if we timeout we will return an error response
-      TraktResponse response = moviesForUser.FromJSON<TraktResponse>();
-      if (response == null || response.Error != null) return null;
-
-      return moviesForUser.FromJSONArray<TraktLibraryMovies>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncCollectionMovies);
+      return response.FromJSONArray<TraktMovieCollected>();
     }
 
-    public static IEnumerable<TraktLibraryMovies> GetAllMoviesForUser(string user)
+    public static IEnumerable<TraktEpisodeCollected> GetCollectedEpisodes()
     {
-      return GetAllMoviesForUser(user, true);
-    }
-
-    /// <summary>
-    /// Gets all movies for a user from trakt, including movies not in collection
-    /// </summary>
-    /// <param name="user">The user to get</param>
-    /// <param name="syncDataOnly">set this to true (default) if you want the absolute minimum data returned nessacary for syncing</param>
-    /// <returns>The trakt movie library</returns>
-    public static IEnumerable<TraktLibraryMovies> GetAllMoviesForUser(string user, bool syncDataOnly)
-    {
-      // Get the library
-      string moviesForUser = Transmit(string.Format(TraktURIs.UserMoviesAll, user, syncDataOnly ? @"/min" : string.Empty), GetUserAuthentication());
-
-      // if we timeout we will return an error response
-      TraktResponse response = moviesForUser.FromJSON<TraktResponse>();
-      if (response == null || response.Error != null) return null;
-
-      return moviesForUser.FromJSONArray<TraktLibraryMovies>();
-    }
-
-    public static IEnumerable<TraktLibraryShow> GetLibraryEpisodesForUser(string user)
-    {
-      return GetLibraryEpisodesForUser(user, true);
-    }
-
-    /// <summary>
-    /// Gets the trakt episode library for a user
-    /// </summary>
-    /// <param name="user">The user to get</param>
-    /// <param name="syncDataOnly">set this to true (default) if you want the absolute minimum data returned nessacary for syncing</param>
-    /// <returns>The trakt episode library</returns>
-    public static IEnumerable<TraktLibraryShow> GetLibraryEpisodesForUser(string user, bool syncDataOnly)
-    {
-      string showsForUser = Transmit(string.Format(TraktURIs.UserEpisodesCollection, user, syncDataOnly ? @"/min" : string.Empty), GetUserAuthentication());
-
-      // if we timeout we will return an error response
-      TraktResponse response = showsForUser.FromJSON<TraktResponse>();
-      if (response == null || response.Error != null) return null;
-
-      return showsForUser.FromJSONArray<TraktLibraryShow>();
-    }
-
-    public static IEnumerable<TraktLibraryShow> GetWatchedEpisodesForUser(string user)
-    {
-      return GetWatchedEpisodesForUser(user, true);
-    }
-
-    /// <summary>
-    /// Gets the trakt watched/seen episodes for a user
-    /// </summary>
-    /// <param name="user">The user to get</param>
-    /// <param name="syncDataOnly">set this to true (default) if you want the absolute minimum data returned nessacary for syncing</param>
-    /// <returns>The trakt episode library</returns>
-    public static IEnumerable<TraktLibraryShow> GetWatchedEpisodesForUser(string user, bool syncDataOnly)
-    {
-      string showsForUser = Transmit(string.Format(TraktURIs.UserWatchedEpisodes, user, syncDataOnly ? @"/min" : string.Empty), GetUserAuthentication());
-
-      // if we timeout we will return an error response
-      TraktResponse response = showsForUser.FromJSON<TraktResponse>();
-      if (response == null || response.Error != null) return null;
-
-      return showsForUser.FromJSONArray<TraktLibraryShow>();
-    }
-
-    public static IEnumerable<TraktLibraryShow> GetUnSeenEpisodesForUser(string user)
-    {
-      return GetUnSeenEpisodesForUser(user, true);
-    }
-
-    public static IEnumerable<TraktLibraryShow> GetUnSeenEpisodesForUser(string user, bool syncDataOnly)
-    {
-      string showsForUser = Transmit(string.Format(TraktURIs.UserEpisodesUnSeen, user, syncDataOnly ? @"/min" : string.Empty), GetUserAuthentication());
-
-      // if we timeout we will return an error response
-      TraktResponse response = showsForUser.FromJSON<TraktResponse>();
-      if (response == null || response.Error != null) return null;
-
-      return showsForUser.FromJSONArray<TraktLibraryShow>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncCollectionEpisodes);
+      return response.FromJSONArray<TraktEpisodeCollected>();
     }
 
     #endregion
 
-    #region Rating
+    #region Watched History
 
-    /// <summary>
-    /// Sends episode rate data to Trakt
-    /// </summary>
-    /// <param name="episode">The Trakt rate data to send</param>
-    /// <returns>The response from Trakt</returns>
-    public static TraktRateResponse RateEpisode(TraktRateEpisode episode)
+    public static IEnumerable<TraktMovieWatched> GetWatchedMovies()
     {
-      if (episode == null) return null;
-      string response = Transmit(string.Format(TraktURIs.RateItem, TraktItemType.episode), episode.ToJSON());
-      return response.FromJSON<TraktRateResponse>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncWatchedMovies);
+      return response.FromJSONArray<TraktMovieWatched>();
     }
 
-    /// <summary>
-    /// Sends episodes rate data to Trakt
-    /// </summary>
-    /// <param name="episodes">The Trakt rate data to send</param>
-    /// <returns>The response from Trakt</returns>
-    public static TraktRateResponse RateEpisodes(TraktRateEpisodes episodes)
+    public static IEnumerable<TraktEpisodeWatched> GetWatchedEpisodes()
     {
-      if (episodes == null) return null;
-      string response = Transmit(TraktURIs.RateEpisodes, episodes.ToJSON());
-      return response.FromJSON<TraktRateResponse>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncWatchedEpisodes);
+      return response.FromJSONArray<TraktEpisodeWatched>();
     }
 
-    /// <summary>
-    /// Sends series rate data to Trakt
-    /// </summary>
-    /// <param name="series">The Trakt rate data to send</param>
-    /// <returns>The response from Trakt</returns>
-    public static TraktRateResponse RateSeries(TraktRateSeries series)
+    #endregion
+
+    #region Ratings
+
+    public static IEnumerable<TraktMovieRated> GetRatedMovies()
     {
-      if (series == null) return null;
-      string response = Transmit(string.Format(TraktURIs.RateItem, TraktItemType.show.ToString()), series.ToJSON());
-      return response.FromJSON<TraktRateResponse>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncRatedMovies);
+      return response.FromJSONArray<TraktMovieRated>();
     }
 
-    /// <summary>
-    /// Sends multiple series rate data to Trakt
-    /// </summary>
-    /// <param name="shows">The Trakt rate data to send</param>
-    /// <returns>The response from Trakt</returns>
-    public static TraktRateResponse RateSeries(TraktRateShows shows)
+    public static IEnumerable<TraktEpisodeRated> GetRatedEpisodes()
     {
-      if (shows == null) return null;
-      string response = Transmit(TraktURIs.RateShows, shows.ToJSON());
-      return response.FromJSON<TraktRateResponse>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncRatedEpisodes);
+      return response.FromJSONArray<TraktEpisodeRated>();
     }
 
-    /// <summary>
-    /// Sends movie rate data to Trakt
-    /// </summary>
-    /// <param name="movie">The Trakt rate data to send</param>
-    /// <returns>The response from Trakt</returns>
-    public static TraktRateResponse RateMovie(TraktRateMovie movie)
+    public static IEnumerable<TraktShowRated> GetRatedShows()
     {
-      if (movie == null) return null;
-      string response = Transmit(string.Format(TraktURIs.RateItem, TraktItemType.movie), movie.ToJSON());
-      return response.FromJSON<TraktRateResponse>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncRatedShows);
+      return response.FromJSONArray<TraktShowRated>();
     }
 
-    /// <summary>
-    /// Sends movies rate data to Trakt
-    /// </summary>
-    /// <param name="movies">The Trakt rate data to send</param>
-    /// <returns>The response from Trakt</returns>
-    public static TraktRateResponse RateMovies(TraktRateMovies movies)
+    public static IEnumerable<TraktSeasonRated> GetRatedSeasons()
     {
-      if (movies == null) return null;
-      string response = Transmit(TraktURIs.RateMovies, movies.ToJSON());
-      return response.FromJSON<TraktRateResponse>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.SyncRatedSeasons);
+      return response.FromJSONArray<TraktSeasonRated>();
     }
 
     #endregion
 
     #region User
 
-    public static TraktUserProfile GetUserProfile(string user)
+    public static TraktUserStatistics GetUserStatistics(string user)
     {
-      string response = Transmit(string.Format(TraktURIs.UserProfile, user), GetUserAuthentication());
-      return response.FromJSON<TraktUserProfile>();
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserStats, user));
+      return response.FromJSON<TraktUserStatistics>();
+    }
+
+    public static TraktUserSummary GetUserProfile(string user)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserProfile, user));
+      return response.FromJSON<TraktUserSummary>();
     }
 
     /// <summary>
-    /// Returns a list of Friends and their user profiles
+    /// Gets a list of follower requests for the current user
     /// </summary>
-    /// <param name="user">username of person to retrieve friend s list</param>
-    public static IEnumerable<TraktUserProfile> GetUserFriends(string user)
+    /// <returns></returns>
+    public static IEnumerable<TraktFollowerRequest> GetFollowerRequests()
     {
-      string response = Transmit(string.Format(TraktURIs.UserFriends, user), GetUserAuthentication());
-      return response.FromJSONArray<TraktUserProfile>();
+      var response = TraktWeb.GetFromTrakt(TraktURIs.UserFollowerRequests);
+      return response.FromJSONArray<TraktFollowerRequest>();
     }
 
     /// <summary>
-    /// Returns list of episodes in Users Calendar
+    /// Returns a list of Friends for current user
+    /// Friends are a two-way relationship ie. both following each other
     /// </summary>
-    /// <param name="user">username of person to get Calendar</param>
-    public static IEnumerable<TraktCalendar> GetCalendarForUser(string user)
+    //public static IEnumerable<TraktNetworkFriend> GetNetworkFriends()
+    //{
+    //  return GetNetworkFriends(TraktSettings.Username);
+    //}
+
+    public static IEnumerable<TraktNetworkFriend> GetNetworkFriends(string user)
+    {
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.NetworkFriends, user));
+      return response.FromJSONArray<TraktNetworkFriend>();
+    }
+
+    public static IEnumerable<TraktNetworkUser> GetNetworkFollowing(string user)
+    {
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.NetworkFollowing, user));
+      return response.FromJSONArray<TraktNetworkUser>();
+    }
+
+    public static IEnumerable<TraktNetworkUser> GetNetworkFollowers(string user)
+    {
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.NetworkFollowers, user));
+      return response.FromJSONArray<TraktNetworkUser>();
+    }
+
+    public static TraktNetworkUser NetworkApproveFollower(int id)
+    {
+      string response = TraktWeb.PostToTrakt(string.Format(TraktURIs.NetworkFollowRequest, id), string.Empty);
+      return response.FromJSON<TraktNetworkUser>();
+    }
+
+    public static IEnumerable<TraktMovieHistory> GetUsersMovieWatchedHistory(string username, int page = 1, int maxItems = 100)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchedHistoryMovies, username, page, maxItems));
+      return response.FromJSONArray<TraktMovieHistory>();
+    }
+
+    public static IEnumerable<TraktEpisodeHistory> GetUsersEpisodeWatchedHistory(string username, int page = 1, int maxItems = 100)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchedHistoryEpisodes, username, page, maxItems));
+      return response.FromJSONArray<TraktEpisodeHistory>();
+    }
+
+    /// <summary>
+    /// Get comments for user sorted by most recent
+    /// </summary>
+    /// <param name="username">Username of person that made comment</param>
+    /// <param name="commentType">all, reviews, shouts</param>
+    /// <param name="type"> all, movies, shows, seasons, episodes, lists</param>
+    public static TraktComments GetUsersComments(string username, string commentType = "all", string type = "all", string extendedInfoParams = "min", int page = 1, int maxItems = 10)
+    {
+      var headers = new WebHeaderCollection();
+
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserComments, username, commentType, type, extendedInfoParams, page, maxItems));
+      if (response == null)
+        return null;
+
+      try
+      {
+        return new TraktComments
+        {
+          CurrentPage = page,
+          TotalItemsPerPage = maxItems,
+          TotalPages = int.Parse(headers["X-Pagination-Page-Count"]),
+          TotalItems = int.Parse(headers["X-Pagination-Item-Count"]),
+          Comments = response.FromJSONArray<TraktCommentItem>()
+        };
+      }
+      catch
+      {
+        // most likely bad header response
+        return null;
+      }
+    }
+
+    #endregion
+
+    #region Lists
+
+    public static IEnumerable<TraktListDetail> GetUserLists(string username)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserLists, username));
+      return response.FromJSONArray<TraktListDetail>();
+    }
+
+    public static IEnumerable<TraktListItem> GetUserListItems(string username, string listId, string extendedInfoParams = "min")
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserListItems, username, listId, extendedInfoParams));
+      return response.FromJSONArray<TraktListItem>();
+    }
+
+    public static TraktListDetail CreateCustomList(TraktList list, string username)
+    {
+      var response = TraktWeb.PostToTrakt(string.Format(TraktURIs.UserListAdd, username), list.ToJSON());
+      return response.FromJSON<TraktListDetail>();
+    }
+
+    public static TraktSyncResponse AddItemsToList(string username, string id, TraktSyncAll items)
+    {
+      var response = TraktWeb.PostToTrakt(string.Format(TraktURIs.UserListItemsAdd, username, id), items.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveItemsFromList(string username, string id, TraktSyncAll items)
+    {
+      var response = TraktWeb.PostToTrakt(string.Format(TraktURIs.UserListItemsRemove, username, id), items.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static bool DeleteUserList(string username, string listId)
+    {
+      return DeleteFromTrakt(string.Format(TraktURIs.DeleteList, username, listId));
+    }
+
+    public static bool LikeList(string username, int id)
+    {
+      var response = TraktWeb.PostToTrakt(string.Format(TraktURIs.UserListLike, username, id), null);
+      return response != null;
+    }
+
+    public static bool UnLikeList(string username, int id)
+    {
+      return DeleteFromTrakt(string.Format(TraktURIs.UserListLike, username, id));
+    }
+
+    #endregion
+
+    #region Watchlists
+
+    public static IEnumerable<TraktMovieWatchList> GetWatchListMovies(string username, string extendedInfoParams = "min")
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchlistMovies, username, extendedInfoParams));
+      return response.FromJSONArray<TraktMovieWatchList>();
+    }
+
+    public static IEnumerable<TraktShowWatchList> GetWatchListShows(string username, string extendedInfoParams = "min")
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchlistShows, username, extendedInfoParams));
+      return response.FromJSONArray<TraktShowWatchList>();
+    }
+
+    public static IEnumerable<TraktSeasonWatchList> GetWatchListSeasons(string username, string extendedInfoParams = "min")
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchlistSeasons, username, extendedInfoParams), true);
+      return response.FromJSONArray<TraktSeasonWatchList>();
+    }
+
+    public static IEnumerable<TraktEpisodeWatchList> GetWatchListEpisodes(string username, string extendedInfoParams = "min")
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchlistEpisodes, username, extendedInfoParams), true);
+      return response.FromJSONArray<TraktEpisodeWatchList>();
+    }
+
+    #endregion
+
+    #region Likes
+
+    /// <summary>
+    /// Gets the current users liked items (comments and/or lists)
+    /// </summary>
+    /// <param name="type">The type of liked item: all (default), lists or comments</param>
+    /// <param name="extendedInfoParams">Extended Info: min, full, images (comma separated)</param>
+    /// <param name="page">Page Number</param>
+    /// <param name="maxItems">Maximum number of items to request per page (this should be consistent per page request)</param>
+    public static TraktLikes GetLikedItems(string type = "all", string extendedInfoParams = "min", int page = 1, int maxItems = 10)
+    {
+      var headers = new WebHeaderCollection();
+
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserLikedItems, type, extendedInfoParams, page, maxItems));
+      if (response == null)
+        return null;
+
+      try
+      {
+        return new TraktLikes
+        {
+          CurrentPage = page,
+          TotalItemsPerPage = maxItems,
+          TotalPages = int.Parse(headers["X-Pagination-Page-Count"]),
+          TotalItems = int.Parse(headers["X-Pagination-Item-Count"]),
+          Likes = response.FromJSONArray<TraktLike>()
+        };
+      }
+      catch
+      {
+        // most likely bad header response
+        return null;
+      }
+    }
+
+    #endregion
+
+    #region Movies
+
+    #region Related
+
+    public static IEnumerable<TraktMovieSummary> GetRelatedMovies(string id, int limit = 10)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.RelatedMovies, id, limit));
+      return response.FromJSONArray<TraktMovieSummary>();
+    }
+
+    #endregion
+
+    #region Comments
+
+    public static IEnumerable<TraktComment> GetMovieComments(string id, int page = 1, int maxItems = 1000)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.MovieComments, id, page, maxItems));
+      return response.FromJSONArray<TraktComment>();
+    }
+
+    #endregion
+
+    #region Popular
+
+    public static TraktMoviesPopular GetPopularMovies(int page = 1, int maxItems = 100)
+    {
+      var headers = new WebHeaderCollection();
+
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PopularMovies, page, maxItems));
+      if (response == null)
+        return null;
+
+      try
+      {
+        return new TraktMoviesPopular
+        {
+          CurrentPage = page,
+          TotalItemsPerPage = maxItems,
+          Movies = response.FromJSONArray<TraktMovieSummary>()
+        };
+      }
+      catch
+      {
+        // most likely bad header response
+        return null;
+      }
+    }
+
+    #endregion
+
+    #region Trending
+
+    public static TraktMoviesTrending GetTrendingMovies(int page = 1, int maxItems = 100)
+    {
+      var headers = new WebHeaderCollection();
+
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.TrendingMovies, page, maxItems));
+      if (response == null)
+        return null;
+
+      try
+      {
+        return new TraktMoviesTrending
+        {
+          CurrentPage = page,
+          TotalItemsPerPage = maxItems,
+          TotalPages = int.Parse(headers["X-Pagination-Page-Count"]),
+          TotalItems = int.Parse(headers["X-Pagination-Item-Count"]),
+          TotalWatchers = int.Parse(headers["X-Trending-User-Count"]),
+          Movies = response.FromJSONArray<TraktMovieTrending>()
+        };
+      }
+      catch
+      {
+        // most likely bad header response
+        return null;
+      }
+    }
+
+    #endregion
+
+    #region Recommendations
+
+    public static IEnumerable<TraktMovieSummary> GetRecommendedMovies(string extendedInfoParams = "min")
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.RecommendedMovies, extendedInfoParams));
+      return response.FromJSONArray<TraktMovieSummary>();
+    }
+
+    public static bool DismissRecommendedMovie(string movieId)
+    {
+      return DeleteFromTrakt(string.Format(TraktURIs.DismissRecommendedMovie, movieId));
+    }
+
+    #endregion
+
+    #region Updates
+
+    public static TraktMoviesUpdated GetRecentlyUpdatedMovies(string sincedate, int page = 1, int maxItems = 100)
+    {
+      var headers = new WebHeaderCollection();
+
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.MovieUpdates, sincedate, page, maxItems));
+      if (response == null)
+        return null;
+
+      try
+      {
+        return new TraktMoviesUpdated
+        {
+          CurrentPage = page,
+          TotalItemsPerPage = maxItems,
+          TotalPages = int.Parse(headers["X-Pagination-Page-Count"]),
+          TotalItems = int.Parse(headers["X-Pagination-Item-Count"]),
+          Movies = response.FromJSONArray<TraktMovieUpdate>()
+        };
+      }
+      catch
+      {
+        // most likely bad header response
+        return null;
+      }
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Shows
+
+    #region Related
+
+    public static IEnumerable<TraktShowSummary> GetRelatedShows(string id, int limit = 10)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.RelatedShows, id, limit));
+      return response.FromJSONArray<TraktShowSummary>();
+    }
+
+    #endregion
+
+    #region Summary
+
+    public static TraktShowSummary GetShowSummary(string id)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowSummary, id));
+      return response.FromJSON<TraktShowSummary>();
+    }
+
+    #endregion
+
+    #region Updates
+
+    public static TraktShowsUpdated GetRecentlyUpdatedShows(string sincedate, int page = 1, int maxItems = 100)
+    {
+      var headers = new WebHeaderCollection();
+
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowUpdates, sincedate, page, maxItems));
+      if (response == null)
+        return null;
+
+      try
+      {
+        return new TraktShowsUpdated
+        {
+          CurrentPage = page,
+          TotalItemsPerPage = maxItems,
+          TotalPages = int.Parse(headers["X-Pagination-Page-Count"]),
+          TotalItems = int.Parse(headers["X-Pagination-Item-Count"]),
+          Shows = response.FromJSONArray<TraktShowUpdate>()
+        };
+      }
+      catch
+      {
+        // most likely bad header response
+        return null;
+      }
+    }
+
+    #endregion
+
+    #region Seasons
+
+    /// <summary>
+    /// Gets the seasons for a show
+    /// </summary>
+    /// <param name="id">the id of the tv show</param>
+    /// <param name="extendedParameter">request parameters, "episodes,full,images"</param>
+    public static IEnumerable<TraktSeasonSummary> GetShowSeasons(string id, string extendedParameter = "full,images")
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowSeasons, id, extendedParameter));
+      return response.FromJSONArray<TraktSeasonSummary>();
+    }
+
+    public static IEnumerable<TraktComment> GetSeasonComments(string id, int season, int page = 1, int maxItems = 1000)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SeasonComments, id, season, page, maxItems), true);
+      return response.FromJSONArray<TraktComment>();
+    }
+
+    #endregion
+
+    #region Comments
+
+    public static IEnumerable<TraktComment> GetShowComments(string id, int page = 1, int maxItems = 1000)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowComments, id, page, maxItems), true);
+      return response.FromJSONArray<TraktComment>();
+    }
+
+    #endregion
+
+    #region Popular
+
+    public static TraktShowsPopular GetPopularShows(int page = 1, int maxItems = 100)
+    {
+      var headers = new WebHeaderCollection();
+
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PopularShows, page, maxItems));
+      if (response == null)
+        return null;
+
+      try
+      {
+        return new TraktShowsPopular
+        {
+          CurrentPage = page,
+          TotalItemsPerPage = maxItems,
+          Shows = response.FromJSONArray<TraktShowSummary>()
+        };
+      }
+      catch
+      {
+        // most likely bad header response
+        return null;
+      }
+    }
+
+    #endregion
+
+    #region Trending
+
+    public static TraktShowsTrending GetTrendingShows(int page = 1, int maxItems = 100)
+    {
+      var headers = new WebHeaderCollection();
+
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.TrendingShows, page, maxItems));
+      if (response == null)
+        return null;
+
+      try
+      {
+        return new TraktShowsTrending
+        {
+          CurrentPage = page,
+          TotalItemsPerPage = maxItems,
+          TotalPages = int.Parse(headers["X-Pagination-Page-Count"]),
+          TotalItems = int.Parse(headers["X-Pagination-Item-Count"]),
+          TotalWatchers = int.Parse(headers["X-Trending-User-Count"]),
+          Shows = response.FromJSONArray<TraktShowTrending>()
+        };
+      }
+      catch
+      {
+        // most likely bad header response
+        return null;
+      }
+    }
+
+    #endregion
+
+    #region Recommendations
+
+    public static IEnumerable<TraktShowSummary> GetRecommendedShows()
+    {
+      var response = TraktWeb.GetFromTrakt(TraktURIs.RecommendedShows);
+      return response.FromJSONArray<TraktShowSummary>();
+    }
+
+    public static bool DismissRecommendedShow(string showId)
+    {
+      return DeleteFromTrakt(string.Format(TraktURIs.DismissRecommendedShow, showId));
+    }
+
+    #endregion
+
+    #region Calendar
+
+    /// <summary>
+    /// Returns list of episodes in the Calendar
+    /// </summary>
+    public static Dictionary<string, IEnumerable<TraktCalendar>> GetCalendarShows()
     {
       // 7-Days from Today
-      // All Dates should be in PST (GMT-8)
-      DateTime dateNow = DateTime.UtcNow.Subtract(new TimeSpan(8, 0, 0));
-      return GetCalendarForUser(user, dateNow.ToString("yyyyMMdd"), "7");
+      DateTime dateNow = DateTime.UtcNow;
+      return GetCalendarShows(dateNow.ToString("yyyyMMdd"), "7", false);
     }
 
     /// <summary>
-    /// Returns list of episodes in Users Calendar
+    /// Returns list of episodes in the Calendar
     /// </summary>
-    /// <param name="user">username of person to get Calendar</param>
-    /// <param name="startDate">Start Date of calendar in form yyyyMMdd (GMT-8hrs)</param>
+    /// <param name="startDate">Start Date of calendar in form yyyyMMdd</param>
     /// <param name="days">Number of days to return in calendar</param>
-    public static IEnumerable<TraktCalendar> GetCalendarForUser(string user, string startDate, string days)
+    /// <param name="userCalendar">Set to true to get the calendar filtered by users shows in library</param>
+    public static Dictionary<string, IEnumerable<TraktCalendar>> GetCalendarShows(string startDate, string days, bool userCalendar)
     {
-      string userCalendar = Transmit(string.Format(TraktURIs.UserCalendarShows, user, startDate, days), GetUserAuthentication());
-      return userCalendar.FromJSONArray<TraktCalendar>();
+      string calendar = TraktWeb.GetFromTrakt(string.Format(TraktURIs.CalendarShows, startDate, days), userCalendar);
+      return calendar.FromJSONDictionary<Dictionary<string, IEnumerable<TraktCalendar>>>();
     }
 
-    public static IEnumerable<TraktCalendar> GetCalendarPremieres()
+    /// <summary>
+    /// Returns list of episodes in the Premieres Calendar
+    /// </summary>
+    public static Dictionary<string, IEnumerable<TraktCalendar>> GetCalendarPremieres()
     {
       // 7-Days from Today
-      // All Dates should be in PST (GMT-8)
-      DateTime dateNow = DateTime.UtcNow.Subtract(new TimeSpan(8, 0, 0));
+      DateTime dateNow = DateTime.UtcNow;
       return GetCalendarPremieres(dateNow.ToString("yyyyMMdd"), "7");
     }
 
     /// <summary>
     /// Returns list of episodes in the Premieres Calendar
     /// </summary>        
-    /// <param name="startDate">Start Date of calendar in form yyyyMMdd (GMT-8hrs)</param>
+    /// <param name="startDate">Start Date of calendar in form yyyyMMdd</param>
     /// <param name="days">Number of days to return in calendar</param>
-    public static IEnumerable<TraktCalendar> GetCalendarPremieres(string startDate, string days)
+    public static Dictionary<string, IEnumerable<TraktCalendar>> GetCalendarPremieres(string startDate, string days)
     {
-      string premieres = Transmit(string.Format(TraktURIs.CalendarPremieres, startDate, days), GetUserAuthentication());
-      return premieres.FromJSONArray<TraktCalendar>();
-    }
-
-    public static IEnumerable<TraktCalendar> GetCalendarShows()
-    {
-      DateTime dateNow = DateTime.UtcNow.Subtract(new TimeSpan(8, 0, 0));
-      return GetCalendarShows(dateNow.ToString("yyyyMMdd"), "7");
-    }
-
-    public static IEnumerable<TraktCalendar> GetCalendarShows(string startDate, string days)
-    {
-      string premieres = Transmit(string.Format(TraktURIs.CalendarAllShows, startDate, days), GetUserAuthentication());
-      return premieres.FromJSONArray<TraktCalendar>();
-    }
-
-    /// <summary>
-    /// Returns list of the 100 last watched episodes by a user
-    /// </summary>
-    /// <param name="user">username of person to get watched history</param>
-    [Obsolete("This method is deprecated and has been replaced by GetUserActivity", false)]
-    public static IEnumerable<TraktWatchedEpisode> GetUserEpisodeWatchedHistory(string user)
-    {
-      string watchedEpisodes = Transmit(string.Format(TraktURIs.UserEpisodeWatchedHistory, user), GetUserAuthentication());
-      return watchedEpisodes.FromJSONArray<TraktWatchedEpisode>();
-    }
-
-    /// <summary>
-    /// Returns list of the 100 last watched movies by a user
-    /// </summary>
-    /// <param name="user">username of person to get watched history</param>
-    [Obsolete("This method is deprecated and has been replaced by GetUserActivity", false)]
-    public static IEnumerable<TraktWatchedMovie> GetUserMovieWatchedHistory(string user)
-    {
-      string watchedMovies = Transmit(string.Format(TraktURIs.UserMovieWatchedHistory, user), GetUserAuthentication());
-      return watchedMovies.FromJSONArray<TraktWatchedMovie>();
-    }
-
-    /// <summary>
-    /// Returns a list of lists created by user
-    /// </summary>
-    /// <param name="user">username of person to get lists</param>
-    public static IEnumerable<TraktUserList> GetUserLists(string user)
-    {
-      string userLists = Transmit(string.Format(TraktURIs.UserLists, user), GetUserAuthentication());
-      return userLists.FromJSONArray<TraktUserList>();
-    }
-
-    /// <summary>
-    /// Returns the contents of a lists for a user
-    /// </summary>
-    /// <param name="user">username of person</param>
-    /// <param name="slug">slug (id) of list item e.g. "star-wars-collection"</param>
-    public static TraktUserList GetUserList(string user, string slug)
-    {
-      string userList = Transmit(string.Format(TraktURIs.UserList, user, slug), GetUserAuthentication());
-      return userList.FromJSON<TraktUserList>();
-    }
-
-    /// <summary>
-    /// Returns the users Rated Movies
-    /// </summary>
-    /// <param name="user">username of person</param>
-    public static IEnumerable<TraktUserMovieRating> GetUserRatedMovies(string user)
-    {
-      string ratedMovies = Transmit(string.Format(TraktURIs.UserRatedMoviesList, user), GetUserAuthentication());
-
-      // if we timeout we will return an error response
-      TraktResponse response = ratedMovies.FromJSON<TraktResponse>();
-      if (response == null || response.Error != null) return null;
-
-      return ratedMovies.FromJSONArray<TraktUserMovieRating>();
-    }
-
-    /// <summary>
-    /// Returns the users Rated Shows
-    /// </summary>
-    /// <param name="user">username of person</param>
-    public static IEnumerable<TraktUserShowRating> GetUserRatedShows(string user)
-    {
-      string ratedShows = Transmit(string.Format(TraktURIs.UserRatedShowsList, user), GetUserAuthentication());
-
-      // if we timeout we will return an error response
-      TraktResponse response = ratedShows.FromJSON<TraktResponse>();
-      if (response == null || response.Error != null) return null;
-
-      return ratedShows.FromJSONArray<TraktUserShowRating>();
-    }
-
-    /// <summary>
-    /// Returns the users Rated Episodes
-    /// </summary>
-    /// <param name="user">username of person</param>
-    public static IEnumerable<TraktUserEpisodeRating> GetUserRatedEpisodes(string user)
-    {
-      string ratedEpisodes = Transmit(string.Format(TraktURIs.UserRatedEpisodesList, user), GetUserAuthentication());
-
-      // if we timeout we will return an error response
-      TraktResponse response = ratedEpisodes.FromJSON<TraktResponse>();
-      if (response == null || response.Error != null) return null;
-
-      return ratedEpisodes.FromJSONArray<TraktUserEpisodeRating>();
+      string premieres = TraktWeb.GetFromTrakt(string.Format(TraktURIs.CalendarPremieres, startDate, days));
+      return premieres.FromJSONDictionary<Dictionary<string, IEnumerable<TraktCalendar>>>();
     }
 
     #endregion
 
-    #region Activity
+    #endregion
+
+    #region Episodes
+
+    #region Comments
+
+    public static IEnumerable<TraktComment> GetEpisodeComments(string id, int season, int episode, int page = 1, int maxItems = 1000)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.EpisodeComments, id, season, episode, page, maxItems));
+      return response.FromJSONArray<TraktComment>();
+    }
+
+    #endregion
+
+    #region Season Episodes
+
+    public static IEnumerable<TraktEpisodeSummary> GetSeasonEpisodes(string showId, string seasonId)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SeasonEpisodes, showId, seasonId));
+      return response.FromJSONArray<TraktEpisodeSummary>();
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Activity TODO
 
     public static TraktActivity GetFriendActivity()
     {
@@ -733,15 +720,62 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static TraktActivity GetFriendActivity(List<ActivityType> types, List<ActivityAction> actions, long start, long end, bool includeMe)
     {
-      // get comma seperated list of types and actions (if more than one)
-      string activityTypes = types == null ? "all" : string.Join(",", types.Select(t => t.ToString()).ToArray());
-      string activityActions = actions == null ? "all" : string.Join(",", actions.Select(a => a.ToString()).ToArray());
+      //// get comma seperated list of types and actions (if more than one)
+      //string activityTypes = types == null ? "all" : string.Join(",", types.Select(t => t.ToString()).ToArray());
+      //string activityActions = actions == null ? "all" : string.Join(",", actions.Select(a => a.ToString()).ToArray());
 
-      string startEnd = (start == 0 || end == 0) ? string.Empty : string.Format("/{0}/{1}", start, end);
-      string apiUrl = includeMe ? TraktURIs.ActivityFriendsMe : TraktURIs.ActivityFriends;
+      //string startEnd = (start == 0 || end == 0) ? string.Empty : string.Format("/{0}/{1}", start, end);
+      //string apiUrl = includeMe ? TraktURIs.ActivityFriendsMe : TraktURIs.ActivityFriends;
 
-      string activity = Transmit(string.Format(apiUrl, activityTypes, activityActions, startEnd), GetUserAuthentication());
-      return activity.FromJSON<TraktActivity>();
+      //string activity = Transmit(string.Format(apiUrl, activityTypes, activityActions, startEnd), GetUserAuthentication());
+      //return activity.FromJSON<TraktActivity>();
+      return null;
+    }
+
+    public static TraktActivity GetFollowingActivity()
+    {
+      return GetFollowingActivity(null, null);
+    }
+
+    public static TraktActivity GetFollowingActivity(List<ActivityType> types, List<ActivityAction> actions)
+    {
+      return GetFollowingActivity(types, actions, 0, 0);
+    }
+
+    public static TraktActivity GetFollowingActivity(List<ActivityType> types, List<ActivityAction> actions, long start, long end)
+    {
+      //// get comma seperated list of types and actions (if more than one)
+      //string activityTypes = types == null ? "all" : string.Join(",", types.Select(t => t.ToString()).ToArray());
+      //string activityActions = actions == null ? "all" : string.Join(",", actions.Select(a => a.ToString()).ToArray());
+
+      //string startEnd = (start == 0 || end == 0) ? string.Empty : string.Format("/{0}/{1}", start, end);
+
+      //string activity = Transmit(string.Format(TraktURIs.ActivityFollowing, activityTypes, activityActions, startEnd), GetUserAuthentication());
+      //return activity.FromJSON<TraktActivity>();
+      return null;
+    }
+
+    public static TraktActivity GetFollowersActivity()
+    {
+      return GetFollowersActivity(null, null);
+    }
+
+    public static TraktActivity GetFollowersActivity(List<ActivityType> types, List<ActivityAction> actions)
+    {
+      return GetFollowersActivity(types, actions, 0, 0);
+    }
+
+    public static TraktActivity GetFollowersActivity(List<ActivityType> types, List<ActivityAction> actions, long start, long end)
+    {
+      //// get comma seperated list of types and actions (if more than one)
+      //string activityTypes = types == null ? "all" : string.Join(",", types.Select(t => t.ToString()).ToArray());
+      //string activityActions = actions == null ? "all" : string.Join(",", actions.Select(a => a.ToString()).ToArray());
+
+      //string startEnd = (start == 0 || end == 0) ? string.Empty : string.Format("/{0}/{1}", start, end);
+
+      //string activity = Transmit(string.Format(TraktURIs.ActivityFollowers, activityTypes, activityActions, startEnd), GetUserAuthentication());
+      //return activity.FromJSON<TraktActivity>();
+      return null;
     }
 
     public static TraktActivity GetCommunityActivity()
@@ -756,326 +790,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static TraktActivity GetCommunityActivity(List<ActivityType> types, List<ActivityAction> actions, long start, long end)
     {
-      // get comma seperated list of types and actions (if more than one)
-      string activityTypes = types == null ? "all" : string.Join(",", types.Select(t => t.ToString()).ToArray());
-      string activityActions = actions == null ? "all" : string.Join(",", actions.Select(a => a.ToString()).ToArray());
+      //// get comma seperated list of types and actions (if more than one)
+      //string activityTypes = types == null ? "all" : string.Join(",", types.Select(t => t.ToString()).ToArray());
+      //string activityActions = actions == null ? "all" : string.Join(",", actions.Select(a => a.ToString()).ToArray());
 
-      string startEnd = (start == 0 || end == 0) ? string.Empty : string.Format("/{0}/{1}", start, end);
+      //string startEnd = (start == 0 || end == 0) ? string.Empty : string.Format("/{0}/{1}", start, end);
 
-      string activity = Transmit(string.Format(TraktURIs.ActivityCommunity, activityTypes, activityActions, startEnd), GetUserAuthentication());
-      return activity.FromJSON<TraktActivity>();
+      //string activity = Transmit(string.Format(TraktURIs.ActivityCommunity, activityTypes, activityActions, startEnd), GetUserAuthentication());
+      //return activity.FromJSON<TraktActivity>();
+      return null;
     }
 
     public static TraktActivity GetUserActivity(string username, List<ActivityType> types, List<ActivityAction> actions)
     {
-      // get comma seperated list of types and actions (if more than one)
-      string activityTypes = string.Join(",", types.Select(t => t.ToString()).ToArray());
-      string activityActions = string.Join(",", actions.Select(a => a.ToString()).ToArray());
+      //// get comma seperated list of types and actions (if more than one)
+      //string activityTypes = string.Join(",", types.Select(t => t.ToString()).ToArray());
+      //string activityActions = string.Join(",", actions.Select(a => a.ToString()).ToArray());
 
-      string activity = Transmit(string.Format(TraktURIs.ActivityUser, username, activityTypes, activityActions), GetUserAuthentication());
-      return activity.FromJSON<TraktActivity>();
-    }
-
-    #endregion
-
-    #region Friends / Network
-
-    /// <summary>
-    /// Returns a list of Friends for current user
-    /// Friends are a two-way relationship ie. both following each other
-    /// </summary>
-    public static IEnumerable<TraktNetworkUser> GetNetworkFriends()
-    {
-      return GetNetworkFriends(TraktSettings.Username);
-    }
-    public static IEnumerable<TraktNetworkUser> GetNetworkFriends(string person)
-    {
-      string response = Transmit(string.Format(TraktURIs.NetworkFriends, person), GetUserAuthentication());
-      return response.FromJSONArray<TraktNetworkUser>();
-    }
-
-    /// <summary>
-    /// Returns a list of people the current user follows
-    /// </summary>
-    public static IEnumerable<TraktNetworkUser> GetNetworkFollowing()
-    {
-      return GetNetworkFollowing(TraktSettings.Username);
-    }
-    public static IEnumerable<TraktNetworkUser> GetNetworkFollowing(string person)
-    {
-      string response = Transmit(string.Format(TraktURIs.NetworkFollowing, person), GetUserAuthentication());
-      return response.FromJSONArray<TraktNetworkUser>();
-    }
-
-    /// <summary>
-    /// Returns a list of people that follow the current user
-    /// </summary>
-    public static IEnumerable<TraktNetworkUser> GetNetworkFollowers()
-    {
-      return GetNetworkFollowers(TraktSettings.Username);
-    }
-    public static IEnumerable<TraktNetworkUser> GetNetworkFollowers(string person)
-    {
-      string response = Transmit(string.Format(TraktURIs.NetworkFollowers, person), GetUserAuthentication());
-      return response.FromJSONArray<TraktNetworkUser>();
-    }
-
-    /// <summary>
-    /// Returns a list of people awaiting 'following' approval
-    /// </summary>
-    /// <returns></returns>
-    public static IEnumerable<TraktNetworkReqUser> GetNetworkRequests()
-    {
-      string response = Transmit(TraktURIs.NetworkRequests, GetUserAuthentication());
-      return response.FromJSONArray<TraktNetworkReqUser>();
-    }
-
-    public static TraktNetworkFollowResponse NetworkFollow(TraktNetwork person)
-    {
-      string response = Transmit(TraktURIs.NetworkFollow, person.ToJSON());
-      return response.FromJSON<TraktNetworkFollowResponse>();
-    }
-
-    public static TraktResponse NetworkUnFollow(TraktNetwork person)
-    {
-      string response = Transmit(TraktURIs.NetworkUnFollow, person.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktResponse NetworkApprove(TraktNetworkApprove person)
-    {
-      string response = Transmit(TraktURIs.NetworkApprove, person.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktResponse NetworkDeny(TraktNetwork person)
-    {
-      string response = Transmit(TraktURIs.NetworkDeny, person.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    #region Obselete Methods
-
-    [Obsolete("This method is now obsolete, use GetNetworkFriends()", false)]
-    public static IEnumerable<TraktUserProfile> GetFriends()
-    {
-      string response = Transmit(string.Format(TraktURIs.Friends, TraktSettings.Username), GetUserAuthentication());
-      return response.FromJSONArray<TraktUserProfile>();
-    }
-
-    [Obsolete("This method is now obsolete, use GetNetworkRequests()", false)]
-    public static IEnumerable<TraktUserProfile> GetFriendRequests()
-    {
-      string response = Transmit(TraktURIs.FriendRequests, GetUserAuthentication());
-      return response.FromJSONArray<TraktUserProfile>();
-    }
-
-    [Obsolete("This method is now obsolete, use NetworkApprove()", false)]
-    public static TraktResponse FriendApprove(TraktFriend friend)
-    {
-      string response = Transmit(TraktURIs.FriendApprove, friend.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    [Obsolete("This method is now obsolete, use NetworkFollow()", false)]
-    public static TraktResponse FriendAdd(TraktFriend friend)
-    {
-      string response = Transmit(TraktURIs.FriendAdd, friend.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    [Obsolete("This method is now obsolete, use NetworkDeny()", false)]
-    public static TraktResponse FriendDeny(TraktFriend friend)
-    {
-      string response = Transmit(TraktURIs.FriendDeny, friend.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    [Obsolete("This method is now obsolete, use NetworkUnfollow()", false)]
-    public static TraktResponse FriendDelete(TraktFriend friend)
-    {
-      string response = Transmit(TraktURIs.FriendDelete, friend.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-    #endregion
-
-    #endregion
-
-    #region Trending
-
-    public static IEnumerable<TraktTrendingMovie> GetTrendingMovies()
-    {
-      string response = Transmit(TraktURIs.TrendingMovies, GetUserAuthentication());
-      return response.FromJSONArray<TraktTrendingMovie>();
-    }
-
-    public static IEnumerable<TraktTrendingShow> GetTrendingShows()
-    {
-      string response = Transmit(TraktURIs.TrendingShows, GetUserAuthentication());
-      return response.FromJSONArray<TraktTrendingShow>();
-    }
-
-    #endregion
-
-    #region Recommendations
-
-    public static TraktResponse DismissMovieRecommendation(TraktMovieSlug movie)
-    {
-      string response = Transmit(TraktURIs.DismissMovieRecommendation, movie.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktResponse DismissShowRecommendation(TraktShowSlug show)
-    {
-      string response = Transmit(TraktURIs.DismissShowRecommendation, show.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    /// <summary>
-    /// Get Recommendations with out any filtering
-    /// </summary>
-    public static IEnumerable<TraktMovie> GetRecommendedMovies()
-    {
-      string response = Transmit(TraktURIs.UserMovieRecommendations, GetUserAuthentication());
-      return response.FromJSONArray<TraktMovie>();
-    }
-
-    public static IEnumerable<TraktMovie> GetRecommendedMovies(string genre, bool hidecollected, bool hidewatchlisted, int startyear, int endyear)
-    {
-      var traktRecommendationPost = new TraktRecommendations
-      {
-        Username = TraktSettings.Username,
-        Password = TraktSettings.Password,
-        Genre = genre,
-        HideCollected = hidecollected,
-        HideWatchlisted = hidewatchlisted,
-        StartYear = startyear,
-        EndYear = endyear
-      };
-
-      string response = Transmit(TraktURIs.UserMovieRecommendations, traktRecommendationPost.ToJSON());
-      return response.FromJSONArray<TraktMovie>();
-    }
-
-    /// <summary>
-    /// Get Recommendations with out any filtering
-    /// </summary>        
-    public static IEnumerable<TraktShow> GetRecommendedShows()
-    {
-      string response = Transmit(TraktURIs.UserShowsRecommendations, GetUserAuthentication());
-      return response.FromJSONArray<TraktShow>();
-    }
-
-    public static IEnumerable<TraktShow> GetRecommendedShows(string genre, bool hidecollected, bool hidewatchlisted, int startyear, int endyear)
-    {
-      var traktRecommendationPost = new TraktRecommendations
-      {
-        Username = TraktSettings.Username,
-        Password = TraktSettings.Password,
-        Genre = genre,
-        HideCollected = hidecollected,
-        HideWatchlisted = hidewatchlisted,
-        StartYear = startyear,
-        EndYear = endyear
-      };
-
-      string response = Transmit(TraktURIs.UserShowsRecommendations, traktRecommendationPost.ToJSON());
-      return response.FromJSONArray<TraktShow>();
-    }
-
-    #endregion
-
-    #region Watch List
-
-    public static IEnumerable<TraktWatchListMovie> GetWatchListMovies(string user)
-    {
-      string response = Transmit(string.Format(TraktURIs.UserMovieWatchList, user), GetUserAuthentication());
-      return response.FromJSONArray<TraktWatchListMovie>();
-    }
-
-    public static IEnumerable<TraktWatchListShow> GetWatchListShows(string user)
-    {
-      string response = Transmit(string.Format(TraktURIs.UserShowsWatchList, user), GetUserAuthentication());
-      return response.FromJSONArray<TraktWatchListShow>();
-    }
-
-    public static IEnumerable<TraktWatchListEpisode> GetWatchListEpisodes(string user)
-    {
-      string response = Transmit(string.Format(TraktURIs.UserEpisodesWatchList, user), GetUserAuthentication());
-      return response.FromJSONArray<TraktWatchListEpisode>();
-    }
-
-    #endregion
-
-    #region Lists
-
-    public static TraktAddListResponse ListAdd(TraktList list)
-    {
-      string response = Transmit(TraktURIs.ListAdd, list.ToJSON());
-      return response.FromJSON<TraktAddListResponse>();
-    }
-
-    public static TraktResponse ListDelete(TraktList list)
-    {
-      string response = Transmit(TraktURIs.ListDelete, list.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktResponse ListUpdate(TraktList list)
-    {
-      string response = Transmit(TraktURIs.ListUpdate, list.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktSyncResponse ListAddItems(TraktList list)
-    {
-      string response = Transmit(TraktURIs.ListItemsAdd, list.ToJSON());
-      return response.FromJSON<TraktSyncResponse>();
-    }
-
-    public static TraktSyncResponse ListDeleteItems(TraktList list)
-    {
-      string response = Transmit(TraktURIs.ListItemsDelete, list.ToJSON());
-      return response.FromJSON<TraktSyncResponse>();
-    }
-
-    #endregion
-
-    #region Account
-
-    public static TraktResponse CreateAccount(TraktAccount account)
-    {
-      string response = Transmit(TraktURIs.CreateAccount, account.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktResponse TestAccount(TraktAccount account)
-    {
-      string response = Transmit(TraktURIs.TestAccount, account.ToJSON());
-      return response.FromJSON<TraktResponse>();
-    }
-
-    public static TraktAccountSettings GetAccountSettings()
-    {
-      string response = Transmit(TraktURIs.AccountSettings, GetUserAuthentication());
-      return response.FromJSON<TraktAccountSettings>();
+      //string activity = Transmit(string.Format(TraktURIs.ActivityUser, username, activityTypes, activityActions), GetUserAuthentication());
+      //return activity.FromJSON<TraktActivity>();
+      return null;
     }
 
     #endregion
 
     #region Search
 
+    private static readonly Object searchLock = new Object();
+
     /// <summary>
+    /// //TODO switch over to comma-seperate types in a single search
     /// Search from one or more types, movies, episodes, shows etc...
     /// </summary>
     /// <param name="searchTerm">string to search for</param>
     /// <param name="types">a list of search types</param>
-    /// <param name="maxResults"></param>
     /// <returns>returns results from multiple search types</returns>
-    public static TraktSearchResult Search(string searchTerm, HashSet<SearchType> types, int maxResults)
+    public static IEnumerable<TraktSearchResult> Search(string searchTerm, HashSet<SearchType> types, int maxResults)
     {
       // collect all the results from each type in this list
-      TraktSearchResult results = new TraktSearchResult();
+      List<TraktSearchResult> results = new List<TraktSearchResult>();
 
       // run all search types in parallel
       List<Thread> threads = new List<Thread>();
@@ -1085,38 +838,105 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
         switch (type)
         {
           case SearchType.movies:
-            Thread tMovieSearch = new Thread(delegate(object obj) { results.Movies = SearchMovies(obj as string, maxResults); });
+            var tMovieSearch = new Thread(obj =>
+            {
+              var response = SearchMovies(obj as string, maxResults);
+              if (response != null)
+              {
+                lock (searchLock)
+                {
+                  results.AddRange(response);
+                }
+              }
+            });
             tMovieSearch.Start(searchTerm);
             tMovieSearch.Name = "Search";
             threads.Add(tMovieSearch);
             break;
 
           case SearchType.shows:
-            Thread tShowSearch = new Thread(delegate(object obj) { results.Shows = SearchShows(obj as string, maxResults); });
+            var tShowSearch = new Thread(obj =>
+            {
+              var response = SearchShows(obj as string, maxResults);
+              if (response != null)
+              {
+                lock (searchLock)
+                {
+                  results.AddRange(response);
+                }
+              }
+            });
             tShowSearch.Start(searchTerm);
             tShowSearch.Name = "Search";
             threads.Add(tShowSearch);
             break;
 
           case SearchType.episodes:
-            Thread tEpisodeSearch = new Thread(delegate(object obj) { results.Episodes = SearchEpisodes(obj as string, maxResults); });
+            var tEpisodeSearch = new Thread(obj =>
+            {
+              var response = SearchEpisodes(obj as string, maxResults);
+              if (response != null)
+              {
+                lock (searchLock)
+                {
+                  results.AddRange(response);
+                }
+              }
+            });
             tEpisodeSearch.Start(searchTerm);
             tEpisodeSearch.Name = "Search";
             threads.Add(tEpisodeSearch);
             break;
 
           case SearchType.people:
-            Thread tPeopleSearch = new Thread(delegate(object obj) { results.People = SearchPeople(obj as string, maxResults); });
+            var tPeopleSearch = new Thread(obj =>
+            {
+              var response = SearchPeople(obj as string, maxResults);
+              if (response != null)
+              {
+                lock (searchLock)
+                {
+                  results.AddRange(response);
+                }
+              }
+            });
             tPeopleSearch.Start(searchTerm);
             tPeopleSearch.Name = "Search";
             threads.Add(tPeopleSearch);
             break;
 
           case SearchType.users:
-            Thread tUserSearch = new Thread(delegate(object obj) { results.Users = SearchForUsers(obj as string, maxResults); });
+            var tUserSearch = new Thread(obj =>
+            {
+              var response = SearchUsers(obj as string, maxResults);
+              if (response != null)
+              {
+                lock (searchLock)
+                {
+                  results.AddRange(response);
+                }
+              }
+            });
             tUserSearch.Start(searchTerm);
             tUserSearch.Name = "Search";
             threads.Add(tUserSearch);
+            break;
+
+          case SearchType.lists:
+            var tListSearch = new Thread(obj =>
+            {
+              var response = SearchLists(obj as string, maxResults);
+              if (response != null)
+              {
+                lock (searchLock)
+                {
+                  results.AddRange(response);
+                }
+              }
+            });
+            tListSearch.Start(searchTerm);
+            tListSearch.Name = "Search";
+            threads.Add(tListSearch);
             break;
         }
       }
@@ -1131,263 +951,864 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <summary>
     /// Returns a list of users found using search term
     /// </summary>
-    public static IEnumerable<TraktUser> SearchForUsers(string searchTerm)
+    public static IEnumerable<TraktSearchResult> SearchForUsers(string searchTerm)
     {
-      return SearchForUsers(searchTerm, 30);
+      return SearchUsers(searchTerm, 30);
     }
-    public static IEnumerable<TraktUser> SearchForUsers(string searchTerm, int maxResults)
+
+    public static IEnumerable<TraktSearchResult> SearchUsers(string searchTerm, int maxResults)
     {
-      string response = Transmit(string.Format(TraktURIs.SearchUsers, HttpUtility.UrlEncode(searchTerm), maxResults), GetUserAuthentication());
-      return response.FromJSONArray<TraktUser>();
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchUsers, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      return response.FromJSONArray<TraktSearchResult>();
     }
 
     /// <summary>
     /// Returns a list of movies found using search term
     /// </summary>
-    public static IEnumerable<TraktMovie> SearchMovies(string searchTerm)
+    public static IEnumerable<TraktSearchResult> SearchMovies(string searchTerm)
     {
       return SearchMovies(searchTerm, 30);
     }
-    public static IEnumerable<TraktMovie> SearchMovies(string searchTerm, int maxResults)
+
+    public static IEnumerable<TraktSearchResult> SearchMovies(string searchTerm, int maxResults)
     {
-      string response = Transmit(string.Format(TraktURIs.SearchMovies, HttpUtility.UrlEncode(searchTerm), maxResults), GetUserAuthentication());
-      return response.FromJSONArray<TraktMovie>();
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchMovies, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      return response.FromJSONArray<TraktSearchResult>();
     }
 
     /// <summary>
     /// Returns a list of shows found using search term
     /// </summary>
-    public static IEnumerable<TraktShow> SearchShows(string searchTerm)
+    public static IEnumerable<TraktSearchResult> SearchShows(string searchTerm)
     {
       return SearchShows(searchTerm, 30);
     }
-    public static IEnumerable<TraktShow> SearchShows(string searchTerm, int maxResults)
+
+    public static IEnumerable<TraktSearchResult> SearchShows(string searchTerm, int maxResults)
     {
-      string response = Transmit(string.Format(TraktURIs.SearchShows, HttpUtility.UrlEncode(searchTerm), maxResults), GetUserAuthentication());
-      return response.FromJSONArray<TraktShow>();
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchShows, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      return response.FromJSONArray<TraktSearchResult>();
     }
 
     /// <summary>
     /// Returns a list of episodes found using search term
     /// </summary>
-    public static IEnumerable<TraktEpisodeSummary> SearchEpisodes(string searchTerm)
+    public static IEnumerable<TraktSearchResult> SearchEpisodes(string searchTerm)
     {
       return SearchEpisodes(searchTerm, 30);
     }
-    public static IEnumerable<TraktEpisodeSummary> SearchEpisodes(string searchTerm, int maxResults)
+
+    public static IEnumerable<TraktSearchResult> SearchEpisodes(string searchTerm, int maxResults)
     {
-      string response = Transmit(string.Format(TraktURIs.SearchEpisodes, HttpUtility.UrlEncode(searchTerm), maxResults), GetUserAuthentication());
-      return response.FromJSONArray<TraktEpisodeSummary>();
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchEpisodes, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      return response.FromJSONArray<TraktSearchResult>();
     }
 
     /// <summary>
     /// Returns a list of people found using search term
     /// </summary>
-    public static IEnumerable<TraktPersonSummary> SearchPeople(string searchTerm)
+    public static IEnumerable<TraktSearchResult> SearchPeople(string searchTerm)
     {
       return SearchPeople(searchTerm, 30);
     }
-    public static IEnumerable<TraktPersonSummary> SearchPeople(string searchTerm, int maxResults)
+
+    public static IEnumerable<TraktSearchResult> SearchPeople(string searchTerm, int maxResults)
     {
-      string response = Transmit(string.Format(TraktURIs.SearchPeople, HttpUtility.UrlEncode(searchTerm), maxResults), string.Empty);
-      return response.FromJSONArray<TraktPersonSummary>();
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchPeople, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      return response.FromJSONArray<TraktSearchResult>();
+    }
+
+    /// <summary>
+    /// Returns a list of lists found using search term
+    /// </summary>
+    public static IEnumerable<TraktSearchResult> SearchLists(string searchTerm)
+    {
+      return SearchLists(searchTerm, 30);
+    }
+
+    public static IEnumerable<TraktSearchResult> SearchLists(string searchTerm, int maxResults)
+    {
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchLists, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      return response.FromJSONArray<TraktSearchResult>();
+    }
+
+    /// <summary>
+    /// Returns a list of items found when searching by id
+    /// </summary>
+    /// <param name="idType">trakt-movie, trakt-show, trakt-episode, imdb, tmdb, tvdb, tvrage</param>
+    /// <param name="id">the id to search by e.g. tt0848228</param>
+    public static IEnumerable<TraktSearchResult> SearchById(string idType, string id)
+    {
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchById, idType, id));
+      return response.FromJSONArray<TraktSearchResult>();
     }
 
     #endregion
 
-    #region Summary
+    #region Collection
+
+    public static TraktSyncResponse AddMoviesToCollecton(TraktSyncMoviesCollected movies)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncCollectionAdd, movies.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveMoviesFromCollecton(TraktSyncMovies movies)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncCollectionRemove, movies.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToCollectonEx(TraktSyncShowsEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncCollectionAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToCollecton(TraktSyncShows shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncCollectionAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveShowsFromCollecton(TraktSyncShows shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncCollectionAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddEpisodesToCollecton(TraktSyncEpisodesCollected episodes)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncCollectionAdd, episodes.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveEpisodesFromCollecton(TraktSyncEpisodes episodes)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncCollectionRemove, episodes.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToCollectonEx(TraktSyncShowsCollectedEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncCollectionAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveShowsFromCollectonEx(TraktSyncShowsEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncCollectionRemove, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    #endregion
+
+    #region Collection (Single)
+
+    public static TraktSyncResponse AddMovieToCollection(TraktSyncMovieCollected movie)
+    {
+      var movies = new TraktSyncMoviesCollected
+      {
+        Movies = new List<TraktSyncMovieCollected>() { movie }
+      };
+
+      return AddMoviesToCollecton(movies);
+    }
+
+    public static TraktSyncResponse RemoveMovieFromCollection(TraktMovie movie)
+    {
+      var movies = new TraktSyncMovies
+      {
+        Movies = new List<TraktMovie>() { movie }
+      };
+
+      return RemoveMoviesFromCollecton(movies);
+    }
+
+    public static TraktSyncResponse AddShowToCollection(TraktShow show)
+    {
+      var shows = new TraktSyncShows
+      {
+        Shows = new List<TraktShow>() { show }
+      };
+
+      return AddShowsToCollecton(shows);
+    }
+
+    public static TraktSyncResponse RemoveShowFromCollection(TraktShow show)
+    {
+      var shows = new TraktSyncShows
+      {
+        Shows = new List<TraktShow>() { show }
+      };
+
+      return RemoveShowsFromCollecton(shows);
+    }
+
+    public static TraktSyncResponse AddShowToCollectionEx(TraktSyncShowEx show)
+    {
+      var shows = new TraktSyncShowsEx
+      {
+        Shows = new List<TraktSyncShowEx>() { show }
+      };
+
+      return AddShowsToCollectonEx(shows);
+    }
+
+    public static TraktSyncResponse RemoveShowFromCollectionEx(TraktSyncShowEx show)
+    {
+      var shows = new TraktSyncShowsEx
+      {
+        Shows = new List<TraktSyncShowEx>() { show }
+      };
+
+      return RemoveShowsFromCollectonEx(shows);
+    }
+
+    public static TraktSyncResponse AddEpisodeToCollection(TraktSyncEpisodeCollected episode)
+    {
+      var episodes = new TraktSyncEpisodesCollected
+      {
+        Episodes = new List<TraktSyncEpisodeCollected>() { episode }
+      };
+
+      return AddEpisodesToCollecton(episodes);
+    }
+
+    public static TraktSyncResponse RemoveEpisodeFromCollection(TraktEpisode episode)
+    {
+      var episodes = new TraktSyncEpisodes
+      {
+        Episodes = new List<TraktEpisode>() { episode }
+      };
+
+      return RemoveEpisodesFromCollecton(episodes);
+    }
+
+    #endregion
+
+    #region Watched History
+
+    public static TraktSyncResponse AddMoviesToWatchedHistory(TraktSyncMoviesWatched movies)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchedHistoryAdd, movies.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveMoviesFromWatchedHistory(TraktSyncMovies movies)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchedHistoryRemove, movies.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToWatchedHistory(TraktSyncShows shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchedHistoryAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveShowsFromWatchedHistory(TraktSyncShows shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchedHistoryRemove, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddEpisodesToWatchedHistory(TraktSyncEpisodesWatched episodes)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchedHistoryAdd, episodes.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveEpisodesFromWatchedHistory(TraktSyncEpisodes episodes)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchedHistoryRemove, episodes.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToWatchedHistoryEx(TraktSyncShowsEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchedHistoryAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToWatchedHistoryEx(TraktSyncShowsWatchedEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchedHistoryAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveShowsFromWatchedHistoryEx(TraktSyncShowsEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchedHistoryRemove, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    #endregion
+
+    #region Watched History (Single)
+
+    public static TraktSyncResponse AddMovieToWatchedHistory(TraktSyncMovieWatched movie)
+    {
+      var movies = new TraktSyncMoviesWatched
+      {
+        Movies = new List<TraktSyncMovieWatched>() { movie }
+      };
+
+      return AddMoviesToWatchedHistory(movies);
+    }
+
+    public static TraktSyncResponse RemoveMovieFromWatchedHistory(TraktMovie movie)
+    {
+      var movies = new TraktSyncMovies
+      {
+        Movies = new List<TraktMovie>() { movie }
+      };
+
+      return RemoveMoviesFromWatchedHistory(movies);
+    }
+
+    public static TraktSyncResponse AddShowToWatchedHistory(TraktShow show)
+    {
+      var shows = new TraktSyncShows
+      {
+        Shows = new List<TraktShow>() { show }
+      };
+
+      return AddShowsToWatchedHistory(shows);
+    }
+
+    public static TraktSyncResponse RemoveShowFromWatchedHistory(TraktShow show)
+    {
+      var shows = new TraktSyncShows
+      {
+        Shows = new List<TraktShow>() { show }
+      };
+
+      return RemoveShowsFromWatchedHistory(shows);
+    }
+
+    public static TraktSyncResponse AddShowToWatchedHistoryEx(TraktSyncShowEx show)
+    {
+      var shows = new TraktSyncShowsEx
+      {
+        Shows = new List<TraktSyncShowEx>() { show }
+      };
+
+      return AddShowsToWatchedHistoryEx(shows);
+    }
+
+    public static TraktSyncResponse RemoveShowFromWatchedHistoryEx(TraktSyncShowEx show)
+    {
+      var shows = new TraktSyncShowsEx
+      {
+        Shows = new List<TraktSyncShowEx>() { show }
+      };
+
+      return RemoveShowsFromWatchedHistoryEx(shows);
+    }
+
+    public static TraktSyncResponse AddEpisodeToWatchedHistory(TraktSyncEpisodeWatched episode)
+    {
+      var episodes = new TraktSyncEpisodesWatched
+      {
+        Episodes = new List<TraktSyncEpisodeWatched>() { episode }
+      };
+
+      return AddEpisodesToWatchedHistory(episodes);
+    }
+
+    public static TraktSyncResponse RemoveEpisodeFromWatchedHistory(TraktEpisode episode)
+    {
+      var episodes = new TraktSyncEpisodes
+      {
+        Episodes = new List<TraktEpisode>() { episode }
+      };
+
+      return RemoveEpisodesFromWatchedHistory(episodes);
+    }
+
+    #endregion
+
+    #region Ratings
+
+    public static TraktSyncResponse AddMoviesToRatings(TraktSyncMoviesRated movies)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsAdd, movies.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveMoviesFromRatings(TraktSyncMovies movies)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsRemove, movies.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToRatings(TraktSyncShowsRated shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveShowsFromRatings(TraktSyncShows shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsRemove, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddEpisodesToRatings(TraktSyncEpisodesRated episodes)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsAdd, episodes.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToRatingsEx(TraktSyncShowsRatedEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddSeasonsToRatingsEx(TraktSyncSeasonsRatedEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveEpisodesFromRatings(TraktSyncEpisodes episodes)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsRemove, episodes.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveShowsFromRatingsEx(TraktSyncShowsRatedEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsRemove, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveSeasonsFromRatingsEx(TraktSyncSeasonsRatedEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncRatingsRemove, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    #endregion
+
+    #region Ratings (Single)
 
     /// <summary>
-    /// Returns full movie details
+    /// Rate a single episode on trakt.tv
     /// </summary>
-    /// <param name="id">TMDB ID, IMDB ID or slug</param>
-    /// <returns></returns>
-    public static TraktMovieSummary MovieOverview(string id)
+    public static TraktSyncResponse AddEpisodeToRatings(TraktSyncEpisodeRated episode)
     {
-      string response = Transmit(string.Format(TraktURIs.MovieOverview, HttpUtility.UrlEncode(id)), GetUserAuthentication());
-      return response.FromJSON<TraktMovieSummary>();
+      var episodes = new TraktSyncEpisodesRated
+      {
+        Episodes = new List<TraktSyncEpisodeRated>() { episode }
+      };
+
+      return AddEpisodesToRatings(episodes);
     }
 
     /// <summary>
-    /// Returns tv series details
+    /// UnRate a single episode on trakt.tv
     /// </summary>
-    /// <param name="id">TVDB ID or slug</param>
-    /// <param name="extended"></param>
-    /// <returns></returns>
-    public static TraktShowSummary SeriesOverview(string id, bool extended = false)
+    public static TraktSyncResponse RemoveEpisodeFromRatings(TraktEpisode episode)
     {
-      string url = extended ? TraktURIs.SeriesOverviewExtended : TraktURIs.SeriesOverview;
+      var episodes = new TraktSyncEpisodes
+      {
+        Episodes = new List<TraktEpisode>() { new TraktEpisode { Ids = episode.Ids } }
+      };
 
-      string response = Transmit(string.Format(url, HttpUtility.UrlEncode(id)), GetUserAuthentication());
-      return response.FromJSON<TraktShowSummary>();
+      return RemoveEpisodesFromRatings(episodes);
+    }
+
+    /// <summary>
+    /// Rate a single episode on trakt.tv (with show info)
+    /// </summary>
+    public static TraktSyncResponse AddEpisodeToRatingsEx(TraktSyncShowRatedEx item)
+    {
+      var episodes = new TraktSyncShowsRatedEx
+      {
+        Shows = new List<TraktSyncShowRatedEx>() { item }
+      };
+
+      return AddShowsToRatingsEx(episodes);
+    }
+
+    /// <summary>
+    /// UnRate a single episode on trakt.tv (with show info)
+    /// </summary>
+    public static TraktSyncResponse RemoveEpisodeFromRatingsEx(TraktSyncShowRatedEx item)
+    {
+      var episodes = new TraktSyncShowsRatedEx
+      {
+        Shows = new List<TraktSyncShowRatedEx>() { item }
+      };
+
+      return RemoveShowsFromRatingsEx(episodes);
+    }
+
+    /// <summary>
+    /// Rate a single season on trakt.tv (with show info)
+    /// </summary>
+    public static TraktSyncResponse AddSeasonToRatingsEx(TraktSyncSeasonRatedEx item)
+    {
+      var seasons = new TraktSyncSeasonsRatedEx
+      {
+        Shows = new List<TraktSyncSeasonRatedEx>() { item }
+      };
+
+      return AddSeasonsToRatingsEx(seasons);
+    }
+
+    /// <summary>
+    /// UnRate a single season on trakt.tv (with show info)
+    /// </summary>
+    public static TraktSyncResponse RemoveSeasonFromRatingsEx(TraktSyncSeasonRatedEx item)
+    {
+      var seasons = new TraktSyncSeasonsRatedEx
+      {
+        Shows = new List<TraktSyncSeasonRatedEx>() { item }
+      };
+
+      return RemoveSeasonsFromRatingsEx(seasons);
+    }
+
+    /// <summary>
+    /// Rate a single show on trakt.tv
+    /// </summary>
+    public static TraktSyncResponse AddShowToRatings(TraktSyncShowRated show)
+    {
+      var shows = new TraktSyncShowsRated
+      {
+        Shows = new List<TraktSyncShowRated>() { show }
+      };
+
+      return AddShowsToRatings(shows);
+    }
+
+    /// <summary>
+    /// UnRate a single show on trakt.tv
+    /// </summary>
+    public static TraktSyncResponse RemoveShowFromRatings(TraktShow show)
+    {
+      var shows = new TraktSyncShows
+      {
+        Shows = new List<TraktShow>() { new TraktShow { Ids = show.Ids } }
+      };
+
+      return RemoveShowsFromRatings(shows);
+    }
+
+    /// <summary>
+    /// Rate a single movie on trakt.tv
+    /// </summary>
+    public static TraktSyncResponse AddMovieToRatings(TraktSyncMovieRated movie)
+    {
+      var movies = new TraktSyncMoviesRated
+      {
+        Movies = new List<TraktSyncMovieRated>() { movie }
+      };
+
+      return AddMoviesToRatings(movies);
+    }
+
+    /// <summary>
+    /// UnRate a single movie on trakt.tv
+    /// </summary>
+    public static TraktSyncResponse RemoveMovieFromRatings(TraktMovie movie)
+    {
+      var movies = new TraktSyncMovies
+      {
+        Movies = new List<TraktMovie>() { new TraktMovie { Ids = movie.Ids } }
+      };
+
+      return RemoveMoviesFromRatings(movies);
+    }
+
+    #endregion
+
+    #region Community Ratings
+
+    public static TraktRating GetShowRatings(string id)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowRatings, id));
+      return response.FromJSON<TraktRating>();
+    }
+
+    public static TraktRating GetSeasonRatings(string id, int season)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowRatings, id, season));
+      return response.FromJSON<TraktRating>();
+    }
+
+    public static TraktRating GetEpisodeRatings(string id, int season, int episode)
+    {
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.EpisodeRatings, id, season, episode));
+      return response.FromJSON<TraktRating>();
+    }
+
+    #endregion
+
+    #region Scrobble
+
+    public static TraktScrobbleResponse StartMovieScrobble(TraktScrobbleMovie movie)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.ScrobbleStart, movie.ToJSON());
+      return response.FromJSON<TraktScrobbleResponse>();
+    }
+
+    public static TraktScrobbleResponse StartEpisodeScrobble(TraktScrobbleEpisode episode)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.ScrobbleStart, episode.ToJSON());
+      return response.FromJSON<TraktScrobbleResponse>();
+    }
+
+    public static TraktScrobbleResponse PauseMovieScrobble(TraktScrobbleMovie movie)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.ScrobblePause, movie.ToJSON());
+      return response.FromJSON<TraktScrobbleResponse>();
+    }
+
+    public static TraktScrobbleResponse PauseEpisodeScrobble(TraktScrobbleEpisode episode)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.ScrobblePause, episode.ToJSON());
+      return response.FromJSON<TraktScrobbleResponse>();
+    }
+
+    public static TraktScrobbleResponse StopMovieScrobble(TraktScrobbleMovie movie)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.ScrobbleStop, movie.ToJSON());
+      return response.FromJSON<TraktScrobbleResponse>();
+    }
+
+    public static TraktScrobbleResponse StopEpisodeScrobble(TraktScrobbleEpisode episode)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.ScrobbleStop, episode.ToJSON());
+      return response.FromJSON<TraktScrobbleResponse>();
+    }
+
+    #endregion
+
+    #region Watchlist
+
+    public static TraktSyncResponse AddMoviesToWatchlist(TraktSyncMovies movies)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistAdd, movies.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveMoviesFromWatchlist(TraktSyncMovies movies)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistRemove, movies.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToWatchlist(TraktSyncShows shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddShowsToWatchlistEx(TraktSyncShowsEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveShowsFromWatchlist(TraktSyncShows shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistRemove, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveShowsFromWatchlistEx(TraktSyncShowsEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistRemove, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddSeasonsToWatchlist(TraktSyncSeasonsEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistAdd, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveSeasonsFromWatchlist(TraktSyncSeasonsEx shows)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistRemove, shows.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse AddEpisodesToWatchlist(TraktSyncEpisodes episodes)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistAdd, episodes.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    public static TraktSyncResponse RemoveEpisodesFromWatchlist(TraktSyncEpisodes episodes)
+    {
+      var response = TraktWeb.PostToTrakt(TraktURIs.SyncWatchlistRemove, episodes.ToJSON());
+      return response.FromJSON<TraktSyncResponse>();
+    }
+
+    #endregion
+
+    #region Watchlist (Single)
+
+    public static TraktSyncResponse AddMovieToWatchlist(TraktMovie movie)
+    {
+      var movies = new TraktSyncMovies
+      {
+        Movies = new List<TraktMovie>() { movie }
+      };
+
+      return AddMoviesToWatchlist(movies);
+    }
+
+    public static TraktSyncResponse RemoveMovieFromWatchlist(TraktMovie movie)
+    {
+      var movies = new TraktSyncMovies
+      {
+        Movies = new List<TraktMovie>() { movie }
+      };
+
+      return RemoveMoviesFromWatchlist(movies);
+    }
+
+    public static TraktSyncResponse AddShowToWatchlist(TraktShow show)
+    {
+      var shows = new TraktSyncShows
+      {
+        Shows = new List<TraktShow>() { show }
+      };
+
+      return AddShowsToWatchlist(shows);
+    }
+
+    public static TraktSyncResponse AddShowToWatchlistEx(TraktSyncShowEx show)
+    {
+      var shows = new TraktSyncShowsEx
+      {
+        Shows = new List<TraktSyncShowEx>() { show }
+      };
+
+      return AddShowsToWatchlistEx(shows);
+    }
+
+    public static TraktSyncResponse AddSeasonToWatchlist(TraktSyncSeasonEx show)
+    {
+      var shows = new TraktSyncSeasonsEx
+      {
+        Shows = new List<TraktSyncSeasonEx>() { show }
+      };
+
+      return AddSeasonsToWatchlist(shows);
+    }
+
+    public static TraktSyncResponse RemoveSeasonFromWatchlist(TraktSyncSeasonEx show)
+    {
+      var shows = new TraktSyncSeasonsEx
+      {
+        Shows = new List<TraktSyncSeasonEx>() { show }
+      };
+
+      return RemoveSeasonsFromWatchlist(shows);
+    }
+
+    public static TraktSyncResponse RemoveShowFromWatchlist(TraktShow show)
+    {
+      var shows = new TraktSyncShows
+      {
+        Shows = new List<TraktShow>() { show }
+      };
+
+      return RemoveShowsFromWatchlist(shows);
+    }
+
+    public static TraktSyncResponse RemoveShowFromWatchlistEx(TraktSyncShowEx show)
+    {
+      var shows = new TraktSyncShowsEx
+      {
+        Shows = new List<TraktSyncShowEx>() { show }
+      };
+
+      return RemoveShowsFromWatchlistEx(shows);
+    }
+
+    public static TraktSyncResponse AddEpisodeToWatchlist(TraktEpisode episode)
+    {
+      var episodes = new TraktSyncEpisodes
+      {
+        Episodes = new List<TraktEpisode>() { episode }
+      };
+
+      return AddEpisodesToWatchlist(episodes);
+    }
+
+    public static TraktSyncResponse RemoveEpisodeFromWatchlist(TraktEpisode episode)
+    {
+      var episodes = new TraktSyncEpisodes
+      {
+        Episodes = new List<TraktEpisode>() { episode }
+      };
+
+      return RemoveEpisodesFromWatchlist(episodes);
     }
 
     #endregion
 
     #region Comments
 
-    /// <summary>
-    /// Return a list of shouts for a movie
-    /// </summary>
-    /// <param name="title">The movie search term, either (title-year seperate spaces with '-'), imdbid, tmdbid</param>    
-    public static IEnumerable<TraktShout> GetMovieShouts(string title)
+    public static bool LikeComment(int id)
     {
-      string response = Transmit(string.Format(TraktURIs.MovieShouts, title), GetUserAuthentication());
-      return response.FromJSONArray<TraktShout>();
+      var response = TraktWeb.PostToTrakt(string.Format(TraktURIs.CommentLike, id), null);
+      return response != null;
     }
 
-    /// <summary>
-    /// Return a list of shouts for a show
-    /// </summary>
-    /// <param name="title">The show search term, either (title seperate spaces with '-'), imdbid, tvdbid</param>    
-    public static IEnumerable<TraktShout> GetShowShouts(string title)
+    public static bool UnLikeComment(int id)
     {
-      string response = Transmit(string.Format(TraktURIs.ShowShouts, title), GetUserAuthentication());
-      return response.FromJSONArray<TraktShout>();
+      return DeleteFromTrakt(string.Format(TraktURIs.CommentLike, id));
     }
 
-    /// <summary>
-    /// Return a list of shouts for a episode
-    /// </summary>
-    /// <param name="title">The episode search term, either (title seperate spaces with '-'), imdbid, tmdbid</param>
-    /// <param name="episode">The episode index</param>
-    /// <param name="season">The season index</param>
-    public static IEnumerable<TraktShout> GetEpisodeShouts(string title, string season, string episode)
+    public static IEnumerable<TraktComment> GetCommentReplies(string id)
     {
-      string response = Transmit(string.Format(TraktURIs.EpisodeShouts, title, season, episode), GetUserAuthentication());
-      return response.FromJSONArray<TraktShout>();
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.CommentReplies, id));
+      return response.FromJSONArray<TraktComment>();
     }
 
     #endregion
 
-    #region Related
+    #region People
 
-    public static IEnumerable<TraktMovie> GetRelatedMovies(string title)
+    public static TraktPersonSummary GetPersonSummary(string person)
     {
-      return GetRelatedMovies(title, false);
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PersonSummary, person));
+      return response.FromJSON<TraktPersonSummary>();
     }
 
-    /// <summary>
-    /// Return a list of related movies for a movie
-    /// </summary>
-    /// <param name="title">The movie search term, either (title-year seperate spaces with '-'), imdbid, tmdbid</param>
-    /// <param name="hidewatched">Hide watched movies</param>
-    public static IEnumerable<TraktMovie> GetRelatedMovies(string title, bool hidewatched)
+    public static TraktPersonMovieCredits GetMovieCreditsForPerson(string person)
     {
-      string response = Transmit(string.Format(TraktURIs.RelatedMovies, title, hidewatched ? "/hidewatched" : string.Empty), GetUserAuthentication());
-      return response.FromJSONArray<TraktMovie>();
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PersonMovieCredits, person));
+      return response.FromJSON<TraktPersonMovieCredits>();
     }
 
-    public static IEnumerable<TraktShow> GetRelatedShows(string title)
+    public static TraktPersonShowCredits GetShowCreditsForPerson(string person)
     {
-      return GetRelatedShows(title, false);
-    }
-
-    /// <summary>
-    /// Return a list of related shows for a show
-    /// </summary>
-    /// <param name="title">The show search term, either (title-year seperate spaces with '-'), imdbid, tvdbid</param>
-    /// <param name="hidewatched">Hide watched movies</param>
-    public static IEnumerable<TraktShow> GetRelatedShows(string title, bool hidewatched)
-    {
-      string response = Transmit(string.Format(TraktURIs.RelatedShows, title, hidewatched ? "/hidewatched" : string.Empty), GetUserAuthentication());
-      return response.FromJSONArray<TraktShow>();
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PersonShowCredits, person));
+      return response.FromJSON<TraktPersonShowCredits>();
     }
 
     #endregion
 
-    #region Show Seasons
+    #region Web Helpersp
 
-    /// <summary>
-    /// Return a list of seasons for a tv show
-    /// </summary>
-    /// <param name="title">The show search term, either (title-year seperate spaces with '-'), imdbid, tvdbid</param>
-    public static IEnumerable<TraktShowSeason> GetShowSeasons(string title)
+    private static bool DeleteFromTrakt(string address)
     {
-      string response = Transmit(string.Format(TraktURIs.ShowSeasons, title), string.Empty);
-      return response.FromJSONArray<TraktShowSeason>();
+      var response = TraktWeb.GetFromTrakt(address, false, "DELETE");
+      return response != null;
     }
 
     #endregion
-
-    #region Season Episodes
-
-    /// <summary>
-    /// Return a list of episodes for a tv show season
-    /// </summary>
-    /// <param name="title">The show search term, either (title-year seperate spaces with '-'), imdbid, tvdbid</param>
-    /// <param name="season">The season, 0 for specials</param>
-    public static IEnumerable<TraktEpisode> GetSeasonEpisodes(string title, string season)
-    {
-      string response = Transmit(string.Format(TraktURIs.SeasonEpisodes, title, season), GetUserAuthentication());
-      return response.FromJSONArray<TraktEpisode>();
-    }
-
-    #endregion
-
-    #region Helpers
-
-    /// <summary>
-    /// Gets a User Authentication object
-    /// </summary>       
-    /// <returns>The User Authentication json string</returns>
-    private static string GetUserAuthentication()
-    {
-      return new TraktAuthentication { Username = Username, Password = Password }.ToJSON();
-    }
-
-    /// <summary>
-    /// Communicates to and from Trakt
-    /// </summary>
-    /// <param name="address">The URI to use</param>
-    /// <param name="data">The Data to send</param>
-    /// <returns>The response from Trakt</returns>
-    private static string Transmit(string address, string data)
-    {
-      if (OnDataSend != null) OnDataSend(address, data);
-
-      try
-      {
-        ServicePointManager.Expect100Continue = false;
-        WebClient client = new CompressionWebClient(true) { Encoding = Encoding.UTF8 };
-        client.Headers.Add("user-agent", UserAgent);
-
-        // wait for a response from the server
-        string response = client.UploadString(address, data);
-
-        // received data, pass it back
-        if (OnDataReceived != null) OnDataReceived(response);
-        return response;
-      }
-      catch (WebException e)
-      {
-        if (OnDataError != null) OnDataError(e.Message);
-
-        if (e.Status == WebExceptionStatus.ProtocolError)
-        {
-          var response = ((HttpWebResponse)e.Response);
-          try
-          {
-            using (var stream = response.GetResponseStream())
-            {
-              using (var reader = new StreamReader(stream))
-              {
-                return reader.ReadToEnd();
-              }
-            }
-          }
-          catch { }
-        }
-
-        // create a proper response object
-        TraktResponse error = new TraktResponse
-        {
-          Status = "failure",
-          Error = e.Message
-        };
-        return error.ToJSON();
-      }
-    }
 
     #endregion
   }

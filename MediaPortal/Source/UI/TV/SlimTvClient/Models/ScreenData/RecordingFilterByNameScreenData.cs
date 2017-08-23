@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,7 +30,7 @@ using MediaPortal.UiComponents.Media.Models.ScreenData;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models.ScreenData
 {
-  public class RecordingFilterByNameScreenData : AbstractVideosFilterScreenData
+  public class RecordingFilterByNameScreenData : AbstractVideosFilterScreenData<FilterItem>
   {
     public RecordingFilterByNameScreenData() :
       base(SlimTvConsts.SCREEN_RECORDINGS_FILTER_BY_NAME, SlimTvConsts.RES_FILTER_BY_NAME_MENU_ITEM,

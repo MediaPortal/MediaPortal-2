@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -423,6 +423,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       {
         // The fanart service is expected to return "not found", this is no error to log
         "/FanartService",
+        // Webradio plugin uses own repository and many stations don't have own logos
+        "/Webradio/Logos/"
       };
 
       public AsyncWebLoadOperation(Uri uri, AsyncOperationFinished finishCallback)
@@ -529,11 +531,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           try
           {
             int numRead = _stream.EndRead(result);
-            if (numRead == 0)
+            _position += numRead;
+            if (numRead == 0 || _position >= _imageBuffer.Length)
               completeOperation = true;
             else
             {
-              _position += numRead;
               // Read next chunk
               _stream.BeginRead(_imageBuffer, _position, _imageBuffer.Length, AsyncLoadCallback_NoLock, null);
             }

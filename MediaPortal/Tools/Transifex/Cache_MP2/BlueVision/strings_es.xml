@@ -33,4 +33,5 @@
   <string name="BlueVision.DisableHomeTab">Deshabilitar tabulación \"Inicio\"</string>
   <string name="BlueVision.DisableAutoSelection">Deshabilitar tabulación automática al menú de selección</string>
   <string name="BlueVision.UseAlternativeSplashscreen">Usar pantalla de bienvenida BlueVision</string>
+  <string name="BlueVision.ResetMenuLayout">Cambiar al diseño del menú por defecto</string>
 </resources>

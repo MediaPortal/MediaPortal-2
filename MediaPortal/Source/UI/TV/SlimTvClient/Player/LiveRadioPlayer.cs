@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -53,7 +53,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     #endregion
 
-    protected IBaseFilter _sourceFilter = null;
+    protected FilterFileWrapper _sourceFilter = null;
+    protected ITsReader _tsReader;
     protected bool _useTsReader;
 
     public LiveRadioPlayer(bool useTsReader)
@@ -79,15 +80,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       }
 
       // Render the file
-      _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
+      // Notes Morpheus_xx, 2017-04-19:
+      // In contrast to TV we need to use a relative path here, as the method is located inside the SlimTV assembly.
+      // For TV part, the base class inside VideoPlayers is used and thus the correct path to TsReader.ax
+      // The problem with different paths appears only inside RELEASE builds, but not DEBUG. Why this happens I don't know.
+      _sourceFilter = FilterLoader.LoadFilterFromDll("..\\VideoPlayers\\TsReader.ax", typeof(TsReader).GUID, true);
+      var baseFilter = _sourceFilter.GetFilter();
 
-      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)_sourceFilter;
-      ITsReader tsReader = (ITsReader) _sourceFilter;
-      tsReader.SetRelaxedMode(1);
-      tsReader.SetTsReaderCallback(this);
-      tsReader.SetRequestAudioChangeCallback(this);
+      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;
+      _tsReader = (ITsReader)baseFilter;
+      _tsReader.SetRelaxedMode(1);
+      _tsReader.SetTsReaderCallback(this);
+      _tsReader.SetRequestAudioChangeCallback(this);
 
-      _graphBuilder.AddFilter(_sourceFilter, TSREADER_FILTER_NAME);
+      _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
@@ -131,20 +137,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         base.OnBeforeGraphRunning();
         return;
       }
-      
-      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter);
+
+      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter.GetFilter());
     }
 
-    protected override void FreeCodecs ()
+    protected override void FreeCodecs()
     {
-      // Free file source
-      FilterGraphTools.TryRelease(ref _sourceFilter);
-
       base.FreeCodecs();
 
       // Free all filters from graph
       if (_graphBuilder != null)
         FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
+
+      // Free file source
+      FilterGraphTools.TryDispose(ref _sourceFilter);
 
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder);
@@ -160,11 +166,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       return 0;
     }
 
-    public int OnRequestAudioChange ()
+    public int OnRequestAudioChange()
     {
       IAMStreamSelect streamSelect = _sourceFilter as IAMStreamSelect;
       if (streamSelect != null)
         streamSelect.Enable(0, 0);
+      return 0;
+    }
+
+    public int OnBitRateChanged(int bitrate)
+    {
       return 0;
     }
   }

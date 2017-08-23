@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+    <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_S" Resource="0"/>
+    <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_M" Resource="100"/>
+    <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_L" Resource="180"/>
+    <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_CP" Resource="200"/>
+    <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="500"/>
+
+    <ResourceWrapper x:Key="MEDIA_POSTER_CONTAINER_WIDTH" Resource="220"/>
+
+    <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_S" Resource="0"/>
+    <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_M" Resource="55"/>
+    <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_L" Resource="110"/>
+    <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_CP" Resource="200"/>
+    <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="95"/>
+
+    <ResourceWrapper x:Key="GRIDVIEW_FILTER_WIDTH" Resource="225"/>
+    <ResourceWrapper x:Key="GRIDVIEW_FILTER_HEIGHT" Resource="130"/>
+
+    <ResourceWrapper x:Key="REFLEXION_WIDTH" Resource="130"/>
+    <ResourceWrapper x:Key="REFLEXION_HEIGHT" Resource="300"/>
+
+
+    <ResourceWrapper x:Key="FANART_BANNER_WIDTH" Resource="440"/>
+    <ResourceWrapper x:Key="FANART_BANNER_HEIGHT" Resource="120"/>
+    <ResourceWrapper x:Key="FANART_POSTER_WIDTH" Resource="180"/>
+    <ResourceWrapper x:Key="FANART_POSTER_HEIGHT" Resource="220"/>
+
+    <!--New constants, previous to be elminated later-->
+    
+    <ResourceWrapper x:Key="POSTER_GRID_WIDTH" Resource="162.5"/>
+    <ResourceWrapper x:Key="POSTER_GRID_HEIGHT" Resource="250"/>
+
+    <ResourceWrapper x:Key="POSTER_COVER_WIDTH" Resource="260"/>
+    <ResourceWrapper x:Key="POSTER_COVER_HEIGHT" Resource="410"/>
+
+    <ResourceWrapper x:Key="AUDIO_GRID_WIDTH" Resource="162.5"/> 
+    <ResourceWrapper x:Key="AUDIO_GRID_HEIGHT" Resource="162.5"/>
+
+    <ResourceWrapper x:Key="AUDIO_COVER_WIDTH" Resource="260"/>
+    <ResourceWrapper x:Key="AUDIO_COVER_HEIGHT" Resource="260"/>
+
+    <ResourceWrapper x:Key="BANNER_GRID_WIDTH" Resource="460"/>
+    <ResourceWrapper x:Key="BANNER_GRID_HEIGHT" Resource="105"/>
+
+    <ResourceWrapper x:Key="VIDEO_GRID_WIDTH" Resource="263"/>
+    <ResourceWrapper x:Key="VIDEO_GRID_HEIGHT" Resource="162"/>
+
+    <ResourceWrapper x:Key="VIDEO_COVER_WIDTH" Resource="260"/>
+    <ResourceWrapper x:Key="VIDEO_COVER_HEIGHT" Resource="390"/>
+
+    <ResourceWrapper x:Key="COVERVIEW_FILTER_WIDTH" Resource="190"/>
+    <ResourceWrapper x:Key="COVERVIEW_FILTER_HEIGHT" Resource="440"/>
+
+    <ResourceWrapper x:Key="ARTIST_GRID_WIDTH" Resource="162"/>
+    <ResourceWrapper x:Key="ARTIST_GRID_HEIGHT" Resource="162"/>
+
+</ResourceDictionary>

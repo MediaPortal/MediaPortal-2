@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,6 +27,30 @@ using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
+  public enum FanArtProviderSource
+  {
+    /// <summary>
+    /// Uses fanart cache as source.
+    /// </summary>
+    Cache,
+    /// <summary>
+    /// Looks for fanart files that can be used as source.
+    /// </summary>
+    File,
+    /// <summary>
+    /// Uses database as fanart source.
+    /// </summary>
+    Database,
+    /// <summary>
+    /// Retrieves fanart from external sources like online sources (like IMDB, TMDB, TvDB, ...).
+    /// </summary>
+    Online,
+    /// <summary>
+    /// Provide fanart that could not be retrieved from any other source as a last resort.
+    /// </summary>
+    FallBack,
+  }
+
   /// <summary>
   /// <see cref="IFanArtService"/> provides fanart images for different media types. It will try to find content provided by any of the registered <see cref="Providers"/>.
   /// </summary>
@@ -56,6 +80,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   /// </summary>
   public interface IFanArtProvider
   {
+    FanArtProviderSource Source { get; }
+
     /// <summary>
     /// Gets a list of file names for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
     /// The name can be: Series name, Actor name, Artist name depending on the <paramref name="mediaType"/>.

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -257,7 +257,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (_titlePlayer != null)
         {
           _titles = _titlePlayer.Titles;
-          TitlesAvailable = _titles.Length > 0;
+          TitlesAvailable = _titles.Length > 1; // A selection is only meaningful if there is more than one choice
         }
         else
           _titles = EMPTY_STRING_ARRAY;

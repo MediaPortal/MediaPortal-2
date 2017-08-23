@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,10 +23,23 @@
 #endregion
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using SkinSettings;
+using System;
 
 namespace MediaPortal.UiComponents.BlueVision.Settings.Configuration
 {
-  public class MenuSettingsConfiguration : CustomConfigSetting
+  public class MenuSettingsConfiguration : CustomConfigSetting, IDisposable
   {
+    const string SKIN_NAME = "BlueVision";
+
+    public MenuSettingsConfiguration()
+    {
+      SkinChangeMonitor.Instance.RegisterConfiguration(SKIN_NAME, this);
+    }
+
+    public void Dispose()
+    {
+      SkinChangeMonitor.Instance.UnregisterConfiguration(SKIN_NAME, this);
+    }
   }
 }

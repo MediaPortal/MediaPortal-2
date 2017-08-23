@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,7 @@ using MediaPortal.Common.Commands;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -64,13 +65,14 @@ namespace MediaPortal.UiComponents.Media.Models
       ICollection<Sorting.Sorting> sortings = navigationData.AvailableSortings;
       if (sortings == null)
         return;
-      foreach (Sorting.Sorting sorting in sortings)
+      foreach (Sorting.Sorting sorting in sortings.Where(s => s.IsAvailable(navigationData.CurrentScreenData)))
       {
         Sorting.Sorting sortingCopy = sorting;
         ListItem sortingItem = new ListItem(Consts.KEY_NAME, sorting.DisplayName)
-          {
-              Command = new MethodDelegateCommand(() => navigationData.CurrentSorting = sortingCopy)
-          };
+        {
+          Command = new MethodDelegateCommand(() => navigationData.CurrentSorting = sortingCopy),
+          Selected = navigationData.CurrentSorting == sortingCopy
+        };
         sortingItem.AdditionalProperties[Consts.KEY_SORTING] = sortingCopy;
         _sortingItemsList.Add(sortingItem);
       }

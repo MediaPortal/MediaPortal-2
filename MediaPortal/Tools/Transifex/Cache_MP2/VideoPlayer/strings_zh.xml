@@ -8,6 +8,10 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">设置MPEG2视频(H.264, x264)的解码器</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC视频解码器</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">设置MPEG2视频 (HDTV, BluRay)的解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC视频解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">设置HEVC视频 (HD, UHD)的解码器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter">分离器</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter.Help">设置分离器</string>
   <string name="Settings.Players.Codecs.AudioCodecs">音频解码器</string>
   <string name="Settings.Players.Codecs.AudioRenderer">音频渲染</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2音频解码器</string>
@@ -19,7 +23,7 @@
   <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">音频渲染</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">设置音频渲染</string>
   <string name="Settings.Players.VideoPlayer">视频播放器</string>
-  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">首选的多声道流</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">首选的多声轨流</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">如果启用，6CH流是首选 (i.e. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD播放器</string>
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption">隐藏字幕</string>

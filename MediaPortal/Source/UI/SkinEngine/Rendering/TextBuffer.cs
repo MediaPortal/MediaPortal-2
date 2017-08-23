@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -112,6 +112,25 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     Down
   };
 
+  /// <summary>
+  /// An enum used to specify how text is trimmed when it overflows the edge of its containing box.
+  /// </summary>
+  public enum TextTrimming
+  {
+    /// <summary>
+    /// Text is not trimmed.
+    /// </summary>
+    None,
+    /// <summary>
+    /// Text is trimmed at a character boundary. An ellipsis (...) is drawn in place of remaining text.
+    /// </summary>
+    CharacterEllipsis,
+    /// <summary>
+    /// Text is trimmed at a word boundary. An ellipsis (...) is drawn in place of remaining text.
+    /// </summary>
+    WordEllipsis
+  }
+
   #endregion
 
   public class TextBuffer : IDisposable
@@ -128,6 +147,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected const string PARAM_FADE_BORDER = "g_fadeborder";
 
     protected const int FADE_SIZE = 15;
+    protected const string ELLIPSIS = "...";
     #endregion
 
     #region Protected fields
@@ -141,6 +161,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected SizeF _lastTextSize;
     protected float _lastTextBoxWidth;
     protected bool _lastWrap;
+    protected TextTrimming _lastTextTrimming;
     protected bool _kerning;
     protected int[] _textLines;
     // Rendering
@@ -295,9 +316,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       SetFont(ContentManager.Instance.GetFont(fontName, size), size);
     }
 
-    public string[] GetLines(float maxWidth, bool wrap)
+    public string[] GetLines(float maxWidth, float maxHeight, bool wrap, TextTrimming textTrimming)
     {
-      return wrap ? WrapText(maxWidth) : _text.Split(Environment.NewLine.ToCharArray());
+      string[] lines = wrap ? WrapText(maxWidth) : _text.Split(Environment.NewLine.ToCharArray());
+      if (textTrimming != TextTrimming.None)
+        lines = TrimText(lines, textTrimming, maxWidth, maxHeight);
+      return lines;
     }
 
     /// <summary>
@@ -305,7 +329,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     /// <param name="boxWidth"></param>
     /// <param name="wrap"></param>
-    public void Allocate(float boxWidth, bool wrap)
+    public void Allocate(float boxWidth, float boxHeight, bool wrap, TextTrimming textTrimming)
     {
       if (String.IsNullOrEmpty(_text))
       {
@@ -316,7 +340,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         return;
 
       // Get text quads
-      string[] lines = GetLines(boxWidth, wrap);
+      string[] lines = GetLines(boxWidth, boxHeight, wrap, textTrimming);
       PositionColoredTextured[] verts = _font.CreateText(lines, _fontSize, true, out _lastTextSize, out _textLines);
 
       // Re-use existing buffer if necessary
@@ -325,6 +349,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       // Preserve state
       _lastTextBoxWidth = boxWidth;
       _lastWrap = wrap;
+      _lastTextTrimming = textTrimming;
       _textChanged = false;
     }
 
@@ -420,6 +445,80 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
 
     /// <summary>
+    /// Trims any text that doesn't fit in the available space and draws an ellipsis (...) in place of any remaining text.
+    /// </summary>
+    /// <param name="lines">Text to trim</param>
+    /// <param name="textTrimming">Whether to trim on a word or character boundary.</param>
+    /// <param name="maxWidth">Maximum available width before the text should be trimmed.</param>
+    /// <param name="maxHeight">Maximum available height before the text should be trimmed.</param>
+    /// <returns></returns>
+    public string[] TrimText(string[] lines, TextTrimming textTrimming, float maxWidth, float maxHeight)
+    {
+      if (textTrimming == TextTrimming.None || lines.Length == 0)
+        return lines;
+
+      //calculate maximum visible lines
+      int maxLines = (int)(maxHeight / _font.LineHeight(_fontSize));
+      if (maxLines < 1)
+        return lines;
+
+      int trimmedLineCount = Math.Min(maxLines, lines.Length);
+      string[] trimmedLines = new string[trimmedLineCount];
+
+      float ellipsisWidth = _font.TextWidth(ELLIPSIS, _fontSize, _kerning);
+      for (int i = 0; i < trimmedLineCount; i++)
+      {
+        string line = lines[i];
+        float textWidth = _font.TextWidth(line, _fontSize, _kerning);
+        if (textWidth <= maxWidth && (i < trimmedLineCount - 1 || trimmedLineCount == lines.Length))
+        {
+          //line fits and we don't need to indicate that lines have been trimmed
+          trimmedLines[i] = line;
+          continue;
+        }
+
+        int lastIndex = 0;
+        if (textWidth + ellipsisWidth <= maxWidth)
+          //line fits but we need to show an ellipsis because we are trimming lines
+          lastIndex = line.Length;
+        else
+        {
+          int nextIndex = lastIndex;
+          float lineWidth = 0;
+          while (nextIndex < line.Length)
+          {
+            if (textTrimming == TextTrimming.WordEllipsis)
+            {
+              //find word boundary
+              while (nextIndex < line.Length && char.IsWhiteSpace(line[nextIndex]))
+                ++nextIndex;
+              while (nextIndex < line.Length && !char.IsWhiteSpace(line[nextIndex]))
+                ++nextIndex;
+            }
+            else
+              //character boundary
+              ++nextIndex;
+
+            //see if substring will fit after ellipsis is added
+            float cx = _font.PartialTextWidth(line, lastIndex, nextIndex - 1, _fontSize, _kerning);
+            if (lineWidth + cx + ellipsisWidth <= maxWidth)
+            {
+              lastIndex = nextIndex;
+              lineWidth += cx;
+            }
+            else
+              //substring won't fit
+              break;
+          }
+        }
+        //trim line and add ellipsis
+        string trimmedLine = lastIndex < line.Length ? line.Remove(lastIndex) : line;
+        trimmedLines[i] = trimmedLine + ELLIPSIS;
+      }
+      return trimmedLines;
+    }
+
+    /// <summary>
     /// Standard draw method for this text.
     /// </summary>
     /// <param name="textBox">The box where the text should be drawn.</param>
@@ -434,11 +533,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="scrollDelay">Text scrolling delay in seconds.</param>
     /// <param name="finalTransform">The final combined layout/render-transform.</param>
     public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, Color4 color,
-        bool wrap, bool fade, float zOrder, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, Matrix finalTransform)
+        bool wrap, TextTrimming textTrimming, bool fade, float zOrder, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, Matrix finalTransform)
     {
-      if (!IsAllocated || wrap != _lastWrap || _textChanged || (wrap && textBox.Width != _lastTextBoxWidth))
+      if (!IsAllocated || wrap != _lastWrap || _lastTextTrimming != textTrimming || _textChanged || ((wrap || textTrimming != TextTrimming.None) && textBox.Width != _lastTextBoxWidth))
       {
-        Allocate(textBox.Width, wrap);
+        Allocate(textBox.Width, textBox.Height, wrap, textTrimming);
         if (!IsAllocated)
           return;
       }
@@ -527,9 +626,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, float offsetX,
         Color4 color, float zOrder, Matrix finalTransform)
     {
-      if (!IsAllocated || _lastWrap || _textChanged)
+      if (!IsAllocated || _lastWrap || _lastTextTrimming != TextTrimming.None || _textChanged)
       {
-        Allocate(textBox.Width, false);
+        Allocate(textBox.Width, textBox.Height, false, TextTrimming.None);
         if (!IsAllocated)
           return;
       }

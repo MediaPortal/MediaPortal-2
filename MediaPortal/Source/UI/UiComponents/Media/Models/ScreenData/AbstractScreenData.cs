@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,7 +28,11 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.SecondaryFilter;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
+using System;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -41,7 +45,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     // Lazily initialized
     protected ItemsList _items = null;
+    protected ItemsList _originalList = null;
     protected AbstractProperty _numItemsStrProperty = null;
+    protected AbstractProperty _numItemsProperty = null;
+    protected AbstractProperty _totalNumItemsProperty = null;
+    protected AbstractProperty _isFilteredProperty;
     protected AbstractProperty _isItemsValidProperty = null;
     protected AbstractProperty _isItemsEmptyProperty = null;
     protected AbstractProperty _tooManyItemsProperty = null;
@@ -49,6 +57,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _showListHintProperty = null;
     protected AbstractProperty _listHintProperty = null;
     protected NavigationData _navigationData = null;
+    protected IItemsFilter _filter;
+    protected IEnumerable<Guid> _filteredMias;
+    protected IEnumerable<Guid> _availableMias;
 
     protected object _syncObj = new object();
 
@@ -58,6 +69,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       _screen = screen;
       _menuItemLabel = menuItemLabel;
+      _filter = new RemoteNumpadFilter();
     }
 
     /// <summary>
@@ -121,9 +133,46 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       protected set { _numItemsStrProperty.SetValue(value); }
     }
 
-    public AbstractProperty IsItemsValidProperty
+    public AbstractProperty NumItemsProperty
     {
-      get { return _isItemsValidProperty; }
+      get { return _numItemsProperty; }
+    }
+
+    /// <summary>
+    /// Gets the absolute number of items in the <see cref="Items"/> list.
+    /// </summary>
+    public int NumItems
+    {
+      get { return (int) _numItemsProperty.GetValue(); }
+      protected set { _numItemsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TotalNumItemsProperty
+    {
+      get { return _totalNumItemsProperty; }
+    }
+
+    /// <summary>
+    /// Gets the total number of all items that are affected by current list.
+    /// </summary>
+    public int? TotalNumItems
+    {
+      get { return (int?)_totalNumItemsProperty.GetValue(); }
+      protected set { _totalNumItemsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsFilteredProperty
+    {
+      get { return _isFilteredProperty; }
+    }
+
+    /// <summary>
+    /// Gets the information whether the current view is filtered by a secondary filter.
+    /// </summary>
+    public bool IsFiltered
+    {
+      get { return (bool)_isFilteredProperty.GetValue(); }
+      protected set { _isFilteredProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -229,6 +278,22 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     }
 
     /// <summary>
+    /// Returns the minimum mias that are guaranteed to be present in the items displayed by this screen.
+    /// </summary>
+    public IEnumerable<Guid> FilteredMias
+    {
+      get { return _filteredMias; }
+    }
+
+    /// <summary>
+    /// Returns the mias that this screen has available.
+    /// </summary>
+    public IEnumerable<Guid> AvailableMias
+    {
+      get { return _availableMias; }
+    }
+
+    /// <summary>
     /// Invalidates the underlaying view and reloads all sub views and items.
     /// </summary>
     public abstract void Reload();
@@ -237,6 +302,43 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Rebuilds the items list without invalidating the underlaying view.
     /// </summary>
     public abstract void UpdateItems();
+
+    /// <summary>
+    /// Whether this screen can filter and display items with the specified aspects.
+    /// </summary>
+    /// <param name="necessaryMIATypeIds">The ids of the media item aspects contained in the items to filter.</param>
+    /// <returns></returns>
+    public virtual bool CanFilter(IEnumerable<Guid> necessaryMIATypeIds)
+    {
+      return _filteredMias == null || necessaryMIATypeIds == null || _filteredMias.Intersect(necessaryMIATypeIds).Any();
+    }
+
+    /// <summary>
+    /// Allows a secondary filter of the already loaded <see cref="Items"/> by the given <paramref name="search"/> term.
+    /// </summary>
+    /// <param name="search">Search term (or key)</param>
+    public virtual void ApplySecondaryFilter(string search)
+    {
+      IItemsFilter filter = _filter;
+      if (filter == null)
+        return;
+
+      // Init backup list
+      if (_originalList == null)
+      {
+        _originalList = new ItemsList();
+        CollectionUtils.AddAll(_originalList, _items);
+      }
+      filter.Filter(_items, _originalList, search);
+
+      IsFiltered = filter.IsFiltered;
+      if (IsFiltered)
+        // Filter defined by class
+        NumItemsStr = filter.Text;
+      else
+        // Restore default text
+        NumItemsStr = Utils.BuildNumItemsStr(NumItems, TotalNumItems);
+    }
 
     /// <summary>
     /// Updates all data which is needed by the skin. That is all properties in the region "Lazy initialized properties"
@@ -248,6 +350,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         throw new IllegalCallException("Screen data is already initialized");
       _navigationData = navigationData;
       _numItemsStrProperty = new WProperty(typeof(string), string.Empty);
+      _numItemsProperty = new WProperty(typeof(int), 0);
+      _totalNumItemsProperty = new WProperty(typeof(int?), 0);
+      _isFilteredProperty = new WProperty(typeof(bool), false);
       _isItemsValidProperty = new WProperty(typeof(bool), true);
       _isItemsEmptyProperty = new WProperty(typeof(bool), true);
       _tooManyItemsProperty = new WProperty(typeof(bool), false);
@@ -265,6 +370,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       _navigationData = null;
       _numItemsStrProperty = null;
+      _numItemsProperty = null;
       _isItemsValidProperty = null;
       _isItemsEmptyProperty = null;
       _tooManyItemsProperty = null;
@@ -307,6 +413,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ShowListHint = true;
       IsItemsValid = true;
       NumItemsStr = "?";
+      NumItems = 0;
+      TotalNumItems = null;
+      IsFiltered = false;
     }
 
     protected virtual void Display_TooManyItems(int numItems)
@@ -318,6 +427,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ShowListHint = true;
       IsItemsValid = true;
       NumItemsStr = Utils.BuildNumItemsStr(numItems, null);
+      NumItems = numItems;
+      TotalNumItems = null;
+      IsFiltered = false;
     }
 
     protected virtual void Display_Normal(int numItems, int? total)
@@ -337,7 +449,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         ShowListHint = false;
       }
       IsItemsValid = true;
+
       NumItemsStr = Utils.BuildNumItemsStr(numItems, total);
+
+      NumItems = numItems;
+      TotalNumItems = total;
+      IsFiltered = false;
     }
 
     protected virtual void Display_ItemsInvalid()
@@ -349,6 +466,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ShowListHint = false;
       ListHint = string.Empty;
       NumItemsStr = "-";
+      NumItems = 0;
+      TotalNumItems = null;
+      IsFiltered = false;
     }
   }
 }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,6 +48,12 @@ namespace MediaPortal.Plugins.SystemStateMenu.Settings
     [Setting(SettingScope.User, SystemStateAction.Suspend)]
     public SystemStateAction? LastCustomSleepAction { get; set; }
 
+    [Setting(SettingScope.User, 300)]
+    public int? MaxSleepTimeout { get; set; }
+
+    [Setting(SettingScope.User, SystemStateAction.Shutdown)]
+    public SystemStateAction? LastSleepTimerAction { get; set; }
+
     [Setting(SettingScope.User, null)]
     public List<SystemStateItem> ShutdownItemList
     {
@@ -71,6 +77,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Settings
                               new SystemStateItem(SystemStateAction.Suspend, true),
                               new SystemStateItem(SystemStateAction.Hibernate, true),
                               new SystemStateItem(SystemStateAction.Shutdown, true),
+                              new SystemStateItem(SystemStateAction.SleepTimer, true),
                               new SystemStateItem(SystemStateAction.Restart, true),
                               new SystemStateItem(SystemStateAction.CloseMP, true),
                               new SystemStateItem(SystemStateAction.MinimizeMP, false),

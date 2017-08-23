@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,6 +37,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -99,7 +100,7 @@ namespace MediaPortal.UiComponents.Media.Models
       AllItems.Add(new TitledItem("[Media.MoviesMenuItem]", list));
 
       list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_SERIES_MIAS, list, item => new SeriesItem(item));
+      FillList(contentDirectory, Consts.NECESSARY_EPISODE_MIAS, list, item => new EpisodeItem(item));
       AllItems.Add(new TitledItem("[Media.SeriesMenuItem]", list));
 
       list = new ItemsList();
@@ -120,8 +121,12 @@ namespace MediaPortal.UiComponents.Media.Models
         Limit = QUERY_LIMIT, // Last 5 imported items
         SortInformation = new List<SortInformation> { new SortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      var items = contentDirectory.Search(query, false);
+      var items = contentDirectory.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(necessaryMIAs));
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

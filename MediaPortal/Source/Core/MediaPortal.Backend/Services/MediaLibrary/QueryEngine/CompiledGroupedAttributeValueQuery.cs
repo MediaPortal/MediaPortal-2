@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,13 +41,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   /// </summary>
   public class CompiledGroupedAttributeValueQuery
   {
-    protected readonly MIA_Management _miaManagement;
-    protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIATypes;
-    protected readonly MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
-    protected readonly IAttributeFilter _selectAttributeFilter;
-    protected readonly SelectProjectionFunction _selectProjectionFunction;
-    protected readonly Type _projectionValueType;
-    protected readonly IFilter _filter;
+    protected readonly MIA_Management _miaManagement = null;
+    protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIATypes = null;
+    protected readonly MediaItemAspectMetadata.AttributeSpecification _selectKeyAttribute = null;
+    protected readonly MediaItemAspectMetadata.AttributeSpecification _selectValueAttribute = null;
+    protected readonly IAttributeFilter _selectAttributeFilter = null;
+    protected readonly SelectProjectionFunction _selectProjectionFunction = null;
+    protected readonly Type _projectionValueType = null;
+    protected readonly IFilter _filter = null;
 
     public CompiledGroupedAttributeValueQuery(
         MIA_Management miaManagement,
@@ -58,7 +59,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
-      _selectAttribute = selectedAttribute;
+      _selectValueAttribute = selectedAttribute;
+      _selectAttributeFilter = selectAttributeFilter;
+      _selectProjectionFunction = selectProjectionFunction;
+      _projectionValueType = projectionValueType;
+      _filter = filter;
+    }
+
+    public CompiledGroupedAttributeValueQuery(
+        MIA_Management miaManagement,
+        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIATypes,
+        MediaItemAspectMetadata.AttributeSpecification selectedKeyAttribute,
+        MediaItemAspectMetadata.AttributeSpecification selectedValueAttribute,
+        IAttributeFilter selectAttributeFilter,
+        SelectProjectionFunction selectProjectionFunction, Type projectionValueType,
+        IFilter filter)
+    {
+      _miaManagement = miaManagement;
+      _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
+      _selectKeyAttribute = selectedKeyAttribute;
+      _selectValueAttribute = selectedValueAttribute;
       _selectAttributeFilter = selectAttributeFilter;
       _selectProjectionFunction = selectProjectionFunction;
       _projectionValueType = projectionValueType;
@@ -70,9 +90,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _necessaryRequestedMIATypes; }
     }
 
-    public MediaItemAspectMetadata.AttributeSpecification SelectAttribute
+    public MediaItemAspectMetadata.AttributeSpecification SelectKeyAttribute
     {
-      get { return _selectAttribute; }
+      get { return _selectKeyAttribute; }
+    }
+
+    public MediaItemAspectMetadata.AttributeSpecification SelectValueAttribute
+    {
+      get { return _selectValueAttribute; }
     }
 
     public IAttributeFilter SelectAttributeFilter
@@ -112,31 +137,74 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           selectProjectionFunction, projectionValueType, combinedFilter);
     }
 
-    public HomogenousMap Execute()
+    public static CompiledGroupedAttributeValueQuery Compile(MIA_Management miaManagement,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs,
+        MediaItemAspectMetadata.AttributeSpecification selectKeyAttribute,
+        MediaItemAspectMetadata.AttributeSpecification selectValueAttribute,
+        IAttributeFilter selectAttributeFilter,
+        SelectProjectionFunction selectProjectionFunction, Type projectionValueType, IFilter filter)
+    {
+      IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
+
+      // If we're doing a complex query, we can optimize if we have an extra select attribute filter, i.e. a restriction
+      // on the result set of values. See ComplexAttributeQueryBuilder.GenerateSqlGroupByStatement().
+      bool simpleQuery = selectValueAttribute.Cardinality == Cardinality.Inline || selectValueAttribute.Cardinality == Cardinality.ManyToOne;
+      IFilter combinedFilter = simpleQuery ?
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { filter, selectAttributeFilter }) : filter;
+      selectAttributeFilter = simpleQuery ? null : selectAttributeFilter;
+
+      ICollection<MediaItemAspectMetadata> necessaryMIATypes = new List<MediaItemAspectMetadata>();
+      // Raise exception if necessary MIA types are not present
+      foreach (Guid miaTypeID in necessaryRequestedMIATypeIDs)
+      {
+        MediaItemAspectMetadata miam;
+        if (!availableMIATypes.TryGetValue(miaTypeID, out miam))
+          throw new InvalidDataException("Necessary requested MIA type of ID '{0}' is not present in the media library", miaTypeID);
+        necessaryMIATypes.Add(miam);
+      }
+      return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectKeyAttribute, selectValueAttribute, 
+        selectAttributeFilter, selectProjectionFunction, projectionValueType, combinedFilter);
+    }
+
+    public Tuple<HomogenousMap, HomogenousMap> Execute()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         using (IDbCommand command = transaction.CreateCommand())
         {
-          string valueAlias;
-          string groupSizeAlias;
-          string statementStr;
-          IList<BindVar> bindVars;
-          if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
+          string keyAlias = null;
+          string valueAlias = null;
+          string groupSizeAlias = null;
+          string statementStr = null;
+          IList<BindVar> bindVars = null;
+          if (_selectValueAttribute.Cardinality == Cardinality.Inline || _selectValueAttribute.Cardinality == Cardinality.ManyToOne)
           {
-            QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
-            MainQueryBuilder builder = new MainQueryBuilder(_miaManagement,
-                new QueryAttribute[] {selectAttributeQA}, _selectProjectionFunction,
+            List<QueryAttribute> qAttributes = new List<QueryAttribute>();
+            QueryAttribute selectValueAttributeQA = new QueryAttribute(_selectValueAttribute);
+            qAttributes.Add(selectValueAttributeQA);
+            QueryAttribute selectKeyAttributeQA = null;
+            if (_selectKeyAttribute != null)
+            {
+              selectKeyAttributeQA = new QueryAttribute(_selectKeyAttribute);
+              qAttributes.Add(selectKeyAttributeQA);
+            }
+            MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement, qAttributes, _selectProjectionFunction,
                 _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
             IDictionary<QueryAttribute, string> qa2a;
             builder.GenerateSqlGroupByStatement(out groupSizeAlias, out qa2a, out statementStr, out bindVars);
-            valueAlias = qa2a[selectAttributeQA];
+            valueAlias = qa2a[selectValueAttributeQA];
+            if (_selectKeyAttribute != null)
+              keyAlias = qa2a[selectKeyAttributeQA];
           }
           else
           {
-            ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
+            if (_selectKeyAttribute != null)
+            {
+              throw new InvalidDataException("Value attribute '{0}' does not support key value grouping", _selectValueAttribute.AttributeName);
+            }
+            ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectValueAttribute,
                 _selectProjectionFunction, _necessaryRequestedMIATypes, _filter);
             builder.GenerateSqlGroupByStatement(_selectAttributeFilter, out valueAlias, out groupSizeAlias,
                 out statementStr, out bindVars);
@@ -145,15 +213,42 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           foreach (BindVar bindVar in bindVars)
             database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
 
-          Type valueType = _projectionValueType ?? _selectAttribute.AttributeType;
-          HomogenousMap result = new HomogenousMap(valueType, typeof(int));
-          using (IDataReader reader = command.ExecuteReader())
+          Tuple<HomogenousMap, HomogenousMap> result = null;
+          if (_selectKeyAttribute != null)
           {
-            int valueCol = reader.GetOrdinal(valueAlias);
-            int groupSizeCol = reader.GetOrdinal(groupSizeAlias);
-            while (reader.Read())
-              result.Add(database.ReadDBValue(valueType, reader, valueCol),
-                  database.ReadDBValue<int>(reader, groupSizeCol));
+            Type valueType = _projectionValueType ?? _selectValueAttribute.AttributeType;
+            Type keyType = _selectKeyAttribute.AttributeType;
+            HomogenousMap valueMap = new HomogenousMap(valueType, typeof(int));
+            HomogenousMap keyMap = new HomogenousMap(valueType, keyType);
+            using (IDataReader reader = command.ExecuteReader())
+            {
+              int keyCol = reader.GetOrdinal(keyAlias);
+              int valueCol = reader.GetOrdinal(valueAlias);
+              int groupSizeCol = reader.GetOrdinal(groupSizeAlias);
+              while (reader.Read())
+              {
+                if (!keyMap.ContainsKey(database.ReadDBValue(valueType, reader, valueCol)))
+                {
+                  keyMap.Add(database.ReadDBValue(valueType, reader, valueCol), database.ReadDBValue(keyType, reader, keyCol));
+                  valueMap.Add(database.ReadDBValue(valueType, reader, valueCol), database.ReadDBValue<int>(reader, groupSizeCol));
+                }
+              }
+            }
+            result = new Tuple<HomogenousMap, HomogenousMap>(valueMap, keyMap);
+          }
+          else
+          {
+            Type valueType = _projectionValueType ?? _selectValueAttribute.AttributeType;
+            HomogenousMap valueMap = new HomogenousMap(valueType, typeof(int));
+            using (IDataReader reader = command.ExecuteReader())
+            {
+              int valueCol = reader.GetOrdinal(valueAlias);
+              int groupSizeCol = reader.GetOrdinal(groupSizeAlias);
+              while (reader.Read())
+                valueMap.Add(database.ReadDBValue(valueType, reader, valueCol),
+                    database.ReadDBValue<int>(reader, groupSizeCol));
+            }
+            result = new Tuple<HomogenousMap, HomogenousMap>(valueMap, null);
           }
           return result;
         }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 
@@ -29,6 +30,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortBySystem : AbstractSortByComparableObjectAttribute<string>
   {
-    public SortBySystem() : base(Consts.RES_SORT_BY_SYSTEM, ProviderResourceAspect.ATTR_SYSTEM_ID) {}
+    public SortBySystem() : base(Consts.RES_COMMON_BY_SYSTEM_MENU_ITEM, String.Empty, ProviderResourceAspect.ATTR_SYSTEM_ID)
+    {
+      _includeMias = new[] { ProviderResourceAspect.ASPECT_ID };
+    }
   }
 }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,6 +48,7 @@ namespace MediaPortal.Common.Messaging
     protected Thread _messageDeliveryThread = null;
     protected ManualResetEvent _terminatedEvent = new ManualResetEvent(true);
     protected AutoResetEvent _messageAvailableEvent = new AutoResetEvent(false);
+    protected bool _wasStarted = false;
 
     #endregion
 
@@ -131,6 +132,7 @@ namespace MediaPortal.Common.Messaging
 
     protected void DoWork()
     {
+      _wasStarted = true;
       while (!IsTerminated)
       {
         SystemMessage message;
@@ -211,18 +213,27 @@ namespace MediaPortal.Common.Messaging
     /// </summary>
     public void Start()
     {
-      if (_messageDeliveryThread != null)
-        return;
-      RegisterAtAllMessageChannels();
-      _shutdownWatcher = ShutdownWatcher.Create(this);
-      _terminatedEvent.Reset();
-      Thread thread;
-      lock (_syncObj)
-        _messageDeliveryThread = thread = new Thread(DoWork)
-          {
-              Name = string.Format("AMQ '{0}'", _queueName)
-          };
-      thread.Start();
+      try
+      { 
+        if (_messageDeliveryThread != null)
+          return;
+        _wasStarted = false;
+        RegisterAtAllMessageChannels();
+        _shutdownWatcher = ShutdownWatcher.Create(this);
+        _terminatedEvent.Reset();
+        Thread thread;
+        lock (_syncObj)
+          _messageDeliveryThread = thread = new Thread(DoWork)
+            {
+                Name = string.Format("AMQ '{0}'", _queueName)
+            };
+        thread.Start();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Unhandled exception in start method of async message queue '{0}'",
+            e, _queueName);
+      }
     }
 
     /// <summary>
@@ -241,23 +252,32 @@ namespace MediaPortal.Common.Messaging
     /// delivered by this queue.</returns>
     public bool Shutdown()
     {
-      Terminate();
-      Thread threadToJoin;
-      lock (_syncObj)
-        threadToJoin = _messageDeliveryThread;
-      if (threadToJoin != null)
+      try
       {
-        bool completed = false;
-        if (Thread.CurrentThread != threadToJoin)
-        {
-          threadToJoin.Join(); // Holding the lock while waiting for the thread would cause a deadlock
-          completed = true;
-        }
+        Terminate();
+        Thread threadToJoin;
         lock (_syncObj)
-          _messageDeliveryThread = null;
-        return !completed;
+          threadToJoin = _messageDeliveryThread;
+        if (threadToJoin != null)
+        {
+          bool completed = false;
+          if (_wasStarted == true && Thread.CurrentThread != threadToJoin)
+          {
+            threadToJoin.Join(); // Holding the lock while waiting for the thread would cause a deadlock
+            completed = true;
+          }
+          lock (_syncObj)
+            _messageDeliveryThread = null;
+          return !completed;
+        }
+        return false;
       }
-      return false;
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Unhandled exception in shutdown method of async message queue '{0}'",
+            e, _queueName);
+        return false;
+      }
     }
 
     /// <summary>

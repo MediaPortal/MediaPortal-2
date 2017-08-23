@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -91,10 +91,10 @@ namespace MediaPortal.Media.MetadataExtractors
     public BluRayMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "BluRay metadata extractor", MetadataExtractorPriority.Core, false,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
+                VideoStreamAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
     }
@@ -108,53 +108,67 @@ namespace MediaPortal.Media.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
 
+        if (extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+          return false;
+
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {
-          ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
-          if (!lfsra.IsFile && lfsra.ResourceExists("BDMV"))
+          if (!rah.LocalFsResourceAccessor.IsFile && rah.LocalFsResourceAccessor.ResourceExists("BDMV"))
           {
-            IFileSystemResourceAccessor fsraBDMV = lfsra.GetResource("BDMV");
-            if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
-            {
-              // This line is important to keep in, if no VideoAspect is created here, the MediaItems is not detected as Video! 
-              MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
-              MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
-
-              mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
-
-              using (lfsra.EnsureLocalFileSystemAccess())
+            using (IFileSystemResourceAccessor fsraBDMV = rah.LocalFsResourceAccessor.GetResource("BDMV"))
+              if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
               {
-                BDInfoExt bdinfo = new BDInfoExt(lfsra.LocalFileSystemPath);
-                string title = bdinfo.GetTitle();
-                mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? mediaItemAccessor.ResourceName);
+                MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
+                // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
+                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.CanonicalLocalResourcePath.Serialize());
 
-                // Check for BD disc thumbs
-                FileInfo thumbnail = bdinfo.GetBiggestThumb();
-                if (thumbnail != null)
+                // This line is important to keep in, if no VideoAspect is created here, the MediaItems is not detected as Video! 
+                SingleMediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
+                videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, true);
+
+                MultipleMediaItemAspect videoStreamAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+                videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+                videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, -1);
+
+                MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
+                mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
+
+                using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
                 {
-                  try
+                  BDInfoExt bdinfo = new BDInfoExt(rah.LocalFsResourceAccessor.LocalFileSystemPath);
+                  string title = bdinfo.GetTitle();
+                  mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? mediaItemAccessor.ResourceName);
+
+                  // Check for BD disc thumbs
+                  FileInfo thumbnail = bdinfo.GetBiggestThumb();
+                  if (thumbnail != null)
                   {
-                    using (FileStream fileStream = new FileStream(thumbnail.FullName, FileMode.Open, FileAccess.Read))
-                    using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(fileStream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
+                    try
                     {
-                      MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
+                      using (FileStream fileStream = new FileStream(thumbnail.FullName, FileMode.Open, FileAccess.Read))
+                      using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(fileStream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
+                      {
+                        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
+                      }
+                    }
+                    // Decoding of invalid image data can fail, but main MediaItem is correct.
+                    catch
+                    {
                     }
                   }
-                    // Decoding of invalid image data can fail, but main MediaItem is correct.
-                  catch
-                  {
-                  }
                 }
+                return true;
               }
-              return true;
-            }
           }
         }
         return false;

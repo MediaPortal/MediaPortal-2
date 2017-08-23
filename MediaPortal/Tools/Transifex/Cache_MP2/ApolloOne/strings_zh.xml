@@ -7,4 +7,5 @@
   <string name="Menu.Weather">天气</string>
   <string name="Menu.Settings">设置</string>
   <string name="Menu.Others">其它的</string>
+  <string name="Menu.Main">主菜单</string>
 </resources>

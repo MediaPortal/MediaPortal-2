@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -36,6 +36,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
   {
     public ItemsList Programs { get; set; }
     public IChannel Channel { get; set; }
+    public string ChannelLogoType { get; set; }
     public string ChannelLogoPath { get; set; }
     public ChannelProgramListItem(IChannel channel, ItemsList programs)
     {
@@ -44,6 +45,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       Channel = channel;
       //ChannelLogoPath = string.Format("channellogos\\{0}.png", channel.Name);
       ChannelLogoPath = channel.Name;
+      ChannelLogoType = channel.GetFanArtMediaType();
     }
   }
 }

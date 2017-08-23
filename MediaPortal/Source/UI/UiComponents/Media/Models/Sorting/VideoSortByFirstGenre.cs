@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,11 +29,19 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class VideoSortByFirstGenre : AbstractSortByFirstComparableAttribute<string>
   {
-    public VideoSortByFirstGenre() : base(VideoAspect.ATTR_GENRES) {}
+    public VideoSortByFirstGenre() : base(GenreAspect.ATTR_GENRE)
+    {
+      _includeMias = new[] { VideoAspect.ASPECT_ID };
+    }
 
     public override string DisplayName
     {
-      get { return Consts.RES_SORT_BY_GENRE; }
+      get { return Consts.RES_COMMON_BY_GENRE_MENU_ITEM; }
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_COMMON_BY_GENRE_MENU_ITEM; }
     }
   }
 }

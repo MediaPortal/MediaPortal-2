@@ -36,19 +36,27 @@ Parameters which have to be accessible by a DynamicResource lookup:
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
+  <Screen.Resources>
+    <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+  </Screen.Resources>
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Hide">
+      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+    </EventTrigger>
+  </Screen.Triggers>
+  
   <Canvas Width="1920" Height="1080">
     <Canvas.Resources>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
       <Model x:Key="HomeServerModel" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
       <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-      <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
       <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
       <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+      <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
     </Canvas.Resources>
-    
-    <Image Canvas.Left="0" Canvas.Top="0" Width="1920" Height="150" Source="groupmenu_fade.png" Stretch="Fill"
-        IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"/>
-    <!--Image Canvas.Top="20" Canvas.Left="40" Source="MP2_logo_bw.png" Height="50" Stretch="Uniform"/-->
+
+    <!--Image Canvas.Left="0" Canvas.Top="0" Width="1920" Height="150" Source="groupmenu_fade.png" Stretch="Fill"
+        IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"/-->
     
     <Grid x:Name="HeaderPanel" Canvas.Top="0" Canvas.Left="0" Width="1920">
       <Grid.RowDefinitions>
@@ -70,9 +78,34 @@ Parameters which have to be accessible by a DynamicResource lookup:
              Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.BigIconProperty}" 
              IsVisible="{Binding UseInHome}" HorizontalAlignment="Right" Margin="0,0,60,0"/>
 
-      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="1" Margin="0,10,10,0"
+      <!-- Time & Date -->
+      <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+        <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,5,10,-5" Orientation="Horizontal"
+                     DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
+                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+            <Label FontSize="{ThemeResource TinyFontSize}" Margin="10,-5,0,-10" 
+                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+              <Label.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
+                  <Binding Path="Progress"/>
+                </MultiBinding>
+              </Label.IsVisible>
+              <Label.Content>
+                <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
+              </Label.Content>
+            </Label>
+            <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" VerticalAlignment="Center" 
+                    HorizontalAlignment="Left" Margin="0,-5,0,-10"/>
+          </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
+                      DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                      IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+          <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-4,0,-16"/>
+        </StackPanel>
+        <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Margin="0,10,10,0"
              FontSize="{ThemeResource DialogTitleFontSize}" FontFamily="Titan"
              Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+      </StackPanel>
 
       <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" Margin="0,-20,10,0">
         <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontFamily="TitanBold"
@@ -107,7 +140,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
              Template="{DynamicResource ResourceKey=Alternative_Header_Template}"
              IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
     </Grid>
-
+    
+    <Grid Width="800" Canvas.Top="20" Canvas.Left="60" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
+      <Label x:Name="SelectedItem"
+          Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
+          VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource HeaderFontSize}" FontFamily="Titan"
+          Color="{ThemeResource TextColor}">
+      </Label>
+    </Grid>
+    
     <Grid Canvas.Left="50" Canvas.Top="15" Width="1824" IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHomeScreen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="100"/>
@@ -140,17 +181,26 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="ClientArea" Height="580" Width="1795" Canvas.Left="66" Canvas.Bottom="952"
              Template="{DynamicResource ResourceKey=Client_Template}"/>
 
-    <Border Width="1300" Canvas.Top="13" Canvas.Left="20" BorderThickness="0">
-          <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}"
-                 VerticalAlignment="Center" HorizontalAlignment="Left" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
-                 HomeMenuModel="{StaticResource MenuModel}" Margin="40,0,40,0" FontFamily="Titan" 
-                 ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
-                 SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
-      <bvm:GroupMenuListView.Resources>
-        <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-      </bvm:GroupMenuListView.Resources>
-    </bvm:GroupMenuListView>
-    </Border>
+    <Grid Canvas.Top="-32" Canvas.Left="0" Width="1920" Height="120" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Border Name="mask" Background="#99000000" CornerRadius="23"/>
+        <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}"
+                              VerticalAlignment="Center" HorizontalAlignment="Center"
+                              HomeMenuModel="{StaticResource MenuModel}" Margin="20,30,0,0" FontFamily="Titan" 
+                              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
+                              SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
+         <bvm:GroupMenuListView.Resources>
+           <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+         </bvm:GroupMenuListView.Resources>
+        </bvm:GroupMenuListView>
+      </Grid>
+    </Grid>
     
     <!-- Player controls, located on top but drawn as last item so it overlays other content, if present-->    
     <Grid Canvas.Left="350" Canvas.Top="120" Width="1220">

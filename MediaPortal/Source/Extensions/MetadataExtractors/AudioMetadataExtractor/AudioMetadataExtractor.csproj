@@ -20,6 +20,7 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,32 +43,41 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net">
-      <HintPath>..\..\..\..\Packages\BASS.NET.2.4.10.3\lib\net40\Bass.Net.dll</HintPath>
+    <Reference Include="Bass.Net, Version=2.4.12.5, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\BASS.NET.2.4.12.5\lib\net45\Bass.Net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
-    <Reference Include="taglib-sharp, Version=2.0.3.8, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Packages\MediaPortal.TagLib.2.0.3.8\lib\taglib-sharp.dll</HintPath>
+    <Reference Include="taglib-sharp, Version=2.1.0.3, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TagLib.2.1.0.3\lib\net45\taglib-sharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="FreeDB\CDInfo.cs" />
-    <Compile Include="FreeDB\CDInfoDetail.cs" />
-    <Compile Include="FreeDB\CDTrackDetail.cs" />
-    <Compile Include="FreeDB\FreeDBQuery.cs" />
-    <Compile Include="FreeDB\FreeDBSite.cs" />
-    <Compile Include="FreeDB\XMCDParser.cs" />
+    <Compile Include="FanArtHandlers\AudioFanArtHandler.cs" />
+    <Compile Include="Matchers\AudioCDMatcher.cs" />
+    <Compile Include="Metadata\TempAlbumAspect.cs" />
+    <Compile Include="Metadata\TempPersonAspect.cs" />
+    <Compile Include="RelationshipExtractors\AudioRelationshipExtractor.cs" />
     <Compile Include="AudioMetadataExtractor.cs" />
+    <Compile Include="RelationshipExtractors\AlbumArtistRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\AlbumLabelRelationshipExtractor.cs" />
+    <Compile Include="Matchers\MusicNameMatcher.cs" />
+    <Compile Include="RelationshipExtractors\IAudioRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\TrackAlbumArtistRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\TrackComposerRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\TrackArtistRelationshipExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\AudioMetadataExtractorSettings.cs" />
+    <Compile Include="RelationshipExtractors\TrackAlbumRelationshipExtractor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -80,20 +90,29 @@
       <Name>MediaPortal.Utilities</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+      <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
+      <Name>FanArtService.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\BassLibraries\BassLibraries.csproj">
       <Project>{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}</Project>
       <Name>BassLibraries</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
+      <Name>OnlineLibraries</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="build.targets" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
-

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,6 +35,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the selection marker aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("522687F8-6829-4BD9-8502-5DF90BF2E016");
+    public static readonly Guid ASPECT_ID = new Guid("2D11A5EE-F996-416F-B700-3C371E78C390");
   }
 }

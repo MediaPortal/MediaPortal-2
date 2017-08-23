@@ -12,6 +12,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Pradžios laikas</string>
   <string name="SlimTvClient.ProgramEndLabel">Pabaigos laikas</string>
   <string name="SlimTvClient.EpisodeLabel">Epizodas</string>
+  <string name="SlimTvClient.Progress">Eiga</string>
   <string name="SlimTvClient.Guide">TV programa</string>
   <string name="SlimTvClient.NoProgram">Nėra programos duomenų.</string>
   <string name="SlimTvClient.ChooseProgramAction">Pasirinkite programos veiksmą...</string>
@@ -44,6 +45,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Savaitgaliais</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Darbo dienomis</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Kartą savaitėje šiuo laiku, šiam kanalui</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Įrašai pagal pavadinimą</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Įrašai pagal pavadinimą</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Tvarkaraščio detalės</string>
   <string name="SlimTvClient.ScheduleName">Tvarkaraščio pavadinimas</string>

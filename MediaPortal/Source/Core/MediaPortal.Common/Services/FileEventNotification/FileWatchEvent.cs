@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -246,19 +246,20 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <returns></returns>
     private static long GetFileSize(string path)
     {
-      long fileSize;
       try
       {
-        fileSize = (File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory
-                     ? 0  // Don't try to get the size of a directory.
-                     : new FileInfo(path).Length;
+        if (Directory.Exists(path))
+          return 0; // Don't try to get the size of a directory.
+        FileInfo info = new FileInfo(path);
+        if(info.Exists == false)
+          return 0;
+        return info.Length;
       }
       // Catch all exceptions.
       catch
       {
         return 0;
       }
-      return fileSize;
     }
 
     #endregion

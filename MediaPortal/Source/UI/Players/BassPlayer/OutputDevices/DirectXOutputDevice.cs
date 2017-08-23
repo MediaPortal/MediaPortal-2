@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,8 +25,6 @@
 using System;
 using System.Threading;
 using MediaPortal.Extensions.BassLibraries;
-using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
-using MediaPortal.UI.Players.BassPlayer.Settings;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
@@ -85,7 +83,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
       CollectDeviceInfo(_deviceNo);
 
-      int ms = Convert.ToInt32(Controller.GetSettings().DirectSoundBufferSize.TotalMilliseconds);
+      int ms = Convert.ToInt32(Controller.GetSettings().DirectSoundBufferSizeMilliSecs);
 
       if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_BUFFER, ms))
         throw new BassLibraryException("BASS_SetConfig");
@@ -148,7 +146,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       _outputStream = BassStream.Create(handle);
 
       if (passThrough)
-        _fader = new BassStreamFader(_inputStream, Controller.GetSettings().FadeDuration);
+        _fader = new BassStreamFader(_inputStream, TimeSpan.FromMilliseconds(Controller.GetSettings().FadeDurationMilliSecs));
 
       ResetState();
     }
@@ -182,6 +180,45 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       Bass.BASS_ChannelSetPosition(_outputStream.Handle, 0L);
     }
 
+    public override int Volume
+    {
+      get
+      {
+        return _volume;
+      }
+      set
+      {
+        // value is from 0 to 100 in a linear scale, internal _volume is from 0 to 10000 in a linear scale
+        _volume = value;
+        var bassVolume = _volume * 100;
+        Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_MUSIC, bassVolume);
+        Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_SAMPLE, bassVolume);
+        Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_STREAM, bassVolume);
+      }
+    }
+
+    public override bool Mute
+    {
+      get { return _isMuted; }
+      set
+      {
+        if (value)
+        {
+          Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_MUSIC, 0);
+          Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_SAMPLE, 0);
+          Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_STREAM, 0);
+        }
+        else
+        {
+          var bassVolume = _volume * 100;
+          Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_MUSIC, bassVolume);
+          Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_SAMPLE, bassVolume);
+          Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_STREAM, bassVolume);
+        }
+        _isMuted = value;
+      }
+    }
+
     #endregion
 
     #region Private members
@@ -206,14 +243,14 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
           throw new BassLibraryException("BASS_GetInfo");
 
         DeviceInfo deviceInfo = new DeviceInfo
-          {
-            Name = bassDeviceInfo.name,
-            Driver = bassDeviceInfo.driver,
-            Channels = bassInfo.speakers,
-            MinRate = bassInfo.minrate,
-            MaxRate = bassInfo.maxrate,
-            Latency = TimeSpan.FromMilliseconds(bassInfo.latency)
-          };
+        {
+          Name = bassDeviceInfo.name,
+          Driver = bassDeviceInfo.driver,
+          Channels = bassInfo.speakers,
+          MinRate = bassInfo.minrate,
+          MaxRate = bassInfo.maxrate,
+          Latency = TimeSpan.FromMilliseconds(bassInfo.latency)
+        };
 
         lock (_deviceInfos)
           _deviceInfos.Add(deviceNo, deviceInfo);
@@ -230,7 +267,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       string deviceName = Controller.GetSettings().DirectSoundDevice;
       int deviceNo = BassConstants.BassDefaultDevice;
 
-      if (String.IsNullOrEmpty(deviceName) || deviceName == BassPlayerSettings.Defaults.DirectSoundDevice)
+      if (String.IsNullOrEmpty(deviceName) || deviceName == Controller.GetSettings().DirectSoundDevice)
         Log.Info("Initializing default DirectSound device");
       else
       {

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,7 +41,9 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.ServerCommunication.Settings;
 using MediaPortal.UI.Shares;
 using UPnP.Infrastructure.CP;
-using RelocationMode=MediaPortal.Common.MediaManagement.RelocationMode;
+using RelocationMode = MediaPortal.Common.MediaManagement.RelocationMode;
+using System.Threading;
+using MediaPortal.Common.Services.MediaManagement;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
@@ -65,11 +67,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
       #region IMediaBrowsing implementation
 
       public MediaItem LoadLocalItem(ResourcePath path,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile)
       {
         try
         {
-          return _contentDirectory.LoadItem(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+          return _contentDirectory.LoadItem(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
         }
         catch (Exception)
         {
@@ -78,11 +80,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
 
       public IList<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _contentDirectory.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, offset, limit);
+          return _contentDirectory.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile, includVirtual, offset, limit);
         }
         catch (Exception)
         {
@@ -102,11 +104,23 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
+      public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
+      {
+        try
+        {
+          return _contentDirectory.GetAllManagedMediaItemAspectTypes();
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
       #endregion
 
       #region IImportResultHandler implementation
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
       {
         try
         {
@@ -142,6 +156,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
+      public IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      {
+        return null;
+      }
+
       #endregion
     }
 
@@ -158,6 +177,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
           {
             SharesMessaging.CHANNEL,
             ImporterWorkerMessaging.CHANNEL,
+            ServerStateMessaging.CHANNEL
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -210,7 +230,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
             }
             else
             {
-              cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.MediaCategories, relocationMode);
+              cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.UseShareWatcher, share.MediaCategories, relocationMode);
               switch (relocationMode)
               {
                 case RelocationMode.ClearAndReImport:
@@ -249,6 +269,25 @@ namespace MediaPortal.UI.Services.ServerCommunication
             else
               cd.ClientCompletedShareImport(share.ShareId);
             break;
+        }
+      }
+      else if (message.ChannelName == ServerStateMessaging.CHANNEL)
+      {
+        //Check if Tv Server state has changed and update if necessary
+        ServerStateMessaging.MessageType messageType = (ServerStateMessaging.MessageType)message.MessageType;
+        if (messageType == ServerStateMessaging.MessageType.StatesChanged)
+        {
+          var states = message.MessageData[ServerStateMessaging.STATES] as IDictionary<Guid, object>;
+          if (states != null && states.ContainsKey(ShareImportServerState.STATE_ID))
+          {
+            ShareImportServerState importState = states[ShareImportServerState.STATE_ID] as ShareImportServerState;
+            List<ShareImportState> shareStates = new List<ShareImportState>(importState.Shares);
+            lock (_syncObj)
+            {
+              UpdateCurrentlyImportingShares(shareStates.Where(s => s.IsImporting).Select(s => s.ShareId).ToList());
+              UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
+            }
+          }
         }
       }
     }
@@ -393,7 +432,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
             }
             else if (settings.CachedSharesUpdates.TryGetValue(localShare.ShareId, out relocationMode))
             {
-              cd.UpdateShare(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.MediaCategories,
+              cd.UpdateShare(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.UseShareWatcher, localShare.MediaCategories,
                   relocationMode);
               switch (relocationMode)
               {
@@ -437,7 +476,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
         cd.PlaylistsChanged += OnContentDirectoryPlaylistsChanged;
         cd.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
         cd.RegisteredSharesChangeCounterChanged += OnRegisteredSharesChangeCounterChanged;
-        cd.CurrentlyImportingSharesChanged += OnCurrentlyImportingSharesChanged;
 
         // Activate importer worker
         ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Activating importer worker");
@@ -489,22 +527,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, oldShare);
     }
 
-    void OnCurrentlyImportingSharesChanged()
+    void UpdateCurrentlyImportingSharesProgresses(IDictionary<Guid, int> currentlyImportingSharesProgresses)
     {
-      ServiceRegistration.Get<IThreadPool>().Add(() =>
-        {
-          ICollection<Guid> currentlyImportingShares = null;
-          try
-          {
-            IContentDirectory cd = ContentDirectory;
-            currentlyImportingShares = cd == null ? null : cd.GetCurrentlyImportingShares();
-          }
-          catch (Exception)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager.OnCurrentlyImportingSharesChanged: Failed to update currently importing shares.");
-          }
-          UpdateCurrentlyImportingShares(currentlyImportingShares);
-        });
+      foreach (var progress in currentlyImportingSharesProgresses)
+        ContentDirectoryMessaging.SendShareImportProgressMessage(progress.Key, progress.Value);
     }
 
     #region IServerCommunicationManager implementation
@@ -651,7 +677,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
           cd.PlaylistsChanged -= OnContentDirectoryPlaylistsChanged;
           cd.MIATypeRegistrationsChanged -= OnContentDirectoryMIATypeRegistrationsChanged;
           cd.RegisteredSharesChangeCounterChanged -= OnRegisteredSharesChangeCounterChanged;
-          cd.CurrentlyImportingSharesChanged -= OnCurrentlyImportingSharesChanged;
         }
         catch (Exception e)
         {

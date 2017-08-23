@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,11 +26,8 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Services.Players
@@ -114,30 +111,11 @@ namespace MediaPortal.UI.Services.Players
       if (mediaItem == null)
         return false;
 
-      NotifyPlayback(mediaItem);
-
       _currentMediaItem = mediaItem;
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
       return !psc.IsClosed && psc.Play(mediaItem, startTime);
-    }
-
-    private static void NotifyPlayback(MediaItem mediaItem)
-    {
-      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      IContentDirectory cd = scm.ContentDirectory;
-      // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
-      if (cd != null)
-        cd.NotifyPlayback(mediaItem.MediaItemId);
-
-      // Update loaded item also, so changes will be visible in GUI without reloading
-      int currentPlayCount;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out currentPlayCount))
-      {
-        MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, ++currentPlayCount);
-        ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
-      }
     }
 
     internal bool RequestNextItem_NoLock()

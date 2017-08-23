@@ -52,6 +52,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
@@ -60,6 +61,7 @@
     <Compile Include="General\Consts.cs" />
     <Compile Include="Helper Classes\SystemStateItem.cs" />
     <Compile Include="Helper Classes\SystemStateAction.cs" />
+    <Compile Include="Models\SleepTimerModel.cs" />
     <Compile Include="Models\BaseSystemStateModel.cs" />
     <Compile Include="Models\SystemStateMenuModel.cs" />
     <Compile Include="Models\SystemStateConfigurationModel.cs" />
@@ -103,6 +105,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialogSleepTimer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

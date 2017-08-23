@@ -3,8 +3,6 @@
   <string name="Trakt.Enable">Įgalinti grojimų viešinimą</string>
   <string name="Trakt.UsernamePasswordGroup">Abonento detalės</string>
   <string name="Trakt.Username">Vartotojo vardas</string>
-  <string name="Trakt.Password">Slaptažodis</string>
-  <string name="Trakt.TestAccount">Testinis abonentas</string>
   <string name="Trakt.SyncMovies">Sinchronizuoti filmus...</string>
   <string name="Trakt.SyncSeries">Sinchronizuoti serijas...</string>
   <string name="Trakt.SyncFinished">Sinchronizacija baigta!</string>

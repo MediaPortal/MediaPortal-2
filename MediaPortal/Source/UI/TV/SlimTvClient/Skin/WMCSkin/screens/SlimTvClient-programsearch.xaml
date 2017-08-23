@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.ProgramSearch]"/>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvProgramSearchModel" Id="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>
+
+    <!-- Appearance of the background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <ControlTemplate.Resources>
+        <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+          <Grid.Background>
+            <VideoBrush Stream="0"/>
+          </Grid.Background>
+        <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
+      </Grid>
+    </ControlTemplate>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,30,30,-180"
+              DataContext="{Binding Source={StaticResource SlimTvProgramSearchModel}}">
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="1" Margin="0,-20,10,20">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <!--Label x:Name="searchlabel" Grid.Column="0" Content="[SlimTvClient.ProgramLabel]" Color="{ThemeResource TextColor}" Wrap="True" Opacity="0.5"
+                 VerticalAlignment="Center" Margin="0,-5,10,0" Height="50"/-->
+          <TextBox Grid.Column="1" Margin="0,0,20,0" VerticalAlignment="Center" Style="{ThemeResource DefaultTextBoxStyle}"
+                   Text="{Binding Path=ProgramSearchText,Mode=TwoWay}" PreferredTextLength="10" SetFocusPrio="DefaultHigh"/>
+          <Image Grid.Column="1" x:Name="searchsymbol" Source="search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                 Stretch="Uniform" Height="40" Margin="0,0,30,0"/>
+          <Grid.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="searchsymbol" Property="Opacity" Value="1"/>
+              <!--Setter TargetName="searchlabel" Property="Opacity" Value="1"/-->
+            </Trigger>
+          </Grid.Triggers>
+        </Grid>
+
+        <ListView x:Name="SearchResult" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
+              Margin="0,10,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource SingleProgramGuideListViewStyle}"
+              ItemsSource="{Binding Path=ProgramsList}"
+              SelectionChanged="{CommandStencil UpdateProgram}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <DockPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false"
+                   IsVisible="{Binding IsItemsValid}" Grid.Column="3" Grid.Row="1">
+          <StackPanel DockPanel.Dock="Right" Margin="0,10,5,-10" Orientation="Horizontal">
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="SearchResult" Path="CurrentItem"/>
+                  <Binding ElementName="SearchResult" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
+                 Opacity="0.4"/>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+                 FontFamily="DefaultBold" Opacity="0.4">
+              <Label.Content>
+                <Binding ElementName="SearchResult" Path="ItemsCount"/>
+              </Label.Content>
+            </Label>
+          </StackPanel>
+        </DockPanel>
+
+        <GroupBox  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+                   Style="{ThemeResource ContentGroupBoxStyle}">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfo.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </GroupBox>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

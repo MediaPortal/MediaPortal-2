@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -94,11 +94,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       get
       {
         string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
-        if (string.IsNullOrEmpty(dosPath))
-          return DateTime.MinValue;
-        if (!File.Exists(dosPath) && !Directory.Exists(dosPath))
-          return DateTime.MinValue;
-        return File.GetLastWriteTime(dosPath);
+        return LocalFsResourceProviderBase.GetSafeLastWriteTime(dosPath);
       }
     }
 

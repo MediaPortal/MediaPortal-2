@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,19 +33,31 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
   {
     internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Series }; // "Series"
 
+    protected SeriesFilterByNameScreenData _seriesScreen;
+
     public SeriesNavigationInitializer()
     {
       _mediaNavigationMode = Models.MediaNavigationMode.Series;
       _mediaNavigationRootState = Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT;
       _viewName = Consts.RES_SERIES_VIEW_NAME;
-      _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
+      _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
+      _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+    }
+
+    public override void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
+    {
+      base.InitMediaNavigation(out mediaNavigationMode, out navigationData);
+      //Series filters modify the necessary/optional mia types of the current query view specification.
+      //The series screen needs to return them back to the root episode mias so it needs to know what they are.
+      //We need to set them after we have called InitMediaNavigation above as that call may modify the optional mia types.
+      _seriesScreen.SetRootMiaTypes(navigationData.BaseViewSpecification.NecessaryMIATypeIds, navigationData.BaseViewSpecification.OptionalMIATypeIds);
     }
 
     protected override void Prepare()
     {
       base.Prepare();
-      _defaultScreen = new SeriesFilterByNameScreenData();
+      _defaultScreen = _seriesScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
@@ -54,16 +66,56 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SeriesFilterBySeasonScreenData(),
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),
-        new VideosFilterByGenreScreenData(),
-        new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
+        new SeriesEpisodeFilterByActorScreenData(),
+        new SeriesEpisodeFilterByCharacterScreenData(),
+        new SeriesFilterByCompanyScreenData(),
+        new SeriesFilterByTvNetworkScreenData(),
+        new SeriesFilterByGenreScreenData(),
+        new SeriesSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
       };
       _defaultSorting = new SeriesSortByEpisode();
       _availableSortings = new List<Sorting.Sorting>
       {
         _defaultSorting,
+        new SeriesSortByDVDEpisode(),
+        new SeriesSortByFirstActor(),
+        new SeriesSortByFirstCharacter(),
+        new VideoSortByFirstActor(),
+        new VideoSortByFirstCharacter(),
+        new VideoSortByFirstDirector(),
+        new VideoSortByFirstWriter(),
+        new SeriesSortByFirstTvNetwork(),
+        new SeriesSortByFirstProductionStudio(),
+        new SeriesSortBySeasonTitle(),
+        new SeriesSortByEpisodeTitle(),
         new SortByTitle(),
+        new SortBySortTitle(),
+        new SortByName(),
         new SortByFirstAiredDate(),
-        new SortByDate(),
+        new SortByAddedDate(),
+        new SortBySystem(),
+      };
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+      {
+        //_defaultGrouping,
+        new SeriesSortByEpisode(),
+        new SeriesSortByDVDEpisode(),
+        new SeriesSortByFirstActor(),
+        new SeriesSortByFirstCharacter(),
+        new VideoSortByFirstActor(),
+        new VideoSortByFirstCharacter(),
+        new VideoSortByFirstDirector(),
+        new VideoSortByFirstWriter(),
+        new SeriesSortByFirstTvNetwork(),
+        new SeriesSortByFirstProductionStudio(),
+        new SeriesSortBySeasonTitle(),
+        new SeriesSortByEpisodeTitle(),
+        new SortByTitle(),
+        new SortBySortTitle(),
+        new SortByName(),
+        new SortByFirstAiredDate(),
+        new SortByAddedDate(),
         new SortBySystem(),
       };
     }

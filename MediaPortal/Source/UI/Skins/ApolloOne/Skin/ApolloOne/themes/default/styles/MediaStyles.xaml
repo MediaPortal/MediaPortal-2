@@ -15,8 +15,6 @@
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
 
-  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
-
   <!-- 
     Media Navigation styles.
     We provide different control styles for thumbnail list and grid views for each navigation item (filter, audio, video,...).
@@ -596,8 +594,8 @@
           </media:MovieAspectWrapper.Template>
         </media:MovieAspectWrapper>
 
-        <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" HorizontalAlignment="Right">
-          <media:SeriesAspectWrapper.Template>
+        <media:EpisodeAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" HorizontalAlignment="Right">
+          <media:EpisodeAspectWrapper.Template>
             <ControlTemplate>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
 
@@ -612,8 +610,8 @@
                 </StarRatingPanel>
               </StackPanel>
             </ControlTemplate>
-          </media:SeriesAspectWrapper.Template>
-        </media:SeriesAspectWrapper>
+          </media:EpisodeAspectWrapper.Template>
+        </media:EpisodeAspectWrapper>
 
       </Grid>
     </Grid>
@@ -1122,7 +1120,7 @@
                         FontSize="{ThemeResource SmallFontSize}"/>
 
         <ProgressBar x:Name="ProgressBar" Grid.Column="1" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
-                        Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Path=PercentPlayed}" />
+                        Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
 
         <Label x:Name="VideoDurationLabel" Grid.Column="2" Content="{Binding Duration}"
                         Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,23 +31,25 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.Logging;
 using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.Common.Services.Logging;
-using MediaPortal.UI.Settings;
 #if !DEBUG
 using System.Drawing;
 using System.IO;
-using MediaPortal.Utilities.Screens;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Settings;
 #endif
 using MediaPortal.UI.Shares;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Process;
+using MediaPortal.Utilities.Screens;
 
 [assembly: CLSCompliant(true)]
 
@@ -68,6 +70,9 @@ namespace MediaPortal.Client
     #region Static fields
 
     private static Mutex _mutex = null;
+    private static DelayedEvent _focusTimer = null;
+    private static DelayedEvent _deactivatedEvent = null;
+    private static IpcServer _ipcServer;
 
     #endregion
 
@@ -153,7 +158,7 @@ namespace MediaPortal.Client
         try
         {
           // Check if user wants to override the default Application Data location.
-          ApplicationCore.RegisterVitalCoreServices(mpOptions.DataDirectory);
+          ApplicationCore.RegisterVitalCoreServices(true, mpOptions.DataDirectory);
 
 #if !DEBUG
           splashScreen = CreateSplashScreen();
@@ -219,10 +224,26 @@ namespace MediaPortal.Client
 
           ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after UI services are running
 
+          _ipcServer = new IpcServer("Client");
+          _ipcServer.CustomShutdownCallback = () =>
+          {
+            ServiceRegistration.Get<IScreenControl>().Shutdown();
+            return true;
+          };
+          try
+          {
+            _ipcServer.Open();
+          }
+          catch (Exception ipcEx)
+          {
+            logger.Error(ipcEx);
+          }
           systemStateService.SwitchSystemState(SystemState.Running, true);
 
-          Application.Run();
+          if (mpOptions.AutoStart)
+            StartFocusKeeper();
 
+          Application.Run();
           systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
           ServiceRegistration.IsShuttingDown = true; // Block ServiceRegistration from trying to load new services in shutdown phase
 
@@ -249,6 +270,10 @@ namespace MediaPortal.Client
         }
         finally
         {
+          if (_ipcServer != null)
+          {
+            _ipcServer.Close();
+          }
           UiExtension.DisposeUiServices();
           ApplicationCore.DisposeCoreServices();
 
@@ -273,5 +298,58 @@ namespace MediaPortal.Client
         Application.Exit();
       }
     }
+
+    #region Startup focus workaround
+
+    /// <summary>
+    /// Helper method to prevent stealing focus of main window by other processes during auto start phase of Windows.
+    /// </summary>
+    private static void StartFocusKeeper()
+    {
+      Form form = ServiceRegistration.Get<IScreenControl>() as Form;
+      if (form != null)
+      {
+        ServiceRegistration.Get<ILogger>().Info("ApplicationLauncher: Autostart by Windows. Starting Focus Keeper.");
+        // Max. seconds after startup of MainForm.
+        _focusTimer = new DelayedEvent(10000);
+        _focusTimer.OnEventHandler += StopFocusKeeper;
+        _focusTimer.EnqueueEvent(null, EventArgs.Empty);
+
+        // Collects all deactivations and executes the handler after 500 ms.
+        // This is especially required, because in deactivate event handler it's not possible to reactivate the form.
+        _deactivatedEvent = new DelayedEvent(500);
+        _deactivatedEvent.OnEventHandler += PreventDeactivate;
+        form.Deactivate += EnqueueDeactivationEvent;
+      }
+    }
+
+    private static void EnqueueDeactivationEvent(object sender, EventArgs e)
+    {
+      _deactivatedEvent.EnqueueEvent(sender, e);
+    }
+
+    private static void StopFocusKeeper(object sender, EventArgs e)
+    {
+      ServiceRegistration.Get<ILogger>().Info("ApplicationLauncher: Stopping Focus Keeper.");
+
+      Form form = ServiceRegistration.Get<IScreenControl>() as Form;
+      if (form != null)
+        form.Deactivate -= EnqueueDeactivationEvent;
+
+      _deactivatedEvent.Dispose();
+      _deactivatedEvent = null;
+      _focusTimer.Dispose();
+      _focusTimer = null;
+    }
+
+    private static void PreventDeactivate(object sender, EventArgs e)
+    {
+      ServiceRegistration.Get<ILogger>().Info("ApplicationLauncher: Window got deactivated. Reactivate it again.");
+      Form form = ServiceRegistration.Get<IScreenControl>() as Form;
+      if (form != null)
+        form.SafeActivate();
+    }
+
+    #endregion
   }
 }

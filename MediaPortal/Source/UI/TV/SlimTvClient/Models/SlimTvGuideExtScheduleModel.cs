@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -55,6 +55,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected bool _isScheduleMode = false;
     protected int _lastProgramId;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelLogoTypeProperty = null;
     protected AbstractProperty _isSingleRecordingScheduledProperty = null;
     protected AbstractProperty _isSeriesRecordingScheduledProperty = null;
     protected readonly ItemsList _programsList = new ItemsList();
@@ -78,6 +79,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ChannelNameProperty
     {
       get { return _channelNameProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public string ChannelLogoType
+    {
+      get { return (string)_channelLogoTypeProperty.GetValue(); }
+      set { _channelLogoTypeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public AbstractProperty ChannelLogoTypeProperty
+    {
+      get { return _channelLogoTypeProperty; }
     }
 
     /// <summary>
@@ -179,6 +197,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_isInitialized)
       {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _isSingleRecordingScheduledProperty = new WProperty(typeof(bool), false);
         _isSeriesRecordingScheduledProperty = new WProperty(typeof(bool), false);
       }
@@ -234,6 +253,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       IChannel channel;
       ChannelName = _tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel) ? channel.Name : string.Empty;
+      ChannelLogoType = channel.GetFanArtMediaType();
     }
 
     protected override bool UpdateRecordingStatus(IProgram program)
@@ -300,10 +320,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       bool isSeries = false;
       foreach (IProgram program in _programs)
       {
+        IChannel channel;
+        if (!_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+          channel = null;
         // Use local variable, otherwise delegate argument is not fixed
         ProgramProperties programProperties = new ProgramProperties();
         IProgram currentProgram = program;
-        programProperties.SetProgram(currentProgram);
+        programProperties.SetProgram(currentProgram, channel);
 
         if (ProgramComparer.Instance.Equals(_selectedProgram, program))
         {
@@ -317,9 +340,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         };
         item.AdditionalProperties["PROGRAM"] = currentProgram;
         item.Selected = _lastProgramId == program.ProgramId; // Restore focus
-        IChannel channel;
-        if (_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+        if (channel != null)
+        {
           item.SetLabel("ChannelName", channel.Name);
+          item.SetLabel("ChannelLogoType", channel.GetFanArtMediaType());
+        }
 
         _programsList.Add(item);
       }

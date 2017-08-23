@@ -23,29 +23,33 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-         
-          <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Content="{Binding SelectedItem.Title}" Wrap="True" Margin="0,0,10,10"/>
-          <Label Grid.Column="0" Grid.Row="1" Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" Wrap="True" Margin="0,0,10,0"/>
-          <Label Grid.Column="1" Grid.Row="0" Color="{ThemeResource TextColor}" HorizontalAlignment="Right"
-                 Content="{Binding Path=SelectedItem.PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
-          <Image Grid.Column="1" Grid.Row="1" Stretch="Uniform" Source="{Binding SelectedItem.Thumb}" Width="350"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,0,0">
-            <Image.OpacityMask >
-              <VisualBrush>
-                <VisualBrush.Visual>
-                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
-                          BorderThickness="0" BorderBrush="Black" />
-                </VisualBrush.Visual>
-              </VisualBrush>
-            </Image.OpacityMask> 
-          </Image>  
-        
-        <!--ScrollViewer CanContentScroll="False" Margin="10" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+
+        <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Content="{Binding SelectedItem.Title}" Wrap="True" Margin="0,0,10,10"/>
+
+        <ScrollViewer CanContentScroll="False" Grid.Column="0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" Focusable="True" Margin="0,0,10,0">
           <ScrollViewer.Resources>
-            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="30" />
+            </ResourceWrapper>
           </ScrollViewer.Resources>
-        </ScrollViewer-->
-      
+
+          <Label Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" Wrap="True"/>
+        </ScrollViewer>
+
+        <Label Grid.Column="1" Grid.Row="0" Color="{ThemeResource TextColor}" HorizontalAlignment="Right"
+                 Content="{Binding Path=SelectedItem.PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
+        <Image Grid.Column="1" Grid.Row="1" Stretch="Uniform" Source="{Binding SelectedItem.Thumb}" Width="350"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,0,0">
+          <Image.OpacityMask >
+            <VisualBrush>
+              <VisualBrush.Visual>
+                <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
+                          BorderThickness="0" BorderBrush="Black" />
+              </VisualBrush.Visual>
+            </VisualBrush>
+          </Image.OpacityMask>
+        </Image>
+
       </Grid>
     </ControlTemplate>
 

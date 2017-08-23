@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,7 +26,7 @@ using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings
 {
-  class SlimTvClientSettings
+  public class SlimTvClientSettings
   {
     /// <summary>
     /// Defines the number of rows to be visible in EPG.
@@ -41,6 +41,37 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     public double EpgVisibleHours { get; set; }
 
     /// <summary>
+    /// Whether to show channel names in EPG.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool EpgShowChannelNames { get; set; }
+
+    /// <summary>
+    /// Whether to channel numbers in EPG.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool EpgShowChannelNumbers { get; set; }
+
+    /// <summary>
+    /// Whether to show channel logos in EPG.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool EpgShowChannelLogos { get; set; }
+
+    /// <summary>
+    /// Defines the zapping timeout in seconds.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = 2d)]
+    public double ZapTimeout { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, the FullGuide will automatically start tuning a currently running program.
+    /// Recording and further options will be only available by context menu then.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool ZapFromGuide { get; set; }
+
+    /// <summary>
     /// If set to <c>true</c>, TV gets started when entering TV home state.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = false)]
@@ -51,5 +82,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = true)]
     public bool ShowSeriesInfo { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, zapping uses the actual index of channel inside current group.
+    /// If <c>false</c>, the logical channel number of the channel will be used.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool ZapByChannelIndex { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, the inbuilt "All Channels" group will be hidden.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool HideAllChannelsGroup { get; set; }
   }
 }

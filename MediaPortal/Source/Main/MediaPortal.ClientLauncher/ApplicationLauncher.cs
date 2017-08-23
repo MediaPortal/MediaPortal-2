@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -58,6 +58,7 @@ namespace MediaPortal.Client.Launcher
 
     private static Mutex _mutex = null;
     private static NotifyIcon _systemNotificationAreaIcon;
+    private static IpcServer _ipcServer;
 
     #endregion
 
@@ -96,7 +97,7 @@ namespace MediaPortal.Client.Launcher
       try
       {
         // Check if user wants to override the default Application Data location.
-        ApplicationCore.RegisterVitalCoreServices(mpOptions.DataDirectory);
+        ApplicationCore.RegisterVitalCoreServices(true, mpOptions.DataDirectory);
 
         logger = ServiceRegistration.Get<ILogger>();
 
@@ -127,8 +128,12 @@ namespace MediaPortal.Client.Launcher
         Device.DeviceArrival += OnDeviceArrival;
         Device.DeviceRemoval += OnDeviceRemoval;
 
+        IsAutoStartEnabled = !string.IsNullOrEmpty(WindowsAPI.GetAutostartApplicationPath(AUTOSTART_REGISTER_NAME, true));
+
         if (!mpOptions.NoIcon)
           InitTrayIcon();
+
+        InitIpc();
 
         Application.Run();
       }
@@ -139,7 +144,7 @@ namespace MediaPortal.Client.Launcher
 
       logger.Info("Exiting...");
 
-
+      CloseIpc();
 
       // Release mutex for single instance
       if (_mutex != null)
@@ -150,32 +155,52 @@ namespace MediaPortal.Client.Launcher
 
     #region Properties
 
-    public static bool IsAutoStartEnabled
-    {
-      get { return !string.IsNullOrEmpty(WindowsAPI.GetAutostartApplicationPath(AUTOSTART_REGISTER_NAME, true)); }
-      set
-      {
-        try
-        {
-          string applicationPath = string.Format("\"{0}\"", ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
-#if DEBUG
-          applicationPath = applicationPath.Replace(".vshost", "");
-#endif
-          if (value)
-            WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
-          else
-            WindowsAPI.RemoveAutostartApplication(AUTOSTART_REGISTER_NAME, true);
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Error("Can't write autostart value to registry", ex);
-        }
-      }
-    }
+    private static bool IsAutoStartEnabled { get; set; }
 
     #endregion
 
     #region Methods
+
+    private static void InitIpc()
+    {
+      if(_ipcServer != null)
+        return;
+      ServiceRegistration.Get<ILogger>().Debug("Initializing IPC");
+      try
+      {
+        _ipcServer = new IpcServer("ClientLauncher");
+        _ipcServer.CustomShutdownCallback = () =>
+        {
+          if (_systemNotificationAreaIcon != null) 
+          {
+            _systemNotificationAreaIcon.Visible = false;
+            _systemNotificationAreaIcon = null;
+          }
+          Application.Exit();
+          return true;
+        };
+        _ipcServer.Open();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+    }
+
+    private static void CloseIpc()
+    {
+      if (_ipcServer == null)
+        return;
+      try
+      {
+        _ipcServer.Close();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+      _ipcServer = null;
+    }
 
     private static void InitTrayIcon()
     {
@@ -199,12 +224,14 @@ namespace MediaPortal.Client.Launcher
             IsAutoStartEnabled = true;
             addAutostartItem.Enabled = !IsAutoStartEnabled;
             removeAutostartItem.Enabled = IsAutoStartEnabled;
+            WriteAutostartAppEntryInRegistry();
           };
           removeAutostartItem.Click += delegate(object sender, EventArgs args)
           {
             IsAutoStartEnabled = false;
             addAutostartItem.Enabled = !IsAutoStartEnabled;
             removeAutostartItem.Enabled = IsAutoStartEnabled;
+            WriteAutostartAppEntryInRegistry();
           };
 
           addAutostartItem.Enabled = !IsAutoStartEnabled;
@@ -363,6 +390,25 @@ namespace MediaPortal.Client.Launcher
       }
 
       return terminatedProcess;
+    }
+
+    private static void WriteAutostartAppEntryInRegistry()
+    {
+      try
+      {
+        string applicationPath = string.Format("\"{0}\"", ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
+#if DEBUG
+        applicationPath = applicationPath.Replace(".vshost", "");
+#endif
+        if (IsAutoStartEnabled)
+          WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
+        else
+          WindowsAPI.RemoveAutostartApplication(AUTOSTART_REGISTER_NAME, true);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Can't write autostart value to registry", ex);
+      }
     }
 
     #endregion

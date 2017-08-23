@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -99,9 +99,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        //ToDo: Replace this with a call to IsSingleResource once this method is implemented in the MetadataExtractors
-        if (!importResource.ResourceAccessor.IsFile && await ExtractMetadata(importResource.ResourceAccessor, true) == null)
-          importResource.IsSingleResource = false;
+        importResource.IsSingleResource = await IsSingleResource(importResource.ResourceAccessor);
 
         if (!importResource.IsSingleResource && ImportJobInformation.IncludeSubDirectories)
         {
@@ -154,7 +152,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var directoryId = mediaItem.MediaItemId;
       
       // Get the subdirectories stored in the MediaLibrary for the currently procesed directory
-      var subDirectoryResourcePathsInMediaLibrary = (await Browse(directoryId, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
+    // TODO: Rework this
+      var subDirectoryResourcePathsInMediaLibrary = (await Browse(directoryId, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID][0].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
       
       // If there are no subdirectories stored in the MediaLibrary, there is no need to delete anything
       if (!subDirectoryResourcePathsInMediaLibrary.Any())

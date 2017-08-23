@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using System;
 using System.Linq;
+using System.Net;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -37,6 +38,19 @@ namespace MediaPortal.UiComponents.News
 {
   public static class SyndicationFeedReader
   {
+    static SyndicationFeedReader()
+    {
+      // Enable newer Tls versions (.NET > 4.5 uses Ssl3 and Tls)
+      try
+      {
+        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Error setting supported SecurityProtocolTypes", ex);
+      }
+    }
+
     public static NewsFeed ReadFeed(string feedUrl)
     {
       SyndicationFeed feed = SyndicationFeed.Load(XmlReader.Create(feedUrl));

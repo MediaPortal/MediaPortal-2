@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
     public LiveTvMediaItem(Guid mediaItemId)
       : base(mediaItemId)
     {}
-    public LiveTvMediaItem(Guid mediaItemId, IDictionary<Guid, MediaItemAspect> aspects)
+    public LiveTvMediaItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
       : base(mediaItemId, aspects)
     { }
 
@@ -99,7 +99,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
       while (reader.NodeType != XmlNodeType.EndElement)
       {
         MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
-        _aspects[mia.Metadata.AspectId] = mia;
+        _aspects[mia.Metadata.AspectId] = new []{ mia };
       }
       reader.ReadEndElement(); // MI
     }
@@ -112,8 +112,9 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem
       // Timeshift contexes
       _timeshiftContexes.SerializeXml(writer);
 
-      foreach (MediaItemAspect mia in _aspects.Values)
-        mia.Serialize(writer);
+      foreach (IList<MediaItemAspect> list in _aspects.Values)
+        foreach (MediaItemAspect mia in list)
+          mia.Serialize(writer);
     }
 
     public new void Serialize(XmlWriter writer)

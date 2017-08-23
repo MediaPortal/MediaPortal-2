@@ -22,7 +22,7 @@
           <ListView Name="CitiesList" Height="300" Width="600" Style="{ThemeResource WeatherDisplayLocationsListViewStyle}"
               ItemsSource="{Binding SetupLocations}"/>
           <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-            <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]"
+            <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]" SetFocusPrio="DefaultHigh"
                 Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
             <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Remove]"
                 Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>

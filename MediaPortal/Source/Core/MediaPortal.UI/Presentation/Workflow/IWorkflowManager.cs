@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -70,6 +70,12 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// This collection maybe change when plugins are added or removed.
     /// </remarks>
     IDictionary<Guid, WorkflowAction> MenuStateActions { get; }
+
+    /// <summary>
+    /// Tries to get an action from <see cref="MenuStateActions"/> and executes it if possible.
+    /// </summary>
+    /// <returns>true if successful</returns>
+    bool TryExecuteAction(Guid actionId);
 
     /// <summary>
     /// Returns the navigation structure consisting of a stack of currently active navigation contexts.

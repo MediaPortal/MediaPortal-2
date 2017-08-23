@@ -17,8 +17,8 @@
   </Runtime>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
   </DependsOn>
 
   <Register Location="/Services">

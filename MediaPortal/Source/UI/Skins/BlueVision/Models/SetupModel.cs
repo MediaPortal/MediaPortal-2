@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -125,7 +125,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       // Save
       settingsManager.Save(settings);
 
-      var skinSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+      var skinSettings = ServiceRegistration.Get<ISettingsManager>().Load<UI.SkinEngine.Settings.SkinSettings>();
       var startupSettings = ServiceRegistration.Get<ISettingsManager>().Load<StartupSettings>();
       List<string> paths = new List<string>
       {
@@ -161,7 +161,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<UI.SkinEngine.Settings.SkinSettings>();
       return settings.Skin == "BlueVision";
     }
 

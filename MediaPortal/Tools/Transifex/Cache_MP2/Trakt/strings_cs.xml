@@ -3,8 +3,6 @@
   <string name="Trakt.Enable">Povolit scrobbling</string>
   <string name="Trakt.UsernamePasswordGroup">Detaily účtu</string>
   <string name="Trakt.Username">Jméno uživatele</string>
-  <string name="Trakt.Password">Heslo</string>
-  <string name="Trakt.TestAccount">Testovací účet</string>
   <string name="Trakt.SyncMovies">Probíhá synchronizace filmů...</string>
   <string name="Trakt.SyncSeries">Probíhá synchronizace seriálů...</string>
   <string name="Trakt.SyncFinished">Aktualizace je hotova!</string>

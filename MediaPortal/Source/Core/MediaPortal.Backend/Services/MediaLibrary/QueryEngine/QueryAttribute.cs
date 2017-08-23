@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -43,6 +43,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public MediaItemAspectMetadata.AttributeSpecification Attr
     {
       get { return _attr; }
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (!(obj is QueryAttribute))
+            return false;
+
+        QueryAttribute qa = (QueryAttribute)obj;
+        return Attr.Equals(qa.Attr);
+    }
+
+    protected bool Equals(QueryAttribute other)
+    {
+      return Equals(_attr, other._attr);
+    }
+
+    public override int GetHashCode()
+    {
+      return (_attr != null ? _attr.GetHashCode() : 0);
     }
 
     public override string ToString()

@@ -8,6 +8,7 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Nastavi filter za predvajanje MPEG4 videa (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC video filter</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Nastavi filter za predvajanje AVC videa (HDTV, Bluray)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC video kodek</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Audio filtri</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Audio predvajalnik</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG 1/2 Audio filter</string>

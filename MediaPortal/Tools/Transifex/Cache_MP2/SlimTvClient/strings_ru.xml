@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Время начала</string>
   <string name="SlimTvClient.ProgramEndLabel">Время окончания</string>
   <string name="SlimTvClient.EpisodeLabel">Эпизод</string>
+  <string name="SlimTvClient.Progress">Выполнение</string>
   <string name="SlimTvClient.Guide">Программа передач</string>
   <string name="SlimTvClient.NoProgram">Нет данных</string>
   <string name="SlimTvClient.ChooseProgramAction">Выберите действие...</string>

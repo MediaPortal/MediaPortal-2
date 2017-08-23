@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -46,5 +46,16 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// <param name="changeType">Outputs what kind of changed was done on MediaItem.</param>
     /// <returns><c>true</c> if successful</returns>
     bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType);
+  }
+
+  /// <summary>
+  /// Defined for actions that need a confirmation before.
+  /// </summary>
+  public interface IMediaItemActionConfirmation : IMediaItemAction
+  {
+    /// <summary>
+    /// Gets the confirmation message.
+    /// </summary>
+    string ConfirmationMessage { get; }
   }
 }

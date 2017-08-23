@@ -2,6 +2,7 @@
 <resources>
   <string name="Menu.Audio">Áudio</string>
   <string name="Menu.Image">Imagens</string>
+  <string name="Menu.MediaHub">Entradas Video</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Notícias</string>
   <string name="Menu.Weather">Clima</string>
@@ -15,7 +16,20 @@
   <string name="Recordings.Title">Gravações</string>
   <string name="Images.Title">Imagens</string>
   <string name="Videos.Title">Vídeos</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Legendas</string>
   <string name="News.Title">Notícias</string>
   <string name="Weather.Title">Clima</string>
   <string name="General.Title">Geral</string>
+  <string name="CastCrew.Title">Elenco + Equipa Técnica</string>
+  <string name="MediaInfo.Title">Dados do ficheiro</string>
+  <string name="Media.AudioAlbumArtistsLabel">Artista do Album:</string>
+  <string name="Media.AudioTrackLabel">Pista:</string>
+  <string name="Media.AudioBitRateLabel">Fluxo de Bits:</string>
+  <string name="Media.AudioComposersLabel">Compositores:</string>
+  <string name="Media.AudioMimeTypeLabel">Tipo:</string>
+  <string name="BlueVision.Configuration">Configuração BlueVision </string>
+  <string name="BlueVision.DisableHomeTab">Desativar separador \"Início\"</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">Mostrar o ecrã de início do BlueVision </string>
+  <string name="BlueVision.ResetMenuLayout">Repôr a configuração por defeito do menu</string>
 </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,19 +41,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     public int Id { get; set; }
 
     [DataMember(Name = "backdrops")]
-    public List<MovieImage> Backdrops { get; set; }
+    public List<ImageItem> Backdrops { get; set; }
 
     [DataMember(Name = "covers")]
-    public List<MovieImage> Covers { get; set; }
+    public List<ImageItem> Covers { get; set; }
 
     [DataMember(Name = "posters")]
-    public List<MovieImage> Posters { get; set; }
+    public List<ImageItem> Posters { get; set; }
+
+    [DataMember(Name = "profiles")]
+    public List<ImageItem> Profiles { get; set; }
+
+    [DataMember(Name = "stills")]
+    public List<ImageItem> Stills { get; set; }
 
     public void SetMovieIds()
     {
-      if (Covers != null) Covers.ForEach(c => c.MovieId = Id);
-      if (Backdrops != null) Backdrops.ForEach(c => c.MovieId = Id);
-      if (Posters != null) Posters.ForEach(c => c.MovieId = Id);
+      if (Covers != null) Covers.ForEach(c => c.Id = Id);
+      if (Backdrops != null) Backdrops.ForEach(c => c.Id = Id);
+      if (Posters != null) Posters.ForEach(c => c.Id = Id);
+      if (Profiles != null) Profiles.ForEach(c => c.Id = Id);
+      if (Stills != null) Stills.ForEach(c => c.Id = Id);
     }
   }
 }

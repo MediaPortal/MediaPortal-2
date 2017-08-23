@@ -50,7 +50,7 @@ namespace HttpServer
     /// </summary>
     /// <param name="buffer">buffer to send</param>
     /// <exception cref="ArgumentNullException"></exception>
-    void Send(byte[] buffer);
+    bool Send(byte[] buffer);
 
     /// <summary>
     /// Send data using the stream
@@ -60,7 +60,7 @@ namespace HttpServer
     /// <param name="size">number of bytes to send</param>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    void Send(byte[] buffer, int offset, int size);
+    bool Send(byte[] buffer, int offset, int size);
 
     /// <summary>
     /// Closes the streams and disposes of the unmanaged resources

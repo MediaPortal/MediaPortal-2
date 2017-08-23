@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -687,7 +687,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       // Don't hold the ScreenManager's lock while calling the next methods - they call event handlers
       if (unfocusScreen != null)
         unfocusScreen.DetachInput();
-      if (focusScreen != null)
+      //Brownard 2017-08-04: We might end up here during a screen closure. Don't reattach to
+      //a closing screen that has just been detached
+      if (focusScreen != null && focusScreen.ScreenState != Screen.State.Closing)
         focusScreen.AttachInput();
     }
 
@@ -863,8 +865,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return;
         currentScreen = _currentScreen;
       }
-      DoCloseDialogs_NoLock(true, true);
       currentScreen.ScreenState = Screen.State.Closing;
+      DoCloseDialogs_NoLock(true, true);
       currentScreen.TriggerScreenClosingEvent_Sync();
       UnfocusScreen_NoLock(screen);
     }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -53,6 +53,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     // Assigned in ArrangeChildren
     protected FrameworkElement[] _arrangedItems = null;
+    protected IList<FrameworkElement> _visibleGroupItems = new List<FrameworkElement>();
+    protected bool _addOneMoreGroupHeader;
     protected int _firstArrangedLineIndex = -1;
     protected int _lastArrangedLineIndex = -1;
 
@@ -70,6 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       _itemProvider = copyManager.GetCopy(p._itemProvider);
       _assumedLineExtendsInNonOrientationDirection = 0;
       _arrangedItems = null;
+      _visibleGroupItems.Clear();
       _firstArrangedLineIndex = -1;
       _lastArrangedLineIndex = -1;
     }
@@ -135,16 +138,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Layouting
 
-    public override void SetScrollIndex(int lineIndex, bool first)
+    public override void SetScrollIndex(double lineIndex, bool first, bool force)
     {
+      int index = (int)lineIndex;
+      float offset = (float)(lineIndex % 1);
       lock (Children.SyncRoot)
       {
-        if (_pendingScrollIndex == lineIndex && _scrollToFirst == first ||
-            (!_pendingScrollIndex.HasValue &&
-             ((_scrollToFirst && _actualFirstVisibleLineIndex == lineIndex) ||
-              (!_scrollToFirst && _actualLastVisibleLineIndex == lineIndex))))
+        if (_pendingScrollIndex == index && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
+            (!_pendingScrollIndex.HasValue && _actualPhysicalOffset == offset &&
+             ((_scrollToFirst && _actualFirstVisibleLineIndex == index) ||
+              (!_scrollToFirst && _actualLastVisibleLineIndex == index))))
           return;
-        _pendingScrollIndex = lineIndex;
+        _pendingScrollIndex = index;
+        _pendingPhysicalOffset = offset;
         _scrollToFirst = first;
       }
       InvalidateLayout(true, true);
@@ -263,9 +269,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // calulate just one line to find number of items and required size of a line
         LineMeasurement exemplaryLine = _firstArrangedLineIndex < 0 ? CalculateLine(0, totalSize, false) : _arrangedLines[_firstArrangedLineIndex];
         _assumedLineExtendsInNonOrientationDirection = exemplaryLine.TotalExtendsInNonOrientationDirection;
+        var groupedItemProvider = ItemProvider as IGroupedItemProvider;
         var itemsPerLine = exemplaryLine.EndIndex - exemplaryLine.StartIndex + 1;
-        var estimatedExtendsInNonOrientationDirection = (float)Math.Ceiling((float)numItems / itemsPerLine) * _assumedLineExtendsInNonOrientationDirection;
+        float estimatedExtendsInNonOrientationDirection;
+        if (groupedItemProvider != null && groupedItemProvider.IsGroupingActive)
+        {
+          // meassure one header and use its size x number of groups
+          // then iterate throuh all groups and summ up the line size x lines per grpoup
+          var groupHeader = GetGroupHeader(0, true, groupedItemProvider, true);
+          estimatedExtendsInNonOrientationDirection = groupedItemProvider.GroupCount *
+            (Orientation == Orientation.Horizontal ? groupHeader.DesiredSize.Width : groupHeader.DesiredSize.Height);
 
+          for (int n = 0; n < groupedItemProvider.GroupCount; ++n)
+          {
+            estimatedExtendsInNonOrientationDirection += (float)Math.Ceiling((float)groupedItemProvider.GetGroupInfo(n).ItemCount / itemsPerLine) * _assumedLineExtendsInNonOrientationDirection;
+          }
+        }
+        else
+        {
+          estimatedExtendsInNonOrientationDirection = (float)Math.Ceiling((float)numItems / itemsPerLine) * _assumedLineExtendsInNonOrientationDirection;
+        }
         return Orientation == Orientation.Horizontal ? new SizeF(exemplaryLine.TotalExtendsInOrientationDirection, estimatedExtendsInNonOrientationDirection) :
             new SizeF(estimatedExtendsInNonOrientationDirection, exemplaryLine.TotalExtendsInOrientationDirection);
       }
@@ -285,6 +308,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           item.SetElementState(ElementState.Preparing);
           if (_elementState == ElementState.Running)
             item.SetElementState(ElementState.Running);
+          if (Orientation == Orientation.Vertical)
+          {
+            SetVerticalScrollDistance(item, 0d);
+          }
+          else
+          {
+            SetHorizontalScrollDistance(item, 0d);
+          }
         }
         if (newlyCreated || forceMeasure)
         {
@@ -293,6 +324,42 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           item.Measure(ref childSize);
         }
         return item;
+      }
+    }
+
+    protected FrameworkElement GetGroupHeader(int itemIndex, bool isFirstVisibleItem, IGroupedItemProvider groupingItemProvider, bool forceMeasure)
+    {
+      if (groupingItemProvider == null)
+        return null;
+
+      lock (Children.SyncRoot)
+      {
+        bool newlyCreated;
+        FrameworkElement headerItem = groupingItemProvider.GetOrCreateGroupHeader(itemIndex, isFirstVisibleItem, this, out newlyCreated);
+        if (headerItem == null)
+          return null;
+        if (newlyCreated)
+        {
+          // VisualParent and item.Screen were set by the item provider
+          headerItem.SetElementState(ElementState.Preparing);
+          if (_elementState == ElementState.Running)
+            headerItem.SetElementState(ElementState.Running);
+          if (Orientation == Orientation.Vertical)
+          {
+            SetVerticalScrollDistance(headerItem, 0d);
+          }
+          else
+          {
+            SetHorizontalScrollDistance(headerItem, 0d);
+          }
+        }
+        if (newlyCreated || forceMeasure)
+        {
+          SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float)ActualWidth, float.NaN) :
+              new SizeF(float.NaN, (float)ActualHeight);
+          headerItem.Measure(ref childSize);
+        }
+        return headerItem;
       }
     }
 
@@ -307,6 +374,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           return;
         }
 
+        var groupedItemProvider = ItemProvider as IGroupedItemProvider;
+        if (groupedItemProvider != null && !groupedItemProvider.IsGroupingActive)
+        {
+          groupedItemProvider = null;
+        }
         _totalHeight = 0;
         _totalWidth = 0;
         int numItems = ItemProvider.NumItems;
@@ -314,31 +386,45 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         {
           PointF actualPosition = ActualPosition;
           SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
-
+          
+          //Get the scroll margins in scroll direction
+          float scrollMarginBefore;
+          float scrollMarginAfter;
+          GetScrollMargin(out scrollMarginBefore, out scrollMarginAfter);
           // For Orientation == vertical, this is ActualHeight, for horizontal it is ActualWidth
           float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
-          // For Orientation == vertical, this is ActualWidth, for horizontal it is ActualHeight
-          float actualExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, actualSize);
+          // For Orientation == vertical, this is ActualWidth, for horizontal it is ActualHeight, minus the scroll margins
+          float actualExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, actualSize) - scrollMarginBefore - scrollMarginAfter;
           // Hint: We cannot skip the arrangement of lines above _actualFirstVisibleLineIndex or below _actualLastVisibleLineIndex
           // because the rendering and focus system also needs the bounds of the currently invisible children
-          float startPosition = 0;
+          float startPosition = scrollMarginBefore;
+
+          //Percentage of child size to offset child positions
+          float physicalOffset = _actualPhysicalOffset;
+
           // If set to true, we'll check available space from the last to first visible child.
           // That is necessary if we want to scroll a specific child to the last visible position.
           bool invertLayouting = false;
           lock (_renderLock)
+          {
             if (_pendingScrollIndex.HasValue)
             {
               fireScrolled = true;
               int pendingSI = _pendingScrollIndex.Value;
+              physicalOffset = _actualPhysicalOffset = _pendingPhysicalOffset;
               if (_scrollToFirst)
                 _actualFirstVisibleLineIndex = pendingSI;
               else
               {
                 _actualLastVisibleLineIndex = pendingSI;
+                //If we have an offset then there will be part of an additional item visible
+                if (physicalOffset != 0)
+                  _actualLastVisibleLineIndex++;
                 invertLayouting = true;
               }
               _pendingScrollIndex = null;
             }
+          }
 
           int itemsPerLine = 0;
           // if we haven't arranged any lines previously - items per line can't be calculated yet, but is not needed
@@ -361,6 +447,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             }
           }
 
+          //calculate additional lines in the scroll margin
+          int inactiveLinesBefore = 0;
+          int inactiveLinesAfter = 0;
+          if (_assumedLineExtendsInNonOrientationDirection > 0)
+          {
+            if (scrollMarginBefore > 0)
+              inactiveLinesBefore = (int)(scrollMarginBefore / _assumedLineExtendsInNonOrientationDirection);
+            if (scrollMarginAfter > 0)
+              inactiveLinesAfter = (int)(scrollMarginAfter / _assumedLineExtendsInNonOrientationDirection);
+          }
+
           // clear values from previous arrange
           _arrangedItems = new FrameworkElement[numItems];
           _arrangedLines.Clear();
@@ -369,8 +466,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
           // 1) Calculate scroll indices
           if (_doScroll)
-          { // Calculate last visible child
+          {
+            // Calculate last visible child
             float spaceLeft = actualExtendsInNonOrientationDirection;
+            //Allow space for partially visible items at top and bottom
+            if (physicalOffset != 0)
+              spaceLeft += _assumedLineExtendsInNonOrientationDirection;
             if (invertLayouting)
             {
               if (_actualLastVisibleLineIndex == int.MaxValue) // when scroll to last item (END) was requested
@@ -381,7 +482,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               while (_arrangedLines.Count <= currentLineIndex) _arrangedLines.Add(new LineMeasurement()); // add "unarranged lines" up to the last visible
               int itemIndex = currentLineIndex * itemsPerLine;
               int additionalLinesBefore = 0;
-              while (currentLineIndex >= 0 && additionalLinesBefore < NUM_ADD_MORE_FOCUS_LINES)
+              while (currentLineIndex >= 0 && additionalLinesBefore < NUM_ADD_MORE_FOCUS_LINES + inactiveLinesBefore)
               {
                 LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);
                 _arrangedLines[currentLineIndex] = line;
@@ -400,7 +501,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               // now add NUM_ADD_MORE_FOCUS_LINES after last visible
               itemIndex = _arrangedLines[_lastArrangedLineIndex].EndIndex + 1;
               int additionalLinesAfterwards = 0;
-              while (itemIndex < numItems && additionalLinesAfterwards < NUM_ADD_MORE_FOCUS_LINES)
+              while (itemIndex < numItems && additionalLinesAfterwards < NUM_ADD_MORE_FOCUS_LINES + inactiveLinesAfter)
               {
                 LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);
                 _arrangedLines.Add(line);
@@ -412,13 +513,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             else
             {
               _actualLastVisibleLineIndex = _actualFirstVisibleLineIndex - 1;
-              _firstArrangedLineIndex = Math.Max(_actualFirstVisibleLineIndex - NUM_ADD_MORE_FOCUS_LINES, 0);
+              _firstArrangedLineIndex = Math.Max(_actualFirstVisibleLineIndex - NUM_ADD_MORE_FOCUS_LINES - inactiveLinesBefore, 0);
               int currentLineIndex = _firstArrangedLineIndex;
               // add "unarranges lines" up until where we start
               while (_arrangedLines.Count < currentLineIndex) _arrangedLines.Add(new LineMeasurement());
               int itemIndex = currentLineIndex * itemsPerLine;
               int additionalLinesAfterwards = 0;
-              while (itemIndex < numItems && additionalLinesAfterwards < NUM_ADD_MORE_FOCUS_LINES)
+              while (itemIndex < numItems && additionalLinesAfterwards < NUM_ADD_MORE_FOCUS_LINES + inactiveLinesAfter)
               {
                 LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);
                 _arrangedLines.Add(line);
@@ -444,6 +545,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             _actualFirstVisibleLineIndex = 0;
             _actualLastVisibleLineIndex = _arrangedLines.Count - 1;
           }
+          
+          //include additional lines in the scroll margin
+          _actualFirstRenderedLineIndex = Math.Max(0, _actualFirstVisibleLineIndex - inactiveLinesBefore);
+          _actualLastRenderedLineIndex = Math.Min(_arrangedLines.Count - 1, _actualLastVisibleLineIndex + inactiveLinesAfter);
 
           // now we know items per line for sure so just calculate it
           itemsPerLine = _arrangedLines[_firstArrangedLineIndex].EndIndex - _arrangedLines[_firstArrangedLineIndex].StartIndex + 1;
@@ -451,6 +556,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
           // 2) Calculate start position (so the first visible line starts at 0)
           startPosition -= (_actualFirstVisibleLineIndex - _firstArrangedLineIndex) * _assumedLineExtendsInNonOrientationDirection;
+          if (physicalOffset != 0)
+            startPosition -= physicalOffset * _assumedLineExtendsInNonOrientationDirection;
 
           // 3) Arrange children
           if (Orientation == Orientation.Vertical)
@@ -458,8 +565,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           else
             _totalWidth = actualExtendsInOrientationDirection;
           PointF position = Orientation == Orientation.Vertical ?
-              new PointF(actualPosition.X + startPosition, actualPosition.Y) :
-              new PointF(actualPosition.X, actualPosition.Y + startPosition);
+            new PointF(actualPosition.X + startPosition, actualPosition.Y) :
+            new PointF(actualPosition.X, actualPosition.Y + startPosition);
           foreach (LineMeasurement line in _arrangedLines.Skip(_firstArrangedLineIndex).Take(_lastArrangedLineIndex - _firstArrangedLineIndex + 1))
           {
             LayoutLine(position, line);
@@ -484,8 +591,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         else
         {
-          _actualFirstVisibleLineIndex = 0;
-          _actualLastVisibleLineIndex = -1;
+          _actualFirstVisibleLineIndex = _actualFirstRenderedLineIndex = 0;
+          _actualLastVisibleLineIndex = _actualLastRenderedLineIndex = -1;
         }
       }
       if (fireScrolled)
@@ -507,11 +614,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         if (index < _arrangedLines[_actualFirstVisibleLineIndex].StartIndex)
         {
-          SetScrollIndex(line, true);
+          SetScrollIndex(line, true, true);
         }
         else if (index > _arrangedLines[_actualLastVisibleLineIndex].EndIndex)
         {
-          SetScrollIndex(line, false);
+          SetScrollIndex(line, false, true);
         }
       }
     }
@@ -600,11 +707,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (ItemProvider == null)
         return base.GetRenderedChildren();
 
-      if (_actualFirstVisibleLineIndex < 0 || _actualLastVisibleLineIndex < _actualFirstVisibleLineIndex)
+      if (_actualFirstRenderedLineIndex < 0 || _actualLastRenderedLineIndex < _actualFirstRenderedLineIndex)
         return new List<FrameworkElement>();
 
-      int start = _arrangedLines[_actualFirstVisibleLineIndex].StartIndex;
-      int end = _arrangedLines[_actualLastVisibleLineIndex].EndIndex;
+      int start = _arrangedLines[_actualFirstRenderedLineIndex].StartIndex;
+      int end = _arrangedLines[_actualLastRenderedLineIndex].EndIndex;
       return _arrangedItems.Skip(start).Take(end - start + 1);
     }
 
@@ -669,7 +776,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // c) line index to scroll to
           int lineToScrollTo = firstVisibleLineIndex - numLinesToGoUp;
           if (lineToScrollTo < 0) lineToScrollTo = 0;
-          SetScrollIndex(lineToScrollTo, true);
+          SetScrollIndex(lineToScrollTo, true, true);
           FrameworkElement item = GetItem(childIndexToSelect, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -721,7 +828,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           int highestPossibleLineIndex = itemProvider.NumItems / (lastVisibleLine.EndIndex - lastVisibleLine.StartIndex + 1);
           if (lastVisibleLineIndex + numLinesToGoDown > highestPossibleLineIndex) numLinesToGoDown = highestPossibleLineIndex - lastVisibleLineIndex;
           int lineToScrollTo = lastVisibleLineIndex + numLinesToGoDown;
-          SetScrollIndex(lineToScrollTo, false);
+          SetScrollIndex(lineToScrollTo, false, true);
           // try to select a child at same horizontal position
           int childIndexToSelect = childIndex + ((lastVisibleLine.EndIndex - lastVisibleLine.StartIndex + 1) * numLinesToGoDown);
           if (childIndexToSelect > itemProvider.NumItems - 1) childIndexToSelect = itemProvider.NumItems - 1;
@@ -757,7 +864,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }
-      SetScrollIndex(0, true);
+      SetScrollIndex(0, true, true);
       return true;
     }
 
@@ -777,7 +884,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }
-      SetScrollIndex(int.MaxValue, false);
+      SetScrollIndex(int.MaxValue, false, true);
       return true;
     }
 
@@ -795,7 +902,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return false;
       FrameworkElement currentElement = GetFocusedElementOrChild();
       if (currentElement == null)
-        return false; 
+        return false;
       IList<LineMeasurement> lines = new List<LineMeasurement>(_arrangedLines);
       if (lines.Count == 0)
         return false;
@@ -814,7 +921,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           item = GetItem(childIndex - lastLine.StartIndex, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
-          SetScrollIndex(0, true);
+          SetScrollIndex(0, true, true);
           return true;
         }
       }
@@ -852,7 +959,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           int lineLength = firstLine.EndIndex - firstLine.StartIndex + 1;
           //calculate number of items on last line, may be fewer than first line
           int remainder = itemProvider.NumItems % lineLength;
-          if(remainder == 0)
+          if (remainder == 0)
             remainder = lineLength;
           //set focus to item in same position or last item if less
           int itemIndex = numItems - remainder + childIndex;
@@ -860,11 +967,75 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           item = GetItem(itemIndex, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
-          SetScrollIndex(int.MaxValue, false);
+          SetScrollIndex(int.MaxValue, false, true);
           return true;
         }
       }
       return false;
+    }
+
+    protected override void SaveChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        base.SaveChildrenState(state, prefix);
+      else
+      {
+        IList<FrameworkElement> arrangedItemsCopy;
+        int index;
+        lock (Children.SyncRoot)
+        {
+          if (_arrangedItems == null || _firstArrangedLineIndex < 0 || _firstArrangedLineIndex >= _arrangedLines.Count)
+            return;
+
+          arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems.Where(i => i != null));
+          index = _arrangedLines[_firstArrangedLineIndex].StartIndex;
+        }
+        state[prefix + "/ItemsStartIndex"] = index;
+        state[prefix + "/NumItems"] = arrangedItemsCopy.Count;
+        foreach (FrameworkElement child in arrangedItemsCopy)
+        {
+          int saveIndex = index;
+          // If there is an ItemIndex, prefer it to save state
+          ListViewItem liv = child as ListViewItem;
+          if (liv != null)
+            saveIndex = liv.ItemIndex;
+          if (child != null)
+            child.SaveUIState(state, prefix + "/Child_" + saveIndex);
+          index++;
+        }
+      }
+    }
+
+    public override void RestoreChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        base.RestoreChildrenState(state, prefix);
+      else
+      {
+        object oNumItems;
+        object oIndex;
+        int? numItems;
+        int? startIndex;
+        if (state.TryGetValue(prefix + "/ItemsStartIndex", out oIndex) && state.TryGetValue(prefix + "/NumItems", out oNumItems) &&
+            (startIndex = (int?)oIndex).HasValue && (numItems = (int?)oNumItems).HasValue)
+        {
+          int endIndexExcl = Math.Min(startIndex.Value + numItems.Value, itemProvider.NumItems); // Limit to a maximum of NumItems.
+          for (int i = startIndex.Value; i < endIndexExcl; i++)
+          {
+            FrameworkElement child = GetItem(i, itemProvider, false);
+            if (child == null)
+              continue;
+            int restoreIndex = i;
+            // If there is an ItemIndex, prefer it to restore state
+            ListViewItem liv = child as ListViewItem;
+            if (liv != null)
+              restoreIndex = liv.ItemIndex;
+            child.RestoreUIState(state, prefix + "/Child_" + restoreIndex);
+          }
+        }
+      }
     }
 
     #endregion

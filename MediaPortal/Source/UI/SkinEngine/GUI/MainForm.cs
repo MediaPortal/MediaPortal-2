@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -85,6 +84,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private FormWindowState _previousWindowState;
     private Point _previousMousePosition;
     private ScreenMode _mode = ScreenMode.NormalWindowed;
+    private ScreenMode _previousMode = ScreenMode.NormalWindowed;
     private bool _forceOnTop = false;
     private bool _hasFocus = false;
     private readonly ScreenManager _screenManager;
@@ -158,6 +158,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _previousWindowLocation = Location;
       _previousWindowClientSize = desiredWindowedSize;
       _previousWindowState = FormWindowState.Normal;
+      _previousMode = ScreenMode.NormalWindowed;
 
       if (appSettings.ScreenMode == ScreenMode.FullScreen)
         SwitchToFullscreen(validScreenNum);
@@ -270,11 +271,20 @@ namespace MediaPortal.UI.SkinEngine.GUI
           System.Windows.Forms.Screen.PrimaryScreen :
           System.Windows.Forms.Screen.AllScreens[screenNum];
       WindowState = FormWindowState.Normal;
+      FormBorderStyle = FormBorderStyle.None;
+      _mode = ScreenMode.FullScreen;
+      SetScreenSize(screen);
+    }
+
+    private void SetScreenSize(System.Windows.Forms.Screen screen)
+    {
+      if (_mode != ScreenMode.FullScreen)
+        return;
+
+      ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Set screen size to {0} (Mode: {1})", screen.Bounds.Size, _mode);
       Rectangle rect = screen.Bounds;
       Location = rect.Location;
       ClientSize = rect.Size;
-      FormBorderStyle = FormBorderStyle.None;
-      _mode = ScreenMode.FullScreen;
     }
 
     protected void SwitchToWindowedSize(ScreenMode mode, Point location, Size clientSize, bool maximize)
@@ -518,6 +528,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       if (mode == _mode)
         return;
 
+      _previousMode = _mode;
       settings.ScreenMode = mode;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
@@ -680,6 +691,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       try
       {
         logger.Debug("SkinEngine MainForm: Stopping");
+        StoreClientBounds();
         StopUI();
         UIResourcesHelper.ReleaseUIResources();
       }
@@ -920,8 +932,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
         {
           _screenSize = new Size(screenWidth, screenHeight);
           _screenBpp = bitDepth;
+
           ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Display changed to {0}x{1}@{2}.", screenWidth, screenHeight, bitDepth);
-          GraphicsDevice.Reset();
+          SetScreenSize(System.Windows.Forms.Screen.FromControl(this));
+          AdaptToSize(); // Also recreates the DX device
         }
         else
         {
@@ -1027,7 +1041,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       base.OnSizeChanged(e);
       // This method override is only necessary to capture the window state change event. All other cases aren't interesting here.
-      if (_adaptToSizeEnabled && WindowState != FormWindowState.Minimized && _previousWindowState != WindowState)
+      // MP2-529: Don't call AdaptToSize if switching to/from fullscreen, it calls Stop/StartUI but they are already being called when switching
+      // to/from fullscreen leading to a LockRecursionException
+      if (_adaptToSizeEnabled && WindowState != FormWindowState.Minimized && _previousWindowState != WindowState &&
+        _mode != ScreenMode.FullScreen && _previousMode != ScreenMode.FullScreen)
         AdaptToSize();
     }
 

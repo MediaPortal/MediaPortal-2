@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
@@ -48,6 +49,7 @@ using TvDatabase;
 using TvEngine.Events;
 using TvLibrary.Interfaces;
 using TvService;
+using MediaPortal.Backend.ClientCommunication;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -134,6 +136,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return;
       }
 
+      FixupServer();
+
       Start();
       if (!_tvServiceThread.InitializedEvent.WaitOne(MAX_WAIT_MS))
       {
@@ -146,6 +150,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to register events. This happens only if startup failed. Stopping plugin now.");
         DeInit();
+      }
+    }
+
+    /// <summary>
+    /// In case of changed server names/IP addresses the TVE core rejects startup. This impacts the whole MP2 service, so we update changed IPs first.
+    /// </summary>
+    protected void FixupServer()
+    {
+      var server = Server.ListAll().FirstOrDefault(s => s.IsMaster);
+      if (server != null)
+      {
+        var hostName = Dns.GetHostName();
+        if (server.HostName != hostName)
+        {
+          server.HostName = hostName;
+          server.Persist();
+        }
       }
     }
 
@@ -203,15 +224,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool DeInit()
     {
-      if (_serviceThread != null && _serviceThread.IsAlive)
+      var thread = _serviceThread;
+      _tvServiceThread = null;
+      if (thread != null && thread.IsAlive)
       {
-        bool joined = _serviceThread.Join(MAX_WAIT_MS);
-        if (!joined)
+        try
         {
-          _serviceThread.Abort();
-          _serviceThread.Join();
+          bool joined = thread.Join(MAX_WAIT_MS);
+          if (!joined)
+          {
+            thread.Abort();
+            thread.Join();
+          }
         }
-        _tvServiceThread = null;
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Failed to deinit TVEngine", ex);
+        }
       }
       return true;
     }
@@ -219,6 +248,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
     #endregion
 
     #region Recordings / MediaLibrary synchronization
+
+    protected void UpdateServerState()
+    {
+      var state = new TvServerState { IsRecording = _tvControl.IsAnyCardRecording() };
+      ServiceRegistration.Get<IServerStateService>().UpdateState(TvServerState.STATE_ID, state);
+    }
 
     protected override bool RegisterEvents()
     {
@@ -237,6 +272,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         if (tvEvent.EventType == TvServerEventType.RecordingStarted || tvEvent.EventType == TvServerEventType.RecordingEnded)
         {
+          UpdateServerState();
           var recording = Recording.Retrieve(tvEvent.Recording.IdRecording);
           if (recording != null)
           {
@@ -253,14 +289,25 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override bool GetRecordingConfiguration(out List<string> recordingFolders, out string singlePattern, out string seriesPattern)
     {
-      TvBusinessLayer layer = new TvBusinessLayer();
-      IList<Card> allCards = Card.ListAll();
-      // Get all different recording folders
-      recordingFolders = allCards.Select(c => c.RecordingFolder).Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+      try
+      {
+        TvBusinessLayer layer = new TvBusinessLayer();
+        IList<Card> allCards = Card.ListAll();
+        // Get all different recording folders
+        recordingFolders = allCards.Select(c => c.RecordingFolder).Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
-      singlePattern = layer.GetSetting("moviesformat", string.Empty).Value;
-      seriesPattern = layer.GetSetting("seriesformat", string.Empty).Value;
-      return recordingFolders.Count > 0;
+        singlePattern = layer.GetSetting("moviesformat", string.Empty).Value;
+        seriesPattern = layer.GetSetting("seriesformat", string.Empty).Value;
+        return recordingFolders.Count > 0;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Exception while getting recording folders", ex);
+      }
+      recordingFolders = null;
+      singlePattern = null;
+      seriesPattern = null;
+      return false;
     }
 
     #endregion
@@ -269,6 +316,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     private IUser GetUserByUserName(string userName)
     {
+      if (_tvControl == null)
+        return null;
       return Card.ListAll()
         .Where(c => c != null && c.Enabled)
         .SelectMany(c => { var users = _tvControl.GetUsersForCard(c.IdCard); return users ?? new IUser[] { }; })
@@ -522,9 +571,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return false;
     }
 
-    public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
+    public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
-      TvDatabase.Schedule tvSchedule = _tvBusiness.AddSchedule(channel.ChannelId, "Manual", from, to, (int)ScheduleRecordingType.Once);
+      TvDatabase.Schedule tvSchedule = new TvDatabase.Schedule(channel.ChannelId, "Manual", from, to);
+      tvSchedule.ScheduleType = (int)recordingType;
       tvSchedule.PreRecordInterval = Int32.Parse(_tvBusiness.GetSetting("preRecordInterval", "5").Value);
       tvSchedule.PostRecordInterval = Int32.Parse(_tvBusiness.GetSetting("postRecordInterval", "5").Value);
       tvSchedule.Persist();

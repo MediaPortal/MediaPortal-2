@@ -33,4 +33,5 @@
   <string name="BlueVision.DisableHomeTab">Désactiver l\'onglet \"Accueil\"</string>
   <string name="BlueVision.DisableAutoSelection">Désactiver l\'onglet automatique du menu</string>
   <string name="BlueVision.UseAlternativeSplashscreen">Utilisez l\'écran de démarrage BlueVision</string>
+  <string name="BlueVision.ResetMenuLayout">Réinitialiser le menu Mise en page</string>
 </resources>

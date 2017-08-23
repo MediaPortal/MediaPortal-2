@@ -8,12 +8,14 @@
   <string name="Menu.Settings">Nastavitve</string>
   <string name="Menu.Others">Drugo</string>
   <string name="Menu.Home">Domov</string>
+  <string name="Menu.Main">Glavni meni</string>
   <string name="Movies.Title">Filmi</string>
   <string name="Series.Title">Nanizanke</string>
   <string name="Audio.Title">Audio</string>
   <string name="Recordings.Title">Posnetki</string>
   <string name="Images.Title">Slike</string>
   <string name="Videos.Title">Videi</string>
+  <string name="Subtitle.Title">Podnapis</string>
   <string name="News.Title">Novice</string>
   <string name="Weather.Title">vreme</string>
   <string name="General.Title">Splošno</string>

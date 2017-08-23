@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,6 +32,7 @@ using DirectShow;
 using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
@@ -51,7 +52,7 @@ namespace MediaPortal.UI.Players.Video
   /// <summary>
   /// <see cref="BaseDXPlayer"/> provides a base player for all DirectShow based players, which can be both IVideoPlayer and IAudioPlayer.
   /// </summary>
-  public abstract class BaseDXPlayer : IPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl
+  public abstract class BaseDXPlayer : IPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl, IReusablePlayer
   {
     #region Consts
 
@@ -67,11 +68,7 @@ namespace MediaPortal.UI.Players.Video
     {
       Video = 0,
       Audio = 1,
-      Subtitle = 2,
       MatroskaEdition = 18,
-      VsFilterSubtitle = 6590016,
-      VsFilterSubtitleOptions = 6590025,
-      DirectVobSubtitle = 6590033,
     }
 
     #endregion
@@ -100,6 +97,7 @@ namespace MediaPortal.UI.Players.Video
     protected int _volume = 100;
     protected bool _isMuted = false;
     protected bool _initialized = false;
+    protected MediaItem _mediaItem;
     protected IResourceLocator _resourceLocator;
     protected IResourceAccessor _resourceAccessor;
     protected Stream _resourceStream; // Will be opened for Stream based access
@@ -177,7 +175,13 @@ namespace MediaPortal.UI.Players.Video
               eventEx.FreeEventParams(evCode, param1, param2);
               if (evCode == EventCode.Complete)
               {
-                if (_autoRepeat)
+                bool hasNextPart = _mediaItem != null && _mediaItem.ActiveResourceLocatorIndex < _mediaItem.MaximumResourceLocatorIndex;
+                if (hasNextPart)
+                {
+                  // Request next item
+                  FireNextItemRequest();
+                }
+                else if (_autoRepeat)
                 {
                   CurrentTime = TimeSpan.Zero;
                 }
@@ -197,11 +201,18 @@ namespace MediaPortal.UI.Players.Video
     }
 
     #endregion
-    
+
     #region IInitializablePlayer implementation
 
     public void SetMediaItem(IResourceLocator locator, string mediaItemTitle)
     {
+      SetMediaItem(locator, mediaItemTitle, null);
+    }
+
+    public void SetMediaItem(IResourceLocator locator, string mediaItemTitle, MediaItem mediaItem)
+    {
+      _mediaItem = mediaItem;
+
       // free previous opened resource
       FilterGraphTools.TryDispose(ref _resourceAccessor);
       FilterGraphTools.TryDispose(ref _rot);
@@ -237,6 +248,9 @@ namespace MediaPortal.UI.Players.Video
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding source filter", PlayerTitle);
         AddSourceFilter();
+
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
+        AddSubtitleFilter(true);
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Run graph", PlayerTitle);
 
@@ -342,6 +356,13 @@ namespace MediaPortal.UI.Players.Video
         _ended(this);
     }
 
+    protected void FireNextItemRequest()
+    {
+      RequestNextItemDlgt dlgt = NextItemRequest;
+      if (dlgt != null)
+        dlgt(this);
+    }
+
     protected void FirePlaybackStateChanged()
     {
       if (_playbackStateChanged != null)
@@ -441,10 +462,7 @@ namespace MediaPortal.UI.Players.Video
         int hr = _graphBuilder.AddFilter(sourceFilter, sourceFilter.Name);
         new HRESULT(hr).Throw();
 
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
-        AddSubtitleFilter();
-
-        using(DSFilter source2 = new DSFilter(sourceFilter))
+        using (DSFilter source2 = new DSFilter(sourceFilter))
           hr = source2.OutputPin.Render();
         new HRESULT(hr).Throw();
 
@@ -455,9 +473,10 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Adds subtitle filter if any.
+    /// Adds subtitle filter if any. The <paramref name="isSourceFilterPresent"/> is only used for special cases when the graph building is handled by derived classes.
     /// </summary>
-    protected virtual void AddSubtitleFilter()
+    /// <param name="isSourceFilterPresent">Indicates if the source filter already has been added to graph.</param>
+    protected virtual void AddSubtitleFilter(bool isSourceFilterPresent)
     {
     }
 
@@ -487,6 +506,17 @@ namespace MediaPortal.UI.Players.Video
         IAMPluginControl pc = new DirectShowPluginControl() as IAMPluginControl;
         if (pc != null)
         {
+          // Set black list of codecs to ignore, they are known to cause issues like hangs and crashes
+          // MPEG Audio Decoder
+          if (settings.DisabledCodecs != null && settings.DisabledCodecs.Any())
+          {
+            foreach (var disabledCodec in settings.DisabledCodecs)
+            {
+              ServiceRegistration.Get<ILogger>().Info("{0}: Disable codec '{1}'", PlayerTitle, disabledCodec.Name);
+              pc.SetDisabled(disabledCodec.GetCLSID(), true);
+            }
+          }
+
           if (settings.Mpeg2Codec != null)
             pc.SetPreferredClsid(MediaSubType.Mpeg2Video, settings.Mpeg2Codec.GetCLSID());
 
@@ -501,6 +531,11 @@ namespace MediaPortal.UI.Players.Video
             DsGuid clsid = settings.HEVCCodec.GetCLSID();
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_HVC1, clsid);
             pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_HEVC, clsid);
+          }
+
+          if (settings.Splitter != null)
+          {
+            pc.SetPreferredClsid(Guid.Empty, settings.Splitter.GetCLSID());
           }
 
           if (settings.AudioCodecLATMAAC != null)
@@ -842,25 +877,28 @@ namespace MediaPortal.UI.Players.Video
 
     #region Audio streams
 
-    /// <summary>    /// Helper method to try a lookup of missing LCID from stream names. It compares the given <paramref name="streamName"/> 
-    /// with the available <see cref="CultureInfo.ThreeLetterISOLanguageName"/> and <see cref="CultureInfo.TwoLetterISOLanguageName"/>.
+    /// <summary>
+    /// Helper method to try a lookup of missing LCID from stream names. It compares the given <paramref name="streamName"/> 
+    /// with the available <see cref="CultureInfo.ThreeLetterISOLanguageName"/>, <see cref="CultureInfo.TwoLetterISOLanguageName"/>
+    /// and <see cref="CultureInfo.EnglishName"/>
     /// </summary>
     /// <param name="streamName">Stream name to check.</param>
     /// <returns>Found LCID or <c>0</c></returns>
-    protected int LookupLcidFromName(string streamName)
+    public static int LookupLcidFromName(string streamName)
     {
       if (string.IsNullOrEmpty(streamName))
         return 0;
 
       int len = streamName.Length;
-      if (len < 2 || len > 3)
+      if (len < 2)
         return 0;
 
       streamName = streamName.ToLowerInvariant();
       CultureInfo culture = CultureInfo.GetCultures(CultureTypes.SpecificCultures).FirstOrDefault
         (c =>
           len == 3 && c.ThreeLetterISOLanguageName == streamName ||
-          len == 2 && c.TwoLetterISOLanguageName == streamName
+          len == 2 && c.TwoLetterISOLanguageName == streamName ||
+          len > 3 && c.EnglishName.StartsWith(streamName, StringComparison.InvariantCultureIgnoreCase)
         );
       return culture == null ? 0 : culture.LCID;
     }
@@ -902,6 +940,35 @@ namespace MediaPortal.UI.Players.Video
     public override string ToString()
     {
       return string.Format("{0}: {1}", GetType().Name, _resourceAccessor != null ? _resourceAccessor.ResourceName : "no resource");
+    }
+
+    #endregion
+
+    #region IReusablePlayer members
+
+    public event RequestNextItemDlgt NextItemRequest;
+
+    public virtual bool NextItem(MediaItem mediaItem, StartTime startTime)
+    {
+      string mimeType;
+      string title;
+      // Only re-use player for multi-part files
+      if (!mediaItem.GetPlayData(out mimeType, out title) || mediaItem.MaximumResourceLocatorIndex == 0)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("VideoPlayer: Can reuse current player only for multi-resource items");
+        return false;
+      }
+      Stop();
+
+      if (mediaItem.ActiveResourceLocatorIndex > mediaItem.MaximumResourceLocatorIndex)
+        return false;
+
+      // Set new resource locator for existing player, this avoids interim close of player slot
+      IResourceLocator resourceLocator = mediaItem.GetResourceLocator();
+      ServiceRegistration.Get<ILogger>().Debug("VideoPlayer: Changed resource to index {0}", mediaItem.ActiveResourceLocatorIndex);
+      SetMediaItem(resourceLocator, title, mediaItem);
+      _isPaused = false;
+      return true;
     }
 
     #endregion

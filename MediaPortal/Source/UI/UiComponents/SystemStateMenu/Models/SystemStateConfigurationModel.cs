@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SystemStateMenu.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -56,7 +57,32 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       _shutdownItemList = null;
     }
 
+    #region Public fields
+
+    protected AbstractProperty _maxMinutesProperty = new WProperty(typeof(string), string.Empty);
+
+    public AbstractProperty MaxMinutesProperty
+    {
+      get { return _maxMinutesProperty; }
+    }
+    public string MaxMinutes
+    {
+      get { return (string)_maxMinutesProperty.GetValue(); }
+      set { _maxMinutesProperty.SetValue(value); }
+    }
+
+    #endregion
+
     #region Private methods
+
+    /// <summary>
+    /// Loads SleepTimer-related configuration from the settings.
+    /// </summary>
+    private void GetSleepTimerConfigFromSettings()
+    {
+      SystemStateDialogSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SystemStateDialogSettings>();
+      MaxMinutes = settings.MaxSleepTimeout.ToString();
+    }
 
     /// <summary>
     /// Loads shutdown actions from the settings.
@@ -65,6 +91,30 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
     {
       SystemStateDialogSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SystemStateDialogSettings>();
       _shutdownItemList = settings.ShutdownItemList;
+      
+      // Add the SleepTimer, if the Element is missing in the current configuration
+      bool foundSleepTimer = false;
+      foreach(SystemStateItem item in _shutdownItemList)
+      {
+        if(item.Action == SystemStateAction.SleepTimer)
+        {
+          foundSleepTimer = true;
+          break;
+        }
+      }
+      if(foundSleepTimer == false)
+      {
+        // Add the SleepTimerItem after "Shutdown"
+        SystemStateItem sleepTimerItem = new SystemStateItem(SystemStateAction.SleepTimer, true);
+        int index = 0;
+        foreach (SystemStateItem item in _shutdownItemList)
+        {
+          index++;
+          if (item.Action == SystemStateAction.Shutdown)
+            break;
+        }
+        _shutdownItemList.Insert(index, sleepTimerItem);
+      }
     }
 
     private bool ItemCheckedChanged(int index, ListItem item)
@@ -167,6 +217,14 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       // Apply new shutdown item list
       settings.ShutdownItemList = _shutdownItemList;
 
+      // Test the SleepTimer-MaxMinutes
+      int _maxMinutes = 0;
+      if(Int32.TryParse(MaxMinutes, out _maxMinutes))
+      {
+        if (_maxMinutes > 0)
+          settings.MaxSleepTimeout = _maxMinutes;
+      }
+
       settingsManager.Save(settings);
     }
 
@@ -224,6 +282,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       _shutdownItems = new ItemsList();
       // Load settings
       GetShutdownActionsFromSettings();
+      GetSleepTimerConfigFromSettings();
       UpdateShutdownItems();
     }
 

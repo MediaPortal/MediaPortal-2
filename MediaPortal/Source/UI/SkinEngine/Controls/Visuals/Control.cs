@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -285,8 +285,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
-        RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
-            actualSize.Width + 0.5f, actualSize.Height + 0.5f);
+        RectangleF rect = new RectangleF(ActualPosition.X /*- 0.5f*/, ActualPosition.Y /*- 0.5f*/,
+            actualSize.Width /*+ 0.5f*/, actualSize.Height /*+ 0.5f*/);
 
         PositionColoredTextured[] verts = new PositionColoredTextured[6];
         verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);

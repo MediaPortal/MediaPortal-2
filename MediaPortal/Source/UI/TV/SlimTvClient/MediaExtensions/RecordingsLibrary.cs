@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -76,7 +76,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
           //new VideosFilterByGenreScreenData(),
           //new VideosFilterByYearScreenData(),
           //new VideosFilterBySystemScreenData(),
-          new VideosSimpleSearchScreenData(picd),
+          new RecordingsSimpleSearchScreenData(picd),
         };
 
       _defaultSorting = new SortByRecordingDateDesc();
@@ -97,9 +97,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       var optionalMias = new[]
       {
         MovieAspect.ASPECT_ID,
-        SeriesAspect.ASPECT_ID,
+        EpisodeAspect.ASPECT_ID,
         AudioAspect.ASPECT_ID,
         VideoAspect.ASPECT_ID,
+        VideoStreamAspect.ASPECT_ID,
+        VideoAudioStreamAspect.ASPECT_ID,
         ImageAspect.ASPECT_ID
       }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 

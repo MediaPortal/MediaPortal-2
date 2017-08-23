@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Konfiguruoti norint naudoti ekrano užsklandą</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Ekrano užsklandos laiko limitas</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Konfiguruoti trukmę minutėmis kai po paskutinio vartotojo veiksmo įjungiama ekrano užsklanda</string>
-  <string name="Settings.Appearance.System.Antialiasing">Vartotojo sąsajos išlyginimas</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Išlyginimas pagerina vartotojo sąsajos vaizdą, bet gali sumažinti video pateikimą</string>
   <string name="Settings.Appearance.Skin">Apvalkalas</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Apvalkalas ir tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Keisti apvalkalą</string>

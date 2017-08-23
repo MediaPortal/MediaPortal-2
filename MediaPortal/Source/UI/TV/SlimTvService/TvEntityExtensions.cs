@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -72,7 +72,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       if (tvChannel == null)
         return null;
-      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, MediaType = tvChannel.IsTv ? MediaType.TV : MediaType.Radio };
+      return new Channel
+      {
+        ChannelId = tvChannel.IdChannel,
+        ChannelNumber = tvChannel.ChannelNumber,
+        Name = tvChannel.DisplayName,
+        MediaType = tvChannel.IsTv ? MediaType.TV : MediaType.Radio
+      };
     }
 
     public static IChannelGroup ToChannelGroup(this TvDatabase.ChannelGroup tvGroup)
@@ -141,7 +147,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public static IChannel ToChannel(this Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
     {
-      return new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, MediaType = (MediaType)tvChannel.MediaType };
+      return new Channel
+      {
+        ChannelId = tvChannel.IdChannel,
+        ChannelNumber = tvChannel.ChannelNumber,
+        Name = tvChannel.DisplayName,
+        MediaType = (MediaType)tvChannel.MediaType
+      };
     }
 
     public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup radioGroup)

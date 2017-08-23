@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,180 +33,61 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings
   /// </summary>
   public class BassPlayerSettings
   {
-    public static class Constants
-    {
-      public const int Auto = -1;
-    }
+    #region Fields
 
-    public static class Defaults
-    {
-      public const OutputMode AudioOutputMode = OutputMode.DirectSound;
-      public const string DirectSoundDevice = "";
-      public const string WASAPIDevice = "";
-      public const int DirectSoundBufferSizeMilliSecs = 200;
-      public const int PlaybackBufferSizeMilliSecs = 500;
-      public const int SeekIncrementSeconds = 20;
-      public const PlaybackMode SongTransitionMode = PlaybackMode.Normal;
-      public const int FadeDurationMilliSecs = 500;
-      public const double CrossFadeDurationSecs = 5d;
-      public const bool CrossFadeEnabled = true;
-      public const int VizStreamLatencyCorrectionMilliSecs = 0;
-      public static readonly List<string> SupportedExtensions =
-          new List<string>(
+    private readonly List<string> _supportedExtensions =
+                new List<string>(
               (".mp3,.ogg,.wav,.flac,.cda,.asx,.dts,.mod,.mo3,.s3m,.xm,.it,.mtm,.umx,.mdz,.s3z,.itz,.xmz,.mp2,.mp1," +
                ".aiff,.m2a,.mpa,.m1a,.swa,.aif,.mp3pro,.aac,.mp4,.m4a,.m4b,.ac3,.aac,.mov,.ape,.apl,.midi,.mid,.rmi," +
                ".kar,.mpc,.mpp,.mp+,.ofr,.ofs,.spx,.tta,.wma,.wv,.dff,.dsf").Split(','));
-    }
-
-    #region Fields
-
-    private OutputMode _outputMode = Defaults.AudioOutputMode;
-    private string _directSoundDevice = Defaults.DirectSoundDevice;
-    private string _WASAPIDevice = Defaults.WASAPIDevice;
-    private TimeSpan _directSoundBufferSize = TimeSpan.FromMilliseconds(Defaults.DirectSoundBufferSizeMilliSecs);
-    private TimeSpan _playbackBufferSize = TimeSpan.FromMilliseconds(Defaults.PlaybackBufferSizeMilliSecs);
-    private TimeSpan _seekIncrement = TimeSpan.FromSeconds(Defaults.SeekIncrementSeconds);
-    private PlaybackMode _songTransitionMode = Defaults.SongTransitionMode;
-    private TimeSpan _fadeDuration = TimeSpan.FromMilliseconds(Defaults.FadeDurationMilliSecs);
-    private TimeSpan _crossFadeDuration = TimeSpan.FromSeconds(Defaults.CrossFadeDurationSecs);
-    private bool _crossFadeEnabled = Defaults.CrossFadeEnabled;
-    private TimeSpan _vizStreamLatencyCorrection = TimeSpan.FromMilliseconds(Defaults.VizStreamLatencyCorrectionMilliSecs);
-    private List<string> _supportedExtensions = new List<string>(Defaults.SupportedExtensions);
-    private bool _WASAPIExclusiveMode = true;
 
     #endregion
 
+    public BassPlayerSettings()
+    {
+      SupportedExtensions = new List<string>(_supportedExtensions);
+    }
+
     #region Public members
 
-    [Setting(SettingScope.Global, Defaults.AudioOutputMode)]
-    public OutputMode OutputMode
-    {
-      get { return _outputMode; }
-      set { _outputMode = value; }
-    }
+    [Setting(SettingScope.Global, OutputMode.DirectSound)]
+    public OutputMode OutputMode { get; set; }
 
-    [Setting(SettingScope.Global, Defaults.DirectSoundDevice)]
-    public string DirectSoundDevice
-    {
-      get { return _directSoundDevice; }
-      set { _directSoundDevice = value; }
-    }
+    [Setting(SettingScope.Global, "")]
+    public string DirectSoundDevice { get; set; }
 
-    [Setting(SettingScope.Global, Defaults.WASAPIDevice)]
-    public string WASAPIDevice
-    {
-      get { return _WASAPIDevice; }
-      set { _WASAPIDevice = value; }
-    }
+    [Setting(SettingScope.Global, "")]
+    public string WASAPIDevice { get; set; }
 
     [Setting(SettingScope.Global, true)]
-    public bool WASAPIExclusiveMode
-    {
-      get { return _WASAPIExclusiveMode; }
-      set { _WASAPIExclusiveMode = value; }
-    }
+    public bool WASAPIExclusiveMode { get; set; }
 
-    [Setting(SettingScope.Global, Defaults.DirectSoundBufferSizeMilliSecs)]
-    public int DirectSoundBufferSizeMilliSecs
-    {
-      get { return (int)_directSoundBufferSize.TotalMilliseconds; }
-      set { _directSoundBufferSize = TimeSpan.FromMilliseconds(value); }
-    }
+    [Setting(SettingScope.Global, 200)]
+    public int DirectSoundBufferSizeMilliSecs { get; set; }
 
-    public TimeSpan DirectSoundBufferSize
-    {
-      get { return _directSoundBufferSize; }
-      set { _directSoundBufferSize = value; }
-    }
+    [Setting(SettingScope.Global, 300)]
+    public int PlaybackBufferSizeMilliSecs { get; set; }
 
-    [Setting(SettingScope.Global, Defaults.PlaybackBufferSizeMilliSecs)]
-    public int PlaybackBufferSizeMilliSecs
-    {
-      get { return (int)_playbackBufferSize.TotalMilliseconds; }
-      set { _playbackBufferSize = TimeSpan.FromMilliseconds(value); }
-    }
+    [Setting(SettingScope.User, 20)]
+    public int SeekIncrementSeconds { get; set; }
 
-    public TimeSpan PlaybackBufferSize
-    {
-      get { return _playbackBufferSize; }
-      set { _playbackBufferSize = value; }
-    }
+    [Setting(SettingScope.User, PlaybackMode.Normal)]
+    public PlaybackMode SongTransitionMode { get; set; }
 
-    [Setting(SettingScope.User, Defaults.SeekIncrementSeconds)]
-    public int SeekIncrementSeconds
-    {
-      get { return (int)_seekIncrement.TotalSeconds; }
-      set { _seekIncrement = TimeSpan.FromSeconds(value); }
-    }
+    [Setting(SettingScope.User, 500)]
+    public int FadeDurationMilliSecs { get; set; }
 
-    public TimeSpan SeekIncrement
-    {
-      get { return _seekIncrement; }
-      set { _seekIncrement = value; }
-    }
-
-    [Setting(SettingScope.User, Defaults.SongTransitionMode)]
-    public PlaybackMode SongTransitionMode
-    {
-      get { return _songTransitionMode; }
-      set { _songTransitionMode = value; }
-    }
-
-    [Setting(SettingScope.User, Defaults.FadeDurationMilliSecs)]
-    public int FadeDurationMilliSecs
-    {
-      get { return (int)_fadeDuration.TotalMilliseconds; }
-      set { _fadeDuration = TimeSpan.FromMilliseconds(value); }
-    }
-
-    public TimeSpan FadeDuration
-    {
-      get { return _fadeDuration; }
-      set { _fadeDuration = value; }
-    }
-
-    [Setting(SettingScope.User, Defaults.CrossFadeDurationSecs)]
-    public double CrossFadeDurationSecs
-    {
-      get { return _crossFadeDuration.TotalSeconds; }
-      set { _crossFadeDuration = TimeSpan.FromSeconds(value); }
-    }
-
-    public TimeSpan CrossFadeDuration
-    {
-      get { return _crossFadeDuration; }
-      set { _crossFadeDuration = value; }
-    }
-
-    [Setting(SettingScope.User)]
-    public bool CrossFadingEnabled
-    {
-      get { return _crossFadeEnabled; }
-      set { _crossFadeEnabled = value; }
-    }
+    [Setting(SettingScope.User, 5d)]
+    public double CrossFadeDurationSecs { get; set; }
 
     /// <summary>
     /// Gets or sets the (lower-case!) list of extensions which will be played with this player.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<string> SupportedExtensions
-    {
-      get { return _supportedExtensions; }
-      set { _supportedExtensions = value; }
-    }
+    public List<string> SupportedExtensions { get; set; }
 
-    [Setting(SettingScope.Global, Defaults.VizStreamLatencyCorrectionMilliSecs)]
-    public int VizStreamLatencyCorrectionMilliSecs
-    {
-      get { return (int)_vizStreamLatencyCorrection.TotalMilliseconds; }
-      set { _vizStreamLatencyCorrection = TimeSpan.FromMilliseconds(value); }
-    }
-
-    public TimeSpan VizStreamLatencyCorrection
-    {
-      get { return _vizStreamLatencyCorrection; }
-      set { _vizStreamLatencyCorrection = value; }
-    }
+    [Setting(SettingScope.Global, 0)]
+    public int VizStreamLatencyCorrectionMilliSecs { get; set; }
 
     #endregion
   }

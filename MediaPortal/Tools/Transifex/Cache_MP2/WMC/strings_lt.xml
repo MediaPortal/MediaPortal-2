@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WMC.Configuration.EnableBanners.Movies">Filmai</string>
+  <string name="WMC.Configuration.EnableBanners.Series">Serijos</string>
+  <string name="WMC.Configuration.EnableBanners.Seasons">Sezonai</string>
+  </resources>

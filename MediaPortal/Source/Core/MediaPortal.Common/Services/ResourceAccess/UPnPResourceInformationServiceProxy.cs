@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -142,6 +142,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
       CpAction action = GetAction("ConcatenatePaths");
       IList<object> inParameters = new List<object> {basePath.Serialize(), relativePath};
       IList<object> outParameters = action.InvokeAction(inParameters);
+      if (outParameters[0] == null)
+        return null;
       return ResourcePath.Deserialize((string) outParameters[0]);
     }
 

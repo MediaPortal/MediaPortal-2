@@ -1,0 +1,42 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Online FanArt Provider"
+    PluginId="{43B51DC0-4CA0-4E55-9C0D-D25B06638909}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides fanart images downloaded by MetadataExtractors">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
+    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="3"/> <!-- FanArtService -->
+
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <CoreDependency Name="UPnP" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="FanArtService.Online.dll"/>
+    <Assembly FileName="FanArtService.Interfaces.dll"/>
+  </Runtime>
+
+  <!-- We use our own local name here to avoid circular references to FanArtService -->
+  <Builder Name="MovieFanartProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers.FanartProviderBuilder"/>
+  <Register Location="/Fanart/Providers">
+    <MovieFanartProviderBuilder Id="{EFFB4535-C275-446D-AD60-0080D83470F5}" MediaTypes="Movies" ClassName="MediaPortal.Extensions.UserServices.FanArtService.MovieFanartProvider"/>
+  </Register>
+  <Builder Name="SeriesFanartProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers.FanartProviderBuilder"/>
+  <Register Location="/Fanart/Providers">
+    <SeriesFanartProviderBuilder Id="{73520BB9-112F-4208-90A8-C406E00AC192}" MediaTypes="Series" ClassName="MediaPortal.Extensions.UserServices.FanArtService.SeriesFanartProvider"/>
+  </Register>
+  <Builder Name="AudioFanartProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers.FanartProviderBuilder"/>
+  <Register Location="/Fanart/Providers">
+    <SeriesFanartProviderBuilder Id="{5D2A7AB7-7CB0-4E5E-92EF-BB6EC6BB89BF}" MediaTypes="Audio" ClassName="MediaPortal.Extensions.UserServices.FanArtService.AudioFanartProvider"/>
+  </Register>
+</Plugin>

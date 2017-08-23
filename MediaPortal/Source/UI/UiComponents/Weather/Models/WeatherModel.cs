@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -71,6 +71,8 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     protected String _preferredLocationCode = null;
     protected int? _refreshIntervalSec = null;
+    // Current refresh work thread, used to avoid repeated refresh calls
+    protected IWork _work = null;
     protected IIntervalWork _refreshIntervalWork = null;
     protected ManualResetEvent _updateFinished = new ManualResetEvent(true);
     protected readonly SettingsChangeWatcher<WeatherSettings> _settings = new SettingsChangeWatcher<WeatherSettings>();
@@ -294,10 +296,17 @@ namespace MediaPortal.UiComponents.Weather.Models
     private void StartBackgroundRefresh(City cityToRefresh)
     {
       // Avoid additional refreshs while one is active
-      if (!IsUpdating)
-        ThreadPool.QueueUserWorkItem(BackgroundRefresh, cityToRefresh);
-      else
-        ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Skipping refresh, it's already running in background.");
+      lock (_syncObj)
+      {
+        IWork work = _work;
+        if (IsUpdating || work != null && work.State != WorkState.FINISHED)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Skipping refresh, it's already running in background.");
+          return;
+        }
+        // Do update in its own thread to avoid delay
+        _work = ServiceRegistration.Get<IThreadPool>().Add(() => BackgroundRefresh(cityToRefresh), "BackgroundRefreshCity", QueuePriority.Normal, ThreadPriority.BelowNormal);
+      }
     }
 
     /// <summary>
@@ -358,6 +367,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
       ListItem item = new ListItem();
       item.SetLabel("Name", loc.Name);
+      item.SetLabel("Grabber", loc.Grabber);
       item.SetLabel("Id", loc.Id);
       item.AdditionalProperties[KEY_CITY] = city;
       _locationsList.Add(item);

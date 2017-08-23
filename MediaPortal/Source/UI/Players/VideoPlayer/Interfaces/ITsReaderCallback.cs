@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -51,7 +51,10 @@ namespace MediaPortal.UI.Players.Video.Interfaces
 
     [PreserveSig]
     int OnVideoFormatChanged(int streamType, int width, int height, int aspectRatioX, int aspectRatioY, int bitrate,
-        int isInterlaced);
+                             int isInterlaced);
+
+    [PreserveSig]
+    int OnBitRateChanged(int bitrate);
   }
 
   /// <summary>
@@ -106,12 +109,12 @@ namespace MediaPortal.UI.Players.Video.Interfaces
     int SetRelaxedMode(int relaxedReading);
 
     [PreserveSig]
-    int OnZapping(int info);
+    void OnZapping(int info);
 
     [PreserveSig]
-    int OnGraphRebuild(ChangedMediaType info);
+    void OnGraphRebuild(ChangedMediaType info);
 
     [PreserveSig]
-    int SetMediaPosition(long mediaPos);
+    void SetMediaPosition(long mediaPos);
   }
 }

@@ -8,6 +8,8 @@
   <string name="Menu.Settings">Instellingen</string>
   <string name="Menu.Others">Overige</string>
   <string name="Menu.Home">Thuis</string>
+  <string name="Menu.Main">Hoofdmenu
+</string>
   <string name="Movies.Title">Films</string>
   <string name="Series.Title">Series</string>
   <string name="Audio.Title">Audio</string>

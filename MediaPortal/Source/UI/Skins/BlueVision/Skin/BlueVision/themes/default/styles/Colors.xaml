@@ -1,23 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
     >
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
   
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
-  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>
+  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#33FFFFFF"/>
 
   <!-- Button background and effects-->
+  <!-- PopupWindow Buttons-->
   <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#000F3369"/>
   <ResourceWrapper x:Key="ButtonGradient2Color" Resource="#00050F20"/>
   <ResourceWrapper x:Key="FocusedButtonGradient1Color" Resource="#FF0F3369"/>
   <ResourceWrapper x:Key="FocusedButtonGradient2Color" Resource="#FF050F20"/>
   <ResourceWrapper x:Key="FocusedButtonGradient3Color" Resource="#FF050F20"/>
+
+  <!-- ?? -->
   <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF0F3369"/>
   <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FF050F20"/>
-  <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#213848"/>
-  <ResourceWrapper x:Key="ButtonFillColor" Resource="#284161"/>
+
+  <!-- Menu Buttons -->
+  <ResourceWrapper x:Key="ButtonStrokeColor" Resource="Transparent"/>
+  <ResourceWrapper x:Key="ButtonFillColorSettings" Resource="#66000000"/>
+  <ResourceWrapper x:Key="ButtonFillColor" Resource="#33FFFFFF"/>
+  
   <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FF959595"/>
   <ResourceWrapper x:Key="PressedButtonGradientLight1Color" Resource="#FFB0B0B0"/>
   <ResourceWrapper x:Key="PressedButtonGradientLight2Color" Resource="#FFA0A0A0"/>
@@ -65,6 +72,16 @@
     </LinearGradientBrush>
   </ResourceWrapper>
 
+  <ResourceWrapper x:Key="PlayControlsFillBrush">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Offset="0" Color="#E0A0A0A0"/>
+        <GradientStop Offset="0.5" Color="#F0F0F0F0"/>
+        <GradientStop Offset="1" Color="#E0A0A0A0"/>
+      </LinearGradientBrush >
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+
   <ResourceWrapper x:Key="ScrollBarBackgroundXColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
@@ -77,6 +94,9 @@
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#A5A5A5" />
   <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF4780A0" />
 
+  <ResourceWrapper x:Key="PercentageBarBackgroundColor" Resource="#26FFFFFF" />
+  <ResourceWrapper x:Key="PercentageBarFillColor" Resource="#FFFFFFFF" />
+
   <ResourceWrapper x:Key="OSDProgressBarFillColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
@@ -84,6 +104,8 @@
       <GradientStop Color="#FF4780A0" Offset="1"/>
     </LinearGradientBrush>
   </ResourceWrapper>
+
+  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
 
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
 
@@ -97,5 +119,7 @@
 
   <!-- Star Rating -->
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#E8E8E8"/>
+
+  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="#336699"/>
 
 </ResourceDictionary>

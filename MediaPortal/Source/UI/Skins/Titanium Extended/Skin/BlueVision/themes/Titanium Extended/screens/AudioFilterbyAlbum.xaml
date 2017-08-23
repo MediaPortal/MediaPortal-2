@@ -7,7 +7,7 @@
     >
   <Include.Resources>
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioItemsHeader]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.ChooseAlbumHeader]"/>
 
     <!-- Control template for the MediaItem details (cover, thumbs, duration, genres...)-->
     <ControlTemplate x:Key="Media_Details_Template">

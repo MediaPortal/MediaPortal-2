@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,8 +29,11 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -41,7 +44,6 @@ namespace MediaPortal.UiComponents.Media.Views
   {
     #region Protected fields
 
-    protected string _searchText;
     protected IFilter _filter;
     protected bool _excludeCLOBs;
     protected bool _onlyOnline;
@@ -50,11 +52,10 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #region Ctor
 
-    public SimpleTextSearchViewSpecification(string viewDisplayName, string searchText, IFilter filter,
+    public SimpleTextSearchViewSpecification(string viewDisplayName, IFilter filter,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, bool excludeCLOBs, bool onlyOnline) :
-        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
+      base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
     {
-      _searchText = searchText;
       _filter = filter;
       _excludeCLOBs = excludeCLOBs;
       _onlyOnline = onlyOnline;
@@ -70,11 +71,6 @@ namespace MediaPortal.UiComponents.Media.Views
     public bool ExcludeCLOBs
     {
       get { return _excludeCLOBs; }
-    }
-
-    public string SearchText
-    {
-      get { return _searchText; }
     }
 
     public IFilter Filter
@@ -98,10 +94,19 @@ namespace MediaPortal.UiComponents.Media.Views
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return;
+
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
       try
       {
-        mediaItems = cd.SimpleTextSearch(_searchText, _necessaryMIATypeIds, _optionalMIATypeIds,
-            _filter, _excludeCLOBs, _onlyOnline, false);
+        MediaItemQuery query = new MediaItemQuery(_necessaryMIATypeIds, _optionalMIATypeIds, _filter)
+        {
+          Limit = Consts.MAX_NUM_ITEMS_VISIBLE
+        };
+        mediaItems = cd.Search(query, true, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
       }
       catch (UPnPRemoteException e)
       {

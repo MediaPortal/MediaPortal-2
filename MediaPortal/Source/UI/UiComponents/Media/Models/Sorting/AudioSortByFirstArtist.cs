@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,11 +29,20 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class AudioSortByFirstArtist : AbstractSortByFirstComparableAttribute<string>
   {
-    public AudioSortByFirstArtist() : base(AudioAspect.ATTR_ARTISTS) {}
+    public AudioSortByFirstArtist() : base(new[] { AudioAspect.ATTR_ARTISTS, AudioAlbumAspect.ATTR_ARTISTS })
+    {
+      _includeMias = new[] { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID };
+      _preSortAttributes = false;
+    }
 
     public override string DisplayName
     {
-      get { return Consts.RES_SORT_BY_ARTIST; }
+      get { return Consts.RES_COMMON_BY_ARTIST_MENU_ITEM; }
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_COMMON_BY_ARTIST_MENU_ITEM; }
     }
   }
 }

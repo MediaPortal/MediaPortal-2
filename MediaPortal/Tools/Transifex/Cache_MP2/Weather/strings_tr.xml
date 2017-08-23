@@ -6,6 +6,7 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">Bölge Seçiniz</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Hava Durumu</string>
+  <string name="Weather.Title.Help">Mevcut hava durumunu ve tahminlerini kontrol et.</string>
   <string name="Weather.ChooseLocation">Bölge Seçiniz</string>
   <string name="Weather.Refresh">Yenile</string>
   <string name="Weather.Updating">Güncelleniyor...</string>

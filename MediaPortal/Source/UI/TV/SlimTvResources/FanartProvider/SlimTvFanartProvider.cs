@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,8 +37,9 @@ using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.LogoManager;
 using MediaPortal.LogoManager.ChannelManagerService;
 using MediaPortal.LogoManager.Design;
-using MediaPortal.Plugins.SlimTv.SlimTvResources.Settings;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Plugins.SlimTv.Interfaces.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
 {
@@ -47,6 +48,8 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
     protected readonly SlimTvLogoSettings _settings;
     protected string _dataFolder;
     protected RegionInfo _country;
+    // Allow cached logos to be updated every 2 weeks
+    protected TimeSpan MAX_CACHE_DURATION = TimeSpan.FromDays(14);
 
     public SlimTvFanartProvider()
     {
@@ -55,6 +58,8 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
       var currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       _country = new RegionInfo(currentCulture.LCID);
     }
+
+    public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
 
     /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
@@ -88,9 +93,9 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
         if (!Directory.Exists(logoFolder))
           Directory.CreateDirectory(logoFolder);
 
-        if (File.Exists(logoFileName))
+        if (File.Exists(logoFileName) && CacheValid(logoFileName))
         {
-          result = new List<IResourceLocator>{new ResourceLocator(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, logoFileName))};
+          result = new List<IResourceLocator> { new ResourceLocator(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, logoFileName)) };
           return true;
         }
 
@@ -115,6 +120,22 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
         ServiceRegistration.Get<ILogger>().Error("SlimTv Logos: Error processing logo image.", ex);
       }
       return false;
+    }
+
+    /// <summary>
+    /// Checks if the cached logo is still valid, if it is too old it will deleted to allow re-download.
+    /// </summary>
+    /// <param name="logoFileName">Cached logo name</param>
+    /// <returns></returns>
+    private bool CacheValid(string logoFileName)
+    {
+      FileInfo fi = new FileInfo(logoFileName);
+      if (DateTime.Now - fi.CreationTime > MAX_CACHE_DURATION)
+      {
+        fi.Delete();
+        return false;
+      }
+      return true;
     }
   }
 }

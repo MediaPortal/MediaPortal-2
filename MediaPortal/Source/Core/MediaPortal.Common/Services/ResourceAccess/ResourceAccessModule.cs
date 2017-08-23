@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -372,7 +372,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
           if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
           {
-            DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
+            DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"], System.Globalization.CultureInfo.InvariantCulture);
             if (lastRequest.CompareTo(fsra.LastChanged) <= 0)
               response.Status = HttpStatusCode.NotModified;
           }

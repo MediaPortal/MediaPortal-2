@@ -12,8 +12,8 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
@@ -47,22 +47,33 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
   </Register>
 
   <!-- Contents of '/Players' section -->
+  <Register Location="/Configuration/Settings/Players/">
+    <ConfigSection
+        Id="VideoPlayer"
+        Sort="E130"
+        Redundant="true"
+        Text="[Settings.Players.VideoPlayer]"/>
+  </Register>
+
+  <!-- Contents of '/Players/VideoPlayer/Codecs' section -->
   <Register Location="/Configuration/Settings/Players">
     <ConfigSection
         Id="Codecs"
+        Sort="E170"
         Redundant="true"
         Text="[Settings.Players.Codecs]"/>
   </Register>
 
-  <!-- Contents of '/Players/Codecs' section -->
   <Register Location="/Configuration/Settings/Players/Codecs">
     <ConfigSection
         Id="VideoCodecs"
+        Sort="E172"
         Redundant="true"
         Text="[Settings.Players.Codecs.VideoCodecs]"/>
   </Register>
@@ -90,10 +101,27 @@
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoHEVCCodec"/>
   </Register>
 
+  <Register Location="/Configuration/Settings/Players/Codecs">
+    <ConfigSection
+      Id="SourceFilters"
+      Sort="E171"
+      Redundant="true"
+      Text="[Settings.Players.Codecs.VideoCodecs.Splitter]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Codecs/SourceFilters">
+    <ConfigSetting
+        Id="Splitter"
+        Text="[Settings.Players.Codecs.VideoCodecs.Splitter]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.Splitter.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Splitter"/>
+  </Register>
+
   <!-- Contents of '/Players/Codecs' section -->
   <Register Location="/Configuration/Settings/Players/Codecs">
     <ConfigSection
         Id="AudioCodecs"
+        Sort="E173"
         Redundant="true"
         Text="[Settings.Players.Codecs.AudioCodecs]"/>
   </Register>
@@ -114,32 +142,11 @@
         Text="[Settings.Players.Codecs.AudioCodecs.AudioCodecAAC]"
         HelpText="[Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodecAAC"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/Codecs">
-    <ConfigSection
-        Id="AudioRenderer"
-        Redundant="true"
-        Text="[Settings.Players.Codecs.AudioRenderer]"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/Codecs/AudioRenderer">
     <ConfigSetting
         Id="AudioRenderer"
         Text="[Settings.Players.Codecs.AudioCodecs.AudioRenderer]"
         HelpText="[Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioRenderer"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/">
-    <ConfigSection
-        Id="DVDPlayer"
-        Redundant="true"
-        Text="[Settings.Players.DVDPlayer]"/>
-    <ConfigSection
-        Id="VideoPlayer"
-        Redundant="true"
-        Text="[Settings.Players.VideoPlayer]"/>
   </Register>
 
   <Register Location="/Configuration/Settings/Players/VideoPlayer">
@@ -148,9 +155,6 @@
         Text="[Settings.Players.VideoPlayer.PreferMultiChannelAudio]"
         HelpText="[Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioPreferMultiChannel"/>
-  </Register>
-  
-  <Register Location="/Configuration/Settings/Players/DVDPlayer">
     <ConfigSetting
         Id="EnableClosedCaptions"
         Text="[Settings.Players.DVDPlayer.EnableClosedCaption]"
@@ -162,4 +166,5 @@
         HelpText="[Settings.Players.DVDPlayer.EnableSubtitles.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Subtitles"/>
   </Register>
+
 </Plugin>

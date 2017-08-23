@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -81,12 +81,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
     #endregion
 
-    #region Private fields
-
-    private readonly NfoSeriesMetadataExtractorSettings _settings;
-
-    #endregion
-
     #region Ctor
 
     /// <summary>
@@ -94,11 +88,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="debugLogger">Debug logger to log to</param>
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
+    /// <param name="importOnly">If true, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoSeriesMetadataExtractor"/></param>
-    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
-      : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
+    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
+      : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
     {
       _settings = settings;
       InitializeSupportedElements();
@@ -236,7 +231,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       // Example of a valid element:
       // <title>Castle</title>
-      return ((_currentStub.Title = ParseSimpleString(element)) != null);
+      _currentStub.Title = ParseSimpleString(element);
+      if (_currentStub.Title != null)
+        _currentStub.ShowTitle = _currentStub.Title;
+      return (_currentStub.Title != null);
     }
 
     /// <summary>

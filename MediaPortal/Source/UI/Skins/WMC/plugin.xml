@@ -1,0 +1,113 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="WMC"
+    PluginId="{874401F8-1283-4C20-8EFA-FD0EE7AD53A8}"
+    Author="Morpheus_xx, ge2301, Brownard"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="WMC skin for MP2.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2016-03-27 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="WMCSkin.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/> <!-- SkinBase -->
+    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}" CompatibleAPI="1"/> <!-- Background Manager -->
+    <PluginReference PluginId="{DF6A25DF-D937-4DFF-B1BD-563641A62417}" CompatibleAPI="1"/> <!-- Home Menu Editor -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{B4D6171B-81CB-4813-ACBE-FD3133ADC504}" CompatibleAPI="1"/> <!-- SkinSettings plugin -->
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309" Name="WMCHomeMenuModel" ClassName="MediaPortal.UiComponents.WMCSkin.Models.HomeMenuModel"/>
+    <Model Id="0E621AA5-0733-4E88-A0F0-887F8D73A055" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.WMCSkin.Models.ScreenModeModel"/>
+    <Model Id="762EC648-AA64-42A4-9401-59FDB2FBF18C" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.WMCSkin.Actions.SkinSettingsAction"/>
+  </Register>
+  
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="WMCLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="WMCkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/SkinSettings">
+    <SkinSettings Id="F9063616-EC04-4C22-B207-12C1918EAF11" Name="WMC" ClassName="MediaPortal.UiComponents.WMCSkin.Settings.WMCSkinSettings"/>
+  </Register>
+
+  <!--Register support for the home editor to ensure its configuration is visible in this skin-->
+  <Register Location="/HomeEditor">
+    <HomeEditorRegistration Id="4D0738C3-84BA-4DBC-904D-9951911403C0" SkinName="WMCSkin"/>
+  </Register>
+
+  <!-- Contents of '/Appearance' section -->
+  <Register Location="/Configuration/Settings/Appearance">
+    <ConfigSection
+        Id="Skin"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin' section -->
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigSection
+        Id="SkinSettings"
+        Redundant="true"
+        Text="[SkinSettings.Configuration.SkinSettings]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
+    <ConfigSetting
+        Id="EnableFanart"
+        Text="[WMC.Configuration.EnableFanart]"
+        HelpText="[WMC.Configuration.EnableFanart.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableFanartConfiguration"/>
+    
+    <ConfigSetting
+        Id="FanartOverlayOpacity"
+        Text="[WMC.Configuration.FanartOverlayOpacity]"
+        HelpText="[WMC.Configuration.FanartOverlayOpacity.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.FanartOverlayOpacityConfiguration"/>
+    
+    <ConfigSetting
+        Id="EnableWatchedFlags"
+        Text="[WMC.Configuration.EnableWatchedFlags]"
+        HelpText="[WMC.Configuration.EnableWatchedFlags.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableWatchedFlagsConfiguration"/>
+    
+    <ConfigSetting
+        Id="EnableAgeCertificationLogos"
+        Text="[WMC.Configuration.EnableAgeCertificationLogos]"
+        HelpText="[WMC.Configuration.EnableAgeCertificationLogos.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableAgeCertificationLogosConfiguration"/>
+
+    <ConfigSetting
+        Id="EnableBanners"
+        Text="[WMC.Configuration.EnableBanners]"
+        HelpText="[WMC.Configuration.EnableBanners.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableBannersConfiguration"/>
+
+    <ConfigSetting
+        Id="EnableAnimatedBackground"
+        Text="[WMC.Configuration.EnableAnimatedBackground]"
+        HelpText="[WMC.Configuration.EnableAnimatedBackground.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableAnimatedBackgroundConfiguration"/>
+
+    <ConfigSetting
+        Id="EnableMediaItemDetailsView"
+        Text="[WMC.Configuration.EnableMediaItemDetailsView]"
+        HelpText="[WMC.Configuration.EnableMediaItemDetailsView.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/>
+  </Register>
+
+</Plugin>

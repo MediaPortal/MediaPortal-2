@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,15 +26,20 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class VideosFilterByLanguageScreenData : AbstractVideosFilterScreenData
+  public class VideosFilterByLanguageScreenData : AbstractVideosFilterScreenData<FilterItem>
   {
     public VideosFilterByLanguageScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG, Consts.RES_FILTER_BY_AUDIO_LANG_MENU_ITEM,
-        Consts.RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL, new LanguageFilterCriterion(VideoAspect.ATTR_AUDIOLANGUAGES))
-    { }
+        base(Consts.SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG, Consts.RES_COMMON_BY_AUDIO_LANG_MENU_ITEM,
+        Consts.RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL, new LanguageFilterCriterion(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE))
+    {
+      _availableMias = Consts.NECESSARY_VIDEO_MIAS;
+      if (Consts.OPTIONAL_VIDEO_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_VIDEO_MIAS);
+    }
 
     public override AbstractFiltersScreenData<FilterItem> Derive()
     {

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,6 +41,7 @@ namespace MediaPortal.Utilities.Events
     protected EventHandler _onEventHandler;
     protected object _sender;
     protected EventArgs _args;
+    protected bool _eventPending = false;
 
     #endregion
 
@@ -72,6 +73,7 @@ namespace MediaPortal.Utilities.Events
     {
       lock (_syncObj)
       {
+        _eventPending = true;
         if (_timer == null)
         {
           _timer = new Timer(_delayMilliSeconds) { Enabled = true, AutoReset = false };
@@ -117,6 +119,11 @@ namespace MediaPortal.Utilities.Events
       }
     }
 
+    public bool IsEventPending
+    {
+      get { return _eventPending; }
+    }
+
     #region Private members
 
     private void TimerElapsed(object sender, ElapsedEventArgs e)
@@ -129,6 +136,7 @@ namespace MediaPortal.Utilities.Events
         return;
 
       handler(_sender, _args);
+      _eventPending = false;
     }
 
     #endregion

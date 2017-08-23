@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -132,7 +132,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           }
           catch (Exception e)
           {
-            UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming multicast UDP packet. Error message: '{0}'",
+            UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming multicast UDP packet. Error message: '{0}'", e,
                 e.Message);
           }
         }
@@ -169,7 +169,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         catch (Exception e)
         {
-          UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming unicast UDP packet. Error message: '{0}'", e.Message);
+          UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming unicast UDP packet. Error message: '{0}'", e, e.Message);
         }
         StartUnicastReceive(state);
       }
@@ -641,12 +641,14 @@ namespace UPnP.Infrastructure.CP.SSDP
       string location = header["LOCATION"];
       string server = header["SERVER"];
       // ST is not used
-      //string st = header["ST"];
+      string st = header["ST"];
       string usn = header["USN"];
       string bi = header["BOOTID.UPNP.ORG"];
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
-      HandleNotifyPacket(config, remoteEndPoint, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp);
+      string error;
+      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp, st, out error))
+        UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle SSDP response from {0}:{1} ({2} [{3}]): {4}", remoteEndPoint.Address, remoteEndPoint.Port, location, server, error);
     }
 
     protected void HandleNotifyRequest(SimpleHTTPRequest header, EndpointConfiguration config, IPEndPoint remoteEndPoint)
@@ -670,75 +672,147 @@ namespace UPnP.Infrastructure.CP.SSDP
       string bi = header["BOOTID.UPNP.ORG"];
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
-      HandleNotifyPacket(config, remoteEndPoint, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp);
+      string error;
+      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp, null, out error))
+        UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle notify request from {0}:{1} ({2} [{3}]): {4}", remoteEndPoint.Address, remoteEndPoint.Port, location, server, error);
     }
 
-    protected void HandleNotifyPacket(EndpointConfiguration config, IPEndPoint remoteEndPoint, HTTPVersion httpVersion,
-        string date, string cacheControl, string location, string server, string nts, string usn, string bi, string ci, string sp)
+    protected bool HandleNotifyPacket(EndpointConfiguration config, IPEndPoint remoteEndPoint, HTTPVersion httpVersion,
+        string date, string cacheControl, string location, string server, string nts, string usn, string bi, string ci, string sp, string st, out string error)
     {
+      error = "Invalid message";
       uint bootID = 0;
       if (bi != null && !uint.TryParse(bi, out bootID))
+      {
         // Invalid message
-        return;
+        error += " BOOTID has wrong format";
+        return false;
+      }
       uint configID = 0;
       if (ci != null && !uint.TryParse(ci, out configID))
+      {
         // Invalid message
-        return;
-      if (!usn.StartsWith("uuid:"))
-        // Invalid usn
-        return;
+        error += " CONFIGID has wrong format";
+        return false;
+      }
+      if (usn == null || !usn.StartsWith("uuid:"))
+      {
+        // Invalid usn - ignore message
+        return true;
+      }
       string deviceUUID;
       string messageType;
       if (!ParserHelper.TryParseUSN(usn, out deviceUUID, out messageType))
         // We only use messages of the type "uuid:device-UUID::..." and discard the "uuid:device-UUID" message
-        return;
+        return true;
       if (nts == "ssdp:alive")
       {
         if (server == null)
+        {
           // Invalid message
-          return;
+          error += " SERVER is missing";
+          return false;
+        }
         int maxAge;
         if (!TryParseMaxAge(cacheControl, out maxAge))
+        {
           // Invalid message
-          return;
+          error += " MAX-AGE is missing";
+          return false;
+        }
         DateTime d;
         if (!DateTime.TryParse(date, out d))
           d = DateTime.Now;
         DateTime expirationTime = d.AddSeconds(maxAge);
-        // The specification says the SERVER header should contain three entries, separated by space, like
-        // "SERVER: OS/version UPnP/1.1 product/version".
-        // Unfortunately, some clients send entries separated by ", ", like "Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0".
-        // We try to handle all situations correctly here, that's the reason for this ugly code.
 
-        // What we've seen until now:
-        // SERVER: Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0  => tokens separated by ','
-        // SERVER: Windows 2003, UPnP/1.0 DLNADOC/1.50, Serviio/0.5.2  => tokens separated by ',' and additional info in UPnP version token
+        // The specification says the SERVER header should contain three tokens separated by space.
+        // For example: "SERVER: OS/version UPnP/1.1 product/version".
+        // Unfortunately clients don't always follow the specification. We've seen a range of
+        // non-compliancies:
+        // SERVER: Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0  => comma separated tokens
+        // SERVER: Windows 2003, UPnP/1.0 DLNADOC/1.50, Serviio/0.5.2  => comma separated tokens, no forward slash separator in the OS token, and additional info in the UPnP token
         // SERVER: 3Com-ADSL-11g/1.0 UPnP/1.0  => only two tokens
-        string[] versionInfos = server.Contains(", ") ? server.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries) :
-            server.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-        string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
-        if (upnpVersionInfo == null)
-          // Invalid message
-          return;
-        // upnpVersionInfo = 'UPnP/1.0', 'UPnP/1.1', 'UPnP/1.0 DLNADOC/1.50', ..., the UPnP version is always the first token
-        string[] upnpVersionInfoTokens = upnpVersionInfo.Split(' ');
-        string upnpVersionInfoToken = upnpVersionInfoTokens[0];
+        // SERVER: DOTS 2.0 UPnP/1.0 ATI TV Wonder OpenCable Receiver (37F0)/1.19.12.09050155, May  1 2009  => space separated tokens, no forward slash separator in the OS token, and incidental spaces and commas
+        // SERVER: Linux/i686 UPnP/1,0 DLNADOC/1.50 LGE WebOS TV/Version 0.9  => four tokens, comma separated UPnP version number, and incidental spaces
+        //
+        // We assume:
+        // 1. The DLNA token is optional. If present, it can be in any position.
+        // 2. The OS token is optional. If present, it must be before the UPnP token.
+        // 3. The product token is optional. If present, it must be after the UPnP token.
+        // 4. Tokens can be space or comma separated, but not a mixture. Incidental spaces and commas may be present.
+        int upnpVersionIndex = server.IndexOf(UPnPVersion.VERSION_PREFIX);
+        if (upnpVersionIndex == -1)
+        {
+          // Invalid message (UPnP version not in SERVER header)
+          error += " UPnP version is missing in SERVER header";
+          return false;
+        }
+
+        char separator = ' ';
+        if (upnpVersionIndex == 0)
+          separator = server.Contains(',') ? ',' : ' ';
+        else
+        {
+          for (int c = upnpVersionIndex - 1; c >= 0; c--)
+          {
+            if (server[c] != ' ')
+            {
+              if (server[c] == ',')
+                separator = ',';
+              break;
+            }
+          }
+        }
+
+        string[] serverTokens = server.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+        List<string> osVersionTokens = new List<string>(serverTokens.Length);
+        string upnpVersionString = null;
+        List<string> productVersionTokens = new List<string>(serverTokens.Length);
+        string dlnaVersion = string.Empty;
+        for (int v = 0; v < serverTokens.Length; v++)
+        {
+          string versionInfo = serverTokens[v].Trim();
+          serverTokens[v] = versionInfo;
+          if (versionInfo.StartsWith(UPnPVersion.VERSION_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            upnpVersionString = versionInfo;
+          else if (versionInfo.StartsWith(UPnPVersion.DLNA_VERSION_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            dlnaVersion = versionInfo;
+          else if (upnpVersionString == null)
+            osVersionTokens.Add(versionInfo);
+          else
+            productVersionTokens.Add(versionInfo);
+        }
+
+        // upnpVersionString = 'UPnP/1.0', 'UPnP/1.1', 'UPnP/1.0 DLNADOC/1.50', ..., the UPnP version is always the first token
+        string[] upnpVersionTokens = upnpVersionString.Split(' ');
         UPnPVersion upnpVersion;
-        if (!UPnPVersion.TryParse(upnpVersionInfoToken, out upnpVersion))
+        if (!UPnPVersion.TryParse(upnpVersionTokens[0], out upnpVersion))
           // Invalid message
-          return;
+          return false;
         if (upnpVersion.VerMax != 1)
           // Incompatible UPnP version
-          return;
+          return false;
         int searchPort = 1900;
         if (upnpVersion.VerMin >= 1)
         {
-          if (bi == null || ci == null)
+          if (bi == null)
+          {
             // Invalid message
-            return;
+            error += " BOOTID is missing";
+            return false;
+          }
+          // See section 1.3.3 ("search response") of the UPnP v1.1
+          // http://upnp.org/specs/arch/UPnP-arch-DeviceArchitecture-v1.1.pdf
+          // CONFIGID is optional in SSDP search responses (ST present in header), but mandatory for NOTIFY
+          if (ci == null && st == null)
+          {
+            // Invalid message
+            error += " CONFIGID is missing and not a Search response";
+            return false;
+          }
           if (sp != null && (!int.TryParse(sp, out searchPort) || searchPort < 49152 || searchPort > 65535))
             // Invalid message
-            return;
+            return false;
         }
         RootEntry rootEntry;
         DeviceEntry deviceEntry = null;
@@ -751,14 +825,17 @@ namespace UPnP.Infrastructure.CP.SSDP
         lock (_cpData.SyncObj)
         {
           bool rootEntryAdded;
-          // Use fail-safe code, see comment above about the different SERVER headers
-          string osVersion = versionInfos.Length < 1 ? string.Empty : versionInfos[0];
-          string productVersion = versionInfos.Length < 3 ? string.Empty : versionInfos[2];
+          string osVersion = string.Join(separator.ToString(), osVersionTokens);
+          string productVersion = string.Join(separator.ToString(), productVersionTokens);
+          if (string.IsNullOrEmpty(dlnaVersion))
+            dlnaVersion = upnpVersionTokens.FirstOrDefault(t => t.StartsWith(UPnPVersion.DLNA_VERSION_PREFIX, StringComparison.InvariantCultureIgnoreCase)) ?? string.Empty;
           rootEntry = GetOrCreateRootEntry(deviceUUID, location, upnpVersion, osVersion,
               productVersion, expirationTime, config, httpVersion, searchPort, out rootEntryAdded);
-          if (bi != null && rootEntry.BootID > bootID)
-            // Invalid message
-            return;
+
+          // Morpheus_xx, 2017/01: this check seems to discard many messages and it's not clear if this is a valid way to handle this. It's temporary commented for testing.
+          //if (bi != null && rootEntry.BootID > bootID)
+          //  // Invalid message
+          //  return false;
           uint currentConfigId = rootEntry.GetConfigID(remoteEndPoint);
           if (currentConfigId != 0 && currentConfigId != configID)
             fireConfigurationChanged = true;
@@ -791,7 +868,7 @@ namespace UPnP.Infrastructure.CP.SSDP
               int deviceTypeVersion;
               if (!ParserHelper.TryParseTypeVersion_URN(messageType, out deviceType, out deviceTypeVersion))
                 // Invalid message
-                return;
+                return false;
               deviceEntry = rootEntry.GetOrCreateDeviceEntry(deviceUUID);
               fireDeviceAdded = string.IsNullOrEmpty(deviceEntry.DeviceType);
               deviceEntry.DeviceType = deviceType;
@@ -802,14 +879,18 @@ namespace UPnP.Infrastructure.CP.SSDP
               deviceEntry = rootEntry.GetOrCreateDeviceEntry(deviceUUID);
               serviceType = messageType;
               if (deviceEntry.Services.Contains(serviceType))
-                return;
+                // Ignore
+                return true;
               deviceEntry.Services.Add(serviceType);
               fireServiceAdded = true;
             }
           }
           else
+          {
             // Invalid message
-            return;
+            error = "Unknown message type";
+            return false;
+          }
         }
         // Raise events after returning the lock
         if (fireDeviceRebooted)
@@ -830,11 +911,12 @@ namespace UPnP.Infrastructure.CP.SSDP
         {
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
-            return;
+            return false;
           RemoveRootEntry(rootEntry);
           InvokeRootDeviceRemoved(rootEntry);
         }
       }
+      return true;
     }
 
     protected void HandleUpdatePacket(SimpleHTTPRequest header, EndpointConfiguration config)

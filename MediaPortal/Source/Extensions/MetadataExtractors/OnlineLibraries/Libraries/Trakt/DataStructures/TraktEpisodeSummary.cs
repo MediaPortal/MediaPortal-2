@@ -1,19 +1,57 @@
-﻿using System.Runtime.Serialization;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
-  [DataContract]
-  public class TraktEpisodeSummary
-  {
-    [DataMember(Name = "show")]
-    public TraktShow Show { get; set; }
-
-    [DataMember(Name = "episode")]
-    public TraktEpisode Episode { get; set; }
-
-    public override string ToString()
+    [DataContract]
+    public class TraktEpisodeSummary : TraktEpisode
     {
-      return string.Format("{0} - {1}x{2}{3}", Show.Title, Episode.Season, Episode.Number, string.IsNullOrEmpty(Episode.Title) ? string.Empty : " - " + Episode.Title);
+        [DataMember(Name = "images")]
+        public TraktEpisodeImages Images { get; set; }
+
+        [DataMember(Name = "number_abs")]
+        public int? AbsoluteNumber { get; set; }
+
+        [DataMember(Name = "first_aired")]
+        public string FirstAired { get; set; }
+
+        [DataMember(Name = "updated_at")]
+        public string UpdatedAt { get; set; }
+
+        [DataMember(Name = "overview")]
+        public string Overview { get; set; }
+
+        [DataMember(Name = "rating")]
+        public double? Rating { get; set; }
+
+        [DataMember(Name = "votes")]
+        public int Votes { get; set; }
+
+        [DataMember(Name = "available_translations")]
+        public List<string> AvailableTranslations { get; set; }
     }
-  }
 }

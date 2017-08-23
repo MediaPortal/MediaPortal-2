@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class ImagesFilterBySizeScreenData : AbstractImagesFilterScreenData
   {
     public ImagesFilterBySizeScreenData() :
-        base(Consts.SCREEN_IMAGE_FILTER_BY_SIZE, Consts.RES_FILTER_BY_IMAGE_SIZE_MENU_ITEM,
+        base(Consts.SCREEN_IMAGE_FILTER_BY_SIZE, Consts.RES_COMMON_BY_SIZE_MENU_ITEM,
         Consts.RES_FILTER_IMAGE_SIZE_NAVBAR_DISPLAY_LABEL, new FilterByImageSizeCriterion())
     {
     }

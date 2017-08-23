@@ -19,16 +19,18 @@
   <DependsOn>
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/> <!-- SkinBase -->
     <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}" CompatibleAPI="1"/> <!-- BackgroundManager -->
-    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="1"/> <!-- Media -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="2"/> <!-- Media -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
     <PluginReference PluginId="{E5326D7C-698F-48C2-AA15-AD6CCBD1A96F}" CompatibleAPI="2"/> <!-- SystemStateMenu plugin -->
+    <PluginReference PluginId="{B4D6171B-81CB-4813-ACBE-FD3133ADC504}" CompatibleAPI="1"/> <!-- SkinSettings plugin -->
   </DependsOn>
 
   <Register Location="/Models">
     <Model Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177" Name="HomeMenuModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.HomeMenuModel"/>
     <Model Id="19FBB179-51FB-4DB6-B19C-D5C765E9B870" Name="LatestMediaModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.LatestMediaModel"/>
     <Model Id="92A16CDF-480B-4A40-9C76-7F9B0779319F" Name="SetupModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.SetupModel"/>
+    <Model Id="54F798AF-03E1-4A82-938E-D0D0DC608B1A" Name="PowerMenuModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.PowerMenuModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -55,14 +57,14 @@
 
   <!-- Contents of '/Appearance/Skin' section -->
   <Register Location="/Configuration/Settings/Appearance/Skin">
-    <ConfigGroup
-        Id="SkinAndTheme"
+    <ConfigSection
+        Id="SkinSettings"
         Redundant="true"
-        Text="[Settings.Appearance.Skin.SkinAndTheme]"/>
+        Text="[SkinSettings.Configuration.SkinSettings]"/>
   </Register>
 
-  <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
-  <Register Location="/Configuration/Settings/Appearance/Skin/SkinAndTheme">
+  <!-- Contents of '/Appearance/Skin/SkinSettings' section -->
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
     <CustomConfigSetting
         Id="BlueVisionSetup"
         Text="[BlueVision.Configuration]"

@@ -1,0 +1,44 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="SkinSettings"
+    PluginId="{B4D6171B-81CB-4813-ACBE-FD3133ADC504}"
+    Author="Brownard"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Exposes settings to GUI">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2016-08-13 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="SkinSettings.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="4"/>    <!-- Skin Engine -->
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="13961014-16C4-4361-9751-8E2C585EFD44" Name="SkinSettingsModel" ClassName="SkinSettings.SkinSettingsModel"/>
+  </Register>
+
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="SkinSettingsCLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Builder Name="SkinSettings" ClassName="SkinSettings.SkinSettingsBuilder"/>
+
+  <!--Registered settings classes can be accessed from the GUI using the SkinSettingsModel (SkinSettingsModel[MySettingsName].MySetting)-->
+  <!--
+  <Register Location="/SkinSettings">
+    <SkinSettings Id="E1A1A5C5-94E0-4DD2-B6A1-B7E31FE02DD1" Name="MySettingsName" ClassName="Settings.SettingsClass"/>
+  </Register>
+  -->
+
+</Plugin>

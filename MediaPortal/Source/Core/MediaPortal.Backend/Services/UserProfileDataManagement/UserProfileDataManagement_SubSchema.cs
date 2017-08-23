@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -43,6 +43,11 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
     public const int EXPECTED_SCHEMA_VERSION_MINOR = 0;
+
+    internal const string USER_MEDIA_ITEM_DATA_TABLE_NAME = "USER_MEDIA_ITEM_DATA";
+    internal const string USER_PROFILE_ID_COL_NAME = "PROFILE_ID";
+    internal const string USER_DATA_KEY_COL_NAME = "DATA_KEY";
+    internal const string USER_DATA_VALUE_COL_NAME = "MEDIA_ITEM_DATA";
 
     #endregion
 
@@ -181,6 +186,20 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
 
       mediaItemDataIndex = 0;
+      return result;
+    }
+
+    public static IDbCommand SelectAllUserMediaItemDataCommand(ITransaction transaction, Guid profileId, Guid mediaItemId, out int mediaItemDataKeyIndex, out int mediaItemDataIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT DATA_KEY, MEDIA_ITEM_DATA FROM USER_MEDIA_ITEM_DATA WHERE PROFILE_ID=@PROFILE_ID AND MEDIA_ITEM_ID=@MEDIA_ITEM_ID";
+
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
+
+      mediaItemDataKeyIndex = 0;
+      mediaItemDataIndex = 1;
       return result;
     }
 

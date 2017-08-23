@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Diagnostics"
+    PluginId="{650FA589-5C23-4B66-9B7B-CF6C4CEDE997}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides additional features for problem diagnostics.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2016-04-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="Diagnostics.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{952BF8BC-04A3-4B6D-A25E-1ED6080278F6}" CompatibleAPI="1"/> <!-- ServerSettings Client Plugin -->
+  </DependsOn>
+
+  <Register Location="/Services">
+    <Service Id="DiagnosticsHandler" RegistrationClassName="MediaPortal.UiComponents.Diagnostics.Service.DiagnosticsHandler" ServiceClassName="MediaPortal.UiComponents.Diagnostics.Service.DiagnosticsHandler"/>
+  </Register>
+
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="DiagnosticsLanguage" Directory="Language" Type="Language"/>
+  </Register>
+  
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings/General">
+    <ConfigGroup
+        Id="System"
+        Redundant="true"
+        Text="[Settings.General.System]"/>
+  </Register>
+
+  <!-- Contents of '/System' section -->
+  <Register Location="/Configuration/Settings/General/System">
+    <ConfigSection
+        Id="Diagnostics"
+        Text="[Diagnostics.Settings.Diagnostics]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/General/System/Diagnostics">
+    <ConfigSetting
+        Id="LogLevel"
+        Text="[Diagnostics.Settings.Diagnostics.AllLogs]"
+        HelpText="[Diagnostics.Settings.Diagnostics.AllLogsHelpText]"
+        ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsLogLevelConfiguration"/>
+    <ConfigSetting
+        Id="FocusStealing"
+        Text="[Diagnostics.Settings.Image.FocusStealing]"
+        HelpText="[Diagnostics.Settings.Image.FocusStealingHelpText]"
+        ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsFocusStealing"/>
+    <ConfigSetting
+        Id="LogCollector"
+        Text="[Diagnostics.Settings.Collectlogs]"
+        HelpText="[Diagnostics.Settings.CollectlogsHelpText]"
+        ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsCollectLog"/>
+    <ConfigSetting
+        Id="LogMonitor"
+        Text="[Diagnostics.Settings.ShowLogs]"
+        HelpText="[Diagnostics.Settings.ShowLogsHelpText]"
+        ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsOutputWindows"/>
+  </Register>
+
+
+</Plugin>

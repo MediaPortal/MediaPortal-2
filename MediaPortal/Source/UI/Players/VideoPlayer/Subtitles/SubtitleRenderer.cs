@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -244,7 +244,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// Reference to the DirectShow DVBSub filter, which 
     /// is the source of our subtitle bitmaps
     /// </summary>
-    protected IBaseFilter _filter = null;
+    protected FilterFileWrapper _filter = null;
 
     // The current player associated with this instance
     protected IMediaPlaybackControl _player = null;
@@ -515,10 +515,12 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// <returns>DvbSub2(3) filter instance</returns>
     public IBaseFilter AddSubtitleFilter(IGraphBuilder graphBuilder)
     {
+      IBaseFilter baseFilter = null;
       try
       {
         _filter = FilterLoader.LoadFilterFromDll("DVBSub3.ax", CLSID_DVBSUB3, true);
-        _subFilter = _filter as IDVBSubtitleSource;
+        baseFilter = _filter.GetFilter();
+        _subFilter = baseFilter as IDVBSubtitleSource;
         ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (_filter != null) + " & " + (_subFilter != null));
       }
       catch (Exception e)
@@ -527,7 +529,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       }
       if (_subFilter != null)
       {
-        graphBuilder.AddFilter(_filter, "MediaPortal DVBSub3");
+        graphBuilder.AddFilter(baseFilter, "MediaPortal DVBSub3");
         _subFilter.StatusTest(111);
         _callBack = OnSubtitle;
 
@@ -542,7 +544,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         IntPtr pUpdateTimeoutCallBack = Marshal.GetFunctionPointerForDelegate(_updateTimeoutCallBack);
         _subFilter.SetUpdateTimeoutCallback(pUpdateTimeoutCallBack);
       }
-      return _filter;
+      return baseFilter;
     }
 
     protected virtual void EnableSubtitleHandling()

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,15 @@ using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Controls
 {
+  [Flags]
+  public enum TvDateFormat
+  {
+    Time,
+    Day,
+    DifferentDay,
+    Default = DifferentDay | Time
+  }
+
   public class SlimTvDateFormatConverter: AbstractSingleDirectionConverter
   {
     public override bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
@@ -37,8 +46,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       if (val == null)
         return true;
 
+      TvDateFormat format;
+      if (!Enum.TryParse(parameter as String, out format))
+        format = TvDateFormat.Default;
+
       DateTime dtVal = (DateTime)val;
-      result = dtVal.FormatProgramTime(culture);
+      result = dtVal.FormatProgramTime(culture, format);
       return true;
     }
   }

@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Konfigurera skärmsläckare</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Väntetid för skärmsläckare. </string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Sätt väntetid i minuter för när skärmsläckaren ska aktiveras efter senaste aktivitet från användaren</string>
-  <string name="Settings.Appearance.System.Antialiasing">Kantutjämning på grafiska gränssnittet.</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Kantutjämning förbättrar den visuella kvalitén på det grafiska gränssnittet men kan försämra videoprestanda</string>
   <string name="Settings.Appearance.Skin">Skinn</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skinn och tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Byt skinn</string>
@@ -62,8 +60,8 @@
   <string name="Effects.sharpen_complex">Skarpare (komplext)</string>
   <string name="Effects.zoom_blur">Zooma suddigt</string>
   <string name="PlayerControl.NoPlayer">Ingen spelare</string>
-  <string name="PlayerControl.NoMediaItem">- Inget mediaobjekt -</string>
-  <string name="PlayerControl.UnknownMediaItem">Okänt mediaobjekt</string>
+  <string name="PlayerControl.NoMediaItem">- Ingen media-fil -</string>
+  <string name="PlayerControl.UnknownMediaItem">Okänd media-fil</string>
   <string name="PlayerControl.UnknownPlayerContextName">Spelare</string>
   <string name="PlayerControl.HeaderNormal">{0}</string>
   <!--{0} = media item title-->

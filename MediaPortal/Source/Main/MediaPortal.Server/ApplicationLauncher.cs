@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,14 +40,17 @@ using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.Process;
 
 [assembly: CLSCompliant(true)]
 namespace MediaPortal.Server
 {
   public class ApplicationLauncher
   {
+    protected static WindowsService _windowsService;
     protected SystemStateService _systemStateService = null;
     protected string _dataDirectory = null;
+    protected IpcServer _ipcServer;
 
     public ApplicationLauncher(string dataDirectory)
     {
@@ -65,10 +68,13 @@ namespace MediaPortal.Server
       parser.ParseArgumentsStrict(args, mpOptions, () => Environment.Exit(1));
 
       if (mpOptions.RunAsConsoleApp)
+      {
         new ApplicationLauncher(mpOptions.DataDirectory).RunAsConsole();
+      }
       else
       {
-        ServiceBase[] servicesToRun = new ServiceBase[] { new WindowsService() };
+        _windowsService = new WindowsService();
+        ServiceBase[] servicesToRun = new ServiceBase[] { _windowsService };
         ServiceBase.Run(servicesToRun);
       }
     }
@@ -91,7 +97,7 @@ namespace MediaPortal.Server
         try
         {
           // Check if user wants to override the default Application Data location.
-          ApplicationCore.RegisterVitalCoreServices(_dataDirectory);
+          ApplicationCore.RegisterVitalCoreServices(true, _dataDirectory);
           ApplicationCore.RegisterCoreServices();
           logger = ServiceRegistration.Get<ILogger>();
 
@@ -125,12 +131,13 @@ namespace MediaPortal.Server
           pluginManager.Initialize();
           pluginManager.Startup(false);
           ApplicationCore.StartCoreServices();
-
+          InitIpc();
           BackendExtension.StartupBackendServices();
           ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after backend services are running
 
           mediaAccessor.Initialize();
 
+          logger.Info("Switching to running state");
           _systemStateService.SwitchSystemState(SystemState.Running, true);
           BackendExtension.ActivateImporterWorker();
             // To be done after default media item aspect types are present and when the system is running (other plugins might also install media item aspect types)
@@ -172,6 +179,7 @@ namespace MediaPortal.Server
         ServiceRegistration.Get<IMediaAccessor>().Shutdown();
         ServiceRegistration.Get<IPluginManager>().Shutdown();
         BackendExtension.ShutdownBackendServices();
+        CloseIpc();
         ApplicationCore.StopCoreServices();
       }
       catch (Exception ex)
@@ -202,6 +210,7 @@ namespace MediaPortal.Server
     {
       Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
+
       Start();
 
       try
@@ -216,6 +225,66 @@ namespace MediaPortal.Server
       Stop();
       Application.ThreadException -= LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException -= LauncherExceptionHandling.CurrentDomain_UnhandledException;
+    }
+
+    private void InitIpc()
+    {
+      if (_ipcServer != null)
+        return;
+      ServiceRegistration.Get<ILogger>().Debug("Initializing IPC");
+      try
+      {
+        if (_windowsService == null)
+        {
+          _ipcServer = new IpcServer("ServerConsole");
+          _ipcServer.CustomShutdownCallback = () =>
+          {
+            Application.Exit();
+            return true;
+          };
+        }
+        else
+        {
+          _ipcServer = new IpcServer("ServerService");
+          _ipcServer.CustomShutdownCallback = () =>
+          {
+            // invoke service shutdown asynchronous with a little delay
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+              Thread.Sleep(500);
+              try
+              {
+                _windowsService.Stop();
+              }
+              catch
+              {
+                // ignored
+              }
+            });
+            return true;
+          };
+        }
+        _ipcServer.Open();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+    }
+
+    private void CloseIpc()
+    {
+      if (_ipcServer == null)
+        return;
+      try
+      {
+        _ipcServer.Close();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+      _ipcServer = null;
     }
   }
 }

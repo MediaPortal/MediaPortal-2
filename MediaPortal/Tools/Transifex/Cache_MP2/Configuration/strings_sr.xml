@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">Подешавања</string>
+  <string name="Configuration.Name.Help">Подеси извор медија и измени изглед МедијаПортала</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Подешавања</string>
   <string name="Configuration.MainSettings">Главна подешавања</string>
   <!--2nd Header for root configuration section-->

@@ -10,8 +10,16 @@
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
+    <ControlTemplate x:Key="Header_Text_Template">
+      <Label x:Name="SelectedItem"
+             Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
+             VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="32" FontFamily="DefaultBold"
+             Color="{ThemeResource TextColor}">
+      </Label>
+    </ControlTemplate>
+
     <ControlTemplate x:Key="Menu_Button_Dummy">
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,8,0"
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="0"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               IsEnabled="False">
       </Button>
@@ -22,6 +30,25 @@
         <DockPanel.Resources>
           <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
         </DockPanel.Resources>
+
+        <DockPanel.Triggers>
+          <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageLeft">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideInLeft_BeginStoryboard" Storyboard="{ThemeResource SlideInLeft}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="SlideInLeft_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+          <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageRight">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideInRight_BeginStoryboard" Storyboard="{ThemeResource SlideInRight}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="SlideInRight_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </DockPanel.Triggers>
 
         <!--Begin Home Screen-->
         <Grid DockPanel.Dock="Center" Margin="-90,0,-54,90" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHome}"
@@ -58,7 +85,7 @@
             <Border Grid.Row="0" Grid.Column="0" Background="#F6333333" BorderThickness="0">
               <Label Content="[Movies.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             </Border>
-            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource LatestMovieItemsListListViewStyle}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
@@ -151,7 +178,7 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Border Grid.Row="0" Grid.Column="0" Background="#F6333333" BorderThickness="0">
-              <Label Content="[Games.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+              <!--Label Content="[Games.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/-->
             </Border>
             <ListView x:Name="Cames" Grid.Row="1" ItemsSource="{Binding Games}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
@@ -225,12 +252,31 @@
 
         <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="-60,0,-60,0" 
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch" SetFocusPrio="Fallback"
+            BeginNavigation="{Binding Source={StaticResource MenuModel},Path=BeginNavigation,Mode=TwoWay}"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
             IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
           <bv:GridListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </bv:GridListView.Resources>
+          <bv:GridListView.RenderTransform>
+            <TranslateTransform X="0" Y="0"/>
+          </bv:GridListView.RenderTransform>
         </bv:GridListView>
+
+        <bv:GridListView x:Name="NextPage" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="-60,0,-60,0" 
+            VerticalAlignment="Stretch" IsEnabled="False"
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=NextPageItems,Mode=OneTime}"
+            AnimationStarted="{Binding Source={StaticResource MenuModel},Path=AnimationStarted,Mode=OneWayToSource}"
+            AnimationCompleted="{Binding Source={StaticResource MenuModel},Path=AnimationCompleted,Mode=OneWayToSource}"
+            IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
+          <bv:GridListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </bv:GridListView.Resources>
+          <bv:GridListView.RenderTransform>
+            <TranslateTransform X="-1920" Y="0"/>
+          </bv:GridListView.RenderTransform>
+        </bv:GridListView>
+
       </DockPanel>
     </ControlTemplate>
 

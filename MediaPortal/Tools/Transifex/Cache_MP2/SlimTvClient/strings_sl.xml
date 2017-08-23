@@ -12,6 +12,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Čas začetka</string>
   <string name="SlimTvClient.ProgramEndLabel">Čas konca</string>
   <string name="SlimTvClient.EpisodeLabel">Epizoda</string>
+  <string name="SlimTvClient.Progress">Obdelava</string>
   <string name="SlimTvClient.Guide">TV Vodič</string>
   <string name="SlimTvClient.NoProgram">Ni podatkov o oddaji</string>
   <string name="SlimTvClient.ChooseProgramAction">Izberi akcijo za oddajo.</string>
@@ -44,6 +45,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Vikendi</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Delovni dnevi</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Tedensko vsakič na tem kanalu</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Posnetki po imenu</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Posnetki po imenu</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Podrobnosti urnika</string>
   <string name="SlimTvClient.ScheduleName">Ime urnika</string>
