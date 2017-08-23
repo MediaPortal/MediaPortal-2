@@ -34,6 +34,7 @@ using MediaPortal.UiComponents.Login.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -44,8 +45,10 @@ namespace MediaPortal.UiComponents.Login.Models
   {
     private ItemsList _usersExposed = null;
     private AbstractProperty _currentUser;
+    private AbstractProperty _enteredPassword;
 
     public const string KEY_PROFILE_ID = "ProfileId";
+    public const string KEY_HAS_PASSWORD = "Password";
     public const string STR_MODEL_ID_LOGIN = "82582433-FD64-41bd-9059-7F662DBDA713";
     public static readonly Guid MODEL_ID_LOGIN = new Guid(STR_MODEL_ID_LOGIN);
 
@@ -55,6 +58,7 @@ namespace MediaPortal.UiComponents.Login.Models
     public LoginModel()
     {
       _currentUser = new WProperty(typeof(UserProfile), null);
+      _enteredPassword = new WProperty(typeof(string), string.Empty);
 
       RefreshUserList();
       SetCurrentUser();
@@ -95,7 +99,7 @@ namespace MediaPortal.UiComponents.Login.Models
         item.SetLabel(Consts.KEY_NAME, user.Name);
 
         item.AdditionalProperties[KEY_PROFILE_ID] = user.ProfileId;
-        item.SetLabel("UserName", user.Name);
+        item.AdditionalProperties[KEY_HAS_PASSWORD] = !string.IsNullOrEmpty(user.Password);
         item.SetLabel("HasImage", user.Image != null ? "true" : "false");
         item.SetLabel("HasPassword", !string.IsNullOrEmpty(user.Password) ? "true" : "false");
         item.SetLabel("LastLogin", user.LastLogin.HasValue ? user.LastLogin.Value.ToString("G") : "");
@@ -111,16 +115,36 @@ namespace MediaPortal.UiComponents.Login.Models
     /// <param name="item"></param>
     public void SelectUser(ListItem item)
     {
-      Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
-      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      EnteredPassword = "";
+      if ((bool)item.AdditionalProperties[KEY_HAS_PASSWORD])
+      {
+        ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
+          (string name, System.Guid id) =>
+          {
+            Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
+            LoginUser(profileId, EnteredPassword);
+          });
+      }
+      else
+      {
+        Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
+        LoginUser(profileId, EnteredPassword);
+      }
+    }
 
+    private void LoginUser(Guid profileId, string password)
+    {
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       UserProfile userProfile;
       if (userManagement.UserProfileDataManagement == null)
         return;
       if (!userManagement.UserProfileDataManagement.GetProfile(profileId, out userProfile))
         return;
-      SetCurrentUser(userProfile);
-      userManagement.UserProfileDataManagement.LoginProfile(profileId);
+      if (General.Utils.VerifyPassword(password, userProfile.Password))
+      {
+        SetCurrentUser(userProfile);
+        userManagement.UserProfileDataManagement.LoginProfile(profileId);
+      }
     }
 
     public Guid ModelId
@@ -188,6 +212,18 @@ namespace MediaPortal.UiComponents.Login.Models
     public UserProfile CurrentUser
     {
       get { return (UserProfile)_currentUser.GetValue(); }
+    }
+
+    public AbstractProperty EnteredPasswordProperty
+    {
+      get { return _enteredPassword; }
+      set { _enteredPassword = value; }
+    }
+
+    public string EnteredPassword
+    {
+      get { return (string)_enteredPassword.GetValue(); }
+      set { _enteredPassword.SetValue(value); }
     }
 
     public bool EnableUserLogin

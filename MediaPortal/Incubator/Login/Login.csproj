@@ -51,6 +51,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="General\Consts.cs" />
+    <Compile Include="General\Utils.cs" />
     <Compile Include="LoginPlugin.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -95,7 +96,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Skin\default\screens\DialogEnterPassword.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\UserManagement.xaml">
       <SubType>Designer</SubType>

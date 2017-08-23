@@ -138,6 +138,19 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           });
       AddAction(createUserProfileAction);
 
+      DvAction updateUserProfileAction = new DvAction("UpdateUserProfile", OnUpdateUserProfile,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("ProfileName", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("ProfileType", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("ProfilePassword", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("ProfileImage", A_ARG_TYPE_String, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(updateUserProfileAction);
+
       DvAction renameProfileAction = new DvAction("RenameProfile", OnRenameProfile,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
@@ -371,6 +384,22 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         image = Convert.FromBase64String(profileImage);
       Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfile(profileName, profileType, profilePassword, image);
       outParams = new List<object> { profileId };
+      return null;
+    }
+
+    static UPnPError OnUpdateUserProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string profileName = (string)inParams[1];
+      int profileType = (int)inParams[2];
+      string profilePassword = (string)inParams[3];
+      string profileImage = (string)inParams[4];
+      byte[] image = null;
+      if (!string.IsNullOrEmpty(profileImage))
+        image = Convert.FromBase64String(profileImage);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().UpdateProfile(profileId, profileName, profileType, profilePassword, image);
+      outParams = new List<object> { success };
       return null;
     }
 
