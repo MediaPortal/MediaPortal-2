@@ -440,12 +440,18 @@ namespace MediaPortal.UiComponents.Login.Models
         if (UserProxy.IsUserValid)
         {
           int shareCount = 0;
+          bool success = true;
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
           if (userManagement != null && userManagement.UserProfileDataManagement != null)
           {
+            string hash = Utils.HashPassword(UserProxy.Password);
             if (UserProxy.Id == Guid.Empty)
             {
-              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.UserName, UserProxy.ProfileType, UserProxy.Password, UserProxy.Image);
+              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.UserName, UserProxy.ProfileType, hash, UserProxy.Image);
+            }
+            else
+            {
+              success = userManagement.UserProfileDataManagement.UpdateProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, hash, UserProxy.Image);
             }
             if (UserProxy.Id == Guid.Empty)
             {
@@ -453,7 +459,6 @@ namespace MediaPortal.UiComponents.Login.Models
               return;
             }
 
-            bool success = true;
             success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
             success &= userManagement.UserProfileDataManagement.ClearUserAdditionalDataKey(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE);
             foreach (var shareId in UserProxy.SelectedShares)

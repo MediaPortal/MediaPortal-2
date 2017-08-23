@@ -193,6 +193,27 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
+    public bool UpdateProfile(Guid profileId, string profileName, int profileType, string profilePassword, byte[] profileImage)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        bool result;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.UpdateUserProfileCommand(transaction, profileId, profileName, profileType, profilePassword, profileImage))
+          result = command.ExecuteNonQuery() > 0;
+        transaction.Commit();
+
+        return result;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error creating user profile '{0}')", e, profileName);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
     public bool RenameProfile(Guid profileId, string newName)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();

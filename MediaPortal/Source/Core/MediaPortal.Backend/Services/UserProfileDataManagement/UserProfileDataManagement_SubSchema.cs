@@ -110,6 +110,19 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
+    public static IDbCommand UpdateUserProfileCommand(ITransaction transaction, Guid profileId, string name, int profileType = UserProfile.CLIENT_PROFILE, string password = null, byte[] image = null)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "UPDATE USER_PROFILES SET NAME=@NAME, PROFILE_TYPE=@PROFILE_TYPE, PASSWORD=@PASSWORD, IMAGE=@IMAGE WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "NAME", name, typeof(string));
+      database.AddParameter(result, "PROFILE_TYPE", profileType, typeof(int));
+      database.AddParameter(result, "PASSWORD", password, typeof(string));
+      database.AddParameter(result, "IMAGE", image, typeof(byte[]));
+      return result;
+    }
+
     public static IDbCommand UpdateUserProfileNameCommand(ITransaction transaction, Guid profileId, string newName)
     {
       IDbCommand result = transaction.CreateCommand();
