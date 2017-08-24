@@ -165,15 +165,13 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       };
 
       Guid? userProfile = null;
-      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
       {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
       }
 
-      var items = contentDirectory.Search(query, false, userProfile, false, applyUserRestrictions);
+      var items = contentDirectory.Search(query, false, userProfile, false);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

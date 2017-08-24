@@ -82,6 +82,15 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
+    public bool UpdateProfile(Guid profileId, string profileName, int profileType, string profilePassword, byte[] profileImage)
+    {
+      CpAction action = GetAction("UpdateUserProfile");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), profileName, profileType, profilePassword,
+        profileImage != null && profileImage.Length > 0 ? Convert.ToBase64String(profileImage) : "" };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (bool)outParameters[0];
+    }
+
     public bool RenameProfile(Guid profileId, string newName)
     {
       CpAction action = GetAction("RenameProfile");

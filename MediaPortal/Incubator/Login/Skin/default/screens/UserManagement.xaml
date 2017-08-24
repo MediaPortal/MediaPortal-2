@@ -61,8 +61,6 @@
 
           <Label Grid.Row="1" Grid.Column="0" Margin="5"
             Content="User Name" Color="{ThemeResource TextColor}"/>
-          <CheckBox x:Name="CheckIncludeParentFilter" Grid.Column="2" Grid.Row="1"
-                IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"/>
           <TextBox Grid.Row="1" Grid.Column="3"
             Text="{Binding Path=UserProxy.UserName,Mode=TwoWay}" PreferredTextLength="40"/>
 
@@ -95,13 +93,9 @@
               Command="{Command OpenSelectSharesDialog}"/>
 
           <Label Grid.Row="6" Grid.Column="0" Margin="5"
-            Content="Age Rating Country" Color="{ThemeResource TextColor}"/>
-          <Button x:Name="EditMovieCountryButton" Grid.Row="6" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="{Binding PreferredMovieCertificationCountryName}"
-              Command="{Command OpenChooseMovieCountryDialog}"/>
-          <Button x:Name="EditSeriesCountryButton" Grid.Row="6" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-              Content="{Binding PreferredSeriesCertificationCountryName}"
-              Command="{Command OpenChooseSeriesCountryDialog}"/>
+            Content="Include PG Media" Color="{ThemeResource TextColor}"/>
+          <CheckBox x:Name="CheckIncludeParentFilter" Grid.Column="2" Grid.Row="6"
+            IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"/>
 
           <Label Grid.Row="7" Grid.Column="0" Margin="5"
             Content="Last Login" Color="{ThemeResource TextColor}"/>

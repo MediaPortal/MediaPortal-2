@@ -27,11 +27,9 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
@@ -44,8 +42,8 @@ using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces;
 using System.Linq;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -159,7 +157,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
         applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
       }
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(necessaryMIAs);
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIAs);
 
       MediaItemQuery query = new MediaItemQuery(necessaryMIAs, null)
       {
@@ -168,7 +166,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
       };
  
-      var items = contentDirectory.Search(query, false, userProfile, showVirtual, applyUserRestrictions);
+      var items = contentDirectory.Search(query, false, userProfile, showVirtual);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

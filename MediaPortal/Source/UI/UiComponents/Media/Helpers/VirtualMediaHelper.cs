@@ -22,37 +22,30 @@
 
 #endregion
 
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Settings;
+using MediaPortal.UiComponents.Media.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MediaPortal.UiComponents.Media.Settings
+namespace MediaPortal.UiComponents.Media.Helpers
 {
-  public static class ShowVirtualSetting
+  public static class VirtualMediaHelper
   {
-    private static SettingsChangeWatcher<ViewSettings> _settingsWatcher;
-
-    static ShowVirtualSetting()
+    static VirtualMediaHelper()
     {
-      _settingsWatcher = new SettingsChangeWatcher<ViewSettings>();
-      _settingsWatcher.SettingsChanged += SettingsChanged;
-      ShowVirtualSeriesMedia = _settingsWatcher.Settings.ShowVirtualSeriesMedia;
-      ShowVirtualMovieMedia = _settingsWatcher.Settings.ShowVirtualMovieMedia;
-      ShowVirtualAudioMedia = _settingsWatcher.Settings.ShowVirtualAudioMedia;
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      ViewSettings settings = settingsManager.Load<ViewSettings>();
+      ShowVirtualSeriesMedia = settings.ShowVirtualSeriesMedia;
+      ShowVirtualMovieMedia = settings.ShowVirtualMovieMedia;
+      ShowVirtualAudioMedia = settings.ShowVirtualAudioMedia;
     }
 
-    private static void SettingsChanged(object sender, EventArgs e)
-    {
-      ShowVirtualSeriesMedia = _settingsWatcher.Settings.ShowVirtualSeriesMedia;
-      ShowVirtualMovieMedia = _settingsWatcher.Settings.ShowVirtualMovieMedia;
-      ShowVirtualAudioMedia = _settingsWatcher.Settings.ShowVirtualAudioMedia;
-    }
-
-    public static bool ShowVirtualSeriesMedia { get; private set; }
-    public static bool ShowVirtualMovieMedia { get; private set; }
-    public static bool ShowVirtualAudioMedia { get; private set; }
+    public static bool ShowVirtualSeriesMedia { get; set; }
+    public static bool ShowVirtualMovieMedia { get; set; }
+    public static bool ShowVirtualAudioMedia { get; set; }
 
     public static bool ShowVirtualMedia(IEnumerable<Guid> aspectIds)
     {

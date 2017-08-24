@@ -461,6 +461,14 @@
   <string name="Settings.Media.ShowVirtual.Movie">Show all known collection movies</string>
   <string name="Settings.Media.ShowVirtual.Series">Show all known seasons and episodes</string>
 
+  <string name="Settings.Media.Certification">Certification countries</string>
+
+  <string name="Settings.Media.Certification.None">Original (as imported)</string>
+  <string name="Settings.Media.Certification.Movie">Movie certification system country</string>
+  <string name="Settings.Media.Certification.Movie.Help">Select the movie certification system country to use when displaying movie certifications</string>
+  <string name="Settings.Media.Certification.Series">Series certification system country</string>
+  <string name="Settings.Media.Certification.Series.Help">Select the series certification system country to use when displaying series certifications</string>
+
   <!-- Secondary filters -->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>

@@ -24,15 +24,13 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,22 +52,14 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
-      Guid? userProfile = null;
-      bool applyUserRestrictions = false;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
-      {
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
-      }
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds);
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
 
       IFilter emptyFilter = new EmptyFilter(AudioAspect.ATTR_COMPILATION);
       IFilter compiledFilter = new RelationalFilter(AudioAspect.ATTR_COMPILATION, RelationalOperator.EQ, true);
       IFilter uncompiledFilter = new RelationalFilter(AudioAspect.ATTR_COMPILATION, RelationalOperator.EQ, false);
-      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true, userProfile, showVirtual, applyUserRestrictions);
-      int numCompiledItems = cd.CountMediaItems(necessaryMIATypeIds, compiledFilter, true, userProfile, showVirtual, applyUserRestrictions);
-      int numUncompiledItems = cd.CountMediaItems(necessaryMIATypeIds, uncompiledFilter, true, userProfile, showVirtual, applyUserRestrictions);
+      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true, showVirtual);
+      int numCompiledItems = cd.CountMediaItems(necessaryMIATypeIds, compiledFilter, true, showVirtual);
+      int numUncompiledItems = cd.CountMediaItems(necessaryMIATypeIds, uncompiledFilter, true, showVirtual);
       return new List<FilterValue>(new FilterValue[]
         {
             new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),

@@ -39,6 +39,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     bool GetProfileByName(string profileName, out UserProfile userProfile);
     Guid CreateProfile(string profileName);
     Guid CreateProfile(string profileName, int profileType, string profilePassword, byte[] profileImage);
+    bool UpdateProfile(Guid profileId, string profileName, int profileType, string profilePassword, byte[] profileImage);
     bool RenameProfile(Guid profileId, string newName);
     bool DeleteProfile(Guid profileId);
     bool LoginProfile(Guid profileId);

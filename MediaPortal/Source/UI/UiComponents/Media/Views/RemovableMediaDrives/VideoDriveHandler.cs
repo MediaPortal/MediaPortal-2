@@ -31,7 +31,8 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Helpers;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -71,16 +72,13 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         throw new Exception(string.Format("Could not create media item for drive '{0}'", driveInfo.Name));
 
       _mediaItem = FindStub(driveInfo, _mediaItem);
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser && userProfileDataManagement.ApplyUserRestriction)
+      IEnumerable<MediaItem> processedItems = CertificationHelper.ProcessMediaItems(new MediaItem[] { _mediaItem });
+      if (processedItems.Count() == 0)
       {
-        if (!ProcessMediaItem(_mediaItem, userProfileDataManagement.CurrentUser))
-        {
-          _mediaItem = null;
-          return;
-        }
+        _mediaItem = null;
+        return;
       }
-
+      _mediaItem = processedItems.First();
       SingleMediaItemAspect mia = null;
       MediaItemAspect.TryGetAspect(_mediaItem.Aspects, MediaAspect.Metadata, out mia);
       mia.SetAttribute(MediaAspect.ATTR_TITLE, mia.GetAttributeValue(MediaAspect.ATTR_TITLE) +

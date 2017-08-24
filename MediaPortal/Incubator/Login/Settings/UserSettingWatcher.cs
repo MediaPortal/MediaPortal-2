@@ -38,8 +38,12 @@ namespace MediaPortal.UiComponents.Login.Settings
     {
       _settingsWatcher = new SettingsChangeWatcher<UserSettings>();
       _settingsWatcher.SettingsChanged += SettingsChanged;
+      _settingsWatcher.Refresh();
+    }
 
-      UserLoginEnabled = _settingsWatcher.Settings.EnableUserLogin;
+    public static void Refresh()
+    {
+      _settingsWatcher.Refresh();
     }
 
     private static void SettingsChanged(object sender, EventArgs e)

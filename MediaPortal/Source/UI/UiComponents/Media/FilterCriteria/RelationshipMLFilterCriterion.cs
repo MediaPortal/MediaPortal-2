@@ -33,7 +33,7 @@ using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
 using System.Linq;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -66,25 +66,23 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         throw new NotConnectedException("The MediaLibrary is not connected");
 
       Guid? userProfile = null;
-      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
       {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
       }
 
       IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
 
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds);
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
       IFilter queryFilter = CreateQueryFilter(necessaryMIATypeIds, filter, showVirtual);
 
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
       if (_sortInformation != null)
         query.SortInformation = new List<ISortInformation> { _sortInformation };
 
-      IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual, applyUserRestrictions);
+      IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)
       {

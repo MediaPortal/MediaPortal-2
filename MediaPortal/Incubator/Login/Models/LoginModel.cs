@@ -24,7 +24,6 @@
 
 using System;
 using System.Linq;
-using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.UserProfileDataManagement;
@@ -32,17 +31,26 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.Login.Settings;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Workflow;
+using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Screens;
 
-namespace MediaPortal.UiComponents.Login
+namespace MediaPortal.UiComponents.Login.Models
 {
   /// <summary>
   /// viewmodel for handling logins
   /// </summary>
-  public class LoginModel
+  public class LoginModel : IWorkflowModel, IDisposable
   {
-    private readonly ItemsList _usersExposed = new ItemsList();
+    private ItemsList _usersExposed = null;
     private AbstractProperty _currentUser;
-    const string KEY_PROFILE_ID = "ProfileId";
+    private AbstractProperty _enteredPassword;
+
+    public const string KEY_PROFILE_ID = "ProfileId";
+    public const string KEY_HAS_PASSWORD = "Password";
+    public const string STR_MODEL_ID_LOGIN = "82582433-FD64-41bd-9059-7F662DBDA713";
+    public static readonly Guid MODEL_ID_LOGIN = new Guid(STR_MODEL_ID_LOGIN);
 
     /// <summary>
     /// constructor
@@ -50,30 +58,10 @@ namespace MediaPortal.UiComponents.Login
     public LoginModel()
     {
       _currentUser = new WProperty(typeof(UserProfile), null);
-      LoadUsers();
-      SetCurrentUser();
-    }
-
-    /// <summary>
-    /// will load the users from somewhere
-    /// </summary>
-    private void LoadUsers()
-    {
-      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userManagement.UserProfileDataManagement == null)
-        return;
-
-      UserProfile u1;
-      string profileName = SystemInformation.ComputerName.ToLower();
-      if (!userManagement.UserProfileDataManagement.GetProfileByName(profileName, out u1))
-      {
-        // add a few dummy users, later this should be more flexible and handled by a login manager / user account control
-        Guid userId1 = userManagement.UserProfileDataManagement.CreateProfile(profileName);
-        if (!userManagement.UserProfileDataManagement.GetProfile(userId1, out u1))
-          return;
-      }
+      _enteredPassword = new WProperty(typeof(string), string.Empty);
 
       RefreshUserList();
+      SetCurrentUser();
     }
 
     private void SetCurrentUser(UserProfile userProfile = null)
@@ -82,6 +70,7 @@ namespace MediaPortal.UiComponents.Login
       if (userProfile == null)
       {
         // Init with system default
+        userProfileDataManagement.CurrentUser = null;
         userProfile = userProfileDataManagement.CurrentUser;
       }
       else
@@ -97,7 +86,7 @@ namespace MediaPortal.UiComponents.Login
     private void RefreshUserList()
     {
       // clear the exposed users list
-      Users.Clear();
+      _usersExposed = new ItemsList();
 
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       if (userManagement.UserProfileDataManagement == null)
@@ -110,14 +99,14 @@ namespace MediaPortal.UiComponents.Login
         item.SetLabel(Consts.KEY_NAME, user.Name);
 
         item.AdditionalProperties[KEY_PROFILE_ID] = user.ProfileId;
-        item.SetLabel("UserName", user.Name);
+        item.AdditionalProperties[KEY_HAS_PASSWORD] = !string.IsNullOrEmpty(user.Password);
         item.SetLabel("HasImage", user.Image != null ? "true" : "false");
         item.SetLabel("HasPassword", !string.IsNullOrEmpty(user.Password) ? "true" : "false");
         item.SetLabel("LastLogin", user.LastLogin.HasValue ? user.LastLogin.Value.ToString("G") : "");
-        Users.Add(item);
+        _usersExposed.Add(item);
       }
       // tell the skin that something might have changed
-      Users.FireChange();
+      _usersExposed.FireChange();
     }
 
     /// <summary>
@@ -126,16 +115,86 @@ namespace MediaPortal.UiComponents.Login
     /// <param name="item"></param>
     public void SelectUser(ListItem item)
     {
-      Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
-      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      EnteredPassword = "";
+      if ((bool)item.AdditionalProperties[KEY_HAS_PASSWORD])
+      {
+        ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
+          (string name, System.Guid id) =>
+          {
+            Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
+            LoginUser(profileId, EnteredPassword);
+          });
+      }
+      else
+      {
+        Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
+        LoginUser(profileId, EnteredPassword);
+      }
+    }
 
+    private void LoginUser(Guid profileId, string password)
+    {
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       UserProfile userProfile;
       if (userManagement.UserProfileDataManagement == null)
         return;
       if (!userManagement.UserProfileDataManagement.GetProfile(profileId, out userProfile))
         return;
-      SetCurrentUser(userProfile);
-      userManagement.UserProfileDataManagement.LoginProfile(profileId);
+      if (General.Utils.VerifyPassword(password, userProfile.Password))
+      {
+        SetCurrentUser(userProfile);
+        userManagement.UserProfileDataManagement.LoginProfile(profileId);
+      }
+    }
+
+    public Guid ModelId
+    {
+      get { return MODEL_ID_LOGIN; }
+    }
+
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
+    }
+
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      RefreshUserList();
+    }
+
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+
+    }
+
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+
+    }
+
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+
+    }
+
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+
+    }
+
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
+    {
+
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
+    }
+
+    public void Dispose()
+    {
+      _usersExposed = null;
     }
 
     /// <summary>
@@ -153,6 +212,18 @@ namespace MediaPortal.UiComponents.Login
     public UserProfile CurrentUser
     {
       get { return (UserProfile)_currentUser.GetValue(); }
+    }
+
+    public AbstractProperty EnteredPasswordProperty
+    {
+      get { return _enteredPassword; }
+      set { _enteredPassword = value; }
+    }
+
+    public string EnteredPassword
+    {
+      get { return (string)_enteredPassword.GetValue(); }
+      set { _enteredPassword.SetValue(value); }
     }
 
     public bool EnableUserLogin

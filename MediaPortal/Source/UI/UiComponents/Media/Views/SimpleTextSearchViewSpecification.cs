@@ -33,7 +33,7 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -96,14 +96,12 @@ namespace MediaPortal.UiComponents.Media.Views
         return;
 
       Guid? userProfile = null;
-      bool applyUserRestrictions = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
       {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-        applyUserRestrictions = userProfileDataManagement.ApplyUserRestriction;
       }
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds);
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
 
       try
       {
@@ -111,7 +109,7 @@ namespace MediaPortal.UiComponents.Media.Views
         {
           Limit = Consts.MAX_NUM_ITEMS_VISIBLE
         };
-        mediaItems = cd.Search(query, true, userProfile, showVirtual, applyUserRestrictions);
+        mediaItems = cd.Search(query, true, userProfile, showVirtual);
       }
       catch (UPnPRemoteException e)
       {
