@@ -45,7 +45,7 @@ namespace MediaPortal.UiComponents.Login.Models
   {
     private ItemsList _usersExposed = null;
     private AbstractProperty _currentUser;
-    private AbstractProperty _enteredPassword;
+    private AbstractProperty _userPassword;
 
     public const string KEY_PROFILE_ID = "ProfileId";
     public const string KEY_HAS_PASSWORD = "Password";
@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Login.Models
     public LoginModel()
     {
       _currentUser = new WProperty(typeof(UserProfile), null);
-      _enteredPassword = new WProperty(typeof(string), string.Empty);
+      _userPassword = new WProperty(typeof(string), string.Empty);
 
       RefreshUserList();
       SetCurrentUser();
@@ -115,20 +115,20 @@ namespace MediaPortal.UiComponents.Login.Models
     /// <param name="item"></param>
     public void SelectUser(ListItem item)
     {
-      EnteredPassword = "";
+      UserPassword = "";
       if ((bool)item.AdditionalProperties[KEY_HAS_PASSWORD])
       {
         ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
           (string name, System.Guid id) =>
           {
             Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
-            LoginUser(profileId, EnteredPassword);
+            LoginUser(profileId, UserPassword);
           });
       }
       else
       {
         Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
-        LoginUser(profileId, EnteredPassword);
+        LoginUser(profileId, UserPassword);
       }
     }
 
@@ -214,16 +214,16 @@ namespace MediaPortal.UiComponents.Login.Models
       get { return (UserProfile)_currentUser.GetValue(); }
     }
 
-    public AbstractProperty EnteredPasswordProperty
+    public AbstractProperty UserPasswordProperty
     {
-      get { return _enteredPassword; }
-      set { _enteredPassword = value; }
+      get { return _userPassword; }
+      set { _userPassword = value; }
     }
 
-    public string EnteredPassword
+    public string UserPassword
     {
-      get { return (string)_enteredPassword.GetValue(); }
-      set { _enteredPassword.SetValue(value); }
+      get { return (string)_userPassword.GetValue(); }
+      set { _userPassword.SetValue(value); }
     }
 
     public bool EnableUserLogin

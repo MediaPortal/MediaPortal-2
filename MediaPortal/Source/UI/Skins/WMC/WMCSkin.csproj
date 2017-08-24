@@ -1075,10 +1075,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Skin\WMCSkin\screens\Login.xaml">
+    <Content Include="Skin\WMCSkin\screens\Login.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
