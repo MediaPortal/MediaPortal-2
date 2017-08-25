@@ -104,10 +104,9 @@
 
           <Label Grid.Row="8" Grid.Column="0" Margin="5"
             Content="Image" Color="{ThemeResource TextColor}" Scroll="Auto"/>
-          <Image x:Name="BigIcon" Grid.Row="8" Grid.Column="2" Width="128" Height="128"
-                   Source="{Binding UserProxy.Image}" Stretch="Uniform" />
-          <TextBox Grid.Row="8" Grid.Column="3"
-            Text="{Binding Path=ImagePath,Mode=TwoWay}" PreferredTextLength="40"/>
+          <Button Command="{Command FileBrowser}" Grid.Row="8" Grid.Column="3" Width="128" Height="128">
+            <Image x:Name="BigIcon" Source="{Binding UserProxy.Image}" FallbackSource="person.png" Stretch="Uniform" />            
+          </Button>
 
           <Button x:Name="AddUserButton" Grid.Row="10" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
               Content="Add"
