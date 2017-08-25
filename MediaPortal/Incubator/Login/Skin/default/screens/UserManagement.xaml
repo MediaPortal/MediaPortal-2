@@ -14,113 +14,99 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <UniformGrid Columns="2" DataContext="{Binding Source={StaticResource Model}}">
-        <Grid Grid.Column="0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Margin="10" Content="[UserConfig.Users]" Color="{ThemeResource TextColor}"/>
-          <ListView Name="ServerUsersList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource SingleMarkableListViewStyle}"
-              IsVisible="{Binding IsHomeServerConnected}"
-              ItemsSource="{Binding Path=UserList,Mode=OneTime}">
-          </ListView>
-          <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
-              Content="[UserConfig.NoConfigUserHomeServerNotConnected]" Wrap="true"
-              Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-        </Grid>
-        <Grid Grid.Column="1">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="250"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="370"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="80"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Margin="10" Content="[UserConfig.Users]" Color="{ThemeResource TextColor}"/>
+        <ListView Name="ServerUsersList" Margin="10" Grid.Row="1" Grid.RowSpan="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Style="{ThemeResource SingleMarkableListViewStyle}"
+                  IsVisible="{Binding IsHomeServerConnected}"
+                  ItemsSource="{Binding Path=UserList,Mode=OneTime}">
+        </ListView>
+        <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
+               Content="[UserConfig.NoConfigUserHomeServerNotConnected]" Wrap="true"
+               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
-          <Label Grid.Row="0" Grid.Column="0" Margin="5"
-            Content="ID" Color="{ThemeResource TextColor}"/>
-          <Label Grid.Row="0" Grid.Column="3" Margin="5"
-            Content="{Binding UserProxy.Id}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+        <Label Grid.Row="0" Grid.Column="1" Margin="5"
+               Content="ID" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="0" Grid.Column="3" Margin="5" FontSize="24"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               Content="{Binding UserProxy.Id}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-          <Label Grid.Row="1" Grid.Column="0" Margin="5"
-            Content="User Name" Color="{ThemeResource TextColor}"/>
-          <TextBox Grid.Row="1" Grid.Column="3"
+        <Label Grid.Row="1" Grid.Column="1" Margin="5"
+               Content="User Name" Color="{ThemeResource TextColor}"/>
+        <TextBox Grid.Row="1" Grid.Column="3"
             Text="{Binding Path=UserProxy.UserName,Mode=TwoWay}" PreferredTextLength="40"/>
 
-          <Label Grid.Row="2" Grid.Column="0" Margin="5"
-            Content="Password" Color="{ThemeResource TextColor}"/>
-          <TextBox Grid.Row="2" Grid.Column="3"
-            Text="{Binding Path=UserProxy.Password,Mode=TwoWay}" PreferredTextLength="40"/>
+        <Label Grid.Row="2" Grid.Column="1" Margin="5"
+               Content="Password" Color="{ThemeResource TextColor}"/>
+        <TextBox Grid.Row="2" Grid.Column="3" Style="{ThemeResource PasswordTextBoxStyle}"
+                 Text="{Binding Path=UserProxy.Password,Mode=TwoWay}" PreferredTextLength="40"/>
 
-          <Label Grid.Row="3" Grid.Column="0" Margin="5"
-            Content="Profile Type" Color="{ThemeResource TextColor}"/>
-          <Label Grid.Row="3" Grid.Column="2" Margin="5"
-            Content="{Binding UserProxy.ProfileType}" Color="{ThemeResource TextColor}"/>
-          <Button x:Name="EditProfileTypeButton" Grid.Row="3" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-              Content="{Binding ProfileTypeName}"
-              Command="{Command OpenChooseProfileTypeDialog}"/>
+        <Label Grid.Row="3" Grid.Column="1" Margin="5"
+               Content="Profile Type" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="3" Grid.Column="2" Margin="5" HorizontalAlignment="Center"
+               Content="{Binding UserProxy.ProfileType}" Color="{ThemeResource TextColor}"/>
+        <Button x:Name="EditProfileTypeButton" Grid.Row="3" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                Content="{Binding ProfileTypeName}"
+                Command="{Command OpenChooseProfileTypeDialog}"/>
 
-          <Label Grid.Row="4" Grid.Column="0" Margin="5"
-            Content="Age Filter" Color="{ThemeResource TextColor}"/>
-          <CheckBox x:Name="CheckAgeFilter" Grid.Column="2" Grid.Row="4"
-                IsChecked="{Binding Path=UserProxy.AllowAllAges,Mode=TwoWay}"/>
-          <TextBox Grid.Row="4" Grid.Column="3"
-            Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40"/>
+        <Label Grid.Row="4" Grid.Column="1" Margin="5"
+               Content="Age Filter" Color="{ThemeResource TextColor}"/>
+        <CheckBox x:Name="CheckAgeFilter" Grid.Column="2" Grid.Row="4" HorizontalAlignment="Center"
+                  IsChecked="{Binding Path=UserProxy.AllowAllAges,Mode=TwoWay}"/>
+        <TextBox Grid.Row="4" Grid.Column="3"
+                 Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40"/>
 
-          <Label Grid.Row="5" Grid.Column="0" Margin="5"
-            Content="Share Access" Color="{ThemeResource TextColor}"/>
-          <CheckBox x:Name="CheckShareFilter" Grid.Column="2" Grid.Row="5"
+        <Label Grid.Row="5" Grid.Column="1" Margin="5"
+               Content="Share Access" Color="{ThemeResource TextColor}"/>
+        <CheckBox x:Name="CheckShareFilter" Grid.Column="2" Grid.Row="5" HorizontalAlignment="Center"
                 IsChecked="{Binding Path=UserProxy.AllowAllShares,Mode=TwoWay}"/>
-          <Button x:Name="EditSharesButton" Grid.Row="5" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-              Content="{Binding SelectedSharesInfo}"
-              Command="{Command OpenSelectSharesDialog}"/>
+        <Button x:Name="EditSharesButton" Grid.Row="5" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                Content="{Binding SelectedSharesInfo}"
+                Command="{Command OpenSelectSharesDialog}"/>
 
-          <Label Grid.Row="6" Grid.Column="0" Margin="5"
-            Content="Include PG Media" Color="{ThemeResource TextColor}"/>
-          <CheckBox x:Name="CheckIncludeParentFilter" Grid.Column="2" Grid.Row="6"
-            IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"/>
+        <Label Grid.Row="6" Grid.Column="1" Margin="5"
+               Content="Include PG Media" Color="{ThemeResource TextColor}"/>
+        <CheckBox x:Name="CheckIncludeParentFilter" Grid.Column="2" Grid.Row="6" HorizontalAlignment="Center"
+               IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"/>
 
-          <Label Grid.Row="7" Grid.Column="0" Margin="5"
-            Content="Last Login" Color="{ThemeResource TextColor}"/>
-          <Label Grid.Row="7" Grid.Column="3" Margin="5"
-            Content="{Binding UserProxy.LastLogin}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+        <Label Grid.Row="7" Grid.Column="1" Margin="5"
+               Content="Last Login" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="7" Grid.Column="3" Margin="5"
+               Content="{Binding UserProxy.LastLogin}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
 
-          <Label Grid.Row="8" Grid.Column="0" Margin="5"
-            Content="Image" Color="{ThemeResource TextColor}" Scroll="Auto"/>
-          <Button Command="{Command FileBrowser}" Grid.Row="8" Grid.Column="3" Width="128" Height="128">
-            <Image x:Name="BigIcon" Source="{Binding UserProxy.Image}" FallbackSource="person.png" Stretch="Uniform" />            
-          </Button>
+        <Label Grid.Row="8" Grid.Column="1" Margin="5"
+               Content="Image" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+        <Button Command="{Command FileBrowser}" Grid.Row="8" Grid.Column="3" Width="128" Height="128">
+          <Image x:Name="BigIcon" Source="{Binding UserProxy.Image}" FallbackSource="person.png" Stretch="Uniform" />
+        </Button>
 
-          <Button x:Name="AddUserButton" Grid.Row="10" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
-              Content="Add"
-              Command="{Command AddUser}"/>
-          <Button x:Name="DeleteUserButton" Grid.Row="10" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="Delete"
-              IsEnabled="{Binding IsUserSelected}"
-              Command="{Command DeleteUser}"/>
-          <Button x:Name="SaveUserButton" Grid.Row="10" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-              Content="Save"
-              IsEnabled="{Binding UserProxy.IsUserValid}"
-              Command="{Command SaveUser}"/>
-        </Grid>
-      </UniformGrid>
+        <UniformGrid Columns="3" Grid.ColumnSpan="4" Grid.Row="9" Margin="0,10,0,0" Height="80">
+          <Button x:Name="AddUserButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+                  Content="Add" Command="{Command AddUser}" Margin="10"/>
+          <Button x:Name="DeleteUserButton" Grid.Column="1" Style="{ThemeResource WizardButtonStyle}" Margin="10"
+                  Content="Delete" IsEnabled="{Binding IsUserSelected}" Command="{Command DeleteUser}"/>
+          <Button x:Name="SaveUserButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}" Margin="10"
+                  Content="Save" IsEnabled="{Binding UserProxy.IsUserValid}" Command="{Command SaveUser}"/>
+        </UniformGrid>
+      </Grid>
     </ControlTemplate>
 
   </Include.Resources>
