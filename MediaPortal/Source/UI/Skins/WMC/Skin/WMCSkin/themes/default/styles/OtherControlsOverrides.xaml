@@ -229,7 +229,7 @@
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
+              <DataTrigger Binding="{Binding Selected}" Value="True">
                 <Setter TargetName="ButtonControlGrid" Property="IsVisible" Value="True"/>
                 <Setter TargetName="ItemLabelUnfocused" Property="IsVisible" Value="False"/>
                 <Setter TargetName="ItemLabelUnfocused" Property="Opacity" Value="1"/>
@@ -237,7 +237,7 @@
                 <!--Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/-->
                 <!--Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/-->
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-              </Trigger>
+              </DataTrigger>
             </Button.Triggers>
           </Button>
         </ControlTemplate>
@@ -283,7 +283,7 @@
       </Grid.RowDefinitions>
       <Grid.Triggers>
         <!--Triggers the ContentPresenter to auto scroll the item to center-->
-        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+        <DataTrigger Binding="{Binding BringIntoView}" Value="True">
           <DataTrigger.EnterActions>
             <TriggerCommand>
               <TriggerCommand.Command>
@@ -298,14 +298,14 @@
              Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Path="Selected"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=focus.png}"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=nofocus.png}"/>
           </MultiBinding>
         </Image.Source>
         <Image.Width>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Path="Selected"/>
             <Binding Source="387"/>
             <Binding Source="243"/>
           </MultiBinding>
@@ -313,12 +313,12 @@
       </Image>
       <Image x:Name="Bling_horizontal" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
              Height="4" Width="60" Grid.Row="0" Grid.Column="0" Source="Bling_hori.png" Margin="0,0,0,4"
-             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}">
+             IsVisible="{Binding Selected}">
         <Image.RenderTransform>
           <TranslateTransform X="0"/>
         </Image.RenderTransform>
         <Image.Triggers>
-          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+          <DataTrigger Binding="{Binding Selected}" Value="True">
             <DataTrigger.EnterActions>
               <BeginStoryboard x:Name="MoveRight_BeginStoryboard" Storyboard="{ThemeResource MoveRight}"/>
             </DataTrigger.EnterActions>
@@ -330,12 +330,12 @@
       </Image>
       <Image x:Name="Bling_vertical" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
              Height="60" Width="4" Grid.Row="0" Grid.Column="0" Source="Bling_vert.png" Margin="0,0,-1,0" 
-             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}">
+             IsVisible="{Binding Selected}">
         <Image.RenderTransform>
           <TranslateTransform Y="0"/>
         </Image.RenderTransform>
         <Image.Triggers>
-          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+          <DataTrigger Binding="{Binding Selected}" Value="True">
             <DataTrigger.EnterActions>
               <BeginStoryboard x:Name="MoveDown_BeginStoryboard" Storyboard="{ThemeResource MoveDown}"/>
             </DataTrigger.EnterActions>
