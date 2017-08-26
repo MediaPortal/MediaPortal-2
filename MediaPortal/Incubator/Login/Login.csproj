@@ -121,4 +121,7 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\WMCSkin\" />
+  </ItemGroup>
 </Project>

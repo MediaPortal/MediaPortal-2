@@ -25,11 +25,11 @@
           </Grid.RowDefinitions>
           <!-- User profile list -->
           <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource MenuListViewStyle}"
-              ItemsSource="{Binding Path=Users}" >
+                    Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True"
+                    ItemsSource="{Binding Path=Users}" >
             <ListView.Resources>
               <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectUser"
-                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+                       Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </ListView.Resources>
           </ListView>
 
