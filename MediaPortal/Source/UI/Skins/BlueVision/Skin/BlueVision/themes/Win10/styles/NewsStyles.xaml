@@ -119,13 +119,15 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="30"/>
+        <ColumnDefinition Width="10"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Label Content="{Binding Name}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+      <Label Content="{Binding Name}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="10,2,0,2"
              Width="{ResolutionResource NewsFeedTitleWidth}"/>
-      <Label Grid.Column="1" Content="{Binding Url}" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
+      <Label Grid.Column="1" Content="{Binding Url}" FontSize="{ThemeResource TinyFontSize}"
+             Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
       <Label Grid.Column="2" Content="X" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" IsVisible="{Binding Selected}"/>
     </Grid>
   </DataTemplate>
@@ -190,9 +192,7 @@
   <Style x:Key="NewsFeedsBookmarksListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource NewsFeedBookmarkItemDataTemplate}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultHighlightableItemContainerStyle}"/>
   </Style>
-
-
-
 
 </ResourceDictionary>
