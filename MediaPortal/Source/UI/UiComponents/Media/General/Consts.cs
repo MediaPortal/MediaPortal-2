@@ -615,6 +615,7 @@ namespace MediaPortal.UiComponents.Media.General
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
           GenreAspect.ASPECT_ID,
+          StubAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_MOVIE_GENRE_MIAS = new Guid[]
@@ -701,6 +702,7 @@ namespace MediaPortal.UiComponents.Media.General
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
           GenreAspect.ASPECT_ID,
+          StubAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_MOVIE_COLLECTION_MIAS = new Guid[]
@@ -727,6 +729,7 @@ namespace MediaPortal.UiComponents.Media.General
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
           GenreAspect.ASPECT_ID,
+          StubAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_ALBUM_MIAS = new Guid[]
@@ -752,6 +755,7 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid[] OPTIONAL_AUDIO_MIAS = new Guid[]
       {
           GenreAspect.ASPECT_ID,
+          StubAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_IMAGE_MIAS = new Guid[]

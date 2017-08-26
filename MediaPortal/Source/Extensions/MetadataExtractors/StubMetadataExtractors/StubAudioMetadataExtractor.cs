@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Common;
@@ -38,44 +36,37 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
-using MediaPortal.Common.Services.Settings;
+using MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors.Settings;
+using MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors.StubReaders;
+using MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors.Stubs;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
 {
   /// <summary>
-  /// MediaPortal 2 metadata extractor for series reading from local nfo-files.
+  /// MediaPortal 2 metadata extractor for CD reading from local stub-files.
   /// </summary>
-  public class StubSeriesMetadataExtractor : IMetadataExtractor, IDisposable
+  public class StubAudioMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants / Static fields
 
     /// <summary>
-    /// GUID of the NfoMetadataExtractors plugin
+    /// GUID of the StubMetadataExtractors plugin
     /// </summary>
-    public const string PLUGIN_ID_STR = "2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5";
+    public const string PLUGIN_ID_STR = "A33319F7-D311-44A9-BE7E-2F0E88AC4EEF";
     public static readonly Guid PLUGIN_ID = new Guid(PLUGIN_ID_STR);
 
     /// <summary>
-    /// GUID for the NfoSeriesMetadataExtractor
+    /// GUID for the StubAudioMetadataExtractor
     /// </summary>
-    public const string METADATAEXTRACTOR_ID_STR = "8BAB0AA1-A7B2-4F59-9286-2F4C1946BEF6";
+    public const string METADATAEXTRACTOR_ID_STR = "687CE3E9-73C4-4464-9B1A-BC0905D18E1B";
     public static readonly Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     /// <summary>
     /// MediaCategories this MetadataExtractor is applied to
     /// </summary>
-    private const string MEDIA_CATEGORY_NAME_SERIES = "Series";
+    private const string MEDIA_CATEGORY_NAME_AUDIO = "Audio";
     private readonly static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
-
-    /// <summary>
-    /// Default mimetype is being used if actual mimetype detection fails.
-    /// </summary>
-    private const string DEFAULT_MIMETYPE = "video/unknown";
 
     #endregion
 
@@ -87,9 +78,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private readonly MetadataExtractorMetadata _metadata;
 
     /// <summary>
-    /// Settings of the <see cref="NfoSeriesMetadataExtractor"/>
+    /// Settings of the <see cref="StubAudioMetadataExtractor"/>
     /// </summary>
-    private readonly NfoSeriesMetadataExtractorSettings _settings;
+    private readonly StubAudioMetadataExtractorSettings _settings;
     
     /// <summary>
     /// Debug logger
@@ -105,97 +96,52 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     private long _lastMediaItemNumber = 1;
 
-    /// <summary>
-    /// <see cref="HttpClient"/> used to download from http URLs contained in nfo-files
-    /// </summary>
-    private HttpClient _httpClient;
-
-    private SettingsChangeWatcher<NfoSeriesMetadataExtractorSettings> _settingWatcher;
-
     #endregion
 
     #region Ctor
 
     /// <summary>
-    /// Initializes <see cref="MEDIA_CATEGORIES"/> and, if necessary, registers the "Series" <see cref="MediaCategory"/>
+    /// Initializes <see cref="MEDIA_CATEGORIES"/> and, if necessary, registers the "Movie" <see cref="MediaCategory"/>
     /// </summary>
-    static StubSeriesMetadataExtractor()
+    static StubAudioMetadataExtractor()
     {
-      MediaCategory seriesCategory;
+      MediaCategory audioCategory;
       var mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
-        seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
-      MEDIA_CATEGORIES.Add(seriesCategory);
+      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_AUDIO, out audioCategory))
+        audioCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_AUDIO, new List<MediaCategory> { DefaultMediaCategories.Audio });
+      MEDIA_CATEGORIES.Add(audioCategory);
     }
 
     /// <summary>
-    /// Instantiates a new <see cref="NfoSeriesMetadataExtractor"/> object
+    /// Instantiates a new <see cref="NfoMovieMetadataExtractor"/> object
     /// </summary>
-    public StubSeriesMetadataExtractor()
+    public StubAudioMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(
         metadataExtractorId: METADATAEXTRACTOR_ID,
-        name: "Stub series metadata extractor",
-        metadataExtractorPriority: MetadataExtractorPriority.Core,
+        name: "Stub audio metadata extractor",
+        metadataExtractorPriority: MetadataExtractorPriority.Stub,
         processesNonFiles: true,
         shareCategories: MEDIA_CATEGORIES,
         extractedAspectTypes: new MediaItemAspectMetadata[]
         {
           MediaAspect.Metadata,
-          VideoStreamAspect.Metadata,
-          VideoAudioStreamAspect.Metadata,
-          SubtitleAspect.Metadata,
-          ThumbnailLargeAspect.Metadata
+          AudioAspect.Metadata,
+          StubAspect.Metadata
         });
 
-      _settingWatcher = new SettingsChangeWatcher<NfoSeriesMetadataExtractorSettings>();
-      _settingWatcher.SettingsChanged += SettingsChanged;
-
-      LoadSettings();
-
-      _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoSeriesMetadataExtractorSettings>();
+      _settings = ServiceRegistration.Get<ISettingsManager>().Load<StubAudioMetadataExtractorSettings>();
 
       if (_settings.EnableDebugLogging)
       {
-        _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\StubSeriesMetadataExtractorDebug.log"), LogLevel.Debug, false, true);
+        _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\StubAudioMetadataExtractorDebug.log"), LogLevel.Debug, false, true);
         LogSettings();
       }
       else
         _debugLogger = new NoLogger();
-
-      var handler = new HttpClientHandler();
-      if (handler.SupportsAutomaticDecompression)
-        // This enables the automatic decompression of the content. It does not automatically send an "Accept-Encoding" header!
-        // We therefore have to add the Accept-Encoding header(s) manually below.
-        // Additionally, due to the automatic decompression, HttpResponseMessage.Content.Headers DOES NOT contain
-        // a "Content-Encoding" header anymore when we try to access it. It is automatically removed when decompressing.
-        handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-      else
-        _debugLogger.Warn("HttpClient does not support compression");
-      _httpClient = new HttpClient(handler);
-      _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-      _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
     }
 
     #endregion
-
-    #region Settings
-
-    public static HashSet<string> SeriesStubFileExtensions { get; private set; }
-
-    private void LoadSettings()
-    {
-      SeriesStubFileExtensions = _settingWatcher.Settings.SeriesStubFileExtensions;
-    }
-
-    private void SettingsChanged(object sender, EventArgs e)
-    {
-      LoadSettings();
-    }
-
-    #endregion
-
-    #region Private methods
 
     #region Logging helpers
 
@@ -205,13 +151,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private void LogSettings()
     {
       _debugLogger.Info("-------------------------------------------------------------");
-      _debugLogger.Info("NfoSeriesMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
+      _debugLogger.Info("StubAudioMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
       _debugLogger.Info("Setttings:");
       _debugLogger.Info("   EnableDebugLogging: {0}", _settings.EnableDebugLogging);
-      _debugLogger.Info("   WriteRawNfoFileIntoDebugLog: {0}", _settings.WriteRawNfoFileIntoDebugLog);
+      _debugLogger.Info("   WriteRawNfoFileIntoDebugLog: {0}", _settings.WriteRawStubFileIntoDebugLog);
       _debugLogger.Info("   WriteStubObjectIntoDebugLog: {0}", _settings.WriteStubObjectIntoDebugLog);
-      _debugLogger.Info("   SeriesStubFileExtensions: {0}", String.Join(";", _settings.SeriesStubFileExtensions));
-      _debugLogger.Info("   SkipFanArtDownload: {0}", _settings.SkipFanArtDownload);
+      _debugLogger.Info("   AudioCdStubFileExtensions: {0}", String.Join(" ", _settings.AudioCdStubFileExtensions));
       _debugLogger.Info("   SeparatorCharacters: {0}", String.Join(" ", _settings.SeparatorCharacters));
       _debugLogger.Info("   IgnoreStrings: {0}", String.Join(";", _settings.IgnoreStrings));
       _debugLogger.Info("-------------------------------------------------------------");
@@ -219,16 +164,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
-    #endregion
-
     #region IDisposable implementation
 
     public void Dispose()
     {
-      if (_httpClient == null)
-        return;
-      _httpClient.Dispose();
-      _httpClient = null;
     }
 
     #endregion
@@ -252,7 +191,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public bool IsStubResource(IResourceAccessor mediaItemAccessor)
     {
-      if (SeriesStubFileExtensions.Where(e => string.Compare("." + e, ResourcePathHelper.GetExtension(mediaItemAccessor.Path.ToString()), true) == 0).Any())
+      if (_settings.AudioCdStubFileExtensions.Where(e => mediaItemAccessor.Path.ToString().EndsWith("." + e, StringComparison.InvariantCultureIgnoreCase)).Any())
       {
         return true;
       }
@@ -266,7 +205,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return TryExtractStubItemsAsync(mediaItemAccessor, extractedStubAspectData).Result;
     }
 
-    public async Task<bool> TryExtractStubItemsAsync(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    private async Task<bool> TryExtractStubItemsAsync(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -283,7 +222,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
 
         // This MetadataExtractor only works for MediaItems accessible by an IFileSystemResourceAccessor.
-        // Otherwise it is not possible to find a nfo-file in the MediaItem's directory.
+        // Otherwise it is not possible to find a stub-file in the MediaItem's directory.
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
         {
           _debugLogger.Info("[#{0}]: Cannot extract stubs; mediaItemAccessor is not an IFileSystemResourceAccessor", miNumber);
@@ -291,42 +230,53 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
 
         var fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-        var nfoReader = new NfoSeriesReader(_debugLogger, miNumber, true, false, _httpClient, _settings);
-        if (fsra != null && await nfoReader.TryReadMetadataAsync(fsra).ConfigureAwait(false))
+        var albumStubReader = new StubAlbumReader(_debugLogger, miNumber, true, _settings);
+        if (fsra != null && await albumStubReader.TryReadMetadataAsync(fsra).ConfigureAwait(false))
         {
-          Stubs.SeriesStub series = nfoReader.GetSeriesStubs().FirstOrDefault();
-          if (series != null && series.Episodes != null && series.Episodes.Count > 0)
+          AlbumStub album = albumStubReader.GetAlbumStubs().FirstOrDefault();
+          if (album != null && album.Tracks != null && album.Tracks > 0)
           {
-            foreach (var episode in series.Episodes)
+            for (int trackNo = 1; trackNo <= album.Tracks.Value; trackNo++)
             {
               Dictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
-
-              //VideoAspect required to mark this media item as a video
-              SingleMediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
-              videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, true);
-
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, string.Format("{0} S{1:00}E{2:00} {3}", series.ShowTitle, episode.Season, episode.Episode, episode.Title));
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(episode.Title));
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISSTUB, true);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, episode.Premiered.HasValue ? episode.Premiered.Value : episode.Year.HasValue ? episode.Year.Value : (DateTime?)null);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_STUB_LABEL, series.StubLabel);
+              string title = string.Format("{0}: {1}", album.Title, "Track " + trackNo);
 
               MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
               providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
               providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_STUB);
               providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, fsra.CanonicalLocalResourcePath.Serialize());
-              if (episode.FileInfo != null && episode.FileInfo.Count > 0)
-                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, MimeTypeDetector.GetMimeTypeFromExtension("file" + episode.FileInfo.First().Container) ?? DEFAULT_MIMETYPE);
+              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "audio/L16");
 
-              StubParser.ParseFileInfo(extractedAspectData, episode.FileInfo, episode.Title);
+              SingleMediaItemAspect audioAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, AudioAspect.Metadata);
+              audioAspect.SetAttribute(AudioAspect.ATTR_ISCD, true);
+              audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, trackNo);
+              audioAspect.SetAttribute(AudioAspect.ATTR_TRACKNAME, title);
+              audioAspect.SetAttribute(AudioAspect.ATTR_ENCODING, "PCM");
+              if (album.Cd.HasValue)
+                audioAspect.SetAttribute(AudioAspect.ATTR_DISCID, album.Cd.Value);
+              audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1411); // 44.1 kHz * 16 bit * 2 channel
+              audioAspect.SetAttribute(AudioAspect.ATTR_CHANNELS, 2);
+              audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, album.Tracks.Value);
+              audioAspect.SetAttribute(AudioAspect.ATTR_ALBUM, album.Title);
+              if (album.Artists.Count > 0)
+                audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, album.Artists);
+
+              SingleMediaItemAspect stubAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, StubAspect.Metadata);
+              stubAspect.SetAttribute(StubAspect.ATTR_DISC_NAME, album.DiscName);
+              stubAspect.SetAttribute(StubAspect.ATTR_MESSAGE, album.Message);
+
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISSTUB, true);
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
 
               extractedStubAspectData.Add(extractedAspectData);
             }
           }
         }
         else
-          _debugLogger.Warn("[#{0}]: No valid metadata found in movie stub file", miNumber);
+          _debugLogger.Warn("[#{0}]: No valid metadata found in album stub file", miNumber);
 
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting stubs", miNumber);
@@ -334,7 +284,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("StubSeriesMetadataExtractor: Exception while extracting stubs for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
+        ServiceRegistration.Get<ILogger>().Warn("StubAudioMetadataExtractor: Exception while extracting stubs for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
         _debugLogger.Error("[#{0}]: Exception while extracting stubs", e, miNumber);
         return false;
       }

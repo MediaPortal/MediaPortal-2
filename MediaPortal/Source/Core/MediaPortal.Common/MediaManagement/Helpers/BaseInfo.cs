@@ -194,14 +194,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       IList<MultipleMediaItemAspect> providerResourceAspects;
       if (MediaItemAspect.TryGetAspects(aspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
       {
-        string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        if (string.IsNullOrEmpty(accessorPath))
-          return true;
-        ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
-        if (resourcePath.BasePathSegment.ProviderId != VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        foreach(var pra in providerResourceAspects)
         {
-          return false;
+          if (pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_VIRTUAL)
+            return true;
         }
+        return false;
       }
       return true;
     }

@@ -127,45 +127,10 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    #region Helpers
-
-    private bool TryCreateInsertMediaMediaItem(out MediaItem mi)
-    {
-      mi = null;
-      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
-      string resourceDirectory = pathManager.GetPath(@"<DATA>\Resources\");
-      string[] files = Directory.GetFiles(resourceDirectory, "InsertVideoMedia.*");
-      if (files == null || files.Length == 0)
-        return false;
-
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      MediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, files[0]).Serialize());
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, MimeTypeDetector.GetMimeType(files[0], "video/unknown"));
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, ServiceRegistration.Get<ISystemResolver>().LocalSystemId);
-
-      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.Metadata);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "?");
-
-      mi = new MediaItem(Guid.Empty, aspects);
-      return true;
-    }
-
-    #endregion
-
     #region IPlayerBuilder implementation
 
     public IPlayer GetPlayer(MediaItem mediaItem)
     {
-      if (mediaItem.IsStub)
-      {
-        MediaItem stubMI;
-        if(TryCreateInsertMediaMediaItem(out stubMI))
-          mediaItem = stubMI;
-      }
-
       string mimeType;
       string title;
       if (!mediaItem.GetPlayData(out mimeType, out title))

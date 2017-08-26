@@ -172,7 +172,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
       if (contentDirectory != null)
-        shares = contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All);
+        shares = contentDirectory.GetShares(null, SharesFilter.All);
 
       int? allowedAge = null;
       bool? includeParentalGuidedContent = null;
@@ -261,6 +261,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
 
       return null;
     }
+
     public static void ConvertCertifications(IEnumerable<MediaItem> mediaItems)
     {
       //Convert certification system if needed

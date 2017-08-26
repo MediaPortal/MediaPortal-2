@@ -221,6 +221,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerStateService.Interfac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerStateService.Client", "Backend\BackendComponents\ServerStateService\ServerStateService.Client\ServerStateService.Client.csproj", "{FDC93BA2-C254-4339-B892-E974E26AEB37}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubMetadataExtractors", "Extensions\MetadataExtractors\StubMetadataExtractors\StubMetadataExtractors.csproj", "{B7D9598A-9744-489D-BDED-88BA73AD5DC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -556,6 +558,10 @@ Global
 		{FDC93BA2-C254-4339-B892-E974E26AEB37}.Debug|x86.Build.0 = Debug|x86
 		{FDC93BA2-C254-4339-B892-E974E26AEB37}.Release|x86.ActiveCfg = Release|x86
 		{FDC93BA2-C254-4339-B892-E974E26AEB37}.Release|x86.Build.0 = Release|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Debug|x86.ActiveCfg = Debug|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Debug|x86.Build.0 = Debug|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.ActiveCfg = Release|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -662,5 +668,6 @@ Global
 		{01C1F58C-A510-43BA-B2C7-E7E27DCB2396} = {5B0609A9-F3B5-41F8-81A5-3CE327A4ECD7}
 		{1CD36F37-70FF-442F-8B1E-528F41D76F34} = {01C1F58C-A510-43BA-B2C7-E7E27DCB2396}
 		{FDC93BA2-C254-4339-B892-E974E26AEB37} = {01C1F58C-A510-43BA-B2C7-E7E27DCB2396}
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 	EndGlobalSection
 EndGlobal

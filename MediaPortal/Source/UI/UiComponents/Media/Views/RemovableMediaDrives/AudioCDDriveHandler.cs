@@ -139,11 +139,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
             }
           }
           BassCd.BASS_CD_Release(driveId);
-
-          MediaItem[] miArray = tracks.ToArray();
-          for (int mediaItemIdx = 0; mediaItemIdx < tracks.Count; mediaItemIdx++)
-            miArray[mediaItemIdx] = FindStub(driveInfo, miArray[mediaItemIdx]);
-          tracks = miArray.ToList();
+          MatchWithStubs(driveInfo, tracks);
         }
         else
         {
@@ -151,12 +147,12 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
             tracks.Add(CreateMediaItem(track, driveChar, audioTracks.Count, systemId));
         }
         extractedMIATypeIDs = new List<Guid>
-          {
-              ProviderResourceAspect.ASPECT_ID,
-              MediaAspect.ASPECT_ID,
-              AudioAspect.ASPECT_ID,
-              ExternalIdentifierAspect.ASPECT_ID,
-          };
+        {
+            ProviderResourceAspect.ASPECT_ID,
+            MediaAspect.ASPECT_ID,
+            AudioAspect.ASPECT_ID,
+            ExternalIdentifierAspect.ASPECT_ID,
+        };
       }
       catch (IOException)
       {
@@ -218,7 +214,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) track.TrackNo);
       audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long) track.Duration);
       audioAspect.SetAttribute(AudioAspect.ATTR_ENCODING, "PCM");
-      audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1411200); // 44.1 kHz * 16 bit * 2 channel
+      audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1411); // 44.1 kHz * 16 bit * 2 channel
+      audioAspect.SetAttribute(AudioAspect.ATTR_CHANNELS, 2);
       audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, numTracks);
 
       if (!string.IsNullOrEmpty(album)) audioAspect.SetAttribute(AudioAspect.ATTR_ALBUM, album);

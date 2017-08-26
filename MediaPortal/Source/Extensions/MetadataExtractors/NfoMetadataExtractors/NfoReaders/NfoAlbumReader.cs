@@ -58,10 +58,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     private static readonly TimeSpan CACHE_TIMEOUT = new TimeSpan(0, 5, 0);
 
     /// <summary>
-    /// Cache used to temporarily store <see cref="SeriesStub"/> objects so that the same tvshow.nfo file
+    /// Cache used to temporarily store <see cref="AlbumStub"/> objects so that the same album.nfo file
     /// doesn't have to be parsed once for every episode
     /// </summary>
     private static readonly AsyncStaticTimeoutCache<ResourcePath, List<AlbumStub>> CACHE = new AsyncStaticTimeoutCache<ResourcePath, List<AlbumStub>>(CACHE_TIMEOUT);
+
+    #endregion
+
+    #region Private fields
+
+    /// <summary>
+    /// If true, file details will also be read from the nfo-file
+    /// </summary>
+    private bool _readFileDetails;
 
     #endregion
 
@@ -74,11 +83,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
     /// <param name="importOnly">If true, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
+    /// <param name="readFileDetails">If true, file details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
-    public NfoAlbumReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoAudioMetadataExtractorSettings settings)
+    public NfoAlbumReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoAudioMetadataExtractorSettings settings)
       : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
     {
+      _readFileDetails = readFileDetails;
       _settings = settings;
       InitializeSupportedElements();
     }
@@ -108,7 +119,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
       _supportedElements.Add("review", new TryReadElementDelegate(TryReadReview));
       _supportedElements.Add("track", new TryReadElementDelegate(TryReadTrack));
-      _supportedElements.Add("stub", new TryReadElementDelegate(TryReadStub));
     }
 
     #endregion
@@ -180,18 +190,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // Example of a valid element:
       // <title>Album Title</title>
       return ((_currentStub.Title = ParseSimpleString(element)) != null);
-    }
-
-    /// <summary>
-    /// Tries to read the stub value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadStub(XElement element)
-    {
-      // Example of a valid element:
-      // <stub>Album</stub>
-      return ((_currentStub.StubLabel = ParseSimpleString(element)) != null);
     }
 
     #endregion
@@ -301,7 +299,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     private bool TryReadTrack(XElement element)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParseTrack
-      var track = ParseTrack(element);
+      var track = ParseTrack(element, _readFileDetails);
       if (track == null)
         return false;
       if (_currentStub.Tracks == null)
@@ -401,7 +399,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to read a series nfo-file into <see cref="AlbumStub"/> objects (or gets them from cache)
+    /// Tries to read a album nfo-file into <see cref="AlbumStub"/> objects (or gets them from cache)
     /// </summary>
     /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
@@ -409,7 +407,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path =>
       {
-        _debugLogger.Info("[#{0}]: AlbumStub object for series nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
+        _debugLogger.Info("[#{0}]: AlbumStub object for album nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
         if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
         {
           if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)

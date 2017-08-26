@@ -52,18 +52,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     {
       MovieNfoFileNames = new HashSet<string> { "movie" };
       ImdbIdRegex = new SerializableRegex(REGEX_STRING_IMDBID);
-      MovieStubFileExtensions = new HashSet<string> { "moviestub" };
     }
 
     #endregion
 
     #region Public properties
-
-    /// <summary>
-    /// These file extensions are used to find a stub-files for Blu-ray's
-    /// </summary>
-    [Setting(SettingScope.Global)]
-    public HashSet<string> MovieStubFileExtensions { get; set; }
 
     /// <summary>
     /// These file names are used additionally to the media file name to find a respective nfo-file for movies

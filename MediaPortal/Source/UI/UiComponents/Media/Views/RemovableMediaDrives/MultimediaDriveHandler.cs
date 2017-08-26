@@ -87,11 +87,9 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       if (mediaType == MultiMediaType.None)
         return null;
 
+      MatchWithStubs(driveInfo, mediaItems);
       mediaItems = CertificationHelper.ProcessMediaItems(mediaItems).ToList();
-      MediaItem[] miArray = mediaItems.ToArray();
-      for (int mediaItemIdx = 0; mediaItemIdx < miArray.Length; mediaItemIdx++)
-        miArray[mediaItemIdx] = FindStub(driveInfo, miArray[mediaItemIdx]);
-      return new MultimediaDriveHandler(driveInfo, miArray, mediaType);
+      return new MultimediaDriveHandler(driveInfo, mediaItems, mediaType);
     }
 
     public MultiMediaType MediaType

@@ -45,6 +45,9 @@ using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.TransientAspects;
 using System.Text.RegularExpressions;
+using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
+using System.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -189,11 +192,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public static bool IncludeActorDetails { get; private set; }
     public static bool IncludeCharacterDetails { get; private set; }
-    public static HashSet<string> SeriesStubFileExtensions { get; private set; }
 
     private void LoadSettings()
     {
-      SeriesStubFileExtensions = _settingWatcher.Settings.SeriesStubFileExtensions;
       IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
       IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
     }
@@ -222,6 +223,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
       // for one call are not contained one after another in debug log. We therefore prepend this number before every log entry.
       var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
+      bool isStub = extractedAspectData.ContainsKey(StubAspect.ASPECT_ID);
       try
       {
         _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (importOnly: {2}, forceQuickMode: {3})", miNumber, mediaItemAccessor, importOnly, forceQuickMode);
@@ -234,80 +236,114 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           return false;
         }
 
-        // Check if stub
-        if (SeriesStubFileExtensions.Where(e => string.Compare("." + e, ResourcePathHelper.GetExtension(mediaItemAccessor.Path.ToString()), true) == 0).Any())
+        // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
+        // has identified this MediaItem as a video and therefore added a VideoAspect.
+        if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         {
-          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-          if (await seriesNfoReader.TryReadMetadataAsync(mediaItemAccessor as IFileSystemResourceAccessor).ConfigureAwait(false))
+          _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
+          return false;
+        }
+
+        // Here we try to find an IFileSystemResourceAccessor pointing to the episode nfo-file.
+        // If we don't find one, we cannot extract any metadata.
+        IFileSystemResourceAccessor episodeNfoFsra;
+        NfoSeriesEpisodeReader episodeNfoReader = null;
+        bool episodeDetailsFound = false;
+        if (TryGetEpisodeNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out episodeNfoFsra))
+        {
+          episodeDetailsFound = true;
+          // Now we (asynchronously) extract the metadata into a stub object.
+          // If no metadata was found, nothing can be stored in the MediaItemAspects.
+          episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, importOnly, forceQuickMode, isStub, _httpClient, _settings);
+          using (episodeNfoFsra)
           {
-            Stubs.SeriesStub series = seriesNfoReader.GetSeriesStubs().First();
-            if(series != null && series.Episodes.Count > 0)
-            { 
-              string title = null;
-              if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
+            if (!await episodeNfoReader.TryReadMetadataAsync(episodeNfoFsra).ConfigureAwait(false))
+            {
+              _debugLogger.Warn("[#{0}]: No valid metadata found in episode nfo-file", miNumber);
+              return false;
+            }
+          }
+        }
+
+        // Then we try to find an IFileSystemResourceAccessor pointing to the series nfo-file.
+        IFileSystemResourceAccessor seriesNfoFsra;
+        if (TryGetSeriesNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out seriesNfoFsra))
+        {
+          // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
+          // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
+          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, importOnly, forceQuickMode, !episodeDetailsFound, isStub, _httpClient, _settings);
+          using (seriesNfoFsra)
+          {
+            if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
+            {
+              Stubs.SeriesStub series = seriesNfoReader.GetSeriesStubs().FirstOrDefault();
+
+              // Check if episode should be found
+              if (isStub || !episodeDetailsFound)
               {
-                Regex regex = new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+(?<episode>.*)");
-                Match match = regex.Match(title);
-                Stubs.SeriesEpisodeStub episode = null;
-                if (match.Success && match.Groups["seasonnum"].Length > 0 && match.Groups["episodenum"].Length > 0)
-                  episode = series.Episodes.FirstOrDefault(e => e.Season == Convert.ToInt32(match.Groups["seasonnum"].Value) && e.Episode == Convert.ToInt32(match.Groups["episodenum"].Value));
-                if(episode != null)
+                if (series != null && series.Episodes.Count > 0)
                 {
-                  var episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-                  episodeNfoReader.SetEpisodeStubs(new List<Stubs.SeriesEpisodeStub> { episode });
-                  episodeNfoReader.SetSeriesStubs(new List<Stubs.SeriesStub> { series });
-                  if (!episodeNfoReader.TryWriteMetadata(extractedAspectData))
+                  Stubs.SeriesEpisodeStub episode = null;
+                  if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
                   {
-                    _debugLogger.Warn("[#{0}]: No metadata was written into MediaItemsAspects", miNumber);
-                    return false;
+                    int? seasonNo = 0;
+                    IEnumerable episodes;
+                    if (MediaItemAspect.TryGetAttribute(extractedAspectData, EpisodeAspect.ATTR_SEASON, out seasonNo) && MediaItemAspect.TryGetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODE, out episodes))
+                    {
+                      List<int> episodeNos = new List<int>();
+                      CollectionUtils.AddAll(episodeNos, episodes.Cast<int>());
+
+                      if (seasonNo.HasValue && episodeNos.Count > 0)
+                        episode = series.Episodes.FirstOrDefault(e => e.Season == seasonNo.Value && episodeNos.Contains(e.Episode.Value));
+                    }
                   }
-                  INfoRelationshipExtractor.StoreSeries(extractedAspectData, series);
+                  else
+                  {
+                    string title = null;
+                    if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
+                    {
+                      Regex regex = new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+(?<episode>.*)");
+                      Match match = regex.Match(title);
+
+                      if (match.Success && match.Groups["seasonnum"].Length > 0 && match.Groups["episodenum"].Length > 0)
+                        episode = series.Episodes.FirstOrDefault(e => e.Season == Convert.ToInt32(match.Groups["seasonnum"].Value) && e.Episode == Convert.ToInt32(match.Groups["episodenum"].Value));
+                    }
+                  }
+                  if (episode != null)
+                  {
+                    if (isStub)
+                    {
+                      IList<MultipleMediaItemAspect> providerResourceAspects;
+                      if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
+                      {
+                        MultipleMediaItemAspect providerResourceAspect = providerResourceAspects.First(pa => pa.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB);
+                        string mime = null;
+                        if (episode.FileInfo != null && episode.FileInfo.Count > 0)
+                          mime = MimeTypeDetector.GetMimeTypeFromExtension("file" + episode.FileInfo.First().Container);
+                        if (mime != null)
+                          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mime);
+                      }
+
+                      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, string.Format("{0} S{1:00}E{2:00} {3}", series.ShowTitle, episode.Season, episode.Episode, episode.Title));
+                      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(episode.Title));
+                      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, episode.Premiered.HasValue ? episode.Premiered.Value : episode.Year.HasValue ? episode.Year.Value : (DateTime?)null);
+
+                      if (episode.FileInfo != null && episode.FileInfo.Count > 0)
+                      {
+                        extractedAspectData.Remove(VideoStreamAspect.ASPECT_ID);
+                        extractedAspectData.Remove(VideoAudioStreamAspect.ASPECT_ID);
+                        extractedAspectData.Remove(SubtitleAspect.ASPECT_ID);
+                        StubParser.ParseFileInfo(extractedAspectData, episode.FileInfo, episode.Title);
+                      }
+                    }
+
+                    episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, importOnly, forceQuickMode, isStub, _httpClient, _settings);
+                    episodeNfoReader.SetEpisodeStubs(new List<Stubs.SeriesEpisodeStub> { episode });
+                  }
                 }
               }
-            }
-          }          
-        }
-        else
-        {
-          // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
-          // has identified this MediaItem as a video and therefore added a VideoAspect.
-          if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
-          {
-            _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
-            return false;
-          }
-
-          // Here we try to find an IFileSystemResourceAccessor pointing to the episode nfo-file.
-          // If we don't find one, we cannot extract any metadata.
-          IFileSystemResourceAccessor episodeNfoFsra;
-          NfoSeriesEpisodeReader episodeNfoReader = null;
-          if (TryGetEpisodeNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out episodeNfoFsra))
-          {
-            // Now we (asynchronously) extract the metadata into a stub object.
-            // If no metadata was found, nothing can be stored in the MediaItemAspects.
-            episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-            using (episodeNfoFsra)
-            {
-              if (!await episodeNfoReader.TryReadMetadataAsync(episodeNfoFsra).ConfigureAwait(false))
+              if (series != null)
               {
-                _debugLogger.Warn("[#{0}]: No valid metadata found in episode nfo-file", miNumber);
-                return false;
-              }
-            }
-          }
-
-          // Then we try to find an IFileSystemResourceAccessor pointing to the series nfo-file.
-          IFileSystemResourceAccessor seriesNfoFsra;
-          if (TryGetSeriesNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out seriesNfoFsra))
-          {
-            // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
-            // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
-            var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-            using (seriesNfoFsra)
-            {
-              if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
-              {
-                Stubs.SeriesStub series = seriesNfoReader.GetSeriesStubs().First();
                 if (episodeNfoReader != null)
                 {
                   episodeNfoReader.SetSeriesStubs(new List<Stubs.SeriesStub> { series });
@@ -321,7 +357,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                   }
                 }
                 else
-                { 
+                {
                   EpisodeInfo episode = new EpisodeInfo();
                   if (series.Id.HasValue)
                     episode.SeriesTvdbId = series.Id.Value;
@@ -332,9 +368,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                 }
                 INfoRelationshipExtractor.StoreSeries(extractedAspectData, series);
               }
-              else
-                _debugLogger.Warn("[#{0}]: No valid metadata found in series nfo-file", miNumber);
             }
+            else
+              _debugLogger.Warn("[#{0}]: No valid metadata found in series nfo-file", miNumber);
           }
         }
 
@@ -362,6 +398,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
       // for one call are not contained one after another in debug log. We therefore prepend this number before every log entry.
       var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
+      bool isStub = extractedAspectData.ContainsKey(StubAspect.ASPECT_ID);
       try
       {
         _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (importOnly: {2}, forceQuickMode: {3})", miNumber, mediaItemAccessor, importOnly, forceQuickMode);
@@ -380,7 +417,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
-          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
+          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, importOnly, forceQuickMode, false, false, _httpClient, _settings);
           using (seriesNfoFsra)
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
@@ -659,7 +696,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
-      if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         return false;
 
       // The following is bad practice as it wastes one ThreadPool thread.

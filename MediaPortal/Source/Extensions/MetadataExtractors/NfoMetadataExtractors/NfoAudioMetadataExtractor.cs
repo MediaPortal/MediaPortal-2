@@ -41,6 +41,10 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Common.Genres;
+using MediaPortal.Common.MediaManagement.Helpers;
+using System.IO;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -180,11 +184,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeAlbumDetails { get; private set; }
-    public static HashSet<string> AudioStubFileExtensions { get; private set; }
 
     private void LoadSettings()
     {
-      AudioStubFileExtensions = _settingWatcher.Settings.AudioStubFileExtensions;
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeAlbumDetails = _settingWatcher.Settings.IncludeAlbumDetails;
     }
@@ -213,6 +215,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
       // for one call are not contained one after another in debug log. We therefore prepend this number before every log entry.
       var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
+      bool isStub = extractedAspectData.ContainsKey(StubAspect.ASPECT_ID);
       try
       {
         _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (importOnly: {2}, forceQuickMode: {3})", miNumber, mediaItemAccessor, importOnly, forceQuickMode);
@@ -233,37 +236,145 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           return false;
         }
 
-        // Check if stub
-        if (AudioStubFileExtensions.Where(e => string.Compare("." + e, ResourcePathHelper.GetExtension(mediaItemAccessor.Path.ToString()), true) == 0).Any())
+        // First we try to find an IFileSystemResourceAccessor pointing to the album nfo-file.
+        IFileSystemResourceAccessor albumNfoFsra;
+        if (TryGetAlbumNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out albumNfoFsra))
         {
-          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-          if (await albumNfoReader.TryReadMetadataAsync(mediaItemAccessor as IFileSystemResourceAccessor).ConfigureAwait(false))
+          // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
+          // we store it into the MediaItemAspects.
+          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, importOnly, forceQuickMode, isStub, _httpClient, _settings);
+          using (albumNfoFsra)
           {
-            Stubs.AlbumStub album = albumNfoReader.GetAlbumStubs().First();
-            INfoRelationshipExtractor.StoreAlbum(extractedAspectData, album);
-          }
-          else
-            _debugLogger.Warn("[#{0}]: No valid metadata found in album stub file", miNumber);
-        }
-        else
-        {
-          // First we try to find an IFileSystemResourceAccessor pointing to the album nfo-file.
-          IFileSystemResourceAccessor albumNfoFsra;
-          if (TryGetAlbumNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out albumNfoFsra))
-          {
-            // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
-            // we store it into the MediaItemAspects.
-            var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-            using (albumNfoFsra)
+            if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
             {
-              if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
+              Stubs.AlbumStub album = albumNfoReader.GetAlbumStubs().FirstOrDefault();
+              if (album != null)
               {
-                Stubs.AlbumStub album = albumNfoReader.GetAlbumStubs().First();
                 INfoRelationshipExtractor.StoreAlbum(extractedAspectData, album);
+
+                // Check if stub
+                if (isStub)
+                {
+                  int trackNo = 0;
+                  if (album.Tracks != null && album.Tracks.Count > 0 && MediaItemAspect.TryGetAttribute(extractedAspectData, AudioAspect.ATTR_TRACK, out trackNo))
+                  {
+                    var track = album.Tracks.FirstOrDefault(t => t.TrackNumber.HasValue && trackNo == t.TrackNumber.Value);
+                    if (track != null)
+                    {
+                      TrackInfo trackInfo = new TrackInfo();
+                      string title;
+                      string sortTitle;
+
+                      title = track.Title.Trim();
+                      sortTitle = BaseInfo.GetSortTitle(title);
+
+                      IEnumerable<string> artists;
+                      if (track.Artists.Count > 0)
+                        artists = track.Artists;
+
+                      IList<MultipleMediaItemAspect> providerResourceAspects;
+                      if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
+                      {
+                        MultipleMediaItemAspect providerResourceAspect = providerResourceAspects.First(pa => pa.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB);
+                        string mime = null;
+                        if (track.FileInfo != null && track.FileInfo.Count > 0)
+                          mime = MimeTypeDetector.GetMimeTypeFromExtension("file" + track.FileInfo.First().Container);
+                        if (mime != null)
+                          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mime);
+                      }
+
+                      trackInfo.TrackName = title;
+                      trackInfo.TrackNameSort = sortTitle;
+                      trackInfo.Duration = track.Duration.HasValue ? Convert.ToInt64(track.Duration.Value.TotalSeconds) : 0;
+                      trackInfo.Album = !string.IsNullOrEmpty(album.Title) ? album.Title.Trim() : null;
+                      trackInfo.TrackNum = track.TrackNumber.HasValue ? track.TrackNumber.Value : 0;
+                      trackInfo.TotalTracks = album.Tracks.Count;
+                      trackInfo.MusicBrainzId = track.MusicBrainzId;
+                      trackInfo.AudioDbId = track.AudioDbId.HasValue ? track.AudioDbId.Value : 0;
+                      trackInfo.AlbumMusicBrainzId = album.MusicBrainzAlbumId;
+                      trackInfo.AlbumMusicBrainzGroupId = album.MusicBrainzReleaseGroupId;
+                      trackInfo.ReleaseDate = album.ReleaseDate;
+                      if (track.FileInfo != null && track.FileInfo.Count > 0 && track.FileInfo.First().AudioStreams != null && track.FileInfo.First().AudioStreams.Count > 0)
+                      {
+                        var audio = track.FileInfo.First().AudioStreams.First();
+                        trackInfo.Encoding = audio.Codec;
+                        trackInfo.BitRate = audio.Bitrate != null ? Convert.ToInt32(audio.Bitrate / 1000) : 0;
+                        trackInfo.Channels = audio.Channels != null ? audio.Channels.Value : 0;
+                      }
+                      trackInfo.Artists = new List<PersonInfo>();
+                      if (track.Artists != null && track.Artists.Count > 0)
+                      {
+                        foreach (string artistName in track.Artists)
+                        {
+                          trackInfo.Artists.Add(new PersonInfo()
+                          {
+                            Name = artistName.Trim(),
+                            Occupation = PersonAspect.OCCUPATION_ARTIST,
+                            ParentMediaName = trackInfo.Album,
+                            MediaName = trackInfo.TrackName
+                          });
+                        }
+                      }
+                      trackInfo.AlbumArtists = new List<PersonInfo>();
+                      if (album.Artists != null && album.Artists.Count > 0)
+                      {
+                        foreach (string artistName in album.Artists)
+                        {
+                          trackInfo.AlbumArtists.Add(new PersonInfo()
+                          {
+                            Name = artistName.Trim(),
+                            Occupation = PersonAspect.OCCUPATION_ARTIST,
+                            ParentMediaName = trackInfo.Album,
+                            MediaName = trackInfo.TrackName
+                          });
+                        }
+                      }
+                      if (album.Genres != null && album.Genres.Count > 0)
+                      {
+                        trackInfo.Genres = album.Genres.Select(s => new GenreInfo { Name = s.Trim() }).ToList();
+                        GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
+                      }
+
+                      if (album.Thumb != null && album.Thumb.Length > 0)
+                      {
+                        try
+                        {
+                          using (MemoryStream stream = new MemoryStream(album.Thumb))
+                          {
+                            trackInfo.Thumbnail = stream.ToArray();
+                            trackInfo.HasChanged = true;
+                          }
+                        }
+                        // Decoding of invalid image data can fail, but main MediaItem is correct.
+                        catch { }
+                      }
+
+                      //Determine compilation
+                      if (trackInfo.AlbumArtists.Count > 0 &&
+                            (trackInfo.AlbumArtists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+                            trackInfo.AlbumArtists[0].Name.Equals("VA", StringComparison.InvariantCultureIgnoreCase)))
+                      {
+                        trackInfo.Compilation = true;
+                      }
+                      else
+                      {
+                        //Look for itunes compilation folder
+                        var mediaItemPath = mediaItemAccessor.CanonicalLocalResourcePath;
+                        var artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+                        if (artistMediaItemDirectoryPath.FileName.IndexOf("Compilation", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                        {
+                          trackInfo.Compilation = true;
+                        }
+                      }
+                      trackInfo.AssignNameId();
+                      trackInfo.SetMetadata(extractedAspectData);
+                    }
+                  }
+                }
               }
-              else
-                _debugLogger.Warn("[#{0}]: No valid metadata found in album nfo-file", miNumber);
             }
+            else
+              _debugLogger.Warn("[#{0}]: No valid metadata found in album nfo-file", miNumber);
           }
         }
 
@@ -524,7 +635,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
-      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
         return false;
 
       // The following is bad practice as it wastes one ThreadPool thread.

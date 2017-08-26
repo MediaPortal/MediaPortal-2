@@ -845,7 +845,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// or <see cref="ParseSimpleString"/> for <paramref name="element"/> does not contain a valid <see cref="double"/> or <see cref="TimeSpan"/> value;
     /// otherwise (double?)<paramref name="element"/>.
     /// </returns>
-    protected TimeSpan? ParseSimpleDuration(XElement element)
+    protected TimeSpan? ParseSimpleDuration(XElement element, bool inSeconds = false)
     {
       var durationString = ParseSimpleString(element);
       if (durationString == null)
@@ -888,12 +888,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       //Decimal defined as neutral localized string
       if (double.TryParse(durationString, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
       {
+        if(inSeconds)
+          return TimeSpan.FromSeconds(val);
         return TimeSpan.FromMinutes(val);
       }
 
       //Decimal defined as localized string
       if (double.TryParse(durationString, NumberStyles.Float, CultureInfo.CurrentCulture, out val))
       {
+        if (inSeconds)
+          return TimeSpan.FromSeconds(val);
         return TimeSpan.FromMinutes(val);
       }
 
@@ -1134,7 +1138,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// - element does not contain child elements
     /// - element does not contain a child element with the name "title" or such child element is empty or contains a value from _settings.IgnoreStrings
     /// </returns>
-    protected AlbumTrackStub ParseTrack(XElement element)
+    protected AlbumTrackStub ParseTrack(XElement element, bool readFileDetails)
     {
       // Example of a valid element:
       //<track>
@@ -1156,9 +1160,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       value.AudioDbId = ParseSimpleLong(element.Element("audioDbID"));
       value.MusicBrainzId = ParseSimpleString(element.Element("musicBrainzID"));
       value.TrackNumber = ParseSimpleInt(element.Element("position"));
-      value.Duration = ParseSimpleDuration(element.Element("duration"));
+      value.Duration = ParseSimpleDuration(element.Element("duration"), true);
       value.Artists = ParseCharacterSeparatedStrings(element.Element("artist"), value.Artists);
-      value.FileInfo = ParseFileInfo(element.Element("fileinfo"));
+      if(readFileDetails)
+        value.FileInfo = ParseFileInfo(element.Element("fileinfo"));
       return value;
     }
     

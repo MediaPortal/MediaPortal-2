@@ -76,6 +76,7 @@
     <Compile Include="Genres\MusicGenre.cs" />
     <Compile Include="Genres\GenreStringManager.cs" />
     <Compile Include="Logging\ILoggerConfig.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\StubAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\GenreAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />

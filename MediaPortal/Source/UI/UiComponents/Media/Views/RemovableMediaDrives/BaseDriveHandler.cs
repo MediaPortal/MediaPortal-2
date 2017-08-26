@@ -45,6 +45,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
   /// </summary>
   public abstract class BaseDriveHandler : IRemovableDriveHandler
   {
+    private const int MAX_MERGE_THRESHOLD = 20;
+
     #region Protected fields
 
     protected DriveInfo _driveInfo;
@@ -78,11 +80,11 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     public abstract IList<MediaItem> MediaItems { get; }
     public abstract IList<ViewSpecification> SubViewSpecifications { get; }
     public abstract IEnumerable<MediaItem> GetAllMediaItems();
-    public static MediaItem FindStub(DriveInfo driveInfo, MediaItem mediaItem)
+    public static void MatchWithStubs(DriveInfo driveInfo, IEnumerable<MediaItem> mediaItems)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        return mediaItem;
+        return;
 
       IList<MediaItem> existingItems;
       IFilter filter = null;
@@ -93,26 +95,35 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
       }
 
-      //Try merge handlers
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      foreach (IMediaMergeHandler mergeHandler in mediaAccessor.LocalMergeHandlers.Values)
+      if (mediaItems.Count() <= MAX_MERGE_THRESHOLD)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = mediaItem.Aspects;
-        // Extracted aspects must contain all of mergeHandler.MergeableAspects
-        if (mergeHandler.MergeableAspects.All(g => extractedAspects.Keys.Contains(g)))
+        //Try merge handlers
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+        foreach (var mediaItem in mediaItems)
         {
-          filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, 
-            mergeHandler.GetSearchFilter(extractedAspects), 
-            new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true));
-          if (filter != null)
+          foreach (IMediaMergeHandler mergeHandler in mediaAccessor.LocalMergeHandlers.Values)
           {
-            existingItems = cd.Search(new MediaItemQuery(mergeHandler.MergeableAspects, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, true);
-            foreach (MediaItem existingItem in existingItems)
+            IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = mediaItem.Aspects;
+            // Extracted aspects must contain all of mergeHandler.MergeableAspects
+            if (mergeHandler.MergeableAspects.All(g => extractedAspects.Keys.Contains(g)))
             {
-              if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
+              filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+                mergeHandler.GetSearchFilter(extractedAspects),
+                new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true));
+              if (filter != null)
               {
-                mergeHandler.TryMerge(extractedAspects, existingItem.Aspects);
-                return existingItem;
+                existingItems = cd.Search(new MediaItemQuery(mergeHandler.MergeableAspects, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, false);
+                bool merged = false;
+                foreach (MediaItem existingItem in existingItems)
+                {
+                  if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
+                  {
+                    merged = mergeHandler.TryMerge(extractedAspects, existingItem.Aspects);
+                    break;
+                  }
+                }
+                if (merged)
+                  break;
               }
             }
           }
@@ -121,36 +132,57 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
       //Try stub label
       filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-          new RelationalFilter(MediaAspect.ATTR_STUB_LABEL, RelationalOperator.EQ, driveInfo.VolumeLabel),
+          new RelationalFilter(StubAspect.ATTR_DISC_NAME, RelationalOperator.EQ, driveInfo.VolumeLabel),
           new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true));
-      int trackNo = 0;
-      if(mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAspect.ATTR_TRACK, 0, out trackNo) && trackNo > 0)
+      existingItems = cd.Search(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, false);
+      foreach (var existingItem in existingItems)
       {
-        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(AudioAspect.ATTR_TRACK, RelationalOperator.EQ, trackNo));
-      }
-      existingItems = cd.Search(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, true);
-      if (existingItems != null && existingItems.Count == 1)
-      {
-        MediaItem existingItem = existingItems.First();
-        if (existingItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID) && mediaItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+        foreach (var mediaItem in mediaItems.Where(mi => mi.PrimaryResources.Count == 0))
         {
-          int newResIndex = 0;
-          foreach (MediaItemAspect mia in existingItem.Aspects[ProviderResourceAspect.ASPECT_ID])
+          int miNo = 0;
+          int existingNo = 0;
+          bool merge = false;
+          if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID) && existingItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID) &&
+            MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAspect.ATTR_TRACK, 0, out miNo) && miNo > 0 &&
+            MediaItemAspect.TryGetAttribute(existingItem.Aspects, AudioAspect.ATTR_TRACK, 0, out existingNo) && existingNo > 0 &&
+            miNo == existingNo &&
+            existingItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID) && mediaItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
           {
-            if (newResIndex <= mia.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX))
-              newResIndex = mia.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) + 1;
+            merge = true;
           }
-          foreach (MediaItemAspect mia in mediaItem.Aspects[ProviderResourceAspect.ASPECT_ID])
+          else if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID) && existingItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID) && 
+            existingItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID) && mediaItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
           {
-            mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, newResIndex);
-            existingItem.Aspects[ProviderResourceAspect.ASPECT_ID].Add(mia);
-            newResIndex++;
+            merge = true;
+          }
+          else if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID) && existingItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID) && 
+            MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_SEASON, -1, out miNo) && miNo >= 0 &&
+            MediaItemAspect.TryGetAttribute(existingItem.Aspects, EpisodeAspect.ATTR_SEASON, -1, out existingNo) && existingNo >= 0 &&
+            miNo == existingNo &&
+            mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_EPISODE, 0, out miNo) && miNo > 0 &&
+            existingItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(existingItem.Aspects, EpisodeAspect.ATTR_EPISODE, 0, out existingNo) && existingNo > 0 &&
+            miNo == existingNo &&
+            existingItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID) && mediaItem.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+          {
+            merge = true;
+          }
+          if (merge)
+          {
+            int newResIndex = 0;
+            foreach (MediaItemAspect mia in existingItem.Aspects[ProviderResourceAspect.ASPECT_ID])
+            {
+              if (newResIndex <= mia.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX))
+                newResIndex = mia.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) + 1;
+            }
+            foreach (MediaItemAspect mia in mediaItem.Aspects[ProviderResourceAspect.ASPECT_ID])
+            {
+              mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, newResIndex);
+              existingItem.Aspects[ProviderResourceAspect.ASPECT_ID].Add(mia);
+              newResIndex++;
+            }
           }
         }
-        return existingItem;
       }
-
-      return mediaItem;
     }
   }
 }

@@ -71,7 +71,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       if (_mediaItem == null)
         throw new Exception(string.Format("Could not create media item for drive '{0}'", driveInfo.Name));
 
-      _mediaItem = FindStub(driveInfo, _mediaItem);
+      MatchWithStubs(driveInfo, new MediaItem[] { _mediaItem });
       IEnumerable<MediaItem> processedItems = CertificationHelper.ProcessMediaItems(new MediaItem[] { _mediaItem });
       if (processedItems.Count() == 0)
       {

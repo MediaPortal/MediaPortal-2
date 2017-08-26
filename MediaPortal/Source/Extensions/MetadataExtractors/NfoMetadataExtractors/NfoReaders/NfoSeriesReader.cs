@@ -81,6 +81,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
     #endregion
 
+    #region Private fields
+
+    /// <summary>
+    /// If true, episode details will also be read from the nfo-file
+    /// </summary>
+    private bool _readEpisodes;
+
+    /// <summary>
+    /// If true, file details will also be read from the nfo-file
+    /// </summary>
+    private bool _readFileDetails;
+
+    #endregion
+
     #region Ctor
 
     /// <summary>
@@ -90,11 +104,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
     /// <param name="importOnly">If true, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
+    /// <param name="readEpisodes">If true, episode details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoSeriesMetadataExtractor"/></param>
-    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
+    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, bool readEpisodes, bool readFileDetails, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
       : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
     {
+      _readEpisodes = readEpisodes;
+      _readFileDetails = readFileDetails;
       _settings = settings;
       InitializeSupportedElements();
     }
@@ -142,7 +159,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
 
       _supportedElements.Add("episodedetails", new TryReadElementAsyncDelegate(TryReadEpisodeAsync));
-      _supportedElements.Add("stub", new TryReadElementDelegate(TryReadStub));
 
       // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
       // ToDo: Reenable the below once we can store the information in the MediaLibrary
@@ -262,18 +278,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // Example of a valid element:
       // <sorttitle>Star Trek02</sorttitle>
       return ((_currentStub.SortTitle = ParseSimpleString(element)) != null);
-    }
-
-    // <summary>
-    /// Tries to read the stub value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadStub(XElement element)
-    {
-      // Example of a valid element:
-      // <stub>Series</stub>
-      return ((_currentStub.StubLabel = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -522,7 +526,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private async Task<bool> TryReadEpisodeAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
-      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _importOnly, _forceQuickMode, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings);
+      if (!_readEpisodes)
+        return false;
+
+      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _importOnly, _forceQuickMode, _readFileDetails, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings);
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
       if(await episodeNfoReader.TryReadElementAsync(element, nfoDirectoryFsra).ConfigureAwait(false))
       {

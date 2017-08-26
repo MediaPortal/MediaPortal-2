@@ -44,18 +44,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     {
       AlbumNfoFileNames = new HashSet<string> { "album" };
       ArtistNfoFileNames = new HashSet<string> { "artist" };
-      AudioStubFileExtensions = new HashSet<string> { "audiostub" };
     }
 
     #endregion
 
     #region Public properties
-
-    /// <summary>
-    /// These file extensions are used to find a stub-files for CD's
-    /// </summary>
-    [Setting(SettingScope.Global)]
-    public HashSet<string> AudioStubFileExtensions { get; set; }
 
     /// <summary>
     /// If <c>true</c>, no online searches will be done for metadata.
