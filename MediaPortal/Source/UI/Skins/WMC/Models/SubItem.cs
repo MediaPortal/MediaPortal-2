@@ -30,7 +30,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 {
   public class SubItem : ListItem
   {
-    protected AbstractProperty _isCurrentProperty = new WProperty(typeof(bool), false);
+    protected AbstractProperty _bringIntoViewProperty = new WProperty(typeof(bool), false);
 
     public SubItem(string name, string value) :
       base(name, value)
@@ -44,15 +44,15 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
     }
 
-    public AbstractProperty IsCurrentProperty
+    public AbstractProperty BringIntoViewProperty
     {
-      get { return _isCurrentProperty; }
+      get { return _bringIntoViewProperty; }
     }
 
-    public bool IsCurrent
+    public bool BringIntoView
     {
-      get { return (bool)_isCurrentProperty.GetValue(); }
-      set { _isCurrentProperty.SetValue(value); }
+      get { return (bool)_bringIntoViewProperty.GetValue(); }
+      set { _bringIntoViewProperty.SetValue(value); }
     }
   }
 }

@@ -575,15 +575,6 @@
             <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54" Scroll="Auto"
                    HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            <Image x:Name="FocusFrame" Source="Focus.frame.png"
-                   Stretch="Uniform" HorizontalAlignment="Left" Margin="-4,-1,-5,-6">
-              <Image.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                  <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
-                </MultiBinding>
-              </Image.IsVisible>
-            </Image>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
