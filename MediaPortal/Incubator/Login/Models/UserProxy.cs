@@ -25,10 +25,7 @@
 using System;
 using System.Timers;
 using MediaPortal.Common.General;
-using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Common.Localization;
-using MediaPortal.UiComponents.Login.General;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Login.Models
@@ -45,10 +42,11 @@ namespace MediaPortal.UiComponents.Login.Models
     protected List<Guid> _selectedSharesList;
     protected AbstractProperty _isUserValidProperty;
     protected AbstractProperty _profileTypeProperty;
-    protected AbstractProperty _allowAllAgesProperty;
-    protected AbstractProperty _allowAllSharesProperty;
+    protected AbstractProperty _restrictAgesProperty;
+    protected AbstractProperty _restrictSharesProperty;
     protected AbstractProperty _allowedAgeProperty;
     protected AbstractProperty _includeParentGuidedAgesProperty;
+    protected AbstractProperty _includeUnratedProperty;
     protected AbstractProperty _passwordProperty;
     protected AbstractProperty _userNameProperty;
     protected AbstractProperty _lastLoginProperty;
@@ -67,11 +65,12 @@ namespace MediaPortal.UiComponents.Login.Models
       _selectedSharesList = new List<Guid>();
       _isUserValidProperty = new WProperty(typeof(bool), false);
       _profileTypeProperty = new WProperty(typeof(int), UserProfile.USER_PROFILE);
-      _allowAllAgesProperty = new WProperty(typeof(bool), true);
-      _allowAllSharesProperty = new WProperty(typeof(bool), true);
+      _restrictAgesProperty = new WProperty(typeof(bool), false);
+      _restrictSharesProperty = new WProperty(typeof(bool), false);
       _allowedAgeProperty = new WProperty(typeof(int), 5);
       _passwordProperty = new WProperty(typeof(string), string.Empty);
       _includeParentGuidedAgesProperty = new WProperty(typeof(bool), false);
+      _includeUnratedProperty = new WProperty(typeof(bool), false);
       _lastLoginProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       _imageProperty = new WProperty(typeof(byte[]), null);
 
@@ -149,26 +148,26 @@ namespace MediaPortal.UiComponents.Login.Models
       set { _profileTypeProperty.SetValue(value); }
     }
 
-    public AbstractProperty AllowAllAgesProperty
+    public AbstractProperty RestrictAgesProperty
     {
-      get { return _allowAllAgesProperty; }
+      get { return _restrictAgesProperty; }
     }
 
-    public bool AllowAllAges
+    public bool RestrictAges
     {
-      get { return (bool)_allowAllAgesProperty.GetValue(); }
-      set { _allowAllAgesProperty.SetValue(value); }
+      get { return (bool)_restrictAgesProperty.GetValue(); }
+      set { _restrictAgesProperty.SetValue(value); }
     }
 
-    public AbstractProperty AllowAllSharesProperty
+    public AbstractProperty RestrictSharesProperty
     {
-      get { return _allowAllSharesProperty; }
+      get { return _restrictSharesProperty; }
     }
 
-    public bool AllowAllShares
+    public bool RestrictShares
     {
-      get { return (bool)_allowAllSharesProperty.GetValue(); }
-      set { _allowAllSharesProperty.SetValue(value); }
+      get { return (bool)_restrictSharesProperty.GetValue(); }
+      set { _restrictSharesProperty.SetValue(value); }
     }
 
     public AbstractProperty AllowedAgeProperty
@@ -191,6 +190,17 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (bool)_includeParentGuidedAgesProperty.GetValue(); }
       set { _includeParentGuidedAgesProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IncludeUnratedContentProperty
+    {
+      get { return _includeUnratedProperty; }
+    }
+
+    public bool IncludeUnratedContent
+    {
+      get { return (bool)_includeUnratedProperty.GetValue(); }
+      set { _includeUnratedProperty.SetValue(value); }
     }
 
     public AbstractProperty LastLoginProperty

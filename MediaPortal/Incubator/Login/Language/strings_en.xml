@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  
+  <!--Login-->
   <string name="Login.Title">User profile</string>
   <string name="Login.Title.Help">Change user profile</string>
+  <string name="Login.IncorrectPassword">Incorrect password, please try again</string>
+  <string name="Login.PasswordOk">OK</string>
+  <string name="Login.EnterPassword">Enter user password</string>
 
+  <!--User Settings-->
   <string name="Settings.Users">Users</string> <!-- Section name -->
   <string name="Settings.Users.Config">User management</string> <!-- Group name -->
   <string name="Settings.Users.Config.UserManagement">User management</string> <!-- Setting -->
@@ -11,17 +17,28 @@
   <string name="Settings.Users.Config.UserEnable.Help">Enable users to login, change the current user and apply user specific settings</string>
 
   <!-- User configuration workflow -->
-
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">User management</string>
   <string name="UserConfig.UserConfiguration.Title">User management</string>
   <string name="UserConfig.Users">Users</string>
   <string name="UserConfig.NoConfigUserHomeServerNotConnected">The home server is currently not connected, so server users cannot be managed at the moment.</string>
+  <string name="UserConfig.UserName">User Name</string>
+  <string name="UserConfig.Password">Password</string>
+  <string name="UserConfig.ProfileType">Profile type</string>
+  <string name="UserConfig.AgeFilter">Enable age filter</string>
+  <string name="UserConfig.ShareRestrictions">Limit share access</string>
+  <string name="UserConfig.IncludePGContent">Include PG content</string>
+  <string name="UserConfig.IncludeUnratedContent">Include unrated content</string>
+  <string name="UserConfig.LastLogin">Last login</string>
+  <string name="UserConfig.NewUserText">New User</string>
+  <string name="UserConfig.AddUser">Add</string>
+  <string name="UserConfig.DeleteUser">Delete</string>
+  <string name="UserConfig.SaveUser">Save</string>
+  <string name="UserConfig.SelectImage">Select image for the user</string>
 
   <string name="UserConfig.ClientProfileType">Client Profile</string>
   <string name="UserConfig.UserProfileType">User Profile</string>
   <string name="UserConfig.AdminProfileType">Administrator Profile</string>
 
-  <string name="UserConfig.NewUserText">New User</string>
   <string name="UserConfig.SharesText">Shares</string>
   <string name="UserConfig.LocalShare">Client media source</string>
   <string name="UserConfig.LocalShares">Client media sources</string>

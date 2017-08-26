@@ -45,5 +45,6 @@ namespace MediaPortal.UiComponents.Login.General
     public const string RES_SHARES_TEXT = "[UserConfig.SharesText]";
     public const string RES_ANY_TEXT = "[UserConfig.AnyText]";
     public const string RES_NEW_USER_TEXT = "[UserConfig.NewUserText]";
+    public const string RES_SELECT_USER_IMAGE = "[UserConfig.SelectImage]";
   }
 }

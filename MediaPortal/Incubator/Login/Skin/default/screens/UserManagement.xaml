@@ -44,70 +44,73 @@
                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
         <Label Grid.Row="1" Grid.Column="1" Margin="5"
-               Content="User Name" Color="{ThemeResource TextColor}"/>
+               Content="[UserConfig.UserName]" Color="{ThemeResource TextColor}"/>
         <TextBox Grid.Row="1" Grid.Column="3" TextAlign="Center" HorizontalContentAlignment="Center"
                  Text="{Binding Path=UserProxy.UserName,Mode=TwoWay}" PreferredTextLength="40"/>
 
         <Label Grid.Row="2" Grid.Column="1" Margin="5"
-               Content="Password" Color="{ThemeResource TextColor}"/>
+               Content="[UserConfig.Password]" Color="{ThemeResource TextColor}"/>
         <TextBox Grid.Row="2" Grid.Column="3" Style="{ThemeResource PasswordTextBoxStyle}" 
                  HorizontalContentAlignment="Center" TextAlign="Center"
                  Text="{Binding Path=UserProxy.Password,Mode=TwoWay}" PreferredTextLength="40"/>
 
         <Label Grid.Row="3" Grid.Column="1" Margin="5"
-               Content="Profile Type" Color="{ThemeResource TextColor}"/>
+               Content="[UserConfig.ProfileType]" Color="{ThemeResource TextColor}"/>
         <Button x:Name="EditProfileTypeButton" Grid.Row="3" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
                 Content="{Binding ProfileTypeName}"
                 Command="{Command OpenChooseProfileTypeDialog}"/>
 
         <StackPanel Orientation="Horizontal"  Grid.Row="4" Grid.Column="1">
-          <CheckBox x:Name="CheckAgeFilter" HorizontalAlignment="Center"
-                    IsChecked="{Binding Path=UserProxy.AllowAllAges,Mode=TwoWay}"/>
-          <Label Margin="5" Content="Age Filter" Color="{ThemeResource TextColor}"/>
-        </StackPanel>
-        <TextBox Grid.Row="4" Grid.Column="3" IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}" 
-                 TextAlign="Center" HorizontalContentAlignment="Center"
-                 Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40"/>
-
-        <StackPanel Orientation="Horizontal"  Grid.Row="5" Grid.Column="1">
           <CheckBox x:Name="CheckShareFilter" HorizontalAlignment="Center"
-                    IsChecked="{Binding Path=UserProxy.AllowAllAges,Mode=TwoWay}"/>
-          <Label Margin="5" Content="Limited Share Access" Color="{ThemeResource TextColor}"/>
+                    IsChecked="{Binding Path=UserProxy.RestrictShares,Mode=TwoWay}"/>
+          <Label Margin="5" Content="[UserConfig.ShareRestrictions]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
-        <Button x:Name="EditSharesButton" Grid.Row="5" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+        <Button x:Name="EditSharesButton" Grid.Row="4" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
                 Content="{Binding SelectedSharesInfo}" IsEnabled="{Binding ElementName=CheckShareFilter, Path=IsChecked}"
                 Command="{Command OpenSelectSharesDialog}"/>
 
+        <StackPanel Orientation="Horizontal"  Grid.Row="5" Grid.Column="1">
+          <CheckBox x:Name="CheckAgeFilter" HorizontalAlignment="Center"
+                    IsChecked="{Binding Path=UserProxy.RestrictAges,Mode=TwoWay}"/>
+          <Label Margin="5" Content="[UserConfig.AgeFilter]" Color="{ThemeResource TextColor}"/>
+        </StackPanel>
+        <TextBox Grid.Row="5" Grid.Column="3" IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}" 
+                 TextAlign="Center" HorizontalContentAlignment="Center"
+                 Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40"/>
+
         <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1">
           <CheckBox x:Name="CheckIncludeParentFilter" HorizontalAlignment="Center"
-                    IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"/>
-          <Label Margin="5" Content="Include PG Media" Color="{ThemeResource TextColor}"/>
+                    IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"
+                    IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
+          <Label Margin="5" Content="[UserConfig.IncludePGContent]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1">
           <CheckBox x:Name="CheckIncludeUnratedContentFilter" HorizontalAlignment="Center"
-                  IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"/>
-          <Label Margin="5" Content="Include Unrated Content" Color="{ThemeResource TextColor}"/>
+                  IsChecked="{Binding Path=UserProxy.IncludeUnratedContent,Mode=TwoWay}"
+                  IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
+          <Label Margin="5" Content="[UserConfig.IncludeUnratedContent]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
-
+        
         <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2">
-          <Label Margin="5" Content="Last Login: " Color="{ThemeResource TextColor}" Opacity="0.5"/>
+          <Label Margin="5" Content="[UserConfig.LastLogin]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+          <Label Margin="5" Content=": " Color="{ThemeResource TextColor}" Opacity="0.5"/>
           <Label Margin="5" Content="{Binding UserProxy.LastLogin}" Color="{ThemeResource TextColor}" Scroll="Auto" Opacity="0.5"/>
         </StackPanel>
 
         <Button Grid.Row="6" Grid.RowSpan="3" Grid.ColumnSpan="3" Grid.Column="3" Margin="0,0,5,0"
                 HorizontalAlignment="Right" VerticalAlignment="Center"
-                Width="150" Height="150" Command="{Command FileBrowser}" >
+                Width="150" Height="150" Command="{Command OpenSelectUserImageDialog}" >
           <Image x:Name="BigIcon" Source="{Binding UserProxy.Image}" FallbackSource="person.png" Stretch="Uniform" />
         </Button>
 
         <UniformGrid Columns="3" Grid.ColumnSpan="4" Grid.Row="9" Margin="0,30,0,0" Height="80" VerticalAlignment="Bottom">
           <Button x:Name="AddUserButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
-                  Content="Add" Command="{Command AddUser}" Margin="10"/>
+                  Content="[UserConfig.AddUser]" Command="{Command AddUser}" Margin="10"/>
           <Button x:Name="DeleteUserButton" Grid.Column="1" Style="{ThemeResource WizardButtonStyle}" Margin="10"
-                  Content="Delete" IsEnabled="{Binding IsUserSelected}" Command="{Command DeleteUser}"/>
+                  Content="[UserConfig.DeleteUser]" IsEnabled="{Binding IsUserSelected}" Command="{Command DeleteUser}"/>
           <Button x:Name="SaveUserButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
-                  Content="Save" IsEnabled="{Binding UserProxy.IsUserValid}" Command="{Command SaveUser}"/>
+                  Content="[UserConfig.SaveUser]" IsEnabled="{Binding UserProxy.IsUserValid}" Command="{Command SaveUser}"/>
         </UniformGrid>
       </Grid>
     </ControlTemplate>
