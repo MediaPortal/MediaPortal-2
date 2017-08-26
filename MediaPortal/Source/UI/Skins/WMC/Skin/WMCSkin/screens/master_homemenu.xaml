@@ -190,7 +190,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
 
-        <Grid x:Name="LeftButtonGrid" Grid.Row="1" HorizontalAlignment="Left" Margin="-290,0,0,-140" Panel.ZIndex="1000"
+        <Grid x:Name="RightButtonGrid" Grid.Row="1" HorizontalAlignment="Left" Margin="-290,0,0,-140" Panel.ZIndex="1000"
               IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -198,12 +198,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Button VerticalAlignment="Bottom" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}">
-            <Image Stretch="Uniform" Height="50" Source="Right_Menu.PNG"/>
-          </Button>
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuRightButtonStyle}" Height="50"
+                  Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}"/>
         </Grid>
 
-        <Grid x:Name="RightButtonGrid" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,-140" Panel.ZIndex="1000"
+        <Grid x:Name="LeftButtonGrid" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,-140" Panel.ZIndex="1000"
               IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -211,9 +210,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Button VerticalAlignment="Bottom" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNextSubItem}">
-            <Image Stretch="Uniform" Height="50" Source="Left_Menu.PNG"/>
-          </Button>
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuLeftButtonStyle}" Height="50"
+                  Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNextSubItem}"/>
         </Grid>
 
         <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}"/>
