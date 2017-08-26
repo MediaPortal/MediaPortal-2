@@ -432,7 +432,12 @@
   <string name="Media.SwitchGroupingMenuItem">Grouping</string>
   <string name="Media.SwitchGroupingDialogTitle">Group by</string>
   <string name="Media.NoGrouping">No grouping</string>
+  
+  <!--Stubs-->
+  <string name="Media.Stub.Title">Insert disc</string>
+  <string name="Media.Stub.Message">Please insert disc</string>
 
+  <!--Settings-->
   <string name="Settings.Players">Players</string>
 
   <string name="Settings.Players.ClosePlayersWhenFinished">Close players when finished</string>

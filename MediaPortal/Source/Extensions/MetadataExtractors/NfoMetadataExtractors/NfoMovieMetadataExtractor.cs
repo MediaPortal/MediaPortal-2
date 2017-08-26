@@ -41,9 +41,11 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
-using System.Collections;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.MediaManagement.TransientAspects;
+using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
+using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -188,11 +190,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public static bool IncludeActorDetails { get; private set; }
     public static bool IncludeCharacterDetails { get; private set; }
     public static bool IncludeDirectorDetails { get; private set; }
-    public static HashSet<string> MovieStubFileExtensions { get; private set; }
 
     private void LoadSettings()
     {
-      MovieStubFileExtensions = _settingWatcher.Settings.MovieStubFileExtensions;
       IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
       IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
       IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
@@ -222,6 +222,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
       // for one call are not contained one after another in debug log. We therefore prepend this number before every log entry.
       var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
+      bool isStub = extractedAspectData.ContainsKey(StubAspect.ASPECT_ID);
       try
       {
         _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (importOnly: {2}, forceQuickMode: {3})", miNumber, mediaItemAccessor, importOnly, forceQuickMode);
@@ -234,44 +235,59 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           return false;
         }
 
-        NfoMovieReader nfoReader = null;
-        // Check if stub
-        if (MovieStubFileExtensions.Where(e => string.Compare("." + e, ResourcePathHelper.GetExtension(mediaItemAccessor.Path.ToString()), true) == 0).Any())
+        // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
+        // has identified this MediaItem as a video and therefore added a VideoAspect.
+        if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         {
-          nfoReader = new NfoMovieReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-          if (!await nfoReader.TryReadMetadataAsync(mediaItemAccessor as IFileSystemResourceAccessor).ConfigureAwait(false))
+          _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
+          return false;
+        }
+
+        // Here we try to find an IFileSystemResourceAccessor pointing to the nfo-file.
+        // If we don't find one, we cannot extract any metadata.
+        IFileSystemResourceAccessor nfoFsra;
+        if (!TryGetNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out nfoFsra))
+          return false;
+
+        // Now we (asynchronously) extract the metadata into a stub object.
+        // If there is an error parsing the nfo-file with XmlNfoReader, we at least try to parse for a valid IMDB-ID.
+        // If no metadata was found, nothing can be stored in the MediaItemAspects.
+        NfoMovieReader nfoReader = new NfoMovieReader(_debugLogger, miNumber, importOnly, forceQuickMode, isStub, _httpClient, _settings);
+        using (nfoFsra)
+        {
+          if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&
+              !await nfoReader.TryParseForImdbId(nfoFsra).ConfigureAwait(false))
           {
             _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
             return false;
           }
-        }
-        else
-        {
-          // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
-          // has identified this MediaItem as a video and therefore added a VideoAspect.
-          if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+          else if (isStub)
           {
-            _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
-            return false;
-          }
-
-          // Here we try to find an IFileSystemResourceAccessor pointing to the nfo-file.
-          // If we don't find one, we cannot extract any metadata.
-          IFileSystemResourceAccessor nfoFsra;
-          if (!TryGetNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out nfoFsra))
-            return false;
-
-          // Now we (asynchronously) extract the metadata into a stub object.
-          // If there is an error parsing the nfo-file with XmlNfoReader, we at least try to parse for a valid IMDB-ID.
-          // If no metadata was found, nothing can be stored in the MediaItemAspects.
-          nfoReader = new NfoMovieReader(_debugLogger, miNumber, importOnly, forceQuickMode, _httpClient, _settings);
-          using (nfoFsra)
-          {
-            if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&
-                !await nfoReader.TryParseForImdbId(nfoFsra).ConfigureAwait(false))
+            Stubs.MovieStub movie = nfoReader.GetMovieStubs().FirstOrDefault();
+            if (movie != null)
             {
-              _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
-              return false;
+              IList<MultipleMediaItemAspect> providerResourceAspects;
+              if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
+              {
+                MultipleMediaItemAspect providerResourceAspect = providerResourceAspects.First(pa => pa.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB);
+                string mime = null;
+                if (movie.FileInfo != null && movie.FileInfo.Count > 0)
+                  mime = MimeTypeDetector.GetMimeTypeFromExtension("file" + movie.FileInfo.First().Container);
+                if (mime != null)
+                  providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mime);
+              }
+
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, movie.Title);
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, movie.SortTitle != null ? movie.SortTitle : BaseInfo.GetSortTitle(movie.Title));
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, movie.Premiered.HasValue ? movie.Premiered.Value : movie.Year.HasValue ? movie.Year.Value : (DateTime?)null);
+
+              if (movie.FileInfo != null && movie.FileInfo.Count > 0)
+              {
+                extractedAspectData.Remove(VideoStreamAspect.ASPECT_ID);
+                extractedAspectData.Remove(VideoAudioStreamAspect.ASPECT_ID);
+                extractedAspectData.Remove(SubtitleAspect.ASPECT_ID);
+                StubParser.ParseFileInfo(extractedAspectData, movie.FileInfo, movie.Title, movie.Fps);
+              }
             }
           }
         }
@@ -447,7 +463,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
-      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
         return false;
 
       // The following is bad practice as it wastes one ThreadPool thread.

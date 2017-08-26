@@ -1,0 +1,34 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="StubMetadataExtractors"
+    PluginId="{A33319F7-D311-44A9-BE7E-2F0E88AC4EEF}"
+    Author = "Henso"
+    Copyright="GPL"
+    Description="Metadata extractors reading metadata from local stub-files">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2017-08-01 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="StubMetadataExtractors.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="StubMovieMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors.StubMovieMetadataExtractor"/>
+    <Instance
+        Id="StubSeriesMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors.StubSeriesMetadataExtractor"/>
+    <Instance
+        Id="StubAudioMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors.StubAudioMetadataExtractor"/>
+  </Register>
+</Plugin>

@@ -23,31 +23,29 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
+namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors.Settings
 {
   /// <summary>
-  /// Abstract base class for the settings class of all NfoMetadataExtractors
+  /// Abstract base class for the settings class of all StubMetadataExtractors
   /// </summary>
   /// <remarks>
-  /// Each NfoMetadataExtractor (such as the <see cref="NfoMovieMetadataExtractor"/>) has a settings class
-  /// (such as <see cref="NfoMovieMetadataExtractorSettings"/> that derives from this abstract base class.
+  /// Each NfoMetadataExtractor (such as the <see cref="StubMovieMetadataExtractor"/>) has a settings class
+  /// (such as <see cref="StubMovieMetadataExtractorSettings"/> that derives from this abstract base class.
   /// This class therefore contains settings (and their initialization with default values), which should be
   /// present in all derived non-abstract settings classes.
   /// The <see cref="SettingsManager"/> does not store the settings of the base class in a common file for all
   /// derived classes. As a result, settings contained in this class can be set to different values for each
   /// derived settings class.
   /// </remarks>
-  public abstract class NfoMetadataExtractorSettingsBase
+  public abstract class StubMetadataExtractorSettingsBase
   {
     #region Ctor
 
-    protected NfoMetadataExtractorSettingsBase()
+    protected StubMetadataExtractorSettingsBase()
     {
       // Set the default values
-      NfoFileNameExtensions = new HashSet<string> { ".nfo", ".xml", ".txt" };
       SeparatorCharacters = new HashSet<char> { '|', ',', '/' };
       IgnoreStrings = new HashSet<string> { "unknown" };
     }
@@ -57,25 +55,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     #region Public properties
 
     /// <summary>
-    /// These file name extensions are used to find a respective nfo-file
-    /// </summary>
-    [Setting(SettingScope.Global)]
-    public HashSet<string> NfoFileNameExtensions { get; set; }
-
-    /// <summary>
     /// Specifies which separator characters are used for strings that may contain multiple values
     /// </summary>
     [Setting(SettingScope.Global)]
     public HashSet<char> SeparatorCharacters { get; set; }
 
     /// <summary>
-    /// If a string value in the nfo-file equals (OrdinalIgnoreCase) one of these values, the value is ignored
+    /// If a string value in the stub-file equals (OrdinalIgnoreCase) one of these values, the value is ignored
     /// </summary>
     [Setting(SettingScope.Global)]
     public HashSet<string> IgnoreStrings { get; set; }
 
     /// <summary>
-    /// Indicates whether a very detailed Nfo[...]MetadataExtractorDebug.log is created.
+    /// Indicates whether a very detailed Stub[...]MetadataExtractorDebug.log is created.
     /// </summary>
 #if DEBUG
     [Setting(SettingScope.Global, true)]
@@ -85,13 +77,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     public bool EnableDebugLogging { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, all nfo-files are written into the Nfo[...]MetadataExtractorDebug.log (if enabled)
+    /// If <c>true</c>, all stub-files are written into the Stub[...]MetadataExtractorDebug.log (if enabled)
     /// </summary>
     [Setting(SettingScope.Global, false)]
-    public bool WriteRawNfoFileIntoDebugLog { get; set; }
+    public bool WriteRawStubFileIntoDebugLog { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, the filled stub objects are written as Json into the Nfo[...]MetadataExtractorDebug.log (if enabled)
+    /// If <c>true</c>, the filled stub objects are written as Json into the Stub[...]MetadataExtractorDebug.log (if enabled)
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool WriteStubObjectIntoDebugLog { get; set; }

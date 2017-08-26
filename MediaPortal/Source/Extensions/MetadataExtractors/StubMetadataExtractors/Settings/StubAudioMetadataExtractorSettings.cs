@@ -25,24 +25,24 @@
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
+namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors.Settings
 {
   /// <summary>
-  /// Settings class for the <see cref="NfoSeriesMetadataExtractor"/>
+  /// Settings class for the <see cref="NfoAudioMetadataExtractorSettings"/>
   /// </summary>
   /// <remarks>
-  /// Also contains all properties defined in <see cref="NfoMetadataExtractorSettingsBase"/>
+  /// Also contains all properties defined in <see cref="StubMetadataExtractorSettingsBase"/>
   /// </remarks>
-  public class NfoSeriesMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
+  public class StubAudioMetadataExtractorSettings : StubMetadataExtractorSettingsBase
   {
     #region Ctor
 
     /// <summary>
-    /// Sets the default values specific to the <see cref="NfoSeriesMetadataExtractor"/>
+    /// Sets the default values specific to the <see cref="StubAudioMetadataExtractor"/>
     /// </summary>
-    public NfoSeriesMetadataExtractorSettings()
+    public StubAudioMetadataExtractorSettings()
     {
-      SeriesNfoFileNames = new HashSet<string> { "tvshow" };
+      AudioCdStubFileExtensions = new HashSet<string> { "cd.disc" };
     }
 
     #endregion
@@ -50,23 +50,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     #region Public properties
 
     /// <summary>
-    /// These file names are used to find a nfo-file for the series as a whole
-    /// The nfo-file for episodes always has the same name as the episodes' media file
+    /// These file extensions are used to find a stub-files for CD's
     /// </summary>
     [Setting(SettingScope.Global)]
-    public HashSet<string> SeriesNfoFileNames { get; set; }
-
-    /// <summary>
-    /// If <c>true</c>, Actor details will be created.
-    /// </summary>
-    [Setting(SettingScope.Global, true)]
-    public bool IncludeActorDetails { get; set; }
-
-    /// <summary>
-    /// If <c>true</c>, Character details will be created.
-    /// </summary>
-    [Setting(SettingScope.Global, true)]
-    public bool IncludeCharacterDetails { get; set; }
+    public HashSet<string> AudioCdStubFileExtensions { get; set; }
 
     #endregion
   }

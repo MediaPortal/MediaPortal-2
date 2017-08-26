@@ -67,6 +67,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
 
       int allowedAge = 5;
       bool includeParentalGuidedContent = false;
+      bool includeUnratedContent = false;
       bool allowAllAges = true;
       if (userProfile != null && applyUserRestrictions)
       {
@@ -98,6 +99,14 @@ namespace MediaPortal.UiComponents.Media.Helpers
                 includeParentalGuidedContent = Convert.ToInt32(allow) > 0;
               }
             }
+            else if (key.Key == UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT)
+            {
+              string allow = val.Value;
+              if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
+              {
+                includeUnratedContent = Convert.ToInt32(allow) > 0;
+              }
+            }
           }
         }
       }
@@ -112,12 +121,17 @@ namespace MediaPortal.UiComponents.Media.Helpers
         {
           if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_CERTIFICATION, out certification))
           {
-            if (applyUserRestrictions && CertificationMapper.TryFindMovieCertification(certification, out mediaMatch))
+            if (applyUserRestrictions && !allowAllAges)
             {
-              if (!CertificationMapper.IsAgeAllowed(mediaMatch, allowedAge, includeParentalGuidedContent))
+              if (CertificationMapper.TryFindMovieCertification(certification, out mediaMatch))
+              {
+                if (!CertificationMapper.IsAgeAllowed(mediaMatch, allowedAge, includeParentalGuidedContent))
+                  continue;
+              }
+              if (certification == null && !includeUnratedContent)
                 continue;
             }
-            if (!string.IsNullOrEmpty(DisplayMovieCertificationCountry))
+            if (certification != null && !string.IsNullOrEmpty(DisplayMovieCertificationCountry))
               bestMatch = CertificationMapper.FindMatchingMovieCertification(DisplayMovieCertificationCountry, certification);
           }
         }
@@ -125,12 +139,17 @@ namespace MediaPortal.UiComponents.Media.Helpers
         {
           if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_CERTIFICATION, out certification))
           {
-            if (applyUserRestrictions && CertificationMapper.TryFindSeriesCertification(certification, out mediaMatch))
+            if (applyUserRestrictions && !allowAllAges)
             {
-              if (!CertificationMapper.IsAgeAllowed(mediaMatch, allowedAge, includeParentalGuidedContent))
+              if (CertificationMapper.TryFindSeriesCertification(certification, out mediaMatch))
+              {
+                if (!CertificationMapper.IsAgeAllowed(mediaMatch, allowedAge, includeParentalGuidedContent))
+                  continue;
+              }
+              if (certification == null && !includeUnratedContent)
                 continue;
             }
-            if (!string.IsNullOrEmpty(DisplaySeriesCertificationCountry))
+            if (certification != null && !string.IsNullOrEmpty(DisplaySeriesCertificationCountry))
               bestMatch = CertificationMapper.FindMatchingSeriesCertification(DisplaySeriesCertificationCountry, certification);
           }
         }
@@ -145,6 +164,9 @@ namespace MediaPortal.UiComponents.Media.Helpers
         }
         else
         {
+          if (applyUserRestrictions && !allowAllAges && !includeUnratedContent)
+            continue;
+
           if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
             MediaItemAspect.SetAttribute<string>(mediaItem.Aspects, MovieAspect.ATTR_CERTIFICATION, null);
           else if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
@@ -172,10 +194,11 @@ namespace MediaPortal.UiComponents.Media.Helpers
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
       if (contentDirectory != null)
-        shares = contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All);
+        shares = contentDirectory.GetShares(null, SharesFilter.All);
 
       int? allowedAge = null;
       bool? includeParentalGuidedContent = null;
+      bool? includeUnratedContent = null;
       bool allowAllShares = true;
       bool allowAllAges = true;
       List<IFilter> shareFilters = new List<IFilter>();
@@ -222,6 +245,14 @@ namespace MediaPortal.UiComponents.Media.Helpers
               includeParentalGuidedContent = Convert.ToInt32(allow) > 0;
             }
           }
+          else if (key.Key == UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT)
+          {
+            string allow = val.Value;
+            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
+            {
+              includeUnratedContent = Convert.ToInt32(allow) > 0;
+            }
+          }
         }
       }
 
@@ -238,19 +269,41 @@ namespace MediaPortal.UiComponents.Media.Helpers
         {
           IEnumerable<CertificationMapping> certs = CertificationMapper.GetMovieCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
           if (certs.Count() > 0)
-            filters.Add(new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
+          {
+            if(includeUnratedContent ?? false)
+              filters.Add(new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
+            else
+              filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
+                new EmptyFilter(MovieAspect.ATTR_CERTIFICATION)));
+          }
         }
         else if (necessaryMias.Contains(SeriesAspect.ASPECT_ID))
         {
           IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
           if (certs.Count() > 0)
-            filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
+          {
+            if (includeUnratedContent ?? false)
+              filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
+            else
+              filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
+                new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION)));
+          }
         }
         else if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID))
         {
           IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
           if (certs.Count() > 0)
-            filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId))));
+          {
+            if (includeUnratedContent ?? false)
+              filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId))));
+            else
+              filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES,
+                BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
+                new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION))));
+          }
         }
       }
 
@@ -261,6 +314,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
 
       return null;
     }
+
     public static void ConvertCertifications(IEnumerable<MediaItem> mediaItems)
     {
       //Convert certification system if needed

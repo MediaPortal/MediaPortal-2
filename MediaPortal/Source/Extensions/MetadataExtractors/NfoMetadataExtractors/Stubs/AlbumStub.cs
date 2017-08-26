@@ -62,12 +62,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// <example>"The Album Title"</example>
     public string Title { get; set; }
 
-    /// <summary>
-    /// Stub label for matching stub to a volume label
-    /// </summary>
-    /// <example>"Album"</example>
-    public string StubLabel { get; set; }
-
     #endregion
 
     #region Making-of information

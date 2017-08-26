@@ -60,7 +60,7 @@
     <Compile Include="Settings\Configuration\UserConfigSettings.cs" />
     <Compile Include="Settings\Configuration\UserManagementSetting.cs" />
     <Compile Include="Models\UserConfigModel.cs" />
-    <Compile Include="UserProxy.cs" />
+    <Compile Include="Models\UserProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">

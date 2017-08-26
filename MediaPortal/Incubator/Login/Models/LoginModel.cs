@@ -35,6 +35,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using System.Collections.Generic;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.Utilities.Events;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -43,14 +44,27 @@ namespace MediaPortal.UiComponents.Login.Models
   /// </summary>
   public class LoginModel : IWorkflowModel, IDisposable
   {
-    private ItemsList _usersExposed = null;
-    private AbstractProperty _currentUser;
-    private AbstractProperty _enteredPassword;
+    #region Consts
 
     public const string KEY_PROFILE_ID = "ProfileId";
     public const string KEY_HAS_PASSWORD = "Password";
     public const string STR_MODEL_ID_LOGIN = "82582433-FD64-41bd-9059-7F662DBDA713";
     public static readonly Guid MODEL_ID_LOGIN = new Guid(STR_MODEL_ID_LOGIN);
+
+    #endregion
+
+    #region Private fields
+
+    private ItemsList _usersExposed = null;
+    private AbstractProperty _currentUser;
+    private AbstractProperty _userPassword;
+    private AbstractProperty _isPasswordIncorrect;
+    private DelayedEvent _loginTimer = null;
+    private Guid _passwordUser;
+
+    #endregion
+
+    #region Ctor
 
     /// <summary>
     /// constructor
@@ -58,11 +72,127 @@ namespace MediaPortal.UiComponents.Login.Models
     public LoginModel()
     {
       _currentUser = new WProperty(typeof(UserProfile), null);
-      _enteredPassword = new WProperty(typeof(string), string.Empty);
+      _userPassword = new WProperty(typeof(string), string.Empty);
+      _isPasswordIncorrect = new WProperty(typeof(bool), false);
+
+      _loginTimer = new DelayedEvent(1000);
+      _loginTimer.OnEventHandler += DelayedLogin;
 
       RefreshUserList();
       SetCurrentUser();
     }
+
+    public void Dispose()
+    {
+      _usersExposed = null;
+    }
+
+    #endregion
+
+    #region Public properties (Also accessed from the GUI)
+
+    /// <summary>
+    /// exposes the current user to the skin
+    /// </summary>
+    public AbstractProperty CurrentUserProperty
+    {
+      get { return _currentUser; }
+      set { _currentUser = value; }
+    }
+
+    /// <summary>
+    /// exposes the current user to the skin
+    /// </summary>
+    public UserProfile CurrentUser
+    {
+      get { return (UserProfile)_currentUser.GetValue(); }
+    }
+
+    public AbstractProperty UserPasswordProperty
+    {
+      get { return _userPassword; }
+      set { _userPassword = value; }
+    }
+
+    public string UserPassword
+    {
+      get { return (string)_userPassword.GetValue(); }
+      set { _userPassword.SetValue(value); }
+    }
+
+    public AbstractProperty IsPasswordIncorrectProperty
+    {
+      get { return _isPasswordIncorrect; }
+    }
+
+    public bool IsPasswordIncorrect
+    {
+      get { return (bool)_isPasswordIncorrect.GetValue(); }
+      set { _isPasswordIncorrect.SetValue(value); }
+    }
+
+    public bool EnableUserLogin
+    {
+      get { return UserSettingWatcher.UserLoginEnabled; }
+    }
+
+    /// <summary>
+    /// exposes the users to the skin
+    /// </summary>
+    public ItemsList Users
+    {
+      get { return _usersExposed; }
+    }
+
+    #endregion
+
+    #region Public methods
+
+    /// <summary>
+    /// selects a user
+    /// </summary>
+    /// <param name="item"></param>
+    public void SelectUser(ListItem item)
+    {
+      UserPassword = "";
+      IsPasswordIncorrect = false;
+      _passwordUser = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
+      if ((bool)item.AdditionalProperties[KEY_HAS_PASSWORD])
+      {
+        ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
+          (string name, System.Guid id) =>
+          {
+            LoginUser(_passwordUser, UserPassword);
+          });
+      }
+      else
+      {
+        LoginUser(_passwordUser, UserPassword);
+      }
+    }
+
+    public void ConfirmPassword()
+    {
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      UserProfile userProfile;
+      if (userManagement.UserProfileDataManagement == null)
+        return;
+      if (!userManagement.UserProfileDataManagement.GetProfile(_passwordUser, out userProfile))
+        return;
+      if (General.Utils.VerifyPassword(UserPassword, userProfile.Password))
+      {
+        IsPasswordIncorrect = false;
+        ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
+      }
+      else
+      {
+        IsPasswordIncorrect = true;
+      }
+    }
+
+    #endregion
+
+    #region Private and protected methods
 
     private void SetCurrentUser(UserProfile userProfile = null)
     {
@@ -78,6 +208,17 @@ namespace MediaPortal.UiComponents.Login.Models
         userProfileDataManagement.CurrentUser = userProfile;
       }
       CurrentUserProperty.SetValue(userProfile);
+
+      if (userProfile == UserManagement.UNKNOWN_USER)
+      {
+        //Schedule retry of login
+        _loginTimer.EnqueueEvent(null, EventArgs.Empty);
+      }
+    }
+
+    private void DelayedLogin(object sender, EventArgs e)
+    {
+      SetCurrentUser(null);
     }
 
     /// <summary>
@@ -100,36 +241,12 @@ namespace MediaPortal.UiComponents.Login.Models
 
         item.AdditionalProperties[KEY_PROFILE_ID] = user.ProfileId;
         item.AdditionalProperties[KEY_HAS_PASSWORD] = !string.IsNullOrEmpty(user.Password);
-        item.SetLabel("HasImage", user.Image != null ? "true" : "false");
         item.SetLabel("HasPassword", !string.IsNullOrEmpty(user.Password) ? "true" : "false");
         item.SetLabel("LastLogin", user.LastLogin.HasValue ? user.LastLogin.Value.ToString("G") : "");
         _usersExposed.Add(item);
       }
       // tell the skin that something might have changed
       _usersExposed.FireChange();
-    }
-
-    /// <summary>
-    /// selects a user
-    /// </summary>
-    /// <param name="item"></param>
-    public void SelectUser(ListItem item)
-    {
-      EnteredPassword = "";
-      if ((bool)item.AdditionalProperties[KEY_HAS_PASSWORD])
-      {
-        ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
-          (string name, System.Guid id) =>
-          {
-            Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
-            LoginUser(profileId, EnteredPassword);
-          });
-      }
-      else
-      {
-        Guid profileId = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
-        LoginUser(profileId, EnteredPassword);
-      }
     }
 
     private void LoginUser(Guid profileId, string password)
@@ -146,6 +263,10 @@ namespace MediaPortal.UiComponents.Login.Models
         userManagement.UserProfileDataManagement.LoginProfile(profileId);
       }
     }
+
+    #endregion
+
+    #region IWorkflowModel implementation
 
     public Guid ModelId
     {
@@ -192,51 +313,6 @@ namespace MediaPortal.UiComponents.Login.Models
       return ScreenUpdateMode.AutoWorkflowManager;
     }
 
-    public void Dispose()
-    {
-      _usersExposed = null;
-    }
-
-    /// <summary>
-    /// exposes the current user to the skin
-    /// </summary>
-    public AbstractProperty CurrentUserProperty
-    {
-      get { return _currentUser; }
-      set { _currentUser = value; }
-    }
-
-    /// <summary>
-    /// exposes the current user to the skin
-    /// </summary>
-    public UserProfile CurrentUser
-    {
-      get { return (UserProfile)_currentUser.GetValue(); }
-    }
-
-    public AbstractProperty EnteredPasswordProperty
-    {
-      get { return _enteredPassword; }
-      set { _enteredPassword = value; }
-    }
-
-    public string EnteredPassword
-    {
-      get { return (string)_enteredPassword.GetValue(); }
-      set { _enteredPassword.SetValue(value); }
-    }
-
-    public bool EnableUserLogin
-    {
-      get { return UserSettingWatcher.UserLoginEnabled; }
-    }
-
-    /// <summary>
-    /// exposes the users to the skin
-    /// </summary>
-    public ItemsList Users
-    {
-      get { return _usersExposed; }
-    }
+    #endregion
   }
 }

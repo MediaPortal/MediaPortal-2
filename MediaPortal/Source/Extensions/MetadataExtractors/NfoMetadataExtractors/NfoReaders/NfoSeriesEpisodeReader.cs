@@ -38,8 +38,6 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using MediaPortal.Utilities;
 using System.Globalization;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
@@ -83,6 +81,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     private bool _useSeriesStubs;
 
+    /// <summary>
+    /// If true, file details will also be read from the nfo-file
+    /// </summary>
+    private bool _readFileDetails;
+
     #endregion
 
     #region Ctor
@@ -94,11 +97,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
     /// <param name="importOnly">If true, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
+    /// <param name="readFileDetails">If true, file details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoSeriesMetadataExtractor"/></param>
-    public NfoSeriesEpisodeReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
+    public NfoSeriesEpisodeReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
       : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
     {
+      _readFileDetails = readFileDetails;
       InitializeSupportedElements();
       InitializeSupportedAttributes();
     }
@@ -212,8 +217,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     #endregion
-
-
 
     #region Reader methods for direct child elements of the root element
 
@@ -745,6 +748,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private bool TryReadFileInfo(XElement element)
     {
+      if (!_readFileDetails)
+        return false;
+
       var fileInfo = ParseFileInfo(element);
       if (fileInfo != null && fileInfo.Count > 0)
       {

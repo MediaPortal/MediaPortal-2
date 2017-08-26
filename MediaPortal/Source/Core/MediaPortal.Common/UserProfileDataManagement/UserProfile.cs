@@ -50,7 +50,6 @@ namespace MediaPortal.Common.UserProfileDataManagement
     protected Guid _profileId;
     protected string _name;
     protected string _password;
-    protected byte[] _image;
     protected DateTime? _lastLogin;
     protected int _profileType;
     protected IDictionary<string, IDictionary<int, string>> _userData = new Dictionary<string, IDictionary<int, string>>();
@@ -58,12 +57,11 @@ namespace MediaPortal.Common.UserProfileDataManagement
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
-    public UserProfile(Guid profileId, string name, int profileType = CLIENT_PROFILE, string password = null, byte[] image = null, DateTime? lastLogin = null)
+    public UserProfile(Guid profileId, string name, int profileType = CLIENT_PROFILE, string password = null, DateTime? lastLogin = null)
     {
       _profileId = profileId;
       _name = name;
       _password = password;
-      _image = image;
       _lastLogin = lastLogin;
       _profileType = profileType;
     }
@@ -121,15 +119,6 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public string Password
     {
       get { return _password; }
-    }
-
-    /// <summary>
-    /// Returns the user image of this profile.
-    /// </summary>
-    [XmlIgnore]
-    public byte[] Image
-    {
-      get { return _image; }
     }
 
     /// <summary>
@@ -266,16 +255,6 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       get { return _password; }
       set { _password = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlAttribute("Image")]
-    public string XML_Image
-    {
-      get { return _image != null && _image.Length > 0 ? Convert.ToBase64String(_image) : ""; }
-      set { _image = string.IsNullOrEmpty(value) ? null : Convert.FromBase64String(value); }
     }
 
     /// <summary>

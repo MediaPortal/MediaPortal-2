@@ -74,6 +74,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
     #endregion
 
+    #region Private fields
+
+    /// <summary>
+    /// If true, file details will also be read from the nfo-file
+    /// </summary>
+    private bool _readFileDetails;
+
+    #endregion
+
     #region Ctor
 
     /// <summary>
@@ -83,11 +92,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
     /// <param name="importOnly">If true, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
+    /// <param name="readFileDetails">If true, file details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
-    public NfoMovieReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
+    public NfoMovieReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
       : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
     {
+      _readFileDetails = readFileDetails;
       InitializeSupportedElements();
       InitializeSupportedAttributes();
     }
@@ -232,7 +243,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("lastplayed", new TryReadElementDelegate(TryReadLastPlayed));
       _supportedElements.Add("dateadded", new TryReadElementDelegate(TryReadDateAdded));
       _supportedElements.Add("resume", new TryReadElementDelegate(TryReadResume));
-      _supportedElements.Add("stub", new TryReadElementDelegate(TryReadStub));
 
       // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
       // ToDo: Reenable the below once we can store the information in the MediaLibrary
@@ -443,18 +453,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // Example of a valid element:
       // <originaltitle>Harry Potter and the Order of the Phoenix</originaltitle>
       return ((_currentStub.OriginalTitle = ParseSimpleString(element)) != null);
-    }
-
-    // <summary>
-    /// Tries to read the stub value
-    /// </summary>
-    /// <param name="element"><see cref="XElement"/> to read from</param>
-    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
-    private bool TryReadStub(XElement element)
-    {
-      // Example of a valid element:
-      // <stub>Movie</stub>
-      return ((_currentStub.StubLabel = ParseSimpleString(element)) != null);
     }
 
     /// <summary>
@@ -1083,6 +1081,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private bool TryReadFileInfo(XElement element)
     {
+      if (!_readFileDetails)
+        return false;
+
       var fileInfo = ParseFileInfo(element);
       if (fileInfo != null && fileInfo.Count > 0)
       {

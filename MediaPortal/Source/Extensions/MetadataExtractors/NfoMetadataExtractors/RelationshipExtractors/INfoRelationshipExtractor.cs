@@ -392,24 +392,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       if (aspects.ContainsKey(TempSeriesAspect.ASPECT_ID))
       {
-        if (info.TvdbId <= 0)
-          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_TVDBID, out info.TvdbId);
-        if (info.SeriesName.IsEmpty)
-          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_NAME, out info.SeriesName.Text);
-        if (info.SeriesNameSort.IsEmpty)
-          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_SORT_NAME, out info.SeriesNameSort.Text);
-        if (string.IsNullOrEmpty(info.Certification))
-          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_CERTIFICATION, out info.Certification);
-        MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_ENDED, out info.IsEnded);
-        if (info.Description.IsEmpty)
-          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_PLOT, out info.Description.Text);
-        if (!info.FirstAired.HasValue)
-          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_PREMIERED, out info.FirstAired);
-        if (info.Rating.IsEmpty)
+        string text;
+        double? number;
+        DateTime? date;
+        int? integer;
+        bool? boolean;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_TVDBID, out integer) && integer.HasValue)
+          info.TvdbId = integer.Value;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_NAME, out text) && !string.IsNullOrEmpty(text))
+          info.SeriesName.Text = text;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_SORT_NAME, out text) && !string.IsNullOrEmpty(text))
+          info.SeriesNameSort.Text = text;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_ENDED, out boolean) && boolean.HasValue)
+          info.IsEnded = boolean.Value;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_PLOT, out text) && !string.IsNullOrEmpty(text))
+          info.Description.Text = text;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_CERTIFICATION, out text) && !string.IsNullOrEmpty(text))
+          info.Certification = text;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_PREMIERED, out date) && date.HasValue)
+          info.FirstAired = date;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_RATING, out number) && number.HasValue)
         {
-          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_RATING, out info.Rating.RatingValue);
-          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_VOTES, out info.Rating.VoteCount);
+          info.Rating.RatingValue = number;
+          info.Rating.VoteCount = null;
+          if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_VOTES, out integer) && integer.HasValue)
+            info.Rating.VoteCount = integer.Value;
         }
+
         if(info.Networks.Count == 0)
         {
           string station;
@@ -461,24 +470,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       if (aspects.ContainsKey(TempAlbumAspect.ASPECT_ID))
       {
-        if (info.AudioDbId <= 0)
-          MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_ADBID, out info.AudioDbId);
-        if (string.IsNullOrEmpty(info.MusicBrainzId))
-          MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_MBID, out info.MusicBrainzId);
-        if (string.IsNullOrEmpty(info.MusicBrainzGroupId))
-          MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_MBGID, out info.MusicBrainzGroupId);
-        if (string.IsNullOrEmpty(info.Album))
-          MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_NAME, out info.Album);
-        if (string.IsNullOrEmpty(info.AlbumSort))
-          MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_SORT_NAME, out info.AlbumSort);
-        if (info.Description.IsEmpty)
-          MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_REVIEW, out info.Description.Text);
-        if (!info.ReleaseDate.HasValue)
-          MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_RELEASEDATE, out info.ReleaseDate);
-        if (info.Rating.IsEmpty)
-        {
-          MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_RATING, out info.Rating.RatingValue);
-        }
+        string text;
+        double? number;
+        DateTime? date;
+        long? integer;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_MBID, out text) && !string.IsNullOrEmpty(text))
+          info.MusicBrainzId = text;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_MBGID, out text) && !string.IsNullOrEmpty(text))
+          info.MusicBrainzGroupId = text;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_ADBID, out integer) && integer.HasValue)
+          info.AudioDbId = integer.Value;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_NAME, out text) && !string.IsNullOrEmpty(text))
+          info.Album = text;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_SORT_NAME, out text) && !string.IsNullOrEmpty(text))
+          info.AlbumSort = text;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_REVIEW, out text) && !string.IsNullOrEmpty(text))
+          info.Description.Text = text;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_RELEASEDATE, out date) && date.HasValue)
+          info.ReleaseDate = date;
+        if (MediaItemAspect.TryGetAttribute(aspects, TempAlbumAspect.ATTR_RATING, out number) && number.HasValue)
+          info.Rating.RatingValue = number;
+
         if (info.Artists.Count == 0)
         {
           IEnumerable collection;

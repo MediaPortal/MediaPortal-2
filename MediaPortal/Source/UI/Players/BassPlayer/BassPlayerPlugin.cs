@@ -26,16 +26,8 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.Common.PathManager;
-using System.IO;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using System.Collections.Generic;
-using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.UI.Players.BassPlayer
 {
@@ -60,45 +52,10 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     #endregion
 
-    #region Helpers
-
-    private bool TryCreateInsertMediaMediaItem(out MediaItem mi)
-    {
-      mi = null;
-      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
-      string resourceDirectory = pathManager.GetPath(@"<DATA>\Resources\");
-      string[] files = Directory.GetFiles(resourceDirectory, "InsertAudioMedia.*");
-      if (files == null || files.Length == 0)
-        return false;
-
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      MediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, files[0]).Serialize());
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, MimeTypeDetector.GetMimeType(files[0], "audio/unknown"));
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, ServiceRegistration.Get<ISystemResolver>().LocalSystemId);
-
-      MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.Metadata);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "?");
-
-      mi = new MediaItem(Guid.Empty, aspects);
-      return true;
-    }
-
-    #endregion
-
     #region IPlayerBuilder implementation
 
     public IPlayer GetPlayer(MediaItem mediaItem)
     {
-      if (mediaItem.IsStub)
-      {
-        MediaItem stubMI;
-        if (TryCreateInsertMediaMediaItem(out stubMI))
-          mediaItem = stubMI;
-      }
-
       BassPlayer player = new BassPlayer();
       try
       {
