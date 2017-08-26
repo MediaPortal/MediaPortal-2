@@ -70,20 +70,19 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       {
         int profileIdIndex;
         int nameIndex;
-        int profileTypeIndex;
-        int passwordIndex;
-        int imageIndex;
+        int idIndex;
+        int dataIndex;
         int lastLoginIndex;
         ICollection<UserProfile> result = new List<UserProfile>();
         using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserProfilesCommand(transaction, profileId, name,
-            out profileIdIndex, out nameIndex, out profileTypeIndex, out passwordIndex, out imageIndex, out lastLoginIndex))
+            out profileIdIndex, out nameIndex, out idIndex, out dataIndex, out lastLoginIndex))
         {
           using (IDataReader reader = command.ExecuteReader())
           {
             while (reader.Read())
             {
-              result.Add(new UserProfile(database.ReadDBValue<Guid>(reader, profileIdIndex), database.ReadDBValue<string>(reader, nameIndex), database.ReadDBValue<int>(reader, profileTypeIndex),
-                database.ReadDBValue<string>(reader, passwordIndex), database.ReadDBValue<byte[]>(reader, imageIndex), database.ReadDBValue<DateTime?>(reader, lastLoginIndex))
+              result.Add(new UserProfile(database.ReadDBValue<Guid>(reader, profileIdIndex), database.ReadDBValue<string>(reader, nameIndex), database.ReadDBValue<int>(reader, idIndex),
+                database.ReadDBValue<string>(reader, dataIndex), database.ReadDBValue<DateTime?>(reader, lastLoginIndex))
               );
             }
           }
@@ -94,7 +93,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           foreach (var user in result)
           {
             using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, user.ProfileId, null,
-                out nameIndex, out profileIdIndex, out imageIndex))
+                out nameIndex, out profileIdIndex, out dataIndex))
             {
               using (IDataReader reader = command.ExecuteReader())
               {
@@ -103,7 +102,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
                   string key = database.ReadDBValue<string>(reader, nameIndex);
                   if (!user.AdditionalData.ContainsKey(key))
                     user.AdditionalData.Add(key, new Dictionary<int, string>());
-                  user.AdditionalData[key].Add(database.ReadDBValue<int>(reader, profileIdIndex), database.ReadDBValue<string>(reader, imageIndex));
+                  user.AdditionalData[key].Add(database.ReadDBValue<int>(reader, profileIdIndex), database.ReadDBValue<string>(reader, dataIndex));
                 }
               }
             }
@@ -168,7 +167,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
-    public Guid CreateProfile(string profileName, int profileType, string profilePassword, byte[] profileImage)
+    public Guid CreateProfile(string profileName, int profileType, string profilePassword)
     {
       //Profile might already exist.
       UserProfile existingProfile;
@@ -180,7 +179,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       Guid profileId = Guid.NewGuid();
       try
       {
-        using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserProfileCommand(transaction, profileId, profileName, profileType, profilePassword, profileImage))
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserProfileCommand(transaction, profileId, profileName, profileType, profilePassword))
           command.ExecuteNonQuery();
         transaction.Commit();
       }
@@ -193,14 +192,14 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
-    public bool UpdateProfile(Guid profileId, string profileName, int profileType, string profilePassword, byte[] profileImage)
+    public bool UpdateProfile(Guid profileId, string profileName, int profileType, string profilePassword)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
         bool result;
-        using (IDbCommand command = UserProfileDataManagement_SubSchema.UpdateUserProfileCommand(transaction, profileId, profileName, profileType, profilePassword, profileImage))
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.UpdateUserProfileCommand(transaction, profileId, profileName, profileType, profilePassword))
           result = command.ExecuteNonQuery() > 0;
         transaction.Commit();
 
@@ -209,6 +208,27 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error creating user profile '{0}')", e, profileName);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
+    public bool SetProfileImage(Guid profileId, byte[] profileImage)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        bool result;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SetUserProfileImageCommand(transaction, profileId, profileImage))
+          result = command.ExecuteNonQuery() > 0;
+        transaction.Commit();
+
+        return result;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error creating user profile '{0}')", e, profileId);
         transaction.Rollback();
         throw;
       }

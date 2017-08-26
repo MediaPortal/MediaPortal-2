@@ -447,11 +447,11 @@ namespace MediaPortal.UiComponents.Login.Models
             string hash = Utils.HashPassword(UserProxy.Password);
             if (UserProxy.Id == Guid.Empty)
             {
-              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.UserName, UserProxy.ProfileType, hash, UserProxy.Image);
+              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.UserName, UserProxy.ProfileType, hash);
             }
             else
             {
-              success = userManagement.UserProfileDataManagement.UpdateProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, hash, UserProxy.Image);
+              success = userManagement.UserProfileDataManagement.UpdateProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, hash);
             }
             if (UserProxy.Id == Guid.Empty)
             {
@@ -459,6 +459,8 @@ namespace MediaPortal.UiComponents.Login.Models
               return;
             }
 
+            if(UserProxy.Image != null)
+              success &= userManagement.UserProfileDataManagement.SetProfileImage(UserProxy.Id, UserProxy.Image);
             success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
             success &= userManagement.UserProfileDataManagement.ClearUserAdditionalDataKey(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE);
             foreach (var shareId in UserProxy.SelectedShares)
@@ -479,7 +481,7 @@ namespace MediaPortal.UiComponents.Login.Models
             return;
 
           shareCount = 0;
-          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, UserProxy.Password, UserProxy.Image);
+          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, UserProxy.Password);
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
           foreach (var shareId in UserProxy.SelectedShares)
             user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());

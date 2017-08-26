@@ -100,7 +100,6 @@ namespace MediaPortal.UiComponents.Login.Models
 
         item.AdditionalProperties[KEY_PROFILE_ID] = user.ProfileId;
         item.AdditionalProperties[KEY_HAS_PASSWORD] = !string.IsNullOrEmpty(user.Password);
-        item.SetLabel("HasImage", user.Image != null ? "true" : "false");
         item.SetLabel("HasPassword", !string.IsNullOrEmpty(user.Password) ? "true" : "false");
         item.SetLabel("LastLogin", user.LastLogin.HasValue ? user.LastLogin.Value.ToString("G") : "");
         _usersExposed.Add(item);

@@ -131,7 +131,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
             new DvArgument("ProfileName", A_ARG_TYPE_String, ArgumentDirection.In),
             new DvArgument("ProfileType", A_ARG_TYPE_Int, ArgumentDirection.In),
             new DvArgument("ProfilePassword", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("ProfileImage", A_ARG_TYPE_String, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.Out, true)
@@ -144,12 +143,21 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
             new DvArgument("ProfileName", A_ARG_TYPE_String, ArgumentDirection.In),
             new DvArgument("ProfileType", A_ARG_TYPE_Int, ArgumentDirection.In),
             new DvArgument("ProfilePassword", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("ProfileImage", A_ARG_TYPE_String, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(updateUserProfileAction);
+
+      DvAction updateUserProfileImageAction = new DvAction("SetProfileImage", OnUpdateUserProfileImage,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("ProfileImage", A_ARG_TYPE_String, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(updateUserProfileImageAction);
 
       DvAction renameProfileAction = new DvAction("RenameProfile", OnRenameProfile,
           new DvArgument[] {
@@ -378,11 +386,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       string profileName = (string)inParams[0];
       int profileType = (int)inParams[1];
       string profilePassword = (string)inParams[2];
-      string profileImage = (string)inParams[3];
-      byte[] image = null;
-      if (!string.IsNullOrEmpty(profileImage))
-        image = Convert.FromBase64String(profileImage);
-      Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfile(profileName, profileType, profilePassword, image);
+      Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfile(profileName, profileType, profilePassword);
       outParams = new List<object> { profileId };
       return null;
     }
@@ -394,11 +398,20 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       string profileName = (string)inParams[1];
       int profileType = (int)inParams[2];
       string profilePassword = (string)inParams[3];
-      string profileImage = (string)inParams[4];
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().UpdateProfile(profileId, profileName, profileType, profilePassword);
+      outParams = new List<object> { success };
+      return null;
+    }
+
+    static UPnPError OnUpdateUserProfileImage(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string profileImage = (string)inParams[1];
       byte[] image = null;
       if (!string.IsNullOrEmpty(profileImage))
         image = Convert.FromBase64String(profileImage);
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().UpdateProfile(profileId, profileName, profileType, profilePassword, image);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetProfileImage(profileId, image);
       outParams = new List<object> { success };
       return null;
     }
