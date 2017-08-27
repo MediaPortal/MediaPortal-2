@@ -59,6 +59,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     protected Timer _inputTimer;
     protected readonly object _syncObj = new object();
+    protected string _originalPassword = null;
 
     #endregion
 
@@ -92,6 +93,7 @@ namespace MediaPortal.UiComponents.Login.Models
       Id = userProfile.ProfileId;
       UserName = userProfile.Name;
       Password = userProfile.Password;
+      _originalPassword = userProfile.Password;
       ProfileType = userProfile.ProfileType;
       LastLogin = userProfile.LastLogin ?? DateTime.MinValue;
       Image = userProfile.Image;
@@ -300,6 +302,14 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (byte[])_imageProperty.GetValue(); }
       set { _imageProperty.SetValue(value); }
+    }
+
+    public bool IsPasswordChanged
+    {
+      get
+      {
+        return _originalPassword != null ? !_originalPassword.Equals(Password) : Password != null;
+      }
     }
 
     public void Dispose()

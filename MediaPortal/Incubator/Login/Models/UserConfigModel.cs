@@ -113,10 +113,10 @@ namespace MediaPortal.UiComponents.Login.Models
 
       _profileList = new ItemsList();
       ListItem item = null;
-      //item = new ListItem();
-      //item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
-      //item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.CLIENT_PROFILE;
-      //_profileList.Add(item);
+      item = new ListItem();
+      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
+      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.CLIENT_PROFILE;
+      _profileList.Add(item);
       item = new ListItem();
       item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
       item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.USER_PROFILE;
@@ -262,12 +262,8 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get
       {
-        foreach (var item in _profileList)
-        {
-          if (UserProxy != null)
-            item.Selected = (int)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType;
-        }
-        return _profileList;
+        lock(_syncObj)
+          return _profileList;
       }
     }
 
@@ -487,7 +483,9 @@ namespace MediaPortal.UiComponents.Login.Models
         {
           int shareCount = 0;
           bool success = true;
-          string hash = Utils.HashPassword(UserProxy.Password);
+          string hash = UserProxy.Password;
+          if(UserProxy.IsPasswordChanged)
+            hash = Utils.HashPassword(UserProxy.Password);
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
           if (userManagement != null && userManagement.UserProfileDataManagement != null)
           {
@@ -536,6 +534,7 @@ namespace MediaPortal.UiComponents.Login.Models
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
           user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
           user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+          user.Image = UserProxy.Image;
 
           item.SetLabel(Consts.KEY_NAME, user.Name);
           item.AdditionalProperties[Consts.KEY_USER] = user;
@@ -576,6 +575,10 @@ namespace MediaPortal.UiComponents.Login.Models
         if (userProfile != null && UserProxy != null)
         {
           UserProxy.SetUserProfile(userProfile, _localSharesList, _serverSharesList);
+          foreach (var item in _profileList)
+          {
+            item.Selected = (int)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType;
+          }
         }
         else
         {
@@ -623,6 +626,11 @@ namespace MediaPortal.UiComponents.Login.Models
           item.SelectedProperty.Attach(OnUserItemSelectionChanged);
           lock (_syncObj)
             _userList.Add(item);
+        }
+        if (_userList.Count > 0)
+        {
+          _userList[0].Selected = true;
+          SetUser((UserProfile)_userList[0].AdditionalProperties[Consts.KEY_USER]);
         }
       }
       catch (NotConnectedException)

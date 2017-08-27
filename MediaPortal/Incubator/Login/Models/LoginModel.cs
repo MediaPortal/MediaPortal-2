@@ -35,6 +35,7 @@ using MediaPortal.UI.Presentation.Workflow;
 using System.Collections.Generic;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.Utilities.Events;
+using MediaPortal.UiComponents.Login.General;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -187,6 +188,11 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
+    public void LogoutUser()
+    {
+      SetCurrentUser(null);
+    }
+
     #endregion
 
     #region Private and protected methods
@@ -210,6 +216,11 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         //Schedule retry of login
         _loginTimer.EnqueueEvent(null, EventArgs.Empty);
+      }
+      else
+      {
+        if(userProfileDataManagement.UserProfileDataManagement != null)
+          userProfileDataManagement.UserProfileDataManagement.LoginProfile(userProfile.ProfileId);
       }
     }
 
@@ -235,6 +246,7 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         UserProxy proxy = new UserProxy();
         proxy.SetUserProfile(user);
+        proxy.SetLabel(Consts.KEY_NAME, user.Name);
         _usersExposed.Add(proxy);
       }
       // tell the skin that something might have changed
