@@ -185,6 +185,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
                x:Name="MenuButtonPlaceholder" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
 
+      <Button Style="{ThemeResource UserButtonStyle}" Grid.Row="0" Grid.Column="2" Margin="0,-55,-75,0" VerticalAlignment="Top" HorizontalAlignment="Right"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
+
       <Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" />
     </Grid>
 

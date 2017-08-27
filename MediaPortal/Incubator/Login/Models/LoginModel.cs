@@ -29,7 +29,6 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.Login.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
@@ -46,8 +45,6 @@ namespace MediaPortal.UiComponents.Login.Models
   {
     #region Consts
 
-    public const string KEY_PROFILE_ID = "ProfileId";
-    public const string KEY_HAS_PASSWORD = "Password";
     public const string STR_MODEL_ID_LOGIN = "82582433-FD64-41bd-9059-7F662DBDA713";
     public static readonly Guid MODEL_ID_LOGIN = new Guid(STR_MODEL_ID_LOGIN);
 
@@ -56,8 +53,8 @@ namespace MediaPortal.UiComponents.Login.Models
     #region Private fields
 
     private ItemsList _usersExposed = null;
-    private AbstractProperty _currentUser;
-    private AbstractProperty _userPassword;
+    private AbstractProperty _currentUserProperty;
+    private AbstractProperty _userPasswordProperty;
     private AbstractProperty _isPasswordIncorrect;
     private DelayedEvent _loginTimer = null;
     private Guid _passwordUser;
@@ -71,8 +68,8 @@ namespace MediaPortal.UiComponents.Login.Models
     /// </summary>
     public LoginModel()
     {
-      _currentUser = new WProperty(typeof(UserProfile), null);
-      _userPassword = new WProperty(typeof(string), string.Empty);
+      _currentUserProperty = new WProperty(typeof(UserProfile), null);
+      _userPasswordProperty = new WProperty(typeof(string), string.Empty);
       _isPasswordIncorrect = new WProperty(typeof(bool), false);
 
       _loginTimer = new DelayedEvent(1000);
@@ -96,8 +93,8 @@ namespace MediaPortal.UiComponents.Login.Models
     /// </summary>
     public AbstractProperty CurrentUserProperty
     {
-      get { return _currentUser; }
-      set { _currentUser = value; }
+      get { return _currentUserProperty; }
+      set { _currentUserProperty = value; }
     }
 
     /// <summary>
@@ -105,19 +102,19 @@ namespace MediaPortal.UiComponents.Login.Models
     /// </summary>
     public UserProfile CurrentUser
     {
-      get { return (UserProfile)_currentUser.GetValue(); }
+      get { return (UserProfile)_currentUserProperty.GetValue(); }
     }
 
     public AbstractProperty UserPasswordProperty
     {
-      get { return _userPassword; }
-      set { _userPassword = value; }
+      get { return _userPasswordProperty; }
+      set { _userPasswordProperty = value; }
     }
 
     public string UserPassword
     {
-      get { return (string)_userPassword.GetValue(); }
-      set { _userPassword.SetValue(value); }
+      get { return (string)_userPasswordProperty.GetValue(); }
+      set { _userPasswordProperty.SetValue(value); }
     }
 
     public AbstractProperty IsPasswordIncorrectProperty
@@ -152,12 +149,12 @@ namespace MediaPortal.UiComponents.Login.Models
     /// selects a user
     /// </summary>
     /// <param name="item"></param>
-    public void SelectUser(ListItem item)
+    public void SelectUser(UserProxy item)
     {
       UserPassword = "";
       IsPasswordIncorrect = false;
-      _passwordUser = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
-      if ((bool)item.AdditionalProperties[KEY_HAS_PASSWORD])
+      _passwordUser = item.Id;
+      if (!string.IsNullOrEmpty(item.Password))
       {
         ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
           (string name, System.Guid id) =>
@@ -236,14 +233,9 @@ namespace MediaPortal.UiComponents.Login.Models
       var users = userManagement.UserProfileDataManagement.GetProfiles();
       foreach (UserProfile user in users.Where(u => u.ProfileType != UserProfile.CLIENT_PROFILE))
       {
-        ListItem item = new ListItem();
-        item.SetLabel(Consts.KEY_NAME, user.Name);
-
-        item.AdditionalProperties[KEY_PROFILE_ID] = user.ProfileId;
-        item.AdditionalProperties[KEY_HAS_PASSWORD] = !string.IsNullOrEmpty(user.Password);
-        item.SetLabel("HasPassword", !string.IsNullOrEmpty(user.Password) ? "true" : "false");
-        item.SetLabel("LastLogin", user.LastLogin.HasValue ? user.LastLogin.Value.ToString("G") : "");
-        _usersExposed.Add(item);
+        UserProxy proxy = new UserProxy();
+        proxy.SetUserProfile(user);
+        _usersExposed.Add(proxy);
       }
       // tell the skin that something might have changed
       _usersExposed.FireChange();

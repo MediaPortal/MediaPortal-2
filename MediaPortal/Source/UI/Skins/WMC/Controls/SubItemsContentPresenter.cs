@@ -26,6 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UiComponents.WMCSkin.Models;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 
@@ -56,10 +57,17 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
     public override void BringIntoView(UIElement element, RectangleF elementBounds)
     {
       //disable auto centering if using mouse, prevents items from scrolling
-      if (AutoCentering != ScrollAutoCenteringEnum.None && IsMouseOverElement(element))
+      if (AutoCentering != ScrollAutoCenteringEnum.None && IsMouseOverElement(element) && !ShouldBringIntoView(element))
         return;
       UpdateCurrentIndex(element);
       base.BringIntoView(element, elementBounds);
+    }
+
+    protected void UpdateCurrentIndex(UIElement element)
+    {
+      var lvi = element.FindParentOfType<ListViewItem>();
+      if (lvi != null)
+        CurrentIndex = lvi.ItemIndex;
     }
 
     protected bool IsMouseOverElement(UIElement element)
@@ -70,11 +78,13 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
       return frameworkElement != null && frameworkElement.IsMouseOver;
     }
 
-    protected void UpdateCurrentIndex(UIElement element)
+    protected bool ShouldBringIntoView(UIElement element)
     {
       var lvi = element.FindParentOfType<ListViewItem>();
-      if (lvi != null)
-        CurrentIndex = lvi.ItemIndex;
+      if (lvi == null)
+        return false;
+      var item = lvi.Context as SubItem;
+      return item != null && item.BringIntoView;
     }
   }
 }

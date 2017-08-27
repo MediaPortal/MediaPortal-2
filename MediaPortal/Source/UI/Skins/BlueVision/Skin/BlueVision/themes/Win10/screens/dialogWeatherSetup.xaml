@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[WeatherSetup.Title]"/>
+
+    <!-- WeatherSetup model -->
+    <Model x:Key="Model" Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel Width="750" DataContext="{Binding Source={StaticResource Model}}">
+
+        <Label Margin="10,0,0,0" Content="[WeatherSetup.ConfiguredCities]" Color="{ThemeResource TextColor}"/>
+        <StackPanel Margin="10,10,10,0" HorizontalAlignment="Center">
+          <ListView Name="CitiesList" Height="300" Style="{ThemeResource WeatherDisplayLocationsListViewStyle}"
+                    ItemsSource="{Binding SetupLocations}"/>
+          <UniformGrid Margin="-7,10,-7,0" Columns="3">
+            <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]" 
+                    SetFocusPrio="DefaultHigh" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
+            <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Remove]" 
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>
+            <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[WeatherSetup.Detect]" 
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Command="{Command Path=Detect}"/>
+          </UniformGrid>
+        </StackPanel>
+        <UniformGrid Columns="2" HorizontalAlignment="Stretch" Margin="3,0,3,0">
+          <Button Style="{ThemeResource DialogButtonStyle}" Content="[System.Done]" Margin="5"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings"/>
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+              </CommandList>
+            </Button.Command>
+          </Button>
+          <Button Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]" Margin="5"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                  Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+        </UniformGrid>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

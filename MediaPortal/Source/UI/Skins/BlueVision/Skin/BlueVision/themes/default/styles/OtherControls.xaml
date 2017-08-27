@@ -1354,7 +1354,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True" Margin="-20,20,0,-5"
+          <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True" Margin="-20,0,0,-5"
               Orientation="Horizontal"
               EllipsisControlStyle="{ThemeResource WorkflowNavigationBarEllipsisControlStyle}"
               Background="#60000000"/>

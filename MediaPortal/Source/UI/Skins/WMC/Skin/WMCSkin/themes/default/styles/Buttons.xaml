@@ -575,15 +575,6 @@
             <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54" Scroll="Auto"
                    HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            <Image x:Name="FocusFrame" Source="Focus.frame.png"
-                   Stretch="Uniform" HorizontalAlignment="Left" Margin="-4,-1,-5,-6">
-              <Image.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                  <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
-                </MultiBinding>
-              </Image.IsVisible>
-            </Image>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1742,6 +1733,40 @@
               </Image.IsVisible>
             </Image>
           </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SubMenuLeftButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="Left_Menu.PNG" Stretch="Uniform" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="Left_Menu_Focus.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SubMenuRightButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="Right_Menu.PNG" Stretch="Uniform" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="Right_Menu_Focus.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

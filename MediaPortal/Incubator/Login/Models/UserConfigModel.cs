@@ -60,9 +60,9 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public const string STR_MODEL_ID_USERCONFIG = "9B20B421-DF2E-42B6-AFF2-7EB6B60B601D";
     public static readonly Guid MODEL_ID_USERCONFIG = new Guid(STR_MODEL_ID_USERCONFIG);
-    public static int MAX_IMAGE_WIDTH = 64;
-    public static int MAX_IMAGE_HEIGHT = 64;
-   
+    public static int MAX_IMAGE_WIDTH = 128;
+    public static int MAX_IMAGE_HEIGHT = 128;
+
     #endregion
 
     #region Protected fields
@@ -356,8 +356,8 @@ namespace MediaPortal.UiComponents.Login.Models
         _imagePath = null;
         if (File.Exists(value))
         {
-          using(FileStream stream = new FileStream(value, FileMode.Open))
-          using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT))
+          using (FileStream stream = new FileStream(value, FileMode.Open))
+          using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Png, MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT))
           {
             if (resized != null)
             {
@@ -505,7 +505,7 @@ namespace MediaPortal.UiComponents.Login.Models
               return;
             }
 
-            if(UserProxy.Image != null)
+            if (UserProxy.Image != null)
               success &= userManagement.UserProfileDataManagement.SetProfileImage(UserProxy.Id, UserProxy.Image);
             success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
             success &= userManagement.UserProfileDataManagement.ClearUserAdditionalDataKey(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE);
@@ -566,11 +566,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public bool IsValidImage(string choosenPath)
     {
-      if (DEFAULT_IMAGE_FILE_EXTENSIONS.Where(e => string.Compare(e, Path.GetExtension(choosenPath), true) == 0).Any())
-      {
-        return true;
-      }
-      return false;
+      return DEFAULT_IMAGE_FILE_EXTENSIONS.Any(e => String.Compare(e, Path.GetExtension(choosenPath), StringComparison.OrdinalIgnoreCase) == 0);
     }
 
     private void SetUser(UserProfile userProfile)
@@ -579,66 +575,11 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         if (userProfile != null && UserProxy != null)
         {
-          UserProxy.Id = userProfile.ProfileId;
-          UserProxy.UserName = userProfile.Name;
-          UserProxy.Password = userProfile.Password;
-          UserProxy.ProfileType = userProfile.ProfileType;
-          UserProxy.LastLogin = userProfile.LastLogin ?? DateTime.MinValue;
-
-          UserProxy.SelectedShares.Clear();
-          int allowedAge = 5;
-          bool allowAllAges = true;
-          bool allowAllShares = true;
-          bool includeParentContent = false;
-          bool includeUnratedContent = false;
-          string preferredMovieCountry = string.Empty;
-          string preferredSeriesCountry = string.Empty;
-
-          foreach (var data in userProfile.AdditionalData)
-          {
-            foreach (var val in data.Value)
-            {
-              if (data.Key == UserDataKeysKnown.KEY_ALLOWED_AGE)
-                allowedAge = Convert.ToInt32(val.Value);
-              else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_AGES)
-                allowAllAges = Convert.ToInt32(val.Value) > 0;
-              else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
-                allowAllShares = Convert.ToInt32(val.Value) > 0;
-              else if (data.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
-              {
-                Guid shareId = Guid.Parse(val.Value);
-                if (_localSharesList.Where(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId).Any() ||
-                  _serverSharesList.Where(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId).Any())
-                  UserProxy.SelectedShares.Add(shareId);
-              }
-              else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT)
-                includeParentContent = Convert.ToInt32(val.Value) > 0;
-              else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT)
-                includeUnratedContent = Convert.ToInt32(val.Value) > 0;
-            }
-          }
-
-          UserProxy.RestrictAges = !allowAllAges;
-          UserProxy.RestrictShares = !allowAllShares;
-          UserProxy.AllowedAge = allowedAge;
-          UserProxy.IncludeParentGuidedContent = includeParentContent;
-          UserProxy.IncludeUnratedContent = includeParentContent;
+          UserProxy.SetUserProfile(userProfile, _localSharesList, _serverSharesList);
         }
-        else if (UserProxy != null)
+        else
         {
-          UserProxy.Id = Guid.Empty;
-          UserProxy.UserName = String.Empty;
-          UserProxy.Password = String.Empty;
-          UserProxy.ProfileType = UserProfile.USER_PROFILE;
-          UserProxy.LastLogin = DateTime.MinValue;
-
-          UserProxy.SelectedShares.Clear();
-
-          UserProxy.RestrictAges = false;
-          UserProxy.RestrictShares = false;
-          UserProxy.AllowedAge = 5;
-          UserProxy.IncludeParentGuidedContent = false;
-          UserProxy.IncludeUnratedContent = false;
+          UserProxy?.Clear();
         }
 
         SetSelectedShares();
