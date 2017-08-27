@@ -60,8 +60,8 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public const string STR_MODEL_ID_USERCONFIG = "9B20B421-DF2E-42B6-AFF2-7EB6B60B601D";
     public static readonly Guid MODEL_ID_USERCONFIG = new Guid(STR_MODEL_ID_USERCONFIG);
-    public static int MAX_IMAGE_WIDTH = 64;
-    public static int MAX_IMAGE_HEIGHT = 64;
+    public static int MAX_IMAGE_WIDTH = 128;
+    public static int MAX_IMAGE_HEIGHT = 128;
 
     #endregion
 
@@ -357,7 +357,7 @@ namespace MediaPortal.UiComponents.Login.Models
         if (File.Exists(value))
         {
           using (FileStream stream = new FileStream(value, FileMode.Open))
-          using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT))
+          using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Png, MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT))
           {
             if (resized != null)
             {
