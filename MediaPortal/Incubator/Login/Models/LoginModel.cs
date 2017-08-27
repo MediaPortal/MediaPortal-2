@@ -56,8 +56,8 @@ namespace MediaPortal.UiComponents.Login.Models
     #region Private fields
 
     private ItemsList _usersExposed = null;
-    private AbstractProperty _currentUser;
-    private AbstractProperty _userPassword;
+    private AbstractProperty _currentUserProperty;
+    private AbstractProperty _userPasswordProperty;
     private AbstractProperty _isPasswordIncorrect;
     private DelayedEvent _loginTimer = null;
     private Guid _passwordUser;
@@ -71,8 +71,8 @@ namespace MediaPortal.UiComponents.Login.Models
     /// </summary>
     public LoginModel()
     {
-      _currentUser = new WProperty(typeof(UserProfile), null);
-      _userPassword = new WProperty(typeof(string), string.Empty);
+      _currentUserProperty = new WProperty(typeof(UserProfile), null);
+      _userPasswordProperty = new WProperty(typeof(string), string.Empty);
       _isPasswordIncorrect = new WProperty(typeof(bool), false);
 
       _loginTimer = new DelayedEvent(1000);
@@ -96,8 +96,8 @@ namespace MediaPortal.UiComponents.Login.Models
     /// </summary>
     public AbstractProperty CurrentUserProperty
     {
-      get { return _currentUser; }
-      set { _currentUser = value; }
+      get { return _currentUserProperty; }
+      set { _currentUserProperty = value; }
     }
 
     /// <summary>
@@ -105,19 +105,19 @@ namespace MediaPortal.UiComponents.Login.Models
     /// </summary>
     public UserProfile CurrentUser
     {
-      get { return (UserProfile)_currentUser.GetValue(); }
+      get { return (UserProfile)_currentUserProperty.GetValue(); }
     }
 
     public AbstractProperty UserPasswordProperty
     {
-      get { return _userPassword; }
-      set { _userPassword = value; }
+      get { return _userPasswordProperty; }
+      set { _userPasswordProperty = value; }
     }
 
     public string UserPassword
     {
-      get { return (string)_userPassword.GetValue(); }
-      set { _userPassword.SetValue(value); }
+      get { return (string)_userPasswordProperty.GetValue(); }
+      set { _userPasswordProperty.SetValue(value); }
     }
 
     public AbstractProperty IsPasswordIncorrectProperty
