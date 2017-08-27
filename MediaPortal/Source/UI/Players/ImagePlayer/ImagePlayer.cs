@@ -267,7 +267,7 @@ namespace MediaPortal.UI.Players.Image
         _flipX = flipX;
         _flipY = flipY;
         SurfaceDescription desc = _texture.Texture.GetLevelDescription(0);
-        _textureMaxUV = new SizeF(_texture.Width / (float) desc.Width, _texture.Height / (float) desc.Height);
+        _textureMaxUV = new SizeF(_texture.Width / (float)desc.Width, _texture.Height / (float)desc.Height);
 
         // Reset animation
         _animator.Initialize();
@@ -385,11 +385,11 @@ namespace MediaPortal.UI.Players.Image
       RightAngledRotation rotation = RightAngledRotation.Zero;
       bool flipX = false;
       bool flipY = false;
-     SingleMediaItemAspect imageAspect;
+      SingleMediaItemAspect imageAspect;
       MediaItemAspect.TryGetAspect(mediaItem.Aspects, ImageAspect.Metadata, out imageAspect);
       if (imageAspect != null)
       {
-        int orientationInfo = (int) imageAspect[ImageAspect.ATTR_ORIENTATION];
+        int orientationInfo = (int)imageAspect[ImageAspect.ATTR_ORIENTATION];
         ImageRotation imageRotation;
         ImageAspect.OrientationToRotation(orientationInfo, out imageRotation);
         rotation = PlayerRotationTranslator.TranslateToRightAngledRotation(imageRotation);
