@@ -216,7 +216,35 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       IMediaPlaybackControl player = videoPlayer as IMediaPlaybackControl;
       _videoPlayerSuspended = player == null || player.IsPaused;
-      PlayerSuspendLevel = videoPlayer == null ? SuspendLevel.None : SuspendLevel.DisplayRequired;
+      if (videoPlayer != null)
+        PlayerSuspendLevel = _videoPlayerSuspended ? SuspendLevel.None : SuspendLevel.DisplayRequired;
+      else
+        HandleNonVideoPlayers();
+    }
+
+    private void HandleNonVideoPlayers()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayer primaryPlayer = playerContextManager[PlayerContextIndex.PRIMARY];
+      IMediaPlaybackControl mbc = primaryPlayer as IMediaPlaybackControl;
+      bool isPlaying = mbc == null || !mbc.IsPaused;
+      if (primaryPlayer == null)
+      {
+        PlayerSuspendLevel = SuspendLevel.None;
+        return;
+      }
+      if (primaryPlayer is IAudioPlayer)
+      {
+        // For audio players we allow turning off the screen, but avoiding suspend.
+        PlayerSuspendLevel = isPlaying ? SuspendLevel.AvoidSuspend : SuspendLevel.None;
+        return;
+      }
+      if (primaryPlayer is IImagePlayer)
+      {
+        // For image players we avoiding both suspend and display off.
+        PlayerSuspendLevel = isPlaying ? SuspendLevel.DisplayRequired : SuspendLevel.None;
+        return;
+      }
     }
 
     public SuspendLevel PlayerSuspendLevel
