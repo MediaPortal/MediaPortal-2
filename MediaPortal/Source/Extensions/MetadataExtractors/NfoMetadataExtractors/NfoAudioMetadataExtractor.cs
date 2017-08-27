@@ -290,6 +290,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                       trackInfo.TrackNum = track.TrackNumber.HasValue ? track.TrackNumber.Value : 0;
                       trackInfo.TotalTracks = album.Tracks.Count;
                       trackInfo.MusicBrainzId = track.MusicBrainzId;
+                      trackInfo.IsrcId = track.Isrc;
                       trackInfo.AudioDbId = track.AudioDbId.HasValue ? track.AudioDbId.Value : 0;
                       trackInfo.AlbumMusicBrainzId = album.MusicBrainzAlbumId;
                       trackInfo.AlbumMusicBrainzGroupId = album.MusicBrainzReleaseGroupId;

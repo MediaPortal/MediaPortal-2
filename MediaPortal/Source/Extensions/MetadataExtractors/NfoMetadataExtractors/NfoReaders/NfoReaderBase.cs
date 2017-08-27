@@ -1159,6 +1159,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return null;
       value.AudioDbId = ParseSimpleLong(element.Element("audioDbID"));
       value.MusicBrainzId = ParseSimpleString(element.Element("musicBrainzID"));
+      value.Isrc = ParseSimpleString(element.Element("isrc"));
       value.TrackNumber = ParseSimpleInt(element.Element("position"));
       value.Duration = ParseSimpleDuration(element.Element("duration"), true);
       value.Artists = ParseCharacterSeparatedStrings(element.Element("artist"), value.Artists);

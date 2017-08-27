@@ -141,6 +141,19 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Assign Id to a media item that has no Id
+    /// </summary>
+    public bool AssignMissingId(Guid mediaItemId)
+    {
+      if(_id == Guid.Empty)
+      {
+        _id = mediaItemId;
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
     /// Indicates if the current MediaItem is a stub.
     /// </summary>
     public bool IsStub
