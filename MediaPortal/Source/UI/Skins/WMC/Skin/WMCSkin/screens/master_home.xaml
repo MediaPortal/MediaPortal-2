@@ -176,20 +176,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"/>
-
-        <!--Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,50,0">
-          <Label x:Name="HeaderLabel"
-              FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
-              Content="Home" />
-          <Grid.OpacityMask>
-            <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-              <GradientStop Offset="0.0" Color="#FF000000" />
-              <GradientStop Offset="1.0" Color="#1A000000" />
-            </LinearGradientBrush>
-          </Grid.OpacityMask>
-        </-->
         <Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,30,50,0">
           <Grid.Resources>
             <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
@@ -234,6 +220,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="450"/>
       </Grid.ColumnDefinitions>
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" VerticalAlignment="Center">
+          <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
+                     HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        </StackPanel>
         <Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
