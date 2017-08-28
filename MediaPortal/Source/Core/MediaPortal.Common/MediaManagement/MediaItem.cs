@@ -165,7 +165,25 @@ namespace MediaPortal.Common.MediaManagement
 
         IList<MultipleMediaItemAspect> providerAspects;
         if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
-          return providerAspects.Where(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB).Any();
+          return providerAspects.Any(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB);
+
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Indicates if the current MediaItem is virtual.
+    /// </summary>
+    public bool IsVirtual
+    {
+      get
+      {
+        if (PrimaryResources.Count > 0)
+          return false;
+
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return providerAspects.Any(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_VIRTUAL);
 
         return false;
       }
@@ -190,9 +208,21 @@ namespace MediaPortal.Common.MediaManagement
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
     public virtual IResourceLocator GetResourceLocator()
     {
-      if (PrimaryResources.Count <= ActiveResourceLocatorIndex)
-        return null;
-      var aspect = PrimaryResources[ActiveResourceLocatorIndex];
+      MultipleMediaItemAspect aspect;
+      if (IsStub)
+      {
+        // If there are no primary resources then return stub resource if available
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return null;
+        aspect = providerAspects.First(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB);
+      }
+      else
+      {
+        if (PrimaryResources.Count <= ActiveResourceLocatorIndex)
+          return null;
+        aspect = PrimaryResources[ActiveResourceLocatorIndex];
+      }
       string systemId = (string)aspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
       string resourceAccessorPath = (string)aspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
