@@ -1957,7 +1957,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               for (int index = currentItem; index < endItem; index++)
                 database.AddParameter(command, "MI" + index, mediaItems[index].MediaItemId, typeof(Guid));
               command.CommandText = string.Format(SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL,
-                string.Join(",", mediaItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + index)));
+                string.Join(",", mediaItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + (index + currentItem))));
               using (IDataReader reader = command.ExecuteReader())
               {
                 while (reader.Read())
