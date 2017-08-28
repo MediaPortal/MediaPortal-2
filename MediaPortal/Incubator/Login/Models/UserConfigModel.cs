@@ -491,15 +491,15 @@ namespace MediaPortal.UiComponents.Login.Models
           {
             if (UserProxy.Id == Guid.Empty)
             {
-              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.UserName, UserProxy.ProfileType, hash);
+              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.Name, UserProxy.ProfileType, hash);
             }
             else
             {
-              success = userManagement.UserProfileDataManagement.UpdateProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, hash);
+              success = userManagement.UserProfileDataManagement.UpdateProfile(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash);
             }
             if (UserProxy.Id == Guid.Empty)
             {
-              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving user '{0}'", UserProxy.UserName);
+              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving user '{0}'", UserProxy.Name);
               return;
             }
 
@@ -516,7 +516,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
             if (!success)
             {
-              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving setup for user '{0}'", UserProxy.UserName);
+              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving setup for user '{0}'", UserProxy.Name);
               return;
             }
           }
@@ -526,7 +526,7 @@ namespace MediaPortal.UiComponents.Login.Models
             return;
 
           shareCount = 0;
-          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, hash);
+          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash);
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
           foreach (var shareId in UserProxy.SelectedShares)
             user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());

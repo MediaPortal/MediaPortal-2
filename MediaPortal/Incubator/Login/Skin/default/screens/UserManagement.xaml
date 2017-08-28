@@ -46,7 +46,7 @@
         <Label Grid.Row="1" Grid.Column="1" Margin="5"
                Content="[UserConfig.UserName]" Color="{ThemeResource TextColor}"/>
         <TextBox Grid.Row="1" Grid.Column="3" TextAlign="Center" HorizontalContentAlignment="Center"
-                 Text="{Binding Path=UserProxy.UserName,Mode=TwoWay}" PreferredTextLength="40"/>
+                 Text="{Binding Path=UserProxy.Name,Mode=TwoWay}" PreferredTextLength="40"/>
 
         <Label Grid.Row="2" Grid.Column="1" Margin="5"
                Content="[UserConfig.Password]" Color="{ThemeResource TextColor}"/>

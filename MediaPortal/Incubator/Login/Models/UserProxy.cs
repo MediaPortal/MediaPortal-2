@@ -91,7 +91,7 @@ namespace MediaPortal.UiComponents.Login.Models
     public void SetUserProfile(UserProfile userProfile, ItemsList localSharesList = null, ItemsList serverSharesList = null)
     {
       Id = userProfile.ProfileId;
-      UserName = userProfile.Name;
+      Name = userProfile.Name;
       Password = userProfile.Password;
       _originalPassword = userProfile.Password;
       ProfileType = userProfile.ProfileType;
@@ -142,7 +142,7 @@ namespace MediaPortal.UiComponents.Login.Models
     public void Clear()
     {
       Id = Guid.Empty;
-      UserName = String.Empty;
+      Name = String.Empty;
       Password = String.Empty;
       ProfileType = UserProfile.USER_PROFILE;
       LastLogin = DateTime.MinValue;
@@ -160,7 +160,7 @@ namespace MediaPortal.UiComponents.Login.Models
     private void OnUserChanged(AbstractProperty property, object oldValue)
     {
       bool valid = true;
-      valid &= !string.IsNullOrEmpty(UserName);
+      valid &= !string.IsNullOrEmpty(Name);
       valid &= ProfileType >= 0;
       IsUserValid = valid;
     }
@@ -194,12 +194,12 @@ namespace MediaPortal.UiComponents.Login.Models
       set { _idProperty.SetValue(value); }
     }
 
-    public AbstractProperty UserNameProperty
+    public AbstractProperty NameProperty
     {
       get { return _userNameProperty; }
     }
 
-    public string UserName
+    public string Name
     {
       get { return (string)_userNameProperty.GetValue(); }
       set { _userNameProperty.SetValue(value); }
