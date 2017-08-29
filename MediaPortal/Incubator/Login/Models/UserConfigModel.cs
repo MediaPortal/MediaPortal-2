@@ -60,9 +60,9 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public const string STR_MODEL_ID_USERCONFIG = "9B20B421-DF2E-42B6-AFF2-7EB6B60B601D";
     public static readonly Guid MODEL_ID_USERCONFIG = new Guid(STR_MODEL_ID_USERCONFIG);
-    public static int MAX_IMAGE_WIDTH = 64;
-    public static int MAX_IMAGE_HEIGHT = 64;
-   
+    public static int MAX_IMAGE_WIDTH = 128;
+    public static int MAX_IMAGE_HEIGHT = 128;
+
     #endregion
 
     #region Protected fields
@@ -113,10 +113,10 @@ namespace MediaPortal.UiComponents.Login.Models
 
       _profileList = new ItemsList();
       ListItem item = null;
-      //item = new ListItem();
-      //item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
-      //item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.CLIENT_PROFILE;
-      //_profileList.Add(item);
+      item = new ListItem();
+      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
+      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.CLIENT_PROFILE;
+      _profileList.Add(item);
       item = new ListItem();
       item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
       item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.USER_PROFILE;
@@ -262,12 +262,8 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get
       {
-        foreach (var item in _profileList)
-        {
-          if (UserProxy != null)
-            item.Selected = (int)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType;
-        }
-        return _profileList;
+        lock(_syncObj)
+          return _profileList;
       }
     }
 
@@ -356,8 +352,8 @@ namespace MediaPortal.UiComponents.Login.Models
         _imagePath = null;
         if (File.Exists(value))
         {
-          using(FileStream stream = new FileStream(value, FileMode.Open))
-          using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT))
+          using (FileStream stream = new FileStream(value, FileMode.Open))
+          using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Png, MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT))
           {
             if (resized != null)
             {
@@ -487,25 +483,27 @@ namespace MediaPortal.UiComponents.Login.Models
         {
           int shareCount = 0;
           bool success = true;
-          string hash = Utils.HashPassword(UserProxy.Password);
+          string hash = UserProxy.Password;
+          if(UserProxy.IsPasswordChanged)
+            hash = Utils.HashPassword(UserProxy.Password);
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
           if (userManagement != null && userManagement.UserProfileDataManagement != null)
           {
             if (UserProxy.Id == Guid.Empty)
             {
-              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.UserName, UserProxy.ProfileType, hash);
+              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.Name, UserProxy.ProfileType, hash);
             }
             else
             {
-              success = userManagement.UserProfileDataManagement.UpdateProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, hash);
+              success = userManagement.UserProfileDataManagement.UpdateProfile(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash);
             }
             if (UserProxy.Id == Guid.Empty)
             {
-              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving user '{0}'", UserProxy.UserName);
+              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving user '{0}'", UserProxy.Name);
               return;
             }
 
-            if(UserProxy.Image != null)
+            if (UserProxy.Image != null)
               success &= userManagement.UserProfileDataManagement.SetProfileImage(UserProxy.Id, UserProxy.Image);
             success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
             success &= userManagement.UserProfileDataManagement.ClearUserAdditionalDataKey(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE);
@@ -518,7 +516,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
             if (!success)
             {
-              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving setup for user '{0}'", UserProxy.UserName);
+              ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving setup for user '{0}'", UserProxy.Name);
               return;
             }
           }
@@ -528,7 +526,7 @@ namespace MediaPortal.UiComponents.Login.Models
             return;
 
           shareCount = 0;
-          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.UserName, UserProxy.ProfileType, hash);
+          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash);
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
           foreach (var shareId in UserProxy.SelectedShares)
             user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
@@ -536,6 +534,7 @@ namespace MediaPortal.UiComponents.Login.Models
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
           user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
           user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+          user.Image = UserProxy.Image;
 
           item.SetLabel(Consts.KEY_NAME, user.Name);
           item.AdditionalProperties[Consts.KEY_USER] = user;
@@ -566,11 +565,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public bool IsValidImage(string choosenPath)
     {
-      if (DEFAULT_IMAGE_FILE_EXTENSIONS.Where(e => string.Compare(e, Path.GetExtension(choosenPath), true) == 0).Any())
-      {
-        return true;
-      }
-      return false;
+      return DEFAULT_IMAGE_FILE_EXTENSIONS.Any(e => String.Compare(e, Path.GetExtension(choosenPath), StringComparison.OrdinalIgnoreCase) == 0);
     }
 
     private void SetUser(UserProfile userProfile)
@@ -579,66 +574,15 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         if (userProfile != null && UserProxy != null)
         {
-          UserProxy.Id = userProfile.ProfileId;
-          UserProxy.UserName = userProfile.Name;
-          UserProxy.Password = userProfile.Password;
-          UserProxy.ProfileType = userProfile.ProfileType;
-          UserProxy.LastLogin = userProfile.LastLogin ?? DateTime.MinValue;
-
-          UserProxy.SelectedShares.Clear();
-          int allowedAge = 5;
-          bool allowAllAges = true;
-          bool allowAllShares = true;
-          bool includeParentContent = false;
-          bool includeUnratedContent = false;
-          string preferredMovieCountry = string.Empty;
-          string preferredSeriesCountry = string.Empty;
-
-          foreach (var data in userProfile.AdditionalData)
+          UserProxy.SetUserProfile(userProfile, _localSharesList, _serverSharesList);
+          foreach (var item in _profileList)
           {
-            foreach (var val in data.Value)
-            {
-              if (data.Key == UserDataKeysKnown.KEY_ALLOWED_AGE)
-                allowedAge = Convert.ToInt32(val.Value);
-              else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_AGES)
-                allowAllAges = Convert.ToInt32(val.Value) > 0;
-              else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
-                allowAllShares = Convert.ToInt32(val.Value) > 0;
-              else if (data.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
-              {
-                Guid shareId = Guid.Parse(val.Value);
-                if (_localSharesList.Where(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId).Any() ||
-                  _serverSharesList.Where(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId).Any())
-                  UserProxy.SelectedShares.Add(shareId);
-              }
-              else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT)
-                includeParentContent = Convert.ToInt32(val.Value) > 0;
-              else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT)
-                includeUnratedContent = Convert.ToInt32(val.Value) > 0;
-            }
+            item.Selected = (int)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType;
           }
-
-          UserProxy.RestrictAges = !allowAllAges;
-          UserProxy.RestrictShares = !allowAllShares;
-          UserProxy.AllowedAge = allowedAge;
-          UserProxy.IncludeParentGuidedContent = includeParentContent;
-          UserProxy.IncludeUnratedContent = includeParentContent;
         }
-        else if (UserProxy != null)
+        else
         {
-          UserProxy.Id = Guid.Empty;
-          UserProxy.UserName = String.Empty;
-          UserProxy.Password = String.Empty;
-          UserProxy.ProfileType = UserProfile.USER_PROFILE;
-          UserProxy.LastLogin = DateTime.MinValue;
-
-          UserProxy.SelectedShares.Clear();
-
-          UserProxy.RestrictAges = false;
-          UserProxy.RestrictShares = false;
-          UserProxy.AllowedAge = 5;
-          UserProxy.IncludeParentGuidedContent = false;
-          UserProxy.IncludeUnratedContent = false;
+          UserProxy?.Clear();
         }
 
         SetSelectedShares();
@@ -682,6 +626,11 @@ namespace MediaPortal.UiComponents.Login.Models
           item.SelectedProperty.Attach(OnUserItemSelectionChanged);
           lock (_syncObj)
             _userList.Add(item);
+        }
+        if (_userList.Count > 0)
+        {
+          _userList[0].Selected = true;
+          SetUser((UserProfile)_userList[0].AdditionalProperties[Consts.KEY_USER]);
         }
       }
       catch (NotConnectedException)

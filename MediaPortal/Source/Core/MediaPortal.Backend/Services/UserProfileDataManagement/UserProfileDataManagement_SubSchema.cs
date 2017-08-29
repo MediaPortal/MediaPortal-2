@@ -68,11 +68,11 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     // User profiles
 
     public static IDbCommand SelectUserProfilesCommand(ITransaction transaction, Guid? profileId, string name,
-        out int profileIdIndex, out int nameIndex, out int profileTypeIndex, out int passwordIndex, out int lastLoginIndex)
+        out int profileIdIndex, out int nameIndex, out int profileTypeIndex, out int passwordIndex, out int lastLoginIndex, out int imageIndex)
     {
       ISQLDatabase database = transaction.Database;
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT PROFILE_ID, NAME, PROFILE_TYPE, PASSWORD, LAST_LOGIN FROM USER_PROFILES";
+      result.CommandText = "SELECT PROFILE_ID, NAME, PROFILE_TYPE, PASSWORD, LAST_LOGIN, IMAGE FROM USER_PROFILES";
 
       IList<string> filters = new List<string>(2);
       if (profileId.HasValue)
@@ -93,6 +93,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       profileTypeIndex = 2;
       passwordIndex = 3;
       lastLoginIndex = 4;
+      imageIndex = 5;
       return result;
     }
 

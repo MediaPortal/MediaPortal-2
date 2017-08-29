@@ -46,6 +46,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// <example>675</example>
     public long? AudioDbId { get; set; }
 
+    /// <summary>
+    /// IRSC of this recording at MusicBrainz
+    /// </summary>
+    /// <example>"USRC17607839"</example>
+    public string Isrc { get; set; }
+
     #endregion
 
     #region Title information

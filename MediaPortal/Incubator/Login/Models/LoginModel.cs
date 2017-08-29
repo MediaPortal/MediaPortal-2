@@ -29,13 +29,13 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.Login.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using System.Collections.Generic;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.Utilities.Events;
+using MediaPortal.UiComponents.Login.General;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -46,8 +46,6 @@ namespace MediaPortal.UiComponents.Login.Models
   {
     #region Consts
 
-    public const string KEY_PROFILE_ID = "ProfileId";
-    public const string KEY_HAS_PASSWORD = "Password";
     public const string STR_MODEL_ID_LOGIN = "82582433-FD64-41bd-9059-7F662DBDA713";
     public static readonly Guid MODEL_ID_LOGIN = new Guid(STR_MODEL_ID_LOGIN);
 
@@ -152,12 +150,12 @@ namespace MediaPortal.UiComponents.Login.Models
     /// selects a user
     /// </summary>
     /// <param name="item"></param>
-    public void SelectUser(ListItem item)
+    public void SelectUser(UserProxy item)
     {
       UserPassword = "";
       IsPasswordIncorrect = false;
-      _passwordUser = (Guid)item.AdditionalProperties[KEY_PROFILE_ID];
-      if ((bool)item.AdditionalProperties[KEY_HAS_PASSWORD])
+      _passwordUser = item.Id;
+      if (!string.IsNullOrEmpty(item.Password))
       {
         ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
           (string name, System.Guid id) =>
@@ -190,6 +188,11 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
+    public void LogoutUser()
+    {
+      SetCurrentUser(null);
+    }
+
     #endregion
 
     #region Private and protected methods
@@ -214,6 +217,11 @@ namespace MediaPortal.UiComponents.Login.Models
         //Schedule retry of login
         _loginTimer.EnqueueEvent(null, EventArgs.Empty);
       }
+      else
+      {
+        if(userProfileDataManagement.UserProfileDataManagement != null)
+          userProfileDataManagement.UserProfileDataManagement.LoginProfile(userProfile.ProfileId);
+      }
     }
 
     private void DelayedLogin(object sender, EventArgs e)
@@ -236,14 +244,10 @@ namespace MediaPortal.UiComponents.Login.Models
       var users = userManagement.UserProfileDataManagement.GetProfiles();
       foreach (UserProfile user in users.Where(u => u.ProfileType != UserProfile.CLIENT_PROFILE))
       {
-        ListItem item = new ListItem();
-        item.SetLabel(Consts.KEY_NAME, user.Name);
-
-        item.AdditionalProperties[KEY_PROFILE_ID] = user.ProfileId;
-        item.AdditionalProperties[KEY_HAS_PASSWORD] = !string.IsNullOrEmpty(user.Password);
-        item.SetLabel("HasPassword", !string.IsNullOrEmpty(user.Password) ? "true" : "false");
-        item.SetLabel("LastLogin", user.LastLogin.HasValue ? user.LastLogin.Value.ToString("G") : "");
-        _usersExposed.Add(item);
+        UserProxy proxy = new UserProxy();
+        proxy.SetUserProfile(user);
+        proxy.SetLabel(Consts.KEY_NAME, user.Name);
+        _usersExposed.Add(proxy);
       }
       // tell the skin that something might have changed
       _usersExposed.FireChange();

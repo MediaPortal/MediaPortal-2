@@ -216,7 +216,7 @@ namespace MediaPortal.UI.Players.BassPlayer
     protected void NotifyPlayback()
     {
       double playPercentage = CurrentTime.TotalSeconds / Duration.TotalSeconds;
-      if (playPercentage >= 0.9 && _mediaItemId.HasValue)
+      if (playPercentage >= 0.9 && _mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
       {
         IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
         IContentDirectory cd = scm.ContentDirectory;

@@ -567,7 +567,7 @@
                 </Trigger>
               </Button.Triggers>
             </Button>
-            <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Bottom" TextTrimming="CharacterEllipsis"
+            <Label x:Name="ItemLabel" Content="{Binding Name}" DockPanel.Dock="Bottom" TextTrimming="CharacterEllipsis"
                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0" FontFamily="SegoeUIBold"
                    Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
           </DockPanel>
@@ -578,11 +578,10 @@
 
   <DataTemplate x:Key="LoginItemDataTemplate">
     <DockPanel LastChildFill="False">
-      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="person.png"
+      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+             Source="{Binding Path=Image}"
+             FallbackSource="person.png"
              Width="300" Height="300" Stretch="Uniform" Margin="0" x:Name="ItemControl">
-        <Image.Source>
-          <Binding Path="[Name]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}.png"/>
-        </Image.Source>
       </Image>
     </DockPanel>
   </DataTemplate>

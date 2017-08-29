@@ -52,18 +52,20 @@ namespace MediaPortal.Common.UserProfileDataManagement
     protected string _password;
     protected DateTime? _lastLogin;
     protected int _profileType;
+    protected byte[] _image;
     protected IDictionary<string, IDictionary<int, string>> _userData = new Dictionary<string, IDictionary<int, string>>();
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
-    public UserProfile(Guid profileId, string name, int profileType = CLIENT_PROFILE, string password = null, DateTime? lastLogin = null)
+    public UserProfile(Guid profileId, string name, int profileType = CLIENT_PROFILE, string password = null, DateTime? lastLogin = null, byte[] image = null)
     {
       _profileId = profileId;
       _name = name;
       _password = password;
       _lastLogin = lastLogin;
       _profileType = profileType;
+      _image = image;
     }
 
     public void Rename(string newName)
@@ -129,6 +131,16 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       get { return _lastLogin; }
       set { _lastLogin = value; }
+    }
+
+    /// <summary>
+    /// Returns the image of this profile.
+    /// </summary>
+    [XmlIgnore]
+    public byte[] Image
+    {
+      get { return _image; }
+      set { _image = value; }
     }
 
     /// <summary>
@@ -265,6 +277,16 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       get { return _lastLogin.HasValue ? _lastLogin.Value.Ticks : 0; }
       set { _lastLogin = value == 0 ? (DateTime?)null : new DateTime(value); }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("Image")]
+    public byte[] XML_Image
+    {
+      get { return _image; }
+      set { _image = value; }
     }
 
     /// <summary>

@@ -73,16 +73,22 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         int idIndex;
         int dataIndex;
         int lastLoginIndex;
+        int imageIndex;
         ICollection<UserProfile> result = new List<UserProfile>();
         using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserProfilesCommand(transaction, profileId, name,
-            out profileIdIndex, out nameIndex, out idIndex, out dataIndex, out lastLoginIndex))
+            out profileIdIndex, out nameIndex, out idIndex, out dataIndex, out lastLoginIndex, out imageIndex))
         {
           using (IDataReader reader = command.ExecuteReader())
           {
             while (reader.Read())
             {
-              result.Add(new UserProfile(database.ReadDBValue<Guid>(reader, profileIdIndex), database.ReadDBValue<string>(reader, nameIndex), database.ReadDBValue<int>(reader, idIndex),
-                database.ReadDBValue<string>(reader, dataIndex), database.ReadDBValue<DateTime?>(reader, lastLoginIndex))
+              result.Add(new UserProfile(
+                database.ReadDBValue<Guid>(reader, profileIdIndex),
+                database.ReadDBValue<string>(reader, nameIndex),
+                database.ReadDBValue<int>(reader, idIndex),
+                database.ReadDBValue<string>(reader, dataIndex),
+                database.ReadDBValue<DateTime?>(reader, lastLoginIndex),
+                database.ReadDBValue<byte[]>(reader, imageIndex))
               );
             }
           }
@@ -567,7 +573,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           {
             if (reader.Read())
             {
-              list.Add(new Tuple<string, int, string>(database.ReadDBValue<string>(reader, keyIndex), database.ReadDBValue<int>(reader, dataNoIndex), 
+              list.Add(new Tuple<string, int, string>(database.ReadDBValue<string>(reader, keyIndex), database.ReadDBValue<int>(reader, dataNoIndex),
                 database.ReadDBValue<string>(reader, dataIndex)));
             }
           }

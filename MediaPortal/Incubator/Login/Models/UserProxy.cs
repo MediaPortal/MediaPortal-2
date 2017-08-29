@@ -27,6 +27,10 @@ using System.Timers;
 using MediaPortal.Common.General;
 using MediaPortal.Common.UserProfileDataManagement;
 using System.Collections.Generic;
+using System.Linq;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Login.General;
+using MediaPortal.UI.Presentation.DataObjects;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -35,7 +39,7 @@ namespace MediaPortal.UiComponents.Login.Models
   /// 1) Collecting all user data during the user add or edit workflow and at the same time,
   /// 2) handling the communication with the local or server shares management.
   /// </summary>
-  public class UserProxy : IDisposable
+  public class UserProxy : ListItem, IDisposable
   {
     #region Protected fields
 
@@ -55,6 +59,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     protected Timer _inputTimer;
     protected readonly object _syncObj = new object();
+    protected string _originalPassword = null;
 
     #endregion
 
@@ -78,10 +83,84 @@ namespace MediaPortal.UiComponents.Login.Models
       _profileTypeProperty.Attach(OnUserChanged);
     }
 
+    public UserProxy(UserProfile userProfile)
+    {
+      SetUserProfile(userProfile);
+    }
+
+    public void SetUserProfile(UserProfile userProfile, ItemsList localSharesList = null, ItemsList serverSharesList = null)
+    {
+      Id = userProfile.ProfileId;
+      Name = userProfile.Name;
+      Password = userProfile.Password;
+      _originalPassword = userProfile.Password;
+      ProfileType = userProfile.ProfileType;
+      LastLogin = userProfile.LastLogin ?? DateTime.MinValue;
+      Image = userProfile.Image;
+
+      SelectedShares.Clear();
+
+      int allowedAge = 5;
+      bool allowAllAges = true;
+      bool allowAllShares = true;
+      bool includeParentContent = false;
+      bool includeUnratedContent = false;
+      string preferredMovieCountry = string.Empty;
+      string preferredSeriesCountry = string.Empty;
+
+      foreach (var data in userProfile.AdditionalData)
+      {
+        foreach (var val in data.Value)
+        {
+          if (data.Key == UserDataKeysKnown.KEY_ALLOWED_AGE)
+            allowedAge = Convert.ToInt32(val.Value);
+          else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_AGES)
+            allowAllAges = Convert.ToInt32(val.Value) > 0;
+          else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
+            allowAllShares = Convert.ToInt32(val.Value) > 0;
+          else if (data.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
+          {
+            Guid shareId = Guid.Parse(val.Value);
+            if (localSharesList != null && localSharesList.Any(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId) ||
+                serverSharesList != null && serverSharesList.Any(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId))
+              SelectedShares.Add(shareId);
+          }
+          else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT)
+            includeParentContent = Convert.ToInt32(val.Value) > 0;
+          else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT)
+            includeUnratedContent = Convert.ToInt32(val.Value) > 0;
+        }
+      }
+
+      RestrictAges = !allowAllAges;
+      RestrictShares = !allowAllShares;
+      AllowedAge = allowedAge;
+      IncludeParentGuidedContent = includeParentContent;
+      IncludeUnratedContent = includeUnratedContent;
+    }
+
+    public void Clear()
+    {
+      Id = Guid.Empty;
+      Name = String.Empty;
+      Password = String.Empty;
+      ProfileType = UserProfile.USER_PROFILE;
+      LastLogin = DateTime.MinValue;
+      Image = null;
+
+      SelectedShares.Clear();
+
+      RestrictAges = false;
+      RestrictShares = false;
+      AllowedAge = 5;
+      IncludeParentGuidedContent = false;
+      IncludeUnratedContent = false;
+    }
+
     private void OnUserChanged(AbstractProperty property, object oldValue)
     {
       bool valid = true;
-      valid &= !string.IsNullOrEmpty(UserName);
+      valid &= !string.IsNullOrEmpty(Name);
       valid &= ProfileType >= 0;
       IsUserValid = valid;
     }
@@ -115,12 +194,12 @@ namespace MediaPortal.UiComponents.Login.Models
       set { _idProperty.SetValue(value); }
     }
 
-    public AbstractProperty UserNameProperty
+    public AbstractProperty NameProperty
     {
       get { return _userNameProperty; }
     }
 
-    public string UserName
+    public string Name
     {
       get { return (string)_userNameProperty.GetValue(); }
       set { _userNameProperty.SetValue(value); }
@@ -223,6 +302,14 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (byte[])_imageProperty.GetValue(); }
       set { _imageProperty.SetValue(value); }
+    }
+
+    public bool IsPasswordChanged
+    {
+      get
+      {
+        return _originalPassword != null ? !_originalPassword.Equals(Password) : Password != null;
+      }
     }
 
     public void Dispose()
