@@ -24,31 +24,28 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Services.UserManagement;
 using System;
 
 namespace MediaPortal.UiComponents.Login.Settings
 {
-  public static class UserSettingWatcher
+  public static class UserSettingStorage
   {
-    private static SettingsChangeWatcher<UserSettings> _settingsWatcher;
     private static bool _userLoginEnabled = false;
-
-    static UserSettingWatcher()
-    {
-      _settingsWatcher = new SettingsChangeWatcher<UserSettings>();
-      _settingsWatcher.SettingsChanged += SettingsChanged;
-      _settingsWatcher.Refresh();
-    }
 
     public static void Refresh()
     {
-      _settingsWatcher.Refresh();
-    }
+      ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
+      UserSettings settings = localSettings.Load<UserSettings>();
+      UserLoginEnabled = settings.EnableUserLogin;
+      AutoLoginUser = settings.AutoLoginUser;
+      AutoLogoutEnabled = settings.AutoLogoutEnabled;
+      AutoLogoutIdleTimeoutInMin = settings.AutoLogoutIdleTimeoutInMin;
 
-    private static void SettingsChanged(object sender, EventArgs e)
-    {
-      UserLoginEnabled = _settingsWatcher.Settings.EnableUserLogin;
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userManagement != null)
+        userManagement.ApplyUserRestriction = UserLoginEnabled;
     }
 
     public static bool UserLoginEnabled
@@ -57,14 +54,19 @@ namespace MediaPortal.UiComponents.Login.Settings
       {
         return _userLoginEnabled;
       }
-      private set
+      set
       {
+        if(_userLoginEnabled != value)
+        {
+          IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+          if (userManagement != null)
+            userManagement.ApplyUserRestriction = value;
+        }
         _userLoginEnabled = value;
-
-        IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-        if (userManagement != null)
-          userManagement.ApplyUserRestriction = value;
       }
     }
+    public static Guid AutoLoginUser { get; set; }
+    public static bool AutoLogoutEnabled { get; set; }
+    public static int AutoLogoutIdleTimeoutInMin { get; set; }
   }
 }

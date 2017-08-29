@@ -484,14 +484,18 @@ namespace MediaPortal.UiComponents.Login.Models
           int shareCount = 0;
           bool success = true;
           string hash = UserProxy.Password;
+          bool wasCreated = false;
           if(UserProxy.IsPasswordChanged)
             hash = Utils.HashPassword(UserProxy.Password);
+          if (UserProxy.ProfileType == UserProfile.CLIENT_PROFILE)
+            hash = ""; //Client profiles can't have passwords
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
           if (userManagement != null && userManagement.UserProfileDataManagement != null)
           {
             if (UserProxy.Id == Guid.Empty)
             {
               UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.Name, UserProxy.ProfileType, hash);
+              wasCreated = true;
             }
             else
             {
@@ -526,7 +530,9 @@ namespace MediaPortal.UiComponents.Login.Models
             return;
 
           shareCount = 0;
-          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash);
+          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash, UserProxy.LastLogin, UserProxy.Image);
+          if (wasCreated)
+            user.LastLogin = DateTime.Now;
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
           foreach (var shareId in UserProxy.SelectedShares)
             user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
@@ -534,7 +540,6 @@ namespace MediaPortal.UiComponents.Login.Models
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
           user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
           user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
-          user.Image = UserProxy.Image;
 
           item.SetLabel(Consts.KEY_NAME, user.Name);
           item.AdditionalProperties[Consts.KEY_USER] = user;
