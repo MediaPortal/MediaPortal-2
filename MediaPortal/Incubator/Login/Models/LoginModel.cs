@@ -260,6 +260,14 @@ namespace MediaPortal.UiComponents.Login.Models
       // Client login retry
       if(CurrentUser == UserManagement.UNKNOWN_USER)
         SetCurrentUser();
+
+      // Update user
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userManagement.CurrentUser.Name != CurrentUser.Name)
+      {
+        CurrentUserProperty.SetValue(userManagement.CurrentUser);
+        CurrentUserProperty.Fire(null);
+      }
     }
 
     private bool CheckIfIdle()
