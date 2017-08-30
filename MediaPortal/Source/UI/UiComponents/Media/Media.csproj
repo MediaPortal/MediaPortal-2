@@ -119,6 +119,8 @@
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumCompilationCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByMovieCertificationCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterBySeriesCertificationCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByConductorCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByContentGroupCriterion.cs" />
@@ -219,6 +221,8 @@
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByCertificationScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByCertificationScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumLabelScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumArtistScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumCompilationScreenData.cs" />
@@ -274,7 +278,9 @@
     <Compile Include="Models\Sorting\AbstractSortByFirstComparableAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableObjectAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableValueAttribute.cs" />
+    <Compile Include="Models\Sorting\MovieSortByCertification.cs" />
     <Compile Include="Models\Sorting\SeriesSortByDVDEpisode.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByCertification.cs" />
     <Compile Include="Models\Sorting\SeriesSortByFirstProductionStudio.cs" />
     <Compile Include="Models\Sorting\SeriesSortByFirstTVNetwork.cs" />
     <Compile Include="Models\Sorting\SeriesSortByEpisodeTitle.cs" />
@@ -647,6 +653,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\AudioFilterByContentGroup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByCertification.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByCertification.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

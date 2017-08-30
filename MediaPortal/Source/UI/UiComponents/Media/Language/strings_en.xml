@@ -60,6 +60,7 @@
   <string name="Media.CompilationMenuItem">Compilation</string>
   <string name="Media.AlbumCompilationMenuItem">Album compilation</string>
   <string name="Media.ContentGroupMenuItem">Content group</string>
+  <string name="Media.CertificationMenuItem">Certification</string>
 
   <string name="Media.SimpleSearchFilterMenuItem">Search</string>
   
@@ -119,6 +120,7 @@
   <string name="Media.FilterCompilationNavbarDisplayLabel">Compilations</string>
   <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Album compilations</string>
   <string name="Media.FilterContentGroupNavbarDisplayLabel">Content group: {0}</string>
+  <string name="Media.FilterCertificationNavbarDisplayLabel">Certification: {0}</string>
   
   <!-- Display labels for workflow navigation contexts -->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Browse media</string>
@@ -194,6 +196,7 @@
   <string name="Media.ChooseCompilationHeader">Compilations</string>
   <string name="Media.ChooseConductorHeader">Conductors</string>
   <string name="Media.ChooseContentGroupHeader">Content groups</string>
+  <string name="Media.ChooseCertificationHeader">Certifications</string>
 
   <string name="Media.PlaylistsOverviewHeader">Playlists</string>
   <string name="Media.SavePlaylistEditNameHeader">Save playlist</string>
@@ -384,6 +387,7 @@
   <string name="Media.CannotPlayItemsDialogText">Unable to play media items</string>
 
   <string name="Media.ValueEmptyTitle">&lt;Empty&gt;</string>
+  <string name="Media.UnratedTitle">Unrated</string>
 
   <string name="Media.ChoosePlayModeDialogHeader">Choose play mode</string>
   <string name="Media.PlayMode">Play mode</string>

@@ -224,7 +224,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           {
             filter = null;
             if (_necessaryLinkedMIATypeIds != null)
+            {
               necessaryMias = _necessaryLinkedMIATypeIds;
+              filter = currentVS.LinkedAspectFilters?.Where(kv => necessaryMias.Contains(kv.Key)).Select(kv => new { Key = kv.Key, Value = kv.Value }).FirstOrDefault()?.Value;
+            }
           }
 
           ICollection<FilterValue> fv = _clusterFilter == null ?

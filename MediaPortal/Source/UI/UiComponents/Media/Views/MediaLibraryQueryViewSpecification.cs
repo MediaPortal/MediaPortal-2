@@ -46,6 +46,7 @@ namespace MediaPortal.UiComponents.Media.Views
     #region Protected fields
 
     protected IFilter _filter;
+    protected IDictionary<Guid, IFilter> _linkedAspectfilters;
     protected MediaItemQuery _query;
     protected bool _onlyOnline;
     protected int? _maxNumItems;
@@ -74,6 +75,12 @@ namespace MediaPortal.UiComponents.Media.Views
     public IFilter Filter
     {
       get { return _filter; }
+    }
+
+    public IDictionary<Guid, IFilter> LinkedAspectFilters
+    {
+      get { return _linkedAspectfilters; }
+      set { _linkedAspectfilters = value; }
     }
 
     /// <summary>
@@ -173,6 +180,7 @@ namespace MediaPortal.UiComponents.Media.Views
               MediaLibraryQueryViewSpecification subViewSpecification =
                 CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter, _necessaryMIATypeIds, _optionalMIATypeIds, true);
               subViewSpecification.MaxNumItems = null;
+              subViewSpecification.LinkedAspectFilters = LinkedAspectFilters;
               subViewSpecification._absNumItems = group.NumItemsInGroup;
               subViewSpecifications.Add(subViewSpecification);
             }

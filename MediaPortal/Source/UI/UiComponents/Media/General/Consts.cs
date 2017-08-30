@@ -166,6 +166,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_IMAGES_VIEW_NAME = "[Media.ImagesRootViewName]";
     public const string RES_SIMPLE_SEARCH_VIEW_NAME = "[Media.SimpleSearchViewName]";
 
+    public const string RES_VALUE_UNRATED_TITLE = "[Media.UnratedTitle]";
 
     public const string RES_VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
 
@@ -306,6 +307,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_COMMON_BY_SERIES_NAME_MENU_ITEM = "[Media.SeriesNameMenuItem]";
     public const string RES_COMMON_BY_SERIES_SEASON_MENU_ITEM = "[Media.SeriesSeasonMenuItem]";
     public const string RES_COMMON_BY_SERIES_EPISODE_MENU_ITEM = "[Media.SeriesEpisodeMenuItem]";
+    public const string RES_COMMON_BY_CERTIFICATION_MENU_ITEM = "[Media.CertificationMenuItem]";
 
     public const string RES_COMMON_SHOW_ALL_MENU_ITEM = "[Media.ShowAllMenuItem]";
 
@@ -344,14 +346,13 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_IMAGE_COUNTRY_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageCountryNavbarDisplayLabel]";
     public const string RES_FILTER_IMAGE_STATE_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageStateNavbarDisplayLabel]";
     public const string RES_FILTER_IMAGE_CITY_NAVBAR_DISPLAY_LABEL = "[Media.FilterImageCityNavbarDisplayLabel]";
-
     public const string RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioLanguagesNavbarDisplayLabel]";
     public const string RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL = "[Media.FilterSystemNavbarDisplayLabel]";
     public const string RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesItemsNavbarDisplayLabel]";
     public const string RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL = "[Media.FilterSeriesSeasonNavbarDisplayLabel]";
     public const string RES_FILTER_MOVIES_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesNavbarDisplayLabel]";
     public const string RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL = "[Media.FilterMoviesCollectionNavbarDisplayLabel]";
-
+    public const string RES_FILTER_CERTIFICATION_NAVBAR_DISPLAY_LABEL = "[Media.FilterCertificationNavbarDisplayLabel]";
 
     // Sorting
     public const string RES_SWITCH_SORTING = "[Media.SwitchSortingMenuItem]";
@@ -416,6 +417,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_MOVIES_FILTER_BY_WRITER = "MovieFilterByWriter";
     public const string SCREEN_MOVIES_FILTER_BY_COMPANY = "MovieFilterByCompany";
     public const string SCREEN_MOVIES_FILTER_BY_GENRE = "MovieFilterByGenre";
+    public const string SCREEN_MOVIES_FILTER_BY_CERTIFICATION = "MovieFilterByCertification";
     public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";
     public const string SCREEN_SERIES_FILTER_BY_NAME = "SeriesFilterByName";
     public const string SCREEN_SERIES_FILTER_BY_SEASON = "SeriesFilterBySeason";
@@ -428,6 +430,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_SERIES_EPISODE_FILTER_BY_DIRECTOR = "SeriesEpisodeFilterByDirector";
     public const string SCREEN_SERIES_EPISODE_FILTER_BY_WRITER = "SeriesEpisodeFilterByWriter";
     public const string SCREEN_SERIES_FILTER_BY_GENRE = "SeriesFilterByGenre";
+    public const string SCREEN_SERIES_FILTER_BY_CERTIFICATION = "SeriesFilterByCertification";
     public const string SCREEN_VIDEOS_SIMPLE_SEARCH = "VideoSimpleSearch";
     public const string SCREEN_IMAGE_SHOW_ITEMS = "ImageShowItems";
     public const string SCREEN_IMAGE_FILTER_BY_YEAR = "ImageFilterByYear";
