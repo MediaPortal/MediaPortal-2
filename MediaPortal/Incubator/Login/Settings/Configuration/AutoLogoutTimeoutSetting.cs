@@ -25,18 +25,24 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Settings;
+using System;
 
 namespace MediaPortal.UiComponents.Login.Settings.Configuration
 {
-  public class UserConfigSettings : YesNo
+  public class AutoLogoutTimeoutSetting : LimitedNumberSelect
   {
     public override void Load()
     {
       if (!Enabled)
         return;
+
+      LowerLimit = 5;
+      UpperLimit = 300;
+      MaxNumDigits = 0;
+
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       UserSettings settings = localSettings.Load<UserSettings>();
-      Yes = settings.EnableUserLogin;
+      Value = settings.AutoLogoutIdleTimeoutInMin;
     }
 
     public override void Save()
@@ -48,9 +54,9 @@ namespace MediaPortal.UiComponents.Login.Settings.Configuration
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       UserSettings settings = localSettings.Load<UserSettings>();
-      settings.EnableUserLogin = Yes;
+      settings.AutoLogoutIdleTimeoutInMin = Convert.ToInt32(Value);
       localSettings.Save(settings);
-      UserSettingStorage.UserLoginEnabled = Yes;
+      UserSettingStorage.AutoLogoutIdleTimeoutInMin = settings.AutoLogoutIdleTimeoutInMin;
     }
   }
 }

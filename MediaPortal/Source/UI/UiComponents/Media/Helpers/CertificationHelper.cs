@@ -270,12 +270,16 @@ namespace MediaPortal.UiComponents.Media.Helpers
           IEnumerable<CertificationMapping> certs = CertificationMapper.GetMovieCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
           if (certs.Count() > 0)
           {
-            if(includeUnratedContent ?? false)
+            if(!includeUnratedContent ?? false)
               filters.Add(new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
             else
               filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
                 new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
                 new EmptyFilter(MovieAspect.ATTR_CERTIFICATION)));
+          }
+          else if (!includeUnratedContent ?? false)
+          {
+            filters.Add(new NotFilter(new EmptyFilter(MovieAspect.ATTR_CERTIFICATION)));
           }
         }
         else if (necessaryMias.Contains(SeriesAspect.ASPECT_ID))
@@ -283,12 +287,16 @@ namespace MediaPortal.UiComponents.Media.Helpers
           IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
           if (certs.Count() > 0)
           {
-            if (includeUnratedContent ?? false)
+            if (!includeUnratedContent ?? false)
               filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
             else
               filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
                 new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
                 new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION)));
+          }
+          else if (!includeUnratedContent ?? false)
+          {
+            filters.Add(new NotFilter(new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION)));
           }
         }
         else if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID))
@@ -296,13 +304,18 @@ namespace MediaPortal.UiComponents.Media.Helpers
           IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
           if (certs.Count() > 0)
           {
-            if (includeUnratedContent ?? false)
+            if (!includeUnratedContent ?? false)
               filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId))));
             else
               filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES,
                 BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
                 new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
                 new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION))));
+          }
+          else if (!includeUnratedContent ?? false)
+          {
+            filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES,
+                new NotFilter(new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION))));
           }
         }
       }

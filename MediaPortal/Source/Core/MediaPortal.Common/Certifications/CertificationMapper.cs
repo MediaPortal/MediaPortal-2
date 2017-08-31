@@ -38,6 +38,7 @@ namespace MediaPortal.Common.Certifications
 
     static CertificationMapper()
     {
+      //Must be in age requirement order
       MOVIE_CERTIFICATION_MAP = new List<CertificationMapping>()
       {
         //US
@@ -110,14 +111,14 @@ namespace MediaPortal.Common.Certifications
 
         //CA
         new CertificationMapping("CA_G", "CA", "G", 0, 0, "G" ),
+        new CertificationMapping("CA_13", "CA", "13+", 13, 0, "13+" ),
         new CertificationMapping("CA_PG", "CA", "PG", 14, 0, "PG" ),
         new CertificationMapping("CA_14A", "CA", "14A", 14, 10, "14A" ),
+        new CertificationMapping("CA_16", "CA", "16+", 16, 16, "16+" ),
         new CertificationMapping("CA_18A", "CA", "18A", 18, 14, "18A" ),
+        new CertificationMapping("CA_18", "CA", "18+", 18, 18, "18+" ),
         new CertificationMapping("CA_R", "CA", "R", 18, 18, "R" ),
         new CertificationMapping("CA_A", "CA", "A", 18, 18, "A" ),
-        new CertificationMapping("CA_13", "CA", "13+", 13, 0, "13+" ),
-        new CertificationMapping("CA_16", "CA", "16+", 16, 16, "16+" ),
-        new CertificationMapping("CA_18", "CA", "18+", 18, 18, "18+" ),
 
         //AU
         new CertificationMapping("AU_G", "AU", "G", 0, 0, "G" ),
@@ -304,6 +305,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("MY_18PL", "MY", "18PL", 18, 18, "18PL" ),
       };
 
+      //Must be in age requirement order
       SERIES_CERTIFICATION_MAP = new List<CertificationMapping>()
       {
         //US
@@ -365,12 +367,12 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("CA_PG", "CA", "PG", 8, 0, "PG" ),
         new CertificationMapping("CA_C", "CA", "C", 0, 0, "C" ),
         new CertificationMapping("CA_C8", "CA", "C8", 8, 8, "C8" ),
-        new CertificationMapping("CA_R", "CA", "R", 18, 18, "R" ),
-        new CertificationMapping("CA_A", "CA", "A", 18, 18, "A" ),
         new CertificationMapping("CA_13", "CA", "13+", 13, 13, "13+" ),
         new CertificationMapping("CA_14", "CA", "14+", 14, 14, "14+" ),
         new CertificationMapping("CA_16", "CA", "16+", 16, 16, "16+" ),
         new CertificationMapping("CA_18", "CA", "18+", 18, 18, "18+" ),
+        new CertificationMapping("CA_R", "CA", "R", 18, 18, "R" ),
+        new CertificationMapping("CA_A", "CA", "A", 18, 18, "A" ),
 
         //AU
         new CertificationMapping("AU_E", "AU", "E", 0, 0, "E" ),
@@ -395,11 +397,11 @@ namespace MediaPortal.Common.Certifications
 
         //FI
         new CertificationMapping("FI_S", "FI", "S", 0, 0, "S" ),
+        new CertificationMapping("FI_KE", "FI", "K-E", 0, 0, "K-E" ),
         new CertificationMapping("FI_K7", "FI", "K-7", 7, 7, "K-7" ),
         new CertificationMapping("FI_K12", "FI", "K-12", 12, 12, "K-12" ),
         new CertificationMapping("FI_K16", "FI", "K-16", 16, 16, "K-16" ),
         new CertificationMapping("FI_K18", "FI", "K-18", 18, 18, "K-18" ),
-        new CertificationMapping("FI_KE", "FI", "K-E", 0, 0, "K-E" ),
 
         //HU
         new CertificationMapping("HU_6", "HU", "6", 6, 0, "6" ),
@@ -511,6 +513,11 @@ namespace MediaPortal.Common.Certifications
           c.AllowedAge <= age);
     }
 
+    public static IEnumerable<CertificationMapping> GetMovieCertificationsForCountry(string country)
+    {
+      return MOVIE_CERTIFICATION_MAP.Where(c => c.CountryCode.Equals(country, System.StringComparison.InvariantCultureIgnoreCase));
+    }
+
     public static bool TryFindSeriesCertification(string cert, out CertificationMapping certification)
     {
       return TryFindCertification(SERIES_CERTIFICATION_MAP, null, cert, out certification);
@@ -539,6 +546,11 @@ namespace MediaPortal.Common.Certifications
           c.AllowedAge <= age);
     }
 
+    public static IEnumerable<CertificationMapping> GetSeriesCertificationsForCountry(string country)
+    {
+      return SERIES_CERTIFICATION_MAP.Where(c => c.CountryCode.Equals(country, System.StringComparison.InvariantCultureIgnoreCase));
+    }
+
     public static IEnumerable<string> GetSupportedMovieCertificationCountries()
     {
       return MOVIE_CERTIFICATION_MAP.Select(c => c.CountryCode).Distinct();
@@ -558,6 +570,16 @@ namespace MediaPortal.Common.Certifications
       if (cert.AllowedParentalGuidedAge <= age && includeParentalGuided)
         return true;
       return false;
+    }
+
+    public static IEnumerable<CertificationMapping> FindAllAllowedMovieCertifications(string cert)
+    {
+      CertificationMapping current = MOVIE_CERTIFICATION_MAP.Where(c => c.CertificationId.Equals(cert, System.StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+      if (current != null)
+      {
+        return MOVIE_CERTIFICATION_MAP.Where(c => c.AllowedAge <= current.AllowedAge && c.AllowedParentalGuidedAge <= current.AllowedParentalGuidedAge);
+      }
+      return new List<CertificationMapping>();
     }
 
     public static CertificationMapping FindMatchingMovieCertification(string country, string cert)
@@ -588,6 +610,16 @@ namespace MediaPortal.Common.Certifications
         }
       }
       return bestMatch;
+    }
+
+    public static IEnumerable<CertificationMapping> FindAllAllowedSeriesCertifications(string cert)
+    {
+      CertificationMapping current = SERIES_CERTIFICATION_MAP.Where(c => c.CertificationId.Equals(cert, System.StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+      if (current != null)
+      {
+        return SERIES_CERTIFICATION_MAP.Where(c => c.AllowedAge <= current.AllowedAge && c.AllowedParentalGuidedAge <= current.AllowedParentalGuidedAge);
+      }
+      return new List<CertificationMapping>();
     }
 
     public static CertificationMapping FindMatchingSeriesCertification(string country, string cert)

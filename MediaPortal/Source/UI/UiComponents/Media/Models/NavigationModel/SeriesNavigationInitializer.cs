@@ -26,6 +26,9 @@ using System.Collections.Generic;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.Helpers;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -57,6 +60,26 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected override void Prepare()
     {
       base.Prepare();
+
+      //Update filter by adding the user filter to the already loaded filters
+      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+      if (userFilter != null)
+      {
+        _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, userFilter,
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters));
+      }
+      else
+      {
+        _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters);
+      }
+
+      userFilter = CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
+      //Set linked aspect filter
+      if (!_linkedAspectFilters.ContainsKey(SeriesAspect.ASPECT_ID))
+        _linkedAspectFilters.Add(SeriesAspect.ASPECT_ID, userFilter);
+      else
+        _linkedAspectFilters[SeriesAspect.ASPECT_ID] = userFilter;
+
       _defaultScreen = _seriesScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {
@@ -66,11 +89,12 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SeriesFilterBySeasonScreenData(),
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),
+        new SeriesFilterByGenreScreenData(),
+        new SeriesFilterByCertificationScreenData(),
         new SeriesEpisodeFilterByActorScreenData(),
         new SeriesEpisodeFilterByCharacterScreenData(),
         new SeriesFilterByCompanyScreenData(),
         new SeriesFilterByTvNetworkScreenData(),
-        new SeriesFilterByGenreScreenData(),
         new SeriesSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
       };
       _defaultSorting = new SeriesSortByEpisode();
@@ -78,6 +102,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       {
         _defaultSorting,
         new SeriesSortByDVDEpisode(),
+        new VideoSortByFirstGenre(),
+        new SeriesSortByCertification(),
         new SeriesSortByFirstActor(),
         new SeriesSortByFirstCharacter(),
         new VideoSortByFirstActor(),
@@ -101,6 +127,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         //_defaultGrouping,
         new SeriesSortByEpisode(),
         new SeriesSortByDVDEpisode(),
+        new VideoSortByFirstGenre(),
+        new SeriesSortByCertification(),
         new SeriesSortByFirstActor(),
         new SeriesSortByFirstCharacter(),
         new VideoSortByFirstActor(),

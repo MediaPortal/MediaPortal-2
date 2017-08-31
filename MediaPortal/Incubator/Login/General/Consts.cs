@@ -28,10 +28,6 @@ namespace MediaPortal.UiComponents.Login.General
 {
   public class Consts
   {
-    // Workflow states
-    public const string STR_WF_STATE_ID_USERS_OVERVIEW = "75488A94-7BEC-44FF-836D-7A2A8C7AFEF0";
-    public static readonly Guid WF_STATE_ID_USERS_OVERVIEW = new Guid(STR_WF_STATE_ID_USERS_OVERVIEW);
-
     // Keys for the ListItem's Labels in the ItemsLists
     public const string KEY_NAME = "Name";
     public const string KEY_USER = "User";
@@ -46,5 +42,9 @@ namespace MediaPortal.UiComponents.Login.General
     public const string RES_ANY_TEXT = "[UserConfig.AnyText]";
     public const string RES_NEW_USER_TEXT = "[UserConfig.NewUserText]";
     public const string RES_SELECT_USER_IMAGE = "[UserConfig.SelectImage]";
+
+    public const string RES_SYSTEM_DEFAULT_TEXT = "[Settings.Users.Config.SystemDefault]";
+
+    public static Guid WF_STATE_ID_HOME = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
   }
 }

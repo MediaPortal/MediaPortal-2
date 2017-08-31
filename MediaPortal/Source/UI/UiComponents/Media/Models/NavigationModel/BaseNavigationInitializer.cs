@@ -38,10 +38,6 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.Media.Views;
-using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Common.Certifications;
-using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -68,6 +64,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected IEnumerable<string> _restrictedMediaCategories = null;
     protected IFilter _filter = null; // Can be set by derived classes to apply an inital filter
     protected List<IFilter> _filters = new List<IFilter>();
+    protected IDictionary<Guid, IFilter> _linkedAspectFilters = new Dictionary<Guid, IFilter>();
     protected FixedItemStateTracker _tracker;
 
     #endregion
@@ -140,7 +137,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
         new MediaLibraryQueryViewSpecification(_viewName, _filter, _necessaryMias, optionalMIATypeIDs, true)
         {
-          MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
+          MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE,
+          LinkedAspectFilters = _linkedAspectFilters
         };
 
       if (nextScreen == null)
@@ -209,10 +207,6 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           ServiceRegistration.Get<ILogger>().Warn("Cannot add Media navigation filter with id '{0}'", e, itemMetadata.Id);
         }
       }
-
-      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
-      if (userFilter != null)
-        _filters.Add(userFilter);
 
       if (_filters.Count == 0)
       {

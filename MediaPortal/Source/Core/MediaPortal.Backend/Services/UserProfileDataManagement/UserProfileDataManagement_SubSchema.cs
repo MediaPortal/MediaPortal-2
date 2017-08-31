@@ -100,12 +100,13 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public static IDbCommand CreateUserProfileCommand(ITransaction transaction, Guid profileId, string name, int profileType = UserProfile.CLIENT_PROFILE, string password = null, byte[] image = null)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO USER_PROFILES (PROFILE_ID, NAME, PROFILE_TYPE, PASSWORD, IMAGE) VALUES (@PROFILE_ID, @NAME, @PROFILE_TYPE, @PASSWORD, @IMAGE)";
+      result.CommandText = "INSERT INTO USER_PROFILES (PROFILE_ID, NAME, PROFILE_TYPE, PASSWORD, LAST_LOGIN, IMAGE) VALUES (@PROFILE_ID, @NAME, @PROFILE_TYPE, @PASSWORD, @LAST_LOGIN, @IMAGE)";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "NAME", name, typeof(string));
       database.AddParameter(result, "PROFILE_TYPE", profileType, typeof(int));
       database.AddParameter(result, "PASSWORD", password, typeof(string));
+      database.AddParameter(result, "LAST_LOGIN", DateTime.Now, typeof(DateTime));
       database.AddParameter(result, "IMAGE", image, typeof(byte[]));
       return result;
     }

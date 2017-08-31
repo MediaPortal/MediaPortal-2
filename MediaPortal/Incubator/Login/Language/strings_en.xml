@@ -15,6 +15,14 @@
   <string name="Settings.Users.Config.UserManagement.Help">Manage the users on the home server</string>
   <string name="Settings.Users.Config.UserEnable">Enable user logins and restrictions</string> <!-- Setting -->
   <string name="Settings.Users.Config.UserEnable.Help">Enable users to login, change the current user and apply user specific settings</string>
+  <string name="Settings.Users.Config.AutoLogout">Automatic logout</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogout.Help">Enable automatic logout of a user after a period of idling</string>
+  <string name="Settings.Users.Config.AutoLogoutTimeout">Automatic logout idle timeout</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogoutTimeout.Help">The period of idling allowed before the user is logged out</string>
+  <string name="Settings.Users.Config.AutoLoginUser">Automatic login</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLoginUser.Help">The user to use for automatic login</string>
+  <string name="Settings.Users.Config.SystemDefault">System default</string>
+  <string name="Settings.Users.Config.AutoLoginUser.Title">Automatic login user</string>
 
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">User management</string>

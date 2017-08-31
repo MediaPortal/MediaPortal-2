@@ -22,23 +22,16 @@
 
 #endregion
 
-using MediaPortal.Common.Settings;
-using System;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.General;
 
-namespace MediaPortal.UiComponents.Login.Settings
+namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  public class UserSettings
+  public class MovieSortByCertification : AbstractSortByComparableObjectAttribute<string>
   {
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool EnableUserLogin { get; set; }
-
-    [Setting(SettingScope.Global)]
-    public Guid AutoLoginUser { get; set; }
-
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool AutoLogoutEnabled { get; set; }
-
-    [Setting(SettingScope.Global, DefaultValue = 30)]
-    public int AutoLogoutIdleTimeoutInMin { get; set; }
+    public MovieSortByCertification() : base(Consts.RES_COMMON_BY_CERTIFICATION_MENU_ITEM, Consts.RES_COMMON_BY_CERTIFICATION_MENU_ITEM, MovieAspect.ATTR_CERTIFICATION)
+    {
+      _includeMias = new[] { MovieAspect.ASPECT_ID };
+    }
   }
 }
