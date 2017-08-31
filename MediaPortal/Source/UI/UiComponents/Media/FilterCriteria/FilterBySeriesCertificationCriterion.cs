@@ -71,7 +71,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
             CertificationMapping cert;
             if (CertificationMapper.TryFindSeriesCertification(certification, out cert))
             {
-              result.Add(new FilterValue(cert.Name,
+              result.Add(new FilterValue(cert.CertificationId, cert.Name,
                   new RelationalFilter(SeriesAspect.ATTR_CERTIFICATION, RelationalOperator.EQ, certification), null, (int)group.Value, this));
             }
           }
@@ -79,7 +79,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
             numEmptyEntries += (int)group.Value;
         }
         if (numEmptyEntries > 0)
-          result.Insert(0, new FilterValue(Consts.RES_VALUE_UNRATED_TITLE, new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION), null, numEmptyEntries, this));
+          result.Insert(0, new FilterValue("UR", Consts.RES_VALUE_UNRATED_TITLE, new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION), null, numEmptyEntries, this));
         return result;
       }
       else
@@ -88,7 +88,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         IFilter emptyFilter = new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION);
         int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, emptyFilter), true, showVirtual);
         if (numEmptyItems > 0)
-          result.Add(new FilterValue(Consts.RES_VALUE_UNRATED_TITLE, emptyFilter, null, numEmptyItems, this));
+          result.Add(new FilterValue("UR", Consts.RES_VALUE_UNRATED_TITLE, emptyFilter, null, numEmptyItems, this));
         List<string> usedFilters = new List<string>();
         foreach (var cert in CertificationMapper.GetSeriesCertificationsForCountry(CertificationHelper.DisplaySeriesCertificationCountry))
         {
@@ -99,7 +99,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
             usedFilters.AddRange(certList);
             IFilter certFilter = new InFilter(SeriesAspect.ATTR_CERTIFICATION, certList);
             int numItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, certFilter), true, showVirtual);
-            result.Add(new FilterValue(cert.Name, certFilter, null, numItems, this));
+            result.Add(new FilterValue(cert.CertificationId, cert.Name, certFilter, null, numItems, this));
           }
         }
         return result;
