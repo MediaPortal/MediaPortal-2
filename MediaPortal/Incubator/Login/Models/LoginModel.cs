@@ -42,6 +42,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.Localization;
 using System.Windows.Forms;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -63,10 +64,10 @@ namespace MediaPortal.UiComponents.Login.Models
     private ItemsList _autoLoginUserList = null;
     private AbstractProperty _currentUserProperty;
     private AbstractProperty _userPasswordProperty;
-    private AbstractProperty _isPasswordIncorrect;
+    private AbstractProperty _isPasswordIncorrectProperty;
+    private AbstractProperty _isUserLoggedInProperty;
     private Guid _passwordUser;
     private DateTime _lastActivity = DateTime.Now;
-    private bool _realUserLoggedIn = false;
     private bool _firstLogin = true;
 
     #endregion
@@ -83,9 +84,10 @@ namespace MediaPortal.UiComponents.Login.Models
 
       _currentUserProperty = new WProperty(typeof(UserProfile), null);
       _userPasswordProperty = new WProperty(typeof(string), string.Empty);
-      _isPasswordIncorrect = new WProperty(typeof(bool), false);
+      _isPasswordIncorrectProperty = new WProperty(typeof(bool), false);
+      _isUserLoggedInProperty = new WProperty(typeof(bool), false);
 
-      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL });
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL, ServerConnectionMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -132,13 +134,24 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public AbstractProperty IsPasswordIncorrectProperty
     {
-      get { return _isPasswordIncorrect; }
+      get { return _isPasswordIncorrectProperty; }
     }
 
     public bool IsPasswordIncorrect
     {
-      get { return (bool)_isPasswordIncorrect.GetValue(); }
-      set { _isPasswordIncorrect.SetValue(value); }
+      get { return (bool)_isPasswordIncorrectProperty.GetValue(); }
+      set { _isPasswordIncorrectProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsUserLoggedInProperty
+    {
+      get { return _isUserLoggedInProperty; }
+    }
+
+    public bool IsUserLoggedIn
+    {
+      get { return (bool)_isUserLoggedInProperty.GetValue(); }
+      set { _isUserLoggedInProperty.SetValue(value); }
     }
 
     public bool EnableUserLogin
@@ -249,21 +262,24 @@ namespace MediaPortal.UiComponents.Login.Models
     protected override void Update()
     {
       // Logout inactive user
-      if (_realUserLoggedIn && UserSettingStorage.AutoLogoutEnabled && CheckIfIdle())
+      if (IsUserLoggedIn && UserSettingStorage.AutoLogoutEnabled && CheckIfIdle())
       {
         //Logout user and return to home screen
         LogoutUser();
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME, new NavigationContextConfig());
+        workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
+        if(UserSettingStorage.UserLoginScreenEnabled)
+          workflowManager.NavigatePush(Consts.WF_STATE_ID_LOGIN_SCREEN, new NavigationContextConfig());
+        return;
       }
 
       // Client login retry
-      if(CurrentUser == UserManagement.UNKNOWN_USER)
+      if (CurrentUser == UserManagement.UNKNOWN_USER)
         SetCurrentUser();
 
       // Update user
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userManagement.CurrentUser.Name != CurrentUser.Name)
+      if (userManagement?.CurrentUser?.Name != CurrentUser?.Name)
       {
         CurrentUserProperty.SetValue(userManagement.CurrentUser);
         CurrentUserProperty.Fire(null);
@@ -306,10 +322,11 @@ namespace MediaPortal.UiComponents.Login.Models
             if(newState == SystemState.Running)
             {
               StartTimer();
-            }
-            if (newState == SystemState.Resuming || newState == SystemState.Running)
-            {
-              SetCurrentUser();
+              if (UserSettingStorage.AutoLoginUser == Guid.Empty && UserSettingStorage.UserLoginScreenEnabled && UserSettingStorage.UserLoginEnabled)
+              {
+                IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+                workflowManager.NavigatePush(Consts.WF_STATE_ID_LOGIN_SCREEN, new NavigationContextConfig());
+              }
             }
             else if (newState == SystemState.Suspending || newState == SystemState.Hibernating)
             {
@@ -322,6 +339,18 @@ namespace MediaPortal.UiComponents.Login.Models
             break;
         }
       }
+      else if(message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      {
+        ServerConnectionMessaging.MessageType messageType = (ServerConnectionMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ServerConnectionMessaging.MessageType.HomeServerConnected:
+            SetCurrentUser();
+
+            RefreshUserList();
+            break;
+        }
+      }
     }
 
     private void SetCurrentUser(UserProfile userProfile = null)
@@ -329,14 +358,14 @@ namespace MediaPortal.UiComponents.Login.Models
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfile == null)
       {
-        if (UserSettingStorage.AutoLoginUser != Guid.Empty && (_firstLogin || !UserSettingStorage.AutoLogoutEnabled))
+        if (UserSettingStorage.AutoLoginUser != Guid.Empty && _firstLogin)
         {
           if (userProfileDataManagement.UserProfileDataManagement != null)
           {
             if (userProfileDataManagement.UserProfileDataManagement.GetProfile(UserSettingStorage.AutoLoginUser, out userProfile))
             {
               userProfileDataManagement.CurrentUser = userProfile;
-              _realUserLoggedIn = true;
+              IsUserLoggedIn = true;
               _firstLogin = false;
             }
           }
@@ -346,13 +375,13 @@ namespace MediaPortal.UiComponents.Login.Models
           // Init with system default
           userProfileDataManagement.CurrentUser = null;
           userProfile = userProfileDataManagement.CurrentUser;
-          _realUserLoggedIn = false;
+          IsUserLoggedIn = false;
         }
       }
       else
       {
         userProfileDataManagement.CurrentUser = userProfile;
-        _realUserLoggedIn = true;
+        IsUserLoggedIn = true;
       }
       CurrentUserProperty.SetValue(userProfile);
 
@@ -410,6 +439,7 @@ namespace MediaPortal.UiComponents.Login.Models
           _autoLoginUserList.Add(proxy);
         }
       }
+
       // tell the skin that something might have changed
       _loginUserList.FireChange();
       _autoLoginUserList.FireChange();
@@ -481,7 +511,14 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      return true;
+      if (!UserSettingStorage.UserLoginEnabled)
+        return false;
+      if (oldContext?.WorkflowState?.StateId == Consts.WF_STATE_ID_HOME_SCREEN)
+        return true;
+      if (oldContext?.WorkflowState?.Name.Contains("/Users") ?? false)
+        return true;
+
+      return false;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
@@ -491,27 +528,24 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-
+      _loginUserList = null;
+      _autoLoginUserList = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-
     }
 
     public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
-
     }
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
