@@ -274,12 +274,14 @@
     </Compile>
     <Compile Include="InputManagement\ClipboardManager.cs" />
     <Compile Include="InputManagement\InputMapper.cs" />
+    <Compile Include="MarkupExtensions\MediaItemQueryExtension.cs" />
     <Compile Include="MarkupExtensions\MPFExtensionBase.cs" />
     <Compile Include="MarkupExtensions\ColorExtension.cs" />
     <Compile Include="MarkupExtensions\IMultiValueConverter.cs" />
     <Compile Include="MarkupExtensions\ITypeConverter.cs" />
     <Compile Include="MarkupExtensions\IValueConverter.cs" />
     <Compile Include="MarkupExtensions\MultiBindingExtension.cs" />
+    <Compile Include="MarkupExtensions\RelationshipQueryExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ResolutionResourceExtension.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceExtension.cs" />
