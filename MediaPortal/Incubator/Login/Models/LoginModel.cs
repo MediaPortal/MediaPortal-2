@@ -257,11 +257,8 @@ namespace MediaPortal.UiComponents.Login.Models
       //Logout user and return to home screen
       if (IsUserLoggedIn)
       {
-        SetCurrentUser(null);
-
         _showLoginScreen = UserSettingStorage.UserLoginScreenEnabled;
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
+        SetCurrentUser(null);
       }
     }
 
@@ -410,7 +407,10 @@ namespace MediaPortal.UiComponents.Login.Models
 
       if (userProfile != UserManagement.UNKNOWN_USER)
       {
-        if(userProfileDataManagement.UserProfileDataManagement != null)
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
+
+        if (userProfileDataManagement.UserProfileDataManagement != null)
           userProfileDataManagement.UserProfileDataManagement.LoginProfile(userProfile.ProfileId);
         _lastActivity = DateTime.Now;
       }
