@@ -128,21 +128,46 @@
       </StackPanel>
     </StackPanel>
 
-    <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:UserDataWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
-            <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,10,10" >
-              <Image.Source>
-                <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
-              </Image.Source>
-            </Image>
-          </Grid>
-        </ControlTemplate>
-      </media:UserDataWrapper.Template>
-    </media:UserDataWrapper>
-    
+    <StackPanel Orientation="Horizontal">
+      <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                  IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,10,10" >
+                <Image.Source>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+                </Image.Source>
+              </Image>
+            </Grid>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </media:UserDataWrapper>
+
+      <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                                 VerticalAlignment="Center" Margin="30,0,0,0">
+        <media:SeriesAspectWrapper.Template>
+          <ControlTemplate>
+            <StackPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                        IsVisible="{Binding !IsEnded}">
+              <StackPanel Orientation="Horizontal">
+                <Label Content="Next Aired: " Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                       IsVisible="{Binding Path=NextAirDate,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label VerticalAlignment="Stretch"
+                       x:Name="NextAiredDate" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                       Content="{Binding Path=NextAirDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}">
+                </Label>
+              </StackPanel>
+              <Label x:Name="NextEpisode" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Wrap="True" Content="{Binding NextEpisodeName}" VerticalAlignment="Stretch">
+              </Label>             
+            </StackPanel>
+
+          </ControlTemplate>
+        </media:SeriesAspectWrapper.Template>
+      </media:SeriesAspectWrapper>
+    </StackPanel>
+
   </StackPanel>
   
   <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch"
