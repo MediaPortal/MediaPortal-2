@@ -80,7 +80,7 @@
         Id="EnableUserLoginScreen"
         Text="[Settings.Users.Config.UserEnableScreen]"
         HelpText="[Settings.Users.Config.UserEnableScreen.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserLoginScrrenSettings"/>
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserLoginScreenSettings"/>
     
     <ConfigSetting
         Id="AutoLogout"

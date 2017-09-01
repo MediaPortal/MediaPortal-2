@@ -28,7 +28,7 @@ using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Login.Settings.Configuration
 {
-  public class UserLoginScrrenSettings : YesNo
+  public class UserLoginScreenSettings : YesNo
   {
     public override void Load()
     {
@@ -50,7 +50,6 @@ namespace MediaPortal.UiComponents.Login.Settings.Configuration
       UserSettings settings = localSettings.Load<UserSettings>();
       settings.EnableUserLoginScreen = Yes;
       localSettings.Save(settings);
-      UserSettingStorage.UserLoginEnabled = Yes;
     }
   }
 }
