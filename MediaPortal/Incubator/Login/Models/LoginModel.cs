@@ -40,7 +40,6 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.Localization;
-using System.Windows.Forms;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.ServerCommunication;
 
@@ -69,6 +68,7 @@ namespace MediaPortal.UiComponents.Login.Models
     private Guid _passwordUser;
     private DateTime _lastActivity = DateTime.Now;
     private bool _firstLogin = true;
+    private bool _showLoginScreen = false;
 
     #endregion
 
@@ -87,7 +87,9 @@ namespace MediaPortal.UiComponents.Login.Models
       _isPasswordIncorrectProperty = new WProperty(typeof(bool), false);
       _isUserLoggedInProperty = new WProperty(typeof(bool), false);
 
-      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL, ServerConnectionMessaging.CHANNEL });
+      _showLoginScreen = UserSettingStorage.UserLoginScreenEnabled;
+
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL, ServerConnectionMessaging.CHANNEL, WorkflowManagerMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -252,7 +254,15 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void LogoutUser()
     {
-      SetCurrentUser(null);
+      //Logout user and return to home screen
+      if (IsUserLoggedIn)
+      {
+        SetCurrentUser(null);
+
+        _showLoginScreen = UserSettingStorage.UserLoginScreenEnabled;
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
+      }
     }
 
     #endregion
@@ -261,15 +271,10 @@ namespace MediaPortal.UiComponents.Login.Models
 
     protected override void Update()
     {
-      // Logout inactive user
       if (IsUserLoggedIn && UserSettingStorage.AutoLogoutEnabled && CheckIfIdle())
       {
-        //Logout user and return to home screen
+        // Logout inactive user
         LogoutUser();
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
-        if(UserSettingStorage.UserLoginScreenEnabled)
-          workflowManager.NavigatePush(Consts.WF_STATE_ID_LOGIN_SCREEN, new NavigationContextConfig());
         return;
       }
 
@@ -351,6 +356,24 @@ namespace MediaPortal.UiComponents.Login.Models
             break;
         }
       }
+      else if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+            if (_showLoginScreen)
+            {
+              IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+              if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_HOME_SCREEN)
+              {
+                workflowManager.NavigatePush(Consts.WF_STATE_ID_LOGIN_SCREEN, new NavigationContextConfig());
+                _showLoginScreen = false;
+              }
+            }
+            break;
+        }
+      }
     }
 
     private void SetCurrentUser(UserProfile userProfile = null)
@@ -399,15 +422,15 @@ namespace MediaPortal.UiComponents.Login.Models
     private void RefreshUserList()
     {
       // clear the exposed users list
-      _loginUserList = new ItemsList();
-      _autoLoginUserList = new ItemsList();
+      _loginUserList.Clear();
+      _autoLoginUserList.Clear();
 
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       if (userManagement.UserProfileDataManagement == null)
         return;
 
       UserProfile defaultProfile = new UserProfile(Guid.Empty, 
-        LocalizationHelper.Translate(Consts.RES_SYSTEM_DEFAULT_TEXT) + " (" + SystemInformation.ComputerName + ")", 
+        LocalizationHelper.Translate(Consts.RES_SYSTEM_DEFAULT_TEXT) + " (" + System.Windows.Forms.SystemInformation.ComputerName + ")", 
         UserProfile.CLIENT_PROFILE);
       UserProxy proxy = new UserProxy();
       proxy.SetLabel(Consts.KEY_NAME, defaultProfile.Name);
@@ -428,7 +451,7 @@ namespace MediaPortal.UiComponents.Login.Models
           _loginUserList.Add(proxy);
         }
 
-        if (!user.Name.Equals(SystemInformation.ComputerName, StringComparison.InvariantCultureIgnoreCase))
+        if (!user.Name.Equals(System.Windows.Forms.SystemInformation.ComputerName, StringComparison.InvariantCultureIgnoreCase))
         {
           proxy = new UserProxy();
           proxy.SetLabel(Consts.KEY_NAME, user.Name);
@@ -528,8 +551,8 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _loginUserList = null;
-      _autoLoginUserList = null;
+      _loginUserList.Clear();
+      _autoLoginUserList.Clear();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
