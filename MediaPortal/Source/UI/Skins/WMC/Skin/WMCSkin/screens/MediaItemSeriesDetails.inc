@@ -134,7 +134,7 @@
   </StackPanel>
 
   <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
-                         HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
+                         HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.RowSpan="2">
     <media:UserDataWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
@@ -148,5 +148,31 @@
       </ControlTemplate>
     </media:UserDataWrapper.Template>
   </media:UserDataWrapper>
+
+  <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.RowSpan="2" Margin="0,0,0,0"
+                             HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                             IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAgeCertificationLogos}">
+    <media:SeriesAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Height="80" MaxWidth="150">
+            <Image.Source>
+              <ImageSourceWrapper Delay="0" DelayInOut="false" VerticalTextureAlignment="Bottom" HorizontalTextureAlignment="Right">
+                <ImageSourceWrapper.Source>
+                  <Binding Path="Certification" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Certification\{0}.png"/>
+                </ImageSourceWrapper.Source>
+              </ImageSourceWrapper>
+            </Image.Source>
+          </Image>
+        </Grid>
+      </ControlTemplate>
+    </media:SeriesAspectWrapper.Template>
+  </media:SeriesAspectWrapper>
 
 </Grid>
