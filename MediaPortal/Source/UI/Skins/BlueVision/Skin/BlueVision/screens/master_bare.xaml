@@ -176,14 +176,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Label.Content>
           </Label>
           <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" VerticalAlignment="Center" 
-                    HorizontalAlignment="Left" Margin="0,-5,0,-10"/>
+                  HorizontalAlignment="Left" Margin="0,-5,0,-10"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
-                      DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
-                      IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+                    DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                    IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
           <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-4,0,-16"/>
         </StackPanel>
-        <Button Style="{ThemeResource UserButtonStyle}"
+        <Button Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}" 
+                IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
       </StackPanel>
 
@@ -209,12 +210,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!-- PlayerControlsPanel Focusable="True"-->
       <Grid x:Name="FooterPanel" Grid.Row="3" Height="{ThemeResource FooterPanelHeight}" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5"
                   IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
-
       </Grid>
-
     </Grid>
     <!-- FooterPanel -->
-
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
     <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,17,115,-3"/>
 
