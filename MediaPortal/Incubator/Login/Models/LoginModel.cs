@@ -65,6 +65,7 @@ namespace MediaPortal.UiComponents.Login.Models
     private AbstractProperty _userPasswordProperty;
     private AbstractProperty _isPasswordIncorrectProperty;
     private AbstractProperty _isUserLoggedInProperty;
+    private AbstractProperty _enableUserLoginProperty;
     private Guid _passwordUser;
     private DateTime _lastActivity = DateTime.Now;
     private bool _firstLogin = true;
@@ -86,6 +87,7 @@ namespace MediaPortal.UiComponents.Login.Models
       _userPasswordProperty = new WProperty(typeof(string), string.Empty);
       _isPasswordIncorrectProperty = new WProperty(typeof(bool), false);
       _isUserLoggedInProperty = new WProperty(typeof(bool), false);
+      _enableUserLoginProperty = new WProperty(typeof(bool), UserSettingStorage.UserLoginEnabled);
 
       _showLoginScreen = UserSettingStorage.UserLoginScreenEnabled;
 
@@ -156,9 +158,15 @@ namespace MediaPortal.UiComponents.Login.Models
       set { _isUserLoggedInProperty.SetValue(value); }
     }
 
+    public AbstractProperty EnableUserLoginProperty
+    {
+      get { return _enableUserLoginProperty; }
+      set { _enableUserLoginProperty = value; }
+    }
+
     public bool EnableUserLogin
     {
-      get { return UserSettingStorage.UserLoginEnabled; }
+      get { return (bool)_enableUserLoginProperty.GetValue(); }
     }
 
     /// <summary>
@@ -274,6 +282,10 @@ namespace MediaPortal.UiComponents.Login.Models
         LogoutUser();
         return;
       }
+
+      // Update login mode
+      if (EnableUserLogin != UserSettingStorage.UserLoginEnabled)
+        EnableUserLoginProperty.SetValue(UserSettingStorage.UserLoginEnabled);
 
       // Client login retry
       if (CurrentUser == UserManagement.UNKNOWN_USER)
