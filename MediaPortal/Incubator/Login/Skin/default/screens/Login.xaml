@@ -34,9 +34,9 @@
             </ListView.Resources>
           </ListView>
 
-          <Button Grid.Row="2" x:Name="LogoutUserButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
+          <Button Grid.Row="1" x:Name="LogoutUserButton" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
                   Content="[Login.Logout]" IsEnabled="{Binding IsUserLoggedIn}" Command="{Command LogoutUser}"/>
-          <Label Grid.Row="3" HorizontalAlignment="Left" DataContext="{Binding Source={StaticResource Model}, Path=CurrentUser}" Content="{Binding Path=Name}" Color="{ThemeResource TextColor}"/>
+          <Label Grid.Row="2" HorizontalAlignment="Left" DataContext="{Binding Source={StaticResource Model}, Path=CurrentUser}" Content="{Binding Path=Name}" Color="{ThemeResource TextColor}"/>
         </Grid>
       </DockPanel>
     </ControlTemplate>
