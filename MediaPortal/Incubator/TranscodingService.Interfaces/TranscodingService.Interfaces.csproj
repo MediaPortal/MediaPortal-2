@@ -42,12 +42,12 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="Ude, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\Packages\UDE.CSharp.1.1.0\lib\Ude.dll</HintPath>
+      <HintPath>..\..\Packages\UDE.CSharp.1.1.0\lib\Ude.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Analyzers\H264Analyzer.cs" />
@@ -57,6 +57,7 @@
     <Compile Include="Aspects\TranscodeItemVideoAspect.cs" />
     <Compile Include="Aspects\TranscodeItemVideoAudioAspect.cs" />
     <Compile Include="Aspects\TranscodeItemVideoEmbeddedAspect.cs" />
+    <Compile Include="Helpers\MediaItemHelper.cs" />
     <Compile Include="IMediaConverter.cs" />
     <Compile Include="IMediaAnalyzer.cs" />
     <Compile Include="Enums.cs" />
@@ -101,15 +102,15 @@
     <Compile Include="Helpers\Validators.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
       <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
