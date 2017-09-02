@@ -238,6 +238,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         ILocalFsResourceAccessor fileResource = (ILocalFsResourceAccessor)MediaResource;
         string fileName = fileResource.LocalFileSystemPath;
+        string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+        if (!(_audioExtensions.Contains(ext) || _imageExtensions.Contains(ext) || _videoExtensions.Contains(ext)))
+          return null;
         string arguments = "";
         if (HasImageExtension(fileName))
         {
@@ -285,6 +288,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
       else if (MediaResource is INetworkResourceAccessor)
       {
         string url = ((INetworkResourceAccessor)MediaResource).URL;
+        string ext = DosPathHelper.GetExtension(url).ToLowerInvariant();
+        if (!(_audioExtensions.Contains(ext) || _imageExtensions.Contains(ext) || _videoExtensions.Contains(ext)))
+          return null;
         string arguments = "";
         if (url.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase) == true)
         {
@@ -334,7 +340,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       IResourceAccessor mia = null;
       if (Media is LiveTvMediaItem)
       {
-        string resourcePathStr = (string)Media[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        string resourcePathStr = (string)MediaItemHelper.GetAttributeValue(Media.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
         var resourcePath = ResourcePath.Deserialize(resourcePathStr);
         mia = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
 
@@ -357,39 +363,39 @@ namespace MediaPortal.Plugins.Transcoding.Service
       if (Media.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == true)
       {
         object oValue = null;
-        oValue = Media[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CONTAINER);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemAudioAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), oValue.ToString());
         }
         AudioStream audio = new AudioStream();
-        oValue = Media[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_STREAM);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemAudioAspect.ATTR_STREAM);
         if (oValue != null)
         {
           audio.StreamIndex = Convert.ToInt32(oValue);
-          oValue = (string)Media[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CODEC);
+          oValue = (string)MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemAudioAspect.ATTR_CODEC);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             audio.Codec = (AudioCodec)Enum.Parse(typeof(AudioCodec), oValue.ToString());
           }
-          oValue = Media[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CHANNELS);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemAudioAspect.ATTR_CHANNELS);
           if (oValue != null)
           {
             audio.Channels = Convert.ToInt32(oValue);
           }
-          oValue = Media[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_FREQUENCY);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemAudioAspect.ATTR_FREQUENCY);
           if (oValue != null)
           {
             audio.Frequency = Convert.ToInt64(oValue);
           }
           if (Media.Aspects.ContainsKey(AudioAspect.ASPECT_ID) == true)
           {
-            oValue = Media[AudioAspect.Metadata].GetAttributeValue(AudioAspect.ATTR_BITRATE);
+            oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, AudioAspect.ATTR_BITRATE);
             if (oValue != null)
             {
               audio.Bitrate = Convert.ToInt64(oValue);
             }
-            oValue = Media[AudioAspect.Metadata].GetAttributeValue(AudioAspect.ATTR_DURATION);
+            oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, AudioAspect.ATTR_DURATION);
             if (oValue != null)
             {
               info.Metadata.Duration = Convert.ToDouble(oValue);
@@ -397,7 +403,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           }
           if (Media.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
           {
-            oValue = Media[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
+            oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, ProviderResourceAspect.ATTR_MIME_TYPE);
             if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
             {
               info.Metadata.Mime = oValue.ToString();
@@ -431,29 +437,29 @@ namespace MediaPortal.Plugins.Transcoding.Service
       if (Media.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID) == true)
       {
         object oValue = null;
-        oValue = Media[TranscodeItemImageAspect.Metadata].GetAttributeValue(TranscodeItemImageAspect.ATTR_CONTAINER);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemImageAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), oValue.ToString());
         }
-        oValue = Media[TranscodeItemImageAspect.Metadata].GetAttributeValue(TranscodeItemImageAspect.ATTR_PIXEL_FORMAT);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemImageAspect.ATTR_PIXEL_FORMAT);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Image.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
         }
         if (Media.Aspects.ContainsKey(ImageAspect.ASPECT_ID) == true)
         {
-          oValue = Media[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_HEIGHT);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, ImageAspect.ATTR_HEIGHT);
           if (oValue != null)
           {
             info.Image.Height = Convert.ToInt32(oValue);
           }
-          oValue = Media[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_WIDTH);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, ImageAspect.ATTR_WIDTH);
           if (oValue != null)
           {
             info.Image.Width = Convert.ToInt32(oValue);
           }
-          oValue = Media[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, ImageAspect.ATTR_ORIENTATION);
           if (oValue != null)
           {
             info.Image.Orientation = Convert.ToInt32(oValue);
@@ -461,7 +467,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         if (Media.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
         {
-          oValue = Media[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, ProviderResourceAspect.ATTR_MIME_TYPE);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             info.Metadata.Mime = oValue.ToString();
@@ -477,7 +483,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       IResourceAccessor mia = null;
       if (Media is LiveTvMediaItem)
       {
-        string resourcePathStr = (string)Media[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        string resourcePathStr = (string)MediaItemHelper.GetAttributeValue(Media.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
         var resourcePath = ResourcePath.Deserialize(resourcePathStr);
         mia = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
 
@@ -500,57 +506,57 @@ namespace MediaPortal.Plugins.Transcoding.Service
       if (Media.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID) == true)
       {
         object oValue = null;
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_CONTAINER);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_CONTAINER);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), oValue.ToString());
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_FORMAT);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_PIXEL_FORMAT);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_BRAND);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_BRAND);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Metadata.MajorBrand = oValue.ToString();
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_CODEC);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_CODEC);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.Codec = (VideoCodec)Enum.Parse(typeof(VideoCodec), oValue.ToString());
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_FOURCC);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_FOURCC);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.FourCC = oValue.ToString();
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_PROFILE);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_H264_PROFILE);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.ProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), oValue.ToString());
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_HEADER_LEVEL);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_H264_HEADER_LEVEL);
         if (oValue != null)
         {
           info.Video.HeaderLevel = Convert.ToSingle(oValue);
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_H264_REF_LEVEL);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_H264_REF_LEVEL);
         if (oValue != null)
         {
           info.Video.RefLevel = Convert.ToSingle(oValue);
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_PIXEL_ASPECTRATIO);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_PIXEL_ASPECTRATIO);
         if (oValue != null)
         {
           info.Video.PixelAspectRatio = Convert.ToSingle(oValue);
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_STREAM);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_STREAM);
         if (oValue != null)
         {
           info.Video.StreamIndex = Convert.ToInt32(oValue);
         }
-        oValue = Media[TranscodeItemVideoAspect.Metadata].GetAttributeValue(TranscodeItemVideoAspect.ATTR_TS_TIMESTAMP);
+        oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, TranscodeItemVideoAspect.ATTR_TS_TIMESTAMP);
         if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
         {
           info.Video.TimestampType = (Timestamp)Enum.Parse(typeof(Timestamp), oValue.ToString());
@@ -635,32 +641,32 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
         if (Media.Aspects.ContainsKey(VideoAspect.ASPECT_ID) == true)
         {
-          oValue = Media[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_HEIGHT);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, VideoStreamAspect.ATTR_HEIGHT);
           if (oValue != null)
           {
             info.Video.Height = Convert.ToInt32(oValue);
           }
-          oValue = Media[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_WIDTH);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, VideoStreamAspect.ATTR_WIDTH);
           if (oValue != null)
           {
             info.Video.Width = Convert.ToInt32(oValue);
           }
-          oValue = Media[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, VideoStreamAspect.ATTR_ASPECTRATIO);
           if (oValue != null)
           {
             info.Video.AspectRatio = Convert.ToSingle(oValue);
           }
-          oValue = Media[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_DURATION);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, VideoStreamAspect.ATTR_DURATION);
           if (oValue != null)
           {
             info.Metadata.Duration = Convert.ToDouble(oValue);
           }
-          oValue = Media[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_FPS);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, VideoStreamAspect.ATTR_FPS);
           if (oValue != null)
           {
             info.Video.Framerate = Convert.ToSingle(oValue);
           }
-          oValue = Media[VideoAspect.Metadata].GetAttributeValue(VideoAspect.ATTR_VIDEOBITRATE);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, VideoStreamAspect.ATTR_VIDEOBITRATE);
           if (oValue != null)
           {
             info.Video.Bitrate = Convert.ToInt64(oValue);
@@ -668,7 +674,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         if (Media.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
         {
-          oValue = Media[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
+          oValue = MediaItemHelper.GetAttributeValue(Media.Aspects, ProviderResourceAspect.ATTR_MIME_TYPE);
           if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
           {
             info.Metadata.Mime = oValue.ToString();
@@ -728,7 +734,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         if (Media.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == false)
         {
-          if (Media[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_RADIO)
+          if (MediaItemHelper.GetAttributeValue(Media.Aspects, ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_RADIO)
           {
             info = ParseSlimTvItem((LiveTvMediaItem)Media);
             if(info != null) info.Metadata.Live = true;
@@ -760,7 +766,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         if (Media.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID) == false)
         {
-          if (Media[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_TV)
+          if (MediaItemHelper.GetAttributeValue(Media.Aspects, ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_TV)
           {
             info = ParseSlimTvItem((LiveTvMediaItem)Media);
             if (info != null) info.Metadata.Live = true;
@@ -819,7 +825,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           info = ParseMediaStream(ra);
           if (info == null) return null;
 
-          if (info.IsAudio || ChannelMediaItem[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_RADIO)
+          if (info.IsAudio || MediaItemHelper.GetAttributeValue(ChannelMediaItem.Aspects, ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_RADIO)
           {
             MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemAudioAspect.ATTR_CONTAINER, info.Metadata.AudioContainerType.ToString());
             MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemAudioAspect.ATTR_STREAM, info.Audio[0].StreamIndex);
@@ -830,7 +836,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
             if (info.Metadata.Bitrate > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, AudioAspect.ATTR_BITRATE, info.Metadata.Bitrate);
             //MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, AudioAspect.ATTR_DURATION, 0);
           }
-          else if (info.IsVideo || ChannelMediaItem[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_TV)
+          else if (info.IsVideo || MediaItemHelper.GetAttributeValue(ChannelMediaItem.Aspects, ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_TV)
           {
             MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_CONTAINER, info.Metadata.VideoContainerType.ToString());
             MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_STREAM, info.Video.StreamIndex);
@@ -886,12 +892,15 @@ namespace MediaPortal.Plugins.Transcoding.Service
               }
             }
 
-            if (info.Video.Height > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, VideoAspect.ATTR_HEIGHT, info.Video.Height);
-            if (info.Video.Width > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, VideoAspect.ATTR_WIDTH, info.Video.Width);
-            if (info.Video.AspectRatio > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, VideoAspect.ATTR_ASPECTRATIO, info.Video.AspectRatio);
-            if (info.Video.Framerate > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, VideoAspect.ATTR_FPS, Convert.ToInt32(info.Video.Framerate));
-            if (info.Video.Bitrate > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, VideoAspect.ATTR_VIDEOBITRATE, info.Video.Bitrate);
+            IList<MultipleMediaItemAspect> values;
+            MediaItemAspect.TryGetAspects(ChannelMediaItem.Aspects, VideoStreamAspect.Metadata, out values);
+            if (info.Video.Height > 0) values[0].SetAttribute(VideoStreamAspect.ATTR_HEIGHT, info.Video.Height);
+            if (info.Video.Width > 0) values[0].SetAttribute(VideoStreamAspect.ATTR_WIDTH, info.Video.Width);
+            if (info.Video.AspectRatio > 0) values[0].SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, info.Video.AspectRatio);
+            if (info.Video.Framerate > 0) values[0].SetAttribute(VideoStreamAspect.ATTR_FPS, Convert.ToInt32(info.Video.Framerate));
+            if (info.Video.Bitrate > 0) values[0].SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, info.Video.Bitrate);
             //MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, VideoAspect.ATTR_DURATION, 0);
+            MediaItemAspect.AddOrUpdateAspect(ChannelMediaItem.Aspects, values[0]);
           }
         }
         finally
