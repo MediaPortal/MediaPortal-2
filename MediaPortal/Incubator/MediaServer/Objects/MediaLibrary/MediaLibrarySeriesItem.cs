@@ -84,7 +84,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
         List<Guid> necessaryMias = new List<Guid>(NECESSARY_EPISODE_MIA_TYPE_IDS);
         if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID)) necessaryMias.Remove(EpisodeAspect.ASPECT_ID); //Group MIA cannot be present
         HomogenousMap seasonItems = library.GetValueGroups(EpisodeAspect.ATTR_SEASON, null, ProjectionFunction.None, necessaryMias.ToArray(),
-          _episodeFilter, true);
+          _episodeFilter, true, true);
 
         List<object> seasonNumbers = new List<object>();
         foreach (object o in seasonItems.Keys)
@@ -97,13 +97,15 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
         return library.Search(new MediaItemQuery(NECESSARY_SEASON_MIA_TYPE_IDS, null,
           BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new InFilter(SeasonAspect.ATTR_SEASON, seasonNumbers),
-          new RelationshipFilter(Item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON)))
-          , true);
+					// From season to series (ID supplied)
+          new RelationshipFilter(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, Item.MediaItemId)))
+          , true, null, true);
       }
       else
       {
         return library.Search(new MediaItemQuery(NECESSARY_SEASON_MIA_TYPE_IDS, null,
-          new RelationshipFilter(Item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON)), true);
+					// From season to series (ID supplied)
+          new RelationshipFilter(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, Item.MediaItemId)), true, null, true);
       }
     }
 

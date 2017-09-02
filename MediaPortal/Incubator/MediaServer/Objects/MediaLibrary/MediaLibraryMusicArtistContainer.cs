@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       List<Guid> necessaryMias = new List<Guid>(NECESSARY_MUSIC_MIA_TYPE_IDS);
       if (necessaryMias.Contains(AudioAspect.ASPECT_ID)) necessaryMias.Remove(AudioAspect.ASPECT_ID); //Group MIA cannot be present
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(AudioAspect.ATTR_ARTISTS, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true);
+      return library.GetValueGroups(AudioAspect.ATTR_ARTISTS, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true, true);
     }
 
     public override void Initialise()

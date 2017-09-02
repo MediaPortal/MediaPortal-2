@@ -1232,7 +1232,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             if (MediaServerPlugin.Settings.UpdateWatchCount && item.IsLive == false)
             {
               IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-              library.NotifyPlayback(item.MediaSource.MediaItemId);
+              library.NotifyPlayback(item.MediaSource.MediaItemId, true);
             }
           }
         }

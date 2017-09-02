@@ -32,7 +32,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
   class MediaLibraryMovieGenreItem : MediaLibraryContainer, IDirectoryMovieGenre
   {
     public MediaLibraryMovieGenreItem(string id, string title, EndPointSettings client)
-      : base(id, title, NECESSARY_MOVIE_MIA_TYPE_IDS, OPTIONAL_MOVIE_MIA_TYPE_IDS, new RelationalFilter(VideoAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
+      : base(id, title, NECESSARY_MOVIE_MIA_TYPE_IDS, OPTIONAL_MOVIE_MIA_TYPE_IDS, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), client)
     {
     }
 

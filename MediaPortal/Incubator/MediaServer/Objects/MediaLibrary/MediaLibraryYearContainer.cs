@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       List<Guid> necessaryMias = new List<Guid>(_necessaryMiaTypeIds);
       if (necessaryMias.Contains(MediaAspect.ASPECT_ID)) necessaryMias.Remove(MediaAspect.ASPECT_ID); //Group MIA cannot be present
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, null, ProjectionFunction.DateToYear, necessaryMias.ToArray(), null, true);
+      return library.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, null, ProjectionFunction.DateToYear, necessaryMias.ToArray(), null, true, true);
     }
 
     public override void Initialise()

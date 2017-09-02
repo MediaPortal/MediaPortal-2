@@ -30,9 +30,9 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -52,8 +52,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       List<Guid> necessaryMias = new List<Guid>(NECESSARY_EPISODE_MIA_TYPE_IDS);
       if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID)) necessaryMias.Remove(EpisodeAspect.ASPECT_ID); //Group MIA cannot be present
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      HomogenousMap seriesItems = library.GetValueGroups(EpisodeAspect.ATTR_SERIESNAME, null, ProjectionFunction.None, necessaryMias.ToArray(),
-        _episodeFilter, true);
+      HomogenousMap seriesItems = library.GetValueGroups(EpisodeAspect.ATTR_SERIES_NAME, null, ProjectionFunction.None, necessaryMias.ToArray(),
+        _episodeFilter, true, true);
 
       List<string> seriesNames = new List<string>();
       foreach(object o in seriesItems.Keys)
@@ -65,7 +65,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       }
 
       return library.Search(new MediaItemQuery(NECESSARY_SERIES_MIA_TYPE_IDS, null, 
-        new InFilter(SeriesAspect.ATTR_SERIESNAME, seriesNames)), true);
+        new InFilter(SeriesAspect.ATTR_SERIES_NAME, seriesNames)), true, null, true);
     }
 
     public override void Initialise()
@@ -78,7 +78,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
         if (_episodeFilter != null)
         {
           newEpisodeFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _episodeFilter,
-            new RelationalFilter(EpisodeAspect.ATTR_SERIESNAME, RelationalOperator.EQ, item[SeriesAspect.Metadata][SeriesAspect.ATTR_SERIESNAME].ToString()));
+            new RelationalFilter(EpisodeAspect.ATTR_SERIES_NAME, RelationalOperator.EQ, MediaItemHelper.GetAttributeValue(item.Aspects, SeriesAspect.ATTR_SERIES_NAME)));
         }
         Add(new MediaLibrarySeriesItem(item, newEpisodeFilter, Client));
       }

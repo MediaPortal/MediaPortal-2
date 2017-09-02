@@ -30,7 +30,6 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -46,7 +45,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       List<Guid> necessaryMias = new List<Guid>(NECESSARY_MOVIE_MIA_TYPE_IDS);
       if (necessaryMias.Contains(VideoAspect.ASPECT_ID)) necessaryMias.Remove(VideoAspect.ASPECT_ID); //Group MIA cannot be present
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(VideoAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true);
+      return library.GetValueGroups(GenreAspect.ATTR_GENRE, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true, true);
     }
 
     public override void Initialise()

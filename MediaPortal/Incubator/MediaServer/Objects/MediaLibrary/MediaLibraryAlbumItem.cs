@@ -28,6 +28,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
@@ -36,7 +37,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
   {
     public MediaLibraryAlbumItem(MediaItem item, EndPointSettings client)
       : base(item, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, 
-          new RelationshipFilter(item.MediaItemId, AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK), client)
+				  // From track to album <ID supplied>
+          new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, item.MediaItemId), client)
     {
     }
 
@@ -53,22 +55,18 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {
-        SingleMediaItemAspect albumAspect;
-        if (MediaItemAspect.TryGetAspect(Item.Aspects, AudioAlbumAspect.Metadata, out albumAspect))
-        {
-          // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
-          var genreObj = albumAspect.GetCollectionAttribute<object>(AudioAlbumAspect.ATTR_GENRES);
-          if (genreObj != null)
-            CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
+        // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
+        var genreObj = MediaItemHelper.GetCollectionAttributeValues<object>(Item.Aspects, GenreAspect.ATTR_GENRE);
+        if (genreObj != null)
+          CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
 
-          var artistObj = albumAspect.GetCollectionAttribute<object>(AudioAlbumAspect.ATTR_ARTISTS);
-          if (artistObj != null)
-            CollectionUtils.AddAll(Artist, artistObj.Cast<string>());
+        var artistObj = MediaItemHelper.GetCollectionAttributeValues<object>(Item.Aspects, AudioAspect.ATTR_ALBUMARTISTS);
+        if (artistObj != null)
+          CollectionUtils.AddAll(Artist, artistObj.Cast<string>());
 
-          var composerObj = albumAspect.GetCollectionAttribute<object>(AudioAlbumAspect.ATTR_COMPOSERS);
-          if (composerObj != null)
-            CollectionUtils.AddAll(Contributor, composerObj.Cast<string>());
-        }
+	      var composerObj = MediaItemHelper.GetCollectionAttributeValues<object>(Item.Aspects, AudioAspect.ATTR_COMPOSERS);
+        if (composerObj != null)
+          CollectionUtils.AddAll(Contributor, composerObj.Cast<string>());
       }
 
       //Support alternative ways to get album art

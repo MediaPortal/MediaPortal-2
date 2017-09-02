@@ -27,6 +27,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;

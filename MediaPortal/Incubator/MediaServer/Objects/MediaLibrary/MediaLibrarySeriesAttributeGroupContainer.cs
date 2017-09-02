@@ -30,7 +30,6 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.MediaManagement;
 
@@ -38,9 +37,9 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibrarySeriesAttributeGroupContainer : BasicContainer
   {
-    private readonly MediaItemAspectMetadata.SingleAttributeSpecification _attributeGroup;
+    private readonly MediaItemAspectMetadata.AttributeSpecification _attributeGroup;
 
-    public MediaLibrarySeriesAttributeGroupContainer(string id, string title, MediaItemAspectMetadata.SingleAttributeSpecification attributeGroup, EndPointSettings client)
+    public MediaLibrarySeriesAttributeGroupContainer(string id, string title, MediaItemAspectMetadata.AttributeSpecification attributeGroup, EndPointSettings client)
       : base(id, client)
     {
       Title = title;
@@ -52,8 +51,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       List<Guid> necessaryMias = new List<Guid>(NECESSARY_EPISODE_MIA_TYPE_IDS);
       if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID)) necessaryMias.Remove(EpisodeAspect.ASPECT_ID); //Group MIA cannot be present
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      HomogenousMap seriesItems = library.GetValueGroups(EpisodeAspect.ATTR_SERIESNAME, null, ProjectionFunction.None, necessaryMias.ToArray(), 
-        new RelationalFilter(_attributeGroup, RelationalOperator.EQ, Title), true);
+      HomogenousMap seriesItems = library.GetValueGroups(EpisodeAspect.ATTR_SERIES_NAME, null, ProjectionFunction.None, necessaryMias.ToArray(), 
+        new RelationalFilter(_attributeGroup, RelationalOperator.EQ, Title), true, true);
 
       List<string> seriesNames = new List<string>();
       foreach (object o in seriesItems.Keys)
@@ -65,7 +64,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       }
 
       return library.Search(new MediaItemQuery(NECESSARY_SERIES_MIA_TYPE_IDS, null, 
-        new InFilter(SeriesAspect.ATTR_SERIESNAME, seriesNames)), true);
+        new InFilter(SeriesAspect.ATTR_SERIES_NAME, seriesNames)), true, null, true);
     }
 
     public override void Initialise()

@@ -30,7 +30,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
   internal class MediaLibrarySeriesGenresContainer : MediaLibrarySeriesAttributeGroupsContainer
   {
     public MediaLibrarySeriesGenresContainer(string id, EndPointSettings client)
-      : base(id, VideoAspect.ATTR_GENRES, client)
+      : base(id, GenreAspect.ATTR_GENRE, client)
     {
     }
   }

@@ -60,7 +60,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       foreach (MediaItem share in shares)
       {
-        IList<MediaItem> albums = library.Browse(share.MediaItemId, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS);
+        IList<MediaItem> albums = library.Browse(share.MediaItemId, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, null, true);
         foreach (MediaItem album in albums)
         {
           if (album != null && album.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))

@@ -506,7 +506,7 @@ namespace MediaPortal.Plugins.MediaServer
       searchQuery.Limit = requestedCount;
 
       Logger.Debug("MediaServer - OnSearch query {0}", searchQuery);
-      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true);
+      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true, null, false);
 
       var msgBuilder = new GenericDidlMessageBuilder();
       var o = deviceClient.RootContainer.FindObject(objectId);

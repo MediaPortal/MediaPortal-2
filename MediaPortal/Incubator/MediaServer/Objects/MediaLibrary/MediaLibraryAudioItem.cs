@@ -27,6 +27,7 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
@@ -42,14 +43,10 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       if (client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {
-        SingleMediaItemAspect audioAspect;
-        if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audioAspect))
-        {
-          // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
-          var genreObj = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_GENRES);
-          if (genreObj != null)
-            CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
-        }
+        // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
+        var genreObj = MediaItemHelper.GetCollectionAttributeValues<object>(Item.Aspects, GenreAspect.ATTR_GENRE);
+        if (genreObj != null)
+          CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
       }
 
       //Support alternative ways to get album art

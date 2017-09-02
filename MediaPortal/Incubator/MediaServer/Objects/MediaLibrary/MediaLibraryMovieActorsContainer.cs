@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       List<Guid> necessaryMias = new List<Guid>(NECESSARY_MOVIE_MIA_TYPE_IDS);
       if (necessaryMias.Contains(VideoAspect.ASPECT_ID)) necessaryMias.Remove(VideoAspect.ASPECT_ID); //Group MIA cannot be present
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(VideoAspect.ATTR_ACTORS, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true);
+      return library.GetValueGroups(VideoAspect.ATTR_ACTORS, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true, true);
     }
 
     public override void Initialise()

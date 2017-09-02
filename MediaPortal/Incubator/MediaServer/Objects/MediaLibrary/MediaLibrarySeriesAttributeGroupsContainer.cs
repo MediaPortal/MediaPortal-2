@@ -35,9 +35,9 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibrarySeriesAttributeGroupsContainer : BasicContainer
   {
-    private readonly MediaItemAspectMetadata.SingleAttributeSpecification _attributeGroup;
+    private readonly MediaItemAspectMetadata.AttributeSpecification _attributeGroup;
 
-    public MediaLibrarySeriesAttributeGroupsContainer(string id, MediaItemAspectMetadata.SingleAttributeSpecification attributeGroup, EndPointSettings client)
+    public MediaLibrarySeriesAttributeGroupsContainer(string id, MediaItemAspectMetadata.AttributeSpecification attributeGroup, EndPointSettings client)
       : base(id, client)
     {
       _attributeGroup = attributeGroup;
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       List<Guid> necessaryMias = new List<Guid>(NECESSARY_EPISODE_MIA_TYPE_IDS);
       if (necessaryMias.Contains(_attributeGroup.ParentMIAM.AspectId)) necessaryMias.Remove(_attributeGroup.ParentMIAM.AspectId); //Group MIA cannot be present
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(_attributeGroup, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true);
+      return library.GetValueGroups(_attributeGroup, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true, true);
     }
 
     public override void Initialise()

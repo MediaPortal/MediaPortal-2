@@ -33,6 +33,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
@@ -108,7 +109,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       }
       else
       {
-        stream.Title = (string)dlnaItem.MediaSource[MediaAspect.Metadata].GetAttributeValue(MediaAspect.ATTR_TITLE);
+        stream.Title = (string)MediaItemHelper.GetAttributeValue(dlnaItem.MediaSource.Aspects, MediaAspect.ATTR_TITLE);
         stream.IsLive = false;
         stream.LiveChannelId = 0;
       }

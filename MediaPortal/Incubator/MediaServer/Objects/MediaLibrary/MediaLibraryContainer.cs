@@ -64,11 +64,11 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       //TODO: Check if this is correct handling of missing filter
       if (_filter == null && Item != null)
       {
-        return library.Browse(Item.MediaItemId, _necessaryMiaTypeIds, _optionalMiaTypeIds);
+        return library.Browse(Item.MediaItemId, _necessaryMiaTypeIds, _optionalMiaTypeIds, null, true);
       }
       else
       {
-        return library.Search(new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, _filter), true);
+        return library.Search(new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, _filter), true, null, true);
       }
     }
 

@@ -31,7 +31,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
   class MediaLibraryMusicGenreItem : MediaLibraryContainer, IDirectoryMusicGenre
   {
     public MediaLibraryMusicGenreItem(string id, string title, EndPointSettings client)
-      : base(id, title, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, new RelationalFilter(AudioAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
+      : base(id, title, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), client)
     {
     }
 
