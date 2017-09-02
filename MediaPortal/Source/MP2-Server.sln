@@ -142,6 +142,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerStateService.Interfac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerStateService", "Backend\BackendComponents\ServerStateService\ServerStateService\ServerStateService.csproj", "{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Transcoding", "Transcoding", "{4EC21881-5940-42F8-9B71-201807637C87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranscodingService", "..\Incubator\TranscodingService\TranscodingService.csproj", "{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranscodingService.Interfaces", "..\Incubator\TranscodingService.Interfaces\TranscodingService.Interfaces.csproj", "{5057EBD5-A262-42A6-A975-360730CFE322}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranscodingService.MetadataExtractor", "..\Incubator\TranscodingService.MetadataExtractor\TranscodingService.MetadataExtractor.csproj", "{FD526ABC-E091-4743-A93E-E9DE14DE086A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -353,6 +361,18 @@ Global
 		{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}.Debug|x86.Build.0 = Debug|x86
 		{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}.Release|x86.ActiveCfg = Release|x86
 		{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}.Release|x86.Build.0 = Release|x86
+		{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}.Debug|x86.ActiveCfg = Debug|x86
+		{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}.Debug|x86.Build.0 = Debug|x86
+		{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}.Release|x86.ActiveCfg = Release|x86
+		{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}.Release|x86.Build.0 = Release|x86
+		{5057EBD5-A262-42A6-A975-360730CFE322}.Debug|x86.ActiveCfg = Debug|x86
+		{5057EBD5-A262-42A6-A975-360730CFE322}.Debug|x86.Build.0 = Debug|x86
+		{5057EBD5-A262-42A6-A975-360730CFE322}.Release|x86.ActiveCfg = Release|x86
+		{5057EBD5-A262-42A6-A975-360730CFE322}.Release|x86.Build.0 = Release|x86
+		{FD526ABC-E091-4743-A93E-E9DE14DE086A}.Debug|x86.ActiveCfg = Debug|x86
+		{FD526ABC-E091-4743-A93E-E9DE14DE086A}.Debug|x86.Build.0 = Debug|x86
+		{FD526ABC-E091-4743-A93E-E9DE14DE086A}.Release|x86.ActiveCfg = Release|x86
+		{FD526ABC-E091-4743-A93E-E9DE14DE086A}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -422,5 +442,9 @@ Global
 		{7EE620EE-533A-4D4F-9F7E-AD54CA872B93} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
 		{1CD36F37-70FF-442F-8B1E-528F41D76F34} = {7EE620EE-533A-4D4F-9F7E-AD54CA872B93}
 		{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0} = {7EE620EE-533A-4D4F-9F7E-AD54CA872B93}
+		{4EC21881-5940-42F8-9B71-201807637C87} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
+		{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A} = {4EC21881-5940-42F8-9B71-201807637C87}
+		{5057EBD5-A262-42A6-A975-360730CFE322} = {4EC21881-5940-42F8-9B71-201807637C87}
+		{FD526ABC-E091-4743-A93E-E9DE14DE086A} = {4EC21881-5940-42F8-9B71-201807637C87}
 	EndGlobalSection
 EndGlobal
