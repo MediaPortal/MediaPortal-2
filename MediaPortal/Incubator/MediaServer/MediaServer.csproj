@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props" Condition="Exists('..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props')" />
+  <Import Project="..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props" Condition="Exists('..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -54,7 +54,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Antlr4.Runtime">
-      <HintPath>..\..\..\Packages\Antlr4.Runtime.4.4.1-alpha001\lib\net45\Antlr4.Runtime.dll</HintPath>
+      <HintPath>..\..\Packages\Antlr4.Runtime.4.4.1-alpha001\lib\net45\Antlr4.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -198,36 +198,36 @@
     <Compile Include="UPnPMediaReceiverRegistrarServiceImpl.cs" />
     <Compile Include="UPnPMediaServerDevice.cs" />
     <Compile Include="Parser\Search.cs" />
-    <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\HttpServer\HttpServer.csproj">
+    <ProjectReference Include="..\..\Source\Core\HttpServer\HttpServer.csproj">
       <Project>{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}</Project>
       <Name>HttpServer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5B27EB95-B829-40F4-B445-0225CA206F85}</Project>
       <Name>MediaPortal.Backend</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\UPnP\UPnP.csproj">
+    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
       <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
       <Name>UPnP</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+    <ProjectReference Include="..\..\Source\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>
       <Name>FanArtService.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
       <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
@@ -267,10 +267,10 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props'))" />
-    <Error Condition="!Exists('..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets'))" />
+    <Error Condition="!Exists('..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props'))" />
+    <Error Condition="!Exists('..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets'))" />
   </Target>
-  <Import Project="..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets" Condition="Exists('..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets')" />
+  <Import Project="..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets" Condition="Exists('..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
