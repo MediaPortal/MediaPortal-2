@@ -65,13 +65,10 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       foreach (IChannelGroup item in items)
       {
         string title = item.Name;
-        if (item.MediaType == MediaType.TV) title += string.Format(" ({0})", StringUtils.TrimToNull(language.ToString(RES_TV)) ?? "TV");
-        else if (item.MediaType == MediaType.Radio) title += string.Format(" ({0})", StringUtils.TrimToNull(language.ToString(RES_RADIO)) ?? "Radio");
         string key = "BROADCAST_GROUP_" + item.ChannelGroupId;
 
         MediaLibraryBroadcastGroupChannelContainer container = new MediaLibraryBroadcastGroupChannelContainer(key, title, Client);
         container.GroupId = item.ChannelGroupId;
-        container.GroupMediaType = item.MediaType;
 
         Add(container);
       }

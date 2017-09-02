@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       {
         IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
 
-        IChannelGroup group = new ChannelGroup() { ChannelGroupId = GroupId, MediaType = GroupMediaType };
+        IChannelGroup group = new ChannelGroup() { ChannelGroupId = GroupId };
         IList<IChannel> channels = new List<IChannel>();
         if (channelAndGroupInfo.GetChannels(group, out channels))
         {
@@ -62,8 +62,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       foreach (var item in items)
       {
-        if (item.VisibleInGuide == false) continue;
-
         string title = item.Name;
         string key = "CHANNEL_CONTAINER_" + item.ChannelId;
 
