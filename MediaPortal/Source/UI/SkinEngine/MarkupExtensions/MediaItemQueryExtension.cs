@@ -47,10 +47,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     #region Protected fields
     
     protected readonly object _syncObj = new object();
-    //Whether we are currently performing a query
+    //Whether we are currently updating properties
     protected bool _isUpdating = false;
+    //Whether we are currently performing a query
+    protected bool _isQuerying = false;
     //Whether state has changed whilst performing a query -> perform new query when current query has finished
     protected bool _isDirty = false;
+    //The last updated value, used to avoid multiple updates with the same value
+    protected object _lastUpdatedValue = null;
 
     protected AbstractProperty _necessaryRequestedMIAsProperty;
     protected AbstractProperty _optionalRequestedMIAsProperty;
@@ -75,19 +79,23 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     void Attach()
     {
-      _filterProperty.Attach(OnFilterChanged);
+      _necessaryRequestedMIAsProperty.Attach(OnPropertyChanged);
+      _optionalRequestedMIAsProperty.Attach(OnPropertyChanged);
+      _filterProperty.Attach(OnPropertyChanged);
     }
 
     void Detach()
     {
-      _filterProperty.Detach(OnFilterChanged);
+      _necessaryRequestedMIAsProperty.Detach(OnPropertyChanged);
+      _optionalRequestedMIAsProperty.Detach(OnPropertyChanged);
+      _filterProperty.Detach(OnPropertyChanged);
     }
 
     #endregion
 
     #region Event handlers
 
-    protected void OnFilterChanged(AbstractProperty property, object oldValue)
+    protected void OnPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (_active)
         UpdateAsync();
@@ -97,30 +105,56 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region Protected methods
 
+    /// <summary>
+    /// Called before performing a query. Can be overridden in
+    /// derived classes to update the query filter.
+    /// </summary>
+    protected virtual void OnBeginUpdate()
+    {
+    }
+
     //Asynchronously performs a query using the specified filter
     protected void UpdateAsync()
     {
+      //Avoid recursive calls, this can happen if the call to BeginUpdate
+      //updates one of our properties, triggering another update
+      if (_isUpdating)
+        return;
+
+      _isUpdating = true;
+      try
+      {
+        OnBeginUpdate();
+      }
+      finally
+      {
+        _isUpdating = false;
+      }
+
       //Check state is valid before invoking a thread pool thread
       if (Filter == null)
+      {
+        //Set target property to null if invalid to remove any previously assigned media items
+        UpdateTargetProperty(null);
         return;
+      }
       //Update using the thread pool
       IThreadPool tp = ServiceRegistration.Get<IThreadPool>();
       tp.Add(Update);
     }
-
-
+    
     protected void Update()
     {
       lock (_syncObj)
       {
-        if (_isUpdating)
+        if (_isQuerying)
         {
           //If we are currently querying, mark as dirty so
           //we can re-update when the current query has finished
           _isDirty = true;
           return;
         }
-        _isUpdating = true;
+        _isQuerying = true;
       }
 
       bool isDirty;
@@ -135,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           //reset inside lock
           isDirty = _isDirty;
           _isDirty = false;
-          _isUpdating = false;
+          _isQuerying = false;
         }
       }
 
@@ -144,13 +178,16 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         Update();
     }
 
-    //Performs the actual query and updates the target property with the
-    //returned media item(s)
+    //Performs the actual query and updates the target property with the returned media item(s)
     protected void QueryMediaItems()
     {
       IFilter filter = Filter;
       if (filter == null)
+      {
+        //Set target property to null if invalid to remove any previously assigned media items
+        UpdateTargetProperty(null);
         return;
+      }
 
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -158,15 +195,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
       MediaItemQuery query = new MediaItemQuery(NecessaryRequestedMIAs, OptionalRequestedMIAs, filter);
       IList<MediaItem> items = cd.Search(query, true, GetCurrentUserId(), false);
-
-      object result;
-      if (_targetDataDescriptor != null)
-      {
-        //Try and update our target property with either a media item enumeration or the first media item
-        if (TypeConverter.Convert(items, _targetDataDescriptor.DataType, out result) ||
-          (items != null && TypeConverter.Convert(items.FirstOrDefault(), _targetDataDescriptor.DataType, out result)))
-          _targetDataDescriptor.Value = result;
-      }
+      UpdateTargetProperty(items);
     }
 
     protected Guid? GetCurrentUserId()
@@ -176,9 +205,40 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         userProfileDataManagement.CurrentUser.ProfileId : (Guid?)null;
     }
 
+    protected void UpdateTargetProperty(IList<MediaItem> items)
+    {
+      IDataDescriptor targetDataDescriptor = _targetDataDescriptor;
+      if (targetDataDescriptor == null)
+        return;
+
+      object result;
+      //Try and update our target property with either a media item enumeration or the first media item
+      if (TypeConverter.Convert(items, targetDataDescriptor.DataType, out result) ||
+        (items != null && TypeConverter.Convert(items.FirstOrDefault(), targetDataDescriptor.DataType, out result)))
+      {
+        lock (_syncObj)
+        {
+          //Avoid multiple updates with the same value
+          if (ReferenceEquals(_lastUpdatedValue, result))
+            return;
+          _lastUpdatedValue = result;
+        }
+        targetDataDescriptor.Value = result;
+      }
+    }
+
     #endregion
 
     #region Base overrides
+
+    public override void Activate()
+    {
+      if (_active)
+        return;
+      base.Activate();
+      //State may already be valid so try a query now
+      UpdateAsync();
+    }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -193,8 +253,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Dispose()
     {
-      base.Dispose();
       Detach();
+      base.Dispose();
     }
 
     #endregion

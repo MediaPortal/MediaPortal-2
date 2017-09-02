@@ -74,16 +74,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #endregion
 
-    #region Event handlers
-
-    protected void OnPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      if (_active)
-        UpdateFilter();
-    }
-
-    #endregion
-
     #region Protected methods
 
     protected void UpdateFilter()
@@ -91,16 +81,26 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       Guid? role = Role;
       Guid? linkedRole = LinkedRole;
       Guid? linkedMediaItemId = LinkedMediaItemId;
+
+      IFilter filter = null;
       //If all properties are valid, create the RelationshipFilter
       if (role.HasValue && linkedRole.HasValue && linkedMediaItemId.HasValue)
-        //Setting a valid filter causes the underlying MediaItemQueryExtension to
-        //perform the actual query
-        Filter = new RelationshipFilter(role.Value, linkedRole.Value, linkedMediaItemId.Value);
+        filter = new RelationshipFilter(role.Value, linkedRole.Value, linkedMediaItemId.Value);
+
+      //Setting a valid filter causes the underlying MediaItemQueryExtension to
+      //perform the actual query or setting to null to reset the target property to null
+      Filter = filter;
     }
 
     #endregion
 
     #region Base overrides
+
+    protected override void OnBeginUpdate()
+    {
+      UpdateFilter();
+      base.OnBeginUpdate();
+    }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -115,8 +115,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Dispose()
     {
-      base.Dispose();
       Detach();
+      base.Dispose();
     }
 
     #endregion
