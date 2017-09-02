@@ -374,6 +374,11 @@ namespace MediaPortal.UiComponents.Login.Models
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseProfileType");
     }
 
+    public void OpenConfirmDeleteDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogDeleteConfirm");
+    }
+
     public void OpenSelectSharesDialog()
     {
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectShares",
@@ -417,6 +422,7 @@ namespace MediaPortal.UiComponents.Login.Models
       try
       {
         UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProfile.USER_PROFILE);
+        user.LastLogin = DateTime.Now;
 
         ListItem item = new ListItem();
         item.SetLabel(Consts.KEY_NAME, user.Name);

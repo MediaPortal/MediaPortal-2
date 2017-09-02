@@ -45,6 +45,10 @@
   <string name="UserConfig.DeleteUser">Delete</string>
   <string name="UserConfig.SaveUser">Save</string>
   <string name="UserConfig.SelectImage">Select image for the user</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Delete confirmation</string>
+  <string name="UserConfig.DeleteConfirmation">Are you sure you want to delete the selected user?</string>
+  <string name="UserConfig.Yes">Yes</string>
+  <string name="UserConfig.No">No</string>
 
   <string name="UserConfig.ClientProfileType">Client Profile</string>
   <string name="UserConfig.UserProfileType">User Profile</string>

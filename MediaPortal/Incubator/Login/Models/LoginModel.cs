@@ -69,7 +69,6 @@ namespace MediaPortal.UiComponents.Login.Models
     private Guid _passwordUser;
     private DateTime _lastActivity = DateTime.Now;
     private bool _firstLogin = true;
-    private bool _showLoginScreen = false;
 
     #endregion
 
@@ -89,9 +88,7 @@ namespace MediaPortal.UiComponents.Login.Models
       _isUserLoggedInProperty = new WProperty(typeof(bool), false);
       _enableUserLoginProperty = new WProperty(typeof(bool), UserSettingStorage.UserLoginEnabled);
 
-      _showLoginScreen = UserSettingStorage.UserLoginScreenEnabled;
-
-      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL, ServerConnectionMessaging.CHANNEL, WorkflowManagerMessaging.CHANNEL });
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL, ServerConnectionMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -265,8 +262,13 @@ namespace MediaPortal.UiComponents.Login.Models
       //Logout user and return to home screen
       if (IsUserLoggedIn)
       {
-        _showLoginScreen = UserSettingStorage.UserLoginScreenEnabled;
         SetCurrentUser(null);
+
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        if (workflowManager.CurrentNavigationContext.WorkflowState.StateId != Consts.WF_STATE_ID_HOME_SCREEN)
+        {
+          workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
+        }
       }
     }
 
@@ -365,24 +367,6 @@ namespace MediaPortal.UiComponents.Login.Models
             break;
         }
       }
-      else if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
-      {
-        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
-        switch (messageType)
-        {
-          case WorkflowManagerMessaging.MessageType.NavigationComplete:
-            if (_showLoginScreen)
-            {
-              IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-              if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_HOME_SCREEN)
-              {
-                workflowManager.NavigatePush(Consts.WF_STATE_ID_LOGIN_SCREEN, new NavigationContextConfig());
-                _showLoginScreen = false;
-              }
-            }
-            break;
-        }
-      }
     }
 
     private void SetCurrentUser(UserProfile userProfile = null)
@@ -419,9 +403,6 @@ namespace MediaPortal.UiComponents.Login.Models
 
       if (userProfile != UserManagement.UNKNOWN_USER)
       {
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
-
         if (userProfileDataManagement.UserProfileDataManagement != null)
           userProfileDataManagement.UserProfileDataManagement.LoginProfile(userProfile.ProfileId);
         _lastActivity = DateTime.Now;
@@ -492,6 +473,12 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         SetCurrentUser(userProfile);
         userManagement.UserProfileDataManagement.LoginProfile(profileId);
+
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        if (workflowManager.CurrentNavigationContext.WorkflowState.StateId != Consts.WF_STATE_ID_HOME_SCREEN)
+        {
+          workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
+        }
       }
     }
 
