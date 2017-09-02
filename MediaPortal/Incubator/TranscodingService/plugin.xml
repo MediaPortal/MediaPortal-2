@@ -14,7 +14,7 @@
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <PluginReference PluginId="{8B61C331-DBE8-4E56-8A1D-11C32D8C850D}" CompatibleAPI="1"/> <!-- FFMpegLib -->
   </DependsOn>
 
