@@ -1,0 +1,34 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="TranscodingMetadataExtractor"
+    PluginId="{5A4D871A-C519-4C06-BA8F-FFFF7D0DC863}"
+    Author="Team Mediaportal"
+    Copyright="GPL"
+    Description="Metadata extractor for transcoding metadata">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2016-03-24 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="TranscodingService.MetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="TranscodeVideoMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.TranscodeVideoMetadataExtractor"/>
+    <Instance
+        Id="TranscodeAudioMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.TranscodeAudioMetadataExtractor"/>
+    <Instance
+        Id="TranscodeImageMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.TranscodeImageMetadataExtractor"/>
+  </Register>
+</Plugin>

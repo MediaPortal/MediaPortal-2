@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PluginFiles Include="$(TargetDir)$(Configuration)\net451\$(ProjectName).dll" />
+    <PluginFiles Include="$(ProjectDir)plugin.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Views Include="$(ProjectDir)Views\**\*.*"/>
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(Views)" DestinationFiles="@(Views->'$(PluginDestination)Views\%(RecursiveDir)%(Filename)%(Extension)')"/>
+  </Target>
+
+  <Target Name="CopyFiles">
+  </Target>
+</Project>

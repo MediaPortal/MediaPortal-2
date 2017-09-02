@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IgnoreDNXRuntime>true</IgnoreDNXRuntime>
+    <PublishOutputPathNoTrailingSlash>.\bin</PublishOutputPathNoTrailingSlash>
+    <NoSourceFlag>true</NoSourceFlag>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PluginFiles Include="$(TargetDir)$(Configuration)\net451\$(ProjectName).dll" />
+    <PluginFiles Include="$(ProjectDir)plugin.xml" />
+  </ItemGroup>
+  
+  <Target Name="AfterBuild">
+    <CallTarget Targets="FileSystemPublish"/>
+    <ItemGroup>
+      <References Include="$(TargetDir)approot\packages\**\net451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>
+      <!--The following references are not available for NET451, yet. The versions copied below do work anyway-->
+      <!--Referenced by Microsoft.AspNet.Server.WebListener-->
+      <References Include="$(TargetDir)approot\packages\System.Text.Encodings.Web\**\*.dll"/>
+      <References Include="$(TargetDir)approot\packages\System.Diagnostics.DiagnosticSource\**\dotnet5.2\*.dll"/>
+      <!--Additionally referenced by Microsoft.AspNet.Server.Kestrel-->
+      <References Include="$(TargetDir)approot\packages\System.Numerics.Vectors\**\net46\*.dll"/>
+      <References Include="$(TargetDir)approot\packages\Microsoft.AspNet.Server.Kestrel\**\runtimes\win7-x86\native\*.dll"/>
+      <!--Additionally referenced by Microsoft.AspNet.MVC-->
+      <References Include="$(TargetDir)approot\packages\System.Buffers\**\dotnet5.2\*.dll"/>
+      <!--Additionally referenced by Microsoft.AspNet.MVC (Razor Engine)-->
+      <References Include="$(TargetDir)approot\packages\System.Collections.Immutable\**\dotnet\*.dll"/>
+      <References Include="$(TargetDir)approot\packages\Microsoft.CodeAnalysis.Common\**\net45\*.dll"/>
+      <References Include="$(TargetDir)approot\packages\Microsoft.CodeAnalysis.CSharp\**\net45\*.dll"/>
+      <References Include="$(TargetDir)approot\packages\System.Reflection.Metadata\**\dotnet5.2\*.dll"/>
+      <!--Additionally referenced by Microsoft.AspNet.MVC (Razor Engine - not needed for sample, but likely needed for other functionality of Razor)-->
+      <References Include="$(TargetDir)approot\packages\Microsoft.CodeAnalysis.Analyzers\**\dotnet\cs\*.dll"/>
+      <!--Likely needed because packages are contained in publish-output, but package names are not contained in vanilla .net 4.5.1-->
+      <References Include="$(TargetDir)approot\packages\System.Reflection.Extensions\**\ref\dotnet\*.dll"/>
+      <References Include="$(TargetDir)approot\packages\System.Reflection.Primitives\**\ref\dotnet\*.dll"/>
+      <References Include="$(TargetDir)approot\packages\System.Text.Encoding.Extensions\**\ref\dotnet\*.dll"/>
+      <References Include="$(TargetDir)approot\packages\System.Runtime.Extensions\**\ref\dotnet\*.dll"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+  </Target>
+
+</Project>

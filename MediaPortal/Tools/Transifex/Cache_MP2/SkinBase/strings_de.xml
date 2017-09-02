@@ -38,12 +38,20 @@
   <string name="ServerConnection.HomeServer">Heimserver</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">An Server anbinden</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Vom Server abkoppeln</string>
+<<<<<<< HEAD
   <string name="ServerConnection.HomeServerWorkflowStateLabel">MediaPortal Server</string>
   <string name="ServerConnection.AttachedText.Before">Dieser Client ist einem MP2-Server zugewiesen.</string>
   <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Dieser Client ist momentan keinem MP2-Server zugewiesen.</string>
   <string name="ServerConnection.HomeServerIsConnected">Der MP2-Server ist verbunden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Der MP2-Server ist getrennt.</string>
+=======
+  <string name="ServerConnection.HomeServerWorkflowStateLabel">Heimserver</string>
+  <string name="ServerConnection.AttachedText.Before">Dieser MediaPortal-2-Client ist einem Heimserver zugewiesen.</string>
+  <string name="ServerConnection.NoHomeServerAttached">Dieser MediaPortal-2-Client ist momentan keinem Heimserver zugewiesen.</string>
+  <string name="ServerConnection.HomeServerIsConnected">Der Heimserver ist derzeit verbunden.</string>
+  <string name="ServerConnection.HomeServerIsNotConnected">Der Heimserver ist derzeit getrennt.</string>
+>>>>>>> FreakyJ/FEAT_MIA_DLNA_MP2Ext_AspNet
   <string name="ServerConnection.DetachMenu">Abkoppeln</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Vom Heimserver abkoppeln</string>
   <string name="ServerConnection.DetachConfirmDialogText">Beim Abkoppeln vom MP2-Server werden alle Informationen zu lokalen Medienquellen und -dateien vom Server gelöscht. Ein erneutes Anbinden ist möglich. Soll wirklich vom Server \'{0}\' ({1}) abgekoppelt werden?</string>

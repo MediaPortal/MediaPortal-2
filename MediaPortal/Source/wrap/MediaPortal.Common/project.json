@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../Core/MediaPortal.Common/MediaPortal.Common.csproj",
+      "bin": {
+        "assembly": "../../Core/MediaPortal.Common/obj/x86/{configuration}/MediaPortal.Common.dll",
+        "pdb": "../../Core/MediaPortal.Common/obj/x86/{configuration}/MediaPortal.Common.pdb"
+      },
+      "dependencies": {
+        "Microsoft.Tpl.Dataflow": "4.5.24",
+        "HttpServer": "1.0.0-*",
+        "MediaPortal.Utilities": "1.0.0-*",
+        "UPnP": "1.0.0-*",
+        "log4net": "1.0.0-*"
+      }
+    }
+  }
+}

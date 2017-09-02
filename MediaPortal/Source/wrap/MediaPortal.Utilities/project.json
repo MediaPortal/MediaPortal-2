@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../Core/MediaPortal.Utilities/MediaPortal.Utilities.csproj",
+      "bin": {
+        "assembly": "../../Core/MediaPortal.Utilities/obj/x86/{configuration}/MediaPortal.Utilities.dll",
+        "pdb": "../../Core/MediaPortal.Utilities/obj/x86/{configuration}/MediaPortal.Utilities.pdb"
+      }
+    }
+  }
+}
