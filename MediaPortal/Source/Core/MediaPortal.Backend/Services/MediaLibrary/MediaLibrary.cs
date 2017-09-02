@@ -54,6 +54,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using System.Diagnostics;
 using MediaPortal.Common.Services.MediaManagement;
 using System.Threading.Tasks;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -332,6 +333,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// </summary>
     protected const int MAX_VARIABLES_LIMIT = 80;
 
+    protected const int FANART_CHECK_INTERVAL_HOURS = 24;
+
     #endregion
 
     #region Protected fields
@@ -352,6 +355,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
     protected ICollection<Share> _importingSharesCache;
+    protected volatile bool _fanArtCleanupAllowed = true;
+    protected volatile bool _fanArtCleanupRunning = true;
+    protected Thread _fanArtCleanupThread;
+    protected DateTime _nextFanartCleanupCheck = DateTime.Now;
 
     #endregion
 
@@ -387,6 +394,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private static string SELECT_USER_DATA_FROM_PARENT_ID_SQL = null;
     private static string UPDATE_PARENT_SET_VIRTUAL_ATTRIBUTE_SQL = null;
     private static string SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL = null;
+    private static string SELECT_COUNT_FROM_MEDIAITEMS_SQL = null;
 
     #endregion
 
@@ -411,9 +419,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void Dispose()
     {
       _messageQueue.Shutdown();
+      ShutdownFanArtCleanup();
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    #endregion
+
+    #region Import Progress
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
       {
@@ -533,6 +546,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             count++;
           }
         }
+        _fanArtCleanupAllowed = !importing;
         var state = new ShareImportServerState
         {
           IsImporting = importing,
@@ -553,6 +567,98 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       get { return _localSystemId; }
     }
+
+    #region FanArt Cleanup
+
+    private void StartFanArtCleanup()
+    {
+      ShutdownFanArtCleanup();
+      _fanArtCleanupThread = new Thread(FanArtCleanup)
+      {
+        Name = "FanArtCleanUpThread",
+        Priority = ThreadPriority.Lowest,
+        IsBackground = true
+      };
+      _fanArtCleanupThread.Start();
+    }
+
+    private void ShutdownFanArtCleanup()
+    {
+      if (_fanArtCleanupThread != null)
+      {
+        _fanArtCleanupRunning = false;
+        if (!_fanArtCleanupThread.Join(5000))
+          _fanArtCleanupThread.Abort();
+
+        _fanArtCleanupThread = null;
+      }
+    }
+
+    private void FanArtCleanup()
+    {
+      try
+      {
+        while (_fanArtCleanupRunning)
+        {
+          if (ShuttingDown)
+            break;
+
+          Thread.Sleep(50);
+
+          if (!_fanArtCleanupAllowed)
+            continue;
+          if (_nextFanartCleanupCheck > DateTime.Now)
+            continue;
+
+          ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+          using (ITransaction transaction = database.CreateTransaction())
+          {
+            using (IDbCommand command = transaction.CreateCommand())
+            {
+              command.CommandText = SELECT_COUNT_FROM_MEDIAITEMS_SQL;
+              var miParam = database.AddParameter(command, "ITEM_ID", Guid.Empty, typeof(Guid));
+              foreach (string folder in Directory.GetDirectories(FanArtCache.FANART_CACHE_PATH))
+              {
+                if (ShuttingDown)
+                  break;
+
+                if (!_fanArtCleanupAllowed)
+                  break;
+
+                Thread.Sleep(50);
+
+                Guid mediaItemId;
+                if (Guid.TryParse(Path.GetFileName(folder), out mediaItemId))
+                {
+                  miParam.Value = mediaItemId;
+                  int count = Convert.ToInt32(command.ExecuteScalar());
+                  try
+                  {
+                    if (count == 0)
+                    {
+                      DeleteFanArt(mediaItemId);
+                      Logger.Debug("Deleted orphan FanArt for {0}", mediaItemId);
+                    }
+                  }
+                  catch (Exception ex)
+                  {
+                    Logger.Error("Cannot delete FanArt for {0}", ex, mediaItemId);
+                  }
+                }
+              }
+            }
+          }
+          _nextFanartCleanupCheck = _nextFanartCleanupCheck.AddHours(FANART_CHECK_INTERVAL_HOURS);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Error("FanArt cleanup thread error", ex);
+      }
+      _fanArtCleanupRunning = false;
+    }
+
+    #endregion
 
     #region Protected methods
 
@@ -1459,11 +1565,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
         " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
         " WHERE " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + "=@PROFILE_ID AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN({0})";
+      SELECT_COUNT_FROM_MEDIAITEMS_SQL = "SELECT COUNT(*) FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + "=@ITEM_ID";
     }
 
     public void ActivateImporterWorker()
     {
       PrepareDatabaseQueries();
+      StartFanArtCleanup();
       InitShareWatchers();
 
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
@@ -1477,6 +1586,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Suspend();
       DeInitShareWatchers();
+      ShutdownFanArtCleanup();
     }
 
     protected bool ShuttingDown

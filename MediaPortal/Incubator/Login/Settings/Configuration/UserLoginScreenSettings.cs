@@ -22,26 +22,34 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Settings;
-using System;
 
-namespace MediaPortal.UiComponents.Login.Settings
+namespace MediaPortal.UiComponents.Login.Settings.Configuration
 {
-  public class UserSettings
+  public class UserLoginScreenSettings : YesNo
   {
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool EnableUserLogin { get; set; }
+    public override void Load()
+    {
+      if (!Enabled)
+        return;
+      ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
+      UserSettings settings = localSettings.Load<UserSettings>();
+      Yes = settings.EnableUserLoginScreen;
+    }
 
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool EnableUserLoginScreen { get; set; }
+    public override void Save()
+    {
+      if (!Enabled)
+        return;
 
-    [Setting(SettingScope.Global)]
-    public Guid AutoLoginUser { get; set; }
+      base.Save();
 
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool AutoLogoutEnabled { get; set; }
-
-    [Setting(SettingScope.Global, DefaultValue = 30)]
-    public int AutoLogoutIdleTimeoutInMin { get; set; }
+      ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
+      UserSettings settings = localSettings.Load<UserSettings>();
+      settings.EnableUserLoginScreen = Yes;
+      localSettings.Save(settings);
+    }
   }
 }

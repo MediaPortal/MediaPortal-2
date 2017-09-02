@@ -2,11 +2,12 @@
 <resources>
   
   <!--Login-->
-  <string name="Login.Title">User profile</string>
-  <string name="Login.Title.Help">Change user profile</string>
+  <string name="Login.Title">User login</string>
+  <string name="Login.Title.Help">Login a specific user</string>
   <string name="Login.IncorrectPassword">Incorrect password, please try again</string>
   <string name="Login.PasswordOk">OK</string>
   <string name="Login.EnterPassword">Enter user password</string>
+  <string name="Login.Logout">Logout</string>
 
   <!--User Settings-->
   <string name="Settings.Users">Users</string> <!-- Section name -->
@@ -15,6 +16,8 @@
   <string name="Settings.Users.Config.UserManagement.Help">Manage the users on the home server</string>
   <string name="Settings.Users.Config.UserEnable">Enable user logins and restrictions</string> <!-- Setting -->
   <string name="Settings.Users.Config.UserEnable.Help">Enable users to login, change the current user and apply user specific settings</string>
+  <string name="Settings.Users.Config.UserEnableScreen">Enable login screen</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Show the login screen when no user is logged in</string>
   <string name="Settings.Users.Config.AutoLogout">Automatic logout</string> <!-- Setting -->
   <string name="Settings.Users.Config.AutoLogout.Help">Enable automatic logout of a user after a period of idling</string>
   <string name="Settings.Users.Config.AutoLogoutTimeout">Automatic logout idle timeout</string> <!-- Setting -->
@@ -42,6 +45,10 @@
   <string name="UserConfig.DeleteUser">Delete</string>
   <string name="UserConfig.SaveUser">Save</string>
   <string name="UserConfig.SelectImage">Select image for the user</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Delete confirmation</string>
+  <string name="UserConfig.DeleteConfirmation">Are you sure you want to delete the selected user?</string>
+  <string name="UserConfig.Yes">Yes</string>
+  <string name="UserConfig.No">No</string>
 
   <string name="UserConfig.ClientProfileType">Client Profile</string>
   <string name="UserConfig.UserProfileType">User Profile</string>

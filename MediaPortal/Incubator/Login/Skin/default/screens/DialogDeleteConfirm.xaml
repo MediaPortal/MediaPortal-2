@@ -7,10 +7,10 @@
   <Include.Resources>
 
     <!-- Dialog title -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Login.EnterPassword]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[UserConfig.DeleteConfirmation.Title]"/>
 
-    <!-- Login model -->
-    <Model x:Key="Model" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
+    <!-- User configuration model -->
+    <Model x:Key="Model" Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/>
 
     <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="ContentsGrid">
@@ -21,19 +21,24 @@
           <RowDefinition Height="50"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBox x:Name="Password" SetFocus="true"
-                 PreferredTextLength="10" Style="{ThemeResource PasswordTextBoxStyle}"
-                 Text="{Binding Source={StaticResource Model},Path=UserPassword,Mode=TwoWay}"
-                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Label x:Name="PasswordVerification" Grid.Row="1" Color="{ThemeResource TextColor}"
                HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Width="400"
-               Content="[Login.IncorrectPassword]" Wrap="True" 
-               Margin="10" IsVisible="{Binding Source={StaticResource Model}, Path=IsPasswordIncorrect}"/>
-        <Button x:Name="Ok" Grid.Row="2" Content="[Login.PasswordOk]" HorizontalAlignment="Center" Margin="10,20,10,10">
+               Content="[UserConfig.DeleteConfirmation]" Wrap="True" 
+               Margin="10"/>
+        <Button x:Name="Yes" Grid.Row="2" Content="[UserConfig.Yes]" HorizontalAlignment="Center" Margin="10,20,10,10">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
-              <Command Source="{StaticResource Model}" Path="ConfirmPassword"/>
+              <Command Source="{StaticResource Model}" Path="DeleteUser"/>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+        <Button x:Name="No" Grid.Row="3" Content="[UserConfig.No]" HorizontalAlignment="Center" Margin="10,20,10,10">
+          <Button.Command>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
             </CommandList>
           </Button.Command>
         </Button>

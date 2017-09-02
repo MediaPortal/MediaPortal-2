@@ -451,7 +451,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_CERTIFICATION, null);
       foreach (string certification in series.Mpaa)
       {
-        if (CertificationMapper.TryFindMovieCertification(certification, out cert))
+        if (CertificationMapper.TryFindSeriesCertification(certification, out cert))
         {
           seriesAspect.SetAttribute(TempSeriesAspect.ATTR_CERTIFICATION, cert.CertificationId);
           break;

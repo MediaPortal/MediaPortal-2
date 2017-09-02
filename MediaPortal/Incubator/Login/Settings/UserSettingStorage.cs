@@ -39,6 +39,7 @@ namespace MediaPortal.UiComponents.Login.Settings
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       UserSettings settings = localSettings.Load<UserSettings>();
       UserLoginEnabled = settings.EnableUserLogin;
+      UserLoginScreenEnabled = settings.EnableUserLoginScreen;
       AutoLoginUser = settings.AutoLoginUser;
       AutoLogoutEnabled = settings.AutoLogoutEnabled;
       AutoLogoutIdleTimeoutInMin = settings.AutoLogoutIdleTimeoutInMin;
@@ -68,5 +69,6 @@ namespace MediaPortal.UiComponents.Login.Settings
     public static Guid AutoLoginUser { get; set; }
     public static bool AutoLogoutEnabled { get; set; }
     public static int AutoLogoutIdleTimeoutInMin { get; set; }
+    public static bool UserLoginScreenEnabled { get; set; }
   }
 }

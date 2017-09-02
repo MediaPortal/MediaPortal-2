@@ -45,6 +45,7 @@ namespace MediaPortal.UiComponents.Login.General
 
     public const string RES_SYSTEM_DEFAULT_TEXT = "[Settings.Users.Config.SystemDefault]";
 
-    public static Guid WF_STATE_ID_HOME = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
+    public static Guid WF_STATE_ID_HOME_SCREEN = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
+    public static Guid WF_STATE_ID_LOGIN_SCREEN = new Guid("2529B0F0-8415-4A4E-971B-38D6CDD2406A");
   }
 }

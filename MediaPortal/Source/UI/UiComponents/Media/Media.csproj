@@ -192,6 +192,7 @@
     <Compile Include="Models\NavigationModel\MoviesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\SeriesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
+    <Compile Include="Models\Navigation\CertificationFilterItem.cs" />
     <Compile Include="Models\Navigation\SimplePersonFilterItem.cs" />
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\ArtistFilterItem.cs" />

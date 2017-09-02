@@ -43,8 +43,8 @@
         MainScreen="Login"
         DisplayLabel="[Login.Title]"
         WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- Login model -->/>
-        
-  <WorkflowState Id="D3C5EC78-F901-4851-8DB8-83CF27E80EA8" 
+                
+    <WorkflowState Id="D3C5EC78-F901-4851-8DB8-83CF27E80EA8" 
         Name="AutoLoginUser" 
         MainScreen="AutoLoginUser"
         DisplayLabel="[Login.Title]"
@@ -75,6 +75,12 @@
         Text="[Settings.Users.Config.UserEnable]"
         HelpText="[Settings.Users.Config.UserEnable.Help]"
         ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserConfigSettings"/>
+    
+    <ConfigSetting
+        Id="EnableUserLoginScreen"
+        Text="[Settings.Users.Config.UserEnableScreen]"
+        HelpText="[Settings.Users.Config.UserEnableScreen.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserLoginScreenSettings"/>
     
     <ConfigSetting
         Id="AutoLogout"

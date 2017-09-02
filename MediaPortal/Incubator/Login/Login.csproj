@@ -58,6 +58,7 @@
     <Compile Include="Settings\Configuration\AutoLoginUsertSetting.cs" />
     <Compile Include="Settings\Configuration\AutoLogoutTimeoutSetting.cs" />
     <Compile Include="Settings\Configuration\AutoLogoutSettings.cs" />
+    <Compile Include="Settings\Configuration\UserLoginScreenSettings.cs" />
     <Compile Include="Settings\UserSettings.cs" />
     <Compile Include="Settings\UserSettingStorage.cs" />
     <Compile Include="Settings\Configuration\UserConfigSettings.cs" />
@@ -125,10 +126,23 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Skin\WMCSkin\" />
+    <None Include="Skin\default\screens\DialogDeleteConfirm.xaml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\AutoLoginUser.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\Login.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\Login.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

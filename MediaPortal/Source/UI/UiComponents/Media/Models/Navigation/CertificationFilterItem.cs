@@ -22,26 +22,12 @@
 
 #endregion
 
-using MediaPortal.Common.Settings;
-using System;
-
-namespace MediaPortal.UiComponents.Login.Settings
+namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
-  public class UserSettings
+  /// <summary>
+  /// Holds a GUI item which represents a certification filter choice.
+  /// </summary>
+  public class CertificationFilterItem : FilterItem
   {
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool EnableUserLogin { get; set; }
-
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool EnableUserLoginScreen { get; set; }
-
-    [Setting(SettingScope.Global)]
-    public Guid AutoLoginUser { get; set; }
-
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool AutoLogoutEnabled { get; set; }
-
-    [Setting(SettingScope.Global, DefaultValue = 30)]
-    public int AutoLogoutIdleTimeoutInMin { get; set; }
   }
 }
