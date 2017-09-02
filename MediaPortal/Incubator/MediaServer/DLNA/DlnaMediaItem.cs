@@ -313,8 +313,8 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       }
       else if (info.IsVideo)
       {
-        profileList = DlnaProfiles.ResolveVideoProfile(DlnaMetadata.Metadata.VideoContainerType, DlnaMetadata.Video.Codec, DlnaMetadata.Audio[0].Codec, DlnaMetadata.Video.ProfileType, DlnaMetadata.Video.HeaderLevel,
-          DlnaMetadata.Video.Framerate, DlnaMetadata.Video.Width, DlnaMetadata.Video.Height, DlnaMetadata.Video.Bitrate, DlnaMetadata.Audio[0].Bitrate, DlnaMetadata.Video.TimestampType);
+        profileList = DlnaProfiles.ResolveVideoProfile(DlnaMetadata.Metadata.VideoContainerType, DlnaMetadata.Video.Codec, DlnaMetadata.Audio.Count > 0 ? DlnaMetadata.Audio[0].Codec : AudioCodec.Unknown, DlnaMetadata.Video.ProfileType, DlnaMetadata.Video.HeaderLevel,
+          DlnaMetadata.Video.Framerate, DlnaMetadata.Video.Width, DlnaMetadata.Video.Height, DlnaMetadata.Video.Bitrate, DlnaMetadata.Audio.Count > 0 ? DlnaMetadata.Audio[0].Bitrate : 0, DlnaMetadata.Video.TimestampType);
       }
 
       string profile = "";
