@@ -46,7 +46,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     public static Guid MetadataExtractorId = new Guid("D03E1343-A2DD-4C77-83F3-08791E85ABD9");
 
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Audio };
-    protected static ICollection<string> AUDIO_EXTENSIONS = new List<string>();
 
     static TranscodeAudioMetadataExtractor()
     {
@@ -64,7 +63,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     /// <param name="settings">Settings object to read the data from.</param>
     internal static void InitializeExtensions(TranscodeAudioMetadataExtractorSettings settings)
     {
-      AUDIO_EXTENSIONS = new List<string>(settings.AudioFileExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public TranscodeAudioMetadataExtractor()
@@ -86,13 +84,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     public MetadataExtractorMetadata Metadata { get; private set; }
 
-    private bool HasAudioExtension(string fileName)
-    {
-      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
-      return AUDIO_EXTENSIONS.Contains(ext);
-    }
-
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {

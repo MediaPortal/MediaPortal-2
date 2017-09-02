@@ -57,6 +57,22 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
         _profiles[section].Clear();
     }
 
+    public static void AddTranscodingProfile(string section, string profileName, TranscodingSetup profile)
+    {
+      if (_profiles.ContainsKey(section) == false)
+        _profiles.Add(section, new Dictionary<string, TranscodingSetup>());
+
+      if (_profiles[section].ContainsKey(profileName))
+      {
+        //User profiles can override defaults
+        _profiles[section][profileName] = profile;
+      }
+      else
+      {
+        _profiles[section].Add(profileName, profile);
+      }
+    }
+
     public static void LoadTranscodeProfiles(string section, string profileFile)
     {
       try
@@ -329,15 +345,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
             }
             else if (nodeName == "Profile" && reader.NodeType == XmlNodeType.EndElement)
             {
-              if (_profiles[section].ContainsKey(profileName))
-              {
-                //User profiles can override defaults
-                _profiles[section][profileName] = profile;
-              }
-              else
-              {
-                _profiles[section].Add(profileName, profile);
-              }
+              AddTranscodingProfile(section, profileName, profile);
             }
           }
           reader.Close();
@@ -1054,6 +1062,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
     {
       if (info == null) return null;
       if (ValidateProfile(section, profile) == false) return null;
+      if (info.Audio.Count == 0) return null;
 
       int iMatchedAudioStream = 0;
       VideoTranscoding video = new VideoTranscoding();

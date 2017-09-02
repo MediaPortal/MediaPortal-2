@@ -46,7 +46,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     public static Guid MetadataExtractorId = new Guid("DFC8E367-C255-4B54-8FC9-236D4C6EBA55");
 
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Image };
-    protected static ICollection<string> IMAGE_FILE_EXTENSIONS = new List<string>();
 
     static TranscodeImageMetadataExtractor()
     {
@@ -63,7 +62,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     /// <param name="settings">Settings object to read the data from.</param>
     internal static void InitializeExtensions(TranscodeImageMetadataExtractorSettings settings)
     {
-      IMAGE_FILE_EXTENSIONS = new List<string>(settings.ImageFileExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public TranscodeImageMetadataExtractor()
@@ -85,13 +83,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     public MetadataExtractorMetadata Metadata { get; private set; }
 
-    private bool HasImageExtension(string fileName)
-    {
-      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
-      return IMAGE_FILE_EXTENSIONS.Contains(ext);
-    }
-
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
