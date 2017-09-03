@@ -56,7 +56,8 @@
     <ControlTemplate x:Key="Alternative_Footer_Template">
       <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer">
         <mp_special_controls:PlayerControl.TemplateControl>
-          <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0"
+                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Color="#00074381" Offset="0"/>

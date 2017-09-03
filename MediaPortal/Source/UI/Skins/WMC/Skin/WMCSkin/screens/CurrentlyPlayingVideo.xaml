@@ -144,7 +144,7 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Label x:Name="StoryPlot" Wrap="True" Margin="40" TextTrimming="WordEllipsis" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                <Label x:Name="StoryPlot" Wrap="True" Margin="40,10,40,10" TextTrimming="WordEllipsis" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" 
                        Content="{Binding VideoStoryPlot}"/>
               </Grid>
@@ -197,8 +197,8 @@
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="50*"/>
-                  <ColumnDefinition Width="15*"/>
+                  <ColumnDefinition Width="45*"/>
+                  <ColumnDefinition Width="20*"/>
                   <ColumnDefinition Width="35*"/>
                 </Grid.ColumnDefinitions>
                 <Control x:Name="Info_MovieGeneral" Grid.Column="0">
@@ -265,7 +265,7 @@
                           </Image>
                         </Border>
 
-                        <Border CornerRadius="10" Background="#1A000000" Margin="10"
+                        <Border CornerRadius="6" Background="#1A000000" Margin="10"
                                 IsVisible="{Binding Path=AspectHeight,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
                             <Image.Source>
@@ -285,7 +285,7 @@
                           </Image>
                         </Border>
 
-                        <Border CornerRadius="10" Background="#1A000000" Margin="10"
+                        <Border CornerRadius="6" Background="#1A000000" Margin="10"
                                 IsVisible="{Binding Path=AspectRatio,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Grid HorizontalAlignment="Center">
                             <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Source="Medialogos\aspectratio\aspectratio.png"/>
