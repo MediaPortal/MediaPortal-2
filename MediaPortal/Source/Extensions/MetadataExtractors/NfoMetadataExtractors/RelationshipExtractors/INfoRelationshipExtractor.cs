@@ -449,12 +449,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       CertificationMapping cert = null;
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_CERTIFICATION, null);
-      foreach (string certification in series.Mpaa)
+      if (series.Mpaa != null && series.Mpaa.Any())
       {
-        if (CertificationMapper.TryFindSeriesCertification(certification, out cert))
+        foreach (string certification in series.Mpaa)
         {
-          seriesAspect.SetAttribute(TempSeriesAspect.ATTR_CERTIFICATION, cert.CertificationId);
-          break;
+          if (CertificationMapper.TryFindSeriesCertification(certification, out cert))
+          {
+            seriesAspect.SetAttribute(TempSeriesAspect.ATTR_CERTIFICATION, cert.CertificationId);
+            break;
+          }
         }
       }
       seriesAspect.SetAttribute(TempSeriesAspect.ATTR_ENDED, !string.IsNullOrEmpty(series.Status) ? series.Status.Contains("End") : false);

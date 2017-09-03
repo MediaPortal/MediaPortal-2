@@ -253,147 +253,144 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
           SeriesStub series = seriesStubReader.GetSeriesStubs().FirstOrDefault();
           if (series != null && series.Episodes != null && series.Episodes.Count > 0)
           {
-            foreach (var episode in series.Episodes)
+            Dictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+            string title = string.Format("{0} S{1:00}{2}", series.Title, series.Season.Value, string.Join("", series.Episodes.Select(e => "E"+ e.ToString("00"))));
+
+            MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
+            providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+            providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_STUB);
+            providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, fsra.CanonicalLocalResourcePath.Serialize());
+            if (IsVhs(mediaItemAccessor))
             {
-              Dictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
-              string title = string.Format("{0} S{1:00}E{2:00}", series.Title, "S" + series.Season.Value, episode);
+              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/unknown");
 
-              MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
-              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_STUB);
-              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, fsra.CanonicalLocalResourcePath.Serialize());
-              if (IsVhs(mediaItemAccessor))
-              {
-                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/unknown");
+              MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(4.0 / 3.0));
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 25);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 720);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 576);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
 
-                MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(4.0 / 3.0));
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 25);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 720);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 576);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
-
-                MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 2);
-              }
-              else if (IsTv(mediaItemAccessor))
-              {
-                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/unknown");
-
-                MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(16.0 / 9.0));
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 25F);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 1920);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 1080);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
-
-                MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 2);
-              }
-              else if (IsDvd(mediaItemAccessor))
-              {
-                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/mp2t");
-
-                MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(16.0 / 9.0));
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 25F);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 720);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 576);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, "MPEG-2 Video");
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
-
-                MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, "AC3");
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 6);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE, 48000L);
-              }
-              else if (IsBluray(mediaItemAccessor))
-              {
-                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/mp4");
-
-                MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(16.0 / 9.0));
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 24F);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 1920);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 1080);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, "AVC");
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
-
-                MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, "AC3");
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 6);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE, 48000L);
-              }
-              else if (IsHdDvd(mediaItemAccessor))
-              {
-                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/wvc1");
-
-                MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(16.0 / 9.0));
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 24F);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 1920);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 1080);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, "VC1");
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
-
-                MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, "AC3");
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 6);
-                audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE, 48000L);
-              }
-
-              SingleMediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
-              videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, true);
-
-              SingleMediaItemAspect movieAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, EpisodeAspect.Metadata);
-              movieAspect.SetCollectionAttribute(EpisodeAspect.ATTR_EPISODE, new int[] { episode });
-              movieAspect.SetAttribute(EpisodeAspect.ATTR_SEASON, series.Season.Value);
-              movieAspect.SetAttribute(EpisodeAspect.ATTR_EPISODE_NAME, string.Format("{0} {1}", "Episode", episode));
-              movieAspect.SetAttribute(EpisodeAspect.ATTR_SERIES_NAME, series.Title);
-              movieAspect.SetAttribute(EpisodeAspect.ATTR_SERIES_SEASON, string.Format("{0} S{1:00}", series.Title, series.Season.Value));
-
-              SingleMediaItemAspect stubAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, StubAspect.Metadata);
-              stubAspect.SetAttribute(StubAspect.ATTR_DISC_NAME, series.DiscName);
-              stubAspect.SetAttribute(StubAspect.ATTR_MESSAGE, series.Message);
-
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, series.Title);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(series.Title));
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISSTUB, true);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
-
-              extractedStubAspectData.Add(extractedAspectData);
+              MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 2);
             }
+            else if (IsTv(mediaItemAccessor))
+            {
+              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/unknown");
+
+              MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(16.0 / 9.0));
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 25F);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 1920);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 1080);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
+
+              MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 2);
+            }
+            else if (IsDvd(mediaItemAccessor))
+            {
+              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/mp2t");
+
+              MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(16.0 / 9.0));
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 25F);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 720);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 576);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, "MPEG-2 Video");
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
+
+              MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, "AC3");
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 6);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE, 48000L);
+            }
+            else if (IsBluray(mediaItemAccessor))
+            {
+              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/mp4");
+
+              MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(16.0 / 9.0));
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 24F);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 1920);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 1080);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, "AVC");
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
+
+              MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, "AC3");
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 6);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE, 48000L);
+            }
+            else if (IsHdDvd(mediaItemAccessor))
+            {
+              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/wvc1");
+
+              MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, Convert.ToSingle(16.0 / 9.0));
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, 24F);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 1920);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 1080);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, "VC1");
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
+
+              MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, 1);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, "AC3");
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, 6);
+              audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE, 48000L);
+            }
+
+            SingleMediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
+            videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, true);
+
+            SingleMediaItemAspect movieAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, EpisodeAspect.Metadata);
+            movieAspect.SetCollectionAttribute(EpisodeAspect.ATTR_EPISODE, series.Episodes);
+            movieAspect.SetAttribute(EpisodeAspect.ATTR_SEASON, series.Season.Value);
+            movieAspect.SetAttribute(EpisodeAspect.ATTR_EPISODE_NAME, string.Format("{0} {1}", "Episode", string.Join(", ", series.Episodes)));
+            movieAspect.SetAttribute(EpisodeAspect.ATTR_SERIES_NAME, series.Title);
+            movieAspect.SetAttribute(EpisodeAspect.ATTR_SERIES_SEASON, string.Format("{0} S{1:00}", series.Title, series.Season.Value));
+
+            SingleMediaItemAspect stubAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, StubAspect.Metadata);
+            stubAspect.SetAttribute(StubAspect.ATTR_DISC_NAME, series.DiscName);
+            stubAspect.SetAttribute(StubAspect.ATTR_MESSAGE, series.Message);
+
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, series.Title);
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(series.Title));
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISSTUB, true);
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
+
+            extractedStubAspectData.Add(extractedAspectData);
           }
         }
         else
