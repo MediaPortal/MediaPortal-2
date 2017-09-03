@@ -119,6 +119,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
       _supportedElements.Add("review", new TryReadElementDelegate(TryReadReview));
       _supportedElements.Add("track", new TryReadElementDelegate(TryReadTrack));
+
+      //Ignored. No attribute in aspect to store them or irrelevant
+      _supportedElements.Add("style", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("mood", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("theme", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("type", new TryReadElementDelegate(Ignore));
     }
 
     #endregion

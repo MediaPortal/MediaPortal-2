@@ -107,6 +107,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("disbanded", new TryReadElementDelegate(TryReadDisbandedDate));
       //_supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
       _supportedElements.Add("biography", new TryReadElementDelegate(TryReadBiography));
+
+      //Ignored. No attribute in aspects to store them or irrelevant
+      _supportedElements.Add("genre", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("style", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("mood", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("yearsactive", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("instruments", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("album", new TryReadElementDelegate(Ignore));
+      _supportedElements.Add("thumb", new TryReadElementDelegate(Ignore));
     }
 
     #endregion
