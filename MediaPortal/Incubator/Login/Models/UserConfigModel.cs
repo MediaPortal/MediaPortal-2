@@ -129,9 +129,6 @@ namespace MediaPortal.UiComponents.Login.Models
       UserProxy = new UserProxy();
       UserProxy.ProfileTypeProperty.Attach(OnProfileTypeChanged);
       ProfileTypeName = ProfileTypeList.FirstOrDefault(i => (int)i.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType)?.Labels[Consts.KEY_NAME].Evaluate();
-
-      UpdateUserLists_NoLock(true);
-      UpdateShareLists_NoLock(true);
     }
 
     public void Dispose()
@@ -381,6 +378,10 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void OpenSelectSharesDialog()
     {
+      foreach (ListItem item in _serverSharesList)
+        item.Selected = UserProxy.SelectedShares.Contains(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
+      foreach (ListItem item in _localSharesList)
+        item.Selected = UserProxy.SelectedShares.Contains(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectShares",
         (string name, System.Guid id) =>
         {
@@ -725,7 +726,9 @@ namespace MediaPortal.UiComponents.Login.Models
           lock (_syncObj)
             _serverSharesList.Add(item);
         }
-        IsHomeServerConnected = scm.LastHomeServerSystem != null;
+        SystemName homeServerSystem = scm.LastHomeServerSystem;
+        IsLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
+        IsHomeServerConnected = homeServerSystem != null;
         ShowLocalShares = !IsLocalHomeServer || _localSharesList.Count > 0;
         AnyShareAvailable = _serverSharesList.Count > 0 || _localSharesList.Count > 0;
       }
@@ -748,11 +751,9 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       lock (_syncObj)
       {
-        //UserProxy = null;
         _userList = null;
         _localSharesList = null;
         _serverSharesList = null;
-        SetUser(null);
       }
     }
 
@@ -780,8 +781,8 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       SubscribeToMessages();
       ClearData();
-      UpdateUserLists_NoLock(true);
       UpdateShareLists_NoLock(true);
+      UpdateUserLists_NoLock(true);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

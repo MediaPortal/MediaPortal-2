@@ -259,8 +259,13 @@ namespace MediaPortal.UiComponents.Media.Helpers
       List<IFilter> filters = new List<IFilter>();
 
       // Shares filter
-      if (shareFilters.Count > 0 && allowAllShares == false)
-        filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, shareFilters.ToArray()));
+      if (allowAllShares == false)
+      {
+        if (shareFilters.Count > 0)
+          filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, shareFilters.ToArray()));
+        else
+          filters.Add(new RelationalFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RelationalOperator.EQ, ""));
+      }
 
       // Content filter
       if (allowedAge.HasValue && allowAllAges == false)
