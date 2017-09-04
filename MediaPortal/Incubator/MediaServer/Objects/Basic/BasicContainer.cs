@@ -142,13 +142,13 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
     public void Add(BasicObject node)
     {
       if (node == null) return;
-      Logger.Debug("MediaServer adding {0} to {1}", node.Key, Key);
+      //Logger.Debug("MediaServer adding {0} to {1}", node.Key, Key);
       node.Parent = this;
       if (!_children.Contains(node))
       {
         _children.Add(node);
       }
-      Logger.Debug("MediaServer added, now {0} children", _children.Count);
+      Logger.Debug("MediaServer added {0} to {1}, now {2} children", node.Key, Key, _children.Count);
     }
 
     public virtual BasicObject FindObject(string key)
