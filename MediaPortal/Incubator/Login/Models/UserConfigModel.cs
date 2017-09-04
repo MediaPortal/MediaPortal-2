@@ -83,6 +83,7 @@ namespace MediaPortal.UiComponents.Login.Models
     protected AbstractProperty _selectShareInfoProperty;
     protected AbstractProperty _profileTypeNameProperty;
     protected AbstractProperty _isUserSelectedProperty;
+    protected AbstractProperty _isSystemUserSelectedProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
 
     protected readonly static string[] DEFAULT_IMAGE_FILE_EXTENSIONS = new string[]
@@ -110,6 +111,7 @@ namespace MediaPortal.UiComponents.Login.Models
       _selectShareInfoProperty = new WProperty(typeof(string), string.Empty);
       _profileTypeNameProperty = new WProperty(typeof(string), string.Empty);
       _isUserSelectedProperty = new WProperty(typeof(bool), false);
+      _isSystemUserSelectedProperty = new WProperty(typeof(bool), false);
 
       _profileList = new ItemsList();
       ListItem item = null;
@@ -339,6 +341,17 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (bool)_isUserSelectedProperty.GetValue(); }
       set { _isUserSelectedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsSystemUserSelectedProperty
+    {
+      get { return _isSystemUserSelectedProperty; }
+    }
+
+    public bool IsSystemUserSelected
+    {
+      get { return (bool)_isSystemUserSelectedProperty.GetValue(); }
+      set { _isSystemUserSelectedProperty.SetValue(value); }
     }
 
     public string ImagePath
@@ -601,6 +614,9 @@ namespace MediaPortal.UiComponents.Login.Models
           UserProxy?.Clear();
         }
 
+        IsUserSelected = userProfile != null;
+        IsSystemUserSelected = userProfile?.ProfileType == UserProfile.CLIENT_PROFILE;
+
         SetSelectedShares();
       }
       catch (Exception e)
@@ -672,7 +688,6 @@ namespace MediaPortal.UiComponents.Login.Models
         userProfile = _userList.Where(i => i.Selected).Select(i => (UserProfile)i.AdditionalProperties[Consts.KEY_USER]).FirstOrDefault();
       }
       SetUser(userProfile);
-      IsUserSelected = userProfile != null;
     }
 
     private void OnProfileTypeChanged(AbstractProperty property, object oldValue)

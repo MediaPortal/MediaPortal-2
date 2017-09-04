@@ -335,10 +335,13 @@ namespace MediaPortal.UiComponents.Media.Helpers
 
     public static void ConvertCertifications(IEnumerable<MediaItem> mediaItems)
     {
+      if (mediaItems == null)
+        return;
+
       //Convert certification system if needed
       if (!string.IsNullOrEmpty(DisplayMovieCertificationCountry) || !string.IsNullOrEmpty(DisplaySeriesCertificationCountry))
       {
-        foreach (MediaItem mediaItem in mediaItems)
+        foreach (MediaItem mediaItem in mediaItems.Where(mi => mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID) || mi.Aspects.ContainsKey(SeriesAspect.ASPECT_ID)))
         {
           //Find all possible matches
           string certification = null;

@@ -83,6 +83,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         query.SortInformation = new List<ISortInformation> { _sortInformation };
 
       IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual);
+      CertificationHelper.ConvertCertifications(items);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)
       {
