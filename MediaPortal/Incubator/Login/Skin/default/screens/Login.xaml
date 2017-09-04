@@ -26,7 +26,7 @@
           </Grid.RowDefinitions>
           <!-- User profile list -->
           <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True"
+                    Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True" SetFocus="True"
                     ItemsSource="{Binding Path=Users}" >
             <ListView.Resources>
               <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectUser"

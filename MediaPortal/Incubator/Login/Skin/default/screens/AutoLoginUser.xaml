@@ -16,7 +16,7 @@
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}">
         <!-- User profile list -->
-        <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
                     Style="{ThemeResource SingleMarkableListViewStyle}" RestoreFocus="True"
                     ItemsSource="{Binding Path=AutoLoginUsers}" >
           <ListView.Resources>
