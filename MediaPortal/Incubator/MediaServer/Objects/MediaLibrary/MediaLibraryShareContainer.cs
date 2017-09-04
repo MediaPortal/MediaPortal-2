@@ -71,7 +71,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public override void Initialise()
     {
-      Console.WriteLine("MediaLibraryShareContainer: Initialise");
+      Logger.Debug("MediaLibraryShareContainer: Initialise");
 
       IDictionary<Guid, Share> shares = GetShares();
 
