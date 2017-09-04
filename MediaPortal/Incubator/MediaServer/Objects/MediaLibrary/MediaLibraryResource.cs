@@ -72,11 +72,14 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       {
         if (dlnaItem.DlnaMetadata.Metadata.Bitrate > 0)
           BitRate = Convert.ToUInt32((double)dlnaItem.DlnaMetadata.Metadata.Bitrate / 8.0);
-        if (dlnaItem.DlnaMetadata.Audio[0].Frequency > 0)
-          SampleFrequency = Convert.ToUInt32(dlnaItem.DlnaMetadata.Audio[0].Frequency);
-        if (dlnaItem.DlnaMetadata.Audio[0].Channels > 0)
-          NumberOfAudioChannels = Convert.ToUInt32(dlnaItem.DlnaMetadata.Audio[0].Channels);
-        if(dlnaItem.DlnaMetadata.Metadata.Duration > 0)
+        if (dlnaItem.DlnaMetadata.Audio != null && dlnaItem.DlnaMetadata.Audio.Count > 0)
+        {
+          if (dlnaItem.DlnaMetadata.Audio[0].Frequency > 0)
+            SampleFrequency = Convert.ToUInt32(dlnaItem.DlnaMetadata.Audio[0].Frequency);
+          if (dlnaItem.DlnaMetadata.Audio[0].Channels > 0)
+            NumberOfAudioChannels = Convert.ToUInt32(dlnaItem.DlnaMetadata.Audio[0].Channels);
+        }
+        if (dlnaItem.DlnaMetadata.Metadata.Duration > 0)
           Duration = TimeSpan.FromSeconds(dlnaItem.DlnaMetadata.Metadata.Duration).ToString(@"hh\:mm\:ss\.fff");
       }
       if(dlnaItem.IsVideo == true)
