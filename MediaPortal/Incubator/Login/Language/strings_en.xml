@@ -49,12 +49,15 @@
   <string name="UserConfig.DeleteConfirmation">Are you sure you want to delete the selected user?</string>
   <string name="UserConfig.Yes">Yes</string>
   <string name="UserConfig.No">No</string>
+  <string name="UserConfig.Ok">OK</string>
 
-  <string name="UserConfig.ClientProfileType">Client Profile</string>
-  <string name="UserConfig.UserProfileType">User Profile</string>
-  <string name="UserConfig.AdminProfileType">Administrator Profile</string>
+  <string name="UserConfig.SelectProfileType">Select profile type</string>
+  <string name="UserConfig.ClientProfileType">Client profile</string>
+  <string name="UserConfig.UserProfileType">User profile</string>
+  <string name="UserConfig.AdminProfileType">Administrator profile</string>
 
   <string name="UserConfig.SharesText">Shares</string>
+  <string name="UserConfig.SelectShares">Select share access</string>
   <string name="UserConfig.LocalShare">Client media source</string>
   <string name="UserConfig.LocalShares">Client media sources</string>
   <string name="UserConfig.GlobalShare">Server media source</string>

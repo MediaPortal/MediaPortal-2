@@ -283,7 +283,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               {
                 if (series != null && series.Episodes.Count > 0)
                 {
-                  Stubs.SeriesEpisodeStub episode = null;
+                  List<Stubs.SeriesEpisodeStub> episodeStubs = null;
                   if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
                   {
                     int? seasonNo = 0;
@@ -294,7 +294,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                       CollectionUtils.AddAll(episodeNos, episodes.Cast<int>());
 
                       if (seasonNo.HasValue && episodeNos.Count > 0)
-                        episode = series.Episodes.FirstOrDefault(e => e.Season == seasonNo.Value && episodeNos.Contains(e.Episode.Value));
+                        episodeStubs = series.Episodes.Where(e => e.Season == seasonNo.Value && episodeNos.Intersect(e.Episodes).Any()).ToList();
                     }
                   }
                   else
@@ -306,39 +306,88 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                       Match match = regex.Match(title);
 
                       if (match.Success && match.Groups["seasonnum"].Length > 0 && match.Groups["episodenum"].Length > 0)
-                        episode = series.Episodes.FirstOrDefault(e => e.Season == Convert.ToInt32(match.Groups["seasonnum"].Value) && e.Episode == Convert.ToInt32(match.Groups["episodenum"].Value));
+                        episodeStubs = series.Episodes.Where(e => e.Season == Convert.ToInt32(match.Groups["seasonnum"].Value) && e.Episodes.Contains(Convert.ToInt32(match.Groups["episodenum"].Value))).ToList();
                     }
                   }
-                  if (episode != null)
+                  if (episodeStubs != null && episodeStubs.Count > 0)
                   {
+                    Stubs.SeriesEpisodeStub mergedEpisode = null;
                     if (isStub)
                     {
+                      if (episodeStubs.Count == 1)
+                      {
+                        mergedEpisode = episodeStubs.First();
+                      }
+                      else
+                      {
+                        mergedEpisode = new Stubs.SeriesEpisodeStub();
+                        mergedEpisode.Actors = episodeStubs.First().Actors;
+                        mergedEpisode.Aired = episodeStubs.First().Aired;
+                        mergedEpisode.Credits = episodeStubs.First().Credits;
+                        mergedEpisode.Director = episodeStubs.First().Director;
+                        mergedEpisode.DisplayEpisode = episodeStubs.First().DisplayEpisode;
+                        mergedEpisode.DisplaySeason = episodeStubs.First().DisplaySeason;
+                        mergedEpisode.EpBookmark = episodeStubs.First().EpBookmark;
+                        mergedEpisode.FileInfo = episodeStubs.First().FileInfo;
+                        mergedEpisode.LastPlayed = episodeStubs.First().LastPlayed;
+                        mergedEpisode.Mpaa = episodeStubs.First().Mpaa;
+                        mergedEpisode.PlayCount = episodeStubs.First().PlayCount;
+                        mergedEpisode.Premiered = episodeStubs.First().Premiered;
+                        mergedEpisode.ProductionCodeNumber = episodeStubs.First().ProductionCodeNumber;
+                        mergedEpisode.ResumePosition = episodeStubs.First().ResumePosition;
+                        mergedEpisode.Season = episodeStubs.First().Season;
+                        mergedEpisode.Sets = episodeStubs.First().Sets;
+                        mergedEpisode.ShowTitle = episodeStubs.First().ShowTitle;
+                        mergedEpisode.Status = episodeStubs.First().Status;
+                        mergedEpisode.Studio = episodeStubs.First().Studio;
+                        mergedEpisode.Tagline = episodeStubs.First().Tagline;
+                        mergedEpisode.Thumb = episodeStubs.First().Thumb;
+                        mergedEpisode.Top250 = episodeStubs.First().Top250;
+                        mergedEpisode.Trailer = episodeStubs.First().Trailer;
+                        mergedEpisode.Watched = episodeStubs.First().Watched;
+                        mergedEpisode.Year = episodeStubs.First().Year;
+                        mergedEpisode.Id = episodeStubs.First().Id;
+                        mergedEpisode.UniqueId = episodeStubs.First().UniqueId;
+
+                        //Merge episodes
+                        mergedEpisode.Title = string.Join("; ", episodeStubs.OrderBy(e => e.Episodes.First()).Select(e => e.Title).ToArray());
+                        mergedEpisode.Rating = episodeStubs.Where(e => e.Rating.HasValue).Sum(e => e.Rating.Value) / episodeStubs.Where(e => e.Rating.HasValue).Count(); // Average rating
+                        mergedEpisode.Votes = episodeStubs.Where(e => e.Votes.HasValue).Sum(e => e.Votes.Value) / episodeStubs.Where(e => e.Votes.HasValue).Count();
+                        mergedEpisode.Runtime = TimeSpan.FromSeconds(episodeStubs.Where(e => e.Runtime.HasValue).Sum(e => e.Runtime.Value.TotalSeconds));
+                        mergedEpisode.Plot = string.Join("\r\n\r\n", episodeStubs.OrderBy(e => e.Episodes.First()).
+                          Select(e => string.Format("{0,02}) {1}", e.Episodes.First(), e.Plot)).ToArray());
+                        mergedEpisode.Outline = string.Join("\r\n\r\n", episodeStubs.OrderBy(e => e.Episodes.First()).
+                          Select(e => string.Format("{0,02}) {1}", e.Episodes.First(), e.Outline)).ToArray());
+                        mergedEpisode.Episodes = new HashSet<int>(episodeStubs.SelectMany(x => x.Episodes).ToList());
+                        mergedEpisode.DvdEpisodes = new HashSet<decimal>(episodeStubs.SelectMany(x => x.DvdEpisodes).ToList());
+                      }
+
                       IList<MultipleMediaItemAspect> providerResourceAspects;
                       if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
                       {
                         MultipleMediaItemAspect providerResourceAspect = providerResourceAspects.First(pa => pa.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB);
                         string mime = null;
-                        if (episode.FileInfo != null && episode.FileInfo.Count > 0)
-                          mime = MimeTypeDetector.GetMimeTypeFromExtension("file" + episode.FileInfo.First().Container);
+                        if (mergedEpisode.FileInfo != null && mergedEpisode.FileInfo.Count > 0)
+                          mime = MimeTypeDetector.GetMimeTypeFromExtension("file" + mergedEpisode.FileInfo.First().Container);
                         if (mime != null)
                           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mime);
                       }
 
-                      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, string.Format("{0} S{1:00}E{2:00} {3}", series.ShowTitle, episode.Season, episode.Episode, episode.Title));
-                      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(episode.Title));
-                      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, episode.Premiered.HasValue ? episode.Premiered.Value : episode.Year.HasValue ? episode.Year.Value : (DateTime?)null);
+                      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, string.Format("{0} S{1:00}{2} {3}", series.ShowTitle, mergedEpisode.Season, mergedEpisode.Episodes.Select(e => "E" + e.ToString("00")), mergedEpisode.Title));
+                      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(mergedEpisode.Title));
+                      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, mergedEpisode.Premiered.HasValue ? mergedEpisode.Premiered.Value : mergedEpisode.Year.HasValue ? mergedEpisode.Year.Value : (DateTime?)null);
 
-                      if (episode.FileInfo != null && episode.FileInfo.Count > 0)
+                      if (mergedEpisode.FileInfo != null && mergedEpisode.FileInfo.Count > 0)
                       {
                         extractedAspectData.Remove(VideoStreamAspect.ASPECT_ID);
                         extractedAspectData.Remove(VideoAudioStreamAspect.ASPECT_ID);
                         extractedAspectData.Remove(SubtitleAspect.ASPECT_ID);
-                        StubParser.ParseFileInfo(extractedAspectData, episode.FileInfo, episode.Title);
+                        StubParser.ParseFileInfo(extractedAspectData, mergedEpisode.FileInfo, mergedEpisode.Title);
                       }
                     }
 
                     episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, importOnly, forceQuickMode, isStub, _httpClient, _settings);
-                    episodeNfoReader.SetEpisodeStubs(new List<Stubs.SeriesEpisodeStub> { episode });
+                    episodeNfoReader.SetEpisodeStubs(new List<Stubs.SeriesEpisodeStub> { mergedEpisode });
                   }
                 }
               }
