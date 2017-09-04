@@ -144,6 +144,7 @@
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\Login.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Content>
   </ItemGroup>
 </Project>
