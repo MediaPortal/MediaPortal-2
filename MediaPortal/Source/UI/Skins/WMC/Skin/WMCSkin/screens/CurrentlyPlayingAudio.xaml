@@ -61,9 +61,9 @@
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Color="#00074381" Offset="0"/>
-                <GradientStop Color="#D9074381" Offset="0.15"/>
-                <GradientStop Color="#F2081a42" Offset="1"/>
+                <GradientStop Color="{ThemeResource InfoScreenGradientColor1}" Offset="0"/>
+                <GradientStop Color="{ThemeResource InfoScreenGradientColor2}" Offset="0.15"/>
+                <GradientStop Color="{ThemeResource InfoScreenGradientColor3}" Offset="1"/>
               </LinearGradientBrush>
             </Border.Background>
             <Grid Margin="10" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" >
