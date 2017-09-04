@@ -127,9 +127,9 @@ namespace Test.MediaServer
             aspect1.SetAttribute(MediaAspect.ATTR_TITLE, "The Track");
             MediaItemAspect.SetAspect(aspects, aspect1);
 
-            SingleMediaItemAspect aspect2 = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
+            MultipleMediaItemAspect aspect2 = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
             aspect2.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp3");
-            MediaItemAspect.SetAspect(aspects, aspect2);
+            MediaItemAspect.AddOrUpdateAspect(aspects, aspect2);
 
             SingleMediaItemAspect aspect3 = new SingleMediaItemAspect(AudioAspect.Metadata);
             MediaItemAspect.SetAspect(aspects, aspect3);
