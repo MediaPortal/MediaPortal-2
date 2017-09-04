@@ -469,7 +469,7 @@ namespace MediaPortal.UiComponents.Login.Models
         return;
       if (!userManagement.UserProfileDataManagement.GetProfile(profileId, out userProfile))
         return;
-      if (General.Utils.VerifyPassword(password, userProfile.Password))
+      if (string.IsNullOrEmpty(userProfile.Password) || General.Utils.VerifyPassword(password, userProfile.Password))
       {
         SetCurrentUser(userProfile);
         userManagement.UserProfileDataManagement.LoginProfile(profileId);

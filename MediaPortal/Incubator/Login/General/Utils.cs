@@ -34,6 +34,8 @@ namespace MediaPortal.UiComponents.Login.General
 
     public static bool VerifyPassword(string password, string profilePassword)
     {
+      if (string.IsNullOrEmpty(profilePassword))
+        return true;
       string hashedPassword = HashPassword(password);
       return string.Equals(hashedPassword, profilePassword, StringComparison.Ordinal);
     }
