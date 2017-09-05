@@ -25,11 +25,11 @@
 
   <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
     <DoubleAnimation
-                                    Storyboard.TargetProperty="RenderTransform.Angle"
-                                    From="0"
-                                    To="360"
-                                    Duration="0:0:2"
-                                    RepeatBehavior="Forever" />
+         Storyboard.TargetProperty="RenderTransform.Angle"
+         From="0"
+         To="360"
+         Duration="0:0:2"
+         RepeatBehavior="Forever" />
   </Storyboard>
 
   <!-- Base storyboard which shows an animation when a button has focus -->
@@ -918,6 +918,29 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="UserLabel" Property="Opacity" Value="1"/>
               <Setter TargetName="UserIcon" Property="Opacity" Value="1.2"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="LogoutButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel LastChildFill="False">
+            <Rectangle x:Name="ButtonControlRectangle" Opacity="0.6" DockPanel.Dock="Center"
+                       HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"
+                       RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
+                       Fill="Black" StrokeThickness="0">
+            </Rectangle>
+            <Label x:Name="ItemLabel" DockPanel.Dock="Center" Opacity="0.6" Content="[Login.Logout]" HorizontalAlignment="Center"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" VerticalAlignment="Center"/>
+          </DockPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

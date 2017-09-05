@@ -44,7 +44,7 @@
             </ListView.Resources>
           </ListView>
           <Button Grid.Row="1" x:Name="LogoutUserButton" Style="{ThemeResource WizardButtonStyle}" 
-                  HorizontalAlignment="Center" Width="320" Margin="10,60,0,-60"
+                  HorizontalAlignment="Center" Width="300" Margin="-30,60,30,-60"
                   Content="[Login.Logout]" IsVisible="{Binding IsUserLoggedIn}" Command="{Command LogoutUser}"/>
           <!--Label Grid.Row="1" HorizontalAlignment="Left" DataContext="{Binding Source={StaticResource Model}, Path=CurrentUser}" Content="{Binding Path=Name}" Color="{ThemeResource TextColor}"/-->
         </Grid>

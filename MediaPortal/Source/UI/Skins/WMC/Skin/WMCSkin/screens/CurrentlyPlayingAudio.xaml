@@ -289,7 +289,7 @@
                 </media:AudioAlbumAspectWrapper>
 
 
-                <!--media:AudioAlbumAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="2">
+                <media:AudioAlbumAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="2">
                   <media:AudioAlbumAspectWrapper.Template>
                     <ControlTemplate>
                       <UniformGrid Rows="2" Columns="2" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,20,0,20">
@@ -297,28 +297,28 @@
                             <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" FontFamily="SegoeUIBold"
                                    Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                               <Label.Content>
-                            <Binding Path="Awards" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} :Awards"/>
+                            <Binding Path="Awards" Converter="{StaticResource CommaSeparatedValuesConverter}"/>
                               </Label.Content>
                             </Label>
 
                         <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" FontFamily="SegoeUIBold"
                                Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                           <Label.Content>
-                            <Binding Path="Sales" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} :Sales"/>
+                            <Binding Path="Sales" Converter="{StaticResource CommaSeparatedValuesConverter}"/>
                           </Label.Content>
                         </Label>
 
                         <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" FontFamily="SegoeUIBold"
                                Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                           <Label.Content>
-                            <Binding Path="Labels" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} :Labels"/>
+                            <Binding Path="Labels" Converter="{StaticResource CommaSeparatedValuesConverter}"/>
                           </Label.Content>
                         </Label>
 
                       </UniformGrid>
                     </ControlTemplate>
                   </media:AudioAlbumAspectWrapper.Template>
-                </-->
+                </media:AudioAlbumAspectWrapper>
 
               </Grid>
 

@@ -768,7 +768,7 @@
       <Setter.Value>
         <ItemsPanelTemplate>
           <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"
-                              ScrollMargin="960,960" Margin="-300,20,-300,0" HorizontalAlignment="Stretch">
+                              ScrollMargin="1100,1100" Margin="-150,20,-450,0" HorizontalAlignment="Stretch">
             <AnimatedStackPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                 <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
