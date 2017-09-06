@@ -37,17 +37,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
   {
     public MediaLibraryAlbumItem(MediaItem item, EndPointSettings client)
       : base(item, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, 
-				  // From track to album <ID supplied>
+				  // From track linked to album <ID supplied>
           new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, item.MediaItemId), client)
-    {
-    }
-
-    public override string Class
-    {
-      get { return "object.container.album.musicAlbum"; }
-    }
-
-    public override void Initialise()
     {
       Genre = new List<string>();
       Artist = new List<string>();
@@ -85,6 +76,11 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
           AlbumArtUrl = albumArt.Uri;
         }
       }
+    }
+
+    public override string Class
+    {
+      get { return "object.container.album.musicAlbum"; }
     }
 
     public string StorageMedium { get; set; }
