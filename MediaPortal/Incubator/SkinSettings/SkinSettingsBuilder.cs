@@ -22,13 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Services.PluginManager.Builders;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace SkinSettings
 {
@@ -40,8 +37,8 @@ namespace SkinSettings
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      BuilderHelper.CheckParameter("Name", itemData);
+      itemData.CheckParameter("ClassName");
+      itemData.CheckParameter("Name");
       return new SkinSettingsRegistration(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Id, itemData.Attributes["Name"]);
     }
 

@@ -34,8 +34,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Models;
 
 namespace MediaPortal.Plugins.ServerStateService.Client
 {
@@ -87,8 +87,9 @@ namespace MediaPortal.Plugins.ServerStateService.Client
     private void InitPluginAssemblyList()
     {
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      foreach (PluginRuntime plugin in pluginManager.AvailablePlugins.Values)
-        CollectionUtils.AddAll(_knownAssemblies, plugin.Metadata.AssemblyFilePaths);
+      // TODO: Where to get AssemblyFilePaths from?
+      //foreach (PluginMetadata plugin in pluginManager.AvailablePlugins.Values)
+      //  CollectionUtils.AddAll(_knownAssemblies, plugin.AssemblyFilePaths);
     }
 
     Assembly PluginsAssemblyResolver(object sender, ResolveEventArgs args)

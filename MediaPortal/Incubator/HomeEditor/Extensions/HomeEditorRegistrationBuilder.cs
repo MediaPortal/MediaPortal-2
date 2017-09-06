@@ -22,9 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Services.PluginManager.Builders;
 using System;
+using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace HomeEditor.Extensions
 {
@@ -37,7 +38,7 @@ namespace HomeEditor.Extensions
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("SkinName", itemData);
+      itemData.CheckParameter("SkinName");
       return new HomeEditorRegistration(itemData.Id, itemData.Attributes["SkinName"]);
     }
 

@@ -208,9 +208,8 @@
     <Content Include="Skin\Titanium\themes\default\styles\SlimTvStyles.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
+    <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogChooseGroup.xaml" />
@@ -244,7 +243,6 @@
     <Content Include="Skin\BlueVision\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\BlueVision\themes\default\styles\SlimTvStyles.xaml" />
   </ItemGroup>
-    <None Include="packages.config" />
   <ItemGroup>
     <Content Include="Skin\default\screens\SlimTvClient-programsearch.xaml">
       <SubType>Designer</SubType>

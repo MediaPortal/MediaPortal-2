@@ -23,8 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Common.PluginManager.Builders.SystemBuilders;
-using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Services.Players.Builders
@@ -36,7 +37,7 @@ namespace MediaPortal.UI.Services.Players.Builders
     // requesting the player builder -> lazy load the player builders on request
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
+      itemData.CheckParameter("ClassName");
       int priority = 0;
       string prioString;
       if (itemData.Attributes.TryGetValue("Priority", out prioString))

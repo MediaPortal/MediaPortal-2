@@ -32,6 +32,7 @@ using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace HomeEditor.Extensions
 {

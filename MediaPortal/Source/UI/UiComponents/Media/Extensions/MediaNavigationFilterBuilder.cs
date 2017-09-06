@@ -25,8 +25,9 @@
 using System.IO;
 using System.Xml.Serialization;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace MediaPortal.UiComponents.Media.Extensions
 {
@@ -43,8 +44,8 @@ namespace MediaPortal.UiComponents.Media.Extensions
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      BuilderHelper.CheckParameter("Filter", itemData);
+      itemData.CheckParameter("ClassName");
+      itemData.CheckParameter("Filter");
       // Support for simplified escaping inside XML tag
       string filter = itemData.Attributes["Filter"].Replace("{", "<").Replace("}", ">");
       FilterWrapper wrapper;
