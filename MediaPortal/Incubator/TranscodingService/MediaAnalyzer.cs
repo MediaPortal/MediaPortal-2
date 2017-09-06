@@ -259,6 +259,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
           MetadataContainer info = new MetadataContainer { Metadata = { Source = MediaResource } };
           info.Metadata.Size = fileResource.Size;
           FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
+
+          // Special handling for files like OGG which will be falsely identified as videos
+          if (info.Metadata.VideoContainerType != VideoContainer.Unknown && info.Video.Codec == VideoCodec.Unknown)
+          {
+            info.Metadata.VideoContainerType = VideoContainer.Unknown;
+          }
+
           if (info.IsImage || HasImageExtension(fileName))
           {
             info.Metadata.Mime = MimeDetector.GetFileMime(fileResource, "image/unknown");
@@ -309,7 +316,18 @@ namespace MediaPortal.Plugins.Transcoding.Service
           MetadataContainer info = new MetadataContainer { Metadata = { Source = MediaResource } };
           info.Metadata.Size = 0;
           FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
-          if (info.IsVideo)
+
+          // Special handling for files like OGG which will be falsely identified as videos
+          if (info.Metadata.VideoContainerType != VideoContainer.Unknown && info.Video.Codec == VideoCodec.Unknown)
+          {
+            info.Metadata.VideoContainerType = VideoContainer.Unknown;
+          }
+
+          if (info.IsImage)
+          {
+            info.Metadata.Mime = MimeDetector.GetUrlMime(url, "image/unknown");
+          }
+          else if (info.IsVideo)
           {
             info.Metadata.Mime = MimeDetector.GetUrlMime(url, "video/unknown");
             FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
