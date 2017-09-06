@@ -565,6 +565,14 @@
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                   <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
                   <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                  <Trigger.EnterActions>
+                    <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+                  </Trigger.EnterActions>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                  <Trigger.EnterActions>
+                    <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+                  </Trigger.EnterActions>
                 </Trigger>
               </Button.Triggers>
             </Button>
