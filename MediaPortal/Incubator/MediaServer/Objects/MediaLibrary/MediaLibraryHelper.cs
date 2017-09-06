@@ -107,6 +107,10 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
         {
           obj = new MediaLibrarySeasonItem(item, null, parent.Client);
         }
+        else if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+        {
+          obj = new MediaLibraryAlbumItem(item, parent.Client);
+        }
         else
         {
           Logger.Warn("MediaServer item {0} {1} contains no valid aspects", item.MediaItemId, title);
