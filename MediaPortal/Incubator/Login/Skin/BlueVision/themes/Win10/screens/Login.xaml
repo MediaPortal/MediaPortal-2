@@ -19,8 +19,6 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
@@ -31,35 +29,32 @@
       <Model x:Key="Model" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
     </Grid.Resources>
 
-    <Image Stretch="Fill" Source="Background.PNG" Grid.RowSpan="5"/>
-    <Image Source="shadow_top.png" Grid.Row="1" Margin="40,20,40,20"/>
-    <Image Source="shadow_bottom.png" Grid.Row="3" Margin="40,20,40,20"/>
+    <Image Stretch="Fill" Source="SplashScreen.PNG" Grid.RowSpan="3"/>
 
     <Button Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource Model},Path=EnableUserLogin}" 
             IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" 
             HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,40,0"
             Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
 
-    <DockPanel Grid.Row="2">
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-100,0,-100,0">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <!-- User profile list -->
-        <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Center" DataContext="{Binding Source={StaticResource Model}}"
-                    HorizontalContentAlignment="Center" SetFocus="True"
-                    Style="{ThemeResource LoginListViewStyle}" ItemsSource="{Binding Path=Users}" RestoreFocus="True">
-          <ListView.Resources>
-            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectUser"
-                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
-          </ListView.Resources>
-        </ListView>
-      </Grid>
-    </DockPanel>
-    <Button Grid.Row="4" x:Name="LogoutUserButton" Style="{ThemeResource LogoutButtonStyle}" 
+    <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <!-- User profile list -->
+      <ListView HorizontalAlignment="Stretch" VerticalAlignment="Center" DataContext="{Binding Source={StaticResource Model}}"
+                HorizontalContentAlignment="Center" SetFocus="True" Margin="160,0,160,0"
+                Style="{ThemeResource LoginListViewStyle}" ItemsSource="{Binding Path=Users}" RestoreFocus="True">
+        <ListView.Resources>
+          <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectUser"
+                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
+        </ListView.Resources>
+      </ListView>
+    </Grid>
+
+    <Button Grid.Row="2" x:Name="LogoutUserButton" Style="{ThemeResource LogoutButtonStyle}" 
             HorizontalAlignment="Center" VerticalAlignment="Center" Width="280" Height="50" DataContext="{Binding Source={StaticResource Model}}"
             Content="[Login.Logout]" IsVisible="{Binding IsUserLoggedIn}"  Command="{Command LogoutUser}">
     </Button>

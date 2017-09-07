@@ -46,7 +46,8 @@
         <Label Grid.Row="1" Grid.Column="1" Margin="5"
                Content="[UserConfig.UserName]" Color="{ThemeResource TextColor}"/>
         <TextBox Grid.Row="1" Grid.Column="3" TextAlign="Center" HorizontalContentAlignment="Center"
-                 Text="{Binding Path=UserProxy.Name,Mode=TwoWay}" PreferredTextLength="40"/>
+                 Text="{Binding Path=UserProxy.Name,Mode=TwoWay}" PreferredTextLength="40"
+                 IsEnabled="{Binding Path=!IsSystemUserSelected}"/>
 
         <Label Grid.Row="2" Grid.Column="1" Margin="5"
                Content="[UserConfig.Password]" Color="{ThemeResource TextColor}"/>
@@ -108,7 +109,14 @@
           <Button x:Name="AddUserButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
                   Content="[UserConfig.AddUser]" Command="{Command AddUser}" Margin="10"/>
           <Button x:Name="DeleteUserButton" Grid.Column="1" Style="{ThemeResource WizardButtonStyle}" Margin="10"
-                  Content="[UserConfig.DeleteUser]" IsEnabled="{Binding IsUserSelected}" Command="{Command OpenConfirmDeleteDialog}"/>
+                  Content="[UserConfig.DeleteUser]" Command="{Command OpenConfirmDeleteDialog}">
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                <Binding Path="IsUserSelected"/>
+                <Binding Path="!IsSystemUserSelected"/>
+              </MultiBinding>
+            </Button.IsEnabled>
+          </Button>
           <Button x:Name="SaveUserButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
                   Content="[UserConfig.SaveUser]" IsEnabled="{Binding UserProxy.IsUserValid}" Command="{Command SaveUser}"/>
         </UniformGrid>

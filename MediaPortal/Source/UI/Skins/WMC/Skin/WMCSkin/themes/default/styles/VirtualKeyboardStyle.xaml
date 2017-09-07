@@ -25,8 +25,8 @@
             </Border.BorderBrush>
             <Border.Background>
               <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-                <GradientStop Color="#FF447da7" Offset="0"/>
-                <GradientStop Color="#FF124273" Offset="1"/>
+                <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}" Offset="0"/>
+                <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
               </LinearGradientBrush>
             </Border.Background>
             <StackPanel>
