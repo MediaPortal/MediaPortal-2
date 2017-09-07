@@ -263,12 +263,9 @@ namespace MediaPortal.UiComponents.Login.Models
       if (IsUserLoggedIn)
       {
         SetCurrentUser(null);
-
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        if (workflowManager.CurrentNavigationContext.WorkflowState.StateId != Consts.WF_STATE_ID_HOME_SCREEN)
-        {
-          workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
-        }
+        ShowHomeScreen(true); //Force home screen and clear history
+        if (UserSettingStorage.UserLoginScreenEnabled)
+          ShowLoginScreen();
       }
     }
 
@@ -300,6 +297,21 @@ namespace MediaPortal.UiComponents.Login.Models
         CurrentUserProperty.SetValue(userManagement.CurrentUser);
         CurrentUserProperty.Fire(null);
       }
+    }
+
+    private void ShowHomeScreen(bool force)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      if (force || workflowManager.CurrentNavigationContext.WorkflowState.StateId != Consts.WF_STATE_ID_HOME_SCREEN)
+      {
+        workflowManager.NavigatePopToState(Consts.WF_STATE_ID_HOME_SCREEN, false);
+      }
+    }
+
+    private void ShowLoginScreen()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_LOGIN_SCREEN, new NavigationContextConfig());
     }
 
     private bool CheckIfIdle()
@@ -340,8 +352,7 @@ namespace MediaPortal.UiComponents.Login.Models
               StartTimer();
               if (UserSettingStorage.AutoLoginUser == Guid.Empty && UserSettingStorage.UserLoginScreenEnabled && UserSettingStorage.UserLoginEnabled)
               {
-                IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-                workflowManager.NavigatePush(Consts.WF_STATE_ID_LOGIN_SCREEN, new NavigationContextConfig());
+                ShowLoginScreen();
               }
             }
             else if (newState == SystemState.Suspending || newState == SystemState.Hibernating)
@@ -473,12 +484,7 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         SetCurrentUser(userProfile);
         userManagement.UserProfileDataManagement.LoginProfile(profileId);
-
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        if (workflowManager.CurrentNavigationContext.WorkflowState.StateId != Consts.WF_STATE_ID_HOME_SCREEN)
-        {
-          workflowManager.NavigatePush(Consts.WF_STATE_ID_HOME_SCREEN, new NavigationContextConfig());
-        }
+        ShowHomeScreen(false);
       }
     }
 
