@@ -619,9 +619,13 @@
         <Rectangle Grid.RowSpan="2"
             x:Name="HomeFill" Fill="#FF808080" Opacity="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         <!-- Image -->
-        <Image Grid.RowSpan="2" DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
-             Source="{Binding Path=Image}" FallbackSource="person.png"
-             Width="300" Height="300" Stretch="Uniform" Margin="0">
+        <Image x:Name="Thumb" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+               Source="{Binding Path=Image}"
+               Width="300" Height="300" Stretch="UniformToFill">
+        </Image>
+        <Image x:Name="Fallback" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+               Source="person.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Width="300" Height="300" Stretch="Uniform">
         </Image>
         <!-- Darkened band -->
         <Rectangle Grid.Row="1" Fill="#FF000000" Opacity="0.749"

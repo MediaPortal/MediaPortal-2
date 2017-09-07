@@ -44,8 +44,8 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <!-- User profile list -->
-      <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Center" DataContext="{Binding Source={StaticResource Model}}"
-                HorizontalContentAlignment="Center" SetFocus="True"
+      <ListView HorizontalAlignment="Stretch" VerticalAlignment="Center" DataContext="{Binding Source={StaticResource Model}}"
+                HorizontalContentAlignment="Center" SetFocus="True" Margin="160,0,160,0"
                 Style="{ThemeResource LoginListViewStyle}" ItemsSource="{Binding Path=Users}" RestoreFocus="True">
         <ListView.Resources>
           <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectUser"

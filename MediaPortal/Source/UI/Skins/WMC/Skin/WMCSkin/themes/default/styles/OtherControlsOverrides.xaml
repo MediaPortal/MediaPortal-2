@@ -564,6 +564,7 @@
                   <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                   <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
+                  <Setter TargetName="Fallback" Property="Opacity" Value="1.3"/>
                   <Setter Property="StackPanel.ZIndex" Value="100.0"/>
                   <Trigger.EnterActions>
                     <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
@@ -588,9 +589,19 @@
   <DataTemplate x:Key="LoginItemDataTemplate">
     <DockPanel LastChildFill="False">
       <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
-             Source="{Binding Path=Image}"
-             FallbackSource="person.png"
-             Width="300" Height="300" Stretch="Uniform" Margin="0" x:Name="ItemControl">
+             IsVisible="{Binding Path=Image,Converter={StaticResource ReferenceToBoolConverter}}"
+             Source="{Binding Path=Image}" Width="300" Height="300" Stretch="Uniform" x:Name="ItemControl">
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="4" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+             Source="person.png" IsVisible="{Binding ElementName=ItemControl, Path=!HasImage}"
+             Width="300" Height="300" Stretch="Uniform" x:Name="Fallback">
       </Image>
     </DockPanel>
   </DataTemplate>

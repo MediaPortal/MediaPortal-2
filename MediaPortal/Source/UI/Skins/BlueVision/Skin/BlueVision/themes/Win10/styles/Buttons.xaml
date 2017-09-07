@@ -83,11 +83,11 @@
   <Storyboard x:Key="FocusedLoginButtonStoryboard" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.3"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.35"/>
     </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.3"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.35"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
