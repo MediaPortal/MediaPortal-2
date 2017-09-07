@@ -658,6 +658,16 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       {
         lmm.UpdateItems();
       }
+      LastWatchedMediaModel lwmm = workflowManager.GetModel(LastWatchedMediaModel.LAST_WATCHED_MEDIA_MODEL_ID) as LastWatchedMediaModel;
+      if (lwmm != null)
+      {
+        lwmm.UpdateItems();
+      }
+      FavoriteMediaModel fmm = workflowManager.GetModel(FavoriteMediaModel.FAVORITE_MEDIA_MODEL_ID) as FavoriteMediaModel;
+      if (fmm != null)
+      {
+        fmm.UpdateItems();
+      }
     }
 
     private bool NavigateToHome()
