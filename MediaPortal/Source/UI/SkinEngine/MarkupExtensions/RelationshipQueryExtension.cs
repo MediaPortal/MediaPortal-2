@@ -84,11 +84,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
       IFilter filter = null;
       //If all properties are valid, create the RelationshipFilter
-      if (role.HasValue && linkedRole.HasValue && linkedMediaItemId.HasValue)
-        filter = new RelationshipFilter(role.Value, linkedRole.Value, linkedMediaItemId.Value);
+      if (role.HasValue && linkedMediaItemId.HasValue)
+        filter = new RelationshipFilter(role.Value, linkedRole.HasValue ? linkedRole.Value : Guid.Empty, linkedMediaItemId.Value);
 
       //Setting a valid filter causes the underlying MediaItemQueryExtension to
-      //perform the actual query or setting to null to reset the target property to null
+      //perform the actual query or setting to null resets the target property to null
       Filter = filter;
     }
 
@@ -128,6 +128,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       get { return _roleProperty; }
     }
 
+    /// <summary>
+    /// Role to use for the relationship filter.
+    /// </summary>
     public Guid? Role
     {
       get { return (Guid?)_roleProperty.GetValue(); }
@@ -139,6 +142,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       get { return _linkedRoleProperty; }
     }
 
+    /// <summary>
+    /// Optional linked role to use for the relationship filter.
+    /// </summary>
     public Guid? LinkedRole
     {
       get { return (Guid?)_linkedRoleProperty.GetValue(); }
@@ -150,6 +156,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       get { return _linkedMediaItemIdProperty; }
     }
 
+    /// <summary>
+    /// Linked media item id to use for the relationship filter.
+    /// </summary>
     public Guid? LinkedMediaItemId
     {
       get { return (Guid?)_linkedMediaItemIdProperty.GetValue(); }
