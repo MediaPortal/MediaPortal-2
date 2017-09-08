@@ -39,6 +39,29 @@ using System.Linq;
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   /// <summary>
+  /// Determines whether the <see cref="MediaItemQueryExtension"/> updates the target
+  /// property with an enumeration of media items or a single media item. 
+  /// </summary>
+  public enum MediaItemQueryMode
+  {
+    /// <summary>
+    /// Updates the target property with a single media item.
+    /// </summary>
+    SingleItem,
+
+    /// <summary>
+    /// Updates the target property with an enumeration of media items.
+    /// </summary>
+    MultipleItems,
+
+    /// <summary>
+    /// Updates the target property with either an enumeration of media items 
+    /// or a single media item depending on the target property's type.
+    /// </summary>
+    Default
+  }
+
+  /// <summary>
   /// Markup extension which performs a media item query and
   /// updates the target property with the returned <see cref="MediaItem"/>(s).
   /// </summary>
@@ -56,6 +79,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     //The last updated value, used to avoid multiple updates with the same value
     protected object _lastUpdatedValue = null;
 
+    protected AbstractProperty _queryModeProperty;
     protected AbstractProperty _necessaryRequestedMIAsProperty;
     protected AbstractProperty _optionalRequestedMIAsProperty;
     protected AbstractProperty _filterProperty;
@@ -72,6 +96,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     void Init()
     {
+      _queryModeProperty = new SProperty(typeof(MediaItemQueryMode), MediaItemQueryMode.Default);
       _necessaryRequestedMIAsProperty = new SProperty(typeof(IEnumerable<Guid>), null);
       _optionalRequestedMIAsProperty = new SProperty(typeof(IEnumerable<Guid>), null);
       _filterProperty = new SProperty(typeof(IFilter), null);
@@ -79,6 +104,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     void Attach()
     {
+      _queryModeProperty.Attach(OnPropertyChanged);
       _necessaryRequestedMIAsProperty.Attach(OnPropertyChanged);
       _optionalRequestedMIAsProperty.Attach(OnPropertyChanged);
       _filterProperty.Attach(OnPropertyChanged);
@@ -86,6 +112,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     void Detach()
     {
+      _queryModeProperty.Detach(OnPropertyChanged);
       _necessaryRequestedMIAsProperty.Detach(OnPropertyChanged);
       _optionalRequestedMIAsProperty.Detach(OnPropertyChanged);
       _filterProperty.Detach(OnPropertyChanged);
@@ -135,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (Filter == null)
       {
         //Set target property to null if invalid to remove any previously assigned media items
-        UpdateTargetProperty(null);
+        UpdateTargetProperty(null, QueryMode);
         return;
       }
       //Update using the thread pool
@@ -185,7 +212,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (filter == null)
       {
         //Set target property to null if invalid to remove any previously assigned media items
-        UpdateTargetProperty(null);
+        UpdateTargetProperty(null, QueryMode);
         return;
       }
 
@@ -193,9 +220,13 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (cd == null)
         return;
 
+      MediaItemQueryMode queryMode = QueryMode;
       MediaItemQuery query = new MediaItemQuery(NecessaryRequestedMIAs, OptionalRequestedMIAs, filter);
+      if (queryMode == MediaItemQueryMode.SingleItem)
+        query.Limit = 1;
+
       IList<MediaItem> items = cd.Search(query, true, GetCurrentUserId(), false);
-      UpdateTargetProperty(items);
+      UpdateTargetProperty(items, queryMode);
     }
 
     protected Guid? GetCurrentUserId()
@@ -205,7 +236,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         userProfileDataManagement.CurrentUser.ProfileId : (Guid?)null;
     }
 
-    protected void UpdateTargetProperty(IList<MediaItem> items)
+    protected void UpdateTargetProperty(IList<MediaItem> items, MediaItemQueryMode queryMode)
     {
       IDataDescriptor targetDataDescriptor = _targetDataDescriptor;
       if (targetDataDescriptor == null)
@@ -213,8 +244,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
       object result;
       //Try and update our target property with either a media item enumeration or the first media item
-      if (TypeConverter.Convert(items, targetDataDescriptor.DataType, out result) ||
-        (items != null && TypeConverter.Convert(items.FirstOrDefault(), targetDataDescriptor.DataType, out result)))
+      if ((queryMode != MediaItemQueryMode.SingleItem && TypeConverter.Convert(items, targetDataDescriptor.DataType, out result)) ||
+        (queryMode != MediaItemQueryMode.MultipleItems && TypeConverter.Convert(items != null ? items.FirstOrDefault() : null, targetDataDescriptor.DataType, out result)))
       {
         lock (_syncObj)
         {
@@ -245,6 +276,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       Detach();
       base.DeepCopy(source, copyManager);
       MediaItemQueryExtension miqe = (MediaItemQueryExtension)source;
+      QueryMode = miqe.QueryMode;
       NecessaryRequestedMIAs = miqe.NecessaryRequestedMIAs;
       OptionalRequestedMIAs = miqe.OptionalRequestedMIAs;
       Filter = miqe.Filter;
@@ -261,11 +293,29 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region GUI Properties
 
+    public AbstractProperty QueryModeProperty
+    {
+      get { return _queryModeProperty; }
+    }
+
+    /// <summary>
+    /// Whether the target property should be updated with an enumeration of media items
+    /// or a single media item.
+    /// </summary>
+    public MediaItemQueryMode QueryMode
+    {
+      get { return (MediaItemQueryMode)_queryModeProperty.GetValue(); }
+      set { _queryModeProperty.SetValue(value); }
+    }
+
     public AbstractProperty NecessaryRequestedMIAsProperty
     {
       get { return _necessaryRequestedMIAsProperty; }
     }
 
+    /// <summary>
+    /// Enumeration of necessary media item aspect ids.
+    /// </summary>
     public IEnumerable<Guid> NecessaryRequestedMIAs
     {
       get { return (IEnumerable<Guid>)_necessaryRequestedMIAsProperty.GetValue(); }
@@ -277,6 +327,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       get { return _optionalRequestedMIAsProperty; }
     }
 
+    /// <summary>
+    /// Enumeration of optional media item aspect ids.
+    /// </summary>
     public IEnumerable<Guid> OptionalRequestedMIAs
     {
       get { return (IEnumerable<Guid>)_optionalRequestedMIAsProperty.GetValue(); }
@@ -288,6 +341,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       get { return _filterProperty; }
     }
 
+    /// <summary>
+    /// Filter to use for the query.
+    /// </summary>
     public IFilter Filter
     {
       get { return (IFilter)_filterProperty.GetValue(); }
