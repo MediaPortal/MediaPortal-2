@@ -279,6 +279,8 @@
   <string name="Media.MediaItemsActionDialogHeader">Media item actions</string>
   <string name="Media.SetWatched">Set watched</string>
   <string name="Media.SetUnwatched">Set unwatched</string>
+  <string name="Media.Refresh">Refresh</string>
+  <string name="Media.Reimport">Reimport</string>
   <string name="Media.DeleteFromStorage">Delete from storage</string>
   <string name="Media.DeleteFromStorage.Confirmation">Are you sure that you want to delete this item? This cannot be undone.</string>
   <string name="Media.ConfirmAction">Confirm action</string>
