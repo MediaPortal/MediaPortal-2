@@ -53,7 +53,8 @@ namespace MediaPortal.UI.Services.Players
   public class PlayerContextManager : IPlayerContextManager, IDisposable
   {
     const double MINIMUM_WATCHED_SEC = 60;
-    
+    const int MINIMUM_WATCHED_PERCENT = 50;
+
     #region Enums, delegates & classes
 
     protected enum PlayerWFStateType
@@ -339,7 +340,7 @@ namespace MediaPortal.UI.Services.Players
       {
         userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId,
           UserDataKeysKnown.KEY_PLAY_PERCENTAGE, playPercentage.ToString());
-        if (playDuration >= MINIMUM_WATCHED_SEC || playPercentage >= 50)
+        if (watched || playDuration >= MINIMUM_WATCHED_SEC || playPercentage >= MINIMUM_WATCHED_PERCENT)
           userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId,
           UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
       }
