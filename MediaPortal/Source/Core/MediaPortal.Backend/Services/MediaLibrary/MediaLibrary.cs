@@ -2052,7 +2052,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       try
       {
-        Dictionary<Guid, Dictionary<string, string>> mediaItemData = new Dictionary<Guid, Dictionary<string, string>>();
         if (mediaItems != null)
         {
           int currentItem = 0;
@@ -2072,9 +2071,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               {
                 while (reader.Read())
                 {
-                  if (!mediaItemData.ContainsKey(database.ReadDBValue<Guid>(reader, 0)))
-                    mediaItemData.Add(database.ReadDBValue<Guid>(reader, 0), new Dictionary<string, string>());
-                  mediaItemData[database.ReadDBValue<Guid>(reader, 0)].Add(database.ReadDBValue<string>(reader, 1), database.ReadDBValue<string>(reader, 2));
+                  MediaItem item = mediaItems.FirstOrDefault(mi => mi.MediaItemId == database.ReadDBValue<Guid>(reader, 0));
+                  if (item != null)
+                    item.UserData.Add(database.ReadDBValue<string>(reader, 1), database.ReadDBValue<string>(reader, 2));
                 }
               }
               currentItem = endItem;
