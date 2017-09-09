@@ -59,6 +59,7 @@
     <Compile Include="Database\ISQLDatabase.cs" />
     <Compile Include="Exceptions\Exceptions.cs" />
     <Compile Include="MediaLibrary\IMediaLibrary.cs" />
+    <Compile Include="MediaLibrary\Settings\MediaLibrarySettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BackendExtension.cs" />
     <Compile Include="Services\BackendServer\BackendServer.cs" />
