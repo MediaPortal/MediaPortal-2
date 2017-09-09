@@ -55,6 +55,8 @@ using System.Diagnostics;
 using MediaPortal.Common.Services.MediaManagement;
 using System.Threading.Tasks;
 using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Settings;
+using MediaPortal.Backend.MediaLibrary.Settings;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -356,8 +358,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected object _shareImportCacheSync = new object();
     protected ICollection<Share> _importingSharesCache;
     protected volatile bool _fanArtCleanupAllowed = true;
-    protected volatile bool _fanArtCleanupRunning = true;
-    protected Thread _fanArtCleanupThread;
+    protected volatile bool _fanArtCleanupRunning = false;
+    protected Thread _fanArtCleanupThread = null;
     protected DateTime _nextFanartCleanupCheck = DateTime.Now;
 
     #endregion
@@ -572,6 +574,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private void StartFanArtCleanup()
     {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      MediaLibrarySettings settings = settingsManager.Load<MediaLibrarySettings>();
+      if (!settings.DeleteOrhpanedFanart)
+        return;
+
       ShutdownFanArtCleanup();
       _fanArtCleanupThread = new Thread(FanArtCleanup)
       {
@@ -579,6 +586,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         Priority = ThreadPriority.Lowest,
         IsBackground = true
       };
+      _fanArtCleanupRunning = true;
       _fanArtCleanupThread.Start();
     }
 
