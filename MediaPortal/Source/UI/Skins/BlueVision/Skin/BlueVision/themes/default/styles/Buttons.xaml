@@ -8,6 +8,7 @@
 
   <!-- ***************************** Storyboards ******************************** -->
 
+  <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <ResourceWrapper x:Key="GroupMenuZoomCoefficient" Resource="1.2"/>
   <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1.03"/> 
   <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1.04"/>
@@ -912,7 +913,11 @@
                    HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
             <Label x:Name="UserLabel" DockPanel.Dock="Right" Opacity="0.6"
                    DataContext="{Binding Source={StaticResource LoginModel}, Path=CurrentUser}" Content="{Binding Path=Name}" 
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"/>
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.IsVisible>
+                <Binding Source="{StaticResource LoginModel}" Path="CurrentUser.ProfileType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0" />
+              </Label.IsVisible>
+            </Label>
           </DockPanel>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
