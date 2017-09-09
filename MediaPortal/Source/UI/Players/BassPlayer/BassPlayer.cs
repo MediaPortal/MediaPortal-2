@@ -36,6 +36,8 @@ using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.Common.Settings;
+using MediaPortal.UI.Services.Players.Settings;
 
 namespace MediaPortal.UI.Players.BassPlayer
 {
@@ -59,6 +61,9 @@ namespace MediaPortal.UI.Players.BassPlayer
   /// </remarks>
   public class BassPlayer : IDisposable, IAudioPlayer, IAudioPlayerAnalyze, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer, ITagSource
   {
+    const double PLAY_THRESHOLD_PERCENT = 0.5;
+    const double PLAY_THRESHOLD_SEC = 30;
+
     #region Protected fields
 
     protected readonly object _syncObj = new object();
@@ -186,7 +191,6 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     internal void FireStopped()
     {
-      NotifyPlayback();
       // The delegate is final so we can invoke it without the need of a local copy
       if (_stopped != null)
         _stopped(this);
@@ -215,8 +219,12 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     protected void NotifyPlayback()
     {
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       double playPercentage = CurrentTime.TotalSeconds / Duration.TotalSeconds;
-      if (playPercentage >= 0.9 && _mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
+      bool played = playPercentage >= settings.WatchedPlayPercentage;
+      if (played && _mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
       {
         IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
         IContentDirectory cd = scm.ContentDirectory;
@@ -224,7 +232,6 @@ namespace MediaPortal.UI.Players.BassPlayer
         if (cd != null)
           cd.NotifyPlayback(_mediaItemId.Value, true);
 
-        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
         if (userProfileDataManagement.IsValidUser)
         {
           string data = null;
@@ -233,6 +240,13 @@ namespace MediaPortal.UI.Players.BassPlayer
           int count = data != null ? Convert.ToInt32(data) + 1 : 1;
           userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
             _mediaItemId.Value, UserDataKeysKnown.KEY_PLAY_COUNT, count.ToString());
+        }
+      }
+      if ((played || playPercentage >= PLAY_THRESHOLD_PERCENT || CurrentTime.TotalSeconds >= PLAY_THRESHOLD_SEC) && 
+        _mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
+      {
+        if (userProfileDataManagement.IsValidUser)
+        {
           userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
             _mediaItemId.Value, UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
         }
@@ -306,6 +320,7 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public void Stop()
     {
+      NotifyPlayback();
       lock (_syncObj)
       {
         if (_externalState != PlayerState.Active)

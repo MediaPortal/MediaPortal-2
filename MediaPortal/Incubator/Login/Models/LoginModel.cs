@@ -392,7 +392,6 @@ namespace MediaPortal.UiComponents.Login.Models
             if (userProfileDataManagement.UserProfileDataManagement.GetProfile(UserSettingStorage.AutoLoginUser, out userProfile))
             {
               userProfileDataManagement.CurrentUser = userProfile;
-              IsUserLoggedIn = true;
               _firstLogin = false;
             }
           }
@@ -402,13 +401,11 @@ namespace MediaPortal.UiComponents.Login.Models
           // Init with system default
           userProfileDataManagement.CurrentUser = null;
           userProfile = userProfileDataManagement.CurrentUser;
-          IsUserLoggedIn = false;
         }
       }
       else
       {
         userProfileDataManagement.CurrentUser = userProfile;
-        IsUserLoggedIn = true;
       }
       CurrentUserProperty.SetValue(userProfile);
 
@@ -417,6 +414,12 @@ namespace MediaPortal.UiComponents.Login.Models
         if (userProfileDataManagement.UserProfileDataManagement != null)
           userProfileDataManagement.UserProfileDataManagement.LoginProfile(userProfile.ProfileId);
         _lastActivity = DateTime.Now;
+        IsUserLoggedIn = !userProfile.Name.Equals(System.Windows.Forms.SystemInformation.ComputerName, StringComparison.InvariantCultureIgnoreCase) ||
+          userProfile.ProfileType != UserProfile.CLIENT_PROFILE;
+      }
+      else
+      {
+        IsUserLoggedIn = false;
       }
     }
 
