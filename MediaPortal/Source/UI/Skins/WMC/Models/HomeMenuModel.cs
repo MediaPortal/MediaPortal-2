@@ -263,6 +263,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     public void DisableAnimations()
     {
+      _delayedAnimationEnableEvent.Stop();
       EnableSubMenuAnimations = false;
       EnableMainMenuAnimations = false;
       ScrollDirection = ScrollDirection.None;
