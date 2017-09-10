@@ -47,6 +47,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Audio };
 
+    protected static List<string> AUDIO_EXTENSIONS;
+
     static TranscodeAudioMetadataExtractor()
     {
       // All non-default media item aspects must be registered
@@ -57,12 +59,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
       InitializeExtensions(settings);
     }
 
+    protected static bool HasAudioExtension(string fileName)
+    {
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+      return AUDIO_EXTENSIONS.Contains(ext);
+    }
+
     /// <summary>
     /// (Re)initializes the audio extensions for which this <see cref="TranscodeAudioMetadataExtractorSettings"/> used.
     /// </summary>
     /// <param name="settings">Settings object to read the data from.</param>
     internal static void InitializeExtensions(TranscodeAudioMetadataExtractorSettings settings)
     {
+      AUDIO_EXTENSIONS = settings.AudioFileExtensions;
     }
 
     public TranscodeAudioMetadataExtractor()
@@ -86,9 +95,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
+      //Logger.Debug("Extracing {0}", mediaItemAccessor.CanonicalLocalResourcePath);
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null)
+        return false;
+      if (!fsra.IsFile)
+        return false;
+      string fileName = fsra.ResourceName;
+      if (!HasAudioExtension(fileName))
+        return false;
+
       try
       {
         MetadataContainer metadata = MediaAnalyzer.ParseMediaStream(mediaItemAccessor);
+        //Logger.Debug("Metadata for {0} -> {1} {2}", mediaItemAccessor.CanonicalLocalResourcePath, metadata, metadata?.IsAudio);
         if (metadata == null)
         {
           Logger.Info("TranscodeAudioMetadataExtractor: Error analyzing stream '{0}'", mediaItemAccessor.CanonicalLocalResourcePath);

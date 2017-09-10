@@ -49,6 +49,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Video };
 
+    protected static List<string> VIDEO_EXTENSIONS;
+
     static TranscodeVideoMetadataExtractor()
     {
       // All non-default media item aspects must be registered
@@ -66,6 +68,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     /// <param name="settings">Settings object to read the data from.</param>
     internal static void InitializeExtensions(TranscodeVideoMetadataExtractorSettings settings)
     {
+      VIDEO_EXTENSIONS = settings.VideoFileExtensions;
+    }
+
+    protected static bool HasVideoExtension(string fileName)
+    {
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+      return VIDEO_EXTENSIONS.Contains(ext);
     }
 
     public TranscodeVideoMetadataExtractor()
@@ -89,6 +98,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null)
+        return false;
+      if (!fsra.IsFile)
+        return false;
+      string fileName = fsra.ResourceName;
+      if (!HasVideoExtension(fileName))
+        return false;
+
       try
       {
         MetadataContainer metadata = MediaAnalyzer.ParseMediaStream(mediaItemAccessor);
