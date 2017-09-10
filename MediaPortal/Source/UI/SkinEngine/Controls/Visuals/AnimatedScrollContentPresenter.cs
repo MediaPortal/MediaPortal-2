@@ -39,8 +39,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _enableAnimationsProperty;
     protected float _startOffsetX;
     protected float _startOffsetY;
-    protected float _endOffsetX;
-    protected float _endOffsetY;
     protected float _diffOffsetX;
     protected float _diffOffsetY;
 
@@ -100,8 +98,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void SetScrollOffset(float scrollOffsetX, float scrollOffsetY)
     {
-      _endOffsetX = scrollOffsetX;
-      _endOffsetY = scrollOffsetY;
       if (!EnableAnimations)
       {
         base.SetScrollOffset(scrollOffsetX, scrollOffsetY);
@@ -120,14 +116,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       float newX = _startOffsetX + (_diffOffsetX * multiplier);
       float newY = _startOffsetY + (_diffOffsetY * multiplier);
       base.SetScrollOffset(newX, newY);
-    }
-
-    public override void SaveUIState(IDictionary<string, object> state, string prefix)
-    {
-      base.SaveUIState(state, prefix);
-      //Save end state rather than current state to avoid restoring to a partially animated position
-      state[prefix + "/ScrollOffsetX"] = _endOffsetX;
-      state[prefix + "/ScrollOffsetY"] = _endOffsetY;
     }
   }
 }
