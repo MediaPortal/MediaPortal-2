@@ -132,6 +132,8 @@
     <Model Id="B2428C91-6B70-42E1-9519-1D5AA9D558A3" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvManualScheduleModel"/>
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
     <Model Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375" Name="ChannelZapModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.ChannelZapModel" />
+    <Model Id="35D14C2F-5C9C-4683-B7A2-0C9AD6E76B16" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvLastWatchedMediaModel"/>
+    <Model Id="CD7E4464-3245-460E-860A-696D6A863951" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvFavoriteMediaModel"/>
   </Register>
 
   <Register Location="/Resources/Skin">
