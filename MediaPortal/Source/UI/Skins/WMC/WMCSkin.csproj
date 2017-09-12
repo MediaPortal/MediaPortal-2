@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UiComponents.WMCSkin</RootNamespace>
     <AssemblyName>WMCSkin</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -969,7 +969,6 @@
     <Content Include="Skin\WMCSkin\themes\default\styles\Buttons.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <Content Include="Skin\WMCSkin\fonts\eurof55.ttf" />
     <Content Include="Skin\WMCSkin\fonts\EuroFurence.desc" />
     <Content Include="Skin\WMCSkin\fonts\mayatypeui.desc" />
@@ -982,6 +981,7 @@
     <Content Include="Skin\WMCSkin\fonts\SansBetween.ttf" />
     <Content Include="Skin\WMCSkin\fonts\SketchyTimes.desc" />
     <Content Include="Skin\WMCSkin\fonts\SketchyTimes.ttf" />
+    <None Include="packages.config" />
     <None Include="Skin\WMCSkin\fonts\seguisb.ttf" />
     <Content Include="Skin\WMCSkin\fonts\seguisb.desc" />
     <Content Include="Skin\WMCSkin\screens\InfoMovieGeneral.inc" />
@@ -1217,7 +1217,7 @@
   <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets'))" />
   </Target>

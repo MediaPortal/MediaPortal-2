@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DirectShowWrapper</RootNamespace>
     <AssemblyName>DirectShowWrapper</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -44,9 +44,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="BaseClasses.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="BaseClasses.cs" />
     <Compile Include="DirectShow.cs" />
     <Compile Include="DirectShowLib.cs" />
     <Compile Include="DSHelper.cs" />
