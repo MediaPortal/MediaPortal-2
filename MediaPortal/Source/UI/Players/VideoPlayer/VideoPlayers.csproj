@@ -48,10 +48,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpDX">
+    <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Direct3D9">
+    <Reference Include="SharpDX.Direct3D9, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -164,11 +166,11 @@
     <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets'))" />
     <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.DVBSub.1.16.1\build\MediaPortal.DVBSub.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.DVBSub.1.16.1\build\MediaPortal.DVBSub.targets'))" />
     <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.34\build\MediaPortal.TsReader.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.34\build\MediaPortal.TsReader.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.38\build\MediaPortal.TsReader.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.38\build\MediaPortal.TsReader.targets'))" />
     <Error Condition="!Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets'))" />
   </Target>
   <Import Project="..\..\..\..\Packages\MediaPortal.DVBSub.1.16.1\build\MediaPortal.DVBSub.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.DVBSub.1.16.1\build\MediaPortal.DVBSub.targets')" />
   <Import Project="..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets')" />
-  <Import Project="..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.34\build\MediaPortal.TsReader.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.34\build\MediaPortal.TsReader.targets')" />
+  <Import Project="..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.38\build\MediaPortal.TsReader.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.38\build\MediaPortal.TsReader.targets')" />
   <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
 </Project>

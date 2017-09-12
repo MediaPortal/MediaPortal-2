@@ -37,7 +37,6 @@
     <Reference Include="System.XML" />
     <Reference Include="taglib-sharp, Version=2.1.0.3, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
       <HintPath>..\..\Packages\MediaPortal.TagLib.2.1.0.3\lib\net45\taglib-sharp.dll</HintPath>
-      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
