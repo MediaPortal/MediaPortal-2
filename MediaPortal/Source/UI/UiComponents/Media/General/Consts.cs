@@ -669,6 +669,14 @@ namespace MediaPortal.UiComponents.Media.General
           GenreAspect.ASPECT_ID,
       };
 
+    public static Guid[] NECESSARY_RECORDING_MIAS =
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913") /* RecordingAspect.ASPECT_ID*/
+      };
+
     public static readonly Guid[] NECESSARY_SERIES_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,

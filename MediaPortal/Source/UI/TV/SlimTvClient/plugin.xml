@@ -134,6 +134,19 @@
     <Model Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375" Name="ChannelZapModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.ChannelZapModel" />
   </Register>
 
+  <Register Location="/Media/MediaListProviders">
+    <!--Favorite media lists-->
+    <MediaListProviderBuilder Id="{CA352306-B1EA-4E72-BF68-BF219C405A65}" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteChannelsMediaListProvider"/>
+    <MediaListProviderBuilder Id="{53211093-E181-4D16-AB4A-7F9D3B560D25}" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRecordingsMediaListProvider"/>
+
+    <!--Latest media lists-->
+    <MediaListProviderBuilder Id="{2D43CC5B-10A1-48CA-8A56-9F266934189C}" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLatestRecordingsMediaListProvider"/>
+
+    <!--Latest watched media lists-->
+    <MediaListProviderBuilder Id="{D53AD53E-2AFE-4A49-80C2-2079EC468329}" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedChannelMediaListProvider"/>
+    <MediaListProviderBuilder Id="{9FCD4E71-3330-4AED-9CAF-8C5D3D6932BF}" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRecordingsMediaListProvider"/>
+  </Register>
+
   <Register Location="/Resources/Skin">
     <Resource Id="SlimTvClientSkin" Directory="Skin" Type="Skin"/>
   </Register>

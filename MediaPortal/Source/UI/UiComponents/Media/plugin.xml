@@ -67,6 +67,8 @@
 
     <Model Id="E1752E49-67FE-4D94-8544-1134CC3DCD87" Name="LatestMediaModelContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.LatestMediaAction" />
     <Model Id="11193401-D85D-4D50-9825-E9EB34D87062" Name="LatestMediaModel" ClassName="MediaPortal.UiComponents.Media.Models.LatestMediaModel" />
+  
+    <Model Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414" Name="MediaListModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaListModel" />
   </Register>
 
   <Register Location="/Workflow/States">
@@ -250,6 +252,33 @@
     <MediaNavigationFilterBuilder Id="{774CD13B-0572-4A8D-ABE6-CDD552FA9F1D}" ClassName="VideosNavigationInitializer"
                                   Filter="{FilterWrapper}{Empty}{AttributeType}C5C21762-FA8A-4C51-8C5B-6B0BF7FB162A:MovieName{/AttributeType}{/Empty}{/FilterWrapper}"
                                   />
+  </Register>
+  
+  <Builder Name="MediaListProviderBuilder" ClassName="MediaPortal.UiComponents.Media.MediaLists.MediaListProviderBuilder"/>
+  <Register Location="/Media/MediaListProviders">
+    <!--Favorite media lists-->
+    <MediaListProviderBuilder Id="{8B4D8F9E-9DB8-41D0-BA85-8B5275A757B8}" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteAudioMediaListProvider"/>
+    <MediaListProviderBuilder Id="{2BD859AF-05E7-477C-B075-EC6D0273FE81}" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteEpisodeMediaListProvider"/>
+    <MediaListProviderBuilder Id="{3FDCB1CB-40DB-425C-A36C-2481063B254B}" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteImageMediaListProvider"/>
+    <MediaListProviderBuilder Id="{1E2DBE62-7DF8-464D-AF50-27CE8CF95A6B}" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteMovieMediaListProvider"/>
+    <MediaListProviderBuilder Id="{244C53C2-BD28-4B01-8D06-F4CCBB3518B1}" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteRecordingMediaListProvider"/>
+    <MediaListProviderBuilder Id="{A5AE2BA1-432D-4063-A4E3-3DA6880CF9D3}" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteVideoMediaListProvider"/>
+    
+    <!--Latest media lists-->
+    <MediaListProviderBuilder Id="{0FA139E0-F2FC-4D7C-A372-B2938724350B}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestAudioMediaListProvider"/>
+    <MediaListProviderBuilder Id="{27E1B432-0107-4342-8B95-FAA92E96E587}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestEpisodeMediaListProvider"/>
+    <MediaListProviderBuilder Id="{9601E2CB-F302-4A67-8784-82905632C5A6}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestImageMediaListProvider"/>
+    <MediaListProviderBuilder Id="{E55D1A11-5D07-4F76-8DA9-E8A4CF4B7B67}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestMovieMediaListProvider"/>
+    <MediaListProviderBuilder Id="{769B1C3B-8E3B-455D-93CA-2BFD2AE863AF}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestRecordingMediaListProvider"/>
+    <MediaListProviderBuilder Id="{2A75CFE3-8167-4686-BD5D-F399F8F7E7F0}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestVideoMediaListProvider"/>
+    
+    <!--Latest watched media lists-->
+    <MediaListProviderBuilder Id="{7636EF39-2352-4CF2-80D8-72C1B5A87357}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedAudioMediaListProvider"/>
+    <MediaListProviderBuilder Id="{982BEA99-E9AE-4C74-9640-37440824919A}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedEpisodeMediaListProvider"/>
+    <MediaListProviderBuilder Id="{3C9021E5-01AE-4F62-8B0B-DB65ABBF602A}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedImageMediaListProvider"/>
+    <MediaListProviderBuilder Id="{75888DC9-6390-4B23-9BC7-FA963845476E}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedMovieMediaListProvider"/>
+    <MediaListProviderBuilder Id="{DBD1A8B4-8BC0-40FF-8EC5-C412B7B8620E}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedRecordingMediaListProvider"/>
+    <MediaListProviderBuilder Id="{BFED7F6E-7F42-442B-B2F2-FBEE63F735FA}" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedVideoMediaListProvider"/>
   </Register>
 
   <!-- Root Sections -->

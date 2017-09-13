@@ -79,9 +79,6 @@
     <Compile Include="Models\GroupMenuListView.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\GridListView.cs" />
-    <Compile Include="Models\LastWatchedMediaModel.cs" />
-    <Compile Include="Models\FavoriteMediaModel.cs" />
-    <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\PowerMenuModel.cs" />
     <Compile Include="Models\SetupModel.cs" />
     <Compile Include="Models\SynchronousSettingsChangeWatcher.cs" />

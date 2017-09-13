@@ -44,6 +44,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Xml;
+using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -653,21 +654,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       if (!IsHome)
         return;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      LatestMediaModel lmm = workflowManager.GetModel(LatestMediaModel.LATEST_MEDIA_MODEL_ID) as LatestMediaModel;
-      if (lmm != null)
-      {
-        lmm.UpdateItems();
-      }
-      LastWatchedMediaModel lwmm = workflowManager.GetModel(LastWatchedMediaModel.LAST_WATCHED_MEDIA_MODEL_ID) as LastWatchedMediaModel;
-      if (lwmm != null)
-      {
-        lwmm.UpdateItems();
-      }
-      FavoriteMediaModel fmm = workflowManager.GetModel(FavoriteMediaModel.FAVORITE_MEDIA_MODEL_ID) as FavoriteMediaModel;
-      if (fmm != null)
-      {
-        fmm.UpdateItems();
-      }
+      MediaListModel mlm = workflowManager.GetModel(MediaListModel.MEDIA_LIST_MODEL_ID) as MediaListModel;
+      if (mlm != null)
+        mlm.UpdateItems();
     }
 
     private bool NavigateToHome()

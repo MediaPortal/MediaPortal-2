@@ -121,11 +121,14 @@
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
+    <Compile Include="MediaList\SlimTvFavoriteRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaList\SlimTvLastWatchedRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaList\SlimTvLatestRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaList\SlimTvFavoriteChannelsMediaListProvider.cs" />
+    <Compile Include="MediaList\SlimTvLastWatchedChannelMediaListProvider.cs" />
     <Compile Include="Messaging\SlimTvClientMessaging.cs" />
     <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs" />
     <Compile Include="Models\ChannelZapModel.cs" />
-    <Compile Include="Models\SlimTvFavoriteMediaModel.cs" />
-    <Compile Include="Models\SlimTvLastWatchedMediaModel.cs" />
     <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
     <Compile Include="Models\Navigation\RecordingItem.cs" />
     <Compile Include="Models\RecordingsAction.cs" />

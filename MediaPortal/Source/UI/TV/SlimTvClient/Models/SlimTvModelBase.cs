@@ -169,7 +169,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
-    protected static void TuneChannel(IChannel channel)
+    public static void TuneChannel(IChannel channel)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
