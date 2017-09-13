@@ -320,6 +320,20 @@
                   </media:AudioAlbumAspectWrapper.Template>
                 </media:AudioAlbumAspectWrapper>
 
+                <media:AudioAlbumAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="2">
+                  <media:AudioAlbumAspectWrapper.Template>
+                    <ControlTemplate>
+                      <ListView.ItemsSource>
+                        <RelationshipQuery
+                           NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_COMPANY_MIAS}"
+                           OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_COMPANY_MIAS}"
+                           Role="{x:Static aspect:CompanyAspect.ROLE_MUSIC_LABEL}"
+                           LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+                      </ListView.ItemsSource>
+                    </ControlTemplate>
+                  </media:AudioAlbumAspectWrapper.Template>
+                </media:AudioAlbumAspectWrapper>
+
               </Grid>
 
               <!-- Persons TAB -->
@@ -332,6 +346,10 @@
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="[Media.ChooseArtistHeader]" Margin="0,5,0,0"
+                       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                <Label Grid.Column="1" Content="[Media.ChooseComposerHeader]" Margin="0,5,0,0"
+                       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
                 <ListView Grid.Row="1" Style="{ThemeResource PersonCPListViewStyle}" 
                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
                   <ListView.ItemsSource>
@@ -342,7 +360,7 @@
                        LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
                   </ListView.ItemsSource>
                 </ListView>
-                <ListView Grid.Row="1" Grid.Column="1" Style="{ThemeResource PersonCPListViewStyle}" Background="Red"
+                <ListView Grid.Row="1" Grid.Column="1" Style="{ThemeResource PersonCPListViewStyle}"
                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
                   <ListView.ItemsSource>
                     <RelationshipQuery

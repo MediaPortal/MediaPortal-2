@@ -232,6 +232,42 @@
     </media:PersonAspectWrapper>
   </DataTemplate>
 
+  <DataTemplate x:Key="CompanyDataTemplate">
+    <media:CompanyAspectWrapper MediaItem="{Binding}">
+      <media:CompanyAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid Margin="0,5,-30,0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="150"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+
+            <Image x:Name="thumb" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Fill" FallbackSource="person.filled.png">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" 
+                                          fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                          fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+              </Image.Source>
+              <Image.OpacityMask>
+                <VisualBrush>
+                  <VisualBrush.Visual>
+                    <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
+                  </VisualBrush.Visual>
+                </VisualBrush>
+              </Image.OpacityMask>
+            </Image>
+
+            <Label Content="{Binding CompanyName}" Grid.Row="1" Color="{ThemeResource TextColor}" Wrap="True"
+                   FontSize="{ThemeResource SmallerFontSize}" Scroll="Auto" ScrollDelay="0" HorizontalAlignment="Center"/>
+          </Grid>
+        </ControlTemplate>
+      </media:CompanyAspectWrapper.Template>
+    </media:CompanyAspectWrapper>
+  </DataTemplate>
+
   <!--ListView-->
 
   <Style x:Key="DefaultCPListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
@@ -282,5 +318,10 @@
   <Style x:Key="PersonCPListViewStyle" BasedOn="{ThemeResource DefaultCPListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource PersonDataTemplate}"/>
   </Style>
+
+  <Style x:Key="CompanyCPListViewStyle" BasedOn="{ThemeResource DefaultCPListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource CompanyDataTemplate}"/>
+  </Style>
+
 
 </ResourceDictionary>
