@@ -226,18 +226,50 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource SubItemButtonStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Resources>
+              <Storyboard x:Key="FocusGrowStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1.18"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1.18"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+              <Storyboard x:Key="FocusShrinkStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.18"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.18"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Button.Resources>
             <Button.Triggers>
               <DataTrigger Binding="{Binding Selected}" Value="True">
                 <Setter TargetName="ButtonControlGrid" Property="IsVisible" Value="True"/>
                 <Setter TargetName="ItemLabelUnfocused" Property="IsVisible" Value="False"/>
                 <Setter TargetName="ItemLabelUnfocused" Property="Opacity" Value="1"/>
                 <Setter TargetName="ItemLabel" Property="IsVisible" Value="True"/>
-                <!--Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/-->
-                <!--Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/-->
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </DataTrigger>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="HasFocus" Value="True"/>
+                  <Condition Binding="{Binding Selected}" Value="False"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                  <BeginStoryboard x:Name="SubMenuItem_Grow" Storyboard="{StaticResource FocusGrowStoryboard}"/>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                  <BeginStoryboard x:Name="SubMenuItem_Shrink" Storyboard="{StaticResource FocusShrinkStoryboard}"/>
+                </MultiTrigger.ExitActions>
+              </MultiTrigger>
             </Button.Triggers>
           </Button>
         </ControlTemplate>
@@ -294,8 +326,11 @@
         </DataTrigger>
       </Grid.Triggers>
       
-      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" 
-             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8">
+      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" x:Name="SubMenuImage"
+             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8" RenderTransformOrigin="0.5,0.5">
+        <Image.RenderTransform>
+          <ScaleTransform ScaleX="1.0" ScaleY="1.0"></ScaleTransform>
+        </Image.RenderTransform>
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="Selected"/>
