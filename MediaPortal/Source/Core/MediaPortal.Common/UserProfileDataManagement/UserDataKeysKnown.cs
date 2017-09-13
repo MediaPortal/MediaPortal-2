@@ -37,5 +37,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public const string KEY_ALLOW_ALL_AGES = "AllowAllAges"; //All user access to all content regardless of content certification
     public const string KEY_INCLUDE_PARENT_GUIDED_CONTENT = "IncludeParentGuidedContent"; //Include media items for which a parent is required
     public const string KEY_INCLUDE_UNRATED_CONTENT = "IncludeUnratedContent"; //Include media items for which a parent is required
+    public const string KEY_CHANNEL_PLAY_COUNT = "ChannelPlayCount"; //Number of times a user played a channel
+    public const string KEY_CHANNEL_PLAY_DATE = "ChannelPlayDate"; //Date the channel was last played
   }
 }
