@@ -58,6 +58,45 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool GetExitCodeProcess(SafeProcessHandle hProcess, out uint lpExitCode);
 
+    [Flags]
+    public enum ProcessAccessFlags : uint
+    {
+      Terminate = 0x00000001,
+      CreateThread = 0x00000002,
+      VirtualMemoryOperation = 0x00000008,
+      VirtualMemoryRead = 0x00000010,
+      VirtualMemoryWrite = 0x00000020,
+      DuplicateHandle = 0x00000040,
+      CreateProcess = 0x00000080,
+      SetQuota = 0x00000100,
+      SetInformation = 0x00000200,
+      QueryInformation = 0x00000400,
+      QueryLimitedInformation = 0x00001000,
+      Synchronize = 0x00100000,
+      All = Terminate |
+            CreateThread |
+            VirtualMemoryOperation |
+            VirtualMemoryRead |
+            VirtualMemoryWrite |
+            DuplicateHandle |
+            CreateProcess |
+            SetQuota |
+            SetInformation |
+            QueryInformation |
+            QueryLimitedInformation |
+            Synchronize,
+    }
+
+    /// <summary>
+    /// Opens the handle of a process
+    /// </summary>
+    /// <param name="dwDesiredAccess">Requested access flag(s)</param>
+    /// <param name="bInheritHandle">If <c>true</c>, processes created by this process inherit the handle; otherwise they don't</param>
+    /// <param name="dwProcessId">Process ID</param>
+    /// <returns>Handle of the process</returns>
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern SafeProcessHandle OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
     #endregion
 
     #region GetPriorityClass / SetPriorityClass
@@ -334,7 +373,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
         {
           debugLogger.Error("AsyncImpersonationProcess ({0}): Could not start process", executable);
           standardStreamTasksReady.Dispose();
-          return Task.FromResult(new ProcessExecutionResult { ExitCode = int.MinValue });
+          return Task.FromResult(new ProcessExecutionResult { ExitCode = Int32.MinValue });
         }
 
       try
@@ -387,7 +426,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 
     public new void Kill()
     {
-      using (var hProcess = SafeProcessHandle.OpenProcess(SafeProcessHandle.ProcessAccessFlags.Terminate, false, Id))
+      using (var hProcess = OpenProcess(AsyncImpersonationProcess.ProcessAccessFlags.Terminate, false, Id))
       {
         if (hProcess.IsInvalid)
         {
@@ -549,7 +588,6 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// <returns><c>true</c> if the call to <see cref="CreateProcessAsUserW"/> was successful; otherwise <c>false</c></returns>
     private bool SafeCreateProcessAsUserW(IntPtr userToken, CreateProcessFlags createFlags, StartupInfo startupInfo)
     {
-      _processHandle = new SafeProcessHandle();
       var threadHandle = new SafeThreadHandle();
       bool success;
 
@@ -568,7 +606,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
         success = CreateProcessAsUserW(userToken, null, GetCommandLine(), IntPtr.Zero, IntPtr.Zero, true, createFlags, IntPtr.Zero, null, startupInfo, out processInformation);
         if (success)
         {
-          _processHandle.InitialSetHandle(processInformation.hProcess);
+          _processHandle =new SafeProcessHandle(processInformation.hProcess, true);
           threadHandle.InitialSetHandle(processInformation.hThread);
           _processId = processInformation.dwProcessId;
         }

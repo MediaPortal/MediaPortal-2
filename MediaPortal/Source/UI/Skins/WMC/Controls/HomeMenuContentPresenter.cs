@@ -22,15 +22,10 @@
 
 #endregion
 
-using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SharpDX;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UiComponents.WMCSkin.Models;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using SharpDX;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.WMCSkin.Controls
 {
@@ -51,6 +46,11 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
         return item != null && item.Selected;
       }
       return false;
+    }
+
+    public override void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      //Don't restore state, it is handled separately in the home model
     }
   }
 }

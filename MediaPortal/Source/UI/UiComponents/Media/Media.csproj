@@ -15,7 +15,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -156,24 +156,26 @@
     <Compile Include="MediaLists\BaseFavoriteMediaListProvider.cs" />
     <Compile Include="MediaLists\BaseLastWatchedMediaListProvider.cs" />
     <Compile Include="MediaLists\BaseLatestMediaListProvider.cs" />
-    <Compile Include="MediaLists\LastWatchedAudioMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteAudioMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteEpisodeMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteImageMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\IMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedAudioMediaListProvider.cs" />
     <Compile Include="MediaLists\LastWatchedEpisodeMediaListProvider.cs" />
     <Compile Include="MediaLists\LastWatchedImageMediaListProvider.cs" />
     <Compile Include="MediaLists\LastWatchedMovieMediaListProvider.cs" />
     <Compile Include="MediaLists\LastWatchedRecordingMediaListProvider.cs" />
     <Compile Include="MediaLists\LastWatchedVideoMediaListProvider.cs" />
     <Compile Include="MediaLists\LatestAudioMediaListProvider.cs" />
-    <Compile Include="MediaLists\FavoriteEpisodeMediaListProvider.cs" />
-    <Compile Include="MediaLists\FavoriteImageMediaListProvider.cs" />
-    <Compile Include="MediaLists\FavoriteMovieMediaListProvider.cs" />
-    <Compile Include="MediaLists\FavoriteRecordingMediaListProvider.cs" />
-    <Compile Include="MediaLists\LatestRecordingMediaListProvider.cs" />
-    <Compile Include="MediaLists\FavoriteVideoMediaListProvider.cs" />
-    <Compile Include="MediaLists\LatestVideoMediaListProvider.cs" />
-    <Compile Include="MediaLists\LatestImageMediaListProvider.cs" />
     <Compile Include="MediaLists\LatestEpisodeMediaListProvider.cs" />
-    <Compile Include="MediaLists\IMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestImageMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\MediaListProviderBuilder.cs" />
     <Compile Include="Models\AspectWrappers\AudioAlbumAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\CharacterAspectWrapper.cs" />
@@ -195,11 +197,10 @@
     <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
-    <Compile Include="MediaLists\LatestMovieMediaListProvider.cs" />
-    <Compile Include="MediaLists\MediaListProviderBuilder.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaGroupingModel.cs" />
+    <Compile Include="Models\MediaListModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
@@ -241,7 +242,6 @@
     <Compile Include="Models\Navigation\SeriesFilterItem.cs" />
     <Compile Include="Models\Navigation\EpisodeItem.cs" />
     <Compile Include="Models\MediaItemsActionModel.cs" />
-    <Compile Include="Models\MediaListModel.cs" />
     <Compile Include="Models\ScreenData\AbstractAlbumFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
@@ -691,6 +691,7 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
