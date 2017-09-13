@@ -231,12 +231,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
       var item = e.FirstAddedItem as ListItem;
-      if (item != null)
-      {
-        SetCurrentSubItem(item);
-        if (EnableMainMenuAnimations)
-          EnableSubMenuAnimations = true;
-      }
+      if (item != null && !EnableSubMenuAnimations && EnableMainMenuAnimations)
+        EnableSubMenuAnimations = true;
     }
 
     public void OnMouseWheel(object sender, MouseWheelEventArgs e)
@@ -324,6 +320,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         oldItem.Selected = false;
       newItem.Selected = true;
       ((SubItem)newItem).BringIntoView = false;
+      SetCurrentSubItem(newItem);
     }
 
     private void OnUpdateMenu(object sender, EventArgs e)
