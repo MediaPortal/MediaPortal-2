@@ -110,9 +110,10 @@ namespace MediaPortal.UiComponents.Media.Models
                 throw new PluginInvalidStateException("Could not create IMediaListProvider instance of class {0}", providerRegistration.ProviderClass);
               if (Lists.ContainsKey(providerRegistration.Key))
               {
-                if (Lists[providerRegistration.Key].GetType().Assembly == System.Reflection.Assembly.GetExecutingAssembly())
+                //The default providers cannot replace existing providers
+                if (provider.GetType().Assembly != System.Reflection.Assembly.GetExecutingAssembly())
                 {
-                  //Replace the default provider
+                  //Replace the provider
                   Lists[providerRegistration.Key] = provider;
                   ServiceRegistration.Get<ILogger>().Info("Successfully replaced Media List '{1}' with provider '{0}' (Id '{2}')", itemMetadata.Attributes["ClassName"], itemMetadata.Attributes["Key"], itemMetadata.Id);
                 }
@@ -120,8 +121,8 @@ namespace MediaPortal.UiComponents.Media.Models
               else
               {
                 Lists.Add(providerRegistration.Key, provider);
+                ServiceRegistration.Get<ILogger>().Info("Successfully activated Media List '{1}' with provider '{0}' (Id '{2}')", itemMetadata.Attributes["ClassName"], itemMetadata.Attributes["Key"], itemMetadata.Id);
               }
-              ServiceRegistration.Get<ILogger>().Info("Successfully activated Media List '{1}' with provider '{0}' (Id '{2}')", itemMetadata.Attributes["ClassName"], itemMetadata.Attributes["Key"], itemMetadata.Id);
             }
           }
           catch (PluginInvalidStateException e)
