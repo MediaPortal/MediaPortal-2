@@ -7,7 +7,8 @@
   <ResourceWrapper x:Key="Win10_tile" Resource="#0066CC"/>
   <ResourceWrapper x:Key="GrayBackgroundWithBlurBehind" Resource="#CC777777"/>
 
-
+  <ResourceWrapper x:Key="LogoutButtonColor" Resource="#4DFFFFFF"/>
+  
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>

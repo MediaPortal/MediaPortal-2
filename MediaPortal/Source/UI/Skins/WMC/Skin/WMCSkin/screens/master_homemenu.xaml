@@ -42,6 +42,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Background Manager for menu hovers -->
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
+    <Model x:Key="MediaListModel" Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414"/>
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
@@ -176,6 +177,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}"/>
         </Grid>
 
+        <Grid Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-40,50,0"
+              DataContext="{Binding Source={StaticResource MediaListModel}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1050"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="520"/>
+          </Grid.RowDefinitions>
+          <Grid>
+            <!--Label>
+              <Label.Content>
+                <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
+              </Label.Content>
+            </Label>
+            <ListView x:Name="Series" ItemsSource="{Binding Lists[LatestEpisodes].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle}"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView-->
+          </Grid>
+        </Grid>
+        
         <Grid x:Name="LeftButtonGrid" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,-140" Panel.ZIndex="1000"
               IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Grid.ColumnDefinitions>

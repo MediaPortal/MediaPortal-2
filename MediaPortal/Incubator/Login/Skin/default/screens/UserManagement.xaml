@@ -53,12 +53,19 @@
                Content="[UserConfig.Password]" Color="{ThemeResource TextColor}"/>
         <TextBox Grid.Row="2" Grid.Column="3" Style="{ThemeResource PasswordTextBoxStyle}" 
                  HorizontalContentAlignment="Center" TextAlign="Center"
-                 Text="{Binding Path=UserProxy.Password,Mode=TwoWay}" PreferredTextLength="40"/>
+                 Text="{Binding Path=UserProxy.Password,Mode=TwoWay}" PreferredTextLength="40">
+          <TextBox.IsEnabled>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+              <Binding Path="IsUserSelected"/>
+              <Binding Path="!IsSystemUserSelected"/>
+            </MultiBinding>
+          </TextBox.IsEnabled>
+        </TextBox>
 
         <Label Grid.Row="3" Grid.Column="1" Margin="5"
                Content="[UserConfig.ProfileType]" Color="{ThemeResource TextColor}"/>
         <Button x:Name="EditProfileTypeButton" Grid.Row="3" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-                Content="{Binding ProfileTypeName}"
+                Content="{Binding ProfileTypeName}" IsEnabled="{Binding Path=!IsSystemUserSelected}"
                 Command="{Command OpenChooseProfileTypeDialog}"/>
 
         <StackPanel Orientation="Horizontal"  Grid.Row="4" Grid.Column="1">
@@ -79,14 +86,14 @@
                  TextAlign="Center" HorizontalContentAlignment="Center"
                  Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40"/>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1">
+        <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1" Margin="35,0,0,0">
           <CheckBox x:Name="CheckIncludeParentFilter" HorizontalAlignment="Center"
                     IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"
                     IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
           <Label Margin="5" Content="[UserConfig.IncludePGContent]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1">
+        <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1" Margin="35,0,0,0">
           <CheckBox x:Name="CheckIncludeUnratedContentFilter" HorizontalAlignment="Center"
                   IsChecked="{Binding Path=UserProxy.IncludeUnratedContent,Mode=TwoWay}"
                   IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
@@ -102,7 +109,13 @@
         <Button Grid.Row="6" Grid.RowSpan="3" Grid.ColumnSpan="3" Grid.Column="3" Margin="0,0,5,0"
                 HorizontalAlignment="Right" VerticalAlignment="Center"
                 Width="150" Height="150" Command="{Command OpenSelectUserImageDialog}" >
-          <Image x:Name="BigIcon" Source="{Binding UserProxy.Image}" FallbackSource="person.png" Stretch="Uniform" />
+          <Image x:Name="BigIcon" Source="{Binding UserProxy.Image}" FallbackSource="person.png" Stretch="Uniform"/>
+          <Button.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+              <Binding Path="IsUserSelected"/>
+              <Binding Path="!IsSystemUserSelected"/>
+            </MultiBinding>
+          </Button.IsVisible>
         </Button>
 
         <UniformGrid Columns="3" Grid.ColumnSpan="4" Grid.Row="9" Margin="0,30,0,0" Height="80" VerticalAlignment="Bottom">

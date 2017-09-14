@@ -8,6 +8,8 @@
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#33FFFFFF"/>
 
+  <ResourceWrapper x:Key="LogoutButtonColor" Resource="#99000000"/>
+
   <!-- Button background and effects-->
   <!-- PopupWindow Buttons-->
   <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#000F3369"/>

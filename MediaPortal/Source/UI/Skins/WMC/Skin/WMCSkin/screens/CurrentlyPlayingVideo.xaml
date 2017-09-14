@@ -7,6 +7,7 @@
     xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:media_consts="clr-namespace:MediaPortal.UiComponents.Media.General;assembly=Media"
     >
   <Include.Resources>
 
@@ -149,46 +150,36 @@
                        Content="{Binding VideoStoryPlot}"/>
               </Grid>
 
-              <!-- SUBTITLE INFO TAB -->
-              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Subtitle, Path=IsChecked}">
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-                  <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Subtitles[0].Language}"
-                         Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
-                  <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding VideoStreams[0].AspectRatio}"
-                         Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
-                </StackPanel>
-
-              </Grid>
-
               <!-- Cast+Crew INFO TAB -->
               <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=CastCrew, Path=IsChecked}">
                 <Grid.RowDefinitions>
+                  <RowDefinition Height="70"/>
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <!--ListView Grid.Row="0" Grid.Column="0" x:Name="ActorList" ItemsSource="{Binding Path=VideoActors, Converter={StaticResource StringSplitConverter}}"
-                          HorizontalAlignment="Center" VerticalAlignment="Stretch" Style="{ThemeResource XXXListStyle}"
-                          Margin="10,5,10,5" /-->
-                <media:VideoAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}">
-                  <media:VideoAspectWrapper.Template>
-                    <ControlTemplate>
-                      <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
-                                Style="{ThemeResource PersonCPListViewStyle}"
-                                ItemsSource="{TemplateBinding Actors}"/>
-                    </ControlTemplate>
-                  </media:VideoAspectWrapper.Template>
-                </media:VideoAspectWrapper>
-                <!--Label Margin="20,5,10,5" Content="{Binding Path=VideoActors}" Wrap="True"
-                       Opacity="1.3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/-->
+                <ListView Grid.Row="1" Style="{ThemeResource PersonCPListViewStyle}" 
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+                  <ListView.ItemsSource>
+                    <RelationshipQuery
+                       NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
+                       OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_PERSON_MIAS}"
+                       Role="{x:Static aspect:PersonAspect.ROLE_ACTOR}"
+                       LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+                  </ListView.ItemsSource>
+                </ListView>
+                <ListView Grid.Row="1" Grid.Column="1" Style="{ThemeResource PersonCPListViewStyle}"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,20,0">
+                  <ListView.ItemsSource>
+                    <RelationshipQuery
+                       NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
+                       OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_PERSON_MIAS}"
+                       Role="{x:Static aspect:PersonAspect.ROLE_CHARACTER}"
+                       LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+                  </ListView.ItemsSource>
+                </ListView>
               </Grid>
 
               <!-- GENERAL INFO TAB -->
