@@ -573,6 +573,7 @@
     <Content Include="Skin\BlueVision\images\unheard_icon.png" />
     <Content Include="Skin\BlueVision\images\UnwatchedTab_small.png" />
     <Content Include="Skin\BlueVision\images\unwatched_icon.png" />
+    <Content Include="Skin\BlueVision\images\User.png" />
     <Content Include="Skin\BlueVision\images\video-icon.png" />
     <Content Include="Skin\BlueVision\images\VideoLarge.png" />
     <Content Include="Skin\BlueVision\images\VideoNormal.png" />
@@ -646,6 +647,7 @@
     <Content Include="Skin\BlueVision\themes\Win10\images\preview.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\ShutdownIcon.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\SplashScreen.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\user.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\VideoLarge.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\VideoNormal.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\VideoWide.png" />
