@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       BuilderHelper.CheckParameter("ClassName", itemData);
-      return new MediaListProviderRegistration(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Id);
+      return new MediaListProviderRegistration(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["Key"], itemData.Id);
     }
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
@@ -68,8 +68,14 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     /// </summary>
     public Guid Id { get; private set; }
 
-    public MediaListProviderRegistration(Type type, string providerId)
+    /// <summary>
+    /// Key for the media list. Using the same key will replace the default lists.
+    /// </summary>
+    public string Key { get; private set; }
+
+    public MediaListProviderRegistration(Type type, string key, string providerId)
     {
+      Key = key;
       ProviderClass = type;
       Id = new Guid(providerId);
     }

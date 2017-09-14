@@ -69,7 +69,7 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _queryLimitProperty.SetValue(value); }
     }
 
-    public SafeDictionary<Guid, IMediaListProvider> Providers { get; private set; }
+    public SafeDictionary<string, IMediaListProvider> Lists { get; private set; }
 
     public MediaListModel()
       : base(true, 500)
@@ -89,9 +89,9 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       lock (_syncObj)
       {
-        if (Providers != null)
+        if (Lists != null)
           return;
-        Providers = new SafeDictionary<Guid, IMediaListProvider>();
+        Lists = new SafeDictionary<string, IMediaListProvider>();
 
         _providerPluginItemStateTracker = new FixedItemStateTracker("Media Lists - Provider registration");
 
@@ -108,8 +108,20 @@ namespace MediaPortal.UiComponents.Media.Models
               IMediaListProvider provider = Activator.CreateInstance(providerRegistration.ProviderClass) as IMediaListProvider;
               if (provider == null)
                 throw new PluginInvalidStateException("Could not create IMediaListProvider instance of class {0}", providerRegistration.ProviderClass);
-              Providers.Add(providerRegistration.Id, provider);
-              ServiceRegistration.Get<ILogger>().Info("Successfully activated Media List provider '{0}' (Id '{1}')", itemMetadata.Attributes["ClassName"], itemMetadata.Id);
+              if (Lists.ContainsKey(providerRegistration.Key))
+              {
+                if (Lists[providerRegistration.Key].GetType().Assembly == System.Reflection.Assembly.GetExecutingAssembly())
+                {
+                  //Replace the default provider
+                  Lists[providerRegistration.Key] = provider;
+                  ServiceRegistration.Get<ILogger>().Info("Successfully replaced Media List '{1}' with provider '{0}' (Id '{2}')", itemMetadata.Attributes["ClassName"], itemMetadata.Attributes["Key"], itemMetadata.Id);
+                }
+              }
+              else
+              {
+                Lists.Add(providerRegistration.Key, provider);
+              }
+              ServiceRegistration.Get<ILogger>().Info("Successfully activated Media List '{1}' with provider '{0}' (Id '{2}')", itemMetadata.Attributes["ClassName"], itemMetadata.Attributes["Key"], itemMetadata.Id);
             }
           }
           catch (PluginInvalidStateException e)
@@ -134,7 +146,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
         SetLayout();
 
-        foreach (var provider in Providers.Values)
+        foreach (var provider in Lists.Values)
         {
           UpdateAsync(provider);
         }

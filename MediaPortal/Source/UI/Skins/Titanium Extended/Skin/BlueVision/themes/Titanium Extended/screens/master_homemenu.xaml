@@ -239,7 +239,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Content="[Movies.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Providers[E55D1A11-5D07-4F76-8DA9-E8A4CF4B7B67].AllItems}" Style="{ThemeResource LatestMovieItemsListListViewStyle}" HorizontalAlignment="Center">
+            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Lists[LatestMovies].AllItems}" Style="{ThemeResource LatestMovieItemsListListViewStyle}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
@@ -255,7 +255,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Content="[Audio.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView x:Name="Audio" Grid.Row="1" ItemsSource="{Binding Providers[0FA139E0-F2FC-4D7C-A372-B2938724350B].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView x:Name="Audio" Grid.Row="1" ItemsSource="{Binding Lists[LatestAudio].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
@@ -271,7 +271,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Content="[Series.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView x:Name="Series" Grid.Row="1" ItemsSource="{Binding Providers[27E1B432-0107-4342-8B95-FAA92E96E587].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView x:Name="Series" Grid.Row="1" ItemsSource="{Binding Lists[LatestEpisodes].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
@@ -287,7 +287,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Content="[Images.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView x:Name="Images" Grid.Row="1" ItemsSource="{Binding Providers[9601E2CB-F302-4A67-8784-82905632C5A6].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView x:Name="Images" Grid.Row="1" ItemsSource="{Binding Lists[LatestImages].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
@@ -303,7 +303,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Content="[Recordings.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ListView x:Name="Recordings" Grid.Row="1" ItemsSource="{Binding Providers[769B1C3B-8E3B-455D-93CA-2BFD2AE863AF].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView x:Name="Recordings" Grid.Row="1" ItemsSource="{Binding Lists[LatestRecordings].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
@@ -319,7 +319,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <!--Label Grid.Row="0" Content="[Games.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/-->
-            <ListView x:Name="Cames" Grid.Row="1" ItemsSource="{Binding Providers[00000000-0000-0000-0000-000000000000].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView x:Name="Cames" Grid.Row="1" ItemsSource="{Binding Lists[LatestGames].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
