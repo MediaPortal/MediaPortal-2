@@ -70,6 +70,7 @@ namespace MediaPortal.UiComponents.Login.Models
     protected object _syncObj = new object();
     protected bool _updatingProperties = false;
     protected string _imagePath = null;
+    protected Dictionary<int, string> _profileTypes = new Dictionary<int, string>();
     protected PathBrowserCloseWatcher _pathBrowserCloseWatcher = null;
     protected ItemsList _serverSharesList = null;
     protected ItemsList _localSharesList = null;
@@ -113,24 +114,23 @@ namespace MediaPortal.UiComponents.Login.Models
       _isUserSelectedProperty = new WProperty(typeof(bool), false);
       _isSystemUserSelectedProperty = new WProperty(typeof(bool), false);
 
+      _profileTypes.Add(UserProfile.CLIENT_PROFILE, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
+      _profileTypes.Add(UserProfile.USER_PROFILE, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
+      _profileTypes.Add(UserProfile.ADMIN_PROFILE, LocalizationHelper.Translate(Consts.RES_ADMIN_PROFILE_TEXT));
+
       _profileList = new ItemsList();
       ListItem item = null;
-      item = new ListItem();
-      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
-      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.CLIENT_PROFILE;
-      _profileList.Add(item);
-      item = new ListItem();
-      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
-      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.USER_PROFILE;
-      _profileList.Add(item);
-      item = new ListItem();
-      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_ADMIN_PROFILE_TEXT));
-      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.ADMIN_PROFILE;
-      _profileList.Add(item);
+      foreach (var profile in _profileTypes.Where(p => p.Key != UserProfile.CLIENT_PROFILE))
+      {
+        item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, profile.Value);
+        item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = profile.Key;
+        _profileList.Add(item);
+      }
 
       UserProxy = new UserProxy();
       UserProxy.ProfileTypeProperty.Attach(OnProfileTypeChanged);
-      ProfileTypeName = ProfileTypeList.FirstOrDefault(i => (int)i.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType)?.Labels[Consts.KEY_NAME].Evaluate();
+      ProfileTypeName = _profileTypes.FirstOrDefault(i => i.Key == UserProxy.ProfileType).Value;
     }
 
     public void Dispose()
@@ -692,7 +692,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private void OnProfileTypeChanged(AbstractProperty property, object oldValue)
     {
-      ProfileTypeName = ProfileTypeList.FirstOrDefault(i => (int)i.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType)?.Labels[Consts.KEY_NAME].Evaluate();
+      ProfileTypeName = _profileTypes.FirstOrDefault(i => i.Key == UserProxy.ProfileType).Value;
     }
 
     protected internal void UpdateShareLists_NoLock(bool create)
