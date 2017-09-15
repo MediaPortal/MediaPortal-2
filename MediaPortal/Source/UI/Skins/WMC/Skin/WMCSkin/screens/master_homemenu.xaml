@@ -177,26 +177,48 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}"/>
         </Grid>
 
-        <Grid Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-40,50,0"
-              DataContext="{Binding Source={StaticResource MediaListModel}}">
+        <Grid Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-40,50,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1050"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="520"/>
           </Grid.RowDefinitions>
-          <Grid>
-            <!--Label>
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Source={StaticResource MediaListModel}}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}">
               <Label.Content>
                 <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
               </Label.Content>
             </Label>
-            <ListView x:Name="Series" ItemsSource="{Binding Lists[LatestEpisodes].AllItems}" Style="{ThemeResource MediaItemsListListViewStyle}"
-                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Label Grid.Row="1" Content="Latest Added" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,10,0,0"/>
+            <ListView Grid.Row="2" x:Name="Latest" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
+              <ListView.ItemsSource>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? {1} : {2})">
+                  <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
+                  <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
+                  <Binding Source="{Binding Lists[LatestMovies].AllItems}"/>
+                </MultiBinding>
+              </ListView.ItemsSource>
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
-            </ListView-->
+            </ListView>
+            <Label Grid.Row="3" Content="Latest watched" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,10,0,0"/>
+            <ListView Grid.Row="4" x:Name="LastPlay" ItemsSource="{Binding Lists[LastPlayMovies].AllItems}" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView>
           </Grid>
         </Grid>
         
