@@ -195,23 +195,31 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <RowDefinition Height="40"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}">
+            <!--Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}">
               <Label.Content>
                 <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
               </Label.Content>
+            </-->
+            <Label x:Name="LatestAddedLabel" Grid.Row="1" Content="Latest Added" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,10,0,0">
             </Label>
-            <Label Grid.Row="1" Content="Latest Added" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,10,0,0"/>
+
             <ListView Grid.Row="2" x:Name="Latest" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
               <ListView.ItemsSource>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? {1} : {2})">
-                  <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {1} ? {2} : {3})">
+                  <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                   <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
                   <Binding Source="{Binding Lists[LatestMovies].AllItems}"/>
+                  <Binding Source="{x:Null}"/>
                 </MultiBinding>
               </ListView.ItemsSource>
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
+              <ListView.Triggers>
+                <Trigger Property="ItemsCount" Value="0">
+                  <Setter TargetName="LatestAddedLabel" Property="Visibility" Value="Hidden" />
+                </Trigger>
+              </ListView.Triggers>
             </ListView>
             <Label Grid.Row="3" Content="Latest watched" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,10,0,0"/>
             <ListView Grid.Row="4" x:Name="LastPlay" ItemsSource="{Binding Lists[LastPlayMovies].AllItems}" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
