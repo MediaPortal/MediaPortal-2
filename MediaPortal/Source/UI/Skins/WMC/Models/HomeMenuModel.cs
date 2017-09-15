@@ -59,6 +59,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public static readonly Guid CUSTOM_HOME_STATE_ID = new Guid("B285DC02-AA8C-47F2-8795-0B13B6E66306");
     protected const string KEY_ITEM_GROUP = "HomeMenuModel: Group";
     protected const string KEY_ITEM_SELECTED_ACTION_ID = "HomeMenuModel: SelectedActionId";
+    protected const string KEY_ITEM_ACTION_ID = "HomeMenuModel: ActionId";
 
     protected AbstractProperty _enableSubMenuAnimationsProperty;
     protected AbstractProperty _enableMainMenuAnimationsProperty;
@@ -459,6 +460,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         else
           listItem = new SubItem(Consts.KEY_NAME, workflowAction.DisplayTitle);
         listItem.AdditionalProperties[Consts.KEY_ITEM_ACTION] = workflowAction;
+        listItem.AdditionalProperties[KEY_ITEM_ACTION_ID] = workflowAction.ActionId.ToString();
         listItem.Command = new MethodDelegateCommand(workflowAction.Execute);
         items.Add(listItem);
       }
