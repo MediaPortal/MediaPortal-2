@@ -70,6 +70,7 @@ namespace MediaPortal.UiComponents.Login.Models
     protected object _syncObj = new object();
     protected bool _updatingProperties = false;
     protected string _imagePath = null;
+    protected Dictionary<int, string> _profileTypes = new Dictionary<int, string>();
     protected PathBrowserCloseWatcher _pathBrowserCloseWatcher = null;
     protected ItemsList _serverSharesList = null;
     protected ItemsList _localSharesList = null;
@@ -113,24 +114,23 @@ namespace MediaPortal.UiComponents.Login.Models
       _isUserSelectedProperty = new WProperty(typeof(bool), false);
       _isSystemUserSelectedProperty = new WProperty(typeof(bool), false);
 
+      _profileTypes.Add(UserProfile.CLIENT_PROFILE, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
+      _profileTypes.Add(UserProfile.USER_PROFILE, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
+      _profileTypes.Add(UserProfile.ADMIN_PROFILE, LocalizationHelper.Translate(Consts.RES_ADMIN_PROFILE_TEXT));
+
       _profileList = new ItemsList();
       ListItem item = null;
-      item = new ListItem();
-      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
-      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.CLIENT_PROFILE;
-      _profileList.Add(item);
-      item = new ListItem();
-      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
-      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.USER_PROFILE;
-      _profileList.Add(item);
-      item = new ListItem();
-      item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_ADMIN_PROFILE_TEXT));
-      item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = UserProfile.ADMIN_PROFILE;
-      _profileList.Add(item);
+      foreach (var profile in _profileTypes.Where(p => p.Key != UserProfile.CLIENT_PROFILE))
+      {
+        item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, profile.Value);
+        item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = profile.Key;
+        _profileList.Add(item);
+      }
 
       UserProxy = new UserProxy();
       UserProxy.ProfileTypeProperty.Attach(OnProfileTypeChanged);
-      ProfileTypeName = ProfileTypeList.FirstOrDefault(i => (int)i.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType)?.Labels[Consts.KEY_NAME].Evaluate();
+      ProfileTypeName = _profileTypes.FirstOrDefault(i => i.Key == UserProxy.ProfileType).Value;
     }
 
     public void Dispose()
@@ -457,6 +457,42 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
+    public void CopyUser()
+    {
+      try
+      {
+        int shareCount = 0;
+        string hash = UserProxy.Password;
+        if (UserProxy.IsPasswordChanged)
+          hash = Utils.HashPassword(UserProxy.Password);
+        UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProxy.ProfileType, hash, DateTime.Now, UserProxy.Image);
+        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
+        foreach (var shareId in UserProxy.SelectedShares)
+          user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
+        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.RestrictAges ? "0" : "1");
+        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
+        user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
+        user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+
+        ListItem item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, user.Name);
+        item.AdditionalProperties[Consts.KEY_USER] = user;
+        item.SelectedProperty.Attach(OnUserItemSelectionChanged);
+        item.Selected = true;
+
+        lock (_syncObj)
+          _userList.Add(item);
+
+        SetUser(user);
+
+        _userList.FireChange();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems adding user", e);
+      }
+    }
+
     public void DeleteUser()
     {
       try
@@ -692,7 +728,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private void OnProfileTypeChanged(AbstractProperty property, object oldValue)
     {
-      ProfileTypeName = ProfileTypeList.FirstOrDefault(i => (int)i.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType)?.Labels[Consts.KEY_NAME].Evaluate();
+      ProfileTypeName = _profileTypes.FirstOrDefault(i => i.Key == UserProxy.ProfileType).Value;
     }
 
     protected internal void UpdateShareLists_NoLock(bool create)
