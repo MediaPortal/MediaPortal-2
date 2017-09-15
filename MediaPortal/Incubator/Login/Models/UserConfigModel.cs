@@ -457,6 +457,42 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
+    public void CopyUser()
+    {
+      try
+      {
+        int shareCount = 0;
+        string hash = UserProxy.Password;
+        if (UserProxy.IsPasswordChanged)
+          hash = Utils.HashPassword(UserProxy.Password);
+        UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProxy.ProfileType, hash, DateTime.Now, UserProxy.Image);
+        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
+        foreach (var shareId in UserProxy.SelectedShares)
+          user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
+        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.RestrictAges ? "0" : "1");
+        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
+        user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
+        user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+
+        ListItem item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, user.Name);
+        item.AdditionalProperties[Consts.KEY_USER] = user;
+        item.SelectedProperty.Attach(OnUserItemSelectionChanged);
+        item.Selected = true;
+
+        lock (_syncObj)
+          _userList.Add(item);
+
+        SetUser(user);
+
+        _userList.FireChange();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems adding user", e);
+      }
+    }
+
     public void DeleteUser()
     {
       try
