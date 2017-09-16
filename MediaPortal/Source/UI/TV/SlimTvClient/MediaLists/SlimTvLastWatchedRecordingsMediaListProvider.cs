@@ -37,6 +37,7 @@ using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -71,15 +72,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       };
 
       var items = contentDirectory.Search(query, false, userProfile, false);
-      AllItems.Clear();
-      foreach (MediaItem mediaItem in items)
+      if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
       {
-        PlayableMediaItem listItem = new RecordingItem(mediaItem);
-        listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
-        AllItems.Add(listItem);
+        AllItems.Clear();
+        foreach (MediaItem mediaItem in items)
+        {
+          PlayableMediaItem listItem = new RecordingItem(mediaItem);
+          listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
+          AllItems.Add(listItem);
+        }
+        AllItems.FireChange();
       }
-      AllItems.FireChange();
-
       return true;
     }
   }

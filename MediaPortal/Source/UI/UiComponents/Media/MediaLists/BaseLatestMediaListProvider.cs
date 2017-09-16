@@ -35,6 +35,7 @@ using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -73,15 +74,17 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       };
 
       var items = contentDirectory.Search(query, false, userProfile, showVirtual);
-      AllItems.Clear();
-      foreach (MediaItem mediaItem in items)
+      if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
       {
-        PlayableMediaItem listItem = _converterAction(mediaItem);
-        listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
-        AllItems.Add(listItem);
+        AllItems.Clear();
+        foreach (MediaItem mediaItem in items)
+        {
+          PlayableMediaItem listItem = _converterAction(mediaItem);
+          listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
+          AllItems.Add(listItem);
+        }
+        AllItems.FireChange();
       }
-      AllItems.FireChange();
-
       return true;
     }
   }
