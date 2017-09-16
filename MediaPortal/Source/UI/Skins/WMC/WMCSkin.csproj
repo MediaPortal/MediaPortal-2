@@ -667,6 +667,9 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemMovieCollectionDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemSeasonDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListImageDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListAudioDetails.inc">
@@ -696,6 +699,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MultiDetailsHome.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MultiListDetails.inc">
