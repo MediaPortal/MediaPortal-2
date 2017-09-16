@@ -38,9 +38,11 @@ using System.Linq;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public class SlimTvLastWatchedChannelMediaListProvider : IMediaListProvider
+  public class BaseLastWatchedChannelMediaListProvider : IMediaListProvider
   {
-    public SlimTvLastWatchedChannelMediaListProvider()
+    protected MediaType _mediaType;
+
+    public BaseLastWatchedChannelMediaListProvider()
     {
       AllItems = new ItemsList();
     }
@@ -70,7 +72,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
           AllItems.Clear();
           foreach (var channelData in sortedList)
           {
-            IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelId == channelData.Item1);
+            IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelId == channelData.Item1 && c.MediaType == _mediaType);
             if (channel != null)
             {
               count++;

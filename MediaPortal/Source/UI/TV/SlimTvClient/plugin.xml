@@ -1,5 +1,5 @@
 <Plugin
-    DescriptorVersion="1.0" 
+    DescriptorVersion="1.0"
     Name="SlimTvClient"
     PluginId="{63040BB4-4638-49b7-A82F-F4530D4D43B9}"
     Author="Morpheus_xx"
@@ -36,7 +36,7 @@
 
   <Register Location="/Workflow/States">
     <WorkflowState Id="C7646667-5E63-48c7-A490-A58AC9518CFA"
-        Name="SlimTvClientMain" 
+        Name="SlimTvClientMain"
         MainScreen="SlimTvClient-main"
         DisplayLabel="[SlimTvClient.Main]"
         WorkflowModel="8BEC1372-1C76-484c-8A69-C7F3103708EC"/> <!-- Workflow model = SlimTvClient Model -->
@@ -45,42 +45,42 @@
       Name="SlimTvClientSingleChannelGuide"
       MainScreen="SlimTvClient-guide"
       DisplayLabel="[SlimTvClient.SingleChannelGuide]"
-      WorkflowModel="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/>   <!-- Workflow model = SlimTvSingleChannelGuide Model -->
+      WorkflowModel="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/> <!-- Workflow model = SlimTvSingleChannelGuide Model -->
 
     <WorkflowState Id="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
       Name="SlimTvClientMultiChannelGuide"
       MainScreen="SlimTvClient-fullguide"
       DisplayLabel="[SlimTvClient.TvGuide]"
-      WorkflowModel="5054408D-C2A9-451f-A702-E84AFCD29C10"/>   <!-- Workflow model = SlimTvMultiChannelGuide Model -->
+      WorkflowModel="5054408D-C2A9-451f-A702-E84AFCD29C10"/> <!-- Workflow model = SlimTvMultiChannelGuide Model -->
 
     <WorkflowState Id="3C6081CB-88DC-44A7-9E17-8D7BFE006EE5"
       Name="SlimTvClientExtSchedule"
       MainScreen="SlimTvClient-extschedule"
       DisplayLabel="[SlimTvClient.ExtendedSchedule]"
-      WorkflowModel="EB9CB370-9CD6-4D72-8354-73E446104438"/>   <!-- Workflow model = SlimTvExtSchedule Model -->
+      WorkflowModel="EB9CB370-9CD6-4D72-8354-73E446104438"/> <!-- Workflow model = SlimTvExtSchedule Model -->
 
     <WorkflowState Id="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
       Name="SlimTvClientProgramSearch"
       MainScreen="SlimTvClient-programsearch"
       DisplayLabel="[SlimTvClient.ProgramSearch]"
-      WorkflowModel="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>   <!-- Workflow model = SlimTvProgramSearch Model -->
+      WorkflowModel="71F1D594-21BF-4639-9F8A-3CE8D8170333"/> <!-- Workflow model = SlimTvProgramSearch Model -->
 
     <WorkflowState Id="88842E97-2EF9-4658-AD35-8D74E3C689A4"
       Name="SlimTvClientScheduleList"
       MainScreen="SlimTvClient-schedulelist"
       DisplayLabel="[SlimTvClient.ScheduleManagement]"
-      WorkflowModel="7610403A-4488-47A4-8C27-FD1FE833E52B"/>   <!-- Workflow model = SlimTvScheduleManagement Model -->
+      WorkflowModel="7610403A-4488-47A4-8C27-FD1FE833E52B"/> <!-- Workflow model = SlimTvScheduleManagement Model -->
 
     <WorkflowState Id="9D5B01A7-035F-46CF-8246-3C158C6CA960"
       Name="RecordingsNavigation-Root"
       DisplayLabel="[SlimTvClient.RecordingsMenuItem]"
-      WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>   <!-- Workflow model = Media model -->
-    
+      WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
+
     <DialogState Id="DFAFCA6B-92AC-432D-98E7-3E50E3AD2F61"
       Name="ManualSchedule"
       DisplayLabel="[SlimTvClient.ManualSchedule]"
       DialogScreen="SlimTvClient-manualschedule"
-      WorkflowModel="B2428C91-6B70-42E1-9519-1D5AA9D558A3"/>  <!-- Workflow model = SlimTvManualSchedule Model -->
+      WorkflowModel="B2428C91-6B70-42E1-9519-1D5AA9D558A3"/> <!-- Workflow model = SlimTvManualSchedule Model -->
 
   </Register>
 
@@ -136,14 +136,16 @@
 
   <Register Location="/Media/MediaListProviders">
     <!--Favorite media lists-->
-    <MediaListProviderBuilder Id="{CA352306-B1EA-4E72-BF68-BF219C405A65}" Key="FavoriteChannels" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteChannelsMediaListProvider"/>
+    <MediaListProviderBuilder Id="{CA352306-B1EA-4E72-BF68-BF219C405A65}" Key="FavoriteRadio" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRadioMediaListProvider"/>
+    <MediaListProviderBuilder Id="{994927E6-691E-432D-BB2C-5F06DC5A7FCF}" Key="FavoriteTV" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteTVMediaListProvider"/>
     <MediaListProviderBuilder Id="{53211093-E181-4D16-AB4A-7F9D3B560D25}" Key="FavoriteRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRecordingsMediaListProvider"/>
 
     <!--Latest media lists-->
     <MediaListProviderBuilder Id="{2D43CC5B-10A1-48CA-8A56-9F266934189C}" Key="LatestRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLatestRecordingsMediaListProvider"/>
 
     <!--Latest watched media lists-->
-    <MediaListProviderBuilder Id="{D53AD53E-2AFE-4A49-80C2-2079EC468329}" Key="LastPlayChannels" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedChannelMediaListProvider"/>
+    <MediaListProviderBuilder Id="{D53AD53E-2AFE-4A49-80C2-2079EC468329}" Key="LastPlayRadio" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRadioMediaListProvider"/>
+    <MediaListProviderBuilder Id="{C9DE8D8D-5F58-4E8D-B172-23CC98AD7D76}" Key="LastPlayTV" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedTVMediaListProvider"/>
     <MediaListProviderBuilder Id="{9FCD4E71-3330-4AED-9CAF-8C5D3D6932BF}" Key="LastPlayRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRecordingsMediaListProvider"/>
   </Register>
 
@@ -153,11 +155,11 @@
 
   <!-- Root Sections -->
   <Register Location="/Configuration/Settings">
-   <ConfigSection
-        Id="TV"
-        Sort="F100"
-        Redundant="true"
-        Text="[Settings.Plugins.TV]"/>
+    <ConfigSection
+         Id="TV"
+         Sort="F100"
+         Redundant="true"
+         Text="[Settings.Plugins.TV]"/>
   </Register>
 
   <Register Location="/Configuration/Settings/TV">
