@@ -126,9 +126,13 @@
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
-    <Compile Include="MediaLists\SlimTvFavoriteChannelsMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseFavoriteChannelMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvFavoriteRadioMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvFavoriteTVMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvFavoriteRecordingsMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvLastWatchedChannelMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseLastWatchedChannelMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLastWatchedRadioMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLastWatchedTVMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvLastWatchedRecordingsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvLatestRecordingsMediaListProvider.cs" />
     <Compile Include="Messaging\SlimTvClientMessaging.cs" />

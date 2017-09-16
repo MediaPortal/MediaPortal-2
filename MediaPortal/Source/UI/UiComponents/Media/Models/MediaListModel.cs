@@ -37,6 +37,10 @@ using MediaPortal.Common.Threading;
 using MediaPortal.UiComponents.Media.MediaLists;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.Messaging;
+using MediaPortal.UI.Shares;
+using MediaPortal.Common.Runtime;
+using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -51,13 +55,15 @@ namespace MediaPortal.UiComponents.Media.Models
     public static readonly Guid MEDIA_LIST_MODEL_ID = new Guid(MEDIA_LIST_MODEL_ID_STR);
 
     protected readonly AbstractProperty _queryLimitProperty;
-    protected bool _updatePending = false;
+    protected bool _updatePending = true;
     protected IPluginItemStateTracker _providerPluginItemStateTracker;
+    protected SafeDictionary<string, IMediaListProvider> _listProviders;
+    protected DateTime _nextGet = DateTime.MinValue;
 
     #endregion
 
     public const int DEFAULT_QUERY_LIMIT = 5;
-    public const int AUTO_UPDATE_INTERVAL = 30000;
+    public const int GETTER_THRESHOLD_SEC = 10;
 
     public delegate PlayableMediaItem MediaItemToListItemAction(MediaItem mediaItem);
 
@@ -69,14 +75,119 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _queryLimitProperty.SetValue(value); }
     }
 
-    public SafeDictionary<string, IMediaListProvider> Lists { get; private set; }
+    public SafeDictionary<string, IMediaListProvider> Lists
+    {
+      get
+      {
+        if (_nextGet < DateTime.Now)
+        {
+          _updatePending = true;
+          _nextGet = DateTime.Now.AddSeconds(GETTER_THRESHOLD_SEC);
+        }
+
+        return _listProviders;
+      }
+    }
 
     public MediaListModel()
-      : base(true, 500)
+      : base(false, 1000)
     {
       _queryLimitProperty = new WProperty(typeof(int), DEFAULT_QUERY_LIMIT);
+      _queryLimitProperty.Attach(OnQueryLimitChanged);
 
       InitProviders();
+      SubscribeToMessages();
+      ISystemStateService systemStateService = ServiceRegistration.Get<ISystemStateService>();
+      if (systemStateService.CurrentState == SystemState.Running)
+        StartTimer();
+    }
+
+    void SubscribeToMessages()
+    {
+      AsynchronousMessageQueue messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+          SystemMessaging.CHANNEL,
+          ServerConnectionMessaging.CHANNEL,
+          ContentDirectoryMessaging.CHANNEL,
+          SharesMessaging.CHANNEL,
+          PlayerManagerMessaging.CHANNEL,
+        });
+      messageQueue.MessageReceived += OnMessageReceived;
+      messageQueue.Start();
+      lock (_syncObj)
+        _messageQueue = messageQueue;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+        {
+          SystemState state = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+          switch (state)
+          {
+            case SystemState.Running:
+              StartTimer();
+              break;
+            case SystemState.ShuttingDown:
+              StopTimer();
+              break;
+          }
+        }
+      }
+      else if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      {
+        ServerConnectionMessaging.MessageType messageType =
+            (ServerConnectionMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ServerConnectionMessaging.MessageType.HomeServerAttached:
+          case ServerConnectionMessaging.MessageType.HomeServerConnected:
+            _updatePending = true; //Update all
+            break;
+        }
+      }
+      else if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
+            _updatePending = true; //Update latest added
+            break;
+        }
+      }
+      else if (message.ChannelName == SharesMessaging.CHANNEL)
+      {
+        SharesMessaging.MessageType messageType = (SharesMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case SharesMessaging.MessageType.ShareChanged:
+          case SharesMessaging.MessageType.ShareRemoved:
+            _updatePending = true; //Update all
+            break;
+        }
+      }
+      else if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
+      {
+        PlayerManagerMessaging.MessageType messageType =
+            (PlayerManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerStopped:
+          case PlayerManagerMessaging.MessageType.PlayerEnded:
+            _updatePending = true; //Update most played and last played
+            break;
+        }
+      }
+    }
+
+    private void OnQueryLimitChanged(AbstractProperty property, object oldValue)
+    {
+      if (property.GetValue() != oldValue)
+        _updatePending = true;
     }
 
     protected override void Update()
@@ -89,9 +200,9 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       lock (_syncObj)
       {
-        if (Lists != null)
+        if (_listProviders != null)
           return;
-        Lists = new SafeDictionary<string, IMediaListProvider>();
+        _listProviders = new SafeDictionary<string, IMediaListProvider>();
 
         _providerPluginItemStateTracker = new FixedItemStateTracker("Media Lists - Provider registration");
 
@@ -108,19 +219,19 @@ namespace MediaPortal.UiComponents.Media.Models
               IMediaListProvider provider = Activator.CreateInstance(providerRegistration.ProviderClass) as IMediaListProvider;
               if (provider == null)
                 throw new PluginInvalidStateException("Could not create IMediaListProvider instance of class {0}", providerRegistration.ProviderClass);
-              if (Lists.ContainsKey(providerRegistration.Key))
+              if (_listProviders.ContainsKey(providerRegistration.Key))
               {
                 //The default providers cannot replace existing providers
                 if (provider.GetType().Assembly != System.Reflection.Assembly.GetExecutingAssembly())
                 {
                   //Replace the provider
-                  Lists[providerRegistration.Key] = provider;
+                  _listProviders[providerRegistration.Key] = provider;
                   ServiceRegistration.Get<ILogger>().Info("Successfully replaced Media List '{1}' with provider '{0}' (Id '{2}')", itemMetadata.Attributes["ClassName"], itemMetadata.Attributes["Key"], itemMetadata.Id);
                 }
               }
               else
               {
-                Lists.Add(providerRegistration.Key, provider);
+                _listProviders.Add(providerRegistration.Key, provider);
                 ServiceRegistration.Get<ILogger>().Info("Successfully activated Media List '{1}' with provider '{0}' (Id '{2}')", itemMetadata.Attributes["ClassName"], itemMetadata.Attributes["Key"], itemMetadata.Id);
               }
             }
@@ -147,14 +258,9 @@ namespace MediaPortal.UiComponents.Media.Models
 
         SetLayout();
 
-        foreach (var provider in Lists.Values)
+        foreach (var provider in _listProviders.Values)
         {
           UpdateAsync(provider);
-        }
-
-        if (_updateInterval != AUTO_UPDATE_INTERVAL)
-        {
-          ChangeInterval(AUTO_UPDATE_INTERVAL);
         }
 
         return true;
