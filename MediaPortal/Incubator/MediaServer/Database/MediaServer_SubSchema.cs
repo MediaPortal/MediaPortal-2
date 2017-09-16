@@ -33,71 +33,14 @@ namespace MediaPortal.Plugins.MediaServer.Database
 {
   internal class MediaServer_SubSchema
   {
-    #region Consts
-
-    public const string SUBSCHEMA_NAME = "MediaServer";
-
-    public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
-    public const int EXPECTED_SCHEMA_VERSION_MINOR = 0;
-
-    #endregion
-
-    public static string SubSchemaScriptDirectory
+    public static IDbCommand UpdateAttachedClientDataCommand(ITransaction transaction, string systemId, string hostName,
+			string clientName)
     {
-      get
-      {
-        var pathManager = ServiceRegistration.Get<IPathManager>();
-        return pathManager.GetPath(@"<APPLICATION_ROOT>\Scripts\");
-      }
-    }
-
-    public static bool SelectAttachedClientsCommand(ITransaction transaction, string systemId, out string lastHostName, out string lastClientName)
-    {
-      var command = transaction.CreateCommand();
-      command.CommandText = "SELECT LAST_HOSTNAME, LAST_CLIENT_NAME FROM ATTACHED_CLIENTS WHERE SYSTEM_ID = @SYSTEM_ID";
-      ISQLDatabase database = transaction.Database;
-      database.AddParameter(command, "SYSTEM_ID", systemId, typeof(string));
-      using (IDataReader reader = command.ExecuteReader())
-      {
-        if (reader.Read())
-        {
-          lastHostName = Convert.ToString(database.ReadDBValue(typeof(string), reader, 0));
-          lastClientName = Convert.ToString(database.ReadDBValue(typeof(string), reader, 1));
-          return true;
-        }
-      }
-      lastHostName = null;
-      lastClientName = null;
-      return false;
-    }
-
-    public static IDbCommand InsertAttachedClientCommand(ITransaction transaction, string systemId, string hostName, string clientName)
-    {
-      var result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME) VALUES (@SYSTEM_ID, @LAST_HOSTNAME, @LAST_CLIENT_NAME)";
-      ISQLDatabase database = transaction.Database;
-      database.AddParameter(result, "SYSTEM_ID", systemId, typeof (string));
-      database.AddParameter(result, "LAST_HOSTNAME", hostName, typeof (string));
-      database.AddParameter(result, "LAST_CLIENT_NAME", clientName, typeof (string));
-      return result;
-    }
-
-    public static IDbCommand UpdateAttachedClientDataCommand(ITransaction transaction, string systemId, string hostName, string clientName)
-    {
-      var result = transaction.CreateCommand();
+      IDbCommand result = transaction.CreateCommand();
       result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = @LAST_HOSTNAME, LAST_CLIENT_NAME = @LAST_CLIENT_NAME WHERE SYSTEM_ID = @SYSTEM_ID";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "LAST_HOSTNAME", hostName, typeof (string));
       database.AddParameter(result, "LAST_CLIENT_NAME", clientName, typeof (string));
-      database.AddParameter(result, "SYSTEM_ID", systemId, typeof (string));
-      return result;
-    }
-
-    public static IDbCommand DeleteAttachedClientCommand(ITransaction transaction, string systemId)
-    {
-      var result = transaction.CreateCommand();
-      result.CommandText = "DELETE FROM ATTACHED_CLIENTS WHERE SYSTEM_ID = @SYSTEM_ID";
-      ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "SYSTEM_ID", systemId, typeof (string));
       return result;
     }

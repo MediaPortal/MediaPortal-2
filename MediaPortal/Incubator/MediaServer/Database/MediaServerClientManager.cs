@@ -28,6 +28,7 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Backend.Services.ClientCommunication;
 
 namespace MediaPortal.Plugins.MediaServer.Database
 {
@@ -36,19 +37,24 @@ namespace MediaPortal.Plugins.MediaServer.Database
     public void AttachClient(string clientSystemId, string clientHostName, string clientName)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = null;
       try
       {
         IClientManager clientManager = ServiceRegistration.Get<IClientManager>(false);
         if (clientManager != null) 
         {
-          clientManager.AttachClient(clientSystemId);
+          if (!clientManager.AttachedClients.ContainsKey(clientSystemId))
+          {
+            clientManager.AttachClient(clientSystemId);
+          }
+          transaction = database.BeginTransaction();
           using (IDbCommand command = MediaServer_SubSchema.UpdateAttachedClientDataCommand(transaction, clientSystemId, clientHostName, clientName))
             command.ExecuteNonQuery();
         }
         else
         {
-          using (IDbCommand command = MediaServer_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, clientHostName, clientName))
+          transaction = database.BeginTransaction();
+          using (IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, clientHostName, clientName))
             command.ExecuteNonQuery();
           ClientManagerMessaging.SendClientAttachmentChangeMessage(ClientManagerMessaging.MessageType.ClientAttached, clientSystemId);
         }
@@ -57,14 +63,14 @@ namespace MediaPortal.Plugins.MediaServer.Database
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("MediaServer: Error attaching client '{0}'", e, clientSystemId);
-        transaction.Rollback();
+        transaction?.Rollback();
       }
     }
 
     public void DetachClient(string clientSystemId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = null;
       try
       {
         IClientManager clientManager = ServiceRegistration.Get<IClientManager>(false);
@@ -74,7 +80,8 @@ namespace MediaPortal.Plugins.MediaServer.Database
         }
         else
         {
-          using (IDbCommand command = MediaServer_SubSchema.DeleteAttachedClientCommand(transaction, clientSystemId))
+          transaction = database.BeginTransaction();
+          using (IDbCommand command = ClientManager_SubSchema.DeleteAttachedClientCommand(transaction, clientSystemId))
             command.ExecuteNonQuery();
           transaction.Commit();
           ClientManagerMessaging.SendClientAttachmentChangeMessage(ClientManagerMessaging.MessageType.ClientDetached, clientSystemId);
@@ -83,7 +90,7 @@ namespace MediaPortal.Plugins.MediaServer.Database
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("MediaServer: Error detaching client '{0}'", e, clientSystemId);
-        transaction.Rollback();
+        transaction?.Rollback();
       }
     }
   }
