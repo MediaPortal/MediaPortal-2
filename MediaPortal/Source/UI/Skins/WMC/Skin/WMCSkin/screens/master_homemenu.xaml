@@ -203,8 +203,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </Label.Content>
             </Label-->
             
-            <Label x:Name="LatestAddedLabel" Grid.Row="1" Content="Latest Added" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0">
-            </Label>
+            <Label x:Name="LatestAddedLabel" Grid.Row="1" Content="Latest Added" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0"/>
             <ListView Grid.Row="2" x:Name="Latest" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
               <ListView.ItemsSource>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : {7})))">
@@ -215,15 +214,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <Binding Source="{Binding Lists[LatestAudio].AllItems}"/>
                   <Binding Source="30f57cba-459c-4202-a587-09fff5098251"/>
                   <Binding Source="{Binding Lists[LatestEpisodes].AllItems}"/>
-                  <Binding Source="{x:Null}"/>
+                  <Binding Source=""/>
                 </MultiBinding>
               </ListView.ItemsSource>
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
               <ListView.Triggers>
-                <Trigger Property="ItemsCount" Value="0">
-                  <Setter TargetName="LatestAddedLabel" Property="Visibility" Value="Hidden" />
+                <Trigger Property="IsEmpty" Value="True">
+                  <Setter TargetName="LatestAddedLabel" Property="IsVisible" Value="False" />
                 </Trigger>
               </ListView.Triggers>
             </ListView>
@@ -239,14 +238,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <Binding Source="{Binding Lists[LastPlayAudio].AllItems}"/>
                   <Binding Source="30f57cba-459c-4202-a587-09fff5098251"/>
                   <Binding Source="{Binding Lists[LastPlayEpisodes].AllItems}"/>
-                  <Binding Source="{x:Null}"/>
+                  <Binding Source=""/>
                 </MultiBinding>
               </ListView.ItemsSource>
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
               <ListView.Triggers>
-                <Trigger Property="ItemsCount" Value="0">
+                <Trigger Property="IsEmpty" Value="True">
                   <Setter TargetName="LatestWatchedLabel" Property="Visibility" Value="Hidden" />
                 </Trigger>
               </ListView.Triggers>
@@ -263,14 +262,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <Binding Source="{Binding Lists[FavoriteAudio].AllItems}"/>
                   <Binding Source="30f57cba-459c-4202-a587-09fff5098251"/>
                   <Binding Source="{Binding Lists[FavoriteEpisodes].AllItems}"/>
-                  <Binding Source="{x:Null}"/>
+                  <Binding Source=""/>
                 </MultiBinding>
               </ListView.ItemsSource>
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
               <ListView.Triggers>
-                <Trigger Property="ItemsCount" Value="0">
+                <Trigger Property="IsEmpty" Value="True">
                   <Setter TargetName="FavoriteLabel" Property="Visibility" Value="Hidden" />
                 </Trigger>
               </ListView.Triggers>
