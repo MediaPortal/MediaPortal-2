@@ -94,6 +94,30 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <TranslateTransform Y="0"/>
           </Grid.RenderTransform>
 
+          <Grid.Resources>
+            <!-- HomeContent Storyboard -->
+            <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="RenderTransform.X">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="400"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.45" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="Opacity">
+                <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="1"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="RenderTransform.X">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="400"/>
+              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="Opacity">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+          </Grid.Resources>
+
           <Grid.Triggers>
             <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableSubMenuAnimations}" Value="True">
               <DataTrigger.EnterActions>
@@ -129,10 +153,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <StopStoryboard BeginStoryboardName="BeginTransformUpAnimation" />
               </MultiTrigger.ExitActions>
             </MultiTrigger>
-          </Grid.Triggers>
 
-          <!--Image x:Name="FocusFrame" Source="Focus.frame.png" 
-               Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="10,-70,0,97"/-->
+            <!-- Trigger for the HomeContent Storyboard -->
+            <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+              <EventTrigger.Actions>
+                <BeginStoryboard Storyboard="{StaticResource SlideInStoryboard}"/>
+              </EventTrigger.Actions>
+            </EventTrigger>
+
+          </Grid.Triggers>
 
           <ListView Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" 
                    SetFocusPrio="DefaultHigh"
@@ -184,7 +213,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="520"/>
           </Grid.RowDefinitions>
-          
+
+          <!-- HomeContent -->
           <Grid x:Name="HomeContent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Source={StaticResource MediaListModel}}">
             <Grid.RenderTransform>
               <TranslateTransform X="0"/>
@@ -202,40 +232,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
-            <Grid.Resources>
-              <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="RenderTransform.X">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="400"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.45" Value="0"/>
-                </DoubleAnimationUsingKeyFrames>
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="Opacity">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="0"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="1"/>
-                </DoubleAnimationUsingKeyFrames>
-              </Storyboard>
-              <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="RenderTransform.X">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="400"/>
-                </DoubleAnimationUsingKeyFrames>
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="Opacity">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
-                </DoubleAnimationUsingKeyFrames>
-              </Storyboard>
-            </Grid.Resources>
-
-            <Grid.Triggers>
-              <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel}, Path=EnableSubMenuAnimations}" Value="True">
-                <DataTrigger.EnterActions>
-                  <BeginStoryboard Storyboard="{StaticResource SlideInStoryboard}"/>
-                </DataTrigger.EnterActions>
-                <!--DataTrigger.ExitActions>
-                  <BeginStoryboard Storyboard="{StaticResource SlideOutStoryboard}"/>
-                </-->
-              </DataTrigger>
-            </Grid.Triggers>
 
             <!--Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}">
               <Label.Content>
