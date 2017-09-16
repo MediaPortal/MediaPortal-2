@@ -237,7 +237,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ListView.ItemsSource>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                               ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : {9}))))">
-                  <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                  <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                   <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
                   <Binding Source="{Binding Lists[LatestMovies].AllItems}"/>
                   <Binding Source="30715d73-4205-417f-80aa-e82f0834171f"/>
@@ -262,7 +262,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Label x:Name="LatestWatchedLabel" Grid.Row="2" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,30,0,0">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {1} ? {2} : {3})">
-                  <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                  <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                   <Binding Source="30715d73-4205-417f-80aa-e82f0834171f"/>
                   <Binding Source="Latest Heard"/>
                   <Binding Source="Latest Watched"/>
@@ -273,7 +273,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ListView.ItemsSource>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                               ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : {11})))))">
-                  <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                  <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                   <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
                   <Binding Source="{Binding Lists[LastPlayMovies].AllItems}"/>
                   <Binding Source="30715d73-4205-417f-80aa-e82f0834171f"/>
@@ -302,7 +302,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ListView.ItemsSource>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                               ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : {11})))))">
-                  <Binding Source="{Binding ElementName=SubItemsListViewHome, Path=CurrentItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                  <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                   <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
                   <Binding Source="{Binding Lists[FavoriteMovies].AllItems}"/>
                   <Binding Source="30715d73-4205-417f-80aa-e82f0834171f"/>
