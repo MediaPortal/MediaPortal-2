@@ -564,13 +564,13 @@
               <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
             </Grid.Resources>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="360"/>
+              <ColumnDefinition Width="310"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="195"/>
               <RowDefinition Height="54"/>
             </Grid.RowDefinitions>
-            <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}"
+            <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}" TextTrimming="CharacterEllipsis" Width="280" HorizontalContentAlignment="Center"
                    HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.4" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54" Scroll="Auto"
                    HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>

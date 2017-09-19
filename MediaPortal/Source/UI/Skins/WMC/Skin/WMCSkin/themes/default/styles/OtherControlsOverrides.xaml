@@ -305,7 +305,18 @@
           <SplineDoubleKeyFrame KeyTime="00:00:04.000" Value="0"/>
         </DoubleAnimationUsingKeyFrames>
       </Storyboard>
+      <Storyboard x:Key="Grow" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:00.40" Value="1.30"/>
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:00.40" Value="1.30"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
     </DataTemplate.Resources>
+    
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -327,7 +338,7 @@
       </Grid.Triggers>
       
       <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" x:Name="SubMenuImage"
-             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8" RenderTransformOrigin="0.5,0.5">
+             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8" RenderTransformOrigin="0.5,0.5" Width="260">
         <Image.RenderTransform>
           <ScaleTransform ScaleX="1.0" ScaleY="1.0"></ScaleTransform>
         </Image.RenderTransform>
@@ -338,14 +349,18 @@
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=nofocus.png}"/>
           </MultiBinding>
         </Image.Source>
-        <Image.Width>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="Selected"/>
-            <Binding Source="387"/>
-            <Binding Source="243"/>
-          </MultiBinding>
-        </Image.Width>
+        <Image.Triggers>
+          <DataTrigger Binding="{Binding Selected}" Value="True">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="Grow_BeginStoryboard" Storyboard="{ThemeResource Grow}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Grow_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </Image.Triggers>
       </Image>
+      
       <Image x:Name="Bling_horizontal" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
              Height="4" Width="60" Grid.Row="0" Grid.Column="0" Source="Bling_hori.png" Margin="0,0,0,4"
              IsVisible="{Binding Selected}">
@@ -364,7 +379,7 @@
         </Image.Triggers>
       </Image>
       <Image x:Name="Bling_vertical" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
-             Height="60" Width="4" Grid.Row="0" Grid.Column="0" Source="Bling_vert.png" Margin="0,0,-1,0" 
+             Height="60" Width="4" Grid.Row="0" Grid.Column="0" Source="Bling_vert.png" Margin="0,0,-26,0" 
              IsVisible="{Binding Selected}">
         <Image.RenderTransform>
           <TranslateTransform Y="0"/>
