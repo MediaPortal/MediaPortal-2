@@ -71,6 +71,7 @@
             DisplayName="!(loc.Service_DisplayName)"
             Description="!(loc.Service_Description)"
             Start="auto" Account="LocalSystem" ErrorControl="ignore" Interactive="no" />
+        <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="MP2-Server" Wait="yes" />
       </Component>
 
       <!--<Component Id="SetupTV.exe" Guid="F9DC6B22-A800-4F0C-B442-CC5D6A6D5B92">

@@ -61,6 +61,7 @@ namespace MP2BootstrapperApp.ViewModels
     private int _cacheProgress;
     private int _executeProgress;
     private readonly PackageContext _packageContext;
+    private readonly Wizard _wizard;
 
     #endregion
 
@@ -73,10 +74,10 @@ namespace MP2BootstrapperApp.ViewModels
       WireUpEventHandlers();
       ComputeBundlePackages();
 
-      Wizard wizard = new Wizard(new InstallWelcomeStep(this));
+      _wizard = new Wizard(new InstallWelcomeStep(this));
 
-      NextCommand = new DelegateCommand(() => wizard.GoNext(), () => wizard.CanGoNext());
-      BackCommand = new DelegateCommand(() => wizard.GoBack(), () => wizard.CanGoBack());
+      NextCommand = new DelegateCommand(() => _wizard.GoNext(), () => _wizard.CanGoNext());
+      BackCommand = new DelegateCommand(() => _wizard.GoBack(), () => _wizard.CanGoBack());
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
 
       CurrentPage = new InstallWelcomePageViewModel(this);
@@ -181,6 +182,11 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
+    private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
+    {
+      _wizard.Step = new InstallExistInstallStep(this);
+    }
+
     protected void PlanComplete(object sender, PlanCompleteEventArgs e)
     {
       if (State == InstallState.Canceled)
@@ -226,6 +232,31 @@ namespace MP2BootstrapperApp.ViewModels
       planPackageBeginEventArgs.State = package.RequestedInstallState;
     }
 
+    private void ResolveSource(object sender, ResolveSourceEventArgs e)
+    {
+      if (!string.IsNullOrEmpty(e.DownloadSource))
+      {
+        e.Result = Result.Download;
+        _bootstrapperApplicationModel.LogMessage("Called download");
+      }
+      else
+      {
+        e.Result = Result.Ok;
+      }
+    }
+
+    private void CacheAcquireProgress(object sender, CacheAcquireProgressEventArgs e)
+    {
+      _cacheProgress = e.OverallPercentage;
+      Progress = (_cacheProgress + _executeProgress) / 2;
+    }
+
+    private void ExecuteProgress(object sender, ExecuteProgressEventArgs e)
+    {
+      _executeProgress = e.OverallPercentage;
+      Progress = (_cacheProgress + _executeProgress) / 2;
+    }
+
     private void Refresh()
     {
       MP2BootstrapperApplication.Dispatcher.Invoke(() =>
@@ -238,6 +269,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void WireUpEventHandlers()
     {
+      _bootstrapperApplicationModel.BootstrapperApplication.DetectRelatedBundle += DetectRelatedBundle;
       _bootstrapperApplicationModel.BootstrapperApplication.DetectPackageComplete += DetectedPackageComplete;
       _bootstrapperApplicationModel.BootstrapperApplication.PlanComplete += PlanComplete;
       _bootstrapperApplicationModel.BootstrapperApplication.ApplyComplete += ApplyComplete;
@@ -245,32 +277,9 @@ namespace MP2BootstrapperApp.ViewModels
       _bootstrapperApplicationModel.BootstrapperApplication.ExecutePackageBegin += ExecutePackageBegin;
       _bootstrapperApplicationModel.BootstrapperApplication.ExecutePackageComplete += ExecutePackageComplete;
       _bootstrapperApplicationModel.BootstrapperApplication.PlanPackageBegin += PlanPackageBegin;
-
-      _bootstrapperApplicationModel.BootstrapperApplication.ResolveSource += (sender, args) =>
-      {
-        if (!string.IsNullOrEmpty(args.DownloadSource))
-        {
-          args.Result = Result.Download;
-          _bootstrapperApplicationModel.LogMessage("Called download");
-        }
-        else
-        {
-          args.Result = Result.Ok;
-        }
-      };
-
-      _bootstrapperApplicationModel.BootstrapperApplication.CacheAcquireProgress +=
-        (sender, args) =>
-        {
-          _cacheProgress = args.OverallPercentage;
-          Progress = (_cacheProgress + _executeProgress) / 2;
-        };
-      _bootstrapperApplicationModel.BootstrapperApplication.ExecuteProgress +=
-        (sender, args) =>
-        {
-          _executeProgress = args.OverallPercentage;
-          Progress = (_cacheProgress + _executeProgress) / 2;
-        };
+      _bootstrapperApplicationModel.BootstrapperApplication.ResolveSource += ResolveSource;
+      _bootstrapperApplicationModel.BootstrapperApplication.CacheAcquireProgress += CacheAcquireProgress;
+      _bootstrapperApplicationModel.BootstrapperApplication.ExecuteProgress += ExecuteProgress;
     }
 
     private void ComputeBundlePackages()

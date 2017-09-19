@@ -22,42 +22,39 @@
 
 #endregion
 
-using System.Diagnostics;
-using System.ServiceProcess;
-using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallFinishStep : IStep
+  public class InstallModifyStep : IStep
   {
-    private readonly InstallWizardViewModel _viewModel;
+    private InstallWizardViewModel _viewModel;
 
-    public InstallFinishStep(InstallWizardViewModel wizardViewModel)
+    public InstallModifyStep(InstallWizardViewModel wizardViewModel)
     {
       _viewModel = wizardViewModel;
     }
 
     public void Next(Wizard wizard)
     {
-      InstallFinishPageViewModel page = _viewModel.CurrentPage as InstallFinishPageViewModel;
+      
 
-      _viewModel.CloseWizard();
+      throw new System.NotImplementedException();
     }
 
     public void Back(Wizard wizard)
     {
-      // not allowed
+      throw new System.NotImplementedException();
     }
 
     public bool CanGoNext()
     {
-      return true;
+      throw new System.NotImplementedException();
     }
 
     public bool CanGoBack()
     {
-      return false;
+      throw new System.NotImplementedException();
     }
   }
 }

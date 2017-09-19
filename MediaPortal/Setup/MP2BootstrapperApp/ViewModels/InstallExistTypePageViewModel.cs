@@ -30,6 +30,9 @@ namespace MP2BootstrapperApp.ViewModels
   {
     public InstallExistTypePageViewModel(InstallWizardViewModel viewModel)
     {
+      // 3 buttons: update, modify, repair, uninstall
     }
+
+    
   }
 }

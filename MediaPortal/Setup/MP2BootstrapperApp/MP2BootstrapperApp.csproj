@@ -77,7 +77,9 @@
     <Compile Include="ChainPackages\Vc2008Sp1.cs" />
     <Compile Include="EnumToBooleanConverter.cs" />
     <Compile Include="InstallType.cs" />
+    <Compile Include="WizardSteps\InstallExistInstallStep.cs" />
     <Compile Include="WizardSteps\InstallFinishStep.cs" />
+    <Compile Include="WizardSteps\InstallModifyStep.cs" />
     <Compile Include="WizardSteps\Wizard.cs" />
     <Compile Include="WizardSteps\InstallOverviewStep.cs" />
     <Compile Include="WizardSteps\InstallNewTypeStep.cs" />
