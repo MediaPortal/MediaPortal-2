@@ -26,7 +26,7 @@
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
-      <Include Source="screens\MediaItemAudioDetails.inc"/>
+      <Include Source="screens\MediaItemHomeAudioDetails.inc"/>
     </Control.TemplateControl>
   </Control>
 
@@ -62,7 +62,7 @@
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
-      <Include Source="screens\MediaItemEpisodeDetails.inc"/>
+      <Include Source="screens\MediaItemHomeEpisodeDetails.inc"/>
     </Control.TemplateControl>
   </Control>
 

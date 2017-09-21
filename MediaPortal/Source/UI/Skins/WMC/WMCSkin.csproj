@@ -652,6 +652,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemAudioAlbumDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeEpisodeDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeAudioDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListAudioAlbumDetails.inc">
       <SubType>Designer</SubType>
     </Content>
