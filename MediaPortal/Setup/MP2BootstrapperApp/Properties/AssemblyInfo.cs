@@ -10,9 +10,9 @@ using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 [assembly: AssemblyTitle("MP2BootstrapperApp")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MP2BootstrapperApp")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCompany("Team MediaPortal")]
+[assembly: AssemblyProduct("MediaPortal 2 Bootstrapper Application")]
+[assembly: AssemblyCopyright("Copyright ©  Team MediaPortal 2007 - 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: BootstrapperApplication(typeof(MP2BootstrapperApplication))]
@@ -35,5 +35,5 @@ using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("2.16.10.8139")]
+[assembly: AssemblyFileVersion("2.16.10.8139")]

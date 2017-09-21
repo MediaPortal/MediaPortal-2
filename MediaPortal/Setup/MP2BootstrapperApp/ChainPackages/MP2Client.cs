@@ -24,19 +24,15 @@
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class MP2Client : IPackage
+  public class MP2Client : MP2Msi, IPackage
   {
-    private readonly IPackageChecker _packageChecker;
-
-    public MP2Client(IPackageChecker packageChecker)
-    {
-      _packageChecker = packageChecker;
-    }
+    public MP2Client(IPackageChecker packageChecker) : base(packageChecker) { }
 
     public bool IsInstalled()
     {
-      //TODO check for presence of old MP2-Setup
-      return false;
+      string regValue = "INSTALLDIR_CLIENT";
+
+      return base.IsInstalled(regValue);
     }
   }
 }

@@ -80,6 +80,19 @@ namespace MP2BootstrapperApp.ChainPackages
       return MsiQueryProductState(productCode) == MsiInstallState.InstallStateDefault;
     }
 
+    /// <inheritdoc />
+    public string GetDataFromLocalMachineRegistry(string registryKey, string registryValue)
+    {
+      string result = string.Empty;
+
+      RegistryKey key = Registry.LocalMachine.OpenSubKey(registryKey);
+      if (key != null)
+      {
+        result = key.GetValue(registryValue, string.Empty) as string;
+      }
+      return result;
+    }
+
     [DllImport("msi.dll")]
     private static extern MsiInstallState MsiQueryProductState(string productCode);
 

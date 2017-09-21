@@ -77,5 +77,13 @@ namespace MP2BootstrapperApp.ChainPackages
     /// <param name="productCode">The MSI product code to check.</param>
     /// <returns>true if the MSI is installed, otherwise false.</returns>
     bool CheckInstallPresenceByMsiProductCode(string productCode);
+
+    /// <summary>
+    /// Gets value data from HKLM registry.
+    /// </summary>
+    /// <param name="registryKey">The registry key.</param>
+    /// <param name="registryValue">The registry value.</param>
+    /// <returns>The value data or empty string if registry key could not be found.</returns>
+    string GetDataFromLocalMachineRegistry(string registryKey, string registryValue);
   }
 }
