@@ -90,7 +90,7 @@
             </Image>
 
             <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
-                Source="{Binding MediaItem}" FallbackSource="AudioLarge.png" HorizontalAlignment="Right"
+                Source="{Binding MediaItem}" FallbackSource="Audio.png" HorizontalAlignment="Right"
                 VerticalAlignment="Bottom" Width="250" Height="250" Margin="0,0,0,20">
               <Image.OpacityMask>
                 <VisualBrush>

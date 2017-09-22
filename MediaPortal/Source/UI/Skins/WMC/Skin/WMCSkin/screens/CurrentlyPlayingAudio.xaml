@@ -75,7 +75,7 @@
               </Grid.ColumnDefinitions>
 
               <Image x:Name="ItemTypeImage" Grid.RowSpan="2" Stretch="Fill" IsVisible="{Binding ElementName=Album, Path=!IsChecked}"
-                     Source="{Binding MediaItem}" FallbackSource="AudioLarge.png" HorizontalAlignment="Right"
+                     Source="{Binding MediaItem}" FallbackSource="Audio.png" HorizontalAlignment="Right"
                      VerticalAlignment="Bottom" Width="240" Height="240" Margin="20,60,20,20">
                 <Image.OpacityMask>
                   <VisualBrush>
