@@ -120,8 +120,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           }
         }
       }
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects, collectionMediaItemId, actorMediaItems));
+
       _checkCache.Add(mediaItemId);
+      Task.Run(() => ExtractFanArt(mediaItemId, aspects, collectionMediaItemId, actorMediaItems));
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? collectionMediaItemId, IDictionary<Guid, string> actorMediaItems)
@@ -142,9 +143,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         //Take advantage of the movie language being known and download collection too
         if (collectionMediaItemId.HasValue && !_checkCache.Contains(collectionMediaItemId.Value))
         {
+          _checkCache.Add(collectionMediaItemId.Value);
           if (!MovieMetadataExtractor.SkipFanArtDownload)
             OnlineMatcherService.Instance.DownloadMovieFanArt(collectionMediaItemId.Value, collectionInfo, forceFanart);
-          _checkCache.Add(collectionMediaItemId.Value);
         }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
@@ -300,6 +301,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           var bannerPaths = new List<ResourcePath>();
           var logoPaths = new List<ResourcePath>();
           var clearArtPaths = new List<ResourcePath>();
+          var discArtPaths = new List<ResourcePath>();
           if (movieMediaItemId.HasValue)
           {
             using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
@@ -354,6 +356,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                     where potentialFanArtFileNameWithoutExtension == "clearart" || potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-clearart")
                     select potentialFanArtFile);
 
+                discArtPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc" || 
+                    potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-discart")
+                    select potentialFanArtFile);
+
                 bannerPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
@@ -378,6 +387,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               SaveFolderFile(mediaItemLocater, logoPath, FanArtTypes.Logo, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath clearArtPath in clearArtPaths)
               SaveFolderFile(mediaItemLocater, clearArtPath, FanArtTypes.ClearArt, movieMediaItemId.Value, movieTitle);
+            foreach (ResourcePath discArtPath in discArtPaths)
+              SaveFolderFile(mediaItemLocater, discArtPath, FanArtTypes.DiscArt, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath bannerPath in bannerPaths)
               SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
@@ -392,6 +403,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           bannerPaths.Clear();
           logoPaths.Clear();
           clearArtPaths.Clear();
+          discArtPaths.Clear();
           if (collectionMediaItemId.HasValue)
           {
             using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, collectionMediaItemDirectoryPath).CreateAccessor())

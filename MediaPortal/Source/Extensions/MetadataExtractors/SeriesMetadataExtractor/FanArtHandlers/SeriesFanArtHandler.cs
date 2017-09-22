@@ -125,8 +125,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
         }
       }
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects, seriesMediaItemId, seasonMediaItemId, actorMediaItems));
+
       _checkCache.Add(mediaItemId);
+      Task.Run(() => ExtractFanArt(mediaItemId, aspects, seriesMediaItemId, seasonMediaItemId, actorMediaItems));
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? seriesMediaItemId, Guid? seasonMediaItemId, IDictionary<Guid, string> actorMediaItems)
@@ -148,15 +149,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         //Take advantage of the audio language being known and download season and series too
         if (seasonMediaItemId.HasValue && !_checkCache.Contains(seasonMediaItemId.Value))
         {
+          _checkCache.Add(seasonMediaItemId.Value);
           if (!SeriesMetadataExtractor.SkipFanArtDownload)
             OnlineMatcherService.Instance.DownloadSeriesFanArt(seasonMediaItemId.Value, seasonInfo, forceFanart);
-          _checkCache.Add(seasonMediaItemId.Value);
         }
         if (seriesMediaItemId.HasValue && !_checkCache.Contains(seriesMediaItemId.Value))
         {
+          _checkCache.Add(seriesMediaItemId.Value);
           if (!SeriesMetadataExtractor.SkipFanArtDownload)
             OnlineMatcherService.Instance.DownloadSeriesFanArt(seriesMediaItemId.Value, seriesInfo, forceFanart);
-          _checkCache.Add(seriesMediaItemId.Value);
         }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
@@ -311,6 +312,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           var bannerPaths = new List<ResourcePath>();
           var logoPaths = new List<ResourcePath>();
           var clearArtPaths = new List<ResourcePath>();
+          var discArtPaths = new List<ResourcePath>();
           if (seriesMediaItemId.HasValue)
           {
             using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, seriesMediaItemDirectoryPath).CreateAccessor())
@@ -358,6 +360,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                     where potentialFanArtFileNameWithoutExtension == "clearart"
                     select potentialFanArtFile);
 
+                discArtPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc"
+                    select potentialFanArtFile);
+
                 bannerPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
@@ -381,6 +389,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               SaveFolderFile(mediaItemLocater, logoPath, FanArtTypes.Logo, seriesMediaItemId.Value, series.ToString());
             foreach (ResourcePath clearArtPath in clearArtPaths)
               SaveFolderFile(mediaItemLocater, clearArtPath, FanArtTypes.ClearArt, seriesMediaItemId.Value, series.ToString());
+            foreach (ResourcePath discArtPath in discArtPaths)
+              SaveFolderFile(mediaItemLocater, discArtPath, FanArtTypes.DiscArt, seriesMediaItemId.Value, series.ToString());
             foreach (ResourcePath bannerPath in bannerPaths)
               SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, seriesMediaItemId.Value, series.ToString());
             foreach (ResourcePath fanartPath in fanArtPaths)
@@ -393,6 +403,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           bannerPaths.Clear();
           logoPaths.Clear();
           clearArtPaths.Clear();
+          discArtPaths.Clear();
           if (seasonMediaItemId.HasValue)
           {
             using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, seasonMediaItemDirectoryPath).CreateAccessor())
