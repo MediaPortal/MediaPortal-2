@@ -16,6 +16,9 @@
   <ResourceWrapper x:Key="MediaItemBackgroundColor1" Resource="#F2447da7"/>
   <ResourceWrapper x:Key="MediaItemBackgroundColor2" Resource="#F2124273"/>
 
+  <ResourceWrapper x:Key="InfoScreenGradientColor1" Resource="#00074381"/>
+  <ResourceWrapper x:Key="InfoScreenGradientColor2" Resource="#D9074381"/>
+  <ResourceWrapper x:Key="InfoScreenGradientColor3" Resource="#F2081a42"/>
 
   <!-- ************************** Black theme colors ****************************** -->
 

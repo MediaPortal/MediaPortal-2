@@ -226,18 +226,50 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource SubItemButtonStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Resources>
+              <Storyboard x:Key="FocusGrowStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1.18"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1.18"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+              <Storyboard x:Key="FocusShrinkStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.18"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.18"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Button.Resources>
             <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
+              <DataTrigger Binding="{Binding Selected}" Value="True">
                 <Setter TargetName="ButtonControlGrid" Property="IsVisible" Value="True"/>
                 <Setter TargetName="ItemLabelUnfocused" Property="IsVisible" Value="False"/>
                 <Setter TargetName="ItemLabelUnfocused" Property="Opacity" Value="1"/>
                 <Setter TargetName="ItemLabel" Property="IsVisible" Value="True"/>
-                <!--Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/-->
-                <!--Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/-->
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-              </Trigger>
+              </DataTrigger>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="HasFocus" Value="True"/>
+                  <Condition Binding="{Binding Selected}" Value="False"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                  <BeginStoryboard x:Name="SubMenuItem_Grow" Storyboard="{StaticResource FocusGrowStoryboard}"/>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                  <BeginStoryboard x:Name="SubMenuItem_Shrink" Storyboard="{StaticResource FocusShrinkStoryboard}"/>
+                </MultiTrigger.ExitActions>
+              </MultiTrigger>
             </Button.Triggers>
           </Button>
         </ControlTemplate>
@@ -273,7 +305,18 @@
           <SplineDoubleKeyFrame KeyTime="00:00:04.000" Value="0"/>
         </DoubleAnimationUsingKeyFrames>
       </Storyboard>
+      <Storyboard x:Key="Grow" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:00.40" Value="1.30"/>
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:00.40" Value="1.30"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
     </DataTemplate.Resources>
+    
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -283,7 +326,7 @@
       </Grid.RowDefinitions>
       <Grid.Triggers>
         <!--Triggers the ContentPresenter to auto scroll the item to center-->
-        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+        <DataTrigger Binding="{Binding BringIntoView}" Value="True">
           <DataTrigger.EnterActions>
             <TriggerCommand>
               <TriggerCommand.Command>
@@ -294,31 +337,38 @@
         </DataTrigger>
       </Grid.Triggers>
       
-      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" 
-             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8">
+      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" x:Name="SubMenuImage"
+             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8" RenderTransformOrigin="0.5,0.5" Width="260">
+        <Image.RenderTransform>
+          <ScaleTransform ScaleX="1.0" ScaleY="1.0"></ScaleTransform>
+        </Image.RenderTransform>
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Path="Selected"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=focus.png}"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=nofocus.png}"/>
           </MultiBinding>
         </Image.Source>
-        <Image.Width>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="387"/>
-            <Binding Source="243"/>
-          </MultiBinding>
-        </Image.Width>
+        <Image.Triggers>
+          <DataTrigger Binding="{Binding Selected}" Value="True">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="Grow_BeginStoryboard" Storyboard="{ThemeResource Grow}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Grow_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </Image.Triggers>
       </Image>
+      
       <Image x:Name="Bling_horizontal" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
              Height="4" Width="60" Grid.Row="0" Grid.Column="0" Source="Bling_hori.png" Margin="0,0,0,4"
-             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}">
+             IsVisible="{Binding Selected}">
         <Image.RenderTransform>
           <TranslateTransform X="0"/>
         </Image.RenderTransform>
         <Image.Triggers>
-          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+          <DataTrigger Binding="{Binding Selected}" Value="True">
             <DataTrigger.EnterActions>
               <BeginStoryboard x:Name="MoveRight_BeginStoryboard" Storyboard="{ThemeResource MoveRight}"/>
             </DataTrigger.EnterActions>
@@ -329,13 +379,13 @@
         </Image.Triggers>
       </Image>
       <Image x:Name="Bling_vertical" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
-             Height="60" Width="4" Grid.Row="0" Grid.Column="0" Source="Bling_vert.png" Margin="0,0,-1,0" 
-             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}">
+             Height="60" Width="4" Grid.Row="0" Grid.Column="0" Source="Bling_vert.png" Margin="0,0,-26,0" 
+             IsVisible="{Binding Selected}">
         <Image.RenderTransform>
           <TranslateTransform Y="0"/>
         </Image.RenderTransform>
         <Image.Triggers>
-          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+          <DataTrigger Binding="{Binding Selected}" Value="True">
             <DataTrigger.EnterActions>
               <BeginStoryboard x:Name="MoveDown_BeginStoryboard" Storyboard="{ThemeResource MoveDown}"/>
             </DataTrigger.EnterActions>
@@ -542,6 +592,99 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource HorizontalTopMenuScrollViewerStyle}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="LoginItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <DockPanel x:Name="ItemGroup" Width="320" Height="350" LastChildFill="False">
+            <Button Style="{ThemeResource LoginButtonWideStyle}" Margin="20,0,5,0" DockPanel.Dock="Top" 
+                    Command="{DynamicResource ResourceKey=Menu_Command}" Height="290"
+                    IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
+                  <Setter TargetName="Fallback" Property="Opacity" Value="1.3"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                  <Trigger.EnterActions>
+                    <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+                  </Trigger.EnterActions>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                  <Trigger.EnterActions>
+                    <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+                  </Trigger.EnterActions>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Label x:Name="ItemLabel" Content="{Binding Name}" DockPanel.Dock="Bottom" TextTrimming="CharacterEllipsis"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,15,0,0" Scroll="None"
+                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource NormalFontSize}"/>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="LoginItemDataTemplate">
+    <DockPanel LastChildFill="False">
+      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+             IsVisible="{Binding Path=Image,Converter={StaticResource ReferenceToBoolConverter}}"
+             Source="{Binding Path=Image}" Width="300" Height="300" Stretch="Uniform" x:Name="ItemControl">
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="4" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+             Source="person.png" IsVisible="{Binding ElementName=ItemControl, Path=!HasImage}"
+             Width="300" Height="300" Stretch="Uniform" x:Name="Fallback">
+      </Image>
+    </DockPanel>
+  </DataTemplate>
+
+  <Style x:Key="LoginListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="0,0,0,0">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource LoginItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource LoginItemContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource HorizontalMediaScrollViewerStyle}"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                         HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />

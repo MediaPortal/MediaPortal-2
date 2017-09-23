@@ -15,7 +15,11 @@
 
   <ResourceWrapper x:Key="MediaItemBackgroundColor1" Resource="#F2166b7a"/>
   <ResourceWrapper x:Key="MediaItemBackgroundColor2" Resource="#F2053c45"/>
-  
+
+  <ResourceWrapper x:Key="InfoScreenGradientColor1" Resource="#00106280"/>
+  <ResourceWrapper x:Key="InfoScreenGradientColor2" Resource="#D9106280"/>
+  <ResourceWrapper x:Key="InfoScreenGradientColor3" Resource="#F2083642"/>
+
   <!-- ************************** Turquoise theme colors ****************************** -->
 
   <ResourceWrapper x:Key="BackgroundGradientLightColor" Resource="#FF505050"/>
@@ -42,8 +46,8 @@
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
-  <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#00000000"/>
-  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF757575"/>
+  <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#FFc1c1c1"/>
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF4b91a0"/>
 
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
 
