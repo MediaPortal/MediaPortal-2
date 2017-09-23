@@ -22,39 +22,18 @@
 
 #endregion
 
-using MP2BootstrapperApp.ViewModels;
+using System.Windows.Controls;
 
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp.Views
 {
-  public class InstallModifyStep : IStep
+  /// <summary>
+  /// Interaction logic for ModifyPageView.xaml
+  /// </summary>
+  public partial class ModifyPageView : UserControl
   {
-    private InstallWizardViewModel _viewModel;
-
-    public InstallModifyStep(InstallWizardViewModel wizardViewModel)
+    public ModifyPageView()
     {
-      _viewModel = wizardViewModel;
-    }
-
-    public void Next(Wizard wizard)
-    {
-      
-
-      throw new System.NotImplementedException();
-    }
-
-    public void Back(Wizard wizard)
-    {
-      throw new System.NotImplementedException();
-    }
-
-    public bool CanGoNext()
-    {
-      throw new System.NotImplementedException();
-    }
-
-    public bool CanGoBack()
-    {
-      throw new System.NotImplementedException();
+      InitializeComponent();
     }
   }
 }

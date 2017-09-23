@@ -3,8 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:MP2BootstrapperApp.Views">
-    <Grid>
-            
+             xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
+             xmlns:conv="clr-namespace:MP2BootstrapperApp">
+  <Grid>
+    <Grid.Resources>
+      <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+    </Grid.Resources>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <RadioButton Grid.Column="0" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Update}}" Content="Update"/>
+    <RadioButton Grid.Column="1" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}" Content="Modify"/>
+    <RadioButton Grid.Column="2" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Repair}}" Content="Repair"/>
+    <RadioButton Grid.Column="3" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}" Content="Uninstall"/>
     </Grid>
 </UserControl>

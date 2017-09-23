@@ -22,21 +22,18 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.ViewModels
+using System.Windows.Controls;
+
+namespace MP2BootstrapperApp.Views
 {
-  public class InstallExistTypePageViewModel : InstallWizardPageViewModelBase
+  /// <summary>
+  /// Interaction logic for UpdatePageView.xaml
+  /// </summary>
+  public partial class UpdatePageView : UserControl
   {
-    private ActionType _actionType = ActionType.Update;
-
-    public InstallExistTypePageViewModel(InstallWizardViewModel viewModel)
+    public UpdatePageView()
     {
-      viewModel.Header = "Exist install page header"; 
-    }
-
-    public ActionType ActionType
-    {
-      get { return _actionType; }
-      set { SetProperty(ref _actionType, value); }
+      InitializeComponent();
     }
   }
 }

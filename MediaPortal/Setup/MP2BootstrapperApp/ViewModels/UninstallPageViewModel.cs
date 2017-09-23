@@ -24,19 +24,12 @@
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallExistTypePageViewModel : InstallWizardPageViewModelBase
+  public class UninstallPageViewModel : InstallWizardPageViewModelBase
   {
-    private ActionType _actionType = ActionType.Update;
-
-    public InstallExistTypePageViewModel(InstallWizardViewModel viewModel)
+    public UninstallPageViewModel(InstallWizardViewModel viewModel)
     {
-      viewModel.Header = "Exist install page header"; 
+      viewModel.Header = "Uninstall page header";
     }
-
-    public ActionType ActionType
-    {
-      get { return _actionType; }
-      set { SetProperty(ref _actionType, value); }
-    }
+    
   }
 }

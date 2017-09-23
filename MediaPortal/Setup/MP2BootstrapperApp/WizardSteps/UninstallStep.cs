@@ -26,50 +26,34 @@ using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallExistInstallStep : IStep
+  public class UninstallStep : IStep
   {
     private InstallWizardViewModel _viewModel;
 
-    public InstallExistInstallStep(InstallWizardViewModel wizardViewModel)
+    public UninstallStep(InstallWizardViewModel wizardViewModel)
     {
       _viewModel = wizardViewModel;
-      _viewModel.CurrentPage = new InstallExistTypePageViewModel(_viewModel);
+      _viewModel.CurrentPage = new UninstallPageViewModel(wizardViewModel);
     }
-
     public void Next(Wizard wizard)
     {
-      InstallExistTypePageViewModel page = _viewModel.CurrentPage as InstallExistTypePageViewModel;
-
-      switch (page?.ActionType)
-      {
-        case ActionType.Update:
-          wizard.Step = new UpdateStep(_viewModel);
-          break;
-        case ActionType.Modify:
-          wizard.Step = new ModifyStep(_viewModel);
-          break;
-        case ActionType.Repair:
-          wizard.Step = new RepairStep(_viewModel);
-          break;
-        case ActionType.Uninstall:
-          wizard.Step = new UninstallStep(_viewModel);
-          break;
-      }
+      throw new System.NotImplementedException();
     }
 
     public void Back(Wizard wizard)
     {
-      // do nothing
+      wizard.Step = new InstallExistInstallStep(_viewModel);
+      _viewModel.CurrentPage = new InstallExistTypePageViewModel(_viewModel);
     }
 
     public bool CanGoNext()
     {
-      return true;
+      return false;
     }
 
     public bool CanGoBack()
     {
-      return false;
+      return true;
     }
   }
 }

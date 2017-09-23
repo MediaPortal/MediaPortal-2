@@ -22,21 +22,13 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp
 {
-  public class InstallExistTypePageViewModel : InstallWizardPageViewModelBase
+  public enum ActionType
   {
-    private ActionType _actionType = ActionType.Update;
-
-    public InstallExistTypePageViewModel(InstallWizardViewModel viewModel)
-    {
-      viewModel.Header = "Exist install page header"; 
-    }
-
-    public ActionType ActionType
-    {
-      get { return _actionType; }
-      set { SetProperty(ref _actionType, value); }
-    }
+    Update,
+    Modify,
+    Repair,
+    Uninstall
   }
 }

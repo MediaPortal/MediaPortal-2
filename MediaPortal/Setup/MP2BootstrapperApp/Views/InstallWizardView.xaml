@@ -39,6 +39,22 @@
       <view:InstallFinishPageView />
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type viewModels:UpdatePageViewModel}">
+      <view:UpdatePageView />
+    </DataTemplate>
+    
+    <DataTemplate DataType="{x:Type viewModels:ModifyPageViewModel}">
+      <view:ModifyPageView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:RepairPageViewModel}">
+      <view:RepairPageView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:UninstallPageViewModel}">
+      <view:UninstallView />
+    </DataTemplate>
+
     <!-- Our style for the ToggleButton -->
     <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
       <!-- Here you can set the initial properties for the control -->
