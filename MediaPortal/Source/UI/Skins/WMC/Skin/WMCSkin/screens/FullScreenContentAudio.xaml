@@ -122,8 +122,8 @@
             </Image.Triggers>
             <Image.Resources>
               <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
-                <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"
-                                  From="0" To="360" Duration="0:0:2" RepeatBehavior="Forever" />
+                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                 From="0" To="360" Duration="0:0:3" RepeatBehavior="Forever" />
               </Storyboard>
             </Image.Resources>
             
@@ -170,10 +170,10 @@
               <StackPanel Orientation="Vertical" Margin="0,0,20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                          DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
 
-                <Label x:Name="Title" FontSize="{ThemeResource SmallFontSize}" Wrap="True" Scroll="Auto" ScrollDelay="0"
+                <Label x:Name="Title" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto" ScrollDelay="0"
                        Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
 
-                <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}" Wrap="True" TextTrimming="WordEllipsis"
+                <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
                        Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

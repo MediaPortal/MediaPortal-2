@@ -99,11 +99,8 @@
                 VerticalAlignment="Bottom" Width="235" Height="235" Margin="0,0,110,30">
               <Image.Resources>
                 <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
-                  <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"
-                                    From="0"
-                                    To="360"
-                                    Duration="0:0:2"
-                                    RepeatBehavior="Forever" />
+                  <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                   From="0" To="360" Duration="0:0:3" RepeatBehavior="Forever" />
                 </Storyboard>
               </Image.Resources>
               <Image.RenderTransform>

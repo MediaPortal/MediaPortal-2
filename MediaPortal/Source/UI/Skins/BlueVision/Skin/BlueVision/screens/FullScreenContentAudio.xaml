@@ -105,7 +105,7 @@
             <Image.Resources>
               <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
                 <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"
-                                  From="0" To="360" Duration="0:0:2" RepeatBehavior="Forever" />
+                                  From="0" To="360" Duration="0:0:3" RepeatBehavior="Forever" />
               </Storyboard>
             </Image.Resources>
             <Image.RenderTransform>
