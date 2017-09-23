@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Reflection;
 
 namespace MP2BootstrapperApp.ChainPackages
@@ -36,7 +37,7 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    internal bool IsInstalled(string regValue)
+    internal bool IsInstalled(string regValue, string executableName)
     {
       string regKey = "SOFTWARE\\Team MediaPortal\\MediaPortal 2";
 
@@ -47,7 +48,7 @@ namespace MP2BootstrapperApp.ChainPackages
       }
 
       Version installerVersion = GetInstallerVersion();
-      return _packageChecker.IsEqualOrHigherVersion(installDir, installerVersion);
+      return _packageChecker.IsEqualOrHigherVersion(Path.Combine(installDir, executableName), installerVersion);
     }
 
     private Version GetInstallerVersion()

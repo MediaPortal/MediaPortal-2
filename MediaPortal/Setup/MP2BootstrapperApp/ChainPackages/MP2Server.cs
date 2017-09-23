@@ -31,8 +31,9 @@ namespace MP2BootstrapperApp.ChainPackages
     public bool IsInstalled()
     {
       string regValue = "INSTALLDIR_SERVER";
+      string serverExe = "MP2-Server.exe";
 
-      return base.IsInstalled(regValue);
+      return base.IsInstalled(regValue, serverExe);
     }
   }
 }

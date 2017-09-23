@@ -31,8 +31,8 @@ namespace MP2BootstrapperApp.ChainPackages
     public bool IsInstalled()
     {
       string regValue = "INSTALLDIR_SERVICE_MONITOR";
-
-      return base.IsInstalled(regValue);
+      string serviceMonitorExe = "MP2-ServiceMonitor.exe";
+      return base.IsInstalled(regValue, serviceMonitorExe);
     }
   }
 }

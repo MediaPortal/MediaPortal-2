@@ -31,8 +31,9 @@ namespace MP2BootstrapperApp.ChainPackages
     public bool IsInstalled()
     {
       string regValue = "INSTALLDIR_CLIENT";
+      string clientExe = "MP2-Client.exe";
 
-      return base.IsInstalled(regValue);
+      return base.IsInstalled(regValue, clientExe);
     }
   }
 }
