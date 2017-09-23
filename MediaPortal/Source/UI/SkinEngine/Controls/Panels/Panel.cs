@@ -40,6 +40,7 @@ using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using MediaPortal.UI.SkinEngine.GUI;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -275,11 +276,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected virtual void RenderChildren(RenderContext localRenderContext)
     {
       foreach (FrameworkElement element in _renderOrder)
-        element.Render(localRenderContext);
+      {
+        if(element.ActualBounds.Bottom > 0 && element.ActualBounds.Top < MainForm.CurrentSize.Height)
+          element.Render(localRenderContext);
+      }
     }
 
     public override void RenderOverride(RenderContext localRenderContext)
     {
+      if (ActualBounds.Bottom < 0 || ActualBounds.Top > MainForm.CurrentSize.Height)
+        return;
+
       UpdateRenderOrder();
 
       PerformLayout(localRenderContext);
@@ -304,8 +311,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
-        RectangleF rect = new RectangleF(ActualPosition.X /*- 0.5f*/, ActualPosition.Y /*- 0.5f*/,
-            actualSize.Width /*+ 0.5f*/, actualSize.Height /*+ 0.5f*/);
+        RectangleF rect = new RectangleF(
+          ActualPosition.X >= 0 ? ActualPosition.X : 0 /*- 0.5f*/, 
+          ActualPosition.Y >= 0 ? ActualPosition.Y : 0 /*- 0.5f*/,
+          actualSize.Width < Screen.SkinWidth ? actualSize.Width : Screen.SkinWidth /*+ 0.5f*/, 
+          actualSize.Height < Screen.SkinHeight ? actualSize.Height : Screen.SkinHeight /*+ 0.5f*/);
 
         PositionColoredTextured[] verts = new PositionColoredTextured[6];
         verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);

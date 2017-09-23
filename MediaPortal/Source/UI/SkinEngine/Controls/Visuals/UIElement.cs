@@ -273,6 +273,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _triggersInitialized = false;
     protected bool _fireLoaded = true;
     protected bool _allocated = false;
+    protected float _lastMouseX = 0;
+    protected float _lastMouseY = 0;
     protected readonly object _renderLock = new object(); // Can be used to synchronize several accesses between render thread and other threads
 
     #endregion
@@ -1971,9 +1973,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </remarks>
     internal virtual void OnMouseMove(float x, float y, ICollection<FocusCandidate> focusCandidates)
     {
+      _lastMouseX = x;
+      _lastMouseY = y;
       foreach (UIElement child in GetChildren())
       {
         if (!child.IsVisible) continue;
+        if (!child.IsInArea(x, y)) continue;
         child.OnMouseMove(x, y, focusCandidates);
       }
     }
@@ -1991,6 +1996,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (UIElement child in GetChildren())
       {
         if (!child.IsVisible) continue;
+        if (!child.IsInArea(_lastMouseX, _lastMouseY)) continue;
         child.OnMouseClick(buttons, ref handled);
       }
     }
@@ -2000,6 +2006,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (UIElement child in GetChildren())
       {
         if (!child.IsVisible) continue;
+        if (!child.IsInArea(touchEventArgs.LocationX, touchEventArgs.LocationY)) continue;
         child.OnTouchDown(touchEventArgs);
       }
     }
@@ -2009,6 +2016,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (UIElement child in GetChildren())
       {
         if (!child.IsVisible) continue;
+        if (!child.IsInArea(touchEventArgs.LocationX, touchEventArgs.LocationY)) continue;
         child.OnTouchUp(touchEventArgs);
       }
     }
@@ -2018,6 +2026,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (UIElement child in GetChildren())
       {
         if (!child.IsVisible) continue;
+        if (!child.IsInArea(touchEventArgs.LocationX, touchEventArgs.LocationY)) continue;
         child.OnTouchMove(touchEventArgs);
       }
     }
@@ -2027,6 +2036,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (UIElement child in GetChildren())
       {
         if (!child.IsVisible) continue;
+        if (!child.IsInArea(touchEventArgs.LocationX, touchEventArgs.LocationY)) continue;
         child.OnTouchEnter(touchEventArgs);
       }
     }
@@ -2036,6 +2046,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (UIElement child in GetChildren())
       {
         if (!child.IsVisible) continue;
+        if (!child.IsInArea(touchEventArgs.LocationX, touchEventArgs.LocationY)) continue;
         child.OnTouchLeave(touchEventArgs);
       }
     }

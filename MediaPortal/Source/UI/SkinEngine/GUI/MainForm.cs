@@ -69,6 +69,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
     /// </summary>
     public static int VIDEO_PLAYER_MAX_WAIT_FOR_RENDER_MS = 10;
 
+    public static Size CurrentSize = new Size();
+
     private const string SCREEN_SAVER_SCREEN = "ScreenSaver";
 
     private bool _renderThreadStopped;
@@ -142,6 +144,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // Store original desktop size
       _screenSize = preferredScreen.Bounds.Size;
       _screenBpp = preferredScreen.BitsPerPixel;
+      CurrentSize = _screenSize;
 
       Size desiredWindowedSize;
       if (appSettings.WindowPosition.HasValue && appSettings.WindowSize.HasValue)
@@ -960,6 +963,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         {
           _screenSize = new Size(screenWidth, screenHeight);
           _screenBpp = bitDepth;
+          CurrentSize = _screenSize;
 
           ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Display changed to {0}x{1}@{2}.", screenWidth, screenHeight, bitDepth);
           SetScreenSize(System.Windows.Forms.Screen.FromControl(this));
