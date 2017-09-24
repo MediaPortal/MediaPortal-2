@@ -58,7 +58,7 @@ namespace MediaPortal.Plugins.RefreshRateChanger
     }
   }
 
-  public class RefreshRateChanger : IDisposable
+  public class RefreshRateChanger : IRefreshRateChanger, IDisposable
   {
     protected bool _rateChanged;
     private readonly uint _displayIndex;
@@ -125,10 +125,10 @@ namespace MediaPortal.Plugins.RefreshRateChanger
       return refreshRate;
     }
 
-    public bool SetRefreshRate(double refreshRate)
+    public void SetRefreshRate(double refreshRate)
     {
       if (!_initialized)
-        return false;
+        return;
 
       // Set proper numerator and denominator for refresh rate
       UInt32 newRefreshRate = (uint)(refreshRate * 1000);
@@ -210,12 +210,11 @@ namespace MediaPortal.Plugins.RefreshRateChanger
       if (result != 0)
       {
         ServiceRegistration.Get<ILogger>().Warn("RefreshRateChanger.SetDisplayConfig(...): SDC_APPLY returned {0}", result);
-        return false;
+        return;
       }
       ServiceRegistration.Get<ILogger>().Debug("RefreshRateChanger.SetDisplayConfig(...): Successfully switched to {0}/{1}", numerator, denominator);
       Windows7DwmFix.FixDwm();
       _rateChanged = true;
-      return true;
     }
 
     #endregion

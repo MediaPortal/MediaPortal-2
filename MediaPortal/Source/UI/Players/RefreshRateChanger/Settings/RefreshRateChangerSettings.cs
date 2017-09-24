@@ -63,5 +63,11 @@ namespace MediaPortal.Plugins.RefreshRateChanger.Settings
     /// </summary>
     [Setting(SettingScope.User)]
     public SerializableDictionary<int, int> RateMappings { get; set; }
+
+    /// <summary>
+    /// Enables an alternative way to change the refresh rate.
+    /// </summary>
+    [Setting(SettingScope.User, false)]
+    public bool ActivateAlternative { get; set; }
   }
 }

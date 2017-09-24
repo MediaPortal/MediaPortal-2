@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -35,12 +36,13 @@ using MediaPortal.Plugins.RefreshRateChanger.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.RefreshRateChanger
 {
   public class VideoFpsWatcher : IPluginStateTracker, IDisposable
   {
-    protected RefreshRateChanger _refreshRateChanger;
+    protected IRefreshRateChanger _refreshRateChanger;
     protected Timer _timer;
     protected object _syncObj = new object();
     protected bool _isEnabled;
@@ -81,7 +83,15 @@ namespace MediaPortal.Plugins.RefreshRateChanger
           return;
         }
 
-        _refreshRateChanger = new TemporaryRefreshRateChanger(GetScreenNum(), _settings.Settings.ForceVSync);
+        if (_settings.Settings.ActivateAlternative)
+        {
+          _refreshRateChanger = new AlternativeRefreshRateChanger(GetScreenNum());
+        }
+        else
+        {
+          _refreshRateChanger = new TemporaryRefreshRateChanger(GetScreenNum(), true);
+        }
+        
         var fps = TranslateFps(mappedIntFps);
 
         var currentRefreshRate = _refreshRateChanger.GetRefreshRate();
