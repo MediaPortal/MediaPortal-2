@@ -45,6 +45,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Settings\Configuration\ForceVSync.cs" />
     <Compile Include="Settings\Configuration\RateMappings.cs" />
     <Compile Include="Windows7DwmFix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

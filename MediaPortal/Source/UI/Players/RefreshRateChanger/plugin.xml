@@ -56,6 +56,12 @@
       ClassName="MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration.IsEnabled"/>
 
     <ConfigSetting
+      Id="ForceVSync"
+      Text="[RefreshRateChanger.ForceVSync]"
+      HelpText="[RefreshRateChanger.ForceVSync.Help]"
+      ClassName="MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration.ForceVSync"/>
+
+    <ConfigSetting
       Id="NoChangeForRate"
       Text="[RefreshRateChanger.RateMappings]"
       HelpText="[RefreshRateChanger.RateMappings.Help]"

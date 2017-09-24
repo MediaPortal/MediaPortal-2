@@ -81,7 +81,7 @@ namespace MediaPortal.Plugins.RefreshRateChanger
           return;
         }
 
-        _refreshRateChanger = new TemporaryRefreshRateChanger(GetScreenNum(), true);
+        _refreshRateChanger = new TemporaryRefreshRateChanger(GetScreenNum(), _settings.Settings.ForceVSync);
         var fps = TranslateFps(mappedIntFps);
 
         var currentRefreshRate = _refreshRateChanger.GetRefreshRate();

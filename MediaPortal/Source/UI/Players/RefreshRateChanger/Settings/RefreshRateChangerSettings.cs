@@ -53,6 +53,12 @@ namespace MediaPortal.Plugins.RefreshRateChanger.Settings
     public bool IsEnabled { get; set; }
 
     /// <summary>
+    /// Force the "VSync" render strategy after switching the refresh rate. On some setups and media types this might lead to audio/video running async.
+    /// </summary>
+    [Setting(SettingScope.User, false)]
+    public bool ForceVSync { get; set; }
+
+    /// <summary>
     /// Contains a custom mapping of refresh rates. This can be used to override the default mappings.
     /// </summary>
     [Setting(SettingScope.User)]

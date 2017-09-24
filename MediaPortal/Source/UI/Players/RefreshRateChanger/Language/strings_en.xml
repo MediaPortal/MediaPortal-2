@@ -2,6 +2,8 @@
 <resources>
   <string name="RefreshRateChanger.IsEnabled">Enable refresh rate change</string>
   <string name="RefreshRateChanger.IsEnabled.Help">If enabled the screen refresh rate is tried to be changed to match video fps.</string>
+  <string name="RefreshRateChanger.ForceVSync">Force VSync on refresh rate change</string>
+  <string name="RefreshRateChanger.ForceVSync.Help">If enabled the render mode will be forced to VSync. Usually this is not needed and could even cause audio/video drifting.</string>
   <string name="RefreshRateChanger.NoChangeForRate">Exclude refresh rates</string>
   <string name="RefreshRateChanger.NoChangeForRate.Help">Exclude list of refresh rates from changes. Enter values as integers separated by commas (i.e. 23,25,50).</string>
   <string name="RefreshRateChanger.RateMappings">Refresh rate mappings</string>
