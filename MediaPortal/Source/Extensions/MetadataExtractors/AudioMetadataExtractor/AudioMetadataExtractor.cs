@@ -752,7 +752,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         trackInfo.SetMetadata(extractedAspectData);
 
-        if (importOnly)
+        if (importOnly && !forceQuickMode)
         {
           //Store metadata for the Relationship Extractors
           if (IncludeArtistDetails)
