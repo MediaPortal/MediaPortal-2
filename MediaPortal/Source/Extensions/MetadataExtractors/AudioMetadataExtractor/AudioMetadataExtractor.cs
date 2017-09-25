@@ -699,12 +699,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
             var artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
 
-            if (IsDiscFolder(trackInfo.Album, albumMediaItemDirectoryPath.FileName))
+            if (albumMediaItemDirectoryPath.FileName != null && 
+              IsDiscFolder(trackInfo.Album, albumMediaItemDirectoryPath.FileName))
             {
               //Probably a CD folder so try next parent
               artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../../");
             }
-            if (artistMediaItemDirectoryPath.FileName.IndexOf("Compilation", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            if (artistMediaItemDirectoryPath.FileName != null && 
+              artistMediaItemDirectoryPath.FileName.IndexOf("Compilation", StringComparison.InvariantCultureIgnoreCase) >= 0)
             {
               trackInfo.Compilation = true;
             }
