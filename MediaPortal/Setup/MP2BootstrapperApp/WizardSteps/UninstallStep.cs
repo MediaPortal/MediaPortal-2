@@ -33,7 +33,6 @@ namespace MP2BootstrapperApp.WizardSteps
     public UninstallStep(InstallWizardViewModel wizardViewModel)
     {
       _viewModel = wizardViewModel;
-      _viewModel.CurrentPage = new UninstallPageViewModel(wizardViewModel);
     }
     public void Next(Wizard wizard)
     {

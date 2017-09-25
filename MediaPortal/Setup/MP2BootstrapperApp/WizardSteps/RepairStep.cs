@@ -33,7 +33,6 @@ namespace MP2BootstrapperApp.WizardSteps
     public RepairStep(InstallWizardViewModel wizardViewModel)
     {
       _viewModel = wizardViewModel;
-      _viewModel.CurrentPage = new RepairPageViewModel(wizardViewModel);
     }
 
     public void Next(Wizard wizard)

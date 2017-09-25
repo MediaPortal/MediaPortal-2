@@ -185,6 +185,7 @@ namespace MP2BootstrapperApp.ViewModels
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
       _wizard.Step = new InstallExistInstallStep(this);
+      CurrentPage = new InstallExistTypePageViewModel(this);
     }
 
     protected void PlanComplete(object sender, PlanCompleteEventArgs e)

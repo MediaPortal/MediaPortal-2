@@ -33,11 +33,10 @@ namespace MP2BootstrapperApp.WizardSteps
     public UpdateStep(InstallWizardViewModel wizardViewModel)
     {
       _viewModel = wizardViewModel;
-      _viewModel.CurrentPage = new UpdatePageViewModel(wizardViewModel);
     }
     public void Next(Wizard wizard)
     {
-      throw new System.NotImplementedException();
+      
     }
 
     public void Back(Wizard wizard)

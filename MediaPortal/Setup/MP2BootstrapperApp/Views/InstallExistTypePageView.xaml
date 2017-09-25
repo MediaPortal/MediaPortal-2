@@ -18,9 +18,9 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
-    <RadioButton Grid.Column="0" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Update}}" Content="Update"/>
-    <RadioButton Grid.Column="1" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}" Content="Modify"/>
-    <RadioButton Grid.Column="2" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Repair}}" Content="Repair"/>
-    <RadioButton Grid.Column="3" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}" Content="Uninstall"/>
+    <RadioButton Grid.Column="0" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Update}}" Content="Update" Foreground="BlueViolet" FontSize="34"/>
+    <RadioButton Grid.Column="1" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}" Content="Modify" Foreground="BlueViolet" FontSize="34"/>
+    <RadioButton Grid.Column="2" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Repair}}" Content="Repair" Foreground="BlueViolet" FontSize="34"/>
+    <RadioButton Grid.Column="3" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}" Content="Uninstall" Foreground="BlueViolet" FontSize="34"/>
     </Grid>
 </UserControl>

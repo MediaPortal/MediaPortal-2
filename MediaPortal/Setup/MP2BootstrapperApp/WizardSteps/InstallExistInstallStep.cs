@@ -33,7 +33,6 @@ namespace MP2BootstrapperApp.WizardSteps
     public InstallExistInstallStep(InstallWizardViewModel wizardViewModel)
     {
       _viewModel = wizardViewModel;
-      _viewModel.CurrentPage = new InstallExistTypePageViewModel(_viewModel);
     }
 
     public void Next(Wizard wizard)
@@ -44,15 +43,19 @@ namespace MP2BootstrapperApp.WizardSteps
       {
         case ActionType.Update:
           wizard.Step = new UpdateStep(_viewModel);
+          _viewModel.CurrentPage = new UpdatePageViewModel(_viewModel);
           break;
         case ActionType.Modify:
           wizard.Step = new ModifyStep(_viewModel);
+          _viewModel.CurrentPage = new ModifyPageViewModel(_viewModel);
           break;
         case ActionType.Repair:
           wizard.Step = new RepairStep(_viewModel);
+          _viewModel.CurrentPage = new RepairPageViewModel(_viewModel);
           break;
         case ActionType.Uninstall:
           wizard.Step = new UninstallStep(_viewModel);
+          _viewModel.CurrentPage = new UninstallPageViewModel(_viewModel);
           break;
       }
     }
