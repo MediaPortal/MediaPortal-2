@@ -135,6 +135,7 @@
     <Compile Include="Models\ScreenData\RecordingFilterByNameScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsShowItemsScreenData.cs" />
     <Compile Include="Models\SlimTvManualScheduleModel.cs" />
+    <Compile Include="Models\SlimTvNotificationModel.cs" />
     <Compile Include="Models\SlimTvProgramSearchModel.cs" />
     <Compile Include="Models\SlimTvGuideExtScheduleModel.cs" />
     <Compile Include="Models\SlimTvModelBase.cs" />
@@ -143,12 +144,19 @@
     <Compile Include="Models\SlimTvScheduleManagement.cs" />
     <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
     <Compile Include="Models\Sorting\SortByRecordingDateDesc.cs" />
+    <Compile Include="Notifications\ISlimTvNotification.cs" />
+    <Compile Include="Notifications\ISlimTvNotificationService.cs" />
+    <Compile Include="Notifications\SlimTvNotificationService.cs" />
+    <Compile Include="Notifications\SlimTvRecordingNotification.cs" />
     <Compile Include="Player\LiveRadioPlayer.cs" />
     <Compile Include="Player\WTVPlayer.cs" />
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SlimTvClientModel.cs" />
     <Compile Include="Settings\Configuration\ChannelLogoStyle.cs" />
+    <Compile Include="Settings\Configuration\RecordingNotificationDuration.cs" />
+    <Compile Include="Settings\Configuration\ShowRecordingFinishedNotifications.cs" />
+    <Compile Include="Settings\Configuration\ShowRecordingStartedNotifications.cs" />
     <Compile Include="Settings\Configuration\ZapFromGuide.cs" />
     <Compile Include="Settings\Configuration\EpgVisibleChannelInfoSetting.cs" />
     <Compile Include="Settings\Configuration\ZapByChannelIndex.cs" />
@@ -563,6 +571,26 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\SlimTvClient-manualschedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-notification_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-notification_recording.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\superlayers\RecordingStartedNotification.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\superlayers\RecordingFinishedNotification.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
