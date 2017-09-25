@@ -52,6 +52,8 @@ namespace MediaPortal.UI.Services.RemovableMedia
     protected bool _enabled = false;
     protected IEnumerable<char> _knownDrives = null;
     protected DelayedEvent _checkDrivesTimer = null;
+    protected IList<char> _arrivedDrives = new List<char>();
+    protected IList<char> _removedDrives = new List<char>();
 
     #endregion
 
@@ -136,16 +138,40 @@ namespace MediaPortal.UI.Services.RemovableMedia
       if (msg.Msg == WM_DEVICECHANGE)
       {
         DeviceEvent evt = (DeviceEvent) msg.WParam.ToInt32();
-        if (evt == DeviceEvent.Arrival || evt == DeviceEvent.RemoveComplete || evt == DeviceEvent.DeviceNodeChanged)
+        if (evt == DeviceEvent.Arrival || evt == DeviceEvent.RemoveComplete)
         {
+          BroadcastHeader broadcastHeader = (BroadcastHeader)Marshal.PtrToStructure(msg.LParam, typeof(BroadcastHeader));
+          if (broadcastHeader.Type == DeviceType.Volume)
+          {
+            Volume volume = (Volume)Marshal.PtrToStructure(msg.LParam, typeof(Volume));
+            if ((volume.Flags & (int)VolumeFlags.Media) != 0)
+            {
+              foreach (char drive in DeviceVolumeMonitor.MaskToDrives(volume.Mask).Select(d => d[0]))
+              {
+                if (evt == DeviceEvent.Arrival)
+                {
+                  //Force media inserted event because the drive might already exist but was just mounted (DVD, CD etc.)
+                  if (!_arrivedDrives.Contains(drive))
+                    _arrivedDrives.Add(drive);
+                }
+                else if (evt == DeviceEvent.RemoveComplete)
+                {
+                  //Force media removed event because the drive might already exist but was just unmounted (DVD, CD etc.)
+                  if (!_removedDrives.Contains(drive))
+                    _removedDrives.Add(drive);
+                }
+              }
+              //The Arrival and RemoveComplete events might be accompanied by DeviceNodeChanged events so have a delay to filter them out
+              //Also the known drives list needs to be updated which is handled by the delayed event
+              _checkDrivesTimer.EnqueueEvent(null, EventArgs.Empty);
+            }
+          }
+        }
+        else if (evt == DeviceEvent.DeviceNodeChanged)
+        {
+          //A removal of a drive might cause multiple DeviceNodeChanged events so use a delay to filter them out
+          //Also the drive is not yet mounted when receiving this event so delay the event trigger
           _checkDrivesTimer.EnqueueEvent(null, EventArgs.Empty);
-          //BroadcastHeader broadcastHeader = (BroadcastHeader) Marshal.PtrToStructure(msg.LParam, typeof(BroadcastHeader));
-          //if (broadcastHeader.Type == DeviceType.Volume)
-          //{
-          //  //Volume volume = (Volume) Marshal.PtrToStructure(msg.LParam, typeof(Volume));
-          //  //if ((volume.Flags & (int) VolumeFlags.Media) != 0)
-          //  //  _monitor.TriggerEvents(evt == DeviceEvent.Arrival, volume.Mask);
-          //}
         }
       }
     }
@@ -155,7 +181,13 @@ namespace MediaPortal.UI.Services.RemovableMedia
       IEnumerable<char> currentDrives = GetCurrentDriveLetters();
       int removedMask = DrivesToMask(_knownDrives.Except(currentDrives));
       int addedMask = DrivesToMask(currentDrives.Except(_knownDrives));
+      removedMask |= DrivesToMask(_removedDrives);
+      addedMask |= DrivesToMask(_arrivedDrives);
+
+      _removedDrives.Clear();
+      _arrivedDrives.Clear();
       _knownDrives = currentDrives;
+
       if (removedMask > 0)
         _monitor.TriggerEvents(false, removedMask);
       if (addedMask > 0)
