@@ -33,17 +33,25 @@ using System.Xml.Serialization;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
-  [KnownType(typeof(Schedule))]
-  public class ScheduleList : List<ISchedule>
-  {
-    public ScheduleList() { }
-    public ScheduleList(IEnumerable<ISchedule> collection)
-      : base(collection)
-    { }
-  }
-
+  /// <summary>
+  /// Class used to notify connected clients of the current state of the TV server.
+  /// This class must be serializable by the XmlSerializer.
+  /// </summary>
   public class TvServerState : IXmlSerializable
   {
+    #region Internal classes
+
+    [KnownType(typeof(Schedule))]
+    public class ScheduleList : List<ISchedule>
+    {
+      public ScheduleList() { }
+      public ScheduleList(IEnumerable<ISchedule> collection)
+        : base(collection)
+      { }
+    }
+
+    #endregion
+
     public static readonly Guid STATE_ID = new Guid("2A58935C-3363-4FA1-B48D-1EF0E81F830D");
 
     protected bool _isRecording = false;
@@ -60,6 +68,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
       get { return _currentlyRecordingSchedules; }
       set { _currentlyRecordingSchedules = new ScheduleList(value); }
     }
+
+    #region XML serialization
 
     XmlSchema IXmlSerializable.GetSchema()
     {
@@ -79,5 +89,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
       _isRecording.SerializeXml(writer);
       _currentlyRecordingSchedules.SerializeXml(writer);
     }
+
+    #endregion
   }
 }
