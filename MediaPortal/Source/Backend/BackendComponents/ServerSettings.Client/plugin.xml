@@ -85,6 +85,10 @@
         Redundant="true"
         Text="[Settings.ServerSettings.AudioMDESettings]"/>
     <ConfigSection
+        Id="VideoMDESettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.VideoMDESettings]"/>
+    <ConfigSection
         Id="MovieMDESettings"
         Redundant="true"
         Text="[Settings.ServerSettings.MovieMDESettings]"/>
@@ -133,6 +137,15 @@
         Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter]"
         HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEFilter"/>
+  </Register>
+
+  <!-- Video importer settings -->
+  <Register Location="/Configuration/Settings/Media/VideoMDESettings">
+    <ConfigSetting
+        Id="ServerVideoMDEBrowseOffline"
+        Text="[Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline]"
+        HelpText="[Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerVideoMDEBrowseOffline"/>
   </Register>
 
   <!-- Movie importer settings -->

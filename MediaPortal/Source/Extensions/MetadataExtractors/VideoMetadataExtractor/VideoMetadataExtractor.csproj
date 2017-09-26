@@ -44,6 +44,8 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="taglib-sharp, Version=2.1.0.3, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
@@ -57,6 +59,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="FanArtHandlers\VideoFanArtHandler.cs" />
     <Compile Include="VideoMetadataExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\VideoMetadataExtractorSettings.cs" />
@@ -72,6 +75,10 @@
       <Name>MediaPortal.Utilities</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+      <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>
+      <Name>FanArtService.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MatroskaLib\MatroskaLib.csproj">
       <Project>{0DCFE91A-60DE-42BF-A5F9-A925AA45ECD4}</Project>
       <Name>MatroskaLib</Name>
@@ -86,7 +93,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="plugin.xml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
