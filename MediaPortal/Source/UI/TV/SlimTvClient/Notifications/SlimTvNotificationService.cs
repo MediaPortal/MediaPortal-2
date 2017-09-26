@@ -125,21 +125,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Notifications
       var sm = ServiceRegistration.Get<ISettingsManager>();
       var settings = sm.Load<SlimTvClientSettings>();
       if (settings.RecordingNotificationDuration < 1 ||
-        (!settings.ShowRecordingStartedNotifications && !settings.ShowRecordingFinishedNotifications))
+        (!settings.ShowRecordingStartedNotifications && !settings.ShowRecordingEndedNotifications))
         return;
             
       IEnumerable<ISchedule> startedSchedules;
-      IEnumerable<ISchedule> finishedSchedules;
-      GetChangedSchedules(oldState, newState, out startedSchedules, out finishedSchedules);
+      IEnumerable<ISchedule> endedSchedules;
+      GetChangedSchedules(oldState, newState, out startedSchedules, out endedSchedules);
 
       TimeSpan duration = TimeSpan.FromSeconds(settings.RecordingNotificationDuration);
       if (settings.ShowRecordingStartedNotifications)
         foreach (ISchedule schedule in startedSchedules)
           ShowRecordingStartedNotification(schedule, duration);
 
-      if (settings.ShowRecordingFinishedNotifications)
-        foreach (ISchedule schedule in finishedSchedules)
-          ShowRecordingFinishedNotification(schedule, duration);
+      if (settings.ShowRecordingEndedNotifications)
+        foreach (ISchedule schedule in endedSchedules)
+          ShowRecordingEndedNotification(schedule, duration);
     }
 
     protected void ShowRecordingStartedNotification(ISchedule schedule, TimeSpan duration)
@@ -147,12 +147,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Notifications
       ShowNotification(new SlimTvRecordingStartedNotification(schedule, GetChannel(schedule.ChannelId)), duration);
     }
 
-    protected void ShowRecordingFinishedNotification(ISchedule schedule, TimeSpan duration)
+    protected void ShowRecordingEndedNotification(ISchedule schedule, TimeSpan duration)
     {
-      ShowNotification(new SlimTvRecordingFinishedNotification(schedule, GetChannel(schedule.ChannelId)), duration);
+      ShowNotification(new SlimTvRecordingEndedNotification(schedule, GetChannel(schedule.ChannelId)), duration);
     }
 
-    protected void GetChangedSchedules(TvServerState oldState, TvServerState newState, out IEnumerable<ISchedule> started, out IEnumerable<ISchedule> finished)
+    protected void GetChangedSchedules(TvServerState oldState, TvServerState newState, out IEnumerable<ISchedule> started, out IEnumerable<ISchedule> ended)
     {
       IList<ISchedule> oldSchedules = oldState != null && oldState.CurrentlyRecordingSchedules != null ?
         oldState.CurrentlyRecordingSchedules : new List<ISchedule>();
@@ -160,7 +160,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Notifications
         newState.CurrentlyRecordingSchedules : new List<ISchedule>();
 
       started = newSchedules.Where(s => !oldSchedules.Any(os => os.ScheduleId == s.ScheduleId));
-      finished = oldSchedules.Where(s => !newSchedules.Any(ns => ns.ScheduleId == s.ScheduleId));
+      ended = oldSchedules.Where(s => !newSchedules.Any(ns => ns.ScheduleId == s.ScheduleId));
     }
 
     protected IChannel GetChannel(int channelId)

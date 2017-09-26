@@ -97,16 +97,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     public bool HideAllChannelsGroup { get; set; }
 
     /// <summary>
-    /// If set to <c>true</c>, a notification will be shown when a recording is started.
+    /// If set to <c>true</c>, a notification will be shown when a recording has started.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = true)]
     public bool ShowRecordingStartedNotifications { get; set; }
 
     /// <summary>
-    /// If set to <c>true</c>, a notification will be shown when a recording is finished.
+    /// If set to <c>true</c>, a notification will be shown when a recording has ended.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = true)]
-    public bool ShowRecordingFinishedNotifications { get; set; }
+    public bool ShowRecordingEndedNotifications { get; set; }
 
     /// <summary>
     /// The time in seconds to show recording notifications.

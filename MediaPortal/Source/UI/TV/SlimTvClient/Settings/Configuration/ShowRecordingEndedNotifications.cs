@@ -26,17 +26,17 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
-  public class ShowRecordingFinishedNotifications : YesNo
+  public class ShowRecordingEndedNotifications : YesNo
   {
     public override void Load()
     {
-      Yes = SettingsManager.Load<SlimTvClientSettings>().ShowRecordingFinishedNotifications;
+      Yes = SettingsManager.Load<SlimTvClientSettings>().ShowRecordingEndedNotifications;
     }
 
     public override void Save()
     {
       SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
-      settings.ShowRecordingFinishedNotifications = Yes;
+      settings.ShowRecordingEndedNotifications = Yes;
       SettingsManager.Save(settings);
     }
   }

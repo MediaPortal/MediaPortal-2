@@ -155,7 +155,7 @@
     <Compile Include="Models\SlimTvClientModel.cs" />
     <Compile Include="Settings\Configuration\ChannelLogoStyle.cs" />
     <Compile Include="Settings\Configuration\RecordingNotificationDuration.cs" />
-    <Compile Include="Settings\Configuration\ShowRecordingFinishedNotifications.cs" />
+    <Compile Include="Settings\Configuration\ShowRecordingEndedNotifications.cs" />
     <Compile Include="Settings\Configuration\ShowRecordingStartedNotifications.cs" />
     <Compile Include="Settings\Configuration\ZapFromGuide.cs" />
     <Compile Include="Settings\Configuration\EpgVisibleChannelInfoSetting.cs" />
@@ -590,7 +590,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\superlayers\RecordingFinishedNotification.xaml">
+    <Content Include="Skin\default\superlayers\RecordingEndedNotification.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

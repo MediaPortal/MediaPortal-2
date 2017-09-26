@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  Recording finished notification.
+  Recording ended notification.
 -->
 
 <Include
@@ -10,7 +10,7 @@
       Source="screens\SlimTvClient-notification_recording.xaml">
   <Include.Resources>
 
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.RecordingFinishedHeader]" />
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.RecordingEndedHeader]" />
 
   </Include.Resources>
 </Include>

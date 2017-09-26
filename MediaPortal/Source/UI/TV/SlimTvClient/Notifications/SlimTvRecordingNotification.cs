@@ -76,13 +76,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Notifications
   }
 
   /// <summary>
-  /// Tv notification for a recording finished notification. 
+  /// Tv notification for a recording ended notification. 
   /// </summary>
-  public class SlimTvRecordingFinishedNotification : SlimTvRecordingNotificationBase
+  public class SlimTvRecordingEndedNotification : SlimTvRecordingNotificationBase
   {
-    public const string SUPER_LAYER_SCREEN = "RecordingFinishedNotification";
+    public const string SUPER_LAYER_SCREEN = "RecordingEndedNotification";
 
-    public SlimTvRecordingFinishedNotification(ISchedule schedule, IChannel channel)
+    public SlimTvRecordingEndedNotification(ISchedule schedule, IChannel channel)
       : base(schedule, channel)
     {
     }

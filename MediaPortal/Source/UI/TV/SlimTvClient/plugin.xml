@@ -215,10 +215,10 @@
         HelpText="[SlimTvClient.ShowRecordingStartedNotifications.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ShowRecordingStartedNotifications"/>
     <ConfigSetting
-        Id="ShowRecordingFinishedNotifications"
-        Text="[SlimTvClient.ShowRecordingFinishedNotifications]"
-        HelpText="[SlimTvClient.ShowRecordingFinishedNotifications.Help]"
-        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ShowRecordingFinishedNotifications"/>
+        Id="ShowRecordingEndedNotifications"
+        Text="[SlimTvClient.ShowRecordingEndedNotifications]"
+        HelpText="[SlimTvClient.ShowRecordingEndedNotifications.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ShowRecordingEndedNotifications"/>
     <ConfigSetting
         Id="RecordingNotificationDuration"
         Text="[SlimTvClient.RecordingNotificationDuration]"

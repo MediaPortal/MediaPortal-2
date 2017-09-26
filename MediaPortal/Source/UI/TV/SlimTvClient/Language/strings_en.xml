@@ -108,8 +108,8 @@
   <string name="SlimTvClient.Notifications">Notifications</string>
   <string name="SlimTvClient.ShowRecordingStartedNotifications">Show recording started notifications</string>
   <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Whether to show a notification when a recording has started.</string>
-  <string name="SlimTvClient.ShowRecordingFinishedNotifications">Show recording finished notifications</string>
-  <string name="SlimTvClient.ShowRecordingFinishedNotifications.Help">Whether to show a notification when a recording has finished.</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications">Show recording ended notifications</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Whether to show a notification when a recording has ended.</string>
 
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.Recordings.Help">Here you can find a list of your recorded programs for playback.</string>
@@ -122,5 +122,5 @@
   <string name="SlimTvClient.RecordingsByNameHeader">Recordings by name</string>
   
   <string name="SlimTvClient.RecordingStartedHeader">Recording started</string>
-  <string name="SlimTvClient.RecordingFinishedHeader">Recording finished</string>
+  <string name="SlimTvClient.RecordingEndedHeader">Recording ended</string>
 </resources>
