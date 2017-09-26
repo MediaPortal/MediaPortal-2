@@ -32,7 +32,6 @@ using MediaPortal.Common.ResourceAccess;
 using System.IO;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using System.Linq;
 using MediaPortal.Common.PathManager;
 using System.Drawing;
@@ -215,80 +214,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return;
 
       ExtractFolderImages(mediaItemLocater, episodeMediaItemId, seriesMediaItemId, seasonMediaItemId, episode, series, season, actorMediaItems);
-      using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
-      {
-        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-        {
-          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-          {
-            ExtractMkvImages(rah.LocalFsResourceAccessor, seriesMediaItemId, series);
-          }
-        }
-      }
-    }
-
-    private void ExtractMkvImages(ILocalFsResourceAccessor lfsra, Guid? seriesMediaItemId, SeriesInfo series)
-    {
-      if (!seriesMediaItemId.HasValue)
-        return;
-
-      string mediaItemId = seriesMediaItemId.Value.ToString().ToUpperInvariant();
-      string fileSystemPath = string.Empty;
-      IDictionary<string, string> patterns = new Dictionary<string, string>()
-      {
-        { "banner.", FanArtTypes.Banner },
-        { "clearart.", FanArtTypes.ClearArt },
-        { "cover.", FanArtTypes.Cover },
-        { "poster.", FanArtTypes.Poster },
-        { "folder.", FanArtTypes.Poster },
-        { "backdrop.", FanArtTypes.FanArt },
-        { "fanart.", FanArtTypes.FanArt },
-      };
-
-      // File based access
-      try
-      {
-        if (lfsra != null)
-        {
-          fileSystemPath = lfsra.LocalFileSystemPath;
-          var ext = ResourcePathHelper.GetExtension(lfsra.LocalFileSystemPath);
-          if (!MKV_EXTENSIONS.Contains(ext))
-            return;
-
-          MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
-          foreach (string pattern in patterns.Keys)
-          {
-            byte[] binaryData;
-            if (mkvReader.GetAttachmentByName(pattern, out binaryData))
-            {
-              string fanArtType = patterns[pattern];
-              using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanArtType))
-              {
-                if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
-                  return;
-
-                FanArtCache.InitFanArtCache(mediaItemId, series.ToString());
-                string cacheFile = GetCacheFileName(mediaItemId, fanArtType, "File." + pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
-                if (!File.Exists(cacheFile))
-                {
-                  using (MemoryStream ms = new MemoryStream(binaryData))
-                  {
-                    using (Image img = Image.FromStream(ms, true, true))
-                    {
-                      img.Save(cacheFile, System.Drawing.Imaging.ImageFormat.Jpeg);
-                      countLock.Count++;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Warn("SeriesFanArtHandler: Exception while reading mkv attachments from '{0}'", ex, fileSystemPath);
-      }
     }
 
     private void ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? episodeMediaItemId, Guid? seriesMediaItemId, Guid? seasonMediaItemId, EpisodeInfo episode, SeriesInfo series, SeasonInfo season, IDictionary<Guid, string> actorMediaItems)
@@ -525,6 +450,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
 
           //Episode fanart
+          //Also saved by the video MDE but saved here again in case of the offline option being different
           var thumbPaths = new List<ResourcePath>();
           if (episodeMediaItemId.HasValue)
           {
@@ -621,7 +547,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public void DeleteFanArt(Guid mediaItemId)
     {
       _checkCache.Remove(mediaItemId);
-      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+      //Deletion handled by video MDE
     }
 
     public void ClearCache()
