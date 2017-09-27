@@ -68,6 +68,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       }
       _audioCDSubViewSpecification = new StaticViewSpecification(
           volumeLabel + " (" + DriveUtils.GetDriveNameWithoutRootDirectory(driveInfo) + ")", new Guid[] {}, new Guid[] {});
+      MatchWithStubs(driveInfo, tracks);
       foreach (MediaItem track in tracks)
         _audioCDSubViewSpecification.AddMediaItem(track);
     }
@@ -134,7 +135,6 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
             }
           }
           BassCd.BASS_CD_Release(driveId);
-          MatchWithStubs(driveInfo, tracks);
         }
         else
         {
