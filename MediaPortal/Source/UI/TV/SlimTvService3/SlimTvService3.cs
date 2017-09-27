@@ -251,7 +251,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected void UpdateServerState()
     {
-      IList<ISchedule> currentlyRecordingSchedules = Recording.ListAll().Where(r => r.IsRecording)
+      IList<ISchedule> currentlyRecordingSchedules = Recording.ListAllActive().Where(r => r.IsRecording)
         .Select(r => r.ReferencedSchedule().ToSchedule()).ToList();
 
       TvServerState state = new TvServerState
