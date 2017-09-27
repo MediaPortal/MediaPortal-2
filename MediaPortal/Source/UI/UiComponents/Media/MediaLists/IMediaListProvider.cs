@@ -22,11 +22,21 @@
 
 #endregion
 
-using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
+using System;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
+  [Flags]
+  public enum UpdateReason
+  {
+    None = 0,
+    Forced = 1,
+    PeriodicMinute = 2,
+    ImportComplete = 4,
+    PlaybackComplete = 8
+  }
+
   public interface IMediaListProvider
   {
     /// <summary>
@@ -38,6 +48,6 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     /// Update the list
     /// </summary>
     /// <returns></returns>
-    bool UpdateItems(int maxItems);
+    bool UpdateItems(int maxItems, UpdateReason updateReason);
   }
 }

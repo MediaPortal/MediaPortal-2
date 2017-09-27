@@ -39,52 +39,21 @@ using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public abstract class BaseLastWatchedMediaListProvider : IMediaListProvider
+  public abstract class BaseLastWatchedMediaListProvider : BaseMediaListProvider
   {
-    public delegate PlayableMediaItem MediaItemToListItemAction(MediaItem mediaItem);
-
-    protected Guid[] _necessaryMias;
-    protected MediaItemToListItemAction _converterAction;
-
-    public BaseLastWatchedMediaListProvider()
+    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
-      AllItems = new ItemsList();
-    }
-
-    public ItemsList AllItems { get; private set; }
-
-    public bool UpdateItems(int maxItems)
-    {
-      var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      if (contentDirectory == null)
-        return false;
-
-      Guid? userProfile = null;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
+        (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
       {
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-      }
-      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMias);
-
-      MediaItemQuery query = new MediaItemQuery(_necessaryMias, null)
-      {
-        Filter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)) : null,
-        Limit = (uint)maxItems, // Last 5 imported items
-        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
-      };
-
-      var items = contentDirectory.Search(query, false, userProfile, showVirtual);
-      if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
-      {
-        AllItems.Clear();
-        foreach (MediaItem mediaItem in items)
+        Guid? userProfile = CurrentUserProfile?.ProfileId;
+        _mediaQuery = new MediaItemQuery(_necessaryMias, null)
         {
-          PlayableMediaItem listItem = _converterAction(mediaItem);
-          listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
-          AllItems.Add(listItem);
-        }
-        AllItems.FireChange();
+          Filter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)) : null,
+          Limit = (uint)maxItems, // Last 5 imported items
+          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
+        };
+        base.UpdateItems(maxItems, UpdateReason.Forced);
       }
       return true;
     }

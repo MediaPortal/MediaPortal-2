@@ -153,22 +153,37 @@
     <Compile Include="MediaItemActions\RefreshMediaItem.cs" />
     <Compile Include="MediaItemActions\SetWatched.cs" />
     <Compile Include="MediaItemActions\SetUnwatched.cs" />
+    <Compile Include="MediaLists\BaseContinueWatchMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseMediaListProvider.cs" />
     <Compile Include="MediaLists\BaseFavoriteMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseUnwatchedMediaListProvider.cs" />
     <Compile Include="MediaLists\BaseLastWatchedMediaListProvider.cs" />
     <Compile Include="MediaLists\BaseLatestMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteSeriesMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteAudioMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteEpisodeMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteImageMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteMovieMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteAlbumMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteVideoMediaListProvider.cs" />
     <Compile Include="MediaLists\IMediaListProvider.cs" />
-    <Compile Include="MediaLists\LastWatchedAudioMediaListProvider.cs" />
-    <Compile Include="MediaLists\LastWatchedEpisodeMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchSeriesMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchAlbumMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchAudioMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchEpisodeMediaListProvider.cs" />
     <Compile Include="MediaLists\LastWatchedImageMediaListProvider.cs" />
-    <Compile Include="MediaLists\LastWatchedMovieMediaListProvider.cs" />
-    <Compile Include="MediaLists\LastWatchedRecordingMediaListProvider.cs" />
-    <Compile Include="MediaLists\LastWatchedVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedSeriesMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedAudioMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedEpisodeMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedImageMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedAlbumMediaListProvider.cs" />
     <Compile Include="MediaLists\LatestAudioMediaListProvider.cs" />
     <Compile Include="MediaLists\LatestEpisodeMediaListProvider.cs" />
     <Compile Include="MediaLists\LatestImageMediaListProvider.cs" />
@@ -691,7 +706,6 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>

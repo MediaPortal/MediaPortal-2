@@ -27,12 +27,12 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public class LatestAudioMediaListProvider : BaseLatestMediaListProvider
+  public class ContinueWatchRecordingMediaListProvider : BaseContinueWatchMediaListProvider
   {
-    public LatestAudioMediaListProvider()
+    public ContinueWatchRecordingMediaListProvider()
     {
-      _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
-      _playableConverterAction = item => new AudioItem(item);
+      _necessaryMias = Consts.NECESSARY_RECORDING_MIAS;
+      _playableConverterAction = item => new VideoItem(item);
     }
   }
 }

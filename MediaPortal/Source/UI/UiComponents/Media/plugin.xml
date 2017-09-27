@@ -115,6 +115,12 @@
         DisplayLabel="[Media.LatestMediaWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="11193401-D85D-4D50-9825-E9EB34D87062"/> <!-- Workflow model = Latest Media model -->
 
+    <WorkflowState Id="F1F120B0-9DB3-419F-AAF6-704E7B0FFA63"
+        Name="ShowPlayableList"
+        MainScreen="PlayableQueryItems"
+        DisplayLabel="[Media.PlaylistWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="057EFFD7-2730-42B6-A222-2C03DE27FDA7"/> <!-- Workflow model = Playable Query Items model -->
+
     <!-- MediaItemActions -->
 
     <DialogState Id="EEBCCAE6-59F8-4AF3-95FF-FC14A5B3CD62"
@@ -221,6 +227,7 @@
         MainScreen="SavePlaylistFailed"
         DisplayLabel="[Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
+    
   </Register>
 
   <Register Location="/Resources/Language">
@@ -263,6 +270,8 @@
     <MediaListProviderBuilder Id="{1E2DBE62-7DF8-464D-AF50-27CE8CF95A6B}" Key="FavoriteMovies" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteMovieMediaListProvider"/>
     <MediaListProviderBuilder Id="{244C53C2-BD28-4B01-8D06-F4CCBB3518B1}" Key="FavoriteRecordings" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteRecordingMediaListProvider"/>
     <MediaListProviderBuilder Id="{A5AE2BA1-432D-4063-A4E3-3DA6880CF9D3}" Key="FavoriteVideo" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteVideoMediaListProvider"/>
+    <MediaListProviderBuilder Id="{12FACD10-135F-4E90-8687-C235104BEE83}" Key="FavoriteAlbums" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteAlbumMediaListProvider"/>
+    <MediaListProviderBuilder Id="{ACF31EBD-4EF7-467E-88BB-DB1EA01164B4}" Key="FavoriteSeries" ClassName="MediaPortal.UiComponents.Media.MediaLists.FavoriteSeriesMediaListProvider"/>
     
     <!--Latest media lists-->
     <MediaListProviderBuilder Id="{0FA139E0-F2FC-4D7C-A372-B2938724350B}" Key="LatestAudio" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestAudioMediaListProvider"/>
@@ -273,12 +282,26 @@
     <MediaListProviderBuilder Id="{2A75CFE3-8167-4686-BD5D-F399F8F7E7F0}" Key="LatestVideo" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestVideoMediaListProvider"/>
     
     <!--Latest watched media lists-->
-    <MediaListProviderBuilder Id="{7636EF39-2352-4CF2-80D8-72C1B5A87357}" Key="LastPlayAudio" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedAudioMediaListProvider"/>
-    <MediaListProviderBuilder Id="{982BEA99-E9AE-4C74-9640-37440824919A}" Key="LastPlayEpisodes" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedEpisodeMediaListProvider"/>
     <MediaListProviderBuilder Id="{3C9021E5-01AE-4F62-8B0B-DB65ABBF602A}" Key="LastPlayImages" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedImageMediaListProvider"/>
-    <MediaListProviderBuilder Id="{75888DC9-6390-4B23-9BC7-FA963845476E}" Key="LastPlayMovies" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedMovieMediaListProvider"/>
-    <MediaListProviderBuilder Id="{DBD1A8B4-8BC0-40FF-8EC5-C412B7B8620E}" Key="LastPlayRecordings" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedRecordingMediaListProvider"/>
-    <MediaListProviderBuilder Id="{BFED7F6E-7F42-442B-B2F2-FBEE63F735FA}" Key="LastPlayVideo" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedVideoMediaListProvider"/>
+
+    <!--Continue watch media lists-->
+    <MediaListProviderBuilder Id="{7636EF39-2352-4CF2-80D8-72C1B5A87357}" Key="ContinuePlayAudio" ClassName="MediaPortal.UiComponents.Media.MediaLists.ContinueWatchAudioMediaListProvider"/>
+    <MediaListProviderBuilder Id="{982BEA99-E9AE-4C74-9640-37440824919A}" Key="ContinuePlayEpisodes" ClassName="MediaPortal.UiComponents.Media.MediaLists.ContinueWatchEpisodeMediaListProvider"/>
+    <MediaListProviderBuilder Id="{75888DC9-6390-4B23-9BC7-FA963845476E}" Key="ContinuePlayMovies" ClassName="MediaPortal.UiComponents.Media.MediaLists.ContinueWatchMovieMediaListProvider"/>
+    <MediaListProviderBuilder Id="{DBD1A8B4-8BC0-40FF-8EC5-C412B7B8620E}" Key="ContinuePlayRecordings" ClassName="MediaPortal.UiComponents.Media.MediaLists.ContinueWatchRecordingMediaListProvider"/>
+    <MediaListProviderBuilder Id="{BFED7F6E-7F42-442B-B2F2-FBEE63F735FA}" Key="ContinuePlayVideo" ClassName="MediaPortal.UiComponents.Media.MediaLists.ContinueWatchVideoMediaListProvider"/>
+    <MediaListProviderBuilder Id="{BF8CB82B-6F66-497B-8367-FDBA01811620}" Key="ContinuePlayAlbum" ClassName="MediaPortal.UiComponents.Media.MediaLists.ContinueWatchAlbumMediaListProvider"/>
+    <MediaListProviderBuilder Id="{85580E44-1EA2-4B5D-BFF2-0DD336AFD687}" Key="ContinuePlaySeries" ClassName="MediaPortal.UiComponents.Media.MediaLists.ContinueWatchSeriesMediaListProvider"/>
+
+    <!--Unwatched media lists-->
+    <MediaListProviderBuilder Id="{2F23E076-2458-4E96-999B-58438744EC7D}" Key="UnplayedAudio" ClassName="MediaPortal.UiComponents.Media.MediaLists.UnwatchedAudioMediaListProvider"/>
+    <MediaListProviderBuilder Id="{83D46C70-F453-4E1E-95CD-7E74B7EA6687}" Key="UnplayedEpisodes" ClassName="MediaPortal.UiComponents.Media.MediaLists.UnwatchedEpisodeMediaListProvider"/>
+    <MediaListProviderBuilder Id="{C4227052-91AE-4E00-B6A0-CDD17A233120}" Key="UnplayedImages" ClassName="MediaPortal.UiComponents.Media.MediaLists.UnwatchedImageMediaListProvider"/>
+    <MediaListProviderBuilder Id="{900C5F51-1060-469E-8D9F-F87F975C1718}" Key="UnplayedMovies" ClassName="MediaPortal.UiComponents.Media.MediaLists.UnwatchedMovieMediaListProvider"/>
+    <MediaListProviderBuilder Id="{63B7504B-A00E-4FDB-9F13-6947D2013DD5}" Key="UnplayedRecordings" ClassName="MediaPortal.UiComponents.Media.MediaLists.UnwatchedRecordingMediaListProvider"/>
+    <MediaListProviderBuilder Id="{020C7410-749B-4158-90A8-5CBC20D2457C}" Key="UnplayedVideo" ClassName="MediaPortal.UiComponents.Media.MediaLists.UnwatchedVideoMediaListProvider"/>
+    <MediaListProviderBuilder Id="{9A1C3201-CFA9-48A1-8A9D-72CD163C8776}" Key="UnplayedAlbum" ClassName="MediaPortal.UiComponents.Media.MediaLists.UnwatchedAlbumMediaListProvider"/>
+    <MediaListProviderBuilder Id="{21E85270-11EF-412E-B1D8-8EC96D72EA0C}" Key="UnplayedSeries" ClassName="MediaPortal.UiComponents.Media.MediaLists.UnwatchedSeriesMediaListProvider"/>
   </Register>
 
   <!-- Root Sections -->

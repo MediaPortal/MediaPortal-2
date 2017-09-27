@@ -25,8 +25,8 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -38,12 +38,13 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public class SlimTvLatestRecordingsMediaListProvider : IMediaListProvider
+  public class SlimTvUnwatchedRecordingsMediaListProvider : IMediaListProvider
   {
-    public SlimTvLatestRecordingsMediaListProvider()
+    public SlimTvUnwatchedRecordingsMediaListProvider()
     {
       AllItems = new ItemsList();
     }
@@ -57,9 +58,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
         return false;
 
       if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
+          (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete ||
           (updateReason & UpdateReason.ImportComplete) == UpdateReason.ImportComplete)
       {
         Guid? userProfile = null;
+        Guid[] mias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
         IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
         if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         {
@@ -68,6 +71,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
         MediaItemQuery query = new MediaItemQuery(SlimTvConsts.NECESSARY_RECORDING_MIAS, null)
         {
+          Filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+            new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
+            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0")) : null,
           Limit = (uint)maxItems, // Last 5 imported items
           SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
         };

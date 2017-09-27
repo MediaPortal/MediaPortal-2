@@ -41,11 +41,65 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Shares;
 using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Presentation.Players;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
   public class MediaListModel : BaseTimerControlledModel
   {
+    public class MediaListProviderDictionary : SafeDictionary<string, IMediaListProvider>
+    {
+      private IDictionary<string, bool> _enabledElements = new Dictionary<string, bool>();
+
+      public Action OnProviderRequested;
+
+      public bool IsEnabled(string key)
+      {
+        return _enabledElements.ContainsKey(key) && _enabledElements[key];
+      }
+
+      public new void Add(KeyValuePair<string, IMediaListProvider> item)
+      {
+        _enabledElements.Add(item.Key, false);
+        _elements.Add(item);
+      }
+
+      public new void Add(string key, IMediaListProvider value)
+      {
+        _enabledElements.Add(key, false);
+        _elements.Add(key, value);
+      }
+
+      public new bool Remove(KeyValuePair<string, IMediaListProvider> item)
+      {
+        _enabledElements.Remove(item.Key);
+        return _elements.Remove(item);
+      }
+
+      public new bool Remove(string key)
+      {
+        _enabledElements.Remove(key);
+        return _elements.Remove(key);
+      }
+
+      public new IMediaListProvider this[string key]
+      {
+        get
+        {
+          if (_elements.ContainsKey(key))
+          {
+            if (_enabledElements.ContainsKey(key))
+              _enabledElements[key] = true;
+            OnProviderRequested?.Invoke();
+            return _elements[key];
+          }
+          return null;
+        }
+        set { _elements[key] = value; }
+      }
+    }
+
     #region Consts
 
     // Global ID definitions and references
@@ -56,9 +110,12 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected readonly AbstractProperty _queryLimitProperty;
     protected bool _updatePending = true;
+    protected bool _importUpdatePending = false;
+    protected bool _playbackUpdatePending = false;
     protected IPluginItemStateTracker _providerPluginItemStateTracker;
-    protected SafeDictionary<string, IMediaListProvider> _listProviders;
+    protected MediaListProviderDictionary _listProviders;
     protected DateTime _nextGet = DateTime.MinValue;
+    protected DateTime _nextMinute = DateTime.MinValue;
 
     #endregion
 
@@ -75,19 +132,7 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _queryLimitProperty.SetValue(value); }
     }
 
-    public SafeDictionary<string, IMediaListProvider> Lists
-    {
-      get
-      {
-        if (_nextGet < DateTime.Now)
-        {
-          _updatePending = true;
-          _nextGet = DateTime.Now.AddSeconds(GETTER_THRESHOLD_SEC);
-        }
-
-        return _listProviders;
-      }
-    }
+    public MediaListProviderDictionary Lists { get; }
 
     public MediaListModel()
       : base(false, 1000)
@@ -155,7 +200,7 @@ namespace MediaPortal.UiComponents.Media.Models
         switch (messageType)
         {
           case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
-            _updatePending = true; //Update latest added
+            _importUpdatePending = true; //Update latest added
             break;
         }
       }
@@ -178,7 +223,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           case PlayerManagerMessaging.MessageType.PlayerStopped:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
-            _updatePending = true; //Update most played and last played
+            _playbackUpdatePending = true; //Update most played and last played
             break;
         }
       }
@@ -192,8 +237,16 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected override void Update()
     {
-      if (_updatePending)
-        UpdateItems();
+      UpdateItems();
+    }
+
+    private void OnProviderRequested()
+    {
+      if (_nextGet < DateTime.Now)
+      {
+        _updatePending = true;
+        _nextGet = DateTime.Now.AddSeconds(GETTER_THRESHOLD_SEC);
+      }
     }
 
     public void InitProviders()
@@ -202,7 +255,8 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         if (_listProviders != null)
           return;
-        _listProviders = new SafeDictionary<string, IMediaListProvider>();
+        _listProviders = new MediaListProviderDictionary();
+        _listProviders.OnProviderRequested = OnProviderRequested;
 
         _providerPluginItemStateTracker = new FixedItemStateTracker("Media Lists - Provider registration");
 
@@ -254,13 +308,25 @@ namespace MediaPortal.UiComponents.Media.Models
           _updatePending = true;
           return false;
         }
+
+        UpdateReason updateReason = UpdateReason.None;
+        if (_updatePending) updateReason |= UpdateReason.Forced;
+        if (_importUpdatePending) updateReason |= UpdateReason.ImportComplete;
+        if (_playbackUpdatePending) updateReason |= UpdateReason.PlaybackComplete;
+        if (_nextMinute < DateTime.Now) updateReason |= UpdateReason.PeriodicMinute;
+        if (updateReason == UpdateReason.None)
+          return false;
+
         _updatePending = false;
+        _importUpdatePending = false;
+        _playbackUpdatePending = false;
+        _nextMinute = DateTime.Now.AddMinutes(1);
 
         SetLayout();
 
-        foreach (var provider in _listProviders.Values)
+        foreach (var provider in _listProviders.Where(p => _listProviders.IsEnabled(p.Key)).Select(p => p.Value))
         {
-          UpdateAsync(provider);
+          UpdateAsync(provider, updateReason);
         }
 
         return true;
@@ -272,10 +338,10 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    protected void UpdateAsync(IMediaListProvider provider)
+    protected void UpdateAsync(IMediaListProvider provider, UpdateReason updateReason)
     {
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(() => provider.UpdateItems(Limit));
+      threadPool.Add(() => provider.UpdateItems(Limit, updateReason));
     }
 
     protected void SetLayout()

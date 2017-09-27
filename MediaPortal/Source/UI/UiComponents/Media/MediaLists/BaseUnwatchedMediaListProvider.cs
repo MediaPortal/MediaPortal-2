@@ -22,25 +22,38 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Helpers;
+using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public abstract class BaseLatestMediaListProvider : BaseMediaListProvider
+  public abstract class BaseUnwatchedMediaListProvider : BaseMediaListProvider
   {
-    public delegate PlayableMediaItem MediaItemToListItemAction(MediaItem mediaItem);
-
     public override bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
       if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
+        (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete ||
         (updateReason & UpdateReason.ImportComplete) == UpdateReason.ImportComplete)
       {
+        Guid? userProfile = CurrentUserProfile?.ProfileId;
         _mediaQuery = new MediaItemQuery(_necessaryMias, null)
         {
+          Filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+            new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
+            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0")) : null,
           Limit = (uint)maxItems, // Last 5 imported items
           SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
         };

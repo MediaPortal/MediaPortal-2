@@ -36,6 +36,14 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class SeriesFilterItem : PlayableContainerMediaItem
   {
+    public SeriesFilterItem()
+    {}
+
+    public SeriesFilterItem(MediaItem mediaItem)
+    {
+      Update(mediaItem);
+    }
+
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);

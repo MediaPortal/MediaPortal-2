@@ -22,27 +22,37 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public abstract class BaseLatestMediaListProvider : BaseMediaListProvider
+  public class ContinueWatchSeriesMediaListProvider : BaseMediaListProvider
   {
-    public delegate PlayableMediaItem MediaItemToListItemAction(MediaItem mediaItem);
+    public ContinueWatchSeriesMediaListProvider()
+    {
+      _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
+      _playableContainerConverterAction = item => new SeriesFilterItem(item);
+    }
 
     public override bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
       if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-        (updateReason & UpdateReason.ImportComplete) == UpdateReason.ImportComplete)
+        (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
       {
+        Guid? userProfile = CurrentUserProfile?.ProfileId;
         _mediaQuery = new MediaItemQuery(_necessaryMias, null)
         {
+          Filter = userProfile.HasValue ? new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+            new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+            new NotFilter(new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100")))) : null,
           Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
         };
         base.UpdateItems(maxItems, UpdateReason.Forced);
       }

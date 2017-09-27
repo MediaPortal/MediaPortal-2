@@ -35,6 +35,14 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class AlbumFilterItem : PlayableContainerMediaItem
   {
+    public AlbumFilterItem()
+    { }
+
+    public AlbumFilterItem(MediaItem mediaItem)
+    {
+      Update(mediaItem);
+    }
+
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);

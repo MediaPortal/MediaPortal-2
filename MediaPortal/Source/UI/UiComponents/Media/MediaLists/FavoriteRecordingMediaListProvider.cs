@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public FavoriteRecordingMediaListProvider()
     {
       _necessaryMias = Consts.NECESSARY_RECORDING_MIAS;
-      _converterAction = item => new VideoItem(item);
+      _playableConverterAction = item => new VideoItem(item);
     }
   }
 }

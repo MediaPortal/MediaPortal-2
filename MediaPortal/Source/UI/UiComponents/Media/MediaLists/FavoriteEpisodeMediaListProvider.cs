@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public FavoriteEpisodeMediaListProvider()
     {
       _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
-      _converterAction = item => new EpisodeItem(item);
+      _playableConverterAction = item => new EpisodeItem(item);
     }
   }
 }

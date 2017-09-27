@@ -50,37 +50,41 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
     public ItemsList AllItems { get; private set; }
 
-    public bool UpdateItems(int maxItems)
+    public bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
       var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (contentDirectory == null)
         return false;
 
-      Guid? userProfile = null;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
+          (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
       {
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-      }
-
-      MediaItemQuery query = new MediaItemQuery(SlimTvConsts.NECESSARY_RECORDING_MIAS, null)
-      {
-        Filter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)) : null,
-        Limit = (uint)maxItems, // Last 5 imported items
-        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
-      };
-
-      var items = contentDirectory.Search(query, false, userProfile, false);
-      if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
-      {
-        AllItems.Clear();
-        foreach (MediaItem mediaItem in items)
+        Guid? userProfile = null;
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         {
-          PlayableMediaItem listItem = new RecordingItem(mediaItem);
-          listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
-          AllItems.Add(listItem);
+          userProfile = userProfileDataManagement.CurrentUser.ProfileId;
         }
-        AllItems.FireChange();
+
+        MediaItemQuery query = new MediaItemQuery(SlimTvConsts.NECESSARY_RECORDING_MIAS, null)
+        {
+          Filter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)) : null,
+          Limit = (uint)maxItems, // Last 5 imported items
+          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
+        };
+
+        var items = contentDirectory.Search(query, false, userProfile, false);
+        if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
+        {
+          AllItems.Clear();
+          foreach (MediaItem mediaItem in items)
+          {
+            PlayableMediaItem listItem = new RecordingItem(mediaItem);
+            listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
+            AllItems.Add(listItem);
+          }
+          AllItems.FireChange();
+        }
       }
       return true;
     }

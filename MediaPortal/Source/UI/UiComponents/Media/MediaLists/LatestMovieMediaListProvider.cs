@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public LatestMovieMediaListProvider()
     {
       _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
-      _converterAction = item => new MovieItem(item);
+      _playableConverterAction = item => new MovieItem(item);
     }
   }
 }

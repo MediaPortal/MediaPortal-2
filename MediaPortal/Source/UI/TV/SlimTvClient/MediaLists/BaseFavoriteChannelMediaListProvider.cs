@@ -49,44 +49,44 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
     public ItemsList AllItems { get; private set; }
 
-    public bool UpdateItems(int maxItems)
+    public bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
       var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (contentDirectory == null)
         return false;
 
-      Guid? userProfile = null;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
+          (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
       {
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-      }
-
-      IEnumerable<Tuple<int, string>> channelList;
-      if (userProfile.HasValue && userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataList(userProfile.Value, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, out channelList))
-      {
-        int count = 0;
-        IOrderedEnumerable<Tuple<int, string>> sortedList = channelList.OrderByDescending(c => Convert.ToInt64(c.Item2)); //Order by play count
-        if (!AllItems.Select(cpli => ((ChannelProgramListItem)cpli).Channel.ChannelId).SequenceEqual(sortedList.Select(kvp => kvp.Item1)))
+        Guid? userProfile = null;
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         {
-          AllItems.Clear();
-          foreach (var channelData in sortedList)
+          userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+        }
+
+        IEnumerable<Tuple<int, string>> channelList;
+        if (userProfile.HasValue && userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataList(userProfile.Value, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, 
+          out channelList, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, null, Convert.ToUInt32(maxItems)))
+        {
+          if (!AllItems.Select(cpli => ((ChannelProgramListItem)cpli).Channel.ChannelId).SequenceEqual(channelList.Select(kvp => kvp.Item1)))
           {
-            IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelId == channelData.Item1 && c.MediaType == _mediaType);
-            if (channel != null)
+            AllItems.Clear();
+            foreach (var channelData in channelList)
             {
-              count++;
-              ChannelProgramListItem item = new ChannelProgramListItem(channel, null)
+              IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelId == channelData.Item1 && c.MediaType == _mediaType);
+              if (channel != null)
               {
-                Command = new MethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
-              };
-              item.AdditionalProperties["CHANNEL"] = channel;
-              AllItems.Add(item);
+                ChannelProgramListItem item = new ChannelProgramListItem(channel, null)
+                {
+                  Command = new MethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
+                };
+                item.AdditionalProperties["CHANNEL"] = channel;
+                AllItems.Add(item);
+              }
             }
-            if (count >= maxItems)
-              break;
+            AllItems.FireChange();
           }
-          AllItems.FireChange();
         }
       }
       return true;

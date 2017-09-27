@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public FavoriteAudioMediaListProvider()
     {
       _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
-      _converterAction = item => new AudioItem(item);
+      _playableConverterAction = item => new AudioItem(item);
     }
   }
 }
