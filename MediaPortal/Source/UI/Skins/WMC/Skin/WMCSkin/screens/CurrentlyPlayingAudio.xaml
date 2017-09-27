@@ -72,12 +72,91 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="345"/>
+                <ColumnDefinition Width="520"/>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
 
-              <Image x:Name="ItemTypeImage" Grid.RowSpan="2" Stretch="Fill" IsVisible="{Binding ElementName=Album, Path=!IsChecked}"
-                     Source="{Binding MediaItem}" FallbackSource="AudioLarge.png" HorizontalAlignment="Right"
+              <Grid Grid.RowSpan="2" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,50,0">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="CDImage" Stretch="Uniform" IsVisible="{Binding IsPlaying}"
+                       FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
+                       VerticalAlignment="Bottom" Width="290" Height="290" Margin="0,0,150,25">
+                  <Image.Source>
+                    <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                        fanart:MaxWidth="290" fanart:MaxHeight="290"/>
+                  </Image.Source>
+
+                  <Image.Triggers>
+                    <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                      <DataTrigger.EnterActions>
+                        <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
+                      </DataTrigger.EnterActions>
+                      <DataTrigger.ExitActions>
+                        <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                      </DataTrigger.ExitActions>
+                    </DataTrigger>
+                  </Image.Triggers>
+                  <Image.Resources>
+                    <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+                      <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                       From="0" To="360" Duration="0:0:3" RepeatBehavior="Forever" />
+                    </Storyboard>
+                  </Image.Resources>
+
+                  <Image.RenderTransform>
+                    <RotateTransform Angle="0" />
+                  </Image.RenderTransform>
+                </Image>
+
+                <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="300" Height="300" Margin="0,0,0,20">
+                  <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                      <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}" Offset="0"/>
+                      <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
+                    </LinearGradientBrush>
+                  </Grid.Background>
+                  <Grid.OpacityMask>
+                    <VisualBrush>
+                      <VisualBrush.Visual>
+                        <Border Background="White" CornerRadius="12" BorderThickness="0" BorderBrush="Black"/>
+                      </VisualBrush.Visual>
+                    </VisualBrush>
+                  </Grid.OpacityMask>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  
+                  <Image Stretch="Uniform" Source="audio.png" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   IsVisible="{Binding ElementName=Thumb, Path=!HasImage}" Margin="50">
+                  </Image>
+
+                  <Image x:Name="Thumb" Stretch="Fill" IsVisible="{Binding ElementName=Album, Path=!IsChecked}"
+                         Source="{Binding MediaItem}" HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch" Width="300" Height="300" Margin="0,0,0,0">
+                  </Image>
+
+                  <Image Stretch="Fill" HorizontalAlignment="Stretch" IsVisible="{Binding ElementName=Album, Path=IsChecked}"
+                         VerticalAlignment="Stretch" Width="300" Height="300">
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                            fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                    </Image.Source>
+                  </Image>
+                </Grid>
+
+              </Grid>
+
+              <!--Image x:Name="ItemTypeImage" Grid.RowSpan="2" Stretch="Fill" IsVisible="{Binding ElementName=Album, Path=!IsChecked}"
+                     Source="{Binding MediaItem}" FallbackSource="Audio.png" HorizontalAlignment="Right"
                      VerticalAlignment="Bottom" Width="270" Height="270" Margin="20,60,40,20">
                 <Image.OpacityMask>
                   <VisualBrush>
@@ -86,7 +165,6 @@
                     </VisualBrush.Visual>
                   </VisualBrush>
                 </Image.OpacityMask>
-              </Image>
 
               <Image Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Stretch="Fill" HorizontalAlignment="Right" IsVisible="{Binding ElementName=Album, Path=IsChecked}"
                      VerticalAlignment="Bottom" Width="270" Height="270" Margin="20,60,40,20">
@@ -101,7 +179,7 @@
                     </VisualBrush.Visual>
                   </VisualBrush>
                 </Image.OpacityMask>
-              </Image>
+              </Image-->
 
               <!--<ScrollViewer Grid.Row="0" Grid.Column="1" CanContentScroll="True" 
                             HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">-->
@@ -320,7 +398,7 @@
                   </media:AudioAlbumAspectWrapper.Template>
                 </media:AudioAlbumAspectWrapper>
 
-                <media:AudioAlbumAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="2">
+                <!--media:AudioAlbumAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="2">
                   <media:AudioAlbumAspectWrapper.Template>
                     <ControlTemplate>
                       <ListView.ItemsSource>
@@ -332,7 +410,7 @@
                       </ListView.ItemsSource>
                     </ControlTemplate>
                   </media:AudioAlbumAspectWrapper.Template>
-                </media:AudioAlbumAspectWrapper>
+                </-->
 
               </Grid>
 

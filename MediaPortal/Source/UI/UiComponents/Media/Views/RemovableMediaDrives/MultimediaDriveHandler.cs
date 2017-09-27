@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities.FileSystem;
 using System.Linq;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
@@ -47,17 +48,19 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     #region Protected fields
 
     protected MultiMediaType _mediaType;
-    protected StaticViewSpecification _mediaItemsSubViewSpecification;
+    protected ViewSpecification _mediaItemsSubViewSpecification;
 
     #endregion
 
-    protected MultimediaDriveHandler(DriveInfo driveInfo, IEnumerable<MediaItem> mediaItems, MultiMediaType mediaType) : base(driveInfo)
+    protected MultimediaDriveHandler(DriveInfo driveInfo, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, MultiMediaType mediaType) : base(driveInfo)
     {
       _mediaType = mediaType;
-      _mediaItemsSubViewSpecification = new StaticViewSpecification(
-          driveInfo.VolumeLabel + " (" + DriveUtils.GetDriveNameWithoutRootDirectory(driveInfo) + ")", new Guid[] {}, new Guid[] {});
-      foreach (MediaItem item in mediaItems)
-        _mediaItemsSubViewSpecification.AddMediaItem(item);
+      string drive = driveInfo.Name;
+      drive = drive.Substring(0, 2); // Clip potential '\\' at the end
+      string directory = "/" + drive + "/";
+      _mediaItemsSubViewSpecification = new LocalDirectoryViewSpecification(driveInfo.VolumeLabel + " (" + DriveUtils.GetDriveNameWithoutRootDirectory(driveInfo) + ")",
+        ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, directory),
+        necessaryMIATypeIds, optionalMIATypeIds);
     }
 
     /// <summary>
@@ -82,14 +85,13 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       drive = drive.Substring(0, 2); // Clip potential '\\' at the end
       string directory = drive + "\\";
 
-      ICollection<MediaItem> mediaItems;
-      MultiMediaType mediaType = MultimediaDirectory.DetectMultimedia(directory, videoMIATypeIds, imageMIATypeIds, audioMIATypeIds, out mediaItems);
+      MultiMediaType mediaType = MultimediaDirectory.DetectMultimedia(directory, videoMIATypeIds, imageMIATypeIds, audioMIATypeIds);
       if (mediaType == MultiMediaType.None)
         return null;
 
-      MatchWithStubs(driveInfo, mediaItems);
-      mediaItems = CertificationHelper.ProcessMediaItems(mediaItems).ToList();
-      return new MultimediaDriveHandler(driveInfo, mediaItems, mediaType);
+      IEnumerable<Guid> necessaryMIATypeIds = Consts.NECESSARY_BROWSING_MIAS;
+      IEnumerable<Guid> optionalMIATypeIds = videoMIATypeIds.Union(imageMIATypeIds).Union(audioMIATypeIds).Except(necessaryMIATypeIds);
+      return new MultimediaDriveHandler(driveInfo, necessaryMIATypeIds, optionalMIATypeIds, mediaType);
     }
 
     public MultiMediaType MediaType
@@ -106,7 +108,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     public override IList<ViewSpecification> SubViewSpecifications
     {
-      get { return new List<ViewSpecification> {_mediaItemsSubViewSpecification}; }
+      get { return new[] { _mediaItemsSubViewSpecification }; }
     }
 
     public override IEnumerable<MediaItem> GetAllMediaItems()

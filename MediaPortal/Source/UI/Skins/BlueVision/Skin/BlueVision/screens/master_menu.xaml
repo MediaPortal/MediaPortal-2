@@ -230,6 +230,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
+              <ListView.Triggers>
+                <Trigger Property="IsEmpty" Value="True">
+                  <Setter TargetName="RightPanel" Property="Visibility" Value="Hidden" />
+                </Trigger>
+              </ListView.Triggers>
             </ListView>
             <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource MenuButtonWideStyle}"
                     Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="180" Margin="0,0,0,240"

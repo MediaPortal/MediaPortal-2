@@ -154,7 +154,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       LoadSettings();
 
-      _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoAudioMetadataExtractorSettings>();
+      _settings = _settingWatcher.Settings;
 
       if (_settings.EnableDebugLogging)
       {

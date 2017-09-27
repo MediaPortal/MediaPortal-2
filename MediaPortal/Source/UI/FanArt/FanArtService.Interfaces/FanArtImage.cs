@@ -49,9 +49,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   public class FanArtImage
   {
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Thumbs\FanArt");
+
     //To limit the number of size combinations in the cache, we only resize images in these size steps.
     //The steps need to be declared in descending order for it to work correctly.
     protected static readonly int[] IMAGE_SIZES = new int[] { 4096, 2048, 1024, 512, 256, 128 };
+
+    //Image extensions supported by the cache, filenames with any of these extensions will be
+    //matched when checking for existing cached images.
+    protected static readonly string[] SUPPORTED_IMAGE_EXTENSIONS = new string[] { ".jpg", ".png" };
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer; // Lazy initialized
@@ -200,10 +205,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
           Directory.CreateDirectory(CACHE_PATH);
 
         int maxSize = GetBestSupportedSize(maxWidth, maxHeight);
-        string thumbFileName = Path.Combine(CACHE_PATH, string.Format("{0}x{1}_{2}.jpg", maxSize, maxSize, GetCrc32(originalFile)));
-        if (File.Exists(thumbFileName))
+
+        //Don't include the extension here, we support both jpg and png files, the CachedImageExists method will check with all supported extensions
+        string thumbFilenameWithoutExtension = Path.Combine(CACHE_PATH, string.Format("{0}x{1}_{2}", maxSize, maxSize, GetCrc32(originalFile)));
+        string cachedFilenameWithExtension;
+        if (CachedImageExists(thumbFilenameWithoutExtension, out cachedFilenameWithExtension))
           using (originalStream)
-            return new FileStream(thumbFileName, FileMode.Open, FileAccess.Read);
+            return new FileStream(cachedFilenameWithExtension, FileMode.Open, FileAccess.Read);
 
         Image fullsizeImage = Image.FromStream(originalStream);
         //Image doesn't need resizing, just return the original
@@ -214,13 +222,27 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
           return originalStream;
         }
 
+        //Check whether the image has an alpha channel to determine whether to save it as a png or jpg
+        //Must be done before resizing as resizing disposes the fullsizeImage
+        bool isAlphaPixelFormat = Image.IsAlphaPixelFormat(fullsizeImage.PixelFormat);
+
         MemoryStream resizedStream = new MemoryStream();
         using (originalStream)
         using (fullsizeImage)
         using (Image newImage = ImageUtilities.ResizeImage(fullsizeImage, maxSize, maxSize))
         {
-          ImageUtilities.SaveJpeg(thumbFileName, newImage, 95);
-          ImageUtilities.SaveJpeg(resizedStream, newImage, 95);
+          if (isAlphaPixelFormat)
+          {
+            //Image supports an alpha channel, save as a png and add the appropriate extension
+            ImageUtilities.SavePng(thumbFilenameWithoutExtension + ".png", newImage);
+            ImageUtilities.SavePng(resizedStream, newImage);
+          }
+          else
+          {
+            //No alpha channel, save as a jpg and add the appropriate extension
+            ImageUtilities.SaveJpeg(thumbFilenameWithoutExtension + ".jpg", newImage, 95);
+            ImageUtilities.SaveJpeg(resizedStream, newImage, 95);
+          }
         }
 
         resizedStream.Position = 0;
@@ -230,6 +252,24 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       {
         return originalStream;
       }
+    }
+
+    /// <summary>
+    /// Determines whether an image exists with the given filename and an extension contained in <see cref="SUPPORTED_IMAGE_EXTENSIONS"/>. 
+    /// </summary>
+    /// <param name="thumbFilenameWithoutExtension">The full path, without extension, of the image file to check for.</param>
+    /// <param name="cachedFilenameWithExtension">The full path, with extension, of the existing image file.</param>
+    /// <returns>True if the image was found in the cache.</returns>
+    public static bool CachedImageExists(string thumbFilenameWithoutExtension, out string cachedFilenameWithExtension)
+    {
+      foreach (string extension in SUPPORTED_IMAGE_EXTENSIONS)
+      {
+        cachedFilenameWithExtension = thumbFilenameWithoutExtension + extension;
+        if (File.Exists(cachedFilenameWithExtension))
+          return true;
+      }
+      cachedFilenameWithExtension = null;
+      return false;
     }
 
     protected static int GetBestSupportedSize(int maxWidth, int maxHeight)

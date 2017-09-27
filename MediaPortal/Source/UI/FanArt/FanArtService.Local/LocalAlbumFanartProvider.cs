@@ -135,6 +135,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc"
+                select potentialFanArtFile);
+
+            if (fanArtType == FanArtTypes.DiscArt)
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
                 where potentialFanArtFileNameWithoutExtension == "cdart"
                 select potentialFanArtFile);
 

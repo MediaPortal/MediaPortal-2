@@ -28,4 +28,10 @@
         Id="VideoMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.VideoMetadataExtractor"/>
   </Register>
+
+  <Register Location="/Media/FanArtHandlers">
+    <Instance
+        Id="VideoFanArtHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.VideoFanArtHandler"/>
+  </Register>
 </Plugin>

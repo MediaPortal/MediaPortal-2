@@ -3238,7 +3238,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           IList<Guid> aspectIds = new List<Guid>(handler.FanArtAspects);
 
           // Any usable item must contain any of the hander.FanArtAspects
-          if (aspectIds.Where(a => aspects.ContainsKey(a)).Any())
+          if (aspectIds.Any(a => aspects.ContainsKey(a)))
             handler.CollectFanArt(mediaItemId, aspects);
         }
         return true;

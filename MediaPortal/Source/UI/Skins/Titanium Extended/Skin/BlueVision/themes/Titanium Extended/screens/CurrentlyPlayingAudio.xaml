@@ -63,8 +63,12 @@
             </Image>
 
             <Image x:Name="CDImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
-                Source="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
+                FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
                 VerticalAlignment="Bottom" Width="235" Height="235" Margin="0,0,110,30">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                        fanart:MaxWidth="235" fanart:MaxHeight="235"/>
+              </Image.Source>
               <Image.Resources>
                 <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
                   <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"

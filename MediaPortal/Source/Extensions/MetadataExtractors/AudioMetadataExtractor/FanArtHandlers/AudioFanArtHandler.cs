@@ -94,6 +94,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
+      if (_checkCache.Contains(mediaItemId))
+        return;
+
       Guid? albumMediaItemId = null;
       IDictionary<Guid, string> artistMediaItems = new Dictionary<Guid, string>();
       SingleMediaItemAspect audioAspect;
@@ -123,28 +126,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         }
       }
 
-      if(albumMediaItemId.HasValue && artistMediaItems.Count > 0)
-      {
-        if (_checkCache.Contains(mediaItemId) && _checkCache.Contains(albumMediaItemId.Value) && _checkCache.Contains(artistMediaItems.Keys.First()))
-          return;
-      }
-      else if (albumMediaItemId.HasValue)
-      {
-        if (_checkCache.Contains(mediaItemId) && _checkCache.Contains(albumMediaItemId.Value))
-          return;
-      }
-      else
-      {
-        if (_checkCache.Contains(mediaItemId))
-          return;
-      }
-
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems));
       _checkCache.Add(mediaItemId);
-      if (albumMediaItemId.HasValue)
-        _checkCache.Add(albumMediaItemId.Value);
-      if (artistMediaItems.Count > 0)
-        _checkCache.Add(artistMediaItems.Keys.First());
+      Task.Run(() => ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems));
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? albumMediaItemId, IDictionary<Guid, string> artistMediaItems)
@@ -164,9 +147,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         if (albumMediaItemId.HasValue && !_checkCache.Contains(albumMediaItemId.Value))
         {
+          _checkCache.Add(albumMediaItemId.Value);
           if (!AudioMetadataExtractor.SkipFanArtDownload)
             OnlineMatcherService.Instance.DownloadAudioFanArt(albumMediaItemId.Value, albumInfo, forceFanart);
-          _checkCache.Add(albumMediaItemId.Value);
         }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
@@ -356,7 +339,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 discArtPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "cdart"
+                    where potentialFanArtFileNameWithoutExtension == "cdart" || potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc"
                     select potentialFanArtFile);
 
                 fanArtPaths.AddRange(

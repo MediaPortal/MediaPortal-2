@@ -43,6 +43,7 @@ using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using System.Globalization;
 using System.Text;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 {
@@ -99,6 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       };
 
     protected MetadataExtractorMetadata _metadata;
+    protected SettingsChangeWatcher<VideoMetadataExtractorSettings> _settingWatcher;
 
     #endregion
 
@@ -137,6 +139,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 SubtitleAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
+
+      _settingWatcher = new SettingsChangeWatcher<VideoMetadataExtractorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+
+      LoadSettings();
+    }
+
+    #endregion
+
+    #region Settings
+
+    public static bool CacheOfflineFanArt { get; private set; }
+    public static bool CacheLocalFanArt { get; private set; }
+
+    private void LoadSettings()
+    {
+      CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
+      CacheLocalFanArt = _settingWatcher.Settings.CacheLocalFanArt;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
     }
 
     #endregion
@@ -1316,23 +1341,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         else if (fsra.IsFile)
         {
           string filePath = fsra.ResourcePathName;
-          int multipart = -1;
-          int multipartSet = 0;
-          Match match = REGEXP_MULTIFILE.Match(filePath);
-          if (match.Groups[GROUP_DISC].Length > 0)
-          {
-            if (int.TryParse(match.Groups[GROUP_DISC].Value, out multipart))
-            {
-              //Will be merged so indicate that is it a set
-              multipartSet = -1;
-            }
-          }
-
           string mediaTitle = DosPathHelper.GetFileNameWithoutExtension(fsra.ResourceName);
           if (HasVideoExtension(filePath))
           {
             if (IsSampleFile(fsra))
               return false;
+
+            int multipart = -1;
+            int multipartSet = 0;
+            Match match = REGEXP_MULTIFILE.Match(filePath);
+            if (match.Groups[GROUP_DISC].Length > 0)
+            {
+              if (int.TryParse(match.Groups[GROUP_DISC].Value, out multipart))
+              {
+                //Will be merged so indicate that is it a set
+                multipartSet = -1;
+              }
+            }
 
             if (refresh)
             {
@@ -1399,7 +1424,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               }
             }
           }
-          else if (HasSubtitleExtension(filePath) && importOnly == false && forceQuickMode == false)
+          else if (HasSubtitleExtension(filePath) && !importOnly && !forceQuickMode)
           {
             //Don't handle subtitle files during import cycle because they will be handled together with the video file instead
             using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
