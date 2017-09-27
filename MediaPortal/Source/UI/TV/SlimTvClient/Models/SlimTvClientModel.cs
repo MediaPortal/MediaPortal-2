@@ -777,12 +777,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           string data = null;
           userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalData(userProfile.Value,
-            UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, channel.ChannelId, out data);
+            UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, out data, channel.ChannelId);
           int count = data != null ? Convert.ToInt32(data) + 1 : 1;
           userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalData(userProfile.Value,
-            UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, channel.ChannelId, count.ToString());
+            UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, count.ToString(), channel.ChannelId);
           userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalData(userProfile.Value, 
-            UserDataKeysKnown.KEY_CHANNEL_PLAY_DATE, channel.ChannelId, DateTime.Now.ToString("s"));
+            UserDataKeysKnown.KEY_CHANNEL_PLAY_DATE, DateTime.Now.ToString("s"), channel.ChannelId);
         }
       }
     }

@@ -68,25 +68,15 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
       int playCount = GetNewPlayCount();
       int playPercentage = playCount > 0 ? 100 : 0;
-      
-      if (playCount > 0)
-      {
-        cd.NotifyPlayback(mediaItem.MediaItemId, true);
-      }
 
       if (userProfile.HasValue)
       {
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
-          UserDataKeysKnown.KEY_PLAY_COUNT, playCount.ToString());
-        string data = null;
-        if (userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
-            UserDataKeysKnown.KEY_PLAY_PERCENTAGE, out data) && data != null)
-        {
-          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
-            UserDataKeysKnown.KEY_PLAY_PERCENTAGE, playPercentage.ToString());
-        }
-        if (playCount <= 0)
-          userProfileDataManagement.UserProfileDataManagement.ClearUserMediaItemDataKey(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE);
+        if (cd != null)
+          cd.NotifyUserPlayback(userProfile.Value, mediaItem.MediaItemId, playCount > 0 ? playPercentage : -1, playCount > 0);
+      }
+      else if (cd != null)
+      {
+        cd.NotifyPlayback(mediaItem.MediaItemId, playCount > 0);
       }
 
       //Also update media item locally so changes are reflected in GUI without reloading

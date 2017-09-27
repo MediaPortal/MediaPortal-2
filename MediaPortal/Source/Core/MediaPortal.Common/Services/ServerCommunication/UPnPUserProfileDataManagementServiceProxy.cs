@@ -190,35 +190,9 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     #region User additional data
 
-    public bool GetUserAdditionalData(Guid profileId, string key, out string data)
+    public bool GetUserAdditionalData(Guid profileId, string key, out string data, int dataNo = 0)
     {
       CpAction action = GetAction("GetUserAdditionalData");
-      IList<object> inParameters = new List<object>
-        {
-            MarshallingHelper.SerializeGuid(profileId),
-            key
-        };
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      data = (string) outParameters[0];
-      return (bool) outParameters[1];
-    }
-
-    public bool SetUserAdditionalData(Guid profileId, string key, string data)
-    {
-      CpAction action = GetAction("SetUserAdditionalData");
-      IList<object> inParameters = new List<object>
-        {
-            MarshallingHelper.SerializeGuid(profileId),
-            key,
-            data
-        };
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (bool) outParameters[0];
-    }
-
-    public bool GetUserAdditionalData(Guid profileId, string key, int dataNo, out string data)
-    {
-      CpAction action = GetAction("GetUserAdditionalDataNo");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
@@ -230,9 +204,9 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (bool)outParameters[1];
     }
 
-    public bool SetUserAdditionalData(Guid profileId, string key, int dataNo, string data)
+    public bool SetUserAdditionalData(Guid profileId, string key, string data, int dataNo = 0)
     {
-      CpAction action = GetAction("SetUserAdditionalDataNo");
+      CpAction action = GetAction("SetUserAdditionalData");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
@@ -244,13 +218,16 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (bool)outParameters[0];
     }
 
-    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data)
+    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, string orderKey = null, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("GetUserAdditionalDataList");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
-            key
+            key,
+            orderKey,
+            offset,
+            limit
         };
       IList<object> outParameters = action.InvokeAction(inParameters);
       data = null;
@@ -259,13 +236,16 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (bool)outParameters[1];
     }
 
-    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data)
+    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, string orderKey = null, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("GetUserSelectedAdditionalDataList");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
-            MarshallingHelper.SerializeStringEnumerationToCsv(keys)
+            MarshallingHelper.SerializeStringEnumerationToCsv(keys),
+            orderKey,
+            offset,
+            limit
         };
       IList<object> outParameters = action.InvokeAction(inParameters);
       data = null;

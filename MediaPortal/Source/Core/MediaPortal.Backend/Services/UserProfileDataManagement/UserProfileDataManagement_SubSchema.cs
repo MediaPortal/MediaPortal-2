@@ -306,11 +306,14 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
-    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string dataKey, out int dataNoIndex, out int additionalDataIndex)
+    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string dataKey, string orderKey, 
+      out int dataNoIndex, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY";
       ISQLDatabase database = transaction.Database;
+      result.CommandText = "SELECT DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY";
+      if (!string.IsNullOrEmpty(orderKey))
+        result.CommandText += " ORDER BY " + orderKey;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
 
@@ -319,14 +322,16 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
-    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string[] dataKeys, 
+    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string[] dataKeys, string orderKey,
       out int additionalDataKeyIndex, out int dataNoIndex, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
+      ISQLDatabase database = transaction.Database;
       result.CommandText = @"SELECT DATA_KEY, DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID";
       if(dataKeys != null && dataKeys.Length > 0)
         result.CommandText += " AND DATA_KEY IN ('" + string.Join("','", dataKeys) + "')";
-      ISQLDatabase database = transaction.Database;
+      if (!string.IsNullOrEmpty(orderKey))
+        result.CommandText += " ORDER BY " + orderKey;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
 
       additionalDataKeyIndex = 0;

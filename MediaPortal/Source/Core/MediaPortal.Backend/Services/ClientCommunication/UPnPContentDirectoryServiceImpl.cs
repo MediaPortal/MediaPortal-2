@@ -1058,6 +1058,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(mpnp11NotifyPlaybackAction);
 
+      DvAction mpnp11NotifyUserPlaybackAction = new DvAction("X_MediaPortal_NotifyUserPlayback", OnMPnP11NotifyUserPlayback,
+          new DvArgument[] {
+            new DvArgument("UserProfile", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("Percentage", A_ARG_TYPE_Count, ArgumentDirection.In),
+            new DvArgument("UpdatePlayDate", A_ARG_TYPE_Bool, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+          });
+      AddAction(mpnp11NotifyUserPlaybackAction);
+
       #endregion
 
       // More actions go here
@@ -2041,6 +2052,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       bool watched = (bool)inParams[1];
       mediaLibrary.NotifyPlayback(mediaItemId, watched);
+      outParams = null;
+      return null;
+    }
+
+    static UPnPError OnMPnP11NotifyUserPlayback(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      Guid userId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
+      int percentage = (int)inParams[2];
+      bool updatePlayDate = (bool)inParams[3];
+      mediaLibrary.NotifyUserPlayback(userId, mediaItemId, percentage, updatePlayDate);
       outParams = null;
       return null;
     }

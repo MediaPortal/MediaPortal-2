@@ -241,53 +241,34 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       DvAction getUserAdditionalDataAction = new DvAction("GetUserAdditionalData", OnGetUserAdditionalData,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In)
+            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("DataNo", A_ARG_TYPE_Int, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(getUserAdditionalDataAction);
-
+  
       DvAction setUserAdditionalDataAction = new DvAction("SetUserAdditionalData", OnSetUserAdditionalData,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("DataNo", A_ARG_TYPE_Int, ArgumentDirection.In),
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.In)
           },
           new DvArgument[] {
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(setUserAdditionalDataAction);
-   
-      DvAction getUserAdditionalDataNoAction = new DvAction("GetUserAdditionalDataNo", OnGetUserAdditionalDataNo,
-          new DvArgument[] {
-            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("DataNo", A_ARG_TYPE_Int, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
-            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
-          });
-      AddAction(getUserAdditionalDataNoAction);
-
-      DvAction setUserAdditionalDataNoAction = new DvAction("SetUserAdditionalDataNo", OnSetUserAdditionalDataNo,
-          new DvArgument[] {
-            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("DataNo", A_ARG_TYPE_Int, ArgumentDirection.In),
-            new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.In)
-          },
-          new DvArgument[] {
-            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
-          });
-      AddAction(setUserAdditionalDataNoAction);
 
       DvAction getUserAdditionalDataListAction = new DvAction("GetUserAdditionalDataList", OnGetUserAdditionalDataList,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In)
+            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("OrderKey", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("Offset", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("Limit", A_ARG_TYPE_Int, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
@@ -298,7 +279,10 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       DvAction getUserSelectedAdditionalDataListAction = new DvAction("GetUserSelectedAdditionalDataList", OnGetUserSelectedAdditionalDataList,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("Keys", A_ARG_TYPE_String, ArgumentDirection.In)
+            new DvArgument("Keys", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("OrderKey", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("Offset", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("Limit", A_ARG_TYPE_Int, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
@@ -507,13 +491,14 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     static UPnPError OnGetUserAdditionalData(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      string key = (string) inParams[1];
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string key = (string)inParams[1];
+      int dataNo = (int)inParams[2];
       string data;
       bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalData(profileId, key, out data)))
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalData(profileId, key, out data, dataNo)))
         data = null;
-      outParams = new List<object> {data, success};
+      outParams = new List<object> { data, success };
       return null;
     }
 
@@ -522,34 +507,9 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       string key = (string) inParams[1];
-      string data = (string) inParams[2];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserAdditionalData(profileId, key, data);
-      outParams = new List<object> {success};
-      return null;
-    }
-
-    static UPnPError OnGetUserAdditionalDataNo(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
-      string key = (string)inParams[1];
-      int dataNo = (int)inParams[2];
-      string data;
-      bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalData(profileId, key, dataNo, out data)))
-        data = null;
-      outParams = new List<object> { data, success };
-      return null;
-    }
-
-    static UPnPError OnSetUserAdditionalDataNo(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      string key = (string) inParams[1];
       int dataNo = (int)inParams[2];
       string data = (string) inParams[3];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserAdditionalData(profileId, key, dataNo, data);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserAdditionalData(profileId, key, data, dataNo);
       outParams = new List<object> {success};
       return null;
     }
@@ -559,10 +519,14 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string key = (string)inParams[1];
+      string orderKey = (string)inParams[2];
+      uint? offset = (uint?)inParams[3];
+      uint? limit = (uint?)inParams[4];
+
       string data;
       IEnumerable<Tuple<int, string>> list; 
       bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataList(profileId, key, out list)))
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataList(profileId, key, out list, orderKey, offset, limit)))
         data = null;
       else
         data = MarshallingHelper.SerializeTuple2EnumerationToCsv(list.Select(t => new Tuple<string, string>(t.Item1.ToString(), t.Item2)));
@@ -575,10 +539,14 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string[] keys = MarshallingHelper.ParseCsvStringCollection((string)inParams[1]).ToArray();
+      string orderKey = (string)inParams[2];
+      uint? offset = (uint?)inParams[3];
+      uint? limit = (uint?)inParams[4];
+
       string data;
       IEnumerable<Tuple<string, int, string>> list; 
       bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataList(profileId, keys, out list)))
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataList(profileId, keys, out list, orderKey, offset, limit)))
         data = null;
       else
         data = MarshallingHelper.SerializeTuple3EnumerationToCsv(list.Select(t => new Tuple<string, string, string>(t.Item1, t.Item2.ToString(), t.Item3)));

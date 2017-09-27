@@ -568,6 +568,19 @@ namespace MediaPortal.Common.Services.ServerCommunication
       action.InvokeAction(inParameters);
     }
 
+    public void NotifyUserPlayback(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate = true)
+    {
+      CpAction action = GetAction("X_MediaPortal_NotifyUserPlayback");
+      IList<object> inParameters = new List<object>
+      {
+        MarshallingHelper.SerializeGuid(userId),
+        MarshallingHelper.SerializeGuid(mediaItemId),
+        percentage,
+        updatePlayDate
+      };
+      action.InvokeAction(inParameters);
+    }
+
     #endregion
 
     // TODO: State variables, if present

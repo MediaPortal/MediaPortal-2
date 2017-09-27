@@ -330,20 +330,22 @@ namespace MediaPortal.UI.Services.Players
       if (cd != null)
         cd.NotifyPlayback(mediaItem.MediaItemId, watched);
 
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement.IsValidUser)
+      {
+        bool updatePlayDate = (watched || playDuration >= MINIMUM_WATCHED_SEC || playPercentage >= MINIMUM_WATCHED_PERCENT);
+        if (cd != null)
+          cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, playPercentage, updatePlayDate);
+      }
+      else if (cd != null)
+      {
+        cd.NotifyPlayback(mediaItem.MediaItemId, watched);
+      }
+
       // Update loaded item also, so changes will be visible in GUI without reloading
       if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
         mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_PERCENTAGE, "0");
       mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
-
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement.IsValidUser)
-      {
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId,
-          UserDataKeysKnown.KEY_PLAY_PERCENTAGE, playPercentage.ToString());
-        if (watched || playDuration >= MINIMUM_WATCHED_SEC || playPercentage >= MINIMUM_WATCHED_PERCENT)
-          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId,
-          UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
-      }
 
       if (watched)
       {
@@ -359,12 +361,6 @@ namespace MediaPortal.UI.Services.Players
         currentPlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
         currentPlayCount++;
         mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = currentPlayCount.ToString();
-
-        if (userProfileDataManagement.IsValidUser)
-        {
-          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 
-            UserDataKeysKnown.KEY_PLAY_COUNT, currentPlayCount.ToString());
-        }
       }
       ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
     }

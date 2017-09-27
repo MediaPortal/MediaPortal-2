@@ -400,6 +400,7 @@ namespace MediaPortal.Common.SystemCommunication
     #region Playback
 
     void NotifyPlayback(Guid mediaItemId, bool watched);
+    void NotifyUserPlayback(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate);
 
     #endregion
   }

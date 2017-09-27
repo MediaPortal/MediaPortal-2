@@ -33,7 +33,6 @@ using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Presentation.Players;
 using Un4seen.Bass.AddOn.Tags;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Common.Settings;
@@ -224,31 +223,19 @@ namespace MediaPortal.UI.Players.BassPlayer
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
       bool played = playPercentage >= settings.WatchedPlayPercentage;
-      if (played && _mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
+      if (_mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
       {
         IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
         IContentDirectory cd = scm.ContentDirectory;
-        // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
-        if (cd != null)
-          cd.NotifyPlayback(_mediaItemId.Value, true);
-
         if (userProfileDataManagement.IsValidUser)
         {
-          string data = null;
-          userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
-            _mediaItemId.Value, UserDataKeysKnown.KEY_PLAY_COUNT, out data);
-          int count = data != null ? Convert.ToInt32(data) + 1 : 1;
-          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
-            _mediaItemId.Value, UserDataKeysKnown.KEY_PLAY_COUNT, count.ToString());
+          bool updateLastPlayed = (played || playPercentage >= PLAY_THRESHOLD_PERCENT || CurrentTime.TotalSeconds >= PLAY_THRESHOLD_SEC);
+          if (cd != null)
+            cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, _mediaItemId.Value, Convert.ToInt32(playPercentage), updateLastPlayed);
         }
-      }
-      if ((played || playPercentage >= PLAY_THRESHOLD_PERCENT || CurrentTime.TotalSeconds >= PLAY_THRESHOLD_SEC) && 
-        _mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
-      {
-        if (userProfileDataManagement.IsValidUser)
+        else if (cd != null)
         {
-          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
-            _mediaItemId.Value, UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
+          cd.NotifyPlayback(_mediaItemId.Value, played);
         }
       }
     }

@@ -403,21 +403,15 @@ namespace MediaPortal.UI.Players.Image
 
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
-      // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
-      if (cd != null)
-        cd.NotifyPlayback(mediaItem.MediaItemId, true);
-
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
       {
-        string data = null;
-        userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
-          mediaItem.MediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, out data);
-        int count = data != null ? Convert.ToInt32(data) + 1 : 1;
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId,
-          mediaItem.MediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, count.ToString());
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, 
-          mediaItem.MediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
+        if (cd != null)
+          cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 100, true);
+      }
+      else if (cd != null)
+      {
+        cd.NotifyPlayback(mediaItem.MediaItemId, true);
       }
       return true;
     }

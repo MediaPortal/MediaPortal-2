@@ -32,6 +32,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -98,7 +99,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         {
           foreach (var user in result)
           {
-            using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, user.ProfileId, null,
+            using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, user.ProfileId, null, null,
                 out nameIndex, out profileIdIndex, out dataIndex))
             {
               using (IDataReader reader = command.ExecuteReader())
@@ -423,58 +424,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     #region User additional data
 
-    public bool GetUserAdditionalData(Guid profileId, string key, out string data)
-    {
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
-      try
-      {
-        int dataIndex;
-        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataCommand(transaction, profileId,
-            key, 0, out dataIndex))
-        {
-          using (IDataReader reader = command.ExecuteReader())
-          {
-            if (reader.Read())
-            {
-              data = database.ReadDBValue<string>(reader, dataIndex);
-              return true;
-            }
-          }
-        }
-        data = null;
-        return false;
-      }
-      finally
-      {
-        transaction.Dispose();
-      }
-    }
-
-    public bool SetUserAdditionalData(Guid profileId, string key, string data)
-    {
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
-      try
-      {
-        bool result;
-        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, profileId, null, key))
-          command.ExecuteNonQuery();
-        using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, profileId, key, 0, data))
-          result = command.ExecuteNonQuery() > 0;
-        transaction.Commit();
-
-        return result;
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error setting additional data '{0}' in profile '{1}'", e, key, profileId);
-        transaction.Rollback();
-        throw;
-      }
-    }
-
-    public bool GetUserAdditionalData(Guid profileId, string key, int dataNo, out string data)
+    public bool GetUserAdditionalData(Guid profileId, string key, out string data, int dataNo = 0)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.CreateTransaction();
@@ -502,7 +452,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool SetUserAdditionalData(Guid profileId, string key, int dataNo, string data)
+    public bool SetUserAdditionalData(Guid profileId, string key, string data, int dataNo = 0)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -525,7 +475,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data)
+    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, string orderKey = null, uint? offset = null, uint? limit = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.CreateTransaction();
@@ -535,13 +485,18 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         int dataIndex;
         List<Tuple<int, string>> list = new List<Tuple<int, string>>();
         using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, profileId,
-            key, out dataNoIndex, out dataIndex))
+            key, orderKey, out dataNoIndex, out dataIndex))
         {
           using (IDataReader reader = command.ExecuteReader())
           {
-            if (reader.Read())
+            var records = reader.AsEnumerable();
+            if (offset.HasValue)
+              records = records.Skip((int)offset.Value);
+            if (limit.HasValue)
+              records = records.Take((int)limit.Value);
+            foreach (var record in records)
             {
-              list.Add(new Tuple<int, string>(database.ReadDBValue<int>(reader, dataNoIndex), database.ReadDBValue<string>(reader, dataIndex)));
+              list.Add(new Tuple<int, string>(database.ReadDBValue<int>(record, dataNoIndex), database.ReadDBValue<string>(record, dataIndex)));
             }
           }
         }
@@ -556,7 +511,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data)
+    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, string orderKey = null, uint? offset = null, uint? limit = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.CreateTransaction();
@@ -567,14 +522,19 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         int keyIndex;
         List<Tuple<string, int, string>> list = new List<Tuple<string, int, string>>();
         using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, profileId,
-            keys, out keyIndex, out dataNoIndex, out dataIndex))
+            keys, orderKey, out keyIndex, out dataNoIndex, out dataIndex))
         {
           using (IDataReader reader = command.ExecuteReader())
           {
-            if (reader.Read())
+            var records = reader.AsEnumerable();
+            if (offset.HasValue)
+              records = records.Skip((int)offset.Value);
+            if (limit.HasValue)
+              records = records.Take((int)limit.Value);
+            foreach (var record in records)
             {
-              list.Add(new Tuple<string, int, string>(database.ReadDBValue<string>(reader, keyIndex), database.ReadDBValue<int>(reader, dataNoIndex),
-                database.ReadDBValue<string>(reader, dataIndex)));
+              list.Add(new Tuple<string, int, string>(database.ReadDBValue<string>(record, keyIndex), database.ReadDBValue<int>(record, dataNoIndex),
+                database.ReadDBValue<string>(record, dataIndex)));
             }
           }
         }
