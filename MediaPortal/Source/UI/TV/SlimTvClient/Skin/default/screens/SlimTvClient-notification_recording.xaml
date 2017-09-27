@@ -36,13 +36,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Image x:Name="ChannelLogo" Width="128" Stretch="Uniform" Margin="5"
+        <Label x:Name="NotificationHeader" Grid.ColumnSpan="2" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+               Content="{DynamicResource Header_Text}" Margin="5"/>
+
+        <Image x:Name="ChannelLogo" Width="250" Stretch="Uniform" Margin="5"
                VerticalAlignment="Center" DataContext="{Binding Channel}">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtType="Banner" fanart:FanArtName="{Binding Name}"
-                                      fanart:MaxWidth="128" fanart:MaxHeight="128">
+                                      fanart:MaxWidth="250" fanart:MaxHeight="100">
               <fanart:FanArtImageSource.FanArtMediaType>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {MediaType}.{TV} ? {1} : {2}">
                   <Binding Path="MediaType" />
@@ -55,9 +59,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Image>
 
         <StackPanel Grid.Column="1" Orientation="Vertical" Margin="5">
-
-          <Label x:Name="NotificationHeader" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                 Content="{DynamicResource Header_Text}" />
 
           <Label x:Name="ChannelName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,5,0,0"
                  Content="{Binding Channel.Name}" />
