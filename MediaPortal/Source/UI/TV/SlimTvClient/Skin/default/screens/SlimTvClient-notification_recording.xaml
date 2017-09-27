@@ -42,7 +42,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Label x:Name="NotificationHeader" Grid.ColumnSpan="2" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                Content="{DynamicResource Header_Text}" Margin="5"/>
 
-        <Image x:Name="ChannelLogo" Width="250" Stretch="Uniform" Margin="5"
+        <Image x:Name="ChannelLogo" Grid.Row="1" Width="250" Stretch="Uniform" Margin="5"
                VerticalAlignment="Center" DataContext="{Binding Channel}">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtType="Banner" fanart:FanArtName="{Binding Name}"
@@ -58,7 +58,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Image.Source>
         </Image>
 
-        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="5">
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="5">
 
           <Label x:Name="ChannelName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,5,0,0"
                  Content="{Binding Channel.Name}" />
