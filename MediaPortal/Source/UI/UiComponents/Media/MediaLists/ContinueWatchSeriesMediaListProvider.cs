@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public ContinueWatchSeriesMediaListProvider()
     {
-      _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
+      _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
       _playableContainerConverterAction = item => new SeriesFilterItem(item);
     }
 
@@ -48,9 +48,11 @@ namespace MediaPortal.UiComponents.Media.MediaLists
         Guid? userProfile = CurrentUserProfile?.ProfileId;
         _mediaQuery = new MediaItemQuery(_necessaryMias, null)
         {
-          Filter = userProfile.HasValue ? new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+          Filter = userProfile.HasValue ? new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, AppendUserFilter(
+            BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
             new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-            new NotFilter(new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100")))) : null,
+            new NotFilter(new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100"))),
+            Consts.NECESSARY_EPISODE_MIAS)) : null,
           Limit = (uint)maxItems, // Last 5 imported items
           SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
         };

@@ -289,6 +289,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
         }
         else if (necessaryMias.Contains(SeriesAspect.ASPECT_ID))
         {
+          //TODO: Should series filters reset the share filter? Series have no share dependency
           IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
           if (certs.Count() > 0)
           {

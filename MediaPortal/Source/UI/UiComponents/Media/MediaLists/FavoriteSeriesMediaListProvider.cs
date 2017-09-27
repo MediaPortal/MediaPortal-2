@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteSeriesMediaListProvider()
     {
-      _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
+      _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
       _playableContainerConverterAction = item => new SeriesFilterItem(item);
     }
   }

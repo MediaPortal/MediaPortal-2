@@ -22,20 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.Commands;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.Media.Helpers;
-using MediaPortal.UiComponents.Media.Models;
-using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -49,7 +39,8 @@ namespace MediaPortal.UiComponents.Media.MediaLists
         Guid? userProfile = CurrentUserProfile?.ProfileId;
         _mediaQuery = new MediaItemQuery(_necessaryMias, null)
         {
-          Filter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)) : null,
+          Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+            _necessaryMias) : null,
           Limit = (uint)maxItems, // Last 5 imported items
           SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
         };

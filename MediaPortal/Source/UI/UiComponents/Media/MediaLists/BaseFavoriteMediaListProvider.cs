@@ -40,7 +40,8 @@ namespace MediaPortal.UiComponents.Media.MediaLists
         Guid? userProfile = CurrentUserProfile?.ProfileId;
         _mediaQuery = new MediaItemQuery(_necessaryMias, null)
         {
-          Filter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)) : null,
+          Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)),
+            _necessaryMias) : null,
           Limit = (uint)maxItems, // Last 5 imported items
           SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
         };

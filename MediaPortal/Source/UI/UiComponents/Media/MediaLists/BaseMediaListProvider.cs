@@ -35,6 +35,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
 using System.Linq;
 using MediaPortal.Common.UserProfileDataManagement;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -66,6 +67,16 @@ namespace MediaPortal.UiComponents.Media.MediaLists
         }
         return null;
       }
+    }
+
+    public IFilter AppendUserFilter(IFilter filter, IEnumerable<Guid> filterMias)
+    {
+      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(filterMias);
+      if (userFilter != null)
+      {
+        return filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : userFilter;
+      }
+      return filter;
     }
 
     public virtual bool UpdateItems(int maxItems, UpdateReason updateReason)

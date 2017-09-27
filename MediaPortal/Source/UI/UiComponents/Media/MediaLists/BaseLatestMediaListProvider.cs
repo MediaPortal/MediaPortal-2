@@ -41,6 +41,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       {
         _mediaQuery = new MediaItemQuery(_necessaryMias, null)
         {
+          Filter = AppendUserFilter(null, _necessaryMias),
           Limit = (uint)maxItems, // Last 5 imported items
           SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
         };
