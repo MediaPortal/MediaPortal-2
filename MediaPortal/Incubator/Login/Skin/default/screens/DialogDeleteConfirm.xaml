@@ -16,18 +16,18 @@
       <Grid x:Name="ContentsGrid">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-          <RowDefinition Height="50"/>
-          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="30"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Label x:Name="PasswordVerification" Grid.Row="1" Color="{ThemeResource TextColor}"
-               HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Width="400"
-               Content="[UserConfig.DeleteConfirmation]" Wrap="True" 
-               Margin="10"/>
-        <Button x:Name="Yes" Grid.Row="2" Content="[UserConfig.Yes]" HorizontalAlignment="Center" Margin="10,20,10,10">
+        <Label x:Name="PasswordVerification" Grid.Row="1" Grid.ColumnSpan="2" Color="{ThemeResource TextColor}"
+               HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Width="450"
+               Content="[UserConfig.DeleteConfirmation]" Wrap="True" Margin="10"/>
+        <Button x:Name="Yes" Grid.Column="0" Grid.Row="2" Content="[UserConfig.Yes]" Style="{ThemeResource DialogButtonStyle}"
+                HorizontalAlignment="Center" Margin="10,20,10,10" SetFocus="True">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
               <Command Source="{StaticResource Model}" Path="DeleteUser"/>
@@ -35,7 +35,8 @@
             </CommandList>
           </Button.Command>
         </Button>
-        <Button x:Name="No" Grid.Row="3" Content="[UserConfig.No]" HorizontalAlignment="Center" Margin="10,20,10,10">
+        <Button x:Name="No" Grid.Column="1" Grid.Row="2" Content="[UserConfig.No]" Style="{ThemeResource DialogButtonStyle}"
+                HorizontalAlignment="Center" Margin="10,20,10,10">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
               <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>

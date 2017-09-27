@@ -59,11 +59,13 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public static readonly Guid CUSTOM_HOME_STATE_ID = new Guid("B285DC02-AA8C-47F2-8795-0B13B6E66306");
     protected const string KEY_ITEM_GROUP = "HomeMenuModel: Group";
     protected const string KEY_ITEM_SELECTED_ACTION_ID = "HomeMenuModel: SelectedActionId";
+    protected const string KEY_ITEM_ACTION_ID = "HomeMenuModel: ActionId";
 
     protected AbstractProperty _enableSubMenuAnimationsProperty;
     protected AbstractProperty _enableMainMenuAnimationsProperty;
     protected AbstractProperty _scrollDirectionProperty;
     protected AbstractProperty _currentSubItemIndexProperty;
+    protected AbstractProperty _currentSubItemProperty;
 
     protected readonly object _homeMenuSyncObj = new object();
     protected HomeMenuActionProxy _homeProxy;
@@ -86,6 +88,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       _enableMainMenuAnimationsProperty = new WProperty(typeof(bool), false);
       _scrollDirectionProperty = new WProperty(typeof(ScrollDirection), ScrollDirection.None);
       _currentSubItemIndexProperty = new WProperty(typeof(int), 0);
+      _currentSubItemProperty = new WProperty(typeof(ListItem), null);
 
       _homeProxy = new HomeMenuActionProxy();
       _navigationList = new NavigationList<ListItem>();
@@ -186,6 +189,17 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       get { return (int)_currentSubItemIndexProperty.GetValue(); }
       set { _currentSubItemIndexProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentSubItemProperty
+    {
+      get { return _currentSubItemProperty; }
+    }
+
+    public ListItem CurrentSubItem
+    {
+      get { return (ListItem)_currentSubItemProperty.GetValue(); }
+      set { _currentSubItemProperty.SetValue(value); }
     }
 
     #endregion
@@ -459,6 +473,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         else
           listItem = new SubItem(Consts.KEY_NAME, workflowAction.DisplayTitle);
         listItem.AdditionalProperties[Consts.KEY_ITEM_ACTION] = workflowAction;
+        listItem.AdditionalProperties[KEY_ITEM_ACTION_ID] = workflowAction.ActionId.ToString();
         listItem.Command = new MethodDelegateCommand(workflowAction.Execute);
         items.Add(listItem);
       }
@@ -467,6 +482,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     protected void SetCurrentSubItem(ListItem item)
     {
+      CurrentSubItem = item;
       ListItem currentItem = _navigationList.Current;
       WorkflowAction action;
       if (currentItem != null && TryGetAction(item, out action))
@@ -480,13 +496,18 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         currentActionId = parentItem.AdditionalProperties[KEY_ITEM_SELECTED_ACTION_ID] as Guid?;
 
       WorkflowAction action;
-      for (int i = 0; i < _subItems.Count; i++)
+      int index = 0;
+      foreach(ListItem subItem in _subItems)
       {
-        bool selected = (currentActionId == null && i == 0) ||
-          (TryGetAction(_subItems[i], out action) && action.ActionId == currentActionId);
-        _subItems[i].Selected = selected;
+        bool selected = (currentActionId == null && index == 0) ||
+          (TryGetAction(subItem, out action) && action.ActionId == currentActionId);
+        subItem.Selected = selected;
         if (selected)
-          CurrentSubItemIndex = i;
+        {
+          CurrentSubItemIndex = index;
+          CurrentSubItem = subItem;
+        }
+        index++;
       }
     }
 

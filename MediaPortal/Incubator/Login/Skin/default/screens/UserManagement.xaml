@@ -118,10 +118,12 @@
           </Button.IsVisible>
         </Button>
 
-        <UniformGrid Columns="3" Grid.ColumnSpan="4" Grid.Row="9" Margin="0,30,0,0" Height="80" VerticalAlignment="Bottom">
-          <Button x:Name="AddUserButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+        <UniformGrid Columns="4" Grid.ColumnSpan="4" Grid.Row="9" Margin="0,30,0,0" Height="80" VerticalAlignment="Bottom">
+          <Button x:Name="AddUserButton" Style="{ThemeResource WizardButtonStyle}"
                   Content="[UserConfig.AddUser]" Command="{Command AddUser}" Margin="10"/>
-          <Button x:Name="DeleteUserButton" Grid.Column="1" Style="{ThemeResource WizardButtonStyle}" Margin="10"
+          <Button x:Name="CopyUserButton" Style="{ThemeResource WizardButtonStyle}" Margin="10"
+                  Content="[UserConfig.CopyUser]" Command="{Command CopyUser}" IsEnabled="{Binding IsUserSelected}"/>
+          <Button x:Name="DeleteUserButton" Style="{ThemeResource WizardButtonStyle}" Margin="10"
                   Content="[UserConfig.DeleteUser]" Command="{Command OpenConfirmDeleteDialog}">
             <Button.IsEnabled>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -130,7 +132,7 @@
               </MultiBinding>
             </Button.IsEnabled>
           </Button>
-          <Button x:Name="SaveUserButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
+          <Button x:Name="SaveUserButton" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
                   Content="[UserConfig.SaveUser]" IsEnabled="{Binding UserProxy.IsUserValid}" Command="{Command SaveUser}"/>
         </UniformGrid>
       </Grid>
