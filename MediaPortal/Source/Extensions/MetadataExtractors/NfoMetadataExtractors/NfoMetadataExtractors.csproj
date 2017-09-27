@@ -64,6 +64,7 @@
     </Compile>
     <Compile Include="Metadata\TempSeriesAspect.cs" />
     <Compile Include="Metadata\TempPersonAspect.cs" />
+    <Compile Include="NfoVideoMetadataExtractor.cs" />
     <Compile Include="RelationshipExtractors\INfoRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieActorRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieCharacterRelationshipExtractor.cs" />

@@ -41,15 +41,13 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
-using System.Collections;
-using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
   /// <summary>
-  /// MediaPortal 2 metadata extractor for movies reading from local nfo-files.
+  /// MediaPortal 2 metadata extractor for video reading from local nfo-files.
   /// </summary>
-  public class NfoMovieMetadataExtractor : IMetadataExtractor, IDisposable
+  public class NfoVideoMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants / Static fields
 
@@ -62,13 +60,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <summary>
     /// GUID for the NfoMovieMetadataExtractor
     /// </summary>
-    public const string METADATAEXTRACTOR_ID_STR = "F1028D66-6E60-4EB6-9987-1C34D4B7813C";
+    public const string METADATAEXTRACTOR_ID_STR = "183DBA7C-666A-4BBD-BCE8-AD0924B4FEF1";
     public static readonly Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     /// <summary>
     /// MediaCategories this MetadataExtractor is applied to
     /// </summary>
-    private const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+    private const string MEDIA_CATEGORY_NAME_VIDEO = "Video";
     private readonly static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
 
     #endregion
@@ -104,8 +102,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     private HttpClient _httpClient;
 
-    private SettingsChangeWatcher<NfoMovieMetadataExtractorSettings> _settingWatcher;
-
     #endregion
 
     #region Ctor
@@ -113,13 +109,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <summary>
     /// Initializes <see cref="MEDIA_CATEGORIES"/> and, if necessary, registers the "Movie" <see cref="MediaCategory"/>
     /// </summary>
-    static NfoMovieMetadataExtractor()
+    static NfoVideoMetadataExtractor()
     {
-      MediaCategory movieCategory;
+      MediaCategory videoCategory;
       var mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
-        movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> { DefaultMediaCategories.Video });
-      MEDIA_CATEGORIES.Add(movieCategory);
+      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_VIDEO, out videoCategory))
+        videoCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_VIDEO, new List<MediaCategory> { DefaultMediaCategories.Video });
+      MEDIA_CATEGORIES.Add(videoCategory);
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -127,9 +123,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     /// <summary>
-    /// Instantiates a new <see cref="NfoMovieMetadataExtractor"/> object
+    /// Instantiates a new <see cref="NfoVideoMetadataExtractor"/> object
     /// </summary>
-    public NfoMovieMetadataExtractor()
+    public NfoVideoMetadataExtractor()
     {
       // The metadataExtractorPriority is intentionally set wrong to "Extended" although, depending on the
       // content of the nfo-file, it may download thumbs from the internet (and should therefore be
@@ -140,27 +136,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       // ToDo: Correct this once we have a better priority system
       _metadata = new MetadataExtractorMetadata(
         metadataExtractorId: METADATAEXTRACTOR_ID,
-        name: "Nfo movie metadata extractor",
+        name: "Nfo video metadata extractor",
         metadataExtractorPriority: MetadataExtractorPriority.Extended,
         processesNonFiles: true,
         shareCategories: MEDIA_CATEGORIES,
         extractedAspectTypes: new MediaItemAspectMetadata[]
         {
           MediaAspect.Metadata,
-          MovieAspect.Metadata,
+          VideoAspect.Metadata,
           ThumbnailLargeAspect.Metadata
         });
 
-      _settingWatcher = new SettingsChangeWatcher<NfoMovieMetadataExtractorSettings>();
-      _settingWatcher.SettingsChanged += SettingsChanged;
-
-      LoadSettings();
-
-      _settings = _settingWatcher.Settings;
+      _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoMovieMetadataExtractorSettings>();
 
       if (_settings.EnableDebugLogging)
       {
-        _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\NfoMovieMetadataExtractorDebug.log"), LogLevel.Debug, false, true);
+        _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\NfoVideoMetadataExtractorDebug.log"), LogLevel.Debug, false, true);
         LogSettings();
       }
       else
@@ -178,26 +169,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       _httpClient = new HttpClient(handler);
       _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
       _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
-    }
-
-    #endregion
-
-    #region Settings
-
-    public static bool IncludeActorDetails { get; private set; }
-    public static bool IncludeCharacterDetails { get; private set; }
-    public static bool IncludeDirectorDetails { get; private set; }
-
-    private void LoadSettings()
-    {
-      IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
-      IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
-      IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
-    }
-
-    private void SettingsChanged(object sender, EventArgs e)
-    {
-      LoadSettings();
     }
 
     #endregion
@@ -248,7 +219,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         // Now we (asynchronously) extract the metadata into a stub object.
         // If there is an error parsing the nfo-file with XmlNfoReader, we at least try to parse for a valid IMDB-ID.
         // If no metadata was found, nothing can be stored in the MediaItemAspects.
-        var nfoReader = new NfoMovieReader(_debugLogger, miNumber, false, importOnly, forceQuickMode, _httpClient, _settings);
+        var nfoReader = new NfoMovieReader(_debugLogger, miNumber, importOnly, true, forceQuickMode, _httpClient, _settings);
         using (nfoFsra)
         {
           if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&
@@ -393,7 +364,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private void LogSettings()
     {
       _debugLogger.Info("-------------------------------------------------------------");
-      _debugLogger.Info("NfoMovieMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
+      _debugLogger.Info("NfoVideoMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
       _debugLogger.Info("Setttings:");
       _debugLogger.Info("   EnableDebugLogging: {0}", _settings.EnableDebugLogging);
       _debugLogger.Info("   WriteRawNfoFileIntoDebugLog: {0}", _settings.WriteRawNfoFileIntoDebugLog);
@@ -430,7 +401,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
-      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID) || extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         return false;
 
       // The following is bad practice as it wastes one ThreadPool thread.
