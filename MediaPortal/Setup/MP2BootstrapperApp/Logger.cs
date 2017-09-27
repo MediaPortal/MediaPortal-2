@@ -22,41 +22,33 @@
 
 #endregion
 
-using MP2BootstrapperApp.ViewModels;
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.Models;
 
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp
 {
-  public class InstallOverviewStep : IStep
+  public class Logger
   {
-    private readonly InstallWizardViewModel _viewModel;
-    private readonly Logger _logger;
+    private readonly BootstrapperApplicationModel _model;
 
-    public InstallOverviewStep(InstallWizardViewModel wizardViewModel, Logger logger)
+    public Logger(BootstrapperApplicationModel model)
     {
-      _viewModel = wizardViewModel;
-      _logger = logger;
+      _model = model;
     }
 
-    public void Next(Wizard wizard)
+    public void LogStandard(string message)
     {
-      _viewModel.Install();
-      wizard.Step = new InstallFinishStep(_viewModel);
+      _model.LogMessage(LogLevel.Standard, message);
     }
 
-    public void Back(Wizard wizard)
+    public void LogDebug(string message)
     {
-      wizard.Step = new InstallNewTypeStep(_viewModel, _logger);
-      _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
+      _model.LogMessage(LogLevel.Debug, message);
     }
 
-    public bool CanGoNext()
+    public void LogError(string message)
     {
-      return true;
-    }
-
-    public bool CanGoBack()
-    {
-      return true;
+      _model.LogMessage(LogLevel.Error, message);
     }
   }
 }

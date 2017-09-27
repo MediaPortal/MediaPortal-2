@@ -89,6 +89,7 @@
     <Compile Include="ChainPackages\Vc2008Sp1.cs" />
     <Compile Include="EnumToBooleanConverter.cs" />
     <Compile Include="InstallType.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="ViewModels\ModifyPageViewModel.cs" />
     <Compile Include="ViewModels\RepairPageViewModel.cs" />
     <Compile Include="ViewModels\UninstallPageViewModel.cs" />

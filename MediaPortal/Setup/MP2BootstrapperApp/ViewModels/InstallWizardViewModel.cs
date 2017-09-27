@@ -62,19 +62,21 @@ namespace MP2BootstrapperApp.ViewModels
     private int _executeProgress;
     private readonly PackageContext _packageContext;
     private readonly Wizard _wizard;
+    private readonly Logger _logger;
 
     #endregion
 
     public InstallWizardViewModel(BootstrapperApplicationModel model)
     {
       _bootstrapperApplicationModel = model;
+      _logger = new Logger(model);
       State = InstallState.Initializing;
       _packageContext = new PackageContext();
 
       WireUpEventHandlers();
       ComputeBundlePackages();
 
-      _wizard = new Wizard(new InstallWelcomeStep(this));
+      _wizard = new Wizard(new InstallWelcomeStep(this, _logger));
 
       NextCommand = new DelegateCommand(() => _wizard.GoNext(), () => _wizard.CanGoNext());
       BackCommand = new DelegateCommand(() => _wizard.GoBack(), () => _wizard.CanGoBack());
@@ -150,7 +152,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void CancelInstall()
     {
-      _bootstrapperApplicationModel.LogMessage("Cancelling...");
+      _logger.LogStandard("Cancelling..");
       if (State == InstallState.Applaying)
       {
         State = InstallState.Canceled;
@@ -238,7 +240,7 @@ namespace MP2BootstrapperApp.ViewModels
       if (!string.IsNullOrEmpty(e.DownloadSource))
       {
         e.Result = Result.Download;
-        _bootstrapperApplicationModel.LogMessage("Called download");
+        _logger.LogStandard("Called download");
       }
       else
       {

@@ -75,9 +75,9 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication.Engine.Apply(_hwnd);
     }
 
-    public void LogMessage(string message)
+    public void LogMessage(LogLevel logLevel, string message)
     {
-      BootstrapperApplication.Engine.Log(LogLevel.Verbose, message);
+      BootstrapperApplication.Engine.Log(logLevel, message);
     }
 
     #endregion

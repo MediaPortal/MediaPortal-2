@@ -29,16 +29,18 @@ namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallWelcomeStep : IStep
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly InstallWizardViewModel _viewModel;
+    private readonly Logger _logger;
 
-    public InstallWelcomeStep(InstallWizardViewModel wizardViewModel)
+    public InstallWelcomeStep(InstallWizardViewModel wizardViewModel, Logger logger)
     {
       _viewModel = wizardViewModel;
+      _logger = logger;
     }
 
     public void Next(Wizard wizard)
     {
-      wizard.Step = new InstallNewTypeStep(_viewModel);
+      wizard.Step = new InstallNewTypeStep(_viewModel, _logger);
       _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
     }
 

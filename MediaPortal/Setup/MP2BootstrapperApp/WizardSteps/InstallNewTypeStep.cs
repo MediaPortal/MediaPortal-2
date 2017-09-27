@@ -31,11 +31,13 @@ namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallNewTypeStep : IStep
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly InstallWizardViewModel _viewModel;
+    private readonly Logger _logger;
 
-    public InstallNewTypeStep(InstallWizardViewModel wizardViewModel)
+    public InstallNewTypeStep(InstallWizardViewModel wizardViewModel, Logger logger)
     {
       _viewModel = wizardViewModel;
+      _logger = logger;
       foreach (var package in _viewModel.BundlePackages)
       {
         package.RequestedInstallState = RequestState.None;
@@ -81,13 +83,13 @@ namespace MP2BootstrapperApp.WizardSteps
           // TODO
           break;
       }
-      wizard.Step = new InstallOverviewStep(_viewModel);
+      wizard.Step = new InstallOverviewStep(_viewModel, _logger);
       _viewModel.CurrentPage = new InstallOverviewPageViewModel(_viewModel);
     }
 
     public void Back(Wizard wizard)
     {
-      wizard.Step = new InstallWelcomeStep(_viewModel);
+      wizard.Step = new InstallWelcomeStep(_viewModel, _logger);
       _viewModel.CurrentPage = new InstallWelcomePageViewModel( _viewModel);
     }
 
