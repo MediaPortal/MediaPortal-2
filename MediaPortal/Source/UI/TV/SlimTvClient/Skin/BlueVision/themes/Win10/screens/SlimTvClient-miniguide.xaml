@@ -75,7 +75,7 @@
          HorizontalAlignment="Left"/>
         
         <Label x:Name="TimeLabel" Grid.Column="1" Grid.Row="1"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
-               FontSize="{ThemeResource BigFontSize}" Margin="0,0,20,8"
+               FontSize="{ThemeResource BigFontSize}" Margin="0,0,30,8"
                Color="{ThemeResource TextColor}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
 
         <Label x:Name="CurrentProgramLabel" Content="[SlimTvClient.CurrentProgram]" VerticalAlignment="Center" Grid.Column="1"
