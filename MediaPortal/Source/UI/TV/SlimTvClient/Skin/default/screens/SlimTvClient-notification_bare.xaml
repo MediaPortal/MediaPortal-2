@@ -26,8 +26,48 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Screen.Resources>
     <Model x:Key="SlimTvNotificationModel" Id="7F283468-27E9-46B9-8B3B-17E3143AFEEB"/>
   </Screen.Resources>
-  <Grid x:Name="NotificationPanel" Margin="10"
+  <Grid x:Name="NotificationPanel" Margin="10" 
         DataContext="{Binding Source={StaticResource SlimTvNotificationModel}, Path=Notification}">
+
+    <Grid.RenderTransform>
+      <TranslateTransform X="{Binding ElementName=NotificationPanel, Path=ActualWidth}"/>
+    </Grid.RenderTransform>
+
+    <Grid.Resources>
+      <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NotificationPanel" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="{Binding ElementName=NotificationPanel, Path=ActualWidth}"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NotificationPanel" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NotificationPanel" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="{Binding ElementName=NotificationPanel, Path=ActualWidth}"/>
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NotificationPanel" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:01" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+    </Grid.Resources>
+
+    <Grid.Triggers>
+      <Trigger Property="Visibility" Value="Visible">
+        <Trigger.EnterActions>
+          <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{ThemeResource SlideInStoryboard}"/>
+        </Trigger.EnterActions>
+        <Trigger.ExitActions>
+          <BeginStoryboard x:Name="SlideOut_BeginStoryboard" Storyboard="{ThemeResource SlideOutStoryboard}"/>
+          <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
+        </Trigger.ExitActions>
+      </Trigger>
+    </Grid.Triggers>
+
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
       <ColumnDefinition Width="Auto"/>
@@ -37,12 +77,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <Border Grid.Row="1" Grid.Column="1" x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
-        CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}">
+            CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}">
       <Border.Background>
         <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
           <GradientStop Offset="0" Color="{ThemeResource OSDCurrentPlayerControlBackgroundColor1}"/>
-          <GradientStop Offset="0.5" Color="{ThemeResource OSDCurrentPlayerControlBackgroundColor2}"/>
-          <GradientStop Offset="1" Color="{ThemeResource OSDCurrentPlayerControlBackgroundColor3}"/>
+          <GradientStop Offset="1" Color="{ThemeResource OSDCurrentPlayerControlBackgroundColor2}"/>
         </LinearGradientBrush >
       </Border.Background>
 

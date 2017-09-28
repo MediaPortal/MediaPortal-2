@@ -29,9 +29,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       Source="screens\SlimTvClient-notification_bare.xaml">
   <Include.Resources>
     <ControlTemplate x:Key="Notification_Template">
+
       <Grid>
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="210" />
+          <ColumnDefinition Width="190" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -39,10 +40,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <RowDefinition Height="90" />
         </Grid.RowDefinitions>
 
-        <Label x:Name="NotificationHeader" Grid.ColumnSpan="2" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+        <Label x:Name="NotificationHeader" Grid.ColumnSpan="2" Color="#FF1b1b1b" FontSize="{ThemeResource SmallFontSize}"
                Content="{DynamicResource Header_Text}" Margin="5,0,5,0"/>
 
-        <Image x:Name="ChannelLogo" Grid.Row="1" Width="210" Stretch="Uniform" Margin="5"
+        <Image x:Name="ChannelLogo" Grid.Row="1" Width="180" Stretch="Uniform" Margin="5"
                VerticalAlignment="Center" DataContext="{Binding Channel}">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtType="Banner" fanart:FanArtName="{Binding Name}"
@@ -58,20 +59,20 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Image.Source>
         </Image>
 
-        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="5,0,5,10">
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="5,5,5,5">
 
-          <Label x:Name="ChannelName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+          <Label x:Name="ChannelName" Color="#FF1b1b1b" FontSize="{ThemeResource SmallerFontSize}"
                  Content="{Binding Channel.Name}" />
 
-          <Label x:Name="ProgramName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+          <Label x:Name="ProgramName" Color="#FF1b1b1b" FontSize="{ThemeResource SmallerFontSize}"
                  Content="{Binding Schedule.Name}" />
 
           <StackPanel x:Name="TimePanel" Orientation="Horizontal">
-            <Label x:Name="StartTime" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"
+            <Label x:Name="StartTime" Color="#FF1b1b1b" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"
                    Content="{Binding Path=Schedule.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}" />
-            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center"
+            <Label Color="#FF1b1b1b" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center"
                    Content=" - " />
-            <Label x:Name="EndTime" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"
+            <Label x:Name="EndTime" Color="#FF1b1b1b" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"
                    Content="{Binding Path=Schedule.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}" />
           </StackPanel>
 
