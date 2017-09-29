@@ -34,4 +34,6 @@
 
   <ResourceWrapper x:Key="SeriesRecIndicatorHeight" Resource="40"/>
 
+  <ResourceWrapper x:Key="TvNotificationWidth" Resource="800"/>
+
 </ResourceDictionary>
