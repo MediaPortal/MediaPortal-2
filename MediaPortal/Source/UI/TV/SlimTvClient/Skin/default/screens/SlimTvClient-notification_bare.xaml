@@ -60,7 +60,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </EventTrigger.Actions>
     </EventTrigger>
   </Screen.Triggers>
-  <Grid x:Name="NotificationPanel" Margin="10"
+  <Grid x:Name="NotificationPanel" Margin="{ThemeResource TvNotificationPanelMargin}"
         DataContext="{Binding Source={StaticResource SlimTvNotificationModel}, Path=Notification}">
 
     <Grid.RenderTransform>
