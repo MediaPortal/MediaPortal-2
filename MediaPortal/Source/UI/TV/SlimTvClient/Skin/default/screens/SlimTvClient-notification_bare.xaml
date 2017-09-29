@@ -32,6 +32,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </DoubleAnimationUsingKeyFrames>
       <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NotificationPanel" Storyboard.TargetProperty="Opacity">
         <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="0"/>
         <SplineDoubleKeyFrame KeyTime="00:00:01.5" Value="1"/>
       </DoubleAnimationUsingKeyFrames>
     </Storyboard>
@@ -42,7 +43,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </DoubleAnimationUsingKeyFrames>
       <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NotificationPanel" Storyboard.TargetProperty="Opacity">
         <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-        <SplineDoubleKeyFrame KeyTime="00:00:01" Value="0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="0"/>
       </DoubleAnimationUsingKeyFrames>
     </Storyboard>
   </Screen.Resources>
