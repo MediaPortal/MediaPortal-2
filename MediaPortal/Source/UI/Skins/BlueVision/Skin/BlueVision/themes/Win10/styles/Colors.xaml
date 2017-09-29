@@ -13,7 +13,11 @@
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
   <ResourceWrapper x:Key="MediaItemFallbackBackgroundColor" Resource="#404040"/>
-  
+
+  <!-- OSD / Notifier -->
+  <ResourceWrapper x:Key="OSDPlayControlBorderColor" Resource="Transparent"/>
+  <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor1" Resource="#FFDCD9D9"/>
+  <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor2" Resource="#FFDCD9D9"/>
 
   <!-- Button background and effects-->
   <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#00003366"/>
