@@ -26,7 +26,9 @@ using HomeEditor.Groups;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
@@ -111,20 +113,22 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       if (_messageQueue == null)
         return;
+      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
+      if (!IsSystemActive())
+        return;
+
+      if (!_attachedToMenuItems)
+        UpdateMenu();
+      
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
         WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
-        if (messageType == WorkflowManagerMessaging.MessageType.StatePushed)
-        {
-          if (((NavigationContext)message.MessageData[WorkflowManagerMessaging.CONTEXT]).WorkflowState.StateId == HOME_STATE_ID)
-            UpdateMenu();
-        }
-        else if (messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
+        if (messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
         {
           var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
           if (context != null && context.WorkflowState.StateId == HOME_STATE_ID)
@@ -289,6 +293,33 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     #region Menu Update
 
+    protected ItemsList GetHomeMenuItems()
+    {
+      NavigationContext homeContext;
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.Lock.EnterReadLock();
+      try
+      {
+        homeContext = workflowManager.NavigationContextStack.FirstOrDefault(c => c.WorkflowState.StateId == HOME_STATE_ID);          
+      }
+      finally
+      {
+        workflowManager.Lock.ExitReadLock();
+      }
+
+      if (homeContext == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("WMCHomeModel: Unable to get menu items for home state");
+        return new ItemsList();
+      }
+
+      lock (homeContext.SyncRoot)
+      {
+        ItemsList menu = GetMenuItems(homeContext);
+        return menu != null ? menu : UpdateMenu(homeContext);
+      }
+    }
+
     protected void UpdateMenu()
     {
       _delayedMenuUpdateEvent.EnqueueEvent(this, EventArgs.Empty);
@@ -361,7 +392,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       if (_attachedToMenuItems)
         return;
-      MenuItems.ObjectChanged += OnMenuItemsChanged;
+      GetHomeMenuItems().ObjectChanged += OnMenuItemsChanged;
       _attachedToMenuItems = true;
     }
 
@@ -426,7 +457,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     protected bool UpdateNavigationList()
     {
-      _homeProxy.UpdateActions(MenuItems);
+      _homeProxy.UpdateActions(GetHomeMenuItems());
       if (!_homeProxy.GroupsUpdated)
         return false; ;
       _navigationList.Clear();

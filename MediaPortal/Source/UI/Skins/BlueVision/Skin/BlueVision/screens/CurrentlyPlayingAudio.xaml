@@ -97,24 +97,26 @@
             <Image x:Name="CDImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
                 Source="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
                 VerticalAlignment="Bottom" Width="235" Height="235" Margin="0,0,110,30">
-              <Image.Resources>
-                <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
-                  <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
-                                   From="0" To="360" Duration="0:0:3" RepeatBehavior="Forever" />
-                </Storyboard>
-              </Image.Resources>
               <Image.RenderTransform>
                 <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
               </Image.RenderTransform>
+
+              <Image.Resources>
+                <Storyboard x:Key="DiskRotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+                  <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                 From="0" To="360" Duration="0:0:4.5" RepeatBehavior="Forever" />
+                </Storyboard>
+              </Image.Resources>
+
               <Image.Triggers>
-                <Trigger Property="IsEnabled" Value="True">
-                  <Trigger.EnterActions>
-                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
-                  </Trigger.EnterActions>
-                  <Trigger.ExitActions>
+                <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DiskRotationStoryboard}"/>
+                  </DataTrigger.EnterActions>
+                  <DataTrigger.ExitActions>
                     <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-                  </Trigger.ExitActions>
-                </Trigger>
+                  </DataTrigger.ExitActions>
+                </DataTrigger>
               </Image.Triggers>
             </Image>
 

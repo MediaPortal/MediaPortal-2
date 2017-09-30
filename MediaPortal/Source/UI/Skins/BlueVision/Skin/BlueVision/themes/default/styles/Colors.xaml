@@ -8,6 +8,11 @@
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#33FFFFFF"/>
 
+  <!-- OSD / Notifier -->
+  <ResourceWrapper x:Key="OSDPlayControlBorderColor" Resource="Transparent"/>
+  <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor1" Resource="#D9fbfbfb"/>
+  <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor2" Resource="#D9a3a3a3"/>
+
   <ResourceWrapper x:Key="LogoutButtonColor" Resource="#99000000"/>
 
   <!-- Button background and effects-->
@@ -108,15 +113,10 @@
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
-
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
-
   <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource=""/>
-
   <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#DFE0E2" />
-
   <ResourceWrapper x:Key="ScrollBarWidth" Resource="1"/>
-
   <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="18"/>
 
   <!-- Star Rating -->
