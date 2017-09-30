@@ -36,5 +36,6 @@
   <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="150"/>
 
   <ResourceWrapper x:Key="SeriesRecIndicatorHeight" Resource="40"/>
+  <ResourceWrapper x:Key="TvNotificationPanelMargin" Resource="10,10,10,500"/>
 
 </ResourceDictionary>

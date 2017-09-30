@@ -247,13 +247,25 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     #endregion
 
-    #region Recordings / MediaLibrary synchronization
+    #region Server state
 
     protected void UpdateServerState()
     {
-      var state = new TvServerState { IsRecording = _tvControl.IsAnyCardRecording() };
+      IList<ISchedule> currentlyRecordingSchedules = Recording.ListAllActive().Where(r => r.IsRecording)
+        .Select(r => r.ReferencedSchedule().ToSchedule()).ToList();
+
+      TvServerState state = new TvServerState
+      {
+        IsRecording = _tvControl.IsAnyCardRecording(),
+        CurrentlyRecordingSchedules = currentlyRecordingSchedules
+      };
+
       ServiceRegistration.Get<IServerStateService>().UpdateState(TvServerState.STATE_ID, state);
     }
+
+    #endregion
+
+    #region Recordings / MediaLibrary synchronization
 
     protected override bool RegisterEvents()
     {
