@@ -310,6 +310,12 @@
       HelpText="[Settings.Players.WatchedPlayPercentage.Help]"
       ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.WatchedPlayPercentage"/>
 
+    <ConfigSetting
+      Id="VideoOsdTimeout"
+      Text="[Settings.Players.VideoOsdTimeout]"
+      HelpText="[Settings.Players.VideoOsdTimeout.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.VideoOsdTimeout"/>
+
   </Register>
 
   <!-- Contents of '/Media' section -->
