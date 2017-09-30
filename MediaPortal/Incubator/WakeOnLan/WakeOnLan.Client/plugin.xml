@@ -9,7 +9,7 @@
 
   <Version
     PluginVersion="1.0"
-    ReleaseDate="2017-01-02 01:00:00 GMT+01:00"
+    ReleaseDate="2017-09-30 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
 
   <Runtime>
@@ -23,7 +23,22 @@
     <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <CoreDependency Name="UPnP" CompatibleAPI="1" />
-    <PluginReference PluginId="{952BF8BC-04A3-4B6D-A25E-1ED6080278F6}" CompatibleAPI="1"/>    <!-- ServerSettings -->
-  </DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/> <!-- SkinBase -->
+  </DependsOn>  
+
+  <Register Location="/Resources/Language">
+    <Resource Id="WakeOnLanLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Contents of '/General/Connectivity' group -->
+  <Register Location="/Configuration/Settings/General/Connectivity">
+    <ConfigSetting 
+      Id="EnableWakeOnLan"
+      Text="[WakeOnLan.EnableWakeOnLan]"
+      HelpText="[WakeOnLan.EnableWakeOnLan.Help]"
+      ClassName="WakeOnLan.Client.Settings.Configuration.EnableWakeOnLan"/>
+  </Register>
   
 </Plugin>

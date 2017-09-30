@@ -160,6 +160,11 @@ namespace WakeOnLan.Client
     /// <returns></returns>
     protected async Task WakeServerAsync()
     {
+      var sm = ServiceRegistration.Get<ISettingsManager>();
+      var settings = sm.Load<WakeOnLanSettings>();
+      if (!settings.EnableWakeOnLan)
+        return;
+
       lock (_wolSendSync)
       {
         if (_isSendingWol)
@@ -170,8 +175,6 @@ namespace WakeOnLan.Client
 
       try
       {
-        var sm = ServiceRegistration.Get<ISettingsManager>();
-        var settings = sm.Load<WakeOnLanSettings>();
         WakeOnLanAddress wolAddress = settings.ServerWakeOnLanAddress;
         if (wolAddress == null || !WakeOnLanHelper.IsValidHardwareAddress(wolAddress.HardwareAddress))
         {
