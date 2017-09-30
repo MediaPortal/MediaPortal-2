@@ -95,15 +95,19 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       get { return LocalizationHelper.CreateResourceString(_settings.Settings.OthersGroupName); }
     }
 
-    public void UpdateActions(IEnumerable<ListItem> menuItems)
+    public void UpdateActions(ItemsList menuItems)
     {
       UninitializeActions();
       _availableActions = new Dictionary<Guid, WorkflowAction>();
-      foreach (ListItem item in menuItems)
+
+      lock (menuItems.SyncRoot)
       {
-        WorkflowAction action = item.AdditionalProperties[Consts.KEY_ITEM_ACTION] as WorkflowAction;
-        if (action != null)
-          _availableActions[action.ActionId] = action;
+        foreach (ListItem item in menuItems)
+        {
+          WorkflowAction action = item.AdditionalProperties[Consts.KEY_ITEM_ACTION] as WorkflowAction;
+          if (action != null)
+            _availableActions[action.ActionId] = action;
+        }
       }
 
       var customActions = ServiceRegistration.Get<IWorkflowManager>().MenuStateActions.Values
