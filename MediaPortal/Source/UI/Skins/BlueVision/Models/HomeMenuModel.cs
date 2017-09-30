@@ -44,6 +44,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Xml;
+using MediaPortal.Common.Runtime;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -815,13 +816,16 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       if (_messageQueue == null)
         return;
+      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      UpdateMenu(true);
+      if (!IsSystemActive())
+        return;
 
+      UpdateMenu(true);
       if (message.ChannelName == MenuModelMessaging.CHANNEL)
       {
         if ((MenuModelMessaging.MessageType)message.MessageType == MenuModelMessaging.MessageType.UpdateMenu)
