@@ -34,11 +34,11 @@
       </mp_special_controls:PlayerControl.TemplateControl>
     </mp_special_controls:PlayerControl>
 
-    <Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
+    <!--Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
       <Control.TemplateControl>
         <Include Source="screens\FSCWindowButtons.inc"/>
       </Control.TemplateControl>
-    </Control>
+    </-->
 
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
           IsVisible="{Binding !IsOSDVisible}"/>
@@ -50,10 +50,13 @@
             AutoVisibility="true"/>
     </DockPanel>
 
-    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" IsVisible="{Binding IsOSDVisible}"
+    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3"
             Style="{ThemeResource PrimaryImageOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-    
+
     <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
+    <KeyBinding Key="Back" Command="{Command CloseVideoInfo}" IsEnabled="{Binding IsOSDVisible}"/>
+    <KeyBinding Key="Escape" Command="{Command CloseVideoInfo}" IsEnabled="{Binding IsOSDVisible}"/>
+    
   </Grid>
 </Screen>

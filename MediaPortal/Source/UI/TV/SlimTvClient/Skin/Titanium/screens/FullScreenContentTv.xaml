@@ -43,7 +43,7 @@
     </DockPanel>
 
     <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3"
-            Style="{ThemeResource PrimarySlimTvOSDStyle}" IsVisible="{Binding IsOSDVisible}"
+            Style="{ThemeResource PrimarySlimTvOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
     <!-- All KeyBindings are included from shared resource -->

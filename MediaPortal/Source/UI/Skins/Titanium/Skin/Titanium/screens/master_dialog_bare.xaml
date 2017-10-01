@@ -105,5 +105,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
             Template="{DynamicResource ResourceKey=Contents_Template}"/>
         </DockPanel>
     </Border>
+    <Control x:Name="AdditionalKeyBindings" Visibility="Hidden" Template="{DynamicResource ResourceKey=Additional_KeyBindings}"/>
   </DockPanel>
 </Screen>

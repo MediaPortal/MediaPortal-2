@@ -233,8 +233,10 @@
                             Command="{Command SeekForward}"/>
                     <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}"
                             Command="{Command Next}"/>
-                    <Image Source="topbar_devider.png" Margin="15,0,15,0"/>                                         
-                    <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="0,0,0,0"
+                    <Image Source="topbar_devider.png" Margin="15,0,15,0"/>
+                    <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="0,0,0,0"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
+                    <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}"
                             IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
                             Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
                     <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="0,0,0,0" IsVisible="{Binding IsAudio}"

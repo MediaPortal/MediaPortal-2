@@ -22,6 +22,13 @@
         <LateBoundValue BindingValue="{Binding}"/>
       </InvokeCommand.CommandParameters>
     </InvokeCommand>
+    
+    <ControlTemplate x:Key="Additional_KeyBindings">
+      <Grid>
+        <KeyBinding Key="Info" Command="{Command Source={Service ScreenManager}, Path=CloseTopmostDialog}" />
+        <KeyBinding Key="Back" Command="{Command Source={Service ScreenManager}, Path=CloseTopmostDialog}" />
+      </Grid>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

@@ -23,12 +23,17 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -44,7 +49,9 @@ namespace MediaPortal.UiComponents.Media.Models
     public const string MODEL_ID_STR = "4E2301B4-3C17-4a1d-8DE5-2CEA169A0256";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
-    protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
+    private bool _isPlayerConfigOpen;
+    private DateTime _lastVideoInfoDemand = DateTime.MinValue;
+    private bool _isOsdOpenOnDemand;
 
     protected AbstractProperty _isOSDVisibleProperty;
     protected AbstractProperty _isPipProperty;
@@ -53,6 +60,9 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       _isOSDVisibleProperty = new WProperty(typeof(bool), false);
       _isPipProperty = new WProperty(typeof(bool), false);
+      
+      SubscribeToMessages();
+
       // Don't StartTimer here, since that will be done in method EnterModelContext
     }
 
@@ -64,17 +74,54 @@ namespace MediaPortal.UiComponents.Media.Models
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
 
-      bool timeoutElapsed = true;
-      if (_lastVideoInfoDemand != DateTime.MinValue)
+      if (!_isOsdOpenOnDemand && !_isPlayerConfigOpen)
       {
-        // Consider all inputs to keep OSD alive
-        _lastVideoInfoDemand = inputManager.LastInputTime;
-        timeoutElapsed = DateTime.Now - _lastVideoInfoDemand > Consts.TS_VIDEO_INFO_TIMEOUT;
-        if (timeoutElapsed)
-          _lastVideoInfoDemand = DateTime.MinValue;
+        if (DateTime.Now - _lastVideoInfoDemand > DateTime.Now.AddSeconds(5) - DateTime.Now)
+        {
+          IsOSDVisible = inputManager.IsMouseUsed;
+        }
       }
-      IsOSDVisible = inputManager.IsMouseUsed || !timeoutElapsed || _inactive;
+
       IsPip = pipPlayer != null;
+    }
+
+    private void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+      {
+        WorkflowManagerMessaging.CHANNEL,
+        PlayerManagerMessaging.CHANNEL,
+        PlayerContextManagerMessaging.CHANNEL,
+      });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.StatePushed)
+        {
+          bool isPlayerConfigDialog = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("D0B79345-69DF-4870-B80E-39050434C8B3", StringComparison.OrdinalIgnoreCase);
+          if (isPlayerConfigDialog)
+          {
+            _isPlayerConfigOpen = true;
+            IsOSDVisible = false;
+          }
+        }
+
+        if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.StatesPopped)
+        {
+          ICollection<Guid> statesRemoved = new List<Guid>(((IDictionary<Guid, NavigationContext>)message.MessageData[WorkflowManagerMessaging.CONTEXTS]).Keys);
+          if (statesRemoved.Contains(new Guid("D0B79345-69DF-4870-B80E-39050434C8B3")))
+          {
+            _isPlayerConfigOpen = false;
+            _lastVideoInfoDemand = DateTime.Now;
+            _isOsdOpenOnDemand = false;
+          }
+        }
+      }
     }
 
     protected override Type GetPlayerUIContributorType(IPlayer player, MediaWorkflowStateType stateType)
@@ -124,12 +171,34 @@ namespace MediaPortal.UiComponents.Media.Models
     public void ShowVideoInfo()
     {
       if (IsOSDVisible)
-        // Pressing the info button twice will bring up the context menu
-        PlayerConfigurationDialogModel.OpenPlayerConfigurationDialog();
-      _lastVideoInfoDemand = DateTime.Now;
-      Update();
+      {
+        MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+        if (settings.OpenPlayerConfigInOsd)
+        {
+          PlayerConfigurationDialogModel.OpenPlayerConfigurationDialog();
+        }
+        else
+        {
+          IsOSDVisible = !IsOSDVisible;
+          _lastVideoInfoDemand = DateTime.Now;
+        }
+      }
+      else
+      {
+        IsOSDVisible = !IsOSDVisible;
+      }
+      _isOsdOpenOnDemand = IsOSDVisible;
     }
 
+
+      _lastVideoInfoDemand = DateTime.Now;
+      _isOsdOpenOnDemand = false;
+
+    public void OpenPlayerConfigurationDialog()
+    {
+      PlayerConfigurationDialogModel.OpenPlayerConfigurationDialog();
+    }
+    
     #endregion
 
     #region IWorkflowModel implementation
