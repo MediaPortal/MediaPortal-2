@@ -79,6 +79,11 @@
   <string name="Settings.ServerSettings.ImageMDESettings">Image import settings</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Lookup geolocation details</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Enables whether geolocation should be found from geographic coordinates stored in image.</string>
+  <string name="Settings.ServerSettings.VideoMDESettings">Video import settings</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline">Cache FanArt for offline browsing</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help">Select what FanArt should be available from a share even when it is offline.</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineNetwork">Cache FanArt on a network share</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineLocal">Cache FanArt on a local share</string>
   <string name="Settings.ServerSettings.FanArtSettings">FanArt settings</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops">Maximum number of backdrops</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help">The maximum number of backdrops to have available. A higher number of backdrops will require more disk space.</string>
