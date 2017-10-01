@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -105,6 +106,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       try
       {
         IList<BassUtils.AudioTrack> audioTracks = BassUtils.GetAudioTracks(drive);
+        // BassUtils can report wrong audio tracks for some devices, we filter out "Duration = -1" here
+        audioTracks = audioTracks?.Where(t => t.Duration > 0).ToList();
         if (audioTracks == null || audioTracks.Count == 0)
           return false;
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();

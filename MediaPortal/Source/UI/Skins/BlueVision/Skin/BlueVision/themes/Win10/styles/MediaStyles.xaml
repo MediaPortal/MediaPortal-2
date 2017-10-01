@@ -2108,36 +2108,58 @@
                   </Image>
 
                   <!--Fallback to thumb for other video types-->
-                  <Image x:Name="VideoThumb" Stretch="Uniform" Source="{Binding MediaItem}" Margin="0,20,0,20">
+                  <Image x:Name="VideoThumb" Stretch="Uniform" FallbackSource="{Binding MediaItem}" Margin="0,20,0,20">
                     <Image.IsVisible>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {VisibilityEnum}.{Hidden}">
                         <Binding ElementName="MoviePoster" Path="Visibility"/>
                       </MultiBinding>
                     </Image.IsVisible>
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail"
+                                                fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
+                                                fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                    </Image.Source>
                   </Image>
                 </Grid>
 
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_InfoArea_Template">
-
                 <Grid x:Name="InfoGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
-                    <RowDefinition Height="15"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="150"/>
+                    <RowDefinition Height="180"/>
                   </Grid.RowDefinitions>
 
-                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                         FontFamily="DefaultBold" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Margin="0,10,0,0"
+                         FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
 
-                  <Label x:Name="StoryPlot" Wrap="True" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,-5"
-                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextTrimming="WordEllipsis"
-                         Content="{Binding Path=VideoStoryPlot}" Color="{ThemeResource TextColor}" Opacity="0.6" />
+                  <media:MediaAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Column="1" Margin="10,10,0,0">
+                    <media:MediaAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Label x:Name="Year" FontSize="{ThemeResource SmallerFontSize}"
+                                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                 Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
+                      </ControlTemplate>
+                    </media:MediaAspectWrapper.Template>
+                  </media:MediaAspectWrapper>
+
+                  <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,0"
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <media:VideoAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Label x:Name="StoryPlot" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                 TextTrimming="WordEllipsis" Opacity="0.6" Wrap="True"
+                                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                 Content="{Binding Path=StoryPlot}" Color="{ThemeResource TextColor}" />
+                      </ControlTemplate>
+                    </media:VideoAspectWrapper.Template>
+                  </media:VideoAspectWrapper>
+
                 </Grid>
               </ControlTemplate>
 

@@ -322,6 +322,21 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
     }
 
+    /// <summary>
+    /// Sets the initial state of the home screen
+    /// </summary>
+    private void InitMenu()
+    {
+      if (_menuSettings != null)
+        return;
+
+      UpdateMenu(true);
+      IsHomeScreen = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("7F702D9C-F2DD-42da-9ED8-0BA92F07787F", StringComparison.OrdinalIgnoreCase);
+      if (!string.Equals(_menuSettings.Settings.DefaultMenuGroupId, MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase))
+        _lastActiveGroup = _menuSettings.Settings.DefaultMenuGroupId;
+      UpdateSelectedGroup();
+    }
+
     private void UpdateMenu(bool firstTimeOnly = false)
     {
       var doUpdate = !firstTimeOnly || _menuSettings == null;
@@ -827,7 +842,8 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       if (!IsSystemActive())
         return;
 
-      UpdateMenu(true);
+      InitMenu();
+
       if (message.ChannelName == MenuModelMessaging.CHANNEL)
       {
         if ((MenuModelMessaging.MessageType)message.MessageType == MenuModelMessaging.MessageType.UpdateMenu)

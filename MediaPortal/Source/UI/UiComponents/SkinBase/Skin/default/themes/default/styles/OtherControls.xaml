@@ -27,6 +27,7 @@
   <StringFormatConverter x:Key="StringFormatConverter"/>
   <SafeFilenameConverter x:Key="SafeFilenameConverter"/>
   <StringSplitConverter x:Key="StringSplitConverter"/>
+  <BoolToFocusPriorityConverter x:Key="BoolToFocusPriorityConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 

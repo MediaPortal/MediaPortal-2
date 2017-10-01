@@ -28,6 +28,7 @@
   <DurationConverter x:Key="DurationConverter"/>
   <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
+  <BoolToFocusPriorityConverter x:Key="BoolToFocusPriorityConverter"/>
   <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
   <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
 
