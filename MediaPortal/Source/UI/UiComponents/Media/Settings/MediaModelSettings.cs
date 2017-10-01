@@ -32,7 +32,6 @@ namespace MediaPortal.UiComponents.Media.Settings
     protected const double DEFAULT_INSTANT_SKIP_PERCENT = 20;
     protected const double DEFAULT_SKIPSTEP_TIMEOUT = 1.5f;
     protected const string DEFAULT_SKIPSTEP_LIST = "15,30,60,180,300,600,900,1800,3600,7200"; // list of seconds
-    protected const double DEFAULT_VIDEO_OSD_TIMEOUT = 0;
 
     protected bool _closePlayerWhenFinished = DEFAULT_CLOSE_PLAYER_WHEN_FINISHED;
 
@@ -60,12 +59,5 @@ namespace MediaPortal.UiComponents.Media.Settings
     /// </summary>
     [Setting(SettingScope.Global, DEFAULT_SKIPSTEP_LIST)]
     public string SkipStepList { get; set; }
-
-    /// <summary>
-    /// Timeout in seconds after the video OSD gets automatically closed.
-    /// Zero means it will not close automatically.
-    /// </summary>
-    [Setting(SettingScope.Global, DEFAULT_VIDEO_OSD_TIMEOUT)]
-    public double VideoOsdTimeout { get; set; }
   }
 }

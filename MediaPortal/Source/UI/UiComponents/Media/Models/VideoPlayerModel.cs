@@ -26,10 +26,8 @@ using System;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.SkinBase.Models;
 
 namespace MediaPortal.UiComponents.Media.Models
@@ -64,18 +62,18 @@ namespace MediaPortal.UiComponents.Media.Models
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext secondaryPlayerContext = playerContextManager.SecondaryPlayerContext;
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
 
       bool timeoutElapsed = true;
       if (_lastVideoInfoDemand != DateTime.MinValue)
       {
-        timeoutElapsed = !settings.VideoOsdTimeout.Equals(0) && DateTime.Now - _lastVideoInfoDemand > TimeSpan.FromSeconds(settings.VideoOsdTimeout);
+        // Consider all inputs to keep OSD alive
+        _lastVideoInfoDemand = inputManager.LastInputTime;
+        timeoutElapsed = DateTime.Now - _lastVideoInfoDemand > Consts.TS_VIDEO_INFO_TIMEOUT;
         if (timeoutElapsed)
-        {
           _lastVideoInfoDemand = DateTime.MinValue;
-        }
       }
-      IsOSDVisible = !timeoutElapsed || _inactive;
+      IsOSDVisible = inputManager.IsMouseUsed || !timeoutElapsed || _inactive;
       IsPip = pipPlayer != null;
     }
 
@@ -130,15 +128,6 @@ namespace MediaPortal.UiComponents.Media.Models
         PlayerConfigurationDialogModel.OpenPlayerConfigurationDialog();
       _lastVideoInfoDemand = DateTime.Now;
       Update();
-    }
-
-    public void CloseVideoInfo()
-    {
-      if (IsOSDVisible)
-      {
-        IsOSDVisible = false;
-        _lastVideoInfoDemand = DateTime.MinValue;
-      }
     }
 
     #endregion
