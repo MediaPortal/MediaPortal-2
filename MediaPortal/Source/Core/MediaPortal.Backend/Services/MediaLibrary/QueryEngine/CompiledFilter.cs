@@ -51,17 +51,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly ICollection<MediaItemAspectMetadata> _requiredMIATypes;
     protected readonly IDictionary<string, string> _innerJoinedTables = new Dictionary<string, string>();
 
-    public CompiledFilter(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins)
+    public CompiledFilter(MIA_Management miaManagement, IFilter filter, IFilter subqueryFilter, Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins)
     {
       _statementParts = new List<object>();
       _statementBindVars = new List<BindVar>();
       _requiredMIATypes = new List<MediaItemAspectMetadata>();
-      CompileStatementParts(miaManagement, filter, ns, bvNamespace, _requiredMIATypes, outerMIIDJoinVariable, tableJoins,
+      CompileStatementParts(miaManagement, filter, subqueryFilter, ns, bvNamespace, _requiredMIATypes, outerMIIDJoinVariable, tableJoins,
           _statementParts, _statementBindVars);
       _requiredAttributes = _statementParts.OfType<QueryAttribute>().ToList();
     }
 
-    protected virtual void CompileStatementParts(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace,
+    protected virtual void CompileStatementParts(MIA_Management miaManagement, IFilter filter, IFilter subqueryFilter, Namespace ns, BindVarNamespace bvNamespace,
         ICollection<MediaItemAspectMetadata> requiredMIATypes, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins,
         IList<object> resultParts, IList<BindVar> resultBindVars)
     {
@@ -193,7 +193,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           return;
         if (numOperands > 1)
           resultParts.Add("(");
-        CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, ns, bvNamespace,
+        CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, subqueryFilter, ns, bvNamespace,
             requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
         while (enumOperands.MoveNext())
         {
@@ -209,7 +209,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          CompileStatementParts(miaManagement, (IFilter)enumOperands.Current, ns, bvNamespace,
+          CompileStatementParts(miaManagement, (IFilter)enumOperands.Current, subqueryFilter, ns, bvNamespace,
               requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
         }
         if (numOperands > 1)
@@ -221,7 +221,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (notFilter != null)
       {
         resultParts.Add("NOT (");
-        CompileStatementParts(miaManagement, notFilter.InnerFilter, ns, bvNamespace,
+        CompileStatementParts(miaManagement, notFilter.InnerFilter, subqueryFilter, ns, bvNamespace,
             requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
         resultParts.Add(")");
         return;
@@ -319,7 +319,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         resultParts.Add(outerMIIDJoinVariable);
         resultParts.Add(" IN(");
-        BuildRelationshipSubquery(relationshipFilter, miaManagement, bvNamespace, resultParts, resultBindVars);
+        BuildRelationshipSubquery(relationshipFilter, subqueryFilter, miaManagement, bvNamespace, resultParts, resultBindVars);
         resultParts.Add(")");
         return;
       }
@@ -582,11 +582,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// Builds a subquery that returns the ids of the media items returned by the <paramref name="filter"/>. 
     /// </summary>
     /// <param name="filter">Relationship filter instance to create the sub query for.</param>
+    /// <param name="subqueryFilter">Additional filter to apply to all subqueries.</param>
     /// <param name="miaManagement">MIA_Management instance to generate attribute column names.</param>
     /// <param name="bvNamespace">Namespace used to build bind var names.</param>
     /// <param name="resultParts">Statement parts for the filter.</param>
     /// <param name="resultBindVars">Bind variables for the filter.</param>
-    public static void BuildRelationshipSubquery(AbstractRelationshipFilter filter, MIA_Management miaManagement,
+    public static void BuildRelationshipSubquery(AbstractRelationshipFilter filter, IFilter subqueryFilter, MIA_Management miaManagement,
       BindVarNamespace bvNamespace, IList<object> resultParts, IList<BindVar> resultBindVars)
     {
       //Simple relationship filter with linked id
@@ -623,8 +624,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         //Build a sub query for the linked filter 
         string idAlias = null;
         ICollection<QueryAttribute> requiredAttributes = new List<QueryAttribute>();
-        RelationshipQueryBuilder filterBuilder = new RelationshipQueryBuilder(miaManagement, requiredAttributes,
-          new List<MediaItemAspectMetadata>(), filteredRelationshipFilter.Filter, bvNamespace.BindVarCounter);
+        SubQueryBuilder filterBuilder = new SubQueryBuilder(miaManagement, requiredAttributes,
+          new List<MediaItemAspectMetadata>(), filteredRelationshipFilter.Filter, subqueryFilter, bvNamespace.BindVarCounter);
         filterBuilder.GenerateSqlStatement(out idAlias, out sqlStatement, out bindVars);
         sqlStatement = " SELECT TS." + idAlias + " FROM (" + sqlStatement + ") TS";
 

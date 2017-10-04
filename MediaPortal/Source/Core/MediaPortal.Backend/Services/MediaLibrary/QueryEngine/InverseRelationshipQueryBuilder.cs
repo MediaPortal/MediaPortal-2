@@ -37,13 +37,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           : base(miaManagement, simpleSelectAttributes,
           null,
           new List<MediaItemAspectMetadata> { RelationshipAspect.Metadata }, new List<MediaItemAspectMetadata> { },
-          new MediaItemIdFilter(linkedIds), null)
+          new MediaItemIdFilter(linkedIds), null, null)
         {
         }
 
         protected override CompiledFilter CreateCompiledFilter(Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, IList<TableJoin> tableJoins)
         {
-          return new InverseRelationshipCompiledFilter(_miaManagement, (MediaItemIdFilter)_filter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
+          return new InverseRelationshipCompiledFilter(_miaManagement, (MediaItemIdFilter)_filter, _subqueryFilter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
         }
 
         /// <summary>

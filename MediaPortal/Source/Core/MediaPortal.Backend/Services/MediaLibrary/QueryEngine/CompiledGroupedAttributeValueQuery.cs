@@ -49,13 +49,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly SelectProjectionFunction _selectProjectionFunction = null;
     protected readonly Type _projectionValueType = null;
     protected readonly IFilter _filter = null;
+    protected readonly IFilter _subqueryFilter = null;
 
     public CompiledGroupedAttributeValueQuery(
         MIA_Management miaManagement,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIATypes,
         MediaItemAspectMetadata.AttributeSpecification selectedAttribute, IAttributeFilter selectAttributeFilter,
         SelectProjectionFunction selectProjectionFunction, Type projectionValueType,
-        IFilter filter)
+        IFilter filter, IFilter subqueryFilter)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
@@ -64,6 +65,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _selectProjectionFunction = selectProjectionFunction;
       _projectionValueType = projectionValueType;
       _filter = filter;
+      _subqueryFilter = subqueryFilter;
     }
 
     public CompiledGroupedAttributeValueQuery(
@@ -73,7 +75,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         MediaItemAspectMetadata.AttributeSpecification selectedValueAttribute,
         IAttributeFilter selectAttributeFilter,
         SelectProjectionFunction selectProjectionFunction, Type projectionValueType,
-        IFilter filter)
+        IFilter filter, IFilter subqueryFilter)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
@@ -83,6 +85,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _selectProjectionFunction = selectProjectionFunction;
       _projectionValueType = projectionValueType;
       _filter = filter;
+      _subqueryFilter = subqueryFilter;
     }
 
     public IEnumerable<MediaItemAspectMetadata> NecessaryRequestedMIATypes
@@ -113,7 +116,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public static CompiledGroupedAttributeValueQuery Compile(MIA_Management miaManagement,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs,
         MediaItemAspectMetadata.AttributeSpecification selectAttribute, IAttributeFilter selectAttributeFilter,
-        SelectProjectionFunction selectProjectionFunction, Type projectionValueType, IFilter filter)
+        SelectProjectionFunction selectProjectionFunction, Type projectionValueType, IFilter filter, IFilter subqueryFilter)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
 
@@ -134,7 +137,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         necessaryMIATypes.Add(miam);
       }
       return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute, selectAttributeFilter,
-          selectProjectionFunction, projectionValueType, combinedFilter);
+          selectProjectionFunction, projectionValueType, combinedFilter, subqueryFilter);
     }
 
     public static CompiledGroupedAttributeValueQuery Compile(MIA_Management miaManagement,
@@ -142,7 +145,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         MediaItemAspectMetadata.AttributeSpecification selectKeyAttribute,
         MediaItemAspectMetadata.AttributeSpecification selectValueAttribute,
         IAttributeFilter selectAttributeFilter,
-        SelectProjectionFunction selectProjectionFunction, Type projectionValueType, IFilter filter)
+        SelectProjectionFunction selectProjectionFunction, Type projectionValueType, IFilter filter, IFilter subqueryFilter)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
 
@@ -163,7 +166,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         necessaryMIATypes.Add(miam);
       }
       return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectKeyAttribute, selectValueAttribute, 
-        selectAttributeFilter, selectProjectionFunction, projectionValueType, combinedFilter);
+        selectAttributeFilter, selectProjectionFunction, projectionValueType, combinedFilter, subqueryFilter);
     }
 
     public Tuple<HomogenousMap, HomogenousMap> Execute()
@@ -191,7 +194,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               qAttributes.Add(selectKeyAttributeQA);
             }
             MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement, qAttributes, _selectProjectionFunction,
-                _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
+                _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, _subqueryFilter, null);
             IDictionary<QueryAttribute, string> qa2a;
             builder.GenerateSqlGroupByStatement(out groupSizeAlias, out qa2a, out statementStr, out bindVars);
             valueAlias = qa2a[selectValueAttributeQA];
@@ -205,7 +208,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new InvalidDataException("Value attribute '{0}' does not support key value grouping", _selectValueAttribute.AttributeName);
             }
             ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectValueAttribute,
-                _selectProjectionFunction, _necessaryRequestedMIATypes, _filter);
+                _selectProjectionFunction, _necessaryRequestedMIATypes, _filter, _subqueryFilter);
             builder.GenerateSqlGroupByStatement(_selectAttributeFilter, out valueAlias, out groupSizeAlias,
                 out statementStr, out bindVars);
           }

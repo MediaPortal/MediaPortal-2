@@ -83,6 +83,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IList<QueryAttribute> _selectAttributes;
     protected readonly SelectProjectionFunction _selectProjectionFunction;
     protected readonly IFilter _filter;
+    protected readonly IFilter _subqueryFilter;
     protected readonly IList<SortInformation> _sortInformation;
     protected readonly uint? _offset;
     protected readonly uint? _limit;
@@ -106,7 +107,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public MainQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
         SelectProjectionFunction selectProjectionFunction,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-        IFilter filter, IList<SortInformation> sortInformation, uint? limit = null, uint? offset = null)
+        IFilter filter, IFilter subqueryFilter, IList<SortInformation> sortInformation, uint? limit = null, uint? offset = null)
       : base(miaManagement)
     {
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
@@ -114,6 +115,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _selectAttributes = new List<QueryAttribute>(simpleSelectAttributes);
       _selectProjectionFunction = selectProjectionFunction;
       _filter = filter;
+      _subqueryFilter = subqueryFilter;
       _sortInformation = sortInformation;
       _limit = limit;
       _offset = offset;
@@ -347,7 +349,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     protected virtual CompiledFilter CreateCompiledFilter(Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, IList<TableJoin> tableJoins)
     {
-      return new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
+      return new CompiledFilter(_miaManagement, _filter, _subqueryFilter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
     }
 
     /// <summary>
