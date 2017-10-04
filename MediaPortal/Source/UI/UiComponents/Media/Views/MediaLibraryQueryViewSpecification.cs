@@ -35,6 +35,7 @@ using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -45,7 +46,8 @@ namespace MediaPortal.UiComponents.Media.Views
   {
     #region Protected fields
 
-    protected IFilter _filter;
+    protected IFilterTree _filterTree;
+    protected FilterTreePath _filterPath;
     protected MediaItemQuery _query;
     protected bool _onlyOnline;
     protected int? _maxNumItems;
@@ -55,12 +57,12 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #region Ctor
 
-    public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilter filter,
+    public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilterTree filterTree,
         IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
         base(viewDisplayName, necessaryMIATypeIDs, optionalMIATypeIDs)
     {
-      _filter = filter;
-      _query = new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs, filter);
+      _filterTree = filterTree ?? new SimpleFilterTree();
+      _query = new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs, _filterTree.BuildFilter());
       _onlyOnline = onlyOnline;
     }
 
@@ -71,9 +73,15 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return _onlyOnline; }
     }
 
-    public IFilter Filter
+    public IFilterTree FilterTree
     {
-      get { return _filter; }
+      get { return _filterTree; }
+    }
+
+    public FilterTreePath FilterPath
+    {
+      get { return _filterPath; }
+      set { _filterPath = value; }
     }
 
     /// <summary>
@@ -102,19 +110,18 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
-    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter,
-      IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, bool combineFilters)
+    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, FilterTreePath filterPath, IFilter filter, Guid? linkedId)
     {
-      IFilter combinedFilter;
-      if (_filter == null || !combineFilters)
-        combinedFilter = filter;
-      else
-        combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { _filter, filter });
-
-      return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter,
-        necessaryMIATypeIds ?? _necessaryMIATypeIds, optionalMIATypeIds ?? _optionalMIATypeIds, _onlyOnline)
+      IFilterTree newFilterTree = _filterTree.DeepCopy();
+      if (linkedId.HasValue)
+        newFilterTree.AddLinkedId(linkedId.Value, filterPath);
+      else if (filter != null)
+        newFilterTree.AddFilter(filter, filterPath);
+      
+      return new MediaLibraryQueryViewSpecification(viewDisplayName, newFilterTree, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
       {
-        MaxNumItems = _maxNumItems
+        MaxNumItems = _maxNumItems,
+        FilterPath = filterPath
       };
     }
 
@@ -164,7 +171,7 @@ namespace MediaPortal.UiComponents.Media.Views
             foreach (MLQueryResultGroup group in groups)
             {
               MediaLibraryQueryViewSpecification subViewSpecification =
-                CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter, _necessaryMIATypeIds, _optionalMIATypeIds, true);
+                CreateSubViewSpecification(string.Format("{0}", group.GroupKey), _filterPath, group.AdditionalFilter, null);
               subViewSpecification.MaxNumItems = null;
               subViewSpecification._absNumItems = group.NumItemsInGroup;
               subViewSpecifications.Add(subViewSpecification);

@@ -24,10 +24,9 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -38,7 +37,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_COMMON_BY_SERIES_NAME_MENU_ITEM,
         Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new FilterBySeriesCriterion())
     {
-      _filteredMias = new[] { VideoAspect.ASPECT_ID };
+      _filterPath = new FilterTreePath(SeriesAspect.ROLE_SERIES);
       _availableMias = Consts.NECESSARY_SERIES_MIAS;
       if (Consts.OPTIONAL_SERIES_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_SERIES_MIAS);
@@ -47,18 +46,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override AbstractFiltersScreenData<SeriesFilterItem> Derive()
     {
       return new SeriesFilterByNameScreenData();
-    }
-
-    //Special case for series screen, it can support series filters and episode filters
-    public override bool CanFilter(IEnumerable<Guid> necessaryMIATypeIds)
-    {
-      return base.CanFilter(necessaryMIATypeIds) || necessaryMIATypeIds.Contains(SeriesAspect.ASPECT_ID);
-    }
-    
-    public void SetRootMiaTypes(ICollection<Guid> necessaryLinkedMIATypeIds, ICollection<Guid> optionalLinkedMIATypeIds)
-    {
-      _necessaryLinkedMIATypeIds = necessaryLinkedMIATypeIds;
-      _optionalLinkedMIATypeIds = optionalLinkedMIATypeIds;
     }
   }
 }
