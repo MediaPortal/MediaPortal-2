@@ -28,10 +28,10 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 namespace MediaPortal.UiComponents.Media.FilterTrees
 {
   /// <summary>
-  /// Represents a hierarchical tree of filters connected by relationships for use in stacked media views.
+  /// Represents a hierarchical tree of filters for use in stacked media views.
   /// <para>
-  /// The tree can be used to maintain filters for different roles and allows building a complete <see cref="IFilter"/>
-  /// for any role and path.
+  /// Implementations of this class can apply custom adding and building of filters based on a <see cref="FilterTreePath"/>, for example
+  /// the <see cref="RelationshipFilterTree"/> can build a complex filter for multiple roles connected by a <see cref="RelationshipFilter"/>.   
   /// </para>
   /// </summary>
   public interface IFilterTree

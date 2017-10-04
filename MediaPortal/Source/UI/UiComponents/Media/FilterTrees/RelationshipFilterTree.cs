@@ -30,7 +30,8 @@ using System.Linq;
 namespace MediaPortal.UiComponents.Media.FilterTrees
 {
   /// <summary>
-  /// Implementation of <see cref="IFilterTree"/> that connects nodes by using <see cref="RelationshipFilter"/>s and <see cref="FilteredRelationshipFilter"/>s.
+  /// Implementation of <see cref="IFilterTree"/> that connects filters for different roles by using
+  /// <see cref="RelationshipFilter"/>s and <see cref="FilteredRelationshipFilter"/>s.
   /// </summary>
   public class RelationshipFilterTree : IFilterTree
   {
@@ -74,7 +75,7 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
     /// <returns></returns>
     public IFilter BuildFilter()
     {
-      return BuildForwardFilter(null);
+      return BuildChildFilters(null);
     }
 
     /// <summary>
@@ -85,8 +86,11 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
     /// <returns></returns>
     public IFilter BuildFilter(FilterTreePath path)
     {
-      RelationshipFilterTree node = FindNodeForPath(path);
-      return node.BuildReverseFilter(null);
+      //We won't add missing nodes to avoid polluting the tree.
+      //The filter will still be created correctly because the 'missing' nodes
+      //have a reference to the tree via their parent field and can therefore walk up correctly.
+      RelationshipFilterTree node = FindNodeForPath(path, false);
+      return node.BuildChildAndParentFilters(null);
     }
 
     /// <summary>
@@ -105,7 +109,7 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
     /// <param name="path">The absolute path to the node from this node.</param>
     public void AddFilter(IFilter filter, FilterTreePath path)
     {
-      RelationshipFilterTree node = FindNodeForPath(path);
+      RelationshipFilterTree node = FindNodeForPath(path, true);
       node.CombineFilter(filter);
     }
 
@@ -117,13 +121,12 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
     /// <param name="path">The absolute path to the node from this node.</param>
     public void AddLinkedId(Guid linkedId, FilterTreePath path)
     {
-      RelationshipFilterTree node = FindNodeForPath(path);
+      RelationshipFilterTree node = FindNodeForPath(path, true);
       node.LinkedIds.Add(linkedId);
     }
 
     /// <summary>
-    /// Creates a complete copy of this <see cref="RelationshipFilterTree"/> including
-    /// all child nodes and filters.
+    /// Creates a deep copy of the tree including all child nodes and their properties.
     /// </summary>
     /// <returns></returns>
     public IFilterTree DeepCopy()
@@ -156,13 +159,18 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
       set { _linkedIds = value; }
     }
 
+    /// <summary>
+    /// Creates a deep copy of this node and all child nodes and their properties.
+    /// </summary>
+    /// <param name="parent">The new parent node of the copied child nodes.</param>
+    /// <returns></returns>
     protected RelationshipFilterTree DeepCopy(RelationshipFilterTree parent)
     {
       RelationshipFilterTree copy = new RelationshipFilterTree(_role, parent);
       copy._linkedIds = new HashSet<Guid>(_linkedIds);
       copy._filter = _filter;
       foreach (var child in _children)
-        copy._children[child.Key] = child.Value.DeepCopy(this);
+        copy._children[child.Key] = child.Value.DeepCopy(copy);
       return copy;
     }
 
@@ -178,14 +186,15 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
     /// <summary>
     /// Finds the node for the role specified in <paramref name="path"/>.
     /// </summary>
-    /// <param name="path">TThe absolute path to the node from this node.</param>
+    /// <param name="path">The absolute path to the node from this node.</param>
+    /// <param name="addMissingNodesToTree">Whether to add any missing nodes to the tree.</param>
     /// <returns></returns>
-    protected RelationshipFilterTree FindNodeForPath(FilterTreePath path)
+    protected RelationshipFilterTree FindNodeForPath(FilterTreePath path, bool addMissingNodesToTree)
     {
       RelationshipFilterTree node = this;
       if (path != null)
         foreach (FilterTreePathSegment segment in path.Segments)
-          node = node.FindChild(segment.Role);
+          node = node.FindChild(segment.Role, addMissingNodesToTree);
       return node;
     }
 
@@ -193,12 +202,17 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
     /// Finds the child node of this node with the role specified in <paramref name="role"/>.
     /// </summary>
     /// <param name="role">The role of the child node to find.</param>
+    /// <param name="addMissingNodesToTree">Whether to add any missing nodes to the tree.</param>
     /// <returns></returns>
-    protected RelationshipFilterTree FindChild(Guid role)
+    protected RelationshipFilterTree FindChild(Guid role, bool addMissingNodesToTree)
     {
       RelationshipFilterTree node;
       if (!_children.TryGetValue(role, out node))
-        _children[role] = node = new RelationshipFilterTree(role, this);
+      {
+        node = new RelationshipFilterTree(role, this);
+        if (addMissingNodesToTree)
+          _children[role] = node;
+      }
       return node;
     }
 
@@ -241,7 +255,7 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
     /// </summary>
     /// <param name="excludeRole">If not null, specifies the role of any child nodes to exclude when walking the tree.</param>
     /// <returns></returns>
-    protected IFilter BuildForwardFilter(Guid? excludeRole)
+    protected IFilter BuildChildFilters(Guid? excludeRole)
     {
       IFilter baseFilter = _filter;
       //Walk the tree for all children
@@ -266,7 +280,7 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
     /// </summary>
     /// <param name="excludeRole">If not null, specifies the role of any child nodes to exclude when walking the tree.</param>
     /// <returns></returns>
-    protected IFilter BuildReverseFilter(Guid? excludeRole)
+    protected IFilter BuildChildAndParentFilters(Guid? excludeRole)
     {
       if (_linkedIds.Count > 0)
         //We only support combining filters with AND so if we have any linked ids, and therefore will only
@@ -274,7 +288,7 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
         return new MediaItemIdFilter(_linkedIds);
 
       //Get all child filters and relationships
-      IFilter baseFilter = BuildForwardFilter(excludeRole);
+      IFilter baseFilter = BuildChildFilters(excludeRole);
       if (_parent != null)
       {
         if (_parent.LinkedIds.Count > 0)
@@ -285,7 +299,7 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
           //No linked ids, get parent filters and relationships.
           //Set ignoreSubfilter to false as we need to ensure that the filter only returns items that descend from the root role
           //and therefore need to include a relationship 'chain' to the root node.
-          baseFilter = CombineWithFilteredRelationship(baseFilter, _role, _parent.Role, _parent.BuildReverseFilter(_role), false);
+          baseFilter = CombineWithFilteredRelationship(baseFilter, _role, _parent.Role, _parent.BuildChildAndParentFilters(_role), false);
       }
       return baseFilter;
     }

@@ -135,6 +135,7 @@
     <Compile Include="FilterCriteria\RelationshipMLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
     <Compile Include="FilterTrees\RelationshipFilterTree.cs" />
+    <Compile Include="FilterTrees\SimpleFilterTree.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
     <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />
