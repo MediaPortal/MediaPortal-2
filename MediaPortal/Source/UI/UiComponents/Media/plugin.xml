@@ -283,6 +283,13 @@
     
     <!--Latest watched media lists-->
     <MediaListProviderBuilder Id="{3C9021E5-01AE-4F62-8B0B-DB65ABBF602A}" Key="LastPlayImages" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedImageMediaListProvider"/>
+    <MediaListProviderBuilder Id="{85E94F76-E879-410A-960F-8B55B816DD12}" Key="LastPlayAudio" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedAudioMediaListProvider"/>
+    <MediaListProviderBuilder Id="{D419A541-075A-4F39-8CCE-EF9F6520B207}" Key="LastPlayEpisodes" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedEpisodeMediaListProvider"/>
+    <MediaListProviderBuilder Id="{5F1AFF9C-A8C7-4424-B36D-086198A1C473}" Key="LastPlayMovies" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedMovieMediaListProvider"/>
+    <MediaListProviderBuilder Id="{F47F580C-C0F4-49B2-AEE0-C84EB2EC1E96}" Key="LastPlayRecordings" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedRecordingMediaListProvider"/>
+    <MediaListProviderBuilder Id="{F13E9321-AFFB-4C44-A2F9-48C4D1C3DCC8}" Key="LastPlayVideo" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedVideoMediaListProvider"/>
+    <MediaListProviderBuilder Id="{3C652A48-5FA3-4EB1-BE9B-BA602DAAC4FB}" Key="LastPlayAlbum" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedAlbumMediaListProvider"/>
+    <MediaListProviderBuilder Id="{320DF9AA-FC18-43B4-9715-1DAB4E97F72D}" Key="LastPlaySeries" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedSeriesMediaListProvider"/>
 
     <!--Continue watch media lists-->
     <MediaListProviderBuilder Id="{7636EF39-2352-4CF2-80D8-72C1B5A87357}" Key="ContinuePlayAudio" ClassName="MediaPortal.UiComponents.Media.MediaLists.ContinueWatchAudioMediaListProvider"/>

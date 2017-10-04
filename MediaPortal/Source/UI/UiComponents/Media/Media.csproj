@@ -159,6 +159,13 @@
     <Compile Include="MediaLists\BaseUnwatchedMediaListProvider.cs" />
     <Compile Include="MediaLists\BaseLastWatchedMediaListProvider.cs" />
     <Compile Include="MediaLists\BaseLatestMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedAlbumMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedAudioMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedEpisodeMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedSeriesMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedVideoMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteSeriesMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteAudioMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteEpisodeMediaListProvider.cs" />

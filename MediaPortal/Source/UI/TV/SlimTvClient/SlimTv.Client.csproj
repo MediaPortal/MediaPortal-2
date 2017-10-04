@@ -108,7 +108,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="plugin.xml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
@@ -124,7 +126,9 @@
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
-	<Compile Include="MediaLists\BaseFavoriteChannelMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseFavoriteChannelMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLastWatchedRecordingsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvUnwatchedRecordingsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvProgramsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvSchedulesMediaListProvider.cs" />

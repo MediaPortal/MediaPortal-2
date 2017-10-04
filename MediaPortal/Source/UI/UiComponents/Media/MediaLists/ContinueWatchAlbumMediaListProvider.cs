@@ -51,7 +51,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
           Filter = userProfile.HasValue ? new FilteredRelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, AppendUserFilter(
             BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
             new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-            new NotFilter(new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100"))),
+            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100")),
             Consts.NECESSARY_AUDIO_MIAS)) : null,
           Limit = (uint)maxItems, // Last 5 imported items
           SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }

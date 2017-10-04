@@ -22,69 +22,30 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.Commands;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.MediaLists;
-using MediaPortal.UiComponents.Media.Models;
-using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public class SlimTvFavoriteRecordingsMediaListProvider : IMediaListProvider
+  public class SlimTvFavoriteRecordingsMediaListProvider : BaseRecordingMediaListProvider
   {
-    public SlimTvFavoriteRecordingsMediaListProvider()
+    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
-      AllItems = new ItemsList();
-    }
-
-    public ItemsList AllItems { get; private set; }
-
-    public bool UpdateItems(int maxItems, UpdateReason updateReason)
-    {
-      var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      if (contentDirectory == null)
-        return false;
-
       if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
           (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
       {
-        Guid? userProfile = null;
-        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-        if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        Guid? userProfile = CurrentUserProfile?.ProfileId;
+        _query = new MediaItemQuery(SlimTvConsts.NECESSARY_RECORDING_MIAS, null)
         {
-          userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-        }
-
-        MediaItemQuery query = new MediaItemQuery(SlimTvConsts.NECESSARY_RECORDING_MIAS, null)
-        {
-          Filter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)) : null,
+          Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT))) : null,
           Limit = (uint)maxItems, // Last 5 imported items
           SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
         };
-
-        var items = contentDirectory.Search(query, false, userProfile, false);
-        if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
-        {
-          AllItems.Clear();
-          foreach (MediaItem mediaItem in items)
-          {
-            PlayableMediaItem listItem = new RecordingItem(mediaItem);
-            listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
-            AllItems.Add(listItem);
-          }
-          AllItems.FireChange();
-        }
+        return base.UpdateItems(maxItems, UpdateReason.Forced);
       }
       return true;
     }

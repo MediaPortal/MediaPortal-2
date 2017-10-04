@@ -22,34 +22,39 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Plugins.SlimTv.Client.TvHandler;
-using MediaPortal.UiComponents.Media.MediaLists;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
-namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
+namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public class SlimTvUnwatchedRecordingsMediaListProvider : BaseRecordingMediaListProvider
+  public class LastWatchedAlbumMediaListProvider : BaseMediaListProvider
   {
+    public LastWatchedAlbumMediaListProvider()
+    {
+      _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
+      _playableContainerConverterAction = item => new AlbumFilterItem(item);
+    }
+
     public override bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
       if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-          (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete ||
-          (updateReason & UpdateReason.ImportComplete) == UpdateReason.ImportComplete)
+        (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
       {
         Guid? userProfile = CurrentUserProfile?.ProfileId;
-        _query = new MediaItemQuery(SlimTvConsts.NECESSARY_RECORDING_MIAS, null)
+        _mediaQuery = new MediaItemQuery(_necessaryMias, null)
         {
-          Filter = userProfile.HasValue ? AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-            new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
-            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0"))) : null,
+          Filter = userProfile.HasValue ? new FilteredRelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, AppendUserFilter(
+            new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+            Consts.NECESSARY_AUDIO_MIAS)) : null,
           Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
         };
-        return base.UpdateItems(maxItems, UpdateReason.Forced);
+        base.UpdateItems(maxItems, UpdateReason.Forced);
       }
       return true;
     }

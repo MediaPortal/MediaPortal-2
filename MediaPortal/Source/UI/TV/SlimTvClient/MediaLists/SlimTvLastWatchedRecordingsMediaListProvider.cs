@@ -28,26 +28,22 @@ using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.UiComponents.Media.MediaLists;
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public class SlimTvUnwatchedRecordingsMediaListProvider : BaseRecordingMediaListProvider
+  public class SlimTvLastWatchedRecordingsMediaListProvider : BaseRecordingMediaListProvider
   {
     public override bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
       if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-          (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete ||
-          (updateReason & UpdateReason.ImportComplete) == UpdateReason.ImportComplete)
+          (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
       {
         Guid? userProfile = CurrentUserProfile?.ProfileId;
         _query = new MediaItemQuery(SlimTvConsts.NECESSARY_RECORDING_MIAS, null)
         {
-          Filter = userProfile.HasValue ? AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-            new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
-            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0"))) : null,
+          Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE))) : null,
           Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
         };
         return base.UpdateItems(maxItems, UpdateReason.Forced);
       }

@@ -43,14 +43,16 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Presentation.Players;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
   public class MediaListModel : BaseTimerControlledModel
   {
-    public class MediaListProviderDictionary : SafeDictionary<string, IMediaListProvider>
+    public class MediaListProviderDictionary : IDictionary<string, IMediaListProvider>
     {
       private IDictionary<string, bool> _enabledElements = new Dictionary<string, bool>();
+      public IDictionary<string, IMediaListProvider> _elements = new Dictionary<string, IMediaListProvider>();
 
       public Action OnProviderRequested;
 
@@ -59,44 +61,105 @@ namespace MediaPortal.UiComponents.Media.Models
         return _enabledElements.ContainsKey(key) && _enabledElements[key];
       }
 
-      public new void Add(KeyValuePair<string, IMediaListProvider> item)
+      public IEnumerator<KeyValuePair<string, IMediaListProvider>> GetEnumerator()
+      {
+        return _elements.GetEnumerator();
+      }
+
+      IEnumerator IEnumerable.GetEnumerator()
+      {
+        return _elements.GetEnumerator();
+      }
+
+      public void Add(KeyValuePair<string, IMediaListProvider> item)
       {
         _enabledElements.Add(item.Key, false);
         _elements.Add(item);
       }
 
-      public new void Add(string key, IMediaListProvider value)
+      public void Add(string key, IMediaListProvider value)
       {
         _enabledElements.Add(key, false);
         _elements.Add(key, value);
       }
 
-      public new bool Remove(KeyValuePair<string, IMediaListProvider> item)
+      public void Clear()
+      {
+        _elements.Clear();
+      }
+
+      public bool Contains(KeyValuePair<string, IMediaListProvider> item)
+      {
+        return _elements.Contains(item);
+      }
+
+      public void CopyTo(KeyValuePair<string, IMediaListProvider>[] array, int arrayIndex)
+      {
+        _elements.CopyTo(array, arrayIndex);
+      }
+
+      public int Count
+      {
+        get { return _elements.Count; }
+      }
+
+      public bool IsReadOnly
+      {
+        get { return _elements.IsReadOnly; }
+      }
+
+      public bool ContainsKey(string key)
+      {
+        return _elements.ContainsKey(key);
+      }
+
+      public bool Remove(KeyValuePair<string, IMediaListProvider> item)
       {
         _enabledElements.Remove(item.Key);
         return _elements.Remove(item);
       }
 
-      public new bool Remove(string key)
+      public bool Remove(string key)
       {
         _enabledElements.Remove(key);
         return _elements.Remove(key);
       }
 
-      public new IMediaListProvider this[string key]
+      public IMediaListProvider this[string key]
       {
         get
         {
           if (_elements.ContainsKey(key))
           {
             if (_enabledElements.ContainsKey(key))
+            {
+              if (_enabledElements[key] == false)
+              {
+                ServiceRegistration.Get<ILogger>().Warn("Enabling IMediaListProvider '{0}'", key);
+              }
               _enabledElements[key] = true;
+            }
             OnProviderRequested?.Invoke();
             return _elements[key];
           }
           return null;
         }
         set { _elements[key] = value; }
+      }
+
+      public bool TryGetValue(string key, out IMediaListProvider value)
+      {
+        return _elements.TryGetValue(key, out value);
+      }
+
+      public ICollection<string> Keys
+      {
+        get { return _elements.Keys; }
+      }
+
+      public ICollection<IMediaListProvider> Values
+      {
+        get { return _elements.Values; }
       }
     }
 
@@ -132,7 +195,13 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _queryLimitProperty.SetValue(value); }
     }
 
-    public MediaListProviderDictionary Lists { get; }
+    public MediaListProviderDictionary Lists
+    {
+      get
+      {
+        return _listProviders;
+      }
+    }
 
     public MediaListModel()
       : base(false, 1000)
