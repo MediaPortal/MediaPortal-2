@@ -326,10 +326,6 @@ namespace MediaPortal.UI.Services.Players
 
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
-      // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
-      if (cd != null)
-        cd.NotifyPlayback(mediaItem.MediaItemId, watched);
-
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
       {

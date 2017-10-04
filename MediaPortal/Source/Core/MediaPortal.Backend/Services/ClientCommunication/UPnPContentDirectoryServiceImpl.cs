@@ -157,6 +157,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       // Used for several parameters
       // ReSharper disable once InconsistentNaming - Following UPnP 1.0 standards variable naming convention.
+      DvStateVariable A_ARG_TYPE_Integer = new DvStateVariable("A_ARG_TYPE_Integer", new DvStandardDataType(UPnPStandardDataType.I4))
+      {
+        SendEvents = false
+      };
+      AddStateVariable(A_ARG_TYPE_Integer);
+
+      // Used for several parameters
+      // ReSharper disable once InconsistentNaming - Following UPnP 1.0 standards variable naming convention.
       DvStateVariable A_ARG_TYPE_Index = new DvStateVariable("A_ARG_TYPE_Index", new DvStandardDataType(UPnPStandardDataType.Ui4))
       {
         SendEvents = false
@@ -1062,7 +1070,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("UserProfile", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("Percentage", A_ARG_TYPE_Count, ArgumentDirection.In),
+            new DvArgument("Percentage", A_ARG_TYPE_Integer, ArgumentDirection.In),
             new DvArgument("UpdatePlayDate", A_ARG_TYPE_Bool, ArgumentDirection.In),
           },
           new DvArgument[] {

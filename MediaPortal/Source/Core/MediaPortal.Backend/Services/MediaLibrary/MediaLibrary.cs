@@ -1390,6 +1390,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
 
       _miaManagement = new MIA_Management();
+      PrepareDatabaseQueries(); //Initial prepare
 
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
@@ -1579,7 +1580,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void ActivateImporterWorker()
     {
-      PrepareDatabaseQueries();
+      PrepareDatabaseQueries(); //Second prepare
       StartFanArtCleanup();
       InitShareWatchers();
 
@@ -3824,20 +3825,36 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       UpdateMediaItem(mediaItemId, new MediaItemAspect[] { mediaAspect }, true);
     }
 
+    private bool SetMediaItemUserData(ITransaction transaction, Guid userProfileId, Guid mediaItemId, string dataKey, string dataValue)
+    {
+      int count = 0;
+      using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserMediaItemDataCommand(transaction, userProfileId, mediaItemId, dataKey))
+      {
+        count += command.ExecuteNonQuery();
+      }
+      if (dataValue != null)
+      {
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserMediaItemDataCommand(transaction, userProfileId, mediaItemId, dataKey, dataValue))
+        {
+          count += command.ExecuteNonQuery();
+        }
+      }
+      return count > 0;
+    }
+
     public void NotifyUserPlayback(Guid userProfileId, Guid mediaItemId, int percentage, bool updatePlayDate)
     {
       NotifyPlayback(mediaItemId, percentage >= 100);
 
+      bool updateParents = false;
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       using (ITransaction transaction = database.BeginTransaction())
       {
         int dataIdx;
-        int dataNoIdx;
         int count = 0;
-        bool updateParents = false;
         if (percentage >= 100)
         {
-          using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, userProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, null, out dataNoIdx, out dataIdx))
+          using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserMediaItemDataCommand(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, out dataIdx))
           {
             using (IDataReader reader = command.ExecuteReader())
             {
@@ -3848,64 +3865,43 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
           }
           count++;
+          updateParents = true;
+
           //Update play count
-          using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, userProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, 0, count.ToString()))
-          {
-            updateParents = true;
-            command.ExecuteNonQuery();
-          }
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, count.ToString());
           //Update last played
-          using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, userProfileId, UserDataKeysKnown.KEY_PLAY_DATE, 0, DateTime.Now.ToString("s")))
-          {
-            command.ExecuteNonQuery();
-          }
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
           //Update play percentage
-          using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, userProfileId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, 0, "100"))
-          {
-            command.ExecuteNonQuery();
-          }
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, "100");
         }
         else if (percentage >= 0)
         {
           if (updatePlayDate)
           {
             //Update last played
-            using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, userProfileId, UserDataKeysKnown.KEY_PLAY_DATE, 0, DateTime.Now.ToString("s")))
-            {
-              command.ExecuteNonQuery();
-            }
+            SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
           }
           //Update play percentage
-          using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, userProfileId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, 0, percentage.ToString()))
-          {
-            command.ExecuteNonQuery();
-          }
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, percentage.ToString());
         }
         else
         {
-          //Reset play count
-          using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserAdditionalDataCommand(transaction, userProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, 0, "0"))
-          {
-            updateParents = true;
-            command.ExecuteNonQuery();
-          }
-          //Delete last played
-          using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, userProfileId, 0, UserDataKeysKnown.KEY_PLAY_COUNT))
-          {
-            command.ExecuteNonQuery();
-          }
-          //Delete percentage
-          using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserAdditionalDataCommand(transaction, userProfileId, 0, UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
-          {
-            command.ExecuteNonQuery();
-          }
-        }
+          updateParents = true;
 
-        if(updateParents)
-        {
-          if (!UpdateChildPlayUserData(userProfileId, mediaItemId, percentage >= 100, updatePlayDate))
-            UpdateParentPlayUserData(userProfileId, mediaItemId, updatePlayDate);
+          //Reset play count
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, "0");
+          //Delete last played
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, null);
+          //Delete percentage
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, null);
         }
+        transaction.Commit();
+      }
+
+      if (updateParents)
+      {
+        if (!UpdateChildPlayUserData(userProfileId, mediaItemId, percentage >= 100, updatePlayDate))
+          UpdateParentPlayUserData(userProfileId, mediaItemId, updatePlayDate);
       }
     }
 
