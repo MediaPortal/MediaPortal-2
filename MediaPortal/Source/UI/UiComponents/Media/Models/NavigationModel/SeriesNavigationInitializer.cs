@@ -53,16 +53,17 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 
     protected override void Prepare()
     {
-      //Update filter by adding the user filter to the already loaded filters
-      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
-      if (userFilter != null)
-        _filters.Add(userFilter);
-
       base.Prepare();
 
       if (_rootRole.HasValue)
       {
         _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
+
+        //Update filter by adding the user filter to the already loaded filters
+        IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+        if (userFilter != null)
+          _customFilterTree.AddFilter(userFilter);
+
         userFilter = CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
         if (userFilter != null)
           _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
