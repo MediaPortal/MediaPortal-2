@@ -1298,9 +1298,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IFilter additionalFilter = null;
       if (filterOnlyOnline)
-        AddOnlyOnlineFilter(additionalFilter);
+        additionalFilter = AddOnlyOnlineFilter(additionalFilter);
       if (!includeVirtual)
-        AddExcludeVirtualFilter(additionalFilter);
+        additionalFilter = AddExcludeVirtualFilter(additionalFilter);
       return additionalFilter;
     }
 
