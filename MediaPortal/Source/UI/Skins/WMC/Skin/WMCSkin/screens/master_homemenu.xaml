@@ -236,7 +236,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <ListView Grid.Row="1" x:Name="Latest" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
               <ListView.ItemsSource>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : {9}))))">
+                              ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : ({0} == {11} ? {12} : {13}))))))">
                   <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                   <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
                   <Binding Source="{Binding Lists[LatestMovies].AllItems}"/>
@@ -246,6 +246,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <Binding Source="{Binding Lists[LatestEpisodes].AllItems}"/>
                   <Binding Source="7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51"/>
                   <Binding Source="{Binding Lists[LatestRecordings].AllItems}"/>
+                  <Binding Source="55556593-9FE9-436c-A3B6-A971E10C9D44"/>
+                  <Binding Source="{Binding Lists[LatestImages].AllItems}"/>
+                  <Binding Source="80D2E2CC-BAAA-4750-807B-F37714153751"/>
+                  <Binding Source="{Binding Lists[LatestVideo].AllItems}"/>
                   <Binding Source=""/>
                 </MultiBinding>
               </ListView.ItemsSource>
@@ -272,7 +276,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <ListView Grid.Row="3" x:Name="LastPlay" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
               <ListView.ItemsSource>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : {11})))))">
+                              ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : ({0} == {11} ? {12} : {13}))))))">
                   <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                   <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
                   <Binding Source="{Binding Lists[LastPlayMovies].AllItems}"/>
@@ -282,8 +286,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <Binding Source="{Binding Lists[LastPlayEpisodes].AllItems}"/>
                   <Binding Source="7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51"/>
                   <Binding Source="{Binding Lists[LastPlayRecordings].AllItems}"/>
-                  <Binding Source="B4A9199F-6DD4-4bda-A077-DE9C081F7703"/>
-                  <Binding Source="{Binding Lists[LastPlayChannels].AllItems}"/>
+                  <Binding Source="55556593-9FE9-436c-A3B6-A971E10C9D44"/>
+                  <Binding Source="{Binding Lists[LastPlayImages].AllItems}"/>
+                  <Binding Source="80D2E2CC-BAAA-4750-807B-F37714153751"/>
+                  <Binding Source="{Binding Lists[LastPlayVideo].AllItems}"/>
+                  <!--Binding Source="B4A9199F-6DD4-4bda-A077-DE9C081F7703"/>
+                  <Binding Source="{Binding Lists[LastPlayChannels].AllItems}"/-->
                   <Binding Source=""/>
                 </MultiBinding>
               </ListView.ItemsSource>
