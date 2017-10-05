@@ -22,9 +22,7 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -34,9 +32,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractSeriesFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
         MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion)
     {
-      _necessaryLinkedMIATypeIds = Consts.NECESSARY_SERIES_MIAS;
-      _optionalLinkedMIATypeIds = Consts.OPTIONAL_SERIES_MIAS;
-      _filteredMias = new[] { SeriesAspect.ASPECT_ID };
     }
   }
 }

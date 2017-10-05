@@ -30,6 +30,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Views
 {

@@ -34,10 +34,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         public MIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
             SelectProjectionFunction selectProjectionFunction,
             IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-            IFilter filter, IList<ISortInformation> sortInformation, Guid? userProfileId = null) : base(miaManagement, simpleSelectAttributes,
+            IFilter filter, IFilter subqueryFilter, IList<ISortInformation> sortInformation, Guid? userProfileId = null) : base(miaManagement, simpleSelectAttributes,
             selectProjectionFunction,
             necessaryRequestedMIAs, optionalRequestedMIAs,
-            filter, sortInformation, userProfileId)
+            filter, subqueryFilter, sortInformation, userProfileId)
         {
         }
 

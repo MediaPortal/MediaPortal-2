@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System.Linq;
@@ -34,8 +35,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public AudioFilterByArtistScreenData() :
         base(Consts.SCREEN_AUDIO_FILTER_BY_ARTIST, Consts.RES_COMMON_BY_ARTIST_MENU_ITEM,
-        Consts.RES_FILTER_ARTIST_NAVBAR_DISPLAY_LABEL, new FilterByArtistCriterion(AudioAspect.ROLE_TRACK))
+        Consts.RES_FILTER_ARTIST_NAVBAR_DISPLAY_LABEL, new FilterByArtistCriterion())
     {
+      _filterPath = new FilterTreePath(PersonAspect.ROLE_ARTIST);
       _availableMias = Consts.NECESSARY_PERSON_MIAS;
       if (Consts.OPTIONAL_PERSON_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_PERSON_MIAS);

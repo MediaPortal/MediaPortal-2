@@ -34,6 +34,7 @@ using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Utilities;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
 {
@@ -44,9 +45,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
   {
     #region Ctor
 
-    public StackingViewSpecification(string viewDisplayName, IFilter filter,
+    public StackingViewSpecification(string viewDisplayName, IFilterTree filterTree,
         IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
-      base(viewDisplayName, filter, necessaryMIATypeIDs, optionalMIATypeIDs, onlyOnline)
+      base(viewDisplayName, filterTree, necessaryMIATypeIDs, optionalMIATypeIDs, onlyOnline)
     {
       SortedSubViews = true; // Stacking view has special sorting included.
       CustomItemsListSorting = SortByRecordingDate;
