@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   public class FilterByComposerCriterion : RelationshipMLFilterCriterion
   {
     public FilterByComposerCriterion() :
-      base(PersonAspect.ROLE_COMPOSER, AudioAspect.ROLE_TRACK, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
+      base(Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
         new AttributeSortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
     {
     }

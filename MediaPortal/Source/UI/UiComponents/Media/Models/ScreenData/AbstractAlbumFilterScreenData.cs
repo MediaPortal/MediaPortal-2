@@ -34,9 +34,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractAlbumFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
         MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion)
     {
-      _necessaryLinkedMIATypeIds = Consts.NECESSARY_ALBUM_MIAS;
-      _optionalLinkedMIATypeIds = Consts.OPTIONAL_ALBUM_MIAS;
-      _filteredMias = new[] { AudioAlbumAspect.ASPECT_ID };
     }
   }
 }

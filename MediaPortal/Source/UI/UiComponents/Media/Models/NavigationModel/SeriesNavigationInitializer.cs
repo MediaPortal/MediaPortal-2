@@ -26,9 +26,11 @@ using System.Collections.Generic;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -46,39 +48,26 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
       _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
-    }
-
-    public override void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
-    {
-      base.InitMediaNavigation(out mediaNavigationMode, out navigationData);
-      //Series filters modify the necessary/optional mia types of the current query view specification.
-      //The series screen needs to return them back to the root episode mias so it needs to know what they are.
-      //We need to set them after we have called InitMediaNavigation above as that call may modify the optional mia types.
-      _seriesScreen.SetRootMiaTypes(navigationData.BaseViewSpecification.NecessaryMIATypeIds, navigationData.BaseViewSpecification.OptionalMIATypeIds);
+      _rootRole = EpisodeAspect.ROLE_EPISODE;
     }
 
     protected override void Prepare()
     {
       base.Prepare();
 
-      //Update filter by adding the user filter to the already loaded filters
-      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
-      if (userFilter != null)
+      if (_rootRole.HasValue)
       {
-        _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, userFilter,
-          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters));
-      }
-      else
-      {
-        _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters);
-      }
+        _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
 
-      userFilter = CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
-      //Set linked aspect filter
-      if (!_linkedAspectFilters.ContainsKey(SeriesAspect.ASPECT_ID))
-        _linkedAspectFilters.Add(SeriesAspect.ASPECT_ID, userFilter);
-      else
-        _linkedAspectFilters[SeriesAspect.ASPECT_ID] = userFilter;
+        //Update filter by adding the user filter to the already loaded filters
+        IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+        if (userFilter != null)
+          _customFilterTree.AddFilter(userFilter);
+
+        userFilter = CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
+        if (userFilter != null)
+          _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
+      }
 
       _defaultScreen = _seriesScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>

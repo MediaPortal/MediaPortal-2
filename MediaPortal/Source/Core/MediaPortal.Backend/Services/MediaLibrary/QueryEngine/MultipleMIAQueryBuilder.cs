@@ -39,7 +39,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           : base(miaManagement, simpleSelectAttributes,
           null,
           new List<MediaItemAspectMetadata> { requestedMIA }, new List<MediaItemAspectMetadata> { },
-          new MediaItemIdFilter(mediaItemIds), null)
+          new MediaItemIdFilter(mediaItemIds), null, null)
         {
         }
     }

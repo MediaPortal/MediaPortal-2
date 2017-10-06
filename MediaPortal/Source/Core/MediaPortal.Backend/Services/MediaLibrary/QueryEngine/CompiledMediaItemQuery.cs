@@ -53,6 +53,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> _mainSelectAttributes;
     protected readonly ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
     protected readonly IFilter _filter;
+    protected readonly IFilter _subqueryFilter;
     protected uint? _offset;
     protected uint? _limit;
     protected Guid? _userProfileId;
@@ -66,7 +67,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         ICollection<MediaItemAspectMetadata> explicitRequestedMIAs,
         IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes,
         ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectedAttributes,
-        IFilter filter, IList<ISortInformation> sortInformation,
+        IFilter filter, IFilter subqueryFilter, IList<ISortInformation> sortInformation,
         Guid? userProfileId = null,
         uint? limit = null,
         uint? offset = null
@@ -79,6 +80,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _mainSelectAttributes = mainSelectedAttributes;
       _explicitSelectAttributes = explicitSelectedAttributes;
       _filter = filter;
+      _subqueryFilter = subqueryFilter;
       _sortInformation = sortInformation;
       _limit = limit;
       _offset = offset;
@@ -182,7 +184,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       return new CompiledMediaItemQuery(miaManagement, necessaryMIATypes, optionalMIATypes, explicitRequestedMias, mainSelectedAttributes, explicitSelectAttributes,
-        query.Filter, query.SortInformation, userProfileId, query.Limit, query.Offset);
+        query.Filter, query.SubqueryFilter, query.SortInformation, userProfileId, query.Limit, query.Offset);
     }
 
     private IList<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, bool singleMode, IEnumerable<MediaItemAspectMetadata> selectedMIAs, out IList<Guid> mediaItemIds, out IDictionary<Guid, IList<Guid>> complexMediaItems)
@@ -191,7 +193,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       IList<BindVar> bindVars;
 
       MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement,
-          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation, _userProfileId);
+          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _subqueryFilter, _sortInformation, _userProfileId);
 
       using (IDbCommand command = transaction.CreateCommand())
       {
@@ -272,7 +274,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           continue;
 
         ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(
-            _miaManagement, attr, null, _necessaryRequestedMIAs, new MediaItemIdFilter(ids));
+            _miaManagement, attr, null, _necessaryRequestedMIAs, new MediaItemIdFilter(ids), _subqueryFilter);
         using (IDbCommand command = transaction.CreateCommand())
         {
           string mediaItemIdAlias;
@@ -515,7 +517,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
       {
         ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
-            _miaManagement, attr, null, _necessaryRequestedMIAs, _filter);
+            _miaManagement, attr, null, _necessaryRequestedMIAs, _filter, _subqueryFilter);
         result.Append("External attribute query for ");
         result.Append(attr.ParentMIAM.Name);
         result.Append(".");
@@ -526,7 +528,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       result.Append("Main query:\r\n");
       MIAQueryBuilder mainQueryBuilder = new MIAQueryBuilder(_miaManagement,
-          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
+          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _subqueryFilter, _sortInformation);
       result.Append(mainQueryBuilder.ToString());
       return result.ToString();
     }

@@ -22,8 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement;
@@ -32,6 +30,9 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Settings;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.UiComponents.Media.Helpers;
 
@@ -42,16 +43,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   /// </summary>
   public class RelationshipMLFilterCriterion : MLFilterCriterion
   {
-    protected Guid _role;
-    protected Guid _linkedRole;
     protected IEnumerable<Guid> _necessaryMIATypeIds;
     protected IEnumerable<Guid> _optionalMIATypeIds;
     protected ISortInformation _sortInformation;
 
-    public RelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, ISortInformation sortInformation)
+    public RelationshipMLFilterCriterion(IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, ISortInformation sortInformation)
     {
-      _role = role;
-      _linkedRole = linkedRole;
       _necessaryMIATypeIds = necessaryMIATypeIds;
       _optionalMIATypeIds = optionalMIATypeIds;
       _sortInformation = sortInformation;
@@ -76,9 +73,8 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
 
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
-      IFilter queryFilter = CreateQueryFilter(necessaryMIATypeIds, filter, showVirtual);
 
-      MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
+      MediaItemQuery query = new MediaItemQuery(mias, optMias, filter);
       if (_sortInformation != null)
         query.SortInformation = new List<ISortInformation> { _sortInformation };
 
@@ -90,42 +86,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         string name;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out name);
         result.Add(new FilterValue(name,
-          new RelationshipFilter(_linkedRole, _role, item.MediaItemId),
           null,
           item,
           this));
       }
       return result;
-    }
-
-    /// <summary>
-    /// Creates the filter that will be used when getting the available values for this filter criterion.
-    /// </summary>
-    /// <param name="necessaryMIATypeIds">Media item aspects which need to be available in the media items, from which
-    /// the available relations will be collected.</param>
-    /// <param name="filter">Base filter for the media items from which the available values will be collected.</param>
-    /// <param name="showVirtual">Whether the query includes virtual items.</param>
-    /// <returns>Filter that will be used to get the available values for this criterion.</returns>
-    protected virtual IFilter CreateQueryFilter(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, bool showVirtual)
-    {
-      if (filter == null)
-        //No filter just Create a simple relationship filter
-        return new RelationshipFilter(_role, _linkedRole, Guid.Empty);
-
-      //The showVirtual flag is handled by the server for the main query however
-      //the FilteredRelationshipFilter uses a subquery to get the linked ids.
-      //If showVirtual is false, we need to manually add a filter to the subquery to
-      //ensure that it doesn't return virtual linked ids.
-      //TODO: Add proper subquery support to the server so we can also handle the onlyOnline filter 
-      //in subqueries as this is not possible to add here as we don't know the online systems.
-      IFilter subFilter = showVirtual ? filter : AddOnlyNonVirtualFilter(filter);
-      return new FilteredRelationshipFilter(_role, _linkedRole, subFilter);
-    }
-    
-    protected IFilter AddOnlyNonVirtualFilter(IFilter innerFilter)
-    {
-      IFilter nonVirtualFilter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, false);
-      return innerFilter == null ? nonVirtualFilter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, innerFilter, nonVirtualFilter);
     }
 
     protected virtual string GetDisplayName(object groupKey)

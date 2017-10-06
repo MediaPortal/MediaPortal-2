@@ -140,8 +140,12 @@
     <Compile Include="FilterCriteria\FilterBySeriesCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByPlayCountCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
+    <Compile Include="FilterTrees\FilterTreePath.cs" />
+    <Compile Include="FilterTrees\IFilterTree.cs" />
     <Compile Include="FilterCriteria\RelationshipMLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
+    <Compile Include="FilterTrees\RelationshipFilterTree.cs" />
+    <Compile Include="FilterTrees\SimpleFilterTree.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
     <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />

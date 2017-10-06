@@ -24,10 +24,9 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -38,7 +37,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM, Consts.RES_COMMON_BY_ALBUM_MENU_ITEM,
         Consts.RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL, new FilterByAlbumCriterion())
     {
-      _filteredMias = new Guid[] { AudioAspect.ASPECT_ID };
+      _filterPath = new FilterTreePath(AudioAlbumAspect.ROLE_ALBUM);
       _availableMias = Consts.NECESSARY_ALBUM_MIAS;
       if (Consts.OPTIONAL_ALBUM_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_ALBUM_MIAS);
@@ -47,18 +46,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override AbstractFiltersScreenData<AlbumFilterItem> Derive()
     {
       return new AudioFilterByAlbumScreenData();
-    }
-
-    //Special case for album screen, it can support album filters and track filters
-    public override bool CanFilter(IEnumerable<Guid> necessaryMIATypeIds)
-    {
-      return base.CanFilter(necessaryMIATypeIds) || necessaryMIATypeIds.Contains(AudioAlbumAspect.ASPECT_ID);
-    }
-
-    public void SetRootMiaTypes(ICollection<Guid> necessaryLinkedMIATypeIds, ICollection<Guid> optionalLinkedMIATypeIds)
-    {
-      _necessaryLinkedMIATypeIds = necessaryLinkedMIATypeIds;
-      _optionalLinkedMIATypeIds = optionalLinkedMIATypeIds;
     }
   }
 }

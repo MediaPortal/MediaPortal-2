@@ -88,6 +88,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     #region Protected fields
 
     protected IFilter _filter;
+    protected IFilter _subqueryFilter; //additional filter that will be applied to all subqueries
     protected HashSet<Guid> _necessaryRequestedMIATypeIDs;
     protected HashSet<Guid> _optionalRequestedMIATypeIDs = null;
     protected List<object> _sortInformation = new List<object>();
@@ -150,6 +151,16 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _filter; }
       set { _filter = value; }
+    }
+
+    /// <summary>
+    /// Additional filter that will be applied to all subqueries.
+    /// </summary>
+    [XmlIgnore]
+    public IFilter SubqueryFilter
+    {
+      get { return _subqueryFilter; }
+      set { _subqueryFilter = value; }
     }
 
     [XmlIgnore]
@@ -303,6 +314,29 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _filter; }
       set { _filter = value as IFilter; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("SubqueryBetweenFilter", typeof(BetweenFilter))]
+    [XmlElement("SubqueryBooleanCombinationFilter", typeof(BooleanCombinationFilter))]
+    [XmlElement("SubqueryInFilter", typeof(InFilter))]
+    [XmlElement("SubqueryLikeFilter", typeof(LikeFilter))]
+    [XmlElement("SubqueryNotFilter", typeof(NotFilter))]
+    [XmlElement("SubqueryRelationalFilter", typeof(RelationalFilter))]
+    [XmlElement("SubqueryEmpty", typeof(EmptyFilter))]
+    [XmlElement("SubqueryRelationalUserDataFilter", typeof(RelationalUserDataFilter))]
+    [XmlElement("SubqueryEmptyUserData", typeof(EmptyUserDataFilter))]
+    [XmlElement("SubqueryFalse", typeof(FalseFilter))]
+    [XmlElement("SubqueryMediaItemIds", typeof(MediaItemIdFilter))]
+    [XmlElement("SubqueryRelationship", typeof(RelationshipFilter))]
+    [XmlElement("SubqueryFilterRelationship", typeof(FilteredRelationshipFilter))]
+    // Necessary to have an object here, else the serialization algorithm cannot cope with polymorph values
+    public object XML_SubqueryFilter
+    {
+      get { return _subqueryFilter; }
+      set { _subqueryFilter = value as IFilter; }
     }
 
     /// <summary>

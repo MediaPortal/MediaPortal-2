@@ -25,9 +25,6 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -37,19 +34,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   public class FilterBySeriesCriterion : RelationshipMLFilterCriterion
   {
     public FilterBySeriesCriterion() :
-      base(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, Consts.NECESSARY_SERIES_MIAS, Consts.OPTIONAL_SERIES_MIAS,
+      base(Consts.NECESSARY_SERIES_MIAS, Consts.OPTIONAL_SERIES_MIAS,
         new AttributeSortInformation(SeriesAspect.ATTR_SERIES_NAME, SortDirection.Ascending))
     {
-      
-    }
-
-    protected override IFilter CreateQueryFilter(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, bool showVirtual)
-    {
-      //If previous filter is a series filter we can just use it directly
-      if (filter != null && necessaryMIATypeIds != null && necessaryMIATypeIds.Contains(SeriesAspect.ASPECT_ID))
-        return filter;
-      //else we'll use the default relationship filter
-      return base.CreateQueryFilter(necessaryMIATypeIds, filter, showVirtual);
     }
   }
 }
