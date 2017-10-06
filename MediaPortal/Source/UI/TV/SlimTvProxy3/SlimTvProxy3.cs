@@ -753,13 +753,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
         ServiceRegistration.Get<ILogger>().Error("Couldn't get virtual card");
         return null;
       }
-      string timeShift = card.TimeShiftFileName;
-      if (timeShift.ToUpperInvariant().StartsWith("G:"))
-        timeShift = timeShift.Replace("G:", "Z:").Replace("g:", "z:");
-      if (File.Exists(timeShift))
-        return timeShift;
-      else
-        return card.RTSPUrl;
 
       if (File.Exists(card.TimeShiftFileName))
         return card.TimeShiftFileName;

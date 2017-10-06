@@ -99,7 +99,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         {
           foreach (var user in result)
           {
-            using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, user.ProfileId, null, null,
+            using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, user.ProfileId, null, false,
                 out nameIndex, out profileIdIndex, out dataIndex))
             {
               using (IDataReader reader = command.ExecuteReader())
@@ -475,7 +475,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, string orderKey = null, uint? offset = null, uint? limit = null)
+    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool orderByKey = false, uint? offset = null, uint? limit = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.CreateTransaction();
@@ -485,7 +485,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         int dataIndex;
         List<Tuple<int, string>> list = new List<Tuple<int, string>>();
         using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, profileId,
-            key, orderKey, out dataNoIndex, out dataIndex))
+            key, orderByKey, out dataNoIndex, out dataIndex))
         {
           using (IDataReader reader = command.ExecuteReader())
           {
@@ -511,7 +511,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, string orderKey = null, uint? offset = null, uint? limit = null)
+    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool orderByKey = false, uint? offset = null, uint? limit = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.CreateTransaction();
@@ -522,7 +522,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         int keyIndex;
         List<Tuple<string, int, string>> list = new List<Tuple<string, int, string>>();
         using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserAdditionalDataListCommand(transaction, profileId,
-            keys, orderKey, out keyIndex, out dataNoIndex, out dataIndex))
+            keys, orderByKey, out keyIndex, out dataNoIndex, out dataIndex))
         {
           using (IDataReader reader = command.ExecuteReader())
           {

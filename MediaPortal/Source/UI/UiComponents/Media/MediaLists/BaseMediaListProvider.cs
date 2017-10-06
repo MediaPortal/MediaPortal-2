@@ -48,6 +48,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected PlayableMediaItemToListItemAction _playableConverterAction;
     protected PlayableContainerMediaItemToListItemAction _playableContainerConverterAction;
     protected MediaItemQuery _mediaQuery;
+    protected object _syncLock = new object();
 
     public BaseMediaListProvider()
     {
@@ -93,29 +94,35 @@ namespace MediaPortal.UiComponents.Media.MediaLists
         var items = contentDirectory.Search(_mediaQuery, false, userProfile, showVirtual);
         if (_playableConverterAction != null)
         {
-          if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
+          lock (_syncLock)
           {
-            AllItems.Clear();
-            foreach (MediaItem mediaItem in items)
+            if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
             {
-              PlayableMediaItem listItem = _playableConverterAction(mediaItem);
-              listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
-              AllItems.Add(listItem);
+              AllItems.Clear();
+              foreach (MediaItem mediaItem in items)
+              {
+                PlayableMediaItem listItem = _playableConverterAction(mediaItem);
+                listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
+                AllItems.Add(listItem);
+              }
+              AllItems.FireChange();
             }
-            AllItems.FireChange();
           }
         }
         else if (_playableContainerConverterAction != null)
         {
-          if (!AllItems.Select(pmi => ((PlayableContainerMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
+          lock (_syncLock)
           {
-            AllItems.Clear();
-            foreach (MediaItem mediaItem in items)
+            if (!AllItems.Select(pmi => ((PlayableContainerMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
             {
-              PlayableContainerMediaItem listItem = _playableContainerConverterAction(mediaItem);
-              AllItems.Add(listItem);
+              AllItems.Clear();
+              foreach (MediaItem mediaItem in items)
+              {
+                PlayableContainerMediaItem listItem = _playableContainerConverterAction(mediaItem);
+                AllItems.Add(listItem);
+              }
+              AllItems.FireChange();
             }
-            AllItems.FireChange();
           }
         }
       }

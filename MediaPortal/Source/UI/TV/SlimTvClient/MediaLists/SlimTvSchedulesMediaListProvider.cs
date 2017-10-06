@@ -40,6 +40,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   public class SlimTvSchedulesMediaListProvider : IMediaListProvider
   {
     protected ITvHandler _tvHandler;
+    protected object _syncLock = new object();
 
     public SlimTvSchedulesMediaListProvider()
     {
@@ -102,10 +103,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
     public bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
-      var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      if (contentDirectory == null)
-        return false;
-
       if (_tvHandler == null)
       {
         ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
@@ -135,16 +132,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
         sortMode = ChannelAndProgramStartTimeComparison;
         sortList.Sort(sortMode);
 
-        if (!AllItems.Select(s => ((ISchedule)s.AdditionalProperties["SCHEDULE"]).ScheduleId).SequenceEqual(sortList.Select(si => ((ISchedule)si.AdditionalProperties["SCHEDULE"]).ScheduleId)))
+        lock (_syncLock)
         {
-          AllItems.Clear();
-          foreach (var schedule in sortList)
+          if (!AllItems.Select(s => ((ISchedule)s.AdditionalProperties["SCHEDULE"]).ScheduleId).SequenceEqual(sortList.Select(si => ((ISchedule)si.AdditionalProperties["SCHEDULE"]).ScheduleId)))
           {
-            AllItems.Add(schedule);
-            if (AllItems.Count >= maxItems)
-              break;
+            AllItems.Clear();
+            foreach (var schedule in sortList)
+            {
+              AllItems.Add(schedule);
+              if (AllItems.Count >= maxItems)
+                break;
+            }
+            AllItems.FireChange();
           }
-          AllItems.FireChange();
         }
       }
       return true;

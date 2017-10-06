@@ -68,8 +68,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
     // Other global user data 
     bool SetUserAdditionalData(Guid profileId, string key, string data, int dataNo = 0);
     bool GetUserAdditionalData(Guid profileId, string key, out string data, int dataNo = 0);
-    bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, string orderKey = null, uint? offset = null, uint ? limit = null);
-    bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, string orderKey = null, uint? offset = null, uint? limit = null);
+    bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool orderByKey = false, uint? offset = null, uint ? limit = null);
+    bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool orderByKey = false, uint? offset = null, uint? limit = null);
 
     #endregion
 

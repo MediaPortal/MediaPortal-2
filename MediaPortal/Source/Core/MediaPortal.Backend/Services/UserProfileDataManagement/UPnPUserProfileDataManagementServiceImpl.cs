@@ -80,12 +80,30 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           };
       AddStateVariable(A_ARG_TYPE_String);
 
-      // Used for string values
-      DvStateVariable A_ARG_TYPE_Int = new DvStateVariable("A_ARG_TYPE_Int", new DvStandardDataType(UPnPStandardDataType.Int))
+      // Used for several parameters
+      // ReSharper disable once InconsistentNaming - Following UPnP 1.0 standards variable naming convention.
+      DvStateVariable A_ARG_TYPE_Integer = new DvStateVariable("A_ARG_TYPE_Integer", new DvStandardDataType(UPnPStandardDataType.I4))
       {
         SendEvents = false
       };
-      AddStateVariable(A_ARG_TYPE_Int);
+      AddStateVariable(A_ARG_TYPE_Integer);
+
+      // Used for several parameters
+      // ReSharper disable once InconsistentNaming - Following UPnP 1.0 standards variable naming convention.
+      DvStateVariable A_ARG_TYPE_Index = new DvStateVariable("A_ARG_TYPE_Index", new DvStandardDataType(UPnPStandardDataType.Ui4))
+      {
+        SendEvents = false
+      }; // Is int sufficent here?
+      AddStateVariable(A_ARG_TYPE_Index);
+
+      // Used for several parameters and result values
+      // Warning: UPnPStandardDataType.Int used before, changed to follow UPnP standard.
+      // ReSharper disable once InconsistentNaming - Following UPnP 1.0 standards variable naming convention.
+      DvStateVariable A_ARG_TYPE_Count = new DvStateVariable("A_ARG_TYPE_Count", new DvStandardDataType(UPnPStandardDataType.Ui4))
+      {
+        SendEvents = false
+      }; // Is int sufficient here?
+      AddStateVariable(A_ARG_TYPE_Count);
 
       // More state variables go here
 
@@ -129,7 +147,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       DvAction createUserProfileAction = new DvAction("CreateUserProfile", OnCreateUserProfile,
           new DvArgument[] {
             new DvArgument("ProfileName", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("ProfileType", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("ProfileType", A_ARG_TYPE_Integer, ArgumentDirection.In),
             new DvArgument("ProfilePassword", A_ARG_TYPE_String, ArgumentDirection.In),
           },
           new DvArgument[] {
@@ -141,7 +159,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("ProfileName", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("ProfileType", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("ProfileType", A_ARG_TYPE_Integer, ArgumentDirection.In),
             new DvArgument("ProfilePassword", A_ARG_TYPE_String, ArgumentDirection.In),
           },
           new DvArgument[] {
@@ -242,7 +260,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("DataNo", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("DataNo", A_ARG_TYPE_Integer, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
@@ -254,7 +272,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("DataNo", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("DataNo", A_ARG_TYPE_Integer, ArgumentDirection.In),
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.In)
           },
           new DvArgument[] {
@@ -266,9 +284,9 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("OrderKey", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("Offset", A_ARG_TYPE_Int, ArgumentDirection.In),
-            new DvArgument("Limit", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("OrderByKey", A_ARG_TYPE_Bool, ArgumentDirection.In),
+            new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In),
+            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
@@ -280,9 +298,9 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("Keys", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("OrderKey", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("Offset", A_ARG_TYPE_Int, ArgumentDirection.In),
-            new DvArgument("Limit", A_ARG_TYPE_Int, ArgumentDirection.In),
+            new DvArgument("OrderByKey", A_ARG_TYPE_Bool, ArgumentDirection.In),
+            new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In),
+            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
@@ -519,14 +537,14 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string key = (string)inParams[1];
-      string orderKey = (string)inParams[2];
+      bool orderByKey = (bool)inParams[2];
       uint? offset = (uint?)inParams[3];
       uint? limit = (uint?)inParams[4];
 
       string data;
       IEnumerable<Tuple<int, string>> list; 
       bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataList(profileId, key, out list, orderKey, offset, limit)))
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataList(profileId, key, out list, orderByKey, offset, limit)))
         data = null;
       else
         data = MarshallingHelper.SerializeTuple2EnumerationToCsv(list.Select(t => new Tuple<string, string>(t.Item1.ToString(), t.Item2)));
@@ -539,14 +557,14 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string[] keys = MarshallingHelper.ParseCsvStringCollection((string)inParams[1]).ToArray();
-      string orderKey = (string)inParams[2];
+      bool orderByKey = (bool)inParams[2];
       uint? offset = (uint?)inParams[3];
       uint? limit = (uint?)inParams[4];
 
       string data;
       IEnumerable<Tuple<string, int, string>> list; 
       bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataList(profileId, keys, out list, orderKey, offset, limit)))
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataList(profileId, keys, out list, orderByKey, offset, limit)))
         data = null;
       else
         data = MarshallingHelper.SerializeTuple3EnumerationToCsv(list.Select(t => new Tuple<string, string, string>(t.Item1, t.Item2.ToString(), t.Item3)));

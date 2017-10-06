@@ -218,14 +218,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (bool)outParameters[0];
     }
 
-    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, string orderKey = null, uint? offset = null, uint? limit = null)
+    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool orderByKey = false, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("GetUserAdditionalDataList");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
             key,
-            orderKey,
+            orderByKey,
             offset,
             limit
         };
@@ -236,14 +236,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (bool)outParameters[1];
     }
 
-    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, string orderKey = null, uint? offset = null, uint? limit = null)
+    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool orderByKey = false, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("GetUserSelectedAdditionalDataList");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
             MarshallingHelper.SerializeStringEnumerationToCsv(keys),
-            orderKey,
+            orderByKey,
             offset,
             limit
         };

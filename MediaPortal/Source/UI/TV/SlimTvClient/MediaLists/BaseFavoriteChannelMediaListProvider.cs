@@ -41,6 +41,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   public abstract class BaseFavoriteChannelMediaListProvider : IMediaListProvider
   {
     protected MediaType _mediaType;
+    protected object _syncLock = new object();
 
     public BaseFavoriteChannelMediaListProvider()
     {
@@ -51,10 +52,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
     public bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
-      var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      if (contentDirectory == null)
-        return false;
-
       if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
           (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
       {
@@ -67,25 +64,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
         IEnumerable<Tuple<int, string>> channelList;
         if (userProfile.HasValue && userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataList(userProfile.Value, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, 
-          out channelList, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, null, Convert.ToUInt32(maxItems)))
+          out channelList, true, null, Convert.ToUInt32(maxItems)))
         {
-          if (!AllItems.Select(cpli => ((ChannelProgramListItem)cpli).Channel.ChannelId).SequenceEqual(channelList.Select(kvp => kvp.Item1)))
+          lock(_syncLock)
           {
-            AllItems.Clear();
-            foreach (var channelData in channelList)
+            if (!AllItems.Select(cpli => ((ChannelProgramListItem)cpli).Channel.ChannelId).SequenceEqual(channelList.Select(kvp => kvp.Item1)))
             {
-              IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelId == channelData.Item1 && c.MediaType == _mediaType);
-              if (channel != null)
+              AllItems.Clear();
+              foreach (var channelData in channelList)
               {
-                ChannelProgramListItem item = new ChannelProgramListItem(channel, null)
+                IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelId == channelData.Item1 && c.MediaType == _mediaType);
+                if (channel != null)
                 {
-                  Command = new MethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
-                };
-                item.AdditionalProperties["CHANNEL"] = channel;
-                AllItems.Add(item);
+                  ChannelProgramListItem item = new ChannelProgramListItem(channel, null)
+                  {
+                    Command = new MethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
+                  };
+                  item.AdditionalProperties["CHANNEL"] = channel;
+                  AllItems.Add(item);
+                }
               }
+              AllItems.FireChange();
             }
-            AllItems.FireChange();
           }
         }
       }

@@ -37,7 +37,6 @@ using MediaPortal.UiComponents.Media.MediaLists;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
@@ -45,6 +44,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   public class BaseRecordingMediaListProvider : IMediaListProvider
   {
     protected MediaItemQuery _query;
+    protected object _syncLock = new object();
 
     public BaseRecordingMediaListProvider()
     {
@@ -87,16 +87,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
         Guid? userProfile = CurrentUserProfile?.ProfileId;
 
         var items = contentDirectory.Search(_query, false, userProfile, false);
-        if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
+        lock(_syncLock)
         {
-          AllItems.Clear();
-          foreach (MediaItem mediaItem in items)
+          if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
           {
-            PlayableMediaItem listItem = new RecordingItem(mediaItem);
-            listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
-            AllItems.Add(listItem);
+            AllItems.Clear();
+            foreach (MediaItem mediaItem in items)
+            {
+              PlayableMediaItem listItem = new RecordingItem(mediaItem);
+              listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
+              AllItems.Add(listItem);
+            }
+            AllItems.FireChange();
           }
-          AllItems.FireChange();
         }
       }
       return true;

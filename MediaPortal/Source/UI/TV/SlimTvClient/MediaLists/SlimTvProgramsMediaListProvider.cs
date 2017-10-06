@@ -34,7 +34,6 @@ using System.Linq;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Commands;
 using MediaPortal.Plugins.SlimTv.Client.Models;
 
@@ -44,6 +43,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   {
     protected ITvHandler _tvHandler;
     protected IEnumerable<Tuple<int, string>> _channelList;
+    protected object _syncLock = new object();
 
     public SlimTvProgramsMediaListProvider()
     {
@@ -68,10 +68,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
     public bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
-      var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      if (contentDirectory == null)
-        return false;
-
       if (_tvHandler == null)
       {
         ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
@@ -85,10 +81,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
           (updateReason & UpdateReason.PeriodicMinute) == UpdateReason.PeriodicMinute ||
           (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
       {
-
-        if(_channelList == null ||(updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
+        if (_channelList == null || (updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
           (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
-          {
+        {
           Guid? userProfile = null;
           IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
           if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
@@ -98,7 +93,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
           IEnumerable<Tuple<int, string>> channelList;
           if (userProfile.HasValue && userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataList(userProfile.Value, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT,
-            out channelList, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, null, Convert.ToUInt32(maxItems)))
+            out channelList, true, null, Convert.ToUInt32(maxItems)))
           {
             _channelList = channelList;
           }
@@ -129,14 +124,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
           programtList.Add(item);
         }
 
-        if (!AllItems.Select(s => ((IProgram)s.AdditionalProperties["PROGRAM"]).ProgramId).SequenceEqual(programtList.Select(si => ((IProgram)si.AdditionalProperties["PROGRAM"]).ProgramId)))
+        lock (_syncLock)
         {
-          AllItems.Clear();
-          foreach (var program in programtList)
+          if (!AllItems.Select(s => ((IProgram)s.AdditionalProperties["PROGRAM"]).ProgramId).SequenceEqual(programtList.Select(si => ((IProgram)si.AdditionalProperties["PROGRAM"]).ProgramId)))
           {
-            AllItems.Add(program);
+            AllItems.Clear();
+            foreach (var program in programtList)
+            {
+              AllItems.Add(program);
+            }
+            AllItems.FireChange();
           }
-          AllItems.FireChange();
         }
       }
       return true;
