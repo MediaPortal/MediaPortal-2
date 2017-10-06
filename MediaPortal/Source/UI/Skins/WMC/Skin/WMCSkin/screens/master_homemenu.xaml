@@ -309,7 +309,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <ListView Grid.Row="5" x:Name="Favorits" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
               <ListView.ItemsSource>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : {11})))))">
+                              ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : ({0} == {11} ? {12} : {13}))))))">
                   <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                   <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
                   <Binding Source="{Binding Lists[FavoriteMovies].AllItems}"/>
@@ -319,8 +319,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <Binding Source="{Binding Lists[FavoriteEpisodes].AllItems}"/>
                   <Binding Source="7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51"/>
                   <Binding Source="{Binding Lists[FavoriteRecordings].AllItems}"/>
-                  <Binding Source="B4A9199F-6DD4-4bda-A077-DE9C081F7703"/>
-                  <Binding Source="{Binding Lists[FavoriteChannels].AllItems}"/>
+                  <Binding Source="55556593-9FE9-436c-A3B6-A971E10C9D44"/>
+                  <Binding Source="{Binding Lists[FavoriteImages].AllItems}"/>
+                  <Binding Source="80D2E2CC-BAAA-4750-807B-F37714153751"/>
+                  <Binding Source="{Binding Lists[FavoriteVideo].AllItems}"/>
+                  <!--Binding Source="B4A9199F-6DD4-4bda-A077-DE9C081F7703"/>
+                  <Binding Source="{Binding Lists[FavoriteChannels].AllItems}"/-->
                   <Binding Source=""/>
                 </MultiBinding>
               </ListView.ItemsSource>
