@@ -39,6 +39,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
     </ControlTemplate>
 
+    <ResourceWrapper x:Key="HomeScreenMediaItemStyle" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+    <ResourceWrapper x:Key="HomeScreenChannelStyle" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
+
     <!-- Background Manager for menu hovers -->
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
@@ -273,7 +276,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </MultiBinding>
               </Label.Content>
             </Label>
-            <ListView Grid.Row="3" x:Name="LastPlay" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
+            <ListView Grid.Row="3" x:Name="LastPlay" HorizontalAlignment="Left">
+              <ListView.Style>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                              ConverterParameter="{}({0} == {1} ? {2} : {3})">
+                  <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                  <Binding Source="b4a9199f-6dd4-4bda-a077-de9c081f7703"/>
+                  <Binding Source="{StaticResource HomeScreenChannelStyle}" Path="Resource"/>
+                  <Binding Source="{StaticResource HomeScreenMediaItemStyle}" Path="Resource"/>
+                </MultiBinding>
+              </ListView.Style>
               <ListView.ItemsSource>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                               ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : ({0} == {11} ? {12} : ({0} == {13} ? {14} : {15})))))))">
@@ -306,7 +318,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView>
 
             <Label x:Name="FavoriteLabel" Grid.Row="4" Content="Favourits" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,30,0,0"/>
-            <ListView Grid.Row="5" x:Name="Favorits" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
+            <ListView Grid.Row="5" x:Name="Favorits" HorizontalAlignment="Left">
+              <ListView.Style>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                              ConverterParameter="{}({0} == {1} ? {2} : {3})">
+                  <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                  <Binding Source="b4a9199f-6dd4-4bda-a077-de9c081f7703"/>
+                  <Binding Source="{StaticResource HomeScreenChannelStyle}" Path="Resource"/>
+                  <Binding Source="{StaticResource HomeScreenMediaItemStyle}" Path="Resource"/>
+                </MultiBinding>
+              </ListView.Style>
               <ListView.ItemsSource>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                               ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : ({0} == {11} ? {12} : ({0} == {13} ? {14} : {15})))))))">
