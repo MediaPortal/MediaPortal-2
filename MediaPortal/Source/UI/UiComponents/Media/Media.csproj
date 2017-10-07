@@ -113,6 +113,7 @@
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
+    <Compile Include="FilterCriteria\FilterByPersonCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByDiscNumberCriterion.cs" />
@@ -183,6 +184,7 @@
     <Compile Include="Models\NavigationModel\MoviesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\SeriesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
+    <Compile Include="Models\Navigation\PersonFilterItem.cs" />
     <Compile Include="Models\Navigation\SimplePersonFilterItem.cs" />
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\ArtistFilterItem.cs" />

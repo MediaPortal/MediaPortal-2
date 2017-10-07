@@ -25,6 +25,7 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -33,8 +34,8 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   /// </summary>
   public class FilterBySeriesSeasonCriterion : RelationshipMLFilterCriterion
   {
-    public FilterBySeriesSeasonCriterion() :
-      base(Consts.NECESSARY_SEASON_MIAS, Consts.OPTIONAL_SEASON_MIAS,
+    public FilterBySeriesSeasonCriterion(Guid linkedRole) :
+      base(SeasonAspect.ROLE_SEASON, linkedRole, Consts.NECESSARY_SEASON_MIAS, Consts.OPTIONAL_SEASON_MIAS,
         new SortInformation(SeasonAspect.ATTR_SEASON, SortDirection.Ascending))
     {
     }

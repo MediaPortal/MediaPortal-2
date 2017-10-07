@@ -24,7 +24,6 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System.Linq;
@@ -35,9 +34,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesEpisodeFilterByWriterScreenData() :
         base(Consts.SCREEN_SERIES_EPISODE_FILTER_BY_WRITER, Consts.RES_COMMON_BY_WRITER_MENU_ITEM,
-        Consts.RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL, new FilterByWriterCriterion())
+        Consts.RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL, new FilterByWriterCriterion(EpisodeAspect.ROLE_EPISODE))
     {
-      _filterPath = new FilterTreePath(PersonAspect.ROLE_WRITER);
       _availableMias = Consts.NECESSARY_PERSON_MIAS;
       if (Consts.OPTIONAL_PERSON_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_PERSON_MIAS);
