@@ -24,7 +24,6 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System.Linq;
@@ -35,9 +34,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public MovieFilterByCompanyScreenData() :
         base(Consts.SCREEN_MOVIES_FILTER_BY_COMPANY, Consts.RES_COMMON_BY_PRODUCTION_STUDIO_MENU_ITEM,
-        Consts.RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL, new FilterByCompanyCriterion())
+        Consts.RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL, new FilterByCompanyCriterion(CompanyAspect.ROLE_COMPANY, MovieAspect.ROLE_MOVIE))
     {
-      _filterPath = new FilterTreePath(CompanyAspect.ROLE_COMPANY);
       _availableMias = Consts.NECESSARY_COMPANY_MIAS;
       if (Consts.OPTIONAL_COMPANY_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_COMPANY_MIAS);

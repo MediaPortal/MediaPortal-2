@@ -24,7 +24,6 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System.Linq;
@@ -35,9 +34,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public AudioFilterByAlbumLabelScreenData() :
       base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM_LABEL, Consts.RES_COMMON_BY_ALBUM_LABEL_MENU_ITEM,
-      Consts.RES_FILTER_ALBUM_LABEL_NAVBAR_DISPLAY_LABEL, new FilterByMusicLabelCriterion())
+      Consts.RES_FILTER_ALBUM_LABEL_NAVBAR_DISPLAY_LABEL, new FilterByMusicLabelCriterion(AudioAlbumAspect.ROLE_ALBUM))
     {
-      _filterPath = new FilterTreePath(AudioAlbumAspect.ROLE_ALBUM, CompanyAspect.ROLE_MUSIC_LABEL);
       _availableMias = Consts.NECESSARY_COMPANY_MIAS;
       if (Consts.OPTIONAL_COMPANY_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_COMPANY_MIAS);

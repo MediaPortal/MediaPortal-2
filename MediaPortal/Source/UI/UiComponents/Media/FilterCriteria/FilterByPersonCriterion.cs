@@ -22,12 +22,19 @@
 
 #endregion
 
-namespace MediaPortal.UiComponents.Media.Models.Navigation
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.General;
+using System;
+
+namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  /// <summary>
-  /// Holds a GUI item which represents a artist filter choice.
-  /// </summary>
-  public class ArtistFilterItem : PersonFilterItem
+  public abstract class FilterByPersonCriterion : RelationshipMLFilterCriterion
   {
+    public FilterByPersonCriterion(Guid role, Guid linkedRole) :
+      base(role, linkedRole, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
+        new SortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
+    {
+    }
   }
 }

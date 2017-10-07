@@ -23,16 +23,14 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterByAlbumArtistCriterion : RelationshipMLFilterCriterion
+  public class FilterByAlbumArtistCriterion : FilterByPersonCriterion
   {
-    public FilterByAlbumArtistCriterion() :
-      base(Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
-        new SortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
+    public FilterByAlbumArtistCriterion(Guid linkedRole) :
+      base(PersonAspect.ROLE_ALBUMARTIST, linkedRole)
     {
     }
   }

@@ -50,6 +50,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected bool _sortable = false;
 
     protected FilterTreePath _filterPath = null;
+    protected ICollection<Guid> _necessaryFilteredMIATypeIds;
+
 
     // Variables to be synchronized for multithreading access
     protected bool _buildingList = false;
@@ -207,12 +209,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           Display_ListBeingBuilt();
           bool grouping = true;
           IFilter filter = currentVS.FilterTree.BuildFilter(_filterPath);
+          ICollection<Guid> necessaryMIAs = _necessaryFilteredMIATypeIds ?? currentVS.NecessaryMIATypeIds;
           ICollection<FilterValue> fv = _clusterFilter == null ?
-              _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, _clusterFilter, filter) : null;
+              _filterCriterion.GroupValues(necessaryMIAs, _clusterFilter, filter) : null;
           
           if (fv == null || fv.Count <= Consts.MAX_NUM_ITEMS_VISIBLE)
           {
-            fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, _clusterFilter, filter);
+            fv = _filterCriterion.GetAvailableValues(necessaryMIAs, _clusterFilter, filter);
             grouping = false;
           }
           if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
@@ -253,7 +256,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 Id = filterValue.Id,
                 Command = new MethodDelegateCommand(()=>
                 {
-                  MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, _filterPath, filterValue.Filter, filterValue.LinkedId);
+                  MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle,
+                    FilterTreePath.Combine(_filterPath, filterValue.RelativeFilterPath), filterValue.Filter, filterValue.LinkedId);
                   if (grouping)
                     NavigateToGroup(subVS, selectAttributeFilter);
                   else

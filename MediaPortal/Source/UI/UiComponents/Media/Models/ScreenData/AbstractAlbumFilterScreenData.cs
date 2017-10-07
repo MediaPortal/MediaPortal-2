@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 
@@ -34,6 +35,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractAlbumFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
         MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion)
     {
+      _filterPath = new FilterTreePath(AudioAlbumAspect.ROLE_ALBUM);
+      _necessaryFilteredMIATypeIds = Consts.NECESSARY_ALBUM_MIAS;
     }
   }
 }
