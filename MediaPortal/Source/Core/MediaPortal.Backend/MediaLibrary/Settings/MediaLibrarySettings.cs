@@ -28,13 +28,13 @@ namespace MediaPortal.Backend.MediaLibrary.Settings
 {
   public class MediaLibrarySettings
   {
-    protected bool _deleteOrhpanedFanart = true;
+    protected bool _deleteOrphanedFanart = true;
 
     [Setting(SettingScope.Global)]
-    public bool DeleteOrhpanedFanart
+    public bool DeleteOrphanedFanart
     {
-      get { return _deleteOrhpanedFanart; }
-      set { _deleteOrhpanedFanart = value; }
+      get { return _deleteOrphanedFanart; }
+      set { _deleteOrphanedFanart = value; }
     }
   }
 }

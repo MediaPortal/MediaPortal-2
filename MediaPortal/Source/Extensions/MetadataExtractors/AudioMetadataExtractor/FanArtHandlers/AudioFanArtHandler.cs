@@ -127,7 +127,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
 
       _checkCache.Add(mediaItemId);
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems));
+      ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems);
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? albumMediaItemId, IDictionary<Guid, string> artistMediaItems)
@@ -508,7 +508,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public void DeleteFanArt(Guid mediaItemId)
     {
-      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+      FanArtCache.DeleteFanArtFiles(mediaItemId.ToString());
     }
 
     public void ClearCache()

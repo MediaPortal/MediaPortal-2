@@ -271,6 +271,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
+    public static IDbCommand SelectAllMediaItemIdsCommand(ITransaction transaction)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT " + MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + MEDIA_ITEMS_TABLE_NAME;
+      return result;
+    }
+
     public static IDbCommand InsertMediaItemCommand(ITransaction transaction, out Guid mediaItemId)
     {
       mediaItemId = Guid.NewGuid();

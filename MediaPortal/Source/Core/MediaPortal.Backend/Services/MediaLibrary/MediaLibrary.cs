@@ -54,9 +54,6 @@ using MediaPortal.Common.UserProfileDataManagement;
 using System.Diagnostics;
 using MediaPortal.Common.Services.MediaManagement;
 using System.Threading.Tasks;
-using MediaPortal.Common.FanArt;
-using MediaPortal.Common.Settings;
-using MediaPortal.Backend.MediaLibrary.Settings;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -335,8 +332,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// </summary>
     protected const int MAX_VARIABLES_LIMIT = 80;
 
-    protected const int FANART_CHECK_INTERVAL_HOURS = 24;
-
     #endregion
 
     #region Protected fields
@@ -357,10 +352,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
     protected ICollection<Share> _importingSharesCache;
-    protected volatile bool _fanArtCleanupAllowed = true;
-    protected volatile bool _fanArtCleanupRunning = false;
-    protected Thread _fanArtCleanupThread = null;
-    protected DateTime _nextFanartCleanupCheck = DateTime.Now;
+    protected FanArtManagement _fanArtManagement;
 
     #endregion
 
@@ -396,7 +388,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private static string SELECT_USER_DATA_FROM_PARENT_ID_SQL = null;
     private static string UPDATE_PARENT_SET_VIRTUAL_ATTRIBUTE_SQL = null;
     private static string SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL = null;
-    private static string SELECT_COUNT_FROM_MEDIAITEMS_SQL = null;
 
     #endregion
 
@@ -421,7 +412,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void Dispose()
     {
       _messageQueue.Shutdown();
-      ShutdownFanArtCleanup();
     }
 
     #endregion
@@ -548,7 +538,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             count++;
           }
         }
-        _fanArtCleanupAllowed = !importing;
+
         var state = new ShareImportServerState
         {
           IsImporting = importing,
@@ -569,104 +559,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       get { return _localSystemId; }
     }
-
-    #region FanArt Cleanup
-
-    private void StartFanArtCleanup()
-    {
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      MediaLibrarySettings settings = settingsManager.Load<MediaLibrarySettings>();
-      if (!settings.DeleteOrhpanedFanart)
-        return;
-
-      ShutdownFanArtCleanup();
-      _fanArtCleanupThread = new Thread(FanArtCleanup)
-      {
-        Name = "FanArtCleanUpThread",
-        Priority = ThreadPriority.Lowest,
-        IsBackground = true
-      };
-      _fanArtCleanupRunning = true;
-      _fanArtCleanupThread.Start();
-    }
-
-    private void ShutdownFanArtCleanup()
-    {
-      if (_fanArtCleanupThread != null)
-      {
-        _fanArtCleanupRunning = false;
-        if (!_fanArtCleanupThread.Join(5000))
-          _fanArtCleanupThread.Abort();
-
-        _fanArtCleanupThread = null;
-      }
-    }
-
-    private void FanArtCleanup()
-    {
-      try
-      {
-        while (_fanArtCleanupRunning)
-        {
-          if (ShuttingDown)
-            break;
-
-          Thread.Sleep(50);
-
-          if (!_fanArtCleanupAllowed)
-            continue;
-          if (_nextFanartCleanupCheck > DateTime.Now)
-            continue;
-
-          ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-          using (ITransaction transaction = database.CreateTransaction())
-          {
-            using (IDbCommand command = transaction.CreateCommand())
-            {
-              command.CommandText = SELECT_COUNT_FROM_MEDIAITEMS_SQL;
-              var miParam = database.AddParameter(command, "ITEM_ID", Guid.Empty, typeof(Guid));
-              foreach (string folder in Directory.GetDirectories(FanArtCache.FANART_CACHE_PATH))
-              {
-                if (ShuttingDown)
-                  break;
-
-                if (!_fanArtCleanupAllowed)
-                  break;
-
-                Thread.Sleep(50);
-
-                Guid mediaItemId;
-                if (Guid.TryParse(Path.GetFileName(folder), out mediaItemId))
-                {
-                  miParam.Value = mediaItemId;
-                  int count = Convert.ToInt32(command.ExecuteScalar());
-                  try
-                  {
-                    if (count == 0)
-                    {
-                      DeleteFanArt(mediaItemId);
-                      Logger.Debug("Deleted orphan FanArt for {0}", mediaItemId);
-                    }
-                  }
-                  catch (Exception ex)
-                  {
-                    Logger.Error("Cannot delete FanArt for {0}", ex, mediaItemId);
-                  }
-                }
-              }
-            }
-          }
-          _nextFanartCleanupCheck = _nextFanartCleanupCheck.AddHours(FANART_CHECK_INTERVAL_HOURS);
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArt cleanup thread error", ex);
-      }
-      _fanArtCleanupRunning = false;
-    }
-
-    #endregion
 
     #region Protected methods
 
@@ -1188,16 +1080,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
             if (!nonVirtualParents.ContainsKey(parentId))
             {
-              //Delete child fanart
-              command.CommandText = selectChildsSql;
-              using (IDataReader reader = command.ExecuteReader())
-              {
-                while (reader.Read())
-                {
-                  DeleteFanArt(database.ReadDBValue<Guid>(reader, 0));
-                }
-              }
-
               //Delete child relations
               command.CommandText = deleteChildRelationsSql;
               command.ExecuteNonQuery();
@@ -1205,9 +1087,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               //Delete child items
               command.CommandText = deleteChildsSql;
               command.ExecuteNonQuery();
-
-              //Delete parent fanart
-              DeleteFanArt(parentId);
 
               //Delete parent relations
               command.CommandText = deleteParentRelationsSql;
@@ -1247,17 +1126,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           " FROM " + providerAspectTable + " PT WHERE PT." + resTypeAttribute +
           " IN (" + ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + "," + ProviderResourceAspect.TYPE_VIRTUAL + ")" +
           " AND PT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = MT." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ")";
-
-        //Delete Fanart
-        command.CommandText = affectedMediaItems;
-        using (IDataReader reader = command.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            DeleteFanArt(database.ReadDBValue<Guid>(reader, 0));
-          }
-        }
-
+        
         //Delete relations
         command.CommandText = "DELETE FROM " + relationshipAspectTable +
             " WHERE " + linkedIdAttribute + " IN (" + affectedMediaItems + ")";
@@ -1268,7 +1137,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + affectedMediaItems + ")";
         affectedRows += command.ExecuteNonQuery();
 
-        //Delete orphan Fanart
+        //Delete orphans
         string orphanMediaItems = " SELECT T0." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
           " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " T0" +
           " JOIN " + _miaManagement.GetMIATableName(ProviderResourceAspect.Metadata) + " T1 ON " +
@@ -1281,16 +1150,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = T0." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
           " OR " + linkedIdAttribute + " = T0." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
           ")";
-        command.CommandText = orphanMediaItems;
-        using (IDataReader reader = command.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            DeleteFanArt(database.ReadDBValue<Guid>(reader, 0));
-          }
-        }
 
-        //Delete orphans
         command.Parameters.Clear();
         command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
           " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" + orphanMediaItems + ")";
@@ -1378,6 +1238,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #endregion
 
+    #region FanArt
+
+    private void DeleteFanArt(Guid mediaItemId)
+    {
+      _fanArtManagement.ScheduleFanArtDeletion(mediaItemId);
+    }
+
+    private void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    {
+      _fanArtManagement.ScheduleFanArtCollection(mediaItemId, aspects);
+    }
+
+    #endregion
+
     #region IMediaLibrary implementation
 
     #region Startup & Shutdown
@@ -1398,6 +1272,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       _miaManagement = new MIA_Management();
       PrepareDatabaseQueries(); //Initial prepare
+      _fanArtManagement = new FanArtManagement();
 
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
@@ -1581,14 +1456,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
         " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
         " WHERE " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + "=@PROFILE_ID AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN({0})";
-      SELECT_COUNT_FROM_MEDIAITEMS_SQL = "SELECT COUNT(*) FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
-        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + "=@ITEM_ID";
     }
 
     public void ActivateImporterWorker()
     {
       PrepareDatabaseQueries(); //Second prepare
-      StartFanArtCleanup();
       InitShareWatchers();
 
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
@@ -1602,7 +1474,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Suspend();
       DeInitShareWatchers();
-      ShutdownFanArtCleanup();
+      _fanArtManagement.Dispose();
     }
 
     protected bool ShuttingDown
@@ -3223,48 +3095,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    private bool DeleteFanArt(Guid mediaItemId)
-    {
-      try
-      {
-        Logger.Debug("Scheduling FanArt deletion for {0}", mediaItemId);
-        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-        foreach (IMediaFanArtHandler handler in mediaAccessor.LocalFanArtHandlers.Values)
-        {
-          handler.DeleteFanArt(mediaItemId);
-        }
-        return true;
-      }
-      catch (Exception e)
-      {
-        Logger.Error("MediaLibrary: Error deleting FanArt for media item {0}", e, mediaItemId);
-      }
-      return false;
-    }
-
-    private bool CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
-    {
-      try
-      {
-        Logger.Debug("Scheduling FanArt downloads for {0}", mediaItemId);
-        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-        foreach (IMediaFanArtHandler handler in mediaAccessor.LocalFanArtHandlers.Values)
-        {
-          IList<Guid> aspectIds = new List<Guid>(handler.FanArtAspects);
-
-          // Any usable item must contain any of the hander.FanArtAspects
-          if (aspectIds.Any(a => aspects.ContainsKey(a)))
-            handler.CollectFanArt(mediaItemId, aspects);
-        }
-        return true;
-      }
-      catch (Exception e)
-      {
-        Logger.Error("MediaLibrary: Error downloading FanArt for media item {0}", e, mediaItemId);
-      }
-      return false;
-    }
-
     private void UpdateVirtualParents(ISQLDatabase database, ITransaction transaction, Guid mediaItemId, ICollection<Guid> mediaItemAspectIds)
     {
       bool isParent = _miaManagement.ManagedMediaItemHierarchies.Where(h => mediaItemAspectIds.Contains(h.ParentAspectId)).Any();
@@ -4120,6 +3950,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           DeleteAllMediaItemsUnderPathCombined(transaction, share.SystemId, share.BaseResourcePath, true);
 
           transaction.Commit();
+          _fanArtManagement.ScheduleFanArtCleanup();
 
           ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
         }
@@ -4154,6 +3985,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         DeleteAllMediaItemsUnderPathCombined(transaction, systemId, null, true);
 
         transaction.Commit();
+        _fanArtManagement.ScheduleFanArtCleanup();
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }

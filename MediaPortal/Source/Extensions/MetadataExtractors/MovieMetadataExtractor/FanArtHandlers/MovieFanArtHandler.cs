@@ -121,7 +121,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
 
       _checkCache.Add(mediaItemId);
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects, collectionMediaItemId, actorMediaItems));
+      ExtractFanArt(mediaItemId, aspects, collectionMediaItemId, actorMediaItems);
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? collectionMediaItemId, IDictionary<Guid, string> actorMediaItems)

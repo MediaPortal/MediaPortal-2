@@ -129,6 +129,25 @@ namespace MediaPortal.Common.FanArt
       return fanartFiles;
     }
 
+    public static ICollection<Guid> GetAllFanArtIds()
+    {
+      List<Guid> mediaItemIds = new List<Guid>();
+      try
+      {
+        foreach (DirectoryInfo fanartDirectory in new DirectoryInfo(FANART_CACHE_PATH).EnumerateDirectories())
+        {
+          Guid mediaItemId;
+          if (Guid.TryParse(fanartDirectory.Name, out mediaItemId))
+            mediaItemIds.Add(mediaItemId);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("FanArtCache: Error reading fanart directory '{0}'", ex, FANART_CACHE_PATH);
+      }
+      return mediaItemIds;
+    }
+
     public static void DeleteFanArtFiles(string mediaItemId)
     {
       try
