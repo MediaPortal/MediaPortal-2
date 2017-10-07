@@ -28,13 +28,14 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
-  public class RelationshipQueryBuilder : MainQueryBuilder
+  public class SubQueryBuilder : MainQueryBuilder
   {
     private int _bindVarCount = 0;
 
-    public RelationshipQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
-      ICollection<MediaItemAspectMetadata> requiredMIATypes, IFilter filter, int bindVarCount)
-      : base(miaManagement, simpleSelectAttributes, null, requiredMIATypes, new List<MediaItemAspectMetadata> { }, filter, null)
+    public SubQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
+      ICollection<MediaItemAspectMetadata> requiredMIATypes, IFilter filter, IFilter subQueryFilter, int bindVarCount)
+      : base(miaManagement, simpleSelectAttributes, null, requiredMIATypes, new List<MediaItemAspectMetadata> { },
+          filter, subQueryFilter, null)
     {
       _bindVarCount = bindVarCount;
     }
@@ -42,7 +43,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected override CompiledFilter CreateCompiledFilter(Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, IList<TableJoin> tableJoins)
     {
       bvNamespace.BindVarCounter += _bindVarCount;
-      return new RelationshipCompiledFilter(_miaManagement, _filter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
+      return new CompiledFilter(_miaManagement, CreateSubQueryFilter(), _subqueryFilter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
+    }
+
+    protected IFilter CreateSubQueryFilter()
+    {
+      if (_subqueryFilter == null)
+        return _filter;
+      if (_filter == null)
+        return _subqueryFilter;
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filter, _subqueryFilter);
     }
 
     /// <summary>

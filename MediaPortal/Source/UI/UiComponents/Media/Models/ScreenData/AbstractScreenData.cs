@@ -58,7 +58,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _listHintProperty = null;
     protected NavigationData _navigationData = null;
     protected IItemsFilter _filter;
-    protected IEnumerable<Guid> _filteredMias;
     protected IEnumerable<Guid> _availableMias;
 
     protected object _syncObj = new object();
@@ -278,14 +277,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     }
 
     /// <summary>
-    /// Returns the minimum mias that are guaranteed to be present in the items displayed by this screen.
-    /// </summary>
-    public IEnumerable<Guid> FilteredMias
-    {
-      get { return _filteredMias; }
-    }
-
-    /// <summary>
     /// Returns the mias that this screen has available.
     /// </summary>
     public IEnumerable<Guid> AvailableMias
@@ -302,16 +293,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Rebuilds the items list without invalidating the underlaying view.
     /// </summary>
     public abstract void UpdateItems();
-
-    /// <summary>
-    /// Whether this screen can filter and display items with the specified aspects.
-    /// </summary>
-    /// <param name="necessaryMIATypeIds">The ids of the media item aspects contained in the items to filter.</param>
-    /// <returns></returns>
-    public virtual bool CanFilter(IEnumerable<Guid> necessaryMIATypeIds)
-    {
-      return _filteredMias == null || necessaryMIATypeIds == null || _filteredMias.Intersect(necessaryMIATypeIds).Any();
-    }
 
     /// <summary>
     /// Allows a secondary filter of the already loaded <see cref="Items"/> by the given <paramref name="search"/> term.

@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -43,15 +44,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
       _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
-    }
-
-    public override void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
-    {
-      base.InitMediaNavigation(out mediaNavigationMode, out navigationData);
-      //Series filters modify the necessary/optional mia types of the current query view specification.
-      //The series screen needs to return them back to the root episode mias so it needs to know what they are.
-      //We need to set them after we have called InitMediaNavigation above as that call may modify the optional mia types.
-      _seriesScreen.SetRootMiaTypes(navigationData.BaseViewSpecification.NecessaryMIATypeIds, navigationData.BaseViewSpecification.OptionalMIATypeIds);
+      _rootRole = EpisodeAspect.ROLE_EPISODE;
     }
 
     protected override void Prepare()

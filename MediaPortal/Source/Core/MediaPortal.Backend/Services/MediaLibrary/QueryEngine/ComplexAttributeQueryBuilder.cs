@@ -43,6 +43,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly MediaItemAspectMetadata.AttributeSpecification _queryAttribute;
     protected readonly SelectProjectionFunction _selectProjectionFunction;
     protected readonly IFilter _filter;
+    protected readonly IFilter _subqueryFilter;
 
     /// <summary>
     /// Creates a new <see cref="ComplexAttributeQueryBuilder"/> instance.
@@ -55,16 +56,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// If this delegate function is <c>null</c>, the actual attribute is selected without a projection function.</param>
     /// <param name="necessaryRequestedMIAs">MIAs which must be present for the media item to match the query.</param>
     /// <param name="filter">Filter which must be applied to the media items to match the query.</param>
+    /// <param name="subqueryFilter">Filter which must be applied to all subqueries to match the query.</param>
     public ComplexAttributeQueryBuilder(
         MIA_Management miaManagement,
         MediaItemAspectMetadata.AttributeSpecification complexQueryAttribute,
         SelectProjectionFunction selectProjectionFunction,
-        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IFilter filter) : base(miaManagement)
+        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IFilter filter, IFilter subqueryFilter)
+      : base(miaManagement)
     {
       _queryAttribute = complexQueryAttribute;
       _selectProjectionFunction = selectProjectionFunction;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _filter = filter;
+      _subqueryFilter = subqueryFilter;
     }
 
     public MediaItemAspectMetadata.AttributeSpecification QueryAttribute
@@ -125,7 +129,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
 
-      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
+      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, _subqueryFilter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
 
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
@@ -289,7 +293,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
 
-      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
+      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, _subqueryFilter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
 
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute

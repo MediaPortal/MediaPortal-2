@@ -38,6 +38,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.Utilities;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -48,10 +49,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected IFilter _clusterFilter = null;
     protected bool _sortable = false;
 
-    //MIAs of the media items that this screen data filters
-    //If null, the MIAs of the previous screen/root view spec will be used 
-    protected ICollection<Guid> _necessaryLinkedMIATypeIds;
-    protected ICollection<Guid> _optionalLinkedMIATypeIds;
+    protected FilterTreePath _filterPath = null;
 
     // Variables to be synchronized for multithreading access
     protected bool _buildingList = false;
@@ -168,11 +166,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       UnsubscribeFromMessages();
     }
 
-    public virtual bool CanCombineFilters(IEnumerable<Guid> necessaryFilteredMias)
-    {
-      return _filteredMias == null || necessaryFilteredMias == null || _filteredMias.Intersect(necessaryFilteredMias).Any();
-    }
-
     /// <summary>
     /// Updates the GUI data for a filter values selection screen which reflects the available filter values for
     /// the current base view specification of our <see cref="AbstractScreenData._navigationData"/>.
@@ -213,26 +206,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         {
           Display_ListBeingBuilt();
           bool grouping = true;
-          IFilter filter = currentVS.Filter;
-          ICollection<Guid> necessaryMias = currentVS.NecessaryMIATypeIds;
-          bool combineFilters = CanCombineFilters(currentVS.NecessaryMIATypeIds);
-          //If currentVS is the base view it's possible that it has a filter that is incompatible with _filterCriterion.
-          //This is the case if a plugin has added a base filter to exclude certain items, e.g. TV excludes recordings
-          //and the new filter filters by a different media type, e.g. series. Ignore the base filter and override
-          //the necessary mias in this case.
-          if (_navigationData.Parent == null && !combineFilters)
-          {
-            filter = null;
-            if (_necessaryLinkedMIATypeIds != null)
-              necessaryMias = _necessaryLinkedMIATypeIds;
-          }
-
+          IFilter filter = currentVS.FilterTree.BuildFilter(_filterPath);
           ICollection<FilterValue> fv = _clusterFilter == null ?
-              _filterCriterion.GroupValues(necessaryMias, _clusterFilter, filter) : null;
+              _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, _clusterFilter, filter) : null;
           
           if (fv == null || fv.Count <= Consts.MAX_NUM_ITEMS_VISIBLE)
           {
-            fv = _filterCriterion.GetAvailableValues(necessaryMias, _clusterFilter, filter);
+            fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, _clusterFilter, filter);
             grouping = false;
           }
           if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
@@ -257,13 +237,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             // So we need an equality criterion when the screen to be removed is equal to this screen in terms of its
             // filter criterion. But with the given data, we actually cannot derive that equality.
             // So we simply use the MenuItemLabel, which should be the same in this and the base screen of the same filter.
-            foreach (FilterValue filterValue in fv)
+            foreach (FilterValue f in fv)
             {
+              //Used for enclosure
+              FilterValue filterValue = f;
               _sortable &= filterValue.Item != null;
               string filterTitle = filterValue.Title;
               IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
-              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter,
-                _necessaryLinkedMIATypeIds, _optionalLinkedMIATypeIds, combineFilters);
               T filterValueItem = new T
               {
                 // Support non-playable MediaItems (i.e. Series, Seasons)
@@ -271,9 +251,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 SimpleTitle = filterTitle,
                 NumItems = filterValue.NumItems,
                 Id = filterValue.Id,
-                Command = grouping ? 
-                  new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) :
-                  new MethodDelegateCommand(() => NavigateToSubView(subVS))
+                Command = new MethodDelegateCommand(()=>
+                {
+                  MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, _filterPath, filterValue.Filter, filterValue.LinkedId);
+                  if (grouping)
+                    NavigateToGroup(subVS, selectAttributeFilter);
+                  else
+                    NavigateToSubView(subVS);
+                })
               };
               itemsList.Add(filterValueItem);
               if (filterValue.NumItems.HasValue)
