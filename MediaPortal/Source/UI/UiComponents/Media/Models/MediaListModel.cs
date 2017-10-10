@@ -135,7 +135,7 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               if (_enabledElements[key] == false)
               {
-                ServiceRegistration.Get<ILogger>().Warn("Enabling IMediaListProvider '{0}'", key);
+                ServiceRegistration.Get<ILogger>().Info("Enabling IMediaListProvider '{0}'", key);
               }
               _enabledElements[key] = true;
             }
