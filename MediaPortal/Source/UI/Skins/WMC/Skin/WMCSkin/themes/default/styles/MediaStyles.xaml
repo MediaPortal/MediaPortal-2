@@ -4423,7 +4423,7 @@
     </Setter>
   </Style>
 
-  <ControlTemplate x:Key="ChannelDataTemplate">
+  <DataTemplate x:Key="ChannelDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
@@ -4449,7 +4449,7 @@
              TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
              Content="{Binding ChannelName}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
     </Grid>
-  </ControlTemplate>
+  </DataTemplate>
 
   <Style x:Key="HomeScreenChannelViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
