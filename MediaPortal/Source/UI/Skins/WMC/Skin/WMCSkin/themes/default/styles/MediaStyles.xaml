@@ -4441,13 +4441,13 @@
       <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="White"/>
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelName}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
                                     fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" 
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" 
              TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding ChannelName}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+             Content="{Binding Channel.Name}" Color="Black" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
     </Grid>
   </DataTemplate>
 
