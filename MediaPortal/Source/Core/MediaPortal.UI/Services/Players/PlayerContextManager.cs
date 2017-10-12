@@ -52,7 +52,7 @@ namespace MediaPortal.UI.Services.Players
   /// </summary>
   public class PlayerContextManager : IPlayerContextManager, IDisposable
   {
-    const double MINIMUM_WATCHED_SEC = 60;
+    const double MINIMUM_WATCHED_SEC = 30;
     const int MINIMUM_WATCHED_PERCENT = 50;
 
     #region Enums, delegates & classes
@@ -267,7 +267,7 @@ namespace MediaPortal.UI.Services.Players
     protected static bool TryGetPlayDuration(MediaItem mediaItem, IResumeState resumeState, out int playPercentage, out double playDuration)
     {
       playPercentage = 100;
-      playDuration = MINIMUM_WATCHED_SEC;
+      playDuration = 0;
       PositionResumeState positionResume = resumeState as PositionResumeState;
       if (positionResume != null)
       {

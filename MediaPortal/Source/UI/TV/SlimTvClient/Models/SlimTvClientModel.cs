@@ -74,7 +74,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Constants
 
     protected const int PROGRAM_UPDATE_SEC = 30; // Update frequency for current running programs
-    protected const int PROGRAM_WATCHED_SEC = 300; // Time before a program is considered watched
+    protected const int PROGRAM_WATCHED_SEC = 30; // Time before a program is considered watched
 
     #endregion
 
