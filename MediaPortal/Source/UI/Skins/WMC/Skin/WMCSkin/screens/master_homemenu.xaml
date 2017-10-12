@@ -317,7 +317,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </ListView.Triggers>
             </ListView>
 
-            <Label x:Name="FavoriteLabel" Grid.Row="4" Content="Favourits" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,30,0,0"/>
+            <Label x:Name="FavoriteLabel" Grid.Row="4" Content="Favorites" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,30,0,0"/>
             <ListView Grid.Row="5" x:Name="Favorits" HorizontalAlignment="Left">
               <ListView.Style>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
