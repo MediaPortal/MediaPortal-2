@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
 
@@ -68,8 +69,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
     // Other global user data 
     bool SetUserAdditionalData(Guid profileId, string key, string data, int dataNo = 0);
     bool GetUserAdditionalData(Guid profileId, string key, out string data, int dataNo = 0);
-    bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool orderByKey = false, uint? offset = null, uint ? limit = null);
-    bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool orderByKey = false, uint? offset = null, uint? limit = null);
+    bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint ? limit = null);
+    bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null);
 
     #endregion
 

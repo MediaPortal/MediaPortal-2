@@ -29,6 +29,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
 using System.Linq;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Common.Services.ServerCommunication
 {
@@ -218,14 +219,15 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (bool)outParameters[0];
     }
 
-    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool orderByKey = false, uint? offset = null, uint? limit = null)
+    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("GetUserAdditionalDataList");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
             key,
-            orderByKey,
+            sortByKey,
+            (int)sortDirection,
             offset,
             limit
         };
@@ -236,14 +238,15 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (bool)outParameters[1];
     }
 
-    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool orderByKey = false, uint? offset = null, uint? limit = null)
+    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("GetUserSelectedAdditionalDataList");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
             MarshallingHelper.SerializeStringEnumerationToCsv(keys),
-            orderByKey,
+            sortByKey,
+            (int)sortDirection,
             offset,
             limit
         };

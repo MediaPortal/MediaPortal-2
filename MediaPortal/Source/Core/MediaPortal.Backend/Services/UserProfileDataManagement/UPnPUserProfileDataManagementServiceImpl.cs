@@ -33,6 +33,7 @@ using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using MediaPortal.Backend.MediaLibrary;
 using System.Linq;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -284,7 +285,8 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("OrderByKey", A_ARG_TYPE_Bool, ArgumentDirection.In),
+            new DvArgument("SortByKey", A_ARG_TYPE_Bool, ArgumentDirection.In),
+            new DvArgument("SortOrder", A_ARG_TYPE_Integer, ArgumentDirection.In),
             new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In),
             new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In),
           },
@@ -298,7 +300,8 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("Keys", A_ARG_TYPE_String, ArgumentDirection.In),
-            new DvArgument("OrderByKey", A_ARG_TYPE_Bool, ArgumentDirection.In),
+            new DvArgument("SortByKey", A_ARG_TYPE_Bool, ArgumentDirection.In),
+            new DvArgument("SortOrder", A_ARG_TYPE_Integer, ArgumentDirection.In),
             new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In),
             new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In),
           },
@@ -537,14 +540,15 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string key = (string)inParams[1];
-      bool orderByKey = (bool)inParams[2];
-      uint? offset = (uint?)inParams[3];
-      uint? limit = (uint?)inParams[4];
+      bool sortByKey = (bool)inParams[2];
+      SortDirection sortOrder = (SortDirection)(int)inParams[3];
+      uint? offset = (uint?)inParams[4];
+      uint? limit = (uint?)inParams[5];
 
       string data;
       IEnumerable<Tuple<int, string>> list; 
       bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataList(profileId, key, out list, orderByKey, offset, limit)))
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataList(profileId, key, out list, sortByKey, sortOrder, offset, limit)))
         data = null;
       else
         data = MarshallingHelper.SerializeTuple2EnumerationToCsv(list.Select(t => new Tuple<string, string>(t.Item1.ToString(), t.Item2)));
@@ -557,14 +561,15 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string[] keys = MarshallingHelper.ParseCsvStringCollection((string)inParams[1]).ToArray();
-      bool orderByKey = (bool)inParams[2];
-      uint? offset = (uint?)inParams[3];
-      uint? limit = (uint?)inParams[4];
+      bool sortByKey = (bool)inParams[2];
+      SortDirection sortOrder = (SortDirection)(int)inParams[3];
+      uint? offset = (uint?)inParams[4];
+      uint? limit = (uint?)inParams[5];
 
       string data;
       IEnumerable<Tuple<string, int, string>> list; 
       bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataList(profileId, keys, out list, orderByKey, offset, limit)))
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataList(profileId, keys, out list, sortByKey, sortOrder, offset, limit)))
         data = null;
       else
         data = MarshallingHelper.SerializeTuple3EnumerationToCsv(list.Select(t => new Tuple<string, string, string>(t.Item1, t.Item2.ToString(), t.Item3)));

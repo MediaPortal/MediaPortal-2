@@ -36,6 +36,7 @@ using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.Commands;
 using MediaPortal.Plugins.SlimTv.Client.Models;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -93,7 +94,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
           IEnumerable<Tuple<int, string>> channelList;
           if (userProfile.HasValue && userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataList(userProfile.Value, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT,
-            out channelList, true, null, Convert.ToUInt32(maxItems)))
+            out channelList, true, SortDirection.Descending, limit: Convert.ToUInt32(maxItems)))
           {
             _channelList = channelList;
           }

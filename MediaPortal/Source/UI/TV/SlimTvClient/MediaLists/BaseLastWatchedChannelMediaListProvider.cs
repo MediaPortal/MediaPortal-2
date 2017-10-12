@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Models;
@@ -64,7 +65,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
         IEnumerable<Tuple<int, string>> channelList;
         if (userProfile.HasValue && userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataList(userProfile.Value, UserDataKeysKnown.KEY_CHANNEL_PLAY_DATE,
-          out channelList, true, null, Convert.ToUInt32(maxItems)))
+          out channelList, true, SortDirection.Descending, limit: Convert.ToUInt32(maxItems)))
         {
           lock(_syncLock)
           {

@@ -30,6 +30,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -306,16 +307,15 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
-    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string dataKey, bool orderByKey, 
+    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string dataKey, bool sortByKey, SortDirection sortDirection,
       out int dataNoIndex, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
       ISQLDatabase database = transaction.Database;
       result.CommandText = "SELECT DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY";
-      if (orderByKey)
-        result.CommandText += " ORDER BY DATA_KEY";
-      else
-        result.CommandText += " ORDER BY DATA_NO";
+      result.CommandText += sortByKey ? " ORDER BY ADDITIONAL_DATA" : " ORDER BY DATA_NO";
+      result.CommandText += sortDirection == SortDirection.Descending ? " DESC" : " ASC";
+
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
 
@@ -324,7 +324,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
-    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string[] dataKeys, bool orderByKey,
+    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string[] dataKeys, bool sortByKey, SortDirection sortDirection,
       out int additionalDataKeyIndex, out int dataNoIndex, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
@@ -332,10 +332,9 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       result.CommandText = @"SELECT DATA_KEY, DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID";
       if(dataKeys != null && dataKeys.Length > 0)
         result.CommandText += " AND DATA_KEY IN ('" + string.Join("','", dataKeys) + "')";
-      if (orderByKey)
-        result.CommandText += " ORDER BY DATA_KEY";
-      else
-        result.CommandText += " ORDER BY DATA_NO";
+      result.CommandText += sortByKey ? " ORDER BY DATA_KEY, ADDITIONAL_DATA" : " ORDER BY DATA_KEY, DATA_NO";
+      result.CommandText += sortDirection == SortDirection.Descending ? " DESC" : " ASC";
+
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
 
       additionalDataKeyIndex = 0;

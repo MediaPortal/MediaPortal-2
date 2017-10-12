@@ -28,12 +28,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
   public class SlimTvFavoriteTVMediaListProvider : BaseFavoriteChannelMediaListProvider
   {
-    public class SlimTvFavoriteRadioMediaListProvider : BaseFavoriteChannelMediaListProvider
+    public SlimTvFavoriteTVMediaListProvider()
     {
-      public SlimTvFavoriteRadioMediaListProvider()
-      {
-        _mediaType = MediaType.TV;
-      }
+      _mediaType = MediaType.TV;
     }
   }
 }
