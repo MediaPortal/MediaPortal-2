@@ -157,11 +157,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// added or removed will have a <c>null</c> value assigned to its ID.
     /// </summary>
     protected readonly IDictionary<Guid, MediaItemAspectMetadata> _managedMIATypes = new Dictionary<Guid, MediaItemAspectMetadata>();
-
+        
     /// <summary>
-    /// Caches the hierarchy of all managed MIAs.
+    /// Caches the relationships of all managed MIAs.
     /// </summary>
-    protected List<RelationshipHierarchy> _MIAhierarchies = new List<RelationshipHierarchy>();
+    protected ICollection<RelationshipType> _registeredRelationships = new List<RelationshipType>();
 
     /// <summary>
     /// Caches the creation dates of all managed MIAs.
@@ -169,7 +169,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IDictionary<Guid, DateTime> _MIACreationDates = new ConcurrentDictionary<Guid, DateTime>();
 
     protected readonly object _syncStorageObj = new object();
-    protected readonly object _syncHierarchyObj = new object();
+    protected object _syncRelationshipsObj = new object();
 
     /// <summary>
     /// For all contained attribute types, the value tables are locked for concurrent access.
@@ -182,7 +182,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ReloadAliasCache();
       LoadMIATypeCache();
       LoadMIACreationDateCache();
-      LoadMIAHierarchyCache();
     }
 
     #region Table name generation and alias management
@@ -476,26 +475,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         transaction.Dispose();
       }      
-    }
-
-    protected void LoadMIAHierarchyCache()
-    {
-      lock (_syncHierarchyObj)
-      {
-        _MIAhierarchies.Clear();
-        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-        foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
-        {
-          if (extractor.Hierarchies != null)
-          {
-            foreach (RelationshipHierarchy hierarchy in extractor.Hierarchies)
-            {
-              if (!_MIAhierarchies.Exists(h => h.ParentRole == hierarchy.ParentRole && h.ChildRole == hierarchy.ChildRole))
-                _MIAhierarchies.Add(hierarchy);
-            }
-          }
-        }
-      }
     }
 
     protected static object TruncateBigValue(object value, MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
@@ -1460,33 +1439,60 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #endregion
 
-    #region MIA hierarchy management
+    #region MIA relationship management
 
-    public ICollection<RelationshipHierarchy> ManagedMediaItemHierarchies
+    public void AddRelationship(RelationshipType relationshipType, bool isChildPrimaryResource)
     {
-      get
+      lock (_syncRelationshipsObj)
       {
-        lock (_syncHierarchyObj)
-          return _MIAhierarchies;
+        if (_registeredRelationships.Any(r => r.ChildRole == relationshipType.ChildRole && r.ParentRole == relationshipType.ParentRole))
+          return;
+
+        //It must be possible to traverse up to any relationship from a primary resource role, so ensure that this is either
+        //a primary resource or child role is an existing parent role in another relationship
+        if (!isChildPrimaryResource && !_registeredRelationships.Any(r => r.ParentRole == relationshipType.ChildRole))
+          throw new InvalidOperationException("Relationship roles must be either a primary resource or an existing linked role");
+
+        _registeredRelationships.Add(relationshipType);
       }
     }
 
-    public bool MediaItemHierarchyExists(Guid parentRole, Guid childRole)
+    /// <summary>
+    /// Returns all relationship types which were registered in this registration instance.
+    /// </summary>
+    /// <value>Collection of relationship types.</value>
+    public ICollection<RelationshipType> LocallyKnownRelationshipTypes
     {
-      lock (_syncHierarchyObj)
-        return _MIAhierarchies.Where(h => h.ParentRole == parentRole && h.ChildRole == childRole).Any();
+      get
+      {
+        lock (_syncRelationshipsObj)
+          return new List<RelationshipType>(_registeredRelationships);
+      }
     }
 
-    public RelationshipHierarchy GetMediaItemHierarchy(Guid parentRole, Guid childRole)
+    /// <summary>
+    /// Returns all hierarchical relationship types which were registered in this registration instance.
+    /// </summary>
+    /// <value>Collection of relationship types.</value>
+    public ICollection<RelationshipType> LocallyKnownHierarchicalRelationshipTypes
     {
-      lock (_syncHierarchyObj)
-        return _MIAhierarchies.Where(h => h.ParentRole == parentRole && h.ChildRole == childRole).FirstOrDefault();
+      get
+      {
+        lock (_syncRelationshipsObj)
+          return new List<RelationshipType>(_registeredRelationships.Where(r => r.IsHierarchical));
+      }
     }
 
-    public ICollection<RelationshipHierarchy> GetMediaItemHierarchyFromChildRole(Guid childRole)
+    public bool RelationshipExists(Guid role, Guid linkedRole)
     {
-      lock (_syncHierarchyObj)
-        return _MIAhierarchies.Where(h => h.ChildRole == childRole).ToList();
+      lock (_syncRelationshipsObj)
+        return _registeredRelationships.Any(r => r.ChildRole == role && r.ParentRole == linkedRole);
+    }
+
+    public RelationshipType GetRelationshipType(Guid role, Guid linkedRole)
+    {
+      lock (_syncRelationshipsObj)
+        return _registeredRelationships.FirstOrDefault(r => r.ChildRole == role && r.ParentRole == linkedRole);
     }
 
     #endregion
@@ -1615,6 +1621,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (miaType.IsTransientAspect)
         return;
 
+      //Check if miaType is a RelationshipAspect and ensure that the relationship has been registered
+      if (!CheckAddRelationship(miaType, mia))
+        return;
+
       IList<string> terms1 = new List<string>();
       IList<string> terms2 = new List<string>();
       IList<string> terms3 = new List<string>();
@@ -1674,7 +1684,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
             else
               terms1.Add(attrColName + " = @" + bindVarName);
-            bindVars.Add(new BindVar(bindVarName, insertValue.HasValue ? (Guid?) insertValue.Value : null, typeof(Guid)));
+            bindVars.Add(new BindVar(bindVarName, insertValue.HasValue ? (Guid?)insertValue.Value : null, typeof(Guid)));
             break;
           case Cardinality.ManyToMany:
             // After main query
@@ -1813,6 +1823,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       CleanupAllManyToOneOrphanedAttributeValues(transaction, miaType);
       return result;
+    }
+
+    protected bool CheckAddRelationship(MediaItemAspectMetadata miaType, MediaItemAspect mia)
+    {
+      if (miaType.AspectId != Common.MediaManagement.DefaultItemAspects.RelationshipAspect.ASPECT_ID)
+        return true;
+      Guid role = mia.GetAttributeValue<Guid>(Common.MediaManagement.DefaultItemAspects.RelationshipAspect.ATTR_ROLE);
+      Guid linkedRole = mia.GetAttributeValue<Guid>(Common.MediaManagement.DefaultItemAspects.RelationshipAspect.ATTR_LINKED_ROLE);
+      if (RelationshipExists(role, linkedRole))
+        return true;
+      //Only throw if reverse relationship also doesn't exists, otherwise just ignore
+      if (!RelationshipExists(linkedRole, role))
+        throw new InvalidOperationException(string.Format("MIA_Management: Relationship with role {0} and linked role {1} doesn't exist", role, linkedRole));
+      //ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Attempted to add reverse relationship with role {0} and linked role {1}", role, linkedRole);
+      return false;
     }
 
     #endregion

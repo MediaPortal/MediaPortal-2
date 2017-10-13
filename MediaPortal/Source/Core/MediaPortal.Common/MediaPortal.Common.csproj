@@ -104,6 +104,7 @@
     <Compile Include="MediaManagement\Helpers\AlbumInfo.cs" />
     <Compile Include="MediaManagement\Helpers\TrackInfo.cs" />
     <Compile Include="MediaManagement\IMediaFanArtHandler.cs" />
+    <Compile Include="MediaManagement\IRelationshipTypeRegistration.cs" />
     <Compile Include="MediaManagement\IMediaMergeHandler.cs" />
     <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
     <Compile Include="MediaManagement\FanArtHandlerMetadata.cs" />
@@ -120,7 +121,7 @@
     <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
     <Compile Include="Genres\GenreSettings.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
-    <Compile Include="MediaManagement\RelationshipHierarchy.cs" />
+    <Compile Include="MediaManagement\RelationshipType.cs" />
     <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
     <Compile Include="MediaManagement\RelationshipItem.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempAlbumAspect.cs" />

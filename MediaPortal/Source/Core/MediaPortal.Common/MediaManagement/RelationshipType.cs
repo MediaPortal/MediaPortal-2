@@ -27,18 +27,24 @@ using System;
 namespace MediaPortal.Common.MediaManagement
 {
   /// <summary>
-  /// Holds all metadata for a the relationship extractor specified by the <see cref="IRelationshipExtractor"/>.
+  /// Holds all metadata for the relationship extractor specified by the <see cref="IRelationshipExtractor"/>.
   /// </summary>
-  public class RelationshipHierarchy
+  public class RelationshipType
   {
-    public RelationshipHierarchy(string name, 
-      Guid parentAspectId, Guid chilAspectId,
-      Guid parentRole, Guid childRole, 
-       MediaItemAspectMetadata.SingleAttributeSpecification parentCountAttribute, MediaItemAspectMetadata.AttributeSpecification childCountAttribute,
+    public RelationshipType(string name, Guid childRole, Guid parentRole)
+      : this(name, false, childRole, parentRole, Guid.Empty, Guid.Empty, null, null, false)
+    {
+    }
+
+    public RelationshipType(string name, bool isPrimaryParent,
+      Guid childRole, Guid parentRole,
+      Guid childAspectId, Guid parentAspectId,
+      MediaItemAspectMetadata.AttributeSpecification childCountAttribute, MediaItemAspectMetadata.SingleAttributeSpecification parentCountAttribute,
       bool updatePlayPercentage)
     {
       Name = name;
-      ChildAspectId = chilAspectId;
+      IsPrimaryParent = isPrimaryParent;
+      ChildAspectId = childAspectId;
       ParentAspectId = parentAspectId;
       ChildRole = childRole;
       ParentRole = parentRole;
@@ -48,9 +54,30 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// Name for the hierarchy. Mainly used for troubleshooting and logging.
+    /// Name for the relationship. Mainly used for troubleshooting and logging.
     /// </summary>
     public string Name { get; private set; }
+
+    /// <summary>
+    /// Whether this relationship is hierarchical.
+    /// <para>
+    /// A hierarchical relationship is a relationship where the parent items maintain a count, playback and virtual
+    /// state depending on the state of their children.
+    /// </para>
+    /// </summary>
+    public bool IsHierarchical
+    {
+      get { return ChildCountAttribute != null && ParentCountAttribute != null; }
+    }
+
+    /// <summary>
+    /// If this is a hierarchical relationship, whether this relationship represents the primary relationship in a relationship tree.
+    /// <para>
+    /// Media items will only be deleted from the database if the primary parent does not have any non virtual children, otherwise only
+    /// the ProviderResourceAspect will be deleted and the affected media items will be marked as virtual.
+    /// </para>
+    /// </summary>
+    public bool IsPrimaryParent { get; private set; }
 
     /// <summary>
     /// Role of the child in the hierarchy.

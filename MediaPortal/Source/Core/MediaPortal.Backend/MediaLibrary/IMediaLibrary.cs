@@ -383,6 +383,16 @@ namespace MediaPortal.Backend.MediaLibrary
 
     #endregion
 
+    #region Relationship type schema management
+
+    void AddRelationship(RelationshipType relationshipType, bool isChildPrimaryResource);
+
+    ICollection<RelationshipType> GetManagedRelationshipTypes();
+
+    ICollection<RelationshipType> GetManagedHierarchicalRelationshipTypes();
+
+    #endregion
+
     #region Shares management
 
     /// <summary>

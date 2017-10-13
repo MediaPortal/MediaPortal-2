@@ -22,10 +22,12 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -51,19 +53,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public AudioRelationshipExtractor()
     {
       _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "NFO Audio relationship extractor");
+      RegisterRelationships();
+      InitExtractors();
+    }
 
+    protected void InitExtractors()
+    {
       _extractors = new List<IRelationshipRoleExtractor>();
-
       _extractors.Add(new TrackAlbumRelationshipExtractor());
-
       _extractors.Add(new TrackAlbumArtistRelationshipExtractor());
-
       _extractors.Add(new AlbumArtistRelationshipExtractor());
     }
 
-    public IList<RelationshipHierarchy> Hierarchies
+    /// <summary>
+    /// Registers all relationships that are extracted by this relationship extractor.
+    /// </summary>
+    protected void RegisterRelationships()
     {
-      get { return null; }
+      IRelationshipTypeRegistration relationshipRegistration = ServiceRegistration.Get<IRelationshipTypeRegistration>();
+
+      //Relationships must be registered in order from tracks up to all parent relationships
+
+      //Hierarchical relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Track->Album", true,
+        AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID,
+        AudioAspect.ATTR_TRACK, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS, true), true);
+
+      //Simple (non hierarchical) relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Track->Album Artist", AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ALBUMARTIST), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Album->Artist", AudioAlbumAspect.ROLE_ALBUM, PersonAspect.ROLE_ALBUMARTIST), false);
     }
 
     public RelationshipExtractorMetadata Metadata
