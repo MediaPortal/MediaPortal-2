@@ -23,15 +23,19 @@
 #endregion
 
 using MediaPortal.Backend.Database;
-using MediaPortal.Backend.MediaLibrary.Settings;
 using MediaPortal.Backend.Services.Database;
+using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Extensions.UserServices.FanArtService.Settings;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -40,12 +44,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace MediaPortal.Backend.Services.MediaLibrary
+namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   /// <summary>
   /// Class for managing the collection and deletion of fanart.
   /// </summary>
-  public class FanArtManagement : IDisposable
+  public class FanArtLibraryManager : IFanArtLibraryManager
   {
     #region Internal classes
 
@@ -71,15 +75,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #endregion
 
-    protected const int FANART_CHECK_INTERVAL_HOURS = 24;
+    #region Protected fields
+    
+    protected AsynchronousMessageQueue _messageQueue;
+    protected SettingsChangeWatcher<FanArtServiceSettings> _settings;
+    protected IIntervalWork _fanArtCleanupIntervalWork;
 
-    protected ActionBlock<FanArtManagerAction> _fanartActionBlock;
-    protected ActionBlock<bool> _fanartCleanupBlock;
+    protected ActionBlock<FanArtManagerAction> _fanartActionBlock; //Handles individual fanart collection/deletion
+    protected ActionBlock<bool> _fanartCleanupBlock; //Handles full fanart cleanup
 
-    public FanArtManagement()
+    #endregion
+
+    #region Constructor/Dispose
+
+    public FanArtLibraryManager()
     {
       InitBlocks();
-      CreateFanArtCleanupSchedule();
+      InitSettings();
+      UpdateFanArtCleanupIntervalWork();
+      SubscribeToMessages();
     }
 
     /// <summary>
@@ -87,12 +101,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// </summary>
     public void Dispose()
     {
-      //Mark blocks for completion, no new tasks will be scheduled
-      _fanartActionBlock.Complete();
-      _fanartCleanupBlock.Complete();
-      //Wait for all blocks to complete before returning
-      Task.WhenAll(_fanartActionBlock.Completion, _fanartCleanupBlock.Completion).Wait();
+      UnsubscribeFromMessages();
+      if (_settings != null)
+      {
+        _settings.Dispose();
+        _settings = null;
+      }
+      CompleteBlocks();
     }
+
+    #endregion
+
+    #region Init
 
     /// <summary>
     /// Initialize to TPL blocks
@@ -107,27 +127,92 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         new ExecutionDataflowBlockOptions { BoundedCapacity = 2 });
     }
 
-    /// <summary>
-    /// Creates a scheduled task that will run a fanart cleanup every <see cref="FANART_CHECK_INTERVAL_HOURS"/> hours.
-    /// </summary>
-    protected void CreateFanArtCleanupSchedule()
+    protected void CompleteBlocks()
     {
-      IntervalWork scheduledFanartCleanupWork = new IntervalWork(() =>
-      {
-        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        MediaLibrarySettings settings = settingsManager.Load<MediaLibrarySettings>();
-        if (settings.DeleteOrphanedFanart)
-          ScheduleFanArtCleanup();
-      }, TimeSpan.FromHours(FANART_CHECK_INTERVAL_HOURS));
-
-      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(scheduledFanartCleanupWork, false);
+      //Mark blocks for completion, no new tasks will be scheduled
+      _fanartActionBlock.Complete();
+      _fanartCleanupBlock.Complete();
+      //Wait for all blocks to complete before returning
+      Task.WhenAll(_fanartActionBlock.Completion, _fanartCleanupBlock.Completion).Wait();
     }
 
     /// <summary>
-    /// Schedules fanart collection/download for the given media item.
+    /// Initialize the settings watcher
     /// </summary>
-    /// <param name="mediaItemId">The id of the media item.</param>
-    /// <param name="aspects">The aspects of the media item.</param>
+    protected void InitSettings()
+    {
+      _settings = new SettingsChangeWatcher<FanArtServiceSettings>();
+      _settings.SettingsChanged = OnSettingsChanged;
+    }
+
+    private void OnSettingsChanged(object sender, EventArgs e)
+    {
+      UpdateFanArtCleanupIntervalWork();
+    }
+
+    #endregion
+
+    #region Messaging
+
+    protected void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL, MediaLibraryMessaging.CHANNEL });
+      _messageQueue.PreviewMessage += OnPreviewMessage;
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    protected void UnsubscribeFromMessages()
+    {
+      if (_messageQueue != null)
+      {
+        _messageQueue.Shutdown();
+        _messageQueue = null;
+      }
+    }
+
+    //This handler is called synchronously, we complete the blocks in here when the system state changes
+    //to ShuttingDown to ensure that all pending tasks are completed whilst all services are still available
+    private void OnPreviewMessage(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+        {
+          SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+          if (newState == SystemState.ShuttingDown)
+            CompleteBlocks();
+        }
+      }
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == MediaLibraryMessaging.CHANNEL)
+      {
+        MediaLibraryMessaging.MessageType messageType = (MediaLibraryMessaging.MessageType)message.MessageType;
+        if (messageType == MediaLibraryMessaging.MessageType.MediaItemsAddedOrUpdated)
+        {
+          MediaItem item = (MediaItem)message.MessageData[MediaLibraryMessaging.PARAM];
+          ScheduleFanArtCollection(item.MediaItemId, item.Aspects);
+        }
+        else if (messageType == MediaLibraryMessaging.MessageType.MediaItemsDeleted)
+        {
+          ScheduleFanArtCleanup();
+        }
+      }
+    }
+
+    #endregion
+
+    #region Public methods
+
+    /// <summary>
+    /// Schedules the collection of fanart for the media item with the specified <paramref name="mediaItemId"/> and <paramref name="aspects"/>.
+    /// </summary>
+    /// <param name="mediaItemId">The media item id of the media item to collect fanart for.</param>
+    /// <param name="aspects">The media item aspects of the media item to collect fanart for.</param>
     public void ScheduleFanArtCollection(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       if (aspects == null)
@@ -138,9 +223,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     /// <summary>
-    /// Schedules fanart deletion for the given media item.
+    /// Schedules the deletion of fanart for the media item with the specified <paramref name="mediaItemId"/>.
     /// </summary>
-    /// <param name="mediaItemId">The id of the media item.</param>
+    /// <param name="mediaItemId">The media item id of the media item to delete fanart for.</param>
     public void ScheduleFanArtDeletion(Guid mediaItemId)
     {
       ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart deletion for {0}.", mediaItemId);
@@ -148,7 +233,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     /// <summary>
-    /// Schedules a cleanup of all orphaned fanart where the media item no longer exists.
+    /// Schedules a cleanup of all fanart where the corresponding media item no longer exists.
     /// </summary>
     public void ScheduleFanArtCleanup()
     {
@@ -157,6 +242,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         ServiceRegistration.Get<ILogger>().Info("FanArtManagement: Skipping additional fanart cleanup. There is already a cleanup in the works and another one scheduled.");
     }
 
+    #endregion
+
+    #region Protected methods
+
+    /// <summary>
+    /// Called by the <see cref="_fanartActionBlock"/> for every new task.
+    /// </summary>
+    /// <param name="action"></param>
     protected void OnFanArtAction(FanArtManagerAction action)
     {
       if (action.Type == ActionType.Collect)
@@ -243,6 +336,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return mediaAccessor.LocalFanArtHandlers.Values;
     }
 
+    /// <summary>
+    /// Gets all media item ids from the database.
+    /// </summary>
+    /// <returns></returns>
     protected ICollection<Guid> GetAllMediaItemIds()
     {
       HashSet<Guid> mediaItemIds = new HashSet<Guid>();
@@ -258,7 +355,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     /// <summary>
-    /// Deletes fanart for the given media item using the provided <see cref="IMediaFanArtHandler"/>s
+    /// Deletes fanart for the given media item using the provided <see cref="IMediaFanArtHandler"/>s.
     /// </summary>
     /// <param name="mediaItemId">The id of the media item.</param>
     /// <param name="handlers">Collection of <see cref="IMediaFanArtHandler"/>s to use to delete.</param>
@@ -267,5 +364,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       foreach (IMediaFanArtHandler handler in handlers)
         handler.DeleteFanArt(mediaItemId);
     }
+
+    /// <summary>
+    /// Creates a scheduled task that will run a fanart cleanup periodically.
+    /// </summary>
+    protected void UpdateFanArtCleanupIntervalWork()
+    {
+      FanArtServiceSettings settings = _settings.Settings;
+      if (_fanArtCleanupIntervalWork != null)
+      {
+        if (settings.EnableCleanupOrphanedFanArt && settings.CleanupOrphanedFanArtIntervalHours == _fanArtCleanupIntervalWork.WorkInterval.TotalHours)
+          return; //Nothing has changed
+        ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_fanArtCleanupIntervalWork);
+      }
+
+      if (settings.EnableCleanupOrphanedFanArt && settings.CleanupOrphanedFanArtIntervalHours > 0)
+      {
+        _fanArtCleanupIntervalWork = new IntervalWork(ScheduleFanArtCleanup, TimeSpan.FromHours(_settings.Settings.CleanupOrphanedFanArtIntervalHours));
+        ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_fanArtCleanupIntervalWork, false);
+      }
+    }
+
+    #endregion
   }
 }

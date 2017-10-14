@@ -353,7 +353,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
     protected ICollection<Share> _importingSharesCache;
-    protected FanArtManagement _fanArtManagement;
 
     #endregion
 
@@ -744,20 +743,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #endregion
 
-    #region FanArt
-
-    private void DeleteFanArt(Guid mediaItemId)
-    {
-      _fanArtManagement.ScheduleFanArtDeletion(mediaItemId);
-    }
-
-    private void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
-    {
-      _fanArtManagement.ScheduleFanArtCollection(mediaItemId, aspects);
-    }
-
-    #endregion
-
     #region IMediaLibrary implementation
 
     #region Startup & Shutdown
@@ -779,7 +764,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       _miaManagement = new MIA_Management();
       _relationshipManagement = new RelationshipManagement(_miaManagement, _localSystemId);
       //PrepareDatabaseQueries(); //Initial prepare
-      _fanArtManagement = new FanArtManagement();
 
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
@@ -883,7 +867,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Suspend();
       DeInitShareWatchers();
-      _fanArtManagement.Dispose();
     }
 
     protected bool ShuttingDown
@@ -1643,7 +1626,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
             if (reconcile)
               Reconcile(refreshMediaItemId.Value, extractedAspects, isRefresh, cancelToken);
-            CollectFanArt(refreshMediaItemId.Value, extractedAspects);
 
             //Set media item as refreshed
             using (transaction = database.BeginTransaction())
@@ -1656,6 +1638,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
 
             Logger.Info("Refreshed media item {0} ({1}) ({2} ms)", refreshMediaItemId.Value, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
+            MediaLibraryMessaging.SendMediaItemAddedOrUpdatedMessage(new MediaItem(refreshMediaItemId.Value, extractedAspects));
             return refreshMediaItemId.Value;
           }
         }
@@ -1698,12 +1681,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               transaction = database.BeginTransaction();
               _relationshipManagement.DeleteMediaItemAndRelationships(transaction, mediaItemId.Value);
               transaction.Commit();
-              DeleteFanArt(mediaItemId.Value);
+              MediaLibraryMessaging.SendMediaItemsDeletedMessage();
               Logger.Info("Deleted media item {0} with name {1} ({2}) so it can be reimported ({3} ms)", mediaItemId.Value, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
               return Guid.Empty;
             }
-
-            CollectFanArt(item.MediaItemId, item.Aspects);
+            
+            MediaLibraryMessaging.SendMediaItemAddedOrUpdatedMessage(item);
           }
 
           Logger.Info("Media item {0} with name {1} ({2}) imported ({3} ms)", mediaItemId.Value, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
@@ -1772,7 +1755,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (mediaItemId.HasValue && mergedMediaItem.Value != mediaItemId.Value)
         {
           _relationshipManagement.DeleteMediaItemAndRelationships(transaction, mediaItemId.Value);
-          DeleteFanArt(mediaItemId.Value);
+          MediaLibraryMessaging.SendMediaItemsDeletedMessage();
         }
 
         Logger.Info("Media item {0} with name {1} ({2}) was merged into {3} ({4} ms)", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName), mergedMediaItem.Value, swImport.ElapsedMilliseconds);
@@ -2213,7 +2196,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         TransferTransientAspects(aspects.Values.SelectMany(x => x), item);
         Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
-        CollectFanArt(item.MediaItemId, item.Aspects);
+        MediaLibraryMessaging.SendMediaItemAddedOrUpdatedMessage(item);
       }
     }
 
@@ -2294,7 +2277,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             Logger.Debug("MediaLibrary: Deleted orphaned media item {0}", mediaItemId);
             _relationshipManagement.DeleteMediaItemAndRelationships(transaction, mediaItemId);
-            DeleteFanArt(mediaItemId);
+            MediaLibraryMessaging.SendMediaItemsDeletedMessage();
             return true;
           }
         }
@@ -2524,7 +2507,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           _relationshipManagement.DeletePathAndRelationships(transaction, systemId, path, inclusive);
           transaction.Commit();
-          _fanArtManagement.ScheduleFanArtCleanup();
+          MediaLibraryMessaging.SendMediaItemsDeletedMessage();
         }
         catch (Exception e)
         {
@@ -2932,8 +2915,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           _relationshipManagement.DeletePathAndRelationships(transaction, share.SystemId, share.BaseResourcePath, true);
 
           transaction.Commit();
-          _fanArtManagement.ScheduleFanArtCleanup();
 
+          MediaLibraryMessaging.SendMediaItemsDeletedMessage();
           ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
         }
         catch (Exception e)
@@ -2967,8 +2950,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _relationshipManagement.DeletePathAndRelationships(transaction, systemId, null, true);
 
         transaction.Commit();
-        _fanArtManagement.ScheduleFanArtCleanup();
 
+        MediaLibraryMessaging.SendMediaItemsDeletedMessage();
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
       catch (Exception e)
@@ -3022,7 +3005,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             break;
           case RelocationMode.Remove:
             numAffected = _relationshipManagement.DeletePathAndRelationships(transaction, originalShare.SystemId, originalShare.BaseResourcePath, true);
-            _fanArtManagement.ScheduleFanArtCleanup();
+            MediaLibraryMessaging.SendMediaItemsDeletedMessage();
             Logger.Info("MediaLibrary: Deleted {0} media items during share update (will be re-imported)", numAffected);
             Share updatedShare = GetShare(transaction, shareId);
             TryScheduleLocalShareImport(updatedShare);
