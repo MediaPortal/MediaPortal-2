@@ -94,11 +94,14 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           this));
       }
 
-      IFilter emptyRelationshipFilter = new NotFilter(new RelationshipFilter(_linkedRole, _role, Guid.Empty));
-      queryFilter = filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, emptyRelationshipFilter) : emptyRelationshipFilter;
-      int numEmptyEntries = cd.CountMediaItems(necessaryMIATypeIds, queryFilter, true, showVirtual);
-      if(numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyRelationshipFilter, null, this));
+      //ToDo: Add support for an empty entry for all filtered items that don't have this relationship
+      //The below works OK in simple cases but results in an extra, relatively long running query. Maybe this should be handled
+      //at the server for all relationship queries...
+      //IFilter emptyRelationshipFilter = new NotFilter(new RelationshipFilter(_linkedRole, _role, Guid.Empty));
+      //queryFilter = filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, emptyRelationshipFilter) : emptyRelationshipFilter;
+      //int numEmptyEntries = cd.CountMediaItems(necessaryMIATypeIds, queryFilter, true, showVirtual);
+      //if(numEmptyEntries > 0)
+      //  result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyRelationshipFilter, null, this));
 
       return result;
     }
