@@ -767,7 +767,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IItemProvider itemProvider = ItemProvider;
       if (itemProvider == null)
       {
-        base.BringIntoView(element, elementBounds);
+        base.BringIntoView(element, ref elementBounds);
         return;
       }
 
