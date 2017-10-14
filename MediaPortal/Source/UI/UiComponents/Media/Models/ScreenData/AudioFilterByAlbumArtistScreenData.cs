@@ -24,20 +24,18 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class AudioFilterByAlbumArtistScreenData : AbstractAlbumFilterScreenData<ArtistFilterItem>
+  public class AudioFilterByAlbumArtistScreenData : AbstractFiltersScreenData<ArtistFilterItem>
   {
     public AudioFilterByAlbumArtistScreenData() :
       base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM_ARTIST, Consts.RES_COMMON_BY_ALBUM_ARTIST_MENU_ITEM,
-      Consts.RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL, new FilterByAlbumArtistCriterion())
+      Consts.RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL, new FilterByAlbumArtistCriterion(AudioAspect.ROLE_TRACK))
     {
-      _filterPath = new FilterTreePath(AudioAlbumAspect.ROLE_ALBUM, PersonAspect.ROLE_ALBUMARTIST);
       _availableMias = Consts.NECESSARY_PERSON_MIAS;
       if (Consts.OPTIONAL_PERSON_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_PERSON_MIAS);

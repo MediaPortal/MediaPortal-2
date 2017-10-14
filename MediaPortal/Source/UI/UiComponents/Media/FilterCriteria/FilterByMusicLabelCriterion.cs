@@ -25,14 +25,14 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterByMusicLabelCriterion : RelationshipMLFilterCriterion
+  public class FilterByMusicLabelCriterion : FilterByCompanyCriterion
   {
-    public FilterByMusicLabelCriterion() :
-      base(Consts.NECESSARY_COMPANY_MIAS, Consts.OPTIONAL_COMPANY_MIAS,
-        new AttributeSortInformation(CompanyAspect.ATTR_COMPANY_NAME, SortDirection.Ascending))
+    public FilterByMusicLabelCriterion(Guid linkedRole) :
+      base(CompanyAspect.ROLE_MUSIC_LABEL, linkedRole)
     {
     }
   }

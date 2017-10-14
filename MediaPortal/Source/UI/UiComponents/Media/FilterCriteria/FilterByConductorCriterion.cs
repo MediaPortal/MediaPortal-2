@@ -23,16 +23,13 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterByConductorCriterion : RelationshipMLFilterCriterion
+  public class FilterByConductorCriterion : FilterByPersonCriterion
   {
     public FilterByConductorCriterion() :
-      base(Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
-        new AttributeSortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
+      base(PersonAspect.ROLE_CONDUCTOR, AudioAspect.ROLE_TRACK)
     {
     }
   }

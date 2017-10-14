@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.FilterTrees
 {
@@ -33,6 +34,25 @@ namespace MediaPortal.UiComponents.Media.FilterTrees
   public class FilterTreePath
   {
     protected IList<FilterTreePathSegment> _segments;
+
+    /// <summary>
+    /// Combines multiple <see cref="FilterTreePath"/>s into a single path. 
+    /// </summary>
+    /// <param name="parts">The <see cref="FilterTreePath"/>s to combine</param>
+    /// <returns></returns>
+    public static FilterTreePath Combine(params FilterTreePath[] parts)
+    {
+      IEnumerable<FilterTreePath> validPaths = parts.Where(p => p != null && p.Segments.Count > 0);
+      FilterTreePath combinedPath = null;
+      foreach (FilterTreePath part in validPaths)
+      {
+        if (combinedPath == null)
+          combinedPath = new FilterTreePath();
+        foreach (FilterTreePathSegment segment in part.Segments)
+          combinedPath.Segments.Add(segment);
+      }
+      return combinedPath;
+    }
 
     /// <summary>
     /// Creates an empty <see cref="FilterTreePath"/> which represents the root node of an <see cref="IFilterTree"/>. 

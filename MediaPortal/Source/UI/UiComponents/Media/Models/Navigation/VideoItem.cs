@@ -29,7 +29,6 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -45,6 +44,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       SimpleTitle = Title;
+      if (mediaItem == null)
+        return;
+
       SingleMediaItemAspect videoAspect;
       if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
         StoryPlot = (string)videoAspect[VideoAspect.ATTR_STORYPLOT];

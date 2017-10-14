@@ -25,13 +25,14 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterByAlbumCriterion : RelationshipMLFilterCriterion
   {
-    public FilterByAlbumCriterion() :
-      base(Consts.NECESSARY_ALBUM_MIAS, Consts.OPTIONAL_ALBUM_MIAS,
+    public FilterByAlbumCriterion(Guid linkedRole) :
+      base(AudioAlbumAspect.ROLE_ALBUM, linkedRole, Consts.NECESSARY_ALBUM_MIAS, Consts.OPTIONAL_ALBUM_MIAS,
         new AttributeSortInformation(AudioAlbumAspect.ATTR_ALBUM, SortDirection.Ascending))
     {
     }

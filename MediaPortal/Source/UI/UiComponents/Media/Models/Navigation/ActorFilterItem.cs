@@ -22,42 +22,12 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.UiComponents.Media.General;
-
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
   /// Holds a GUI item which represents a actor filter choice.
   /// </summary>
-  public class ActorFilterItem : FilterItem
+  public class ActorFilterItem : PersonFilterItem
   {
-    public override void Update(MediaItem mediaItem)
-    {
-      base.Update(mediaItem);
-
-      PersonInfo person = new PersonInfo();
-      if (!person.FromMetadata(mediaItem.Aspects))
-        return;
-
-      Name = person.Name ?? "";
-      Description = person.Biography.Text ?? "";
-
-      FireChange();
-    }
-
-    public string Name
-    {
-      get { return this[Consts.KEY_NAME]; }
-      set { SetLabel(Consts.KEY_NAME, value); }
-    }
-
-    public string Description
-    {
-      get { return this[Consts.KEY_DESCRIPTION]; }
-      set { SetLabel(Consts.KEY_DESCRIPTION, value); }
-    }
   }
 }

@@ -37,7 +37,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_SERIES_FILTER_BY_GENRE, Consts.RES_COMMON_BY_GENRE_MENU_ITEM,
         Consts.RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(GenreAspect.ATTR_ID, GenreAspect.ATTR_GENRE, Consts.NECESSARY_SERIES_GENRE_MIAS))
     {
-      _filterPath = new FilterTreePath(SeriesAspect.ROLE_SERIES);
       _availableMias = Consts.NECESSARY_SERIES_MIAS;
       if (Consts.OPTIONAL_SERIES_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_SERIES_MIAS);
