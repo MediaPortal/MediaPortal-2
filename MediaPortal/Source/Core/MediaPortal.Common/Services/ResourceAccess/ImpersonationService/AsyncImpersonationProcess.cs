@@ -500,7 +500,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       _stdoutWriteHandle.Dispose();
       _stderrReadHandle.Dispose();
       _stderrWriteHandle.Dispose();
-      _processHandle.Dispose();
+      if (_processHandle != null)
+        _processHandle.Dispose();
       base.Dispose(disposing);
     }
 
@@ -606,7 +607,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
         success = CreateProcessAsUserW(userToken, null, GetCommandLine(), IntPtr.Zero, IntPtr.Zero, true, createFlags, IntPtr.Zero, null, startupInfo, out processInformation);
         if (success)
         {
-          _processHandle =new SafeProcessHandle(processInformation.hProcess, true);
+          _processHandle = new SafeProcessHandle(processInformation.hProcess, true);
           threadHandle.InitialSetHandle(processInformation.hThread);
           _processId = processInformation.dwProcessId;
         }
@@ -618,7 +619,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       if (success)
         return true;
 
-      _processHandle.Dispose();
+      if (_processHandle != null)
+        _processHandle.Dispose();
       var error = Marshal.GetLastWin32Error();
       _debugLogger.Error("AsyncImpersonationProcess ({0}): Cannot start process. ErrorCode: {1} ({2})", StartInfo.FileName, error, new Win32Exception(error).Message);
       return false;
