@@ -38,7 +38,7 @@
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
-      <Include Source="screens\MediaItemImageDetails.inc"/>
+      <Include Source="screens\MediaItemHomeImageDetails.inc"/>
     </Control.TemplateControl>
   </Control>
   

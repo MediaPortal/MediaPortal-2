@@ -656,6 +656,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeAudioDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeImageDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListAudioAlbumDetails.inc">
       <SubType>Designer</SubType>
     </Content>
