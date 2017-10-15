@@ -219,13 +219,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.RowDefinitions>
 
           <ScrollViewer x:Name="HomeContent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        Margin="-20,0,0,0" Style="{ThemeResource VerticalMediaScrollViewerStyle}" CanContentScroll="True"
+                        Margin="-20,-50,0,0" Style="{ThemeResource VerticalMediaScrollViewerStyle}" CanContentScroll="True"
                         HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
             <ScrollViewer.RenderTransform>
               <TranslateTransform X="0"/>
             </ScrollViewer.RenderTransform>
 
-            <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="0,100,0,350" Margin="20,-100,0,-350"
+            <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="0,350,0,350" Margin="20,-300,0,-350"
                                 DataContext="{Binding Source={StaticResource MediaListModel}}">
               <AnimatedStackPanel.Resources>
                 <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
