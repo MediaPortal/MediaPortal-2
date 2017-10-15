@@ -4397,18 +4397,15 @@
     <Setter Property="LayoutTransform">
       <Setter.Value>
         <TransformGroup>
-          <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+          <ScaleTransform ScaleX="0.65" ScaleY="0.65"/>
         </TransformGroup>
       </Setter.Value>
     </Setter>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="0,5,0,-25"
+          <ScrollViewer CanContentScroll="False" Margin="0,5,0,0"
               VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <!--ScrollViewer.OpacityMask >
-              <ImageBrush ImageSource="Home_screen_fade.png"/>
-            </ScrollViewer.OpacityMask-->
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           </ScrollViewer>
         </ControlTemplate>
@@ -4459,7 +4456,7 @@
     <Setter Property="LayoutTransform">
       <Setter.Value>
         <TransformGroup>
-          <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+          <ScaleTransform ScaleX="0.65" ScaleY="0.65"/>
         </TransformGroup>
       </Setter.Value>
     </Setter>
