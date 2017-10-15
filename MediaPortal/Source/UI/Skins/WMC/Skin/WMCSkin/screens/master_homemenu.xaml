@@ -243,7 +243,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               
             <!-- LATEST ADDED -->
                 <StackPanel>
-                  <Label x:Name="LatestAddedLabel" Grid.Row="0" Content="Latest Added" 
+                <Label x:Name="LatestAddedLabel" Grid.Row="0" Content="[Media.LatestAdded]" 
                      FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0"/>
                   <ListView Grid.Row="1" x:Name="Latest" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
                     <ListView.ItemsSource>
@@ -279,7 +279,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <!-- LATEST PLAYED -->
                 <StackPanel>
                   <Label x:Name="LatestPlayedLabel" Grid.Row="2" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
-                     FontFamily="SegoeUIBold" Content="Latest Played" Margin="0,20,0,0"/>
+                     FontFamily="SegoeUIBold" Content="[Media.LatestPlayed]" Margin="0,20,0,0"/>
                   <ListView Grid.Row="3" x:Name="LatestPlayed" HorizontalAlignment="Left">
                     <ListView.Style>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
@@ -324,7 +324,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
                 <!-- FAVORITES -->
                 <StackPanel>
-                  <Label x:Name="FavoriteLabel" Grid.Row="4" Content="Favorites" Color="{ThemeResource TextColor}" 
+                <Label x:Name="FavoriteLabel" Grid.Row="4" Content="[Media.Favorites]" Color="{ThemeResource TextColor}" 
                      FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0"/>
                   <ListView Grid.Row="5" x:Name="Favorits" HorizontalAlignment="Left">
                     <ListView.Style>

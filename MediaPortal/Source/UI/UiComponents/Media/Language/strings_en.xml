@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+  <!-- Headlines for HomeContent -->
+  <string name="Media.LatestPlayed">Latest Played</string>
+  <string name="Media.LatestAdded">Latest Added</string>
+  <string name="Media.ContinueWatching">Continue Watching</string>
+  <string name="Media.Favorites">Favorites</string>
+  <string name="Media.Unplayed">Unplayed</string>
+
   <!-- Menu items for the five Media navigation parts -->
   <string name="Media.BrowseMediaMenuItem">Browse media</string>
   <string name="Media.BrowseMediaMenuItem.Help">Browse the media library for all kind of media by media sources structure. Here you have also access to removable drives.</string>
