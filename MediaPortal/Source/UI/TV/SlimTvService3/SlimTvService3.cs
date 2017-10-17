@@ -628,7 +628,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
       // delete canceled schedules first
       foreach (var cs in CanceledSchedule.ListAll().Where(x => x.IdSchedule == tvSchedule.IdSchedule))
         cs.Remove();
-      tvSchedule.Remove();
+      try
+      {
+        // can fail if "StopRecordingSchedule" already deleted the entry
+        tvSchedule.Remove();
+      }
+      catch { }
       _tvControl.OnNewSchedule(); // I don't think this is needed, but doesn't hurt either
       return true;
     }
@@ -651,9 +656,26 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
+    public override bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
+    {
+      Recording recording;
+      schedule = null;
+      if (!GetRecording(fileName, out recording) || recording.Idschedule <= 0)
+        return false;
+
+      schedule = TvDatabase.Schedule.ListAll().FirstOrDefault(s => s.IdSchedule == recording.Idschedule).ToSchedule();
+      return schedule != null;
+    }
+
     private static bool GetRecording(IProgram program, out Recording recording)
     {
       recording = Recording.ListAll().FirstOrDefault(r => r.IsRecording && r.IdChannel == program.ChannelId && r.Title == program.Title);
+      return recording != null;
+    }
+
+    private static bool GetRecording(string filename, out Recording recording)
+    {
+      recording = Recording.ListAll().FirstOrDefault(r => r.IsRecording && string.Equals(r.FileName, filename, StringComparison.OrdinalIgnoreCase));
       return recording != null;
     }
 

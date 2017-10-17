@@ -120,6 +120,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <returns><c>true</c> if at least one schedule could be found</returns>
     bool GetSchedules(out IList<ISchedule> schedules);
 
+    /// <summary>
+    /// Checks if the given <paramref name="fileName"/> refers to an active recording.
+    /// </summary>
+    /// <param name="fileName">File name</param>
+    /// <param name="schedule">Outputs associcated schedule</param>
+    /// <returns></returns>
+    bool IsCurrentlyRecording(string fileName, out ISchedule schedule);
+
     //bool AddRule(IScheduleRule rule);
     //bool RemoveRule(IScheduleRule rule);
     //bool GetRules(out IList<IScheduleRule> rules);

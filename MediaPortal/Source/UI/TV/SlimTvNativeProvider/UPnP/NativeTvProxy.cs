@@ -633,6 +633,26 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
+    public bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
+    {
+      schedule = null;
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_IS_CURRENT_REC);
+        IList<object> inParameters = new List<object> { fileName };
+        IList<object> outParameters = action.InvokeAction(inParameters);
+        bool success = (bool)outParameters[0];
+        schedule = (Schedule)outParameters[1];
+        return success;
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
+
+    }
+
     #region Exeption handling
 
     private void NotifyException(Exception ex, string localizationMessage = null)
