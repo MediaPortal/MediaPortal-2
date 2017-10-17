@@ -41,6 +41,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <ResourceWrapper x:Key="HomeScreenMediaItemStyle" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
     <ResourceWrapper x:Key="HomeScreenChannelStyle" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
+    <ResourceWrapper x:Key="HomeScreenProgramsStyle" Resource="{ThemeResource HomeScreenCurrentProgramsListViewStyle}"/>
+    <ResourceWrapper x:Key="HomeScreenSchedulesStyle" Resource="{ThemeResource HomeScreenCurrentSchedulesListViewStyle}"/>
+    <ResourceWrapper x:Key="HomeScreenCurrentProgramsLabel" Resource="[Media.CurrentPrograms]"/>
+    <ResourceWrapper x:Key="HomeScreenCurrentSchedulesLabel" Resource="[Media.CurrentSchedules]"/>
 
     <!-- Background Manager for menu hovers -->
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
@@ -243,9 +247,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
               
             <!-- LATEST ADDED -->
                 <StackPanel>
-                <Label x:Name="LatestAddedLabel" Grid.Row="0" Content="[Media.LatestAdded]" 
+                <Label x:Name="LatestAddedLabel" Content="[Media.LatestAdded]" 
                      FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0"/>
-                  <ListView Grid.Row="1" x:Name="Latest" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
+                  <ListView x:Name="Latest" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
                     <ListView.ItemsSource>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                               ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : ({0} == {11} ? {12} : {13}))))))">
@@ -278,9 +282,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
                 <!-- LATEST PLAYED -->
                 <StackPanel>
-                  <Label x:Name="LatestPlayedLabel" Grid.Row="2" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
+                  <Label x:Name="LatestPlayedLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
                      FontFamily="SegoeUIBold" Content="[Media.LatestPlayed]" Margin="0,20,0,0"/>
-                  <ListView Grid.Row="3" x:Name="LatestPlayed" HorizontalAlignment="Left">
+                  <ListView x:Name="LatestPlayed" HorizontalAlignment="Left">
                     <ListView.Style>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                               ConverterParameter="{}({0} == {1} ? {2} : {3})">
@@ -324,9 +328,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
                 <!-- FAVORITES -->
                 <StackPanel>
-                <Label x:Name="FavoriteLabel" Grid.Row="4" Content="[Media.Favorites]" Color="{ThemeResource TextColor}" 
+                <Label x:Name="FavoriteLabel" Content="[Media.Favorites]" Color="{ThemeResource TextColor}" 
                      FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0"/>
-                  <ListView Grid.Row="5" x:Name="Favorits" HorizontalAlignment="Left">
+                  <ListView x:Name="Favorits" HorizontalAlignment="Left">
                     <ListView.Style>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                               ConverterParameter="{}({0} == {1} ? {2} : {3})">
@@ -367,6 +371,54 @@ Parameters which have to be accessible by a DynamicResource lookup:
                     </ListView.Triggers>
                   </ListView>
                 </StackPanel>
+
+              <!-- CURRENT PROGRAM AND SCHEDULE -->
+              <StackPanel>
+                <Label x:Name="CurrentProgramLabel" Color="{ThemeResource TextColor}" 
+                       FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0">
+                  <Label.Content>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                                  ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4}))">
+                      <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                      <Binding Source="a298dfbe-9da8-4c16-a3ea-a9b354f3910c"/>
+                      <Binding Source="{StaticResource HomeScreenCurrentProgramsLabel}" Path="Resource"/>
+                      <Binding Source="	87355e05-a15b-452a-85b8-98d4fc80034e"/>
+                      <Binding Source="{StaticResource HomeScreenCurrentSchedulesLabel}" Path="Resource"/>
+                    </MultiBinding>
+                  </Label.Content>
+                </Label>
+                <ListView x:Name="CurrentProgram" HorizontalAlignment="Left">
+                  <ListView.Style>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                                  ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4}))">
+                      <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                      <Binding Source="a298dfbe-9da8-4c16-a3ea-a9b354f3910c"/>
+                      <Binding Source="{StaticResource HomeScreenProgramsStyle}" Path="Resource"/>
+                      <Binding Source="	87355e05-a15b-452a-85b8-98d4fc80034e"/>
+                      <Binding Source="{StaticResource HomeScreenSchedulesStyle}" Path="Resource"/>
+                    </MultiBinding>
+                  </ListView.Style>
+                  <ListView.ItemsSource>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                                  ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : {5}))">
+                      <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                      <Binding Source="a298dfbe-9da8-4c16-a3ea-a9b354f3910c"/>
+                      <Binding Source="{Binding Lists[CurrentPrograms].AllItems}"/>
+                      <Binding Source="	87355e05-a15b-452a-85b8-98d4fc80034e"/>
+                      <Binding Source="{Binding Lists[CurrentSchedules].AllItems}"/>
+                      <Binding Source=""/>
+                    </MultiBinding>
+                  </ListView.ItemsSource>
+                  <ListView.Resources>
+                    <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+                  </ListView.Resources>
+                  <ListView.Triggers>
+                    <Trigger Property="IsEmpty" Value="True">
+                      <Setter TargetName="CurrentProgramLabel" Property="Visibility" Value="Hidden" />
+                    </Trigger>
+                  </ListView.Triggers>
+                </ListView>
+              </StackPanel>
 
             </AnimatedStackPanel>
           </ScrollViewer>
