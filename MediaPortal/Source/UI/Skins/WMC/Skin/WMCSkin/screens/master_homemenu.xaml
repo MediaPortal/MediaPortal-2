@@ -373,16 +373,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </StackPanel>
 
               <!-- CURRENT PROGRAM AND SCHEDULE -->
-              <StackPanel>
+              <StackPanel HorizontalAlignment="Stretch">
                 <Label x:Name="CurrentProgramLabel" Color="{ThemeResource TextColor}" 
                        FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0">
                   <Label.Content>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                                  ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4}))">
+                                  ConverterParameter="{}({0} == {1} ? {2} : {3})">
                       <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                       <Binding Source="a298dfbe-9da8-4c16-a3ea-a9b354f3910c"/>
                       <Binding Source="{StaticResource HomeScreenCurrentProgramsLabel}" Path="Resource"/>
-                      <Binding Source="	87355e05-a15b-452a-85b8-98d4fc80034e"/>
                       <Binding Source="{StaticResource HomeScreenCurrentSchedulesLabel}" Path="Resource"/>
                     </MultiBinding>
                   </Label.Content>
@@ -390,11 +389,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <ListView x:Name="CurrentProgram" HorizontalAlignment="Left">
                   <ListView.Style>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                                  ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4}))">
+                                  ConverterParameter="{}({0} == {1} ? {2} : {3})">
                       <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                       <Binding Source="a298dfbe-9da8-4c16-a3ea-a9b354f3910c"/>
                       <Binding Source="{StaticResource HomeScreenProgramsStyle}" Path="Resource"/>
-                      <Binding Source="	87355e05-a15b-452a-85b8-98d4fc80034e"/>
                       <Binding Source="{StaticResource HomeScreenSchedulesStyle}" Path="Resource"/>
                     </MultiBinding>
                   </ListView.Style>
@@ -404,7 +402,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                       <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
                       <Binding Source="a298dfbe-9da8-4c16-a3ea-a9b354f3910c"/>
                       <Binding Source="{Binding Lists[CurrentPrograms].AllItems}"/>
-                      <Binding Source="	87355e05-a15b-452a-85b8-98d4fc80034e"/>
+                      <Binding Source="87355e05-a15b-452a-85b8-98d4fc80034e"/>
                       <Binding Source="{Binding Lists[CurrentSchedules].AllItems}"/>
                       <Binding Source=""/>
                     </MultiBinding>

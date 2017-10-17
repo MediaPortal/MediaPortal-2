@@ -4417,7 +4417,7 @@
   </DataTemplate>
 
   <DataTemplate x:Key="ProgramsDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" HorizontalAlignment="Center">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch">
       <Grid.Background>
         <VisualBrush.Visual>
           <Border Background="White" CornerRadius="3" BorderThickness="0" BorderBrush="Black"/>
@@ -4429,8 +4429,8 @@
         <ColumnDefinition Width="10*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="40"/>
+        <RowDefinition Height="40"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5" Grid.RowSpan="2" VerticalAlignment="Center" >
         <Image.Source>
@@ -4438,11 +4438,11 @@
                                     fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ProgramLabel" VerticalAlignment="Center" Grid.Column="1" Margin="3" Content="{Binding Program.Title}"
-             TextTrimming="CharacterEllipsis"  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
-      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Margin="3" Content="{Binding Program.StartTime}"
-             TextTrimming="CharacterEllipsis"  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
-      <Image VerticalAlignment="Center" Stretch="Fill" Width="65" Height="65" Grid.Column="2" Margin="3" Grid.RowSpan="2">
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" Grid.Column="1" Margin="3" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="3" Content="{Binding Program.StartTime}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="65" Height="65" Grid.Column="2" Margin="3" Grid.RowSpan="2">
         <Image.Source>
           <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
         </Image.Source>
@@ -4501,15 +4501,12 @@
     </Setter>
   </Style>
 
-  <Style x:Key="HomeScreenCurrentProgramsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
-    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
+  <Style x:Key="HomeScreenCurrentProgramsListViewStyle" BasedOn="{ThemeResource LeftMenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource ProgramsDataTemplate}"/>
-    <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource MediaItemWithContextMenuContainerStyle}"/>
     <Setter Property="LayoutTransform">
       <Setter.Value>
         <TransformGroup>
-          <ScaleTransform ScaleX="0.65" ScaleY="0.65"/>
+          <ScaleTransform ScaleX="1" ScaleY="1"/>
         </TransformGroup>
       </Setter.Value>
     </Setter>
@@ -4517,7 +4514,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer CanContentScroll="True" Margin="0,5,0,-25"
-              VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                        VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           </ScrollViewer>
         </ControlTemplate>
@@ -4531,6 +4528,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
 
   <Style x:Key="HomeScreenCurrentSchedulesListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
