@@ -23,40 +23,20 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
-using System;
-using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public class LastWatchedSeriesMediaListProvider : BaseMediaListProvider
+  public class LastWatchedSeriesMediaListProvider : BaseLastWatchedRelationshipMediaListProvider
   {
     public LastWatchedSeriesMediaListProvider()
     {
+      _role = SeriesAspect.ROLE_SERIES;
+      _linkedRole = EpisodeAspect.ROLE_EPISODE;
       _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
+      _necessaryLinkedMias = Consts.NECESSARY_EPISODE_MIAS;
       _playableContainerConverterAction = item => new SeriesFilterItem(item);
-    }
-
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
-    {
-      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-        (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
-      {
-        Guid? userProfile = CurrentUserProfile?.ProfileId;
-        _mediaQuery = new MediaItemQuery(_necessaryMias, null)
-        {
-          Filter = userProfile.HasValue ? new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, AppendUserFilter(
-            new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-            Consts.NECESSARY_EPISODE_MIAS)) : null,
-          Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
-        };
-        base.UpdateItems(maxItems, UpdateReason.Forced);
-      }
-      return true;
     }
   }
 }

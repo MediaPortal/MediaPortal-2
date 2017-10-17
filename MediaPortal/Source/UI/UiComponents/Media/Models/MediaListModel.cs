@@ -22,146 +22,154 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UiComponents.Media.Models.Navigation;
-using MediaPortal.UiComponents.Media.Settings;
-using MediaPortal.Utilities.Collections;
-using MediaPortal.Common.Threading;
-using MediaPortal.UiComponents.Media.MediaLists;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
-using MediaPortal.Common.Messaging;
-using MediaPortal.UI.Shares;
-using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Threading;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Shares;
+using MediaPortal.UiComponents.Media.MediaLists;
+using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Collections;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
   public class MediaListModel : BaseTimerControlledModel
   {
-    public class MediaListProviderDictionary : IDictionary<string, IMediaListProvider>
-    {
-      private IDictionary<string, bool> _enabledElements = new Dictionary<string, bool>();
-      public IDictionary<string, IMediaListProvider> _elements = new Dictionary<string, IMediaListProvider>();
+    #region MediaListProviderDictionary
 
-      public Action OnProviderRequested;
+    public class ProviderEventArgs : EventArgs
+    {
+      protected IMediaListProvider _provider;
+
+      public ProviderEventArgs(IMediaListProvider provider)
+      {
+        _provider = provider;
+      }
+
+      public IMediaListProvider Provider
+      {
+        get { return _provider; }
+      }
+    }
+
+    public class MediaListProviderDictionary
+    {
+      protected class ProviderWrapper
+      {
+        protected IMediaListProvider _provider;
+        protected DateTime _nextUpdateTime;
+
+        public ProviderWrapper(IMediaListProvider provider)
+        {
+          _provider = provider;
+          _nextUpdateTime = DateTime.MinValue;
+        }
+
+        public IMediaListProvider Provider
+        {
+          get { return _provider; }
+        }
+
+        public DateTime NextUpdateTime
+        {
+          get { return _nextUpdateTime; }
+          set { _nextUpdateTime = value; }
+        }
+      }
+
+      public const int UPDATE_THRESHOLD_SEC = 10;
+
+      protected object _syncObj = new object();
+      protected IDictionary<string, ProviderWrapper> _providers = new Dictionary<string, ProviderWrapper>();
+      protected IDictionary<string, IMediaListProvider> _enabledProviders = new Dictionary<string, IMediaListProvider>();
+
+      public event EventHandler<ProviderEventArgs> ProviderRequested;
+
+      protected virtual void OnProviderRequested(IMediaListProvider provider)
+      {
+        ProviderRequested?.Invoke(this, new ProviderEventArgs(provider));
+      }
 
       public bool IsEnabled(string key)
       {
-        return _enabledElements.ContainsKey(key) && _enabledElements[key];
-      }
-
-      public IEnumerator<KeyValuePair<string, IMediaListProvider>> GetEnumerator()
-      {
-        return _elements.GetEnumerator();
-      }
-
-      IEnumerator IEnumerable.GetEnumerator()
-      {
-        return _elements.GetEnumerator();
-      }
-
-      public void Add(KeyValuePair<string, IMediaListProvider> item)
-      {
-        _enabledElements.Add(item.Key, false);
-        _elements.Add(item);
+        lock (_syncObj)
+          return _enabledProviders.ContainsKey(key);
       }
 
       public void Add(string key, IMediaListProvider value)
       {
-        _enabledElements.Add(key, false);
-        _elements.Add(key, value);
-      }
-
-      public void Clear()
-      {
-        _elements.Clear();
-      }
-
-      public bool Contains(KeyValuePair<string, IMediaListProvider> item)
-      {
-        return _elements.Contains(item);
-      }
-
-      public void CopyTo(KeyValuePair<string, IMediaListProvider>[] array, int arrayIndex)
-      {
-        _elements.CopyTo(array, arrayIndex);
-      }
-
-      public int Count
-      {
-        get { return _elements.Count; }
-      }
-
-      public bool IsReadOnly
-      {
-        get { return _elements.IsReadOnly; }
+        lock (_syncObj)
+          _providers.Add(key, new ProviderWrapper(value));
       }
 
       public bool ContainsKey(string key)
       {
-        return _elements.ContainsKey(key);
-      }
-
-      public bool Remove(KeyValuePair<string, IMediaListProvider> item)
-      {
-        _enabledElements.Remove(item.Key);
-        return _elements.Remove(item);
+        lock (_syncObj)
+          return _providers.ContainsKey(key);
       }
 
       public bool Remove(string key)
       {
-        _enabledElements.Remove(key);
-        return _elements.Remove(key);
+        lock (_syncObj)
+        {
+          _enabledProviders.Remove(key);
+          return _providers.Remove(key);
+        }
       }
 
       public IMediaListProvider this[string key]
       {
+        get { return GetProvider(key); }
+        set
+        {
+          lock (_syncObj)
+            _providers[key] = new ProviderWrapper(value);
+        }
+      }
+
+      public IEnumerable<IMediaListProvider> EnabledProviders
+      {
         get
         {
-          if (_elements.ContainsKey(key))
-          {
-            if (_enabledElements.ContainsKey(key))
-            {
-              if (_enabledElements[key] == false)
-              {
-                ServiceRegistration.Get<ILogger>().Info("Enabling IMediaListProvider '{0}'", key);
-              }
-              _enabledElements[key] = true;
-            }
-            OnProviderRequested?.Invoke();
-            return _elements[key];
-          }
-          return null;
+          lock (_syncObj)
+            return _enabledProviders.Values.ToList();
         }
-        set { _elements[key] = value; }
       }
 
-      public bool TryGetValue(string key, out IMediaListProvider value)
+      protected IMediaListProvider GetProvider(string key)
       {
-        return _elements.TryGetValue(key, out value);
-      }
+        ProviderWrapper providerWrapper;
+        bool update;
+        lock (_syncObj)
+        {
+          if (!_providers.TryGetValue(key, out providerWrapper))
+            return null;
+          if (!_enabledProviders.ContainsKey(key))
+          {
+            ServiceRegistration.Get<ILogger>().Info("Enabling IMediaListProvider '{0}'", key);
+            _enabledProviders[key] = providerWrapper.Provider;
+          }
+          update = providerWrapper.NextUpdateTime < DateTime.Now;
+          if (update)
+            providerWrapper.NextUpdateTime = DateTime.Now.AddSeconds(UPDATE_THRESHOLD_SEC);
+        }
 
-      public ICollection<string> Keys
-      {
-        get { return _elements.Keys; }
-      }
-
-      public ICollection<IMediaListProvider> Values
-      {
-        get { return _elements.Values; }
+        if (update)
+          OnProviderRequested(providerWrapper.Provider);
+        return providerWrapper.Provider;
       }
     }
+
+    #endregion
 
     #region Consts
 
@@ -183,7 +191,6 @@ namespace MediaPortal.UiComponents.Media.Models
     #endregion
 
     public const int DEFAULT_QUERY_LIMIT = 5;
-    public const int GETTER_THRESHOLD_SEC = 10;
 
     public delegate PlayableMediaItem MediaItemToListItemAction(MediaItem mediaItem);
 
@@ -197,61 +204,31 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public MediaListProviderDictionary Lists
     {
-      get
-      {
-        return _listProviders;
-      }
+      get { return _listProviders; }
     }
 
     public MediaListModel()
-      : base(false, 1000)
+      : base(true, 1000)
     {
       _queryLimitProperty = new WProperty(typeof(int), DEFAULT_QUERY_LIMIT);
       _queryLimitProperty.Attach(OnQueryLimitChanged);
 
       InitProviders();
       SubscribeToMessages();
-      ISystemStateService systemStateService = ServiceRegistration.Get<ISystemStateService>();
-      if (systemStateService.CurrentState == SystemState.Running)
-        StartTimer();
     }
 
     void SubscribeToMessages()
     {
-      AsynchronousMessageQueue messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-          SystemMessaging.CHANNEL,
-          ServerConnectionMessaging.CHANNEL,
-          ContentDirectoryMessaging.CHANNEL,
-          SharesMessaging.CHANNEL,
-          PlayerManagerMessaging.CHANNEL,
-        });
-      messageQueue.MessageReceived += OnMessageReceived;
-      messageQueue.Start();
-      lock (_syncObj)
-        _messageQueue = messageQueue;
+      _messageQueue.SubscribeToMessageChannel(ServerConnectionMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(ContentDirectoryMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(SharesMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (message.ChannelName == SystemMessaging.CHANNEL)
-      {
-        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
-        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
-        {
-          SystemState state = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
-          switch (state)
-          {
-            case SystemState.Running:
-              StartTimer();
-              break;
-            case SystemState.ShuttingDown:
-              StopTimer();
-              break;
-          }
-        }
-      }
-      else if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
         ServerConnectionMessaging.MessageType messageType =
             (ServerConnectionMessaging.MessageType)message.MessageType;
@@ -300,8 +277,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     private void OnQueryLimitChanged(AbstractProperty property, object oldValue)
     {
-      if (property.GetValue() != oldValue)
-        _updatePending = true;
+      _updatePending = true;
     }
 
     protected override void Update()
@@ -309,13 +285,9 @@ namespace MediaPortal.UiComponents.Media.Models
       UpdateItems();
     }
 
-    private void OnProviderRequested()
+    private void OnProviderRequested(object sender, ProviderEventArgs e)
     {
-      if (_nextGet < DateTime.Now)
-      {
-        _updatePending = true;
-        _nextGet = DateTime.Now.AddSeconds(GETTER_THRESHOLD_SEC);
-      }
+      UpdateAsync(e.Provider, UpdateReason.Forced);
     }
 
     public void InitProviders()
@@ -325,7 +297,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (_listProviders != null)
           return;
         _listProviders = new MediaListProviderDictionary();
-        _listProviders.OnProviderRequested = OnProviderRequested;
+        _listProviders.ProviderRequested += OnProviderRequested;
 
         _providerPluginItemStateTracker = new FixedItemStateTracker("Media Lists - Provider registration");
 
@@ -391,12 +363,8 @@ namespace MediaPortal.UiComponents.Media.Models
         _playbackUpdatePending = false;
         _nextMinute = DateTime.Now.AddMinutes(1);
 
-        SetLayout();
-
-        foreach (var provider in _listProviders.Where(p => _listProviders.IsEnabled(p.Key)).Select(p => p.Value))
-        {
+        foreach (var provider in _listProviders.EnabledProviders)
           UpdateAsync(provider, updateReason);
-        }
 
         return true;
       }
@@ -411,17 +379,6 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
       threadPool.Add(() => provider.UpdateItems(Limit, updateReason));
-    }
-
-    protected void SetLayout()
-    {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      ViewModeModel vwm = workflowManager.GetModel(ViewModeModel.VM_MODEL_ID) as ViewModeModel;
-      if (vwm != null)
-      {
-        vwm.LayoutType = LayoutType.GridLayout;
-        vwm.LayoutSize = LayoutSize.Medium;
-      }
     }
   }
 }

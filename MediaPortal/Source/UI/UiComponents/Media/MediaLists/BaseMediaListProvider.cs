@@ -36,6 +36,7 @@ using System;
 using System.Linq;
 using MediaPortal.Common.UserProfileDataManagement;
 using System.Collections.Generic;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -44,18 +45,27 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public delegate PlayableMediaItem PlayableMediaItemToListItemAction(MediaItem mediaItem);
     public delegate PlayableContainerMediaItem PlayableContainerMediaItemToListItemAction(MediaItem mediaItem);
 
-    protected Guid[] _necessaryMias;
+    ItemsList _allItems;
+    protected IEnumerable<Guid> _necessaryMias;
     protected PlayableMediaItemToListItemAction _playableConverterAction;
     protected PlayableContainerMediaItemToListItemAction _playableContainerConverterAction;
-    protected MediaItemQuery _mediaQuery;
-    protected object _syncLock = new object();
 
     public BaseMediaListProvider()
     {
-      AllItems = new ItemsList();
+      _allItems = new ItemsList();
     }
 
-    public ItemsList AllItems { get; private set; }
+    public ItemsList AllItems
+    {
+      get { return _allItems; }
+    }
+
+    protected virtual bool ShouldUpdate(UpdateReason updateReason)
+    {
+      return updateReason.HasFlag(UpdateReason.Forced);
+    }
+
+    protected abstract MediaItemQuery CreateQuery();
 
     public UserProfile CurrentUserProfile
     {
@@ -82,50 +92,50 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
     public virtual bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
+      if (!ShouldUpdate(updateReason))
+        return false;
+
+      if (_playableConverterAction == null && _playableContainerConverterAction == null)
+        return false;
+
       var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (contentDirectory == null)
         return false;
 
-      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced)
-      {
-        Guid? userProfile = CurrentUserProfile?.ProfileId;
-        bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMias);
+      MediaItemQuery query = CreateQuery();
+      if (query == null)
+        return false;
+      query.Limit = (uint)maxItems;
 
-        var items = contentDirectory.Search(_mediaQuery, false, userProfile, showVirtual);
+      Guid? userProfile = CurrentUserProfile?.ProfileId;
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMias);
+
+      var items = contentDirectory.Search(query, false, userProfile, showVirtual);
+      lock (_allItems.SyncRoot)
+      {
+        if (_allItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
+          return false;
+
+        IEnumerable<ListItem> listItems;
         if (_playableConverterAction != null)
         {
-          lock (_syncLock)
+          listItems = items.Select(mi =>
           {
-            if (!AllItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
-            {
-              AllItems.Clear();
-              foreach (MediaItem mediaItem in items)
-              {
-                PlayableMediaItem listItem = _playableConverterAction(mediaItem);
-                listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
-                AllItems.Add(listItem);
-              }
-              AllItems.FireChange();
-            }
-          }
+            PlayableMediaItem listItem = _playableConverterAction(mi);
+            listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
+            return listItem;
+          });
         }
-        else if (_playableContainerConverterAction != null)
+        else
         {
-          lock (_syncLock)
-          {
-            if (!AllItems.Select(pmi => ((PlayableContainerMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
-            {
-              AllItems.Clear();
-              foreach (MediaItem mediaItem in items)
-              {
-                PlayableContainerMediaItem listItem = _playableContainerConverterAction(mediaItem);
-                AllItems.Add(listItem);
-              }
-              AllItems.FireChange();
-            }
-          }
+          listItems = items.Select(mi => _playableContainerConverterAction(mi));
         }
+
+        _allItems.Clear();
+        CollectionUtils.AddAll(_allItems, listItems);
       }
+
+      _allItems.FireChange();
       return true;
     }
   }

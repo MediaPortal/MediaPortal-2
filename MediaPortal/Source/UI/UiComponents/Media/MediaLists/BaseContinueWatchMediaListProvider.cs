@@ -31,24 +31,43 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseContinueWatchMediaListProvider : BaseMediaListProvider
   {
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
+    protected override MediaItemQuery CreateQuery()
     {
-      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-        (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
+      Guid? userProfile = CurrentUserProfile?.ProfileId;
+      return new MediaItemQuery(_necessaryMias, null)
       {
-        Guid? userProfile = CurrentUserProfile?.ProfileId;
-        _mediaQuery = new MediaItemQuery(_necessaryMias, null)
-        {
-          Filter = userProfile.HasValue ? AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+        Filter = userProfile.HasValue ? AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
             new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
             new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100")),
             _necessaryMias) : null,
-          Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
-        };
-        base.UpdateItems(maxItems, UpdateReason.Forced);
-      }
-      return true;
+        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
+      };
+    }
+
+    protected override bool ShouldUpdate(UpdateReason updateReason)
+    {
+      return updateReason.HasFlag(UpdateReason.PlaybackComplete) || base.ShouldUpdate(updateReason);
+    }
+  }
+
+  public abstract class BaseContinueWatchRelationshipMediaListProvider : BaseContinueWatchMediaListProvider
+  {
+    protected Guid _role;
+    protected Guid _linkedRole;
+    protected IEnumerable<Guid> _necessaryLinkedMias;
+
+    protected override MediaItemQuery CreateQuery()
+    {
+      Guid? userProfile = CurrentUserProfile?.ProfileId;
+      return new MediaItemQuery(_necessaryMias, null)
+      {
+        Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, AppendUserFilter(
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+          new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100")),
+          _necessaryLinkedMias)) : null,
+        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
+      };
     }
   }
 }

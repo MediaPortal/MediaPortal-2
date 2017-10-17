@@ -31,23 +31,20 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseFavoriteMediaListProvider : BaseMediaListProvider
   {
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
+    protected override MediaItemQuery CreateQuery()
     {
-      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-          (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete ||
-          (updateReason & UpdateReason.ImportComplete) == UpdateReason.ImportComplete)
+      Guid? userProfile = CurrentUserProfile?.ProfileId;
+      return new MediaItemQuery(_necessaryMias, null)
       {
-        Guid? userProfile = CurrentUserProfile?.ProfileId;
-        _mediaQuery = new MediaItemQuery(_necessaryMias, null)
-        {
-          Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)),
+        Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)),
             _necessaryMias) : null,
-          Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
-        };
-        base.UpdateItems(maxItems, UpdateReason.Forced);
-      }
-      return true;
+        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
+      };
+    }
+
+    protected override bool ShouldUpdate(UpdateReason updateReason)
+    {
+      return updateReason.HasFlag(UpdateReason.PlaybackComplete) || updateReason.HasFlag(UpdateReason.ImportComplete) || base.ShouldUpdate(updateReason);
     }
   }
 }

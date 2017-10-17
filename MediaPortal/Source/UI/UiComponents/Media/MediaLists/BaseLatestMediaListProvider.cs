@@ -22,32 +22,26 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.UiComponents.Media.Models.Navigation;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseLatestMediaListProvider : BaseMediaListProvider
   {
-    public delegate PlayableMediaItem MediaItemToListItemAction(MediaItem mediaItem);
-
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
+    protected override MediaItemQuery CreateQuery()
     {
-      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-        (updateReason & UpdateReason.ImportComplete) == UpdateReason.ImportComplete)
+      return new MediaItemQuery(_necessaryMias, null)
       {
-        _mediaQuery = new MediaItemQuery(_necessaryMias, null)
-        {
-          Filter = AppendUserFilter(null, _necessaryMias),
-          Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
-        };
-        base.UpdateItems(maxItems, UpdateReason.Forced);
-      }
-      return true;
+        Filter = AppendUserFilter(null, _necessaryMias),
+        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+      };
+    }
+
+    protected override bool ShouldUpdate(UpdateReason updateReason)
+    {
+      return updateReason.HasFlag(UpdateReason.ImportComplete) || base.ShouldUpdate(updateReason);
     }
   }
 }
