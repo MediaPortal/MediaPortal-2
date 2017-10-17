@@ -20,4 +20,8 @@
   <string name="WMC.Configuration.EnableAnimatedBackground.Help">Whether to enable the aurora animation on the home screen.</string>
   <string name="WMC.Configuration.EnableMediaItemDetailsView">Enable Media Item Details View</string>
   <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Whether to show media item details instead of playing media item directly.</string>
+
+  <string name="WMC.Home.LatestAdded">Latest Added</string>
+  <string name="WMC.Home.LatestPlayed">Latest Played</string>
+  <string name="WMC.Home.Favorites">Favorites</string>
 </resources>

@@ -70,6 +70,7 @@
     <Compile Include="Controls\SubItemsContentPresenter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
+    <Compile Include="Models\HomeMediaListModel.cs" />
     <Compile Include="Models\HomeMenuActionProxy.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\NavigationList.cs" />
@@ -1219,6 +1220,11 @@
   <ItemGroup>
     <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\styles\Colors.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\HomeMediaListStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

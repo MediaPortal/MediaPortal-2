@@ -29,6 +29,7 @@
   <Register Location="/Models">
     <Model Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309" Name="WMCHomeMenuModel" ClassName="MediaPortal.UiComponents.WMCSkin.Models.HomeMenuModel"/>
     <Model Id="0E621AA5-0733-4E88-A0F0-887F8D73A055" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.WMCSkin.Models.ScreenModeModel"/>
+    <Model Id="47700DBB-C5B5-4723-8055-F2641C0A37B4" Name="HomeMediaListModel" ClassName="MediaPortal.UiComponents.WMCSkin.Models.HomeMediaListModel"/>
     <Model Id="762EC648-AA64-42A4-9401-59FDB2FBF18C" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.WMCSkin.Actions.SkinSettingsAction"/>
   </Register>
   
