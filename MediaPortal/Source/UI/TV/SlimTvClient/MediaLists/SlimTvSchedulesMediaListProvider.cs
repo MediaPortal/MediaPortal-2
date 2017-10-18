@@ -52,13 +52,30 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
     private ListItem CreateScheduleItem(ISchedule schedule)
     {
       ISchedule currentSchedule = schedule;
-      ListItem item = new ListItem("Name", schedule.Name)
-      {
-        Command = new MethodDelegateCommand(() => ShowSchedules()),
-      };
       IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelId == currentSchedule.ChannelId && c.MediaType == MediaType.TV);
+      ListItem item = null;
       if (channel != null)
-        item.SetLabel("ChannelName", channel.Name);
+      {
+        IList<IProgram> programs;
+        if (_tvHandler.ProgramInfo.GetPrograms(channel, schedule.StartTime, schedule.EndTime, out programs))
+        {
+          ProgramProperties programProperties = new ProgramProperties();
+          programProperties.SetProgram(programs.First(), channel);
+          item = new ProgramListItem(programProperties)
+          {
+            Command = new MethodDelegateCommand(() => ShowSchedules()),
+          };
+          item.SetLabel("Name", schedule.Name);
+        }       
+      }
+      if(item == null)
+      {
+        item = new ListItem("Name", schedule.Name)
+        {
+          Command = new MethodDelegateCommand(() => ShowSchedules()),
+        };
+      }
+      item.SetLabel("ChannelName", channel?.Name ?? "");
       item.SetLabel("StartTime", schedule.StartTime.FormatProgramStartTime());
       item.SetLabel("EndTime", schedule.EndTime.FormatProgramEndTime());
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
