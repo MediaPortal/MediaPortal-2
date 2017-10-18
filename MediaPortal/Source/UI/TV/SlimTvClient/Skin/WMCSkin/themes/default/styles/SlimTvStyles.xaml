@@ -995,7 +995,7 @@
                 </Label.IsVisible>
               </Label>
 
-              <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,0,0,0" Width="100"
+              <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,0,0,0" Width="{ThemeResource ChannelLogoWidth}"
                      Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
                 <Image.Source>
                   <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"

@@ -22,18 +22,11 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.SystemCommunication;
-using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -46,31 +39,17 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
-    {
-      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      if (cd == null)
-        throw new NotConnectedException("The MediaLibrary is not connected");
-
-      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
-
-      IFilter emptyFilter = new EmptyFilter(AudioAspect.ATTR_COMPILATION);
-      IFilter compiledFilter = new RelationalFilter(AudioAspect.ATTR_COMPILATION, RelationalOperator.EQ, true);
-      IFilter uncompiledFilter = new RelationalFilter(AudioAspect.ATTR_COMPILATION, RelationalOperator.EQ, false);
-      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true, showVirtual);
-      int numCompiledItems = cd.CountMediaItems(necessaryMIATypeIds, compiledFilter, true, showVirtual);
-      int numUncompiledItems = cd.CountMediaItems(necessaryMIATypeIds, uncompiledFilter, true, showVirtual);
-      return new List<FilterValue>(new FilterValue[]
-        {
-            new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),
-            new FilterValue(Consts.RES_COMPILATION_FILTER_COMPILED, compiledFilter, null, numCompiledItems, this),
-            new FilterValue(Consts.RES_COMPILATION_FILTER_UNCOMPILED, uncompiledFilter, null, numUncompiledItems, this),
-        }.Where(fv => !fv.NumItems.HasValue || fv.NumItems.Value > 0));
-    }
-
     public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       return null;
+    }
+
+    protected override string GetDisplayName(object groupKey)
+    {
+      bool? isCompilation = groupKey as bool?;
+      if (!isCompilation.HasValue)
+        return string.Empty;
+      return isCompilation.Value ? Consts.RES_COMPILATION_FILTER_COMPILED : Consts.RES_COMPILATION_FILTER_UNCOMPILED;
     }
 
     #endregion

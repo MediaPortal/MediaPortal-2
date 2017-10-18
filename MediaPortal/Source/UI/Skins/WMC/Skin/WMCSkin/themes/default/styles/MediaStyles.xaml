@@ -2961,7 +2961,7 @@
             <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
-        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="7"/>
+        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="1"/>
       </Border>
     </Grid>
   </ControlTemplate>
@@ -4352,41 +4352,9 @@
     </Setter>
   </Style>
 
-  <!--DataTemplate x:Key="HomeScreenItemTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" Margin="4,3,4,3" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
-
-      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center"
-            MaxHeight="{StaticResource AUDIO_GRID_HEIGHT}" MaxWidth="{StaticResource AUDIO_GRID_WIDTH}">
-        <Grid.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Grid.OpacityMask>
-
-        <Image x:Name="thumb" Stretch="Uniform" Margin="0" Source="{Binding MediaItem}">
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.85"/>
-            </MultiBinding>
-          </Image.Opacity>
-        </Image>
-        <Border VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" Background="#FF50575c"
-                Width="{StaticResource AUDIO_GRID_HEIGHT}" Height="{StaticResource AUDIO_GRID_WIDTH}"
-                IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-        </Border>
-      </Grid>
-    </Grid>
-  </-->
+  <!--+++++++++++++++++++++++++++++++++++-->
+  <!--+++++++ HOME CONTENT STYLES +++++++-->
+  <!--+++++++++++++++++++++++++++++++++++-->
 
   <Style x:Key="HomeScreenMediaItemViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
@@ -4448,6 +4416,60 @@
     </Grid>
   </DataTemplate>
 
+  <DataTemplate x:Key="ProgramsDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch">
+      <Grid.Background>
+        <VisualBrush.Visual>
+          <Border Background="White" CornerRadius="3" BorderThickness="0" BorderBrush="Black"/>
+        </VisualBrush.Visual>
+      </Grid.Background>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="15*"/>
+        <ColumnDefinition Width="75*"/>
+        <ColumnDefinition Width="10*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="40"/>
+        <RowDefinition Height="40"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5" Grid.RowSpan="2" VerticalAlignment="Center" >
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" Grid.Column="1" Margin="3" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="3" Content="{Binding Program.StartTime}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="65" Height="65" Grid.Column="2" Margin="3" Grid.RowSpan="2">
+        <Image.Source>
+          <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+        </Image.Source>
+      </Image>
+    </Grid>
+  </DataTemplate>
+
+  <DataTemplate x:Key="SchedulesDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" 
+             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+             Content="{Binding Channel.Name}" Color="Black" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+    </Grid>
+  </DataTemplate>
+
   <Style x:Key="HomeScreenChannelViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource ChannelDataTemplate}"/>
@@ -4474,6 +4496,66 @@
       <Setter.Value>
         <ItemsPanelTemplate>
           <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" HorizontalAlignment="Center" LoopScroll="False"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeScreenCurrentProgramsListViewStyle" BasedOn="{ThemeResource LeftMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ProgramsDataTemplate}"/>
+    <Setter Property="LayoutTransform">
+      <Setter.Value>
+        <TransformGroup>
+          <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </TransformGroup>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0,5,0,-25"
+                        VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Vertical" IsItemsHost="True" HorizontalAlignment="Center" LoopScroll="False"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+
+  <Style x:Key="HomeScreenCurrentSchedulesListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SchedulesDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MediaItemWithContextMenuContainerStyle}"/>
+    <Setter Property="LayoutTransform">
+      <Setter.Value>
+        <TransformGroup>
+          <ScaleTransform ScaleX="0.65" ScaleY="0.65"/>
+        </TransformGroup>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0,5,0,-25"
+              VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Vertical" IsItemsHost="True" HorizontalAlignment="Center" LoopScroll="False"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

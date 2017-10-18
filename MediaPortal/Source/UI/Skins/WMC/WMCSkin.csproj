@@ -656,6 +656,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeAudioDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeImageDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListAudioAlbumDetails.inc">
       <SubType>Designer</SubType>
     </Content>
@@ -1044,6 +1045,10 @@
     <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\Media\Media.csproj">
+      <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
+      <Name>Media</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
       <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>

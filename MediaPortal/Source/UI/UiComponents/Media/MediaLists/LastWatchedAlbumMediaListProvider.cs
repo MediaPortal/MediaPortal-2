@@ -23,40 +23,20 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
-using System;
-using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public class LastWatchedAlbumMediaListProvider : BaseMediaListProvider
+  public class LastWatchedAlbumMediaListProvider : BaseLastWatchedRelationshipMediaListProvider
   {
     public LastWatchedAlbumMediaListProvider()
     {
+      _role = AudioAlbumAspect.ROLE_ALBUM;
+      _linkedRole = AudioAspect.ROLE_TRACK;
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
+      _necessaryLinkedMias = Consts.NECESSARY_AUDIO_MIAS;
       _playableContainerConverterAction = item => new AlbumFilterItem(item);
-    }
-
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
-    {
-      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-        (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
-      {
-        Guid? userProfile = CurrentUserProfile?.ProfileId;
-        _mediaQuery = new MediaItemQuery(_necessaryMias, null)
-        {
-          Filter = userProfile.HasValue ? new FilteredRelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, AppendUserFilter(
-            new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-            Consts.NECESSARY_AUDIO_MIAS)) : null,
-          Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
-        };
-        base.UpdateItems(maxItems, UpdateReason.Forced);
-      }
-      return true;
     }
   }
 }
