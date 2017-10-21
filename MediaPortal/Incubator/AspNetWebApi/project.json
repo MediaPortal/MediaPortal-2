@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0-*",
+  "description": "AspNet WebApi for MP2",
+  "authors": [ "MJGraf" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+  "frameworks": {
+    "net451": {
+      "dependencies": {
+        "FanArtService.Interfaces": "1.0.0-*",
+        "MediaPortal.Backend": "1.0.0-*"
+      }
+    }
+  },
+  "dependencies": {
+    "Microsoft.AspNet.Mvc": "6.0.0-rc2-16707",
+    "AspNetServer": "1.0.0-*"
+  }
+}

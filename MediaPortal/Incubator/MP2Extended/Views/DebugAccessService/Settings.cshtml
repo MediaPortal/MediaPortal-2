@@ -1,0 +1,57 @@
+﻿@using MediaPortal.Plugins.MP2Extended
+@{
+  ViewBag.Title = "Settings";
+  ViewBag.Headline = "Settings";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts {
+  <script src="@Url.Content("~/wwwViews/DebugAccessService/Scripts/ShowSettingsJs.js")"></script>
+}
+
+
+<style>
+  label, input, select {
+    display: block;
+  }
+
+  input, option {
+    margin-bottom: 12px;
+    width: 100px;
+    padding: .4em;
+  }
+
+  select {
+    width: 100px;
+  }
+</style>
+
+<table class="customTable" style="width: 100%">
+  <tbody>
+    <tr>
+      <th>Name</th>
+      <th>Value</th>
+      <th></th>
+    </tr>
+
+    @{
+      var properties = MP2Extended.Settings.GetType().GetProperties();
+      foreach (var property in properties)
+      {
+        var name = property.Name;
+        var value = property.GetValue(MP2Extended.Settings, null).ToString();
+        var type = property.PropertyType.Name;
+
+        <tr data-type="@type" data-currentvalue="@value" data-name="@name">
+          <td>@name</td>
+          <td id="value">@value</td>
+          <td><span class="ui-icon ui-icon-gear"></span></td>
+        </tr>
+      }
+    }
+  </tbody>
+</table>
+
+<div id="dialogError" title="Error">
+  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Error changing Setting! Please check the logs.</p>
+</div>

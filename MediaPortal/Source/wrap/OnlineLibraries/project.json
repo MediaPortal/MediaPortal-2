@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../Extensions/MetadataExtractors/OnlineLibraries/OnlineLibraries.csproj",
+      "bin": {
+        "assembly": "../../Extensions/MetadataExtractors/OnlineLibraries/obj/x86/{configuration}/OnlineLibraries.dll",
+        "pdb": "../../Extensions/MetadataExtractors/OnlineLibraries/obj/x86/{configuration}/OnlineLibraries.pdb"
+      },
+      "dependencies": {
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../Extensions/MetadataExtractors/FFMpegLib/FFMpegLib.csproj",
+      "bin": {
+        "assembly": "../../Extensions/MetadataExtractors/FFMpegLib/obj/x86/{configuration}/FFMpegLib.dll",
+        "pdb": "../../Extensions/MetadataExtractors/FFMpegLib/obj/x86/{configuration}/FFMpegLib.pdb"
+      },
+      "dependencies": {
+        "MediaPortal.Common": "1.0.0-*",
+        "MediaPortal.Utilities": "1.0.0-*"
+      }
+    }
+  }
+}

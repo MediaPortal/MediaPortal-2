@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../UI/FanArt/FanArtService.Interfaces/FanArtService.Interfaces.csproj",
+      "bin": {
+        "assembly": "../../UI/FanArt/FanArtService.Interfaces/obj/x86/{configuration}/FanArtService.Interfaces.dll",
+        "pdb": "../../UI/FanArt/FanArtService.Interfaces/obj/x86/{configuration}/FanArtService.Interfaces.pdb"
+      },
+      "dependencies": {
+        "MediaPortal.Common": "1.0.0-*",
+        "MediaPortal.Utilities": "1.0.0-*",
+        "UPnP": "1.0.0-*"
+      }
+    }
+  }
+}
