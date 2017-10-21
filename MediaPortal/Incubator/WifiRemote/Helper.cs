@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.WifiRemote
 
       IFilter searchFilter = new MediaItemIdFilter(id);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = 1 };
-      IList<MediaItem> items = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(searchQuery, false);
+      IList<MediaItem> items = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(searchQuery, false, null, false);
 
       return items[0];
     }

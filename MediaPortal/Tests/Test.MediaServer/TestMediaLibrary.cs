@@ -309,5 +309,40 @@ namespace Test.MediaServer
       ResourcePath path = new ResourcePath(new[] { segment });
       _shares[id] = new Share(id, systemId, path, name, false, categories);
     }
+
+    public MediaItem LoadItem(string systemId, Guid mediaItemId, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void NotifyUserPlayback(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void AddRelationship(RelationshipType relationshipType, bool isChildPrimaryResource)
+    {
+      throw new NotImplementedException();
+    }
+
+    public ICollection<RelationshipType> GetManagedRelationshipTypes()
+    {
+      throw new NotImplementedException();
+    }
+
+    public ICollection<RelationshipType> GetManagedHierarchicalRelationshipTypes()
+    {
+      throw new NotImplementedException();
+    }
   }
 }
