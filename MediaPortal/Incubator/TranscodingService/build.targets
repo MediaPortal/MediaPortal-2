@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(TargetDir)Ude.dll" />
+      <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.dll" />
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+    
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+      <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.pdb" />
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.pdb" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+  </Target>
+
+</Project>

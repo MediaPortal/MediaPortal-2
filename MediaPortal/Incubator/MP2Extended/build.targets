@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <IgnoreDNXRuntime>true</IgnoreDNXRuntime>
+    <PublishOutputPathNoTrailingSlash>.\bin</PublishOutputPathNoTrailingSlash>
+    <NoSourceFlag>true</NoSourceFlag>
+  </PropertyGroup>
+
+  <Target Name="CopyAll" AfterTargets="AfterBuild">
+
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\x86\$(Configuration)\Plugins\$(ProjectName)\</PluginDestination>
+      <wwwDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\x86\$(Configuration)\Plugins\$(ProjectName)\wwwroot\</wwwDestination>
+      <swaggerDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\x86\$(Configuration)\Plugins\$(ProjectName)\wwwroot\swagger\</swaggerDestination>
+    </PropertyGroup>    
+    
+    <Message Text="Hello"></Message>    
+    <!--<CallTarget Targets="FileSystemPublish"/>-->
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <!--<PluginFiles Include="$(TargetDir)$(ProjectName).xml" />-->
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+      <PluginFiles Include="$(ProjectDir)ResourceAccess\WSS\Profiles\*.xml" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <PluginFiles Include="$(TargetDir)*.pdb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <!--<PluginFiles Include="$(TargetDir)approot\packages\**\dnx451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>-->
+      <!--<PluginFiles Include="$(TargetDir)approot\packages\**\net451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>-->
+      <!--<PluginFiles Include="$(TargetDir)approot\packages\**\net45\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>-->
+      <PluginFiles Include="$(TargetDir)Microsoft.Extensions.FileProviders.Embedded.dll"/> <!--needed for Swagger-->
+      
+      <PluginFiles Include="$(TargetDir)Microsoft.AspNetCore.Diagnostics.dll"/>
+
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll"/>
+      <PluginFiles Include="$(TargetDir)Newtonsoft.Json.dll" />
+      <PluginFiles Include="$(TargetDir)OnlineVideos.dll" />
+      <PluginFiles Include="$(TargetDir)Swashbuckle.*.dll" />
+    </ItemGroup>
+
+    <!-- Resources for Webinterface -->
+    <ItemGroup>
+      <wwwFiles Include="$(ProjectDir)\Scripts\**\jquery-2.1.4.min.js" />
+      <wwwFiles Include="$(ProjectDir)\Scripts\**\jquery-ui-1.11.4.min.js" />
+      <wwwFiles Include="$(ProjectDir)\Content\themes\base\**\*.*" />
+      <wwwFiles Include="$(ProjectDir)\Content\themes\smoothness\**\*.*" />
+    </ItemGroup>
+    
+    <!-- Swagger Files -->
+    <ItemGroup>
+      <!-- Both paths seem to be used depending on which computer it is used -->
+      <swaggerFiles Include="$(ProjectDir)\wwwroot\lib\swagger-ui\dist\**\*.*" />
+      <swaggerFiles Include="$(ProjectDir)\bower_components\swagger-ui\dist\**\*.*" />
+    </ItemGroup>
+
+    <!-- VIEWS -->
+    <ItemGroup>
+      <Views Include="$(ProjectDir)Views\**\*.*"/>
+    </ItemGroup>
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(wwwFiles)" DestinationFolder="$(wwwDestination)\%(RecursiveDir)" />
+    <Copy SourceFiles="@(swaggerFiles)" DestinationFolder="$(swaggerDestination)\%(RecursiveDir)" />
+    <Copy SourceFiles="@(Views)" DestinationFiles="@(Views->'$(PluginDestination)Views\%(RecursiveDir)%(Filename)%(Extension)')"/>
+  </Target>
+
+</Project>

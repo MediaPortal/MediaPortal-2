@@ -1,0 +1,145 @@
+<link rel="stylesheet" href="css/epg.css" />
+
+<div>
+    <div>
+        <!-- Group selection -->
+        <div class="group-select-slider">
+            <a class="group-direction-link left" (click)="onGroupToLeft()">
+                <i class="fa fa-caret-left"></i>
+            </a>
+            <a class="group-direction-link right" (click)="onGroupToRight()">
+                <i class="fa fa-caret-right"></i>
+            </a>
+            <template [ngIf]="selectedGroup != null">
+                <span>{{selectedGroup.Name}}</span>
+            </template>
+        </div>
+        <!-- Day selection -->
+        <div class="day-select-slider">
+            <a class="day-direction-link left" (click)="onDaysToLeft()">
+                <i class="fa fa-caret-left"></i>
+            </a>
+            <a class="day-direction-link right" (click)="onDaysToRight()">
+                <i class="fa fa-caret-right"></i>
+            </a>
+            <ul>
+                <li [ngClass]="{true: 'active', false: ''}[day.Active]" *ngFor="#day of dayLine; #i = index" (click)="onDaySelect(day.DateTime)">
+                    {{day.Label}}
+                </li>
+            </ul>
+        </div>
+        <!-- Time selection -->
+        <div class="time-select-slider">
+            <div class="time-select-slider-now" (click)="onNow()">
+                <span class="badge">NOW</span>
+            </div>
+            <div class="time-select-slider-line">
+                <a class="day-direction-link left" (click)="onTimeToLeft()">
+                    <i class="fa fa-caret-left"></i>
+                </a>
+                <a class="day-direction-link right" (click)="onTimeToRight()">
+                    <i class="fa fa-caret-right"></i>
+                </a>
+                <ul>
+                    <li [style.width]="100/timeLine.length + '%'" *ngFor="#time of timeLine; #i = index"(click)="onTimeSelect(time.DateTime)"><a style="cursor: pointer;">{{time.Label}}</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Program Information -->
+        <div class="program-container" id="programContainer">
+            <!--<div class="program-timeindicator" [style.width]="timeindicator.Width + '%'"></div>style="width: 15%" -->
+            <div class="program-timeindicator" id="programTimeindicator" [hidden]="!timeindicator.Visible" [style.width]="timeindicator.Width + 'px'"></div>
+            <!-- Channel row + Programs -->
+            <div class="program-row" *ngFor="#channel of channelList; #i = index">
+                <div class="program-channel">
+                    <div class="program-channel-logo">
+                        <img [src]="tvService.GetChannelLogo(channel.Name, channel.MediaType == mediaType.Radio)" (error)="noLogo($event)">
+                        <div class="program-channel-text">{{channel.Name}}</div>
+                    </div>
+                </div>
+                <div class="program-information">
+                    <ul>
+                        <template [ngIf]="programList[channel.Id]">
+                            <li class="program-clickable" [class.scheduled]="isScheduled(program.RecordingStatus)" (mouseover)="onProgramHover($event, program)" (click)="onProgramClick(program)" [style.width]="getProgramWidth(program) + '%'" *ngFor="#program of programList[channel.Id]; #i = index">
+                                {{program.Title}}
+                                <!--<div class="popover bottom">
+                                    <div class="arrow"></div>
+                                    <h3 class="popover-title">Popover bottom</h3>
+                                    <div class="popover-content">
+                                        <p>Sed posuere consectetur est at lobortis. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.</p>
+                                    </div>
+                                </div>-->
+                                <!--<div style="display: block; z-index: 50; position: absolute; width: 100px; height: 100px; background-color: #0000AA">TEST</div>-->
+                            </li>
+                        </template>
+                        <template [ngIf]="loadingProgramlist">
+                            <li style="width: 100%">Loading...</li>
+                        </template>
+                        <template [ngIf]="!programList[channel.Id] && !loadingProgramlist">
+                            <li style="width: 100%">No Programinformation</li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popover -->
+
+<div id="popover" class="popover bottom" (mouseout)="onPopoverOut()" [style.top]="offsetPopover.top+'px'" [style.left]="offsetPopover.left+'px'" [style.display]="hidePopover?'none':'block'"><!-- Class:  program-popover -->
+    <div class="arrow"></div>
+    <h3 class="popover-title">
+        {{currentProgram.Title}}
+    </h3>
+    <div class="popover-content">
+        <span class="pull-right"><i class="fa fa-clock-o"></i> {{dateToString(currentProgram.StartTime, "HH:mm")}} - {{dateToString(currentProgram.EndTime, "HH:mm")}}</span>
+        <br>
+        <p>
+            {{currentProgram.Description}}
+        </p>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{currentProgram.Title}}</h4>
+            </div>
+            <!-- Program is scheduled -->
+                <template [ngIf]="isScheduled(currentProgram.RecordingStatus)">
+                <div class="modal-body">
+                    Do you want to cancel this Schedule?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" (click)="onScheduleCancel()">Cancel Schedule</button>
+                </div>
+            </template>
+
+            <!-- Program is NOT scheduled -->
+            <template [ngIf]="!isScheduled(currentProgram.RecordingStatus)">
+                <div class="modal-body">
+                    <select #scheduleType class="form-control">
+                        <option value="Once" selected>Once</option>
+                        <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="EveryTimeOnThisChannel">Every Time On This Channel</option>
+                        <option value="EveryTimeOnEveryChannel">Every Time On Every Channel</option>
+                        <option value="Weekends">Weekends</option>
+                        <option value="WorkingDays">Working Days</option>
+                        <option value="WeeklyEveryTimeOnThisChannel">Weekly Every Time On This Channel</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" (click)="onScheduleSave(scheduleType.value)">Schedule</button>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>

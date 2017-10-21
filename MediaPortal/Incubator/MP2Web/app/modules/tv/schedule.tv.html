@@ -1,0 +1,23 @@
+<link rel="stylesheet" href="css/schedule.tv.css"/>
+<link href="/node_modules/ag-grid/dist/styles/ag-grid.css" rel="stylesheet" />
+<link href="/app/common/css/ag-grid-theme.css" rel="stylesheet" />
+
+<!--
+https://www.ag-grid.com/best-angular-2-data-grid/index.php
+Angular Compiling is NOT supported inside ag-Grid for Angular 2.
+We need to wait until this is supported!
+-->
+<input #filter type="text" style="width: 400px;" (input)="onQuickFilterChanged(filter.value)" placeholder="Filter..."/>
+<span class="ag-table-actions">
+  <b>Selected: </b><a href="javascript:void(0)" (click)="onDeleteSelectedSchedules()" class="fa fa-trash"></a>
+</span>
+<ag-grid-ng2 #agGrid class="ag-mpweb ag-table"
+              [gridOptions]="gridOptions" [columnDefs]="columnDefs" [rowData]="rowData"
+              rowHeight="37">
+  <!--suppressRowClickSelection-->
+</ag-grid-ng2>
+
+<!-- Waiting -->
+<div class="modal-backdrop fade in processing" [style.display]="processing ? 'block' : 'none'">
+  <h3><i class="fa fa-cog fa-spin"></i> Processing...</h3>
+</div>

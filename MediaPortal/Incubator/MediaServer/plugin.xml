@@ -1,0 +1,34 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="MediaServer"
+    PluginId="{45F2C54D-8C0A-4736-AA04-E6F91CD45457}"
+    Author="Jason Leonard (McGoober)"
+    Copyright="GPL"
+    Description="DLNA MediaServer support plugin"
+    AutoActivate="true">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <CoreDependency Name="HttpServer" CompatibleAPI="1" />
+    <CoreDependency Name="UPnP" CompatibleAPI="1" />
+    <PluginReference PluginId="{AC708DE3-2E9B-4EFA-BB2F-8DD9456F2FF8}" CompatibleAPI="1"/> <!-- Transcoding Service -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="MediaServer.dll"/>    
+    <PluginStateTracker ClassName="MediaPortal.Plugins.MediaServer.MediaServerPlugin"/>
+  </Runtime>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="MediaServerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+  
+</Plugin>
+

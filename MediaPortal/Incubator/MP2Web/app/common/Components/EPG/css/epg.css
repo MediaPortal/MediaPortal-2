@@ -1,0 +1,261 @@
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0
+}
+
+p, li {
+    color: #222222;
+    padding: 0 0 10px;
+    margin: 0
+}
+
+/*
+Group select slider
+*/
+
+.group-select-slider {
+    padding: 0 50px;
+    position: relative;
+    overflow: hidden;
+    height: 30px;
+    background-color: #222222;
+    text-align: center;
+}
+
+.group-select-slider span {
+    color: #e1ffff;
+}
+
+.group-direction-link {
+    position: absolute;
+    height: 30px;
+    line-height: 30px;
+    top: 0;
+    width: 50px;
+    text-align: center;
+    z-index: 10;
+    outline: 0 none;
+    cursor: pointer;
+}
+
+/*
+Day Select Slider
+*/
+
+.day-select-slider {
+    padding: 0 50px;
+    position: relative;
+    overflow: hidden;
+    height: 60px;
+    background-color: #222222;
+}
+
+.day-select-slider li {
+    color: #e1ffff;
+    cursor: pointer;
+}
+
+.day-select-slider li.active {
+    border-top-color: #d19b3d;
+}
+
+.day-select-slider li:hover {
+    border-top-color: #d19b3d;
+}
+
+/*
+Time Selection
+*/
+.time-select-slider {
+    position: relative;
+    overflow: hidden;
+    height: 60px;
+    background-color: #f8f8f8;
+}
+
+.time-select-slider-now {
+    position: relative;
+    float: left;
+    background-color: #e7e7e7;
+    border-top: 4px solid #222222;
+    width: 80px;
+    height: 100%;
+    line-height: 54px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.time-select-slider-line {
+    position: relative;
+    overflow: hidden;
+    height: 60px;
+}
+
+.time-select-slider-line li:first-child {
+    padding-left: 30px;
+}
+
+.time-select-slider-line li:last-child {
+    padding-right: 30px;
+}
+
+/*
+Program Information
+*/
+
+.program-container {
+    position: relative;
+}
+
+.program-row {
+    position: relative;
+    overflow: hidden;
+    height: 80px;
+    background-color: #f8f8f8;
+}
+
+.program-channel {
+    position: relative;
+    float: left;
+    background-color: #ffffff;
+    border-top: 4px solid #222222;
+    width: 80px;
+    height: 100%;
+}
+
+/*.program-channel-logo {
+    background:url(images/noCover.png) no-repeat center center;
+    background-size: 50px 50px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}*/
+
+.program-channel-logo img {
+    width: 80px;
+}
+
+.program-channel-text {
+    vertical-align: bottom;
+    font-size: smaller;
+    font-weight: bold;
+    position: relative;
+}
+
+.program-information {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.program-information li {
+    border: #e7e7e7 solid 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.program-timeindicator {
+    position: absolute;
+    border-right: 3px solid #0abdcd;
+    height: 100%;
+    background-color: rgba(170,188,193,0.2);
+    margin-left: 80px; /* MUST be in px! Check Workaround in epg.component before making changes to this line! */
+    top: 0;
+    z-index: 20;
+}
+
+.program-clickable {
+    cursor: pointer;
+}
+
+.scheduled {
+    background-color: #d60606;
+}
+
+.program-popover {
+    width: 400px;
+    max-width: 400px;
+    height: 290px;
+    max-height: 290px;
+}
+
+/*
+Popover
+*/
+.program-information-popover {
+    /*visibility: hidden;*/
+    z-index: 30;
+    /*opacity: 0;*/
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    border: 1px solid;
+    border-color: #777 #6c6c6c #666;
+    border-radius: 5px;
+    -webkit-transition-property: opacity, padding, visibility;
+    -moz-transition-property: opacity, padding, visibility;
+    -ms-transition-property: opacity, padding, visibility;
+    -o-transition-property: opacity, padding, visibility;
+    transition-property: opacity, padding, visibility;
+    -webkit-transition: 0.2s ease-out;
+    -moz-transition: 0.2s ease-out;
+    -ms-transition: 0.2s ease-out;
+    -o-transition: 0.2s ease-out;
+    transition: 0.2s ease-out;
+    background-color: #d9e3fa;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #eef3fe), color-stop(100%, #d9e3fa));
+    background-image: -webkit-linear-gradient(top, #eef3fe, #d9e3fa);
+    background-image: -moz-linear-gradient(top, #eef3fe, #d9e3fa);
+    background-image: -ms-linear-gradient(top, #eef3fe, #d9e3fa);
+    background-image: -o-linear-gradient(top, #eef3fe, #d9e3fa);
+    background-image: linear-gradient(top, #eef3fe, #d9e3fa);
+    -webkit-box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.program-information:hover div {
+    visibility: visible;
+    opacity: 1;
+    padding: 4px 0 6px;
+}
+
+/*
+Common
+*/
+
+.day-select-slider ul, .time-select-slider-line ul, .program-information ul{
+    height: 100%;
+}
+
+.day-select-slider li, .time-select-slider-line li, .program-information li {
+    width: 14.2%;
+    height: 100%;
+    text-align: center;
+    line-height: 54px;
+    float: left;
+    padding: 0;
+    border-top: 4px solid #222222;
+}
+
+.day-direction-link, .time-direction-link {
+    position: absolute;
+    height: 60px;
+    line-height: 60px;
+    top: 0;
+    width: 50px;
+    text-align: center;
+    z-index: 10;
+    outline: 0 none;
+    cursor: pointer;
+}
+
+.day-direction-link.left, .time-direction-link.left, .group-direction-link.left {
+    left: 0
+}
+
+.day-direction-link.right, .time-direction-link.right, .group-direction-link.right {
+    right: 0
+}

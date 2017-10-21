@@ -1,0 +1,13 @@
+﻿[
+  {
+    "Menu": "70A31167-2C9C-40B4-9D47-DFA4B316F72F",
+    "Name": "Movies",
+    "Label": "Movies",
+    "Path": "/movies/...",
+    "Category": "Movies",
+    "Priority": 2,
+    "ComponentPath": "./app/modules/movies/lib/movies.component",
+    "Component": "MoviesComponent",
+    "Visible": true
+  }
+]

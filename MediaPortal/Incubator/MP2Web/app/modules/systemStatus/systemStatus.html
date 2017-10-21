@@ -1,0 +1,47 @@
+<link rel="stylesheet" href="css/systemStatus.css" />
+
+<div class="row">
+    <!-- CPU Usage -->
+    <div class="col-md-6">
+        <h3 class="text-uppercase">Cpu</h3>
+        <canvas id="cpuChart" style="width: 100%; height: 200px;"></canvas>
+    </div>
+    <!-- RAM Usage -->
+    <div class="col-md-6">
+        <h3 class="text-uppercase">Ram</h3>
+        <canvas id="ramChart" style="width: 100%; height: 200px;"></canvas>
+    </div>
+</div>
+
+
+<!-- Disk Usage -->
+<div>
+    <h3 class="text-uppercase">Drives</h3>
+    <template [ngIf]="systemInformation != null">
+        <template ngFor #drive [ngForOf]="systemInformation.Drives" #index="x">
+            <div class="diskContainer">
+                <span class="label label-default">
+                    {{drive.Letter}}
+                </span>
+                <span class="volume-name">
+                    {{drive.Name}}
+                </span>
+
+
+                <progressbar [value]="getPercent((drive.TotalSize - drive.TotalFreeSpace), drive.TotalSize)" [max]="100">
+                    <span style="color:white; white-space:nowrap;">{{getPercent((drive.TotalSize - drive.TotalFreeSpace), drive.TotalSize)}} %</span>
+                </progressbar>
+
+                <!--<div class="progress progressbar-margin">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: 2%;">
+                        {{getPercent((drive.TotalSize - drive.TotalFreeSpace), drive.TotalSize)}} %
+                    </div>
+                </div>-->
+                <!--<span class="label label-default">-->
+                <span class="space-information">
+                    {{BytesToXBString(drive.TotalFreeSpace)}} free of {{BytesToXBString(drive.TotalSize)}}
+                </span>
+            </div>
+        </template>
+    </template>
+</div>

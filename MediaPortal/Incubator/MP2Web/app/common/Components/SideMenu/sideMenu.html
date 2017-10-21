@@ -1,0 +1,40 @@
+<link rel="stylesheet" href="css/sideMenu.css" />
+
+<div class="nav-side-menu">
+    <div class="brand {{titleClass}}"> {{title}}</div>
+    <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
+
+    <div class="menu-list">
+        <template [ngIf]="routesConfigured">
+            <ul id="menu-content" class="menu-content collapse out">
+                <template ngFor #item [ngForOf]="menuItems">
+                    <!-- single entry -->
+                    <template [ngIf]="item.Pages == null || item.Pages.length == 0">
+                        <li [class.active]="router.isRouteActive(router.generate([item.Name]))" (click)="onClick(item.Name)">
+                            <a [routerLink]="[item.Name]">
+                                <i [class]="(item.LabelClass == '') ? 'fa' : item.LabelClass" class="fa fa-dashboard fa-lg"></i> {{item.Label}}
+                            </a>
+                        </li>
+                    </template>
+
+                    <!-- dropdown menu -->
+                    <template [ngIf]="item.Pages != null && item.Pages.length > 0">
+                        <li  data-toggle="collapse" [attr.data-target]="'#' + item.Name" class="collapsed active" [class.active]="isSubRouteActive(item.Name, item.Pages)">
+                            <a><i [class]="(item.LabelClass == '') ? 'fa' : item.LabelClass"></i> {{item.Label}} <span class="arrow"></span></a>
+                        </li>
+                        <ul class="sub-menu collapse" [id]="item.Name">
+                            <template ngFor #page [ngForOf]="item.Pages" #index="x">
+                                <li [class.active]="isSubRouteActive(item.Name, item.Pages)" (click)="onClick(generateSubentryRoutename(item.Name, page.Name))"><a [routerLink]="[generateSubentryRoutename(item.Name, page.Name)]"> {{page.Label}}</a></li>
+                            </template>
+                        </ul>
+                    </template>
+                </template>
+            </ul>
+        </template>
+    </div>
+</div>
+
+<!-- content area on the right hand side. Content gets passed from the calling component -->
+<div class="sidebarContent">
+    <ng-content></ng-content>
+</div>

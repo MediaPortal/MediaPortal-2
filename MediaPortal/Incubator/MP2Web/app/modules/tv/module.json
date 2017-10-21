@@ -1,0 +1,22 @@
+﻿[
+  {
+    "Menu": "7D095C1B-CED7-4D6F-A974-7D9CA04229A9",
+    "Name": "EPG",
+    "Label": "EPG",
+    "Path": "/EPG",
+    "Priority": 0,
+    "ComponentPath": "./app/modules/tv/lib/epg.tv.component",
+    "Component": "EpgTvComponent",
+    "Visible": true
+  },
+  {
+    "Menu": "7D095C1B-CED7-4D6F-A974-7D9CA04229A9",
+    "Name": "Schedules",
+    "Label": "Schedules",
+    "Path": "/Schedules",
+    "Priority": 1,
+    "ComponentPath": "./app/modules/tv/lib/schedules.tv.component",
+    "Component": "SchedulesTvComponent",
+    "Visible": true
+  }
+]
