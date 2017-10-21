@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,13 +30,10 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Utilities;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
 using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.Settings;
+using MediaPortal.Plugins.Transcoding.Service.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor
 {
@@ -48,17 +45,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     public static Guid MetadataExtractorId = new Guid("40302A55-BC21-436C-9544-03AF95F4F7A4");
 
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Video };
-
-    protected static List<string> VIDEO_EXTENSIONS;
+    protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new HashSet<string>();
 
     static TranscodeVideoMetadataExtractor()
     {
-      // All non-default media item aspects must be registered
-      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemVideoAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemVideoAudioAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemVideoEmbeddedAspect.Metadata);
-      TranscodeVideoMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodeVideoMetadataExtractorSettings>();
+      TranscodingServiceSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodingServiceSettings>();
       InitializeExtensions(settings);
     }
 
@@ -66,15 +57,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     /// (Re)initializes the video extensions for which this <see cref="TranscodeVideoMetadataExtractorSettings"/> used.
     /// </summary>
     /// <param name="settings">Settings object to read the data from.</param>
-    internal static void InitializeExtensions(TranscodeVideoMetadataExtractorSettings settings)
+    internal static void InitializeExtensions(TranscodingServiceSettings settings)
     {
-      VIDEO_EXTENSIONS = settings.VideoFileExtensions;
-    }
-
-    protected static bool HasVideoExtension(string fileName)
-    {
-      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
-      return VIDEO_EXTENSIONS.Contains(ext);
+      VIDEO_FILE_EXTENSIONS = new HashSet<string>(settings.VideoFileExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public TranscodeVideoMetadataExtractor()
@@ -82,13 +67,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
       Metadata = new MetadataExtractorMetadata(
         MetadataExtractorId,
         "Transcode video metadata extractor",
-        MetadataExtractorPriority.Core,
+        MetadataExtractorPriority.Extended,
         true,
         MEDIA_CATEGORIES,
         new[]
           {
             MediaAspect.Metadata,
-            TranscodeItemVideoAspect.Metadata
           });
     }
 
@@ -96,28 +80,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     public MetadataExtractorMetadata Metadata { get; private set; }
 
+    private bool HasVideoExtension(string fileName)
+    {
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+      return VIDEO_FILE_EXTENSIONS.Contains(ext);
+    }
+
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
-      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-      if (fsra == null)
-        return false;
-      if (!fsra.IsFile)
-        return false;
-      string fileName = fsra.ResourceName;
-      if (!HasVideoExtension(fileName))
-        return false;
-
       try
       {
+        if (forceQuickMode)
+          return false;
+
+        if (!importOnly)
+          return false;
+
+        if (!(mediaItemAccessor is IFileSystemResourceAccessor))
+          return false;
+
+        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+        {
+          if (!HasVideoExtension(rah.LocalFsResourceAccessor.LocalFileSystemPath))
+            return false;
+        }
+
         MetadataContainer metadata = MediaAnalyzer.ParseMediaStream(mediaItemAccessor);
         if (metadata == null)
         {
           Logger.Info("TranscodeAudioMetadataExtractor: Error analyzing stream '{0}'", mediaItemAccessor.CanonicalLocalResourcePath);
-        }
-        else if (metadata.IsVideo)
-        {
-          ConvertMetadataToAspectData(metadata, extractedAspectData);
-          return true;
         }
       }
       catch (Exception e)
@@ -129,61 +120,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
       return false;
     }
 
-    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
     {
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_CONTAINER, info.Metadata.VideoContainerType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_STREAM, info.Video.StreamIndex);
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_CODEC, info.Video.Codec.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_FOURCC, StringUtils.TrimToNull(info.Video.FourCC));
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_BRAND, StringUtils.TrimToNull(info.Metadata.MajorBrand));
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_PIXEL_FORMAT, info.Video.PixelFormatType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_PIXEL_ASPECTRATIO, info.Video.PixelAspectRatio);
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_H264_PROFILE, info.Video.ProfileType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_H264_HEADER_LEVEL, info.Video.HeaderLevel);
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_H264_REF_LEVEL, info.Video.RefLevel);
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_TS_TIMESTAMP, info.Video.TimestampType.ToString());
+      return false;
+    }
 
-      foreach (AudioStream audio in info.Audio)
-      {
-        MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(TranscodeItemVideoAudioAspect.Metadata);
-        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOSTREAM, audio.StreamIndex.ToString());
-        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOCODEC, audio.Codec.ToString());
-        if (audio.Language == null)
-        {
-          aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOLANGUAGE, "");
-        }
-        else
-        {
-          aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOLANGUAGE, audio.Language);
-        }
-        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOBITRATE, audio.Bitrate.ToString());
-        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOCHANNEL, audio.Channels.ToString());
-        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOFREQUENCY, audio.Frequency.ToString());
-        aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIODEFAULT, audio.Default ? "1" : "0");
-        MediaItemAspect.AddOrUpdateAspect(extractedAspectData, aspect);
-      }
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
 
-      foreach (SubtitleStream sub in info.Subtitles)
-      {
-        MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(TranscodeItemVideoEmbeddedAspect.Metadata);
-        if (sub.IsEmbedded)
-        {
-          aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBSTREAM, sub.StreamIndex.ToString());
-          aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBCODEC, sub.Codec.ToString());
-
-          if (sub.Language == null)
-          {
-            aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE, "");
-          }
-          else
-          {
-            aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE, sub.Language);
-          }
-
-          aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBDEFAULT, sub.Default ? "1" : "0");
-          MediaItemAspect.AddOrUpdateAspect(extractedAspectData, aspect);
-        }
-      }
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
+      return false;
     }
 
     #endregion

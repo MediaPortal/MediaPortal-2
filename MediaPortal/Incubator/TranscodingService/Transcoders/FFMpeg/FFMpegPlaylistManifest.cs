@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,8 +29,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
   public class FFMpegPlaylistManifest : PlaylistManifest
   {
-    public const string PLAYLIST_FOLDER_SUFFIX = "_mptf";
-
     internal static string GetPlaylistFolderFromTranscodeFile(string cachePath, string transcodingFile)
     {
       string folderTranscodeId = Path.GetFileNameWithoutExtension(transcodingFile).Replace(".", "_") + PLAYLIST_FOLDER_SUFFIX;
@@ -45,13 +43,13 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
       if (data.SegmentPlaylistData != null)
       {
-        string playlist = Path.Combine(data.WorkPath, MediaConverter.PLAYLIST_FILE_NAME);
+        string playlist = Path.Combine(data.WorkPath, BaseMediaConverter.PLAYLIST_FILE_NAME);
         string tempPlaylist = playlist + ".tmp";
         File.WriteAllBytes(tempPlaylist, data.SegmentPlaylistData);
         File.Move(tempPlaylist, playlist);
         if (data.SegmentSubsPlaylistData != null)
         {
-          playlist = Path.Combine(data.WorkPath, MediaConverter.PLAYLIST_SUBTITLE_FILE_NAME);
+          playlist = Path.Combine(data.WorkPath, BaseMediaConverter.PLAYLIST_SUBTITLE_FILE_NAME);
           tempPlaylist = playlist + ".tmp";
           File.WriteAllBytes(playlist, data.SegmentSubsPlaylistData);
           File.Move(tempPlaylist, playlist);

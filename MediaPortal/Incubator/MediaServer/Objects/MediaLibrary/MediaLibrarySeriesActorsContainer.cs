@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,10 +27,10 @@ using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  internal class MediaLibrarySeriesActorsContainer : MediaLibrarySeriesAttributeGroupsContainer
+  internal class MediaLibrarySeriesActorsContainer : MediaLibraryPersonContainer
   {
     public MediaLibrarySeriesActorsContainer(string id, EndPointSettings client)
-      : base(id, VideoAspect.ATTR_ACTORS, client)
+      : base(id, PersonAspect.ROLE_ACTOR, SeriesAspect.ROLE_SERIES, NECESSARY_SERIES_MIA_TYPE_IDS, client)
     {
     }
   }

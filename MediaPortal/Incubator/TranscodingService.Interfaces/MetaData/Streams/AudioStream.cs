@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,12 +26,12 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
 {
   public class AudioStream
   {
-    public AudioCodec Codec;
-    public int StreamIndex;
-    public string Language;
-    public long Frequency;
-    public int Channels;
-    public long Bitrate;
-    public bool Default;
+    public AudioCodec Codec { get; set; }
+    public int StreamIndex { get; set; }
+    public string Language { get; set; }
+    public long Frequency { get; set; }
+    public int Channels { get; set; }
+    public long Bitrate { get; set; }
+    public bool Default { get; set; }
   }
 }

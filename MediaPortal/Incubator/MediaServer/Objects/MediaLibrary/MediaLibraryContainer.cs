@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,23 +32,25 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public abstract class MediaLibraryContainer : BasicContainer
   {
-    private readonly Guid[] _necessaryMiaTypeIds;
-    private readonly Guid[] _optionalMiaTypeIds;
-    private readonly IFilter _filter;
+    protected readonly Guid[] _necessaryMiaTypeIds;
+    protected readonly Guid[] _optionalMiaTypeIds;
+    protected MediaItemQuery _query = null;
 
     public MediaLibraryContainer(string id, string title, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, IFilter filter, EndPointSettings client)
       : base(id, client)
     {
-      Title = title;
+      Title = ServiceRegistration.Get<ILocalization>().ToString(title);
 
       _necessaryMiaTypeIds = necessaryMiaTypeIds;
       _optionalMiaTypeIds = optionalMiaTypeIds;
-      _filter = filter;
+      if(filter != null)
+        _query = new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, AppendUserFilter(filter, necessaryMiaTypeIds));
     }
 
     public MediaLibraryContainer(MediaItem item, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, IFilter filter, EndPointSettings client)
@@ -62,13 +64,13 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       //TODO: Check if this is correct handling of missing filter
-      if (_filter == null && Item != null)
+      if (_query == null && Item != null)
       {
-        return library.Browse(Item.MediaItemId, _necessaryMiaTypeIds, _optionalMiaTypeIds, null, true);
+        return library.Browse(Item.MediaItemId, _necessaryMiaTypeIds, _optionalMiaTypeIds, _userId, false);
       }
       else
       {
-        return library.Search(new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, _filter), true, null, true);
+        return library.Search(_query, true, _userId, false);
       }
     }
 

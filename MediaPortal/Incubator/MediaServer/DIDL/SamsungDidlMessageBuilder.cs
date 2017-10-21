@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,11 +24,12 @@
 
 using System;
 using System.IO;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MediaServer.Objects;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.MediaServer.DIDL
 {
@@ -154,12 +155,8 @@ namespace MediaPortal.Plugins.MediaServer.DIDL
                 break;
               }
             }
-            object oValue = null;
-            if (res.Item.Aspects.ContainsKey(ImporterAspect.ASPECT_ID) == true)
-            {
-              oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImporterAspect.ATTR_DATEADDED);
-            }
-            else if (res.Item.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID) == true)
+            DateTime? createDate = null;
+            if (!MediaItemAspect.TryGetAttribute(res.Item.Aspects, ImporterAspect.ATTR_DATEADDED, out createDate) && res.Item.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
             {
               ILocalFsResourceAccessor lfsra = null;
               res.Item.GetResourceLocator().TryCreateLocalFsAccessor(out lfsra);
@@ -167,30 +164,28 @@ namespace MediaPortal.Plugins.MediaServer.DIDL
               {
                 if (File.Exists(lfsra.LocalFileSystemPath) == true)
                 {
-                  oValue = File.GetCreationTime(lfsra.LocalFileSystemPath);
+                  createDate = File.GetCreationTime(lfsra.LocalFileSystemPath);
                 }
               }
             }
-            long lCreationDate = 0;
-            if (oValue != null)
+            long creationDateSecs = 0;
+            if (createDate != null)
             {
-              lCreationDate = Convert.ToInt64((Convert.ToDateTime(oValue) - new DateTime(1970, 1, 1)).TotalSeconds);
+              creationDateSecs = Convert.ToInt64((createDate.Value - new DateTime(1970, 1, 1)).TotalSeconds);
             }
-            string dcm = "CREATIONDATE=" + lCreationDate;
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, VideoStreamAspect.ATTR_WIDTH);
-            if (oValue != null)
+            string dcm = "CREATIONDATE=" + creationDateSecs;
+            List<int> values;
+            if(MediaItemAspect.TryGetAttribute(res.Item.Aspects, VideoStreamAspect.ATTR_WIDTH, out values))
             {
-              dcm += ",WIDTH=" + Convert.ToString(oValue);
+              dcm += ",WIDTH=" + Convert.ToString(values[0]);
             }
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, VideoStreamAspect.ATTR_HEIGHT);
-            if (oValue != null)
+            if (MediaItemAspect.TryGetAttribute(res.Item.Aspects, VideoStreamAspect.ATTR_HEIGHT, out values))
             {
-              dcm += ",HEIGHT=" + Convert.ToString(oValue);
+              dcm += ",HEIGHT=" + Convert.ToString(values[0]);
             }
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, MediaAspect.ATTR_RECORDINGTIME);
-            if (oValue != null)
+            if (MediaItemAspect.TryGetAttribute(res.Item.Aspects, MediaAspect.ATTR_RECORDINGTIME, out createDate))
             {
-              dcm += ",YEAR=" + Convert.ToDateTime(oValue).Year;
+              dcm += ",YEAR=" + createDate.Value.Year;
             }
 
             //TODO: Support resumed playback of videos?
@@ -210,73 +205,84 @@ namespace MediaPortal.Plugins.MediaServer.DIDL
           try
           {
             MediaLibraryImageItem res = (MediaLibraryImageItem)directoryPropertyObject;
-            object oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImageAspect.ATTR_MAKE);
-            if (oValue != null)
+            if (MediaItemAspect.TryGetAspect(res.Item.Aspects, ImageAspect.Metadata, out SingleMediaItemAspect imageAspect))
             {
-              _xml.WriteStartElement("sec", "manufacturer", null);
-              _xml.WriteValue(Convert.ToString(oValue));
-              _xml.WriteEndElement();
-            }
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImageAspect.ATTR_MODEL);
-            if (oValue != null)
-            {
-              _xml.WriteStartElement("sec", "model", null);
-              _xml.WriteValue(Convert.ToString(oValue));
-              _xml.WriteEndElement();
-            }
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImageAspect.ATTR_FNUMBER);
-            if (oValue != null)
-            {
-              _xml.WriteStartElement("sec", "fvalue", null);
-              _xml.WriteValue(Convert.ToString(oValue));
-              _xml.WriteEndElement();
-            }
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImageAspect.ATTR_ISO_SPEED);
-            if (oValue != null)
-            {
-              _xml.WriteStartElement("sec", "iso", null);
-              _xml.WriteValue(Convert.ToString(oValue));
-              _xml.WriteEndElement();
-            }
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImageAspect.ATTR_EXPOSURE_TIME);
-            if (oValue != null)
-            {
-              _xml.WriteStartElement("sec", "exposureTime", null);
-              _xml.WriteValue(Convert.ToString(oValue));
-              _xml.WriteEndElement();
-            }
+              object oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_MAKE);
+              if (oValue != null)
+              {
+                _xml.WriteStartElement("sec", "manufacturer", null);
+                _xml.WriteValue(Convert.ToString(oValue));
+                _xml.WriteEndElement();
+              }
+              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_MODEL);
+              if (oValue != null)
+              {
+                _xml.WriteStartElement("sec", "model", null);
+                _xml.WriteValue(Convert.ToString(oValue));
+                _xml.WriteEndElement();
+              }
+              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_FNUMBER);
+              if (oValue != null)
+              {
+                _xml.WriteStartElement("sec", "fvalue", null);
+                _xml.WriteValue(Convert.ToString(oValue));
+                _xml.WriteEndElement();
+              }
+              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_ISO_SPEED);
+              if (oValue != null)
+              {
+                _xml.WriteStartElement("sec", "iso", null);
+                _xml.WriteValue(Convert.ToString(oValue));
+                _xml.WriteEndElement();
+              }
+              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_EXPOSURE_TIME);
+              if (oValue != null)
+              {
+                _xml.WriteStartElement("sec", "exposureTime", null);
+                _xml.WriteValue(Convert.ToString(oValue));
+                _xml.WriteEndElement();
+              }
 
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImporterAspect.ATTR_DATEADDED);
-            long lCreationDate = 0;
-            if (oValue != null)
-            {
-              lCreationDate = Convert.ToInt64((Convert.ToDateTime(oValue) - new DateTime(1970, 1, 1)).TotalSeconds);
-            }
-            string dcm = "CREATIONDATE=" + lCreationDate;
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImageAspect.ATTR_WIDTH);
-            if (oValue != null)
-            {
-              dcm += ",WIDTH=" + Convert.ToString(oValue);
-            }
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImageAspect.ATTR_HEIGHT);
-            if (oValue != null)
-            {
-              dcm += ",HEIGHT=" + Convert.ToString(oValue);
-            }
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, ImageAspect.ATTR_ORIENTATION);
-            if (oValue != null)
-            {
-              dcm += ",ORT=" + Convert.ToString(oValue);
-            }
-            oValue = MediaItemHelper.GetAttributeValue(res.Item.Aspects, MediaAspect.ATTR_RECORDINGTIME);
-            if (oValue != null)
-            {
-              dcm += ",YEAR=" + Convert.ToDateTime(oValue).Year;
-            }
+              long lCreationDate = 0;
+              if (MediaItemAspect.TryGetAspect(res.Item.Aspects, ImporterAspect.Metadata, out SingleMediaItemAspect importerAspect))
+              {
+                oValue = importerAspect.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
+                if (oValue != null)
+                {
+                  lCreationDate = Convert.ToInt64((Convert.ToDateTime(oValue) - new DateTime(1970, 1, 1)).TotalSeconds);
+                }
+              }
+                
+              string dcm = "CREATIONDATE=" + lCreationDate;
+              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_WIDTH);
+              if (oValue != null)
+              {
+                dcm += ",WIDTH=" + Convert.ToString(oValue);
+              }
+              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_HEIGHT);
+              if (oValue != null)
+              {
+                dcm += ",HEIGHT=" + Convert.ToString(oValue);
+              }
+              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
+              if (oValue != null)
+              {
+                dcm += ",ORT=" + Convert.ToString(oValue);
+              }
 
-            _xml.WriteStartElement("sec", "dcmInfo", null);
-            _xml.WriteValue(dcm);
-            _xml.WriteEndElement();
+              if (MediaItemAspect.TryGetAspect(res.Item.Aspects, MediaAspect.Metadata, out SingleMediaItemAspect mediaAspect))
+              {
+                oValue = mediaAspect.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+                if (oValue != null)
+                {
+                  dcm += ",YEAR=" + Convert.ToDateTime(oValue).Year;
+                }
+              }
+
+              _xml.WriteStartElement("sec", "dcmInfo", null);
+              _xml.WriteValue(dcm);
+              _xml.WriteEndElement();
+            }
           }
           catch (Exception ex)
           {

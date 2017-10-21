@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,17 +22,14 @@
 
 #endregion
 
-using System;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  internal class MediaLibrarySeriesRecentContainer : MediaLibrarySeriesEpisodeFilterContainer
+  internal class MediaLibrarySeriesRecentContainer : MediaLibraryRecentContainer
   {
     public MediaLibrarySeriesRecentContainer(string id, EndPointSettings client)
-      : base(id, new RelationalFilter(ImporterAspect.ATTR_DATEADDED, RelationalOperator.GE, DateTime.Now.AddMonths(-1)), client)
+      : base(id, NECESSARY_EPISODE_MIA_TYPE_IDS, OPTIONAL_EPISODE_MIA_TYPE_IDS, client)
     {
     }
   }

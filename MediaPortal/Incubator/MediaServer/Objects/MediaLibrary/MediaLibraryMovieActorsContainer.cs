@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,44 +22,16 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
-using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  internal class MediaLibraryMovieActorsContainer : BasicContainer
+  internal class MediaLibraryMovieActorsContainer : MediaLibraryPersonContainer
   {
     public MediaLibraryMovieActorsContainer(string id, EndPointSettings client)
-      : base(id, client)
+      : base(id, PersonAspect.ROLE_ACTOR, MovieAspect.ROLE_MOVIE, NECESSARY_MOVIE_MIA_TYPE_IDS, client)
     {
-    }
-
-    public HomogenousMap GetItems()
-    {
-      List<Guid> necessaryMias = new List<Guid>(NECESSARY_MOVIE_MIA_TYPE_IDS);
-      if (necessaryMias.Contains(VideoAspect.ASPECT_ID)) necessaryMias.Remove(VideoAspect.ASPECT_ID); //Group MIA cannot be present
-      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(VideoAspect.ATTR_ACTORS, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true, true);
-    }
-
-    public override void Initialise()
-    {
-      HomogenousMap items = GetItems();
-
-      foreach (KeyValuePair<object, object> item in items)
-      {
-        if (item.Key == null) continue;
-        string title = item.Key.ToString();
-        string key = Id + ":" + title;
-
-        Add(new MediaLibraryMovieActorItem(key, title, Client));
-      }
     }
   }
 }

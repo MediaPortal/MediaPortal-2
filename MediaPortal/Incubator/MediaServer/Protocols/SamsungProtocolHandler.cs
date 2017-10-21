@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,7 +30,8 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MediaServer.Protocols
 {
@@ -57,10 +58,10 @@ namespace MediaPortal.Plugins.MediaServer.Protocols
       {
         if (request.Headers["getMediaInfo.sec"] == "1")
         {
-          object durationSeconds = MediaItemHelper.GetAttributeValue(item.MediaSource.Aspects, VideoStreamAspect.ATTR_DURATION);
-          if (durationSeconds != null)
+          //TODO: How to handle multiple video streams?
+          if (MediaItemAspect.TryGetAttribute(item.MediaSource.Aspects, VideoStreamAspect.ATTR_DURATION, out List<long> durations))
           {
-            response.AddHeader("MediaInfo.sec", string.Format("SEC_Duration={0};", Convert.ToInt32(durationSeconds) * 1000));
+            response.AddHeader("MediaInfo.sec", string.Format("SEC_Duration={0};", Convert.ToInt32(durations.First()) * 1000));
           }
         }
       }

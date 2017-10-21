@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,7 +27,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
-using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
@@ -37,10 +36,10 @@ using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Utilities.Network;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.Transcoding.Interfaces;
 using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {

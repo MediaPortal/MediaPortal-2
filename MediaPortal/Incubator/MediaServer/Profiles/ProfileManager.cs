@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,6 +41,7 @@ using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Plugins.MediaServer.Settings;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
 {
@@ -102,17 +103,17 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
 
       IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
 
-      // overwrite the automatic profile detection
+      // Overwrite the automatic profile detection
       if (ProfileLinks.ContainsKey(ip))
       {
         if (ProfileLinks[ip].Profile != null)
         {
-          //Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
+          Logger.Debug("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
           return ProfileLinks[ip];
         }
         else if(ProfileLinks[ip].AutoProfile == false)
         {
-          //Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: None", ip);
+          Logger.Debug("DetectProfile: overwrite automatic profile detection for IP: {0}, using: None", ip);
           return null;
         }
       }      
@@ -122,7 +123,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         var match = false;
         foreach (Detection detection in profile.Value.Detections)
         {
-          // check if HTTP header matches
+          //Check if HTTP header matches
           if (detection.HttpHeaders.Count > 0)
           {
             match = true;
@@ -140,7 +141,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           // If there are Http Header conditions, but match = false, we can't fulfill the requirements anymore
           if (detection.HttpHeaders.Count > 0 && !match) break;
 
-          // check UPnP Fields
+          //Check UPnP Fields
           if (detection.UPnPSearch.Count() > 0)
           {
             List<TrackedDevice> trackedDevices = MediaServerPlugin.Tracker.GeTrackedDevicesByIp(ip);
@@ -584,7 +585,9 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
         }
 
-        settings.ClientId = "DLNA_" + clientIp;
+        IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
+        settings.ClientId = userManager.CreateProfile($"DLNA ({clientIp})", UserProfile.CLIENT_PROFILE, "");
+
         settings.InitialiseContainerTree();
       }
       catch (Exception e)
@@ -598,6 +601,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
     {
       try
       {
+        IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
         ProfileLinks profileLinks = settingsManager.Load<ProfileLinks>();
 
@@ -648,8 +652,8 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           {
             settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
           }
+          settings.ClientId = userManager.CreateProfile($"DLNA ({ip.ToString()})", UserProfile.CLIENT_PROFILE, "");
 
-          settings.ClientId = "DLNA_" + ip.ToString();
           settings.InitialiseContainerTree();
           if (settings.Profile == null)
             Logger.Info("DlnaMediaServer: IP: {0}, using profile: None", ip);

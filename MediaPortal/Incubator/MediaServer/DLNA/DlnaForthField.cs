@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MediaServer.DLNA
 {
@@ -71,21 +72,9 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       {
         result = ProfileParameter.ToString();
       }
-      foreach (var p in _parameters)
+      if (_parameters.Any(p => p != null && !string.IsNullOrEmpty(p.ToString())))
       {
-        var item = p.ToString();
-        // Ensure there is a ';' inbetween params
-        if (!string.IsNullOrEmpty(item))
-        {
-          if (!string.IsNullOrEmpty(result))
-          {
-            result = result + ";" + item;
-          }
-          else
-          {
-            result = item;
-          }
-        }
+        result += (string.IsNullOrEmpty(result) ? "" : ";") + string.Join(";", _parameters.Where(p => p != null && !string.IsNullOrEmpty(p.ToString())));
       }
       if (string.IsNullOrEmpty(result))
       {

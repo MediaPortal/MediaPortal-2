@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,6 +37,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
   {
     public const string URL_PLACEHOLDER = "[URL]";
     public const string PLAYLIST_MANIFEST_FILE_NAME = "manifest.m3u8";
+    public const string PLAYLIST_FOLDER_SUFFIX = "_mptf";
 
     public static byte[] CreatePlaylistManifest(VideoTranscoding video, SubtitleStream sub)
     {

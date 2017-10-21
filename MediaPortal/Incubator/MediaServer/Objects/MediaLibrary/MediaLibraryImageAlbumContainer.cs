@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -44,23 +44,26 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public override void Initialise()
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
+      ICollection<Guid> allowedShares = GetAllowedShares();
       List<MediaItem> shares = new List<MediaItem>();
       foreach (KeyValuePair<Guid, Share> share in library.GetShares(null))
       {
-        if (share.Value.MediaCategories.Where(x => x.Contains("Image")).FirstOrDefault() != null)
+        if (share.Value.MediaCategories.Any(x => x.Contains("Image")))
         {
-          MediaItem item = library.LoadItem(share.Value.SystemId, share.Value.BaseResourcePath,
-                                             NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS);
-          if (item != null && item.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
+          if (allowedShares == null || allowedShares.Contains(share.Key))
           {
-            shares.Add(item);
+            MediaItem item = library.LoadItem(share.Value.SystemId, share.Value.BaseResourcePath, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, _userId);
+            if (item != null && item.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
+            {
+              shares.Add(item);
+            }
           }
         }
       }
 
       foreach (MediaItem share in shares)
       {
-        IList<MediaItem> albums = library.Browse(share.MediaItemId, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, null, true);
+        IList<MediaItem> albums = library.Browse(share.MediaItemId, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, _userId, false);
         foreach (MediaItem album in albums)
         {
           if (album != null && album.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))

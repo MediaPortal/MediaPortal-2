@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,8 +31,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   class MediaLibraryMusicArtistItem : MediaLibraryContainer, IDirectoryMusicArtist
   {
-    public MediaLibraryMusicArtistItem(string id, string title, EndPointSettings client)
-      : base(id, title, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, new RelationalFilter(AudioAspect.ATTR_ARTISTS, RelationalOperator.EQ, title), client)
+    public MediaLibraryMusicArtistItem(string id, string title, IFilter filter, EndPointSettings client)
+      : base(id, title, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, filter, client)
     {
     }
 

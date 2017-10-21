@@ -42,7 +42,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="Ude, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\UDE.CSharp.1.1.0\lib\Ude.dll</HintPath>
+      <HintPath>..\..\..\Packages\UDE.CSharp.1.1.0\lib\Ude.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -52,17 +52,12 @@
     </Compile>
     <Compile Include="Analyzers\H264Analyzer.cs" />
     <Compile Include="Analyzers\SubtitleAnalyzer.cs" />
-    <Compile Include="Aspects\TranscodeItemAudioAspect.cs" />
-    <Compile Include="Aspects\TranscodeItemImageAspect.cs" />
-    <Compile Include="Aspects\TranscodeItemVideoAspect.cs" />
-    <Compile Include="Aspects\TranscodeItemVideoAudioAspect.cs" />
-    <Compile Include="Aspects\TranscodeItemVideoEmbeddedAspect.cs" />
-    <Compile Include="Helpers\MediaItemHelper.cs" />
     <Compile Include="IMediaConverter.cs" />
     <Compile Include="IMediaAnalyzer.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Helpers\Subtitles.cs" />
     <Compile Include="MetaData\MetadataContainer.cs" />
+    <Compile Include="MetaData\MetadataExtensions.cs" />
     <Compile Include="MetaData\Streams\AudioStream.cs" />
     <Compile Include="MetaData\Streams\ImageStream.cs" />
     <Compile Include="MetaData\Streams\MetadataStream.cs" />

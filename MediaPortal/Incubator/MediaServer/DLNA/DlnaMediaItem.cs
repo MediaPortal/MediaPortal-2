@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,7 +30,6 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 using MediaPortal.Plugins.Transcoding.Interfaces;
@@ -40,13 +39,11 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
 {
   public class DlnaMediaItem
   {
+    private object _streamSync = new object();
     private List<Guid> _streams = new List<Guid>();
-    private string _clientId = null;
 
-    public DlnaMediaItem(string clientId, MediaItem item, EndPointSettings client, bool live)
+    public DlnaMediaItem(MediaItem item, EndPointSettings client, bool live)
     {
-      _clientId = clientId;
-
       Client = client;
       MediaSource = item;
       LastUpdated = DateTime.Now;
@@ -66,29 +63,14 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
         IsAudio = true;
-        if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == false)
-        {
-          Logger.Warn("MediaServer: Mediaitem {0} contains no transcoding audio information", item.MediaItemId);
-          return;
-        }
       }
       else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
         IsImage = true;
-        if (item.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID) == false)
-        {
-          Logger.Warn("MediaServer: Mediaitem {0} contains no transcoding image information", item.MediaItemId);
-          return;
-        }
       }
       else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         IsVideo = true;
-        if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID) == false)
-        {
-          Logger.Warn("MediaServer: Mediaitem {0} contains no transcoding video information", item.MediaItemId);
-          return;
-        }
       }
       else
       {
@@ -333,7 +315,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         {
           return false;
         }
-        return MediaConverter.IsTranscodeRunning(_clientId, TranscodingParameter.TranscodeId);
+        return MediaConverter.IsTranscodeRunning(Client.ClientId.ToString(), TranscodingParameter.TranscodeId);
       }
     }
 
@@ -347,33 +329,38 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
     {
       if (TranscodingParameter != null)
       {
-        MediaConverter.StopTranscode(_clientId, TranscodingParameter.TranscodeId);
+        MediaConverter.StopTranscode(Client.ClientId.ToString(), TranscodingParameter.TranscodeId);
       }
     }
 
     public Guid StartStreaming()
     {
       Guid ret = Guid.NewGuid();
-      _streams.Add(ret);
+      lock(_streamSync)
+        _streams.Add(ret);
       return ret;
     }
     public void StopStreaming()
     {
-      _streams.Clear();
+      lock (_streamSync)
+        _streams.Clear();
     }
     public void StopStreaming(Guid streamId)
     {
-      _streams.Remove(streamId);
+      lock (_streamSync)
+        _streams.Remove(streamId);
     }
     public bool IsStreamActive(Guid streamId)
     {
-      return _streams.Contains(streamId);
+      lock (_streamSync)
+        return _streams.Contains(streamId);
     }
     public bool IsStreaming
     {
       get
       {
-        return _streams.Count > 0;
+        lock (_streamSync)
+          return _streams.Count > 0;
       }
     }
     public TranscodeContext TranscodingContext { get; set; }

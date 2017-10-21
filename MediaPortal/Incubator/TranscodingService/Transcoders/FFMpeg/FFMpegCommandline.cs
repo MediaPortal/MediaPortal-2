@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -156,12 +156,33 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
     private void AddInputOptions(ref FFMpegTranscodeData data)
     {
+      if(TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.Auto)
+      {
+        data.InputArguments.Add("--hwaccel auto");
+      }
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.DirectX11)
+      {
+        data.InputArguments.Add("--hwaccel d3d11va");
+      }
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.DXVA2)
+      {
+        data.InputArguments.Add("--hwaccel dxva2");
+      }
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.Intel)
+      {
+        data.InputArguments.Add("--hwaccel qsv");
+      }
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.Nvidia)
+      {
+        data.InputArguments.Add("--hwaccel cuvid");
+      }
+
       bool isNetworkResource = false;
       if (data.InputResourceAccessor is INetworkResourceAccessor)
       {
         isNetworkResource = true;
       }
-      Logger.Debug("Media Converter: AddInputOptions() is NetworkResource: {0}", isNetworkResource);
+      Logger.Debug("FFMpegMediaConverter: AddInputOptions() is NetworkResource: {0}", isNetworkResource);
       if (isNetworkResource)
       {
         var accessor = data.InputResourceAccessor as INetworkResourceAccessor;
@@ -195,7 +216,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       {
         data.WorkPath = FFMpegPlaylistManifest.GetPlaylistFolderFromTranscodeFile(_transcoderCachePath, transcodingFile);
 
-        string outputFileName = MediaConverter.PLAYLIST_FILE_NAME;
+        string outputFileName = BaseMediaConverter.PLAYLIST_FILE_NAME;
         startSegment = Convert.ToInt64(timeStart / Convert.ToDouble(_hlsSegmentTimeInSeconds));
         if (video.TargetSubtitleSupport == SubtitleSupport.Embedded)
         {
@@ -209,7 +230,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         //Because segment durations are not always exactly the size specified this can cause stuttering
         if (video.TargetIsLive == false)
         {
-          outputFileName = MediaConverter.PLAYLIST_TEMP_FILE_NAME;
+          outputFileName = BaseMediaConverter.PLAYLIST_TEMP_FILE_NAME;
           data.SegmentPlaylistData = PlaylistManifest.CreateVideoPlaylist(video, startSegment);
           if (video.TargetSubtitleSupport == SubtitleSupport.Embedded && sub != null)
           {
@@ -322,7 +343,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    internal string ExtractSubtitleFile(VideoTranscoding video, SubtitleStream subtitle, string subtitleEncoding, string targetFilePath, double timeStart)
+    internal bool ExtractSubtitleFile(VideoTranscoding video, SubtitleStream subtitle, string subtitleEncoding, string targetFilePath, double timeStart)
     {
       string subtitleEncoder = "copy";
       SubtitleCodec targetCodec = video.TargetSubtitleCodec;
@@ -344,15 +365,15 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       AddSubtitleExtractionParameters(subtitle, subtitleEncoding, subtitleEncoder, subtitleFormat, timeStart, ref data);
       data.OutputFilePath = targetFilePath;
 
-      if (Logger != null) Logger.Debug("MediaConverter: Invoking transcoder to extract subtitle from file '{0}'", video.SourceMedia);
+      if (Logger != null) Logger.Debug("FFMpegMediaConverter: Invoking transcoder to extract subtitle from file '{0}'", video.SourceMedia);
       MediaPortal.Utilities.Process.ProcessExecutionResult result = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync((ILocalFsResourceAccessor)data.InputResourceAccessor, data.TranscoderArguments, ProcessPriorityClass.Normal, _transcoderTimeout).Result;
       bool success = result.Success;
       if (success && File.Exists(targetFilePath) == false)
       {
-        if (Logger != null) Logger.Error("MediaConverter: Failed to extract subtitle from file '{0}'", video.SourceMedia);
-        return null;
+        if (Logger != null) Logger.Error("FFMpegMediaConverter: Failed to extract subtitle from file '{0}'", video.SourceMedia);
+        return false;
       }
-      return targetFilePath;
+      return true;
     }
 
     internal void AddSubtitleCopyParameters(SubtitleStream subtitle, ref FFMpegTranscodeData data)
@@ -831,7 +852,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
       GetVideoDimensions(video, out newSize, out newContentSize, out newPixelAspectRatio, out pixelARChanged, out videoARChanged, out videoHeightChanged);
 
-      if(data.InputResourceAccessor is FFMpegLiveAccessor)
+      if(data.InputResourceAccessor is TranscodeLiveAccessor)
       {
         data.OutputFilter.Add("yadif=0:-1:0");
       }

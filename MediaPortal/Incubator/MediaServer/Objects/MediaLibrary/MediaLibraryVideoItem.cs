@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,7 +30,6 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Utilities;
 using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -47,29 +46,36 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       if (client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {
-          // TODO: type issue again :-/
-          var genreObj = MediaItemHelper.GetCollectionAttributeValues<object>(item.Aspects, GenreAspect.ATTR_GENRE);
-          if (genreObj != null)
-            CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
+        if (MediaItemAspect.TryGetAspect(item.Aspects, VideoAspect.Metadata, out SingleMediaItemAspect videoAspect))
+        {
+          if (MediaItemAspect.TryGetAspects(item.Aspects, GenreAspect.Metadata, out IList<MultipleMediaItemAspect> genreAspects))
+          {
+            CollectionUtils.AddAll(Genre, genreAspects.Select(g => g.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)));
+          }
 
-          var actorObj = MediaItemHelper.GetCollectionAttributeValues<object>(item.Aspects, VideoAspect.ATTR_ACTORS);
+          var actorObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
           if (actorObj != null)
             CollectionUtils.AddAll(Actor, actorObj.Cast<string>());
 
-          var directorsObj = MediaItemHelper.GetCollectionAttributeValues<object>(item.Aspects, VideoAspect.ATTR_DIRECTORS);
+          var directorsObj = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_DIRECTORS);
           if (directorsObj != null)
             CollectionUtils.AddAll(Director, directorsObj.Cast<string>());
 
-          var descriptionObj = MediaItemHelper.GetAttributeValue(item.Aspects, VideoAspect.ATTR_STORYPLOT);
+          var descriptionObj = videoAspect.GetAttributeValue(VideoAspect.ATTR_STORYPLOT);
           if (descriptionObj != null)
             Description = descriptionObj.ToString();
-      }
-      object oValue = MediaItemHelper.GetAttributeValue(item.Aspects, MediaAspect.ATTR_RECORDINGTIME);
-      if (oValue != null)
-      {
-        Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");
+        }
       }
 
+      if(MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out SingleMediaItemAspect mediaAspect))
+      {
+        object oValue = mediaAspect.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+        if (oValue != null)
+        {
+          Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");
+        }
+      }
+      
       //Support alternative ways to get cover
       if (AlbumArtUrls.Count > 0)
       {

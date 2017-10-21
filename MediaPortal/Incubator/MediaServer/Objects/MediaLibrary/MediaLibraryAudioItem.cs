@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,7 +27,6 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
@@ -41,12 +40,17 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       Publisher = new List<string>();
       Rights = new List<string>();
 
+      if (MediaItemAspect.TryGetAspect(Item.Aspects, AudioAspect.Metadata, out SingleMediaItemAspect audioAspect))
+      {
+        Title = audioAspect.GetAttributeValue<string>(AudioAspect.ATTR_TRACKNAME);
+      }
+
       if (client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {
-        // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
-        var genreObj = MediaItemHelper.GetCollectionAttributeValues<object>(Item.Aspects, GenreAspect.ATTR_GENRE);
-        if (genreObj != null)
-          CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
+        if (MediaItemAspect.TryGetAspects(item.Aspects, GenreAspect.Metadata, out IList<MultipleMediaItemAspect> genreAspects))
+        {
+            CollectionUtils.AddAll(Genre, genreAspects.Select(g => g.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)));
+        }
       }
 
       //Support alternative ways to get album art

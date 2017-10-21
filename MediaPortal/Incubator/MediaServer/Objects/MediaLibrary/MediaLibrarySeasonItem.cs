@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,16 +33,9 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibrarySeasonItem : MediaLibraryContainer, IDirectoryMusicAlbum
   {
-    private static IFilter CreateFilter(MediaItem item)
-    {
-      return new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, item.MediaItemId);
-    }
-
-    public MediaLibrarySeasonItem(MediaItem item, IFilter episodeFilter, EndPointSettings client)
+    public MediaLibrarySeasonItem(MediaItem item, EndPointSettings client)
       : base(item, NECESSARY_EPISODE_MIA_TYPE_IDS, OPTIONAL_EPISODE_MIA_TYPE_IDS, 
-          episodeFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, episodeFilter, 
-            CreateFilter(item)) :
-           CreateFilter(item), client)
+          new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, item.MediaItemId), client)
     {
       Genre = new List<string>();
       Artist = new List<string>();

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,35 +22,27 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common.General;
-using MediaPortal.Common;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibrarySeriesItem : MediaLibraryContainer
   {
-    private IFilter _episodeFilter = null;
-
-    public MediaLibrarySeriesItem(MediaItem item, IFilter epsiodeFilter, EndPointSettings client)
-      : base(item, NECESSARY_SEASON_MIA_TYPE_IDS, OPTIONAL_SEASON_MIA_TYPE_IDS, null, client)
+    public MediaLibrarySeriesItem(MediaItem item, EndPointSettings client)
+      : base(item, NECESSARY_SEASON_MIA_TYPE_IDS, OPTIONAL_SEASON_MIA_TYPE_IDS, 
+          new RelationshipFilter(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, item.MediaItemId), client)
     {
-      _episodeFilter = epsiodeFilter;
-
       Genre = new List<string>();
       Artist = new List<string>();
       Contributor = new List<string>();
 
       if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {
-        SingleMediaItemAspect seriesAspect;
-        if (MediaItemAspect.TryGetAspect(Item.Aspects, SeriesAspect.Metadata, out seriesAspect))
+        if (MediaItemAspect.TryGetAspect(Item.Aspects, SeriesAspect.Metadata, out SingleMediaItemAspect seriesAspect))
         {
           var descriptionObj = seriesAspect.GetAttributeValue(SeriesAspect.ATTR_DESCRIPTION);
           if (descriptionObj != null)
@@ -73,49 +65,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
         {
           AlbumArtUrl = albumArt.Uri;
         }
-      }
-    }
-
-    public IList<MediaItem> GetItems()
-    {
-      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      if (_episodeFilter != null)
-      {
-        List<Guid> necessaryMias = new List<Guid>(NECESSARY_EPISODE_MIA_TYPE_IDS);
-        if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID)) necessaryMias.Remove(EpisodeAspect.ASPECT_ID); //Group MIA cannot be present
-        HomogenousMap seasonItems = library.GetValueGroups(EpisodeAspect.ATTR_SEASON, null, ProjectionFunction.None, necessaryMias.ToArray(),
-          _episodeFilter, true, true);
-
-        List<object> seasonNumbers = new List<object>();
-        foreach (object o in seasonItems.Keys)
-        {
-          if (o is int)
-          {
-            seasonNumbers.Add(o);
-          }
-        }
-
-        return library.Search(new MediaItemQuery(NECESSARY_SEASON_MIA_TYPE_IDS, null,
-          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new InFilter(SeasonAspect.ATTR_SEASON, seasonNumbers),
-					// From season to series (ID supplied)
-          new RelationshipFilter(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, Item.MediaItemId)))
-          , true, null, true);
-      }
-      else
-      {
-        return library.Search(new MediaItemQuery(NECESSARY_SEASON_MIA_TYPE_IDS, null,
-					// From season to series (ID supplied)
-          new RelationshipFilter(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, Item.MediaItemId)), true, null, true);
-      }
-    }
-
-    public override void Initialise()
-    {
-      _children.Clear();
-      IList<MediaItem> items = GetItems();
-      foreach (MediaItem item in items)
-      {
-        Add(new MediaLibrarySeasonItem(item, _episodeFilter, Client));
       }
     }
 

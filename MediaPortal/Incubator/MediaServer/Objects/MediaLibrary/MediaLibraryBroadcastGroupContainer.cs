@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -55,9 +55,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public override void Initialise()
     {
-      const string RES_TV = "[MediaServer.TV]";
-      const string RES_RADIO = "[MediaServer.Radio]";
-
       ILocalization language = ServiceRegistration.Get<ILocalization>();
 
       IList<IChannelGroup> items = GetItems();
