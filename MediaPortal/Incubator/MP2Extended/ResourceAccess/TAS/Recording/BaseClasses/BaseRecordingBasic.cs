@@ -17,6 +17,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClass
     {
       MediaItemAspect recordingAspect = item.GetAspect(RecordingAspect.Metadata);
       ResourcePath path = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
+      string genre = string.Empty;
+      if (MediaItemAspect.TryGetAttribute(item.Aspects, GenreAspect.ATTR_GENRE, out List<string> genres))
+        genre = string.Join(", ", genres);
 
       return new WebRecordingBasic
       {
@@ -26,7 +29,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClass
         Description = (string)item.GetAspect(VideoAspect.Metadata).GetAttributeValue(VideoAspect.ATTR_STORYPLOT),
         StartTime = (DateTime) (recordingAspect.GetAttributeValue(RecordingAspect.ATTR_STARTTIME) ?? DateTime.Now),
         EndTime = (DateTime) (recordingAspect.GetAttributeValue(RecordingAspect.ATTR_ENDTIME) ?? DateTime.Now),
-        //Genre = (item[VideoAspect.Metadata][VideoAspect.ATTR_GENRES] as HashSet<object> != null) ? string.Join(", ", ((HashSet<object>)item[VideoAspect.Metadata][VideoAspect.ATTR_GENRES]).Cast<string>().ToArray()) : string.Empty,
+        Genre = genre,
         TimesWatched = (int)(item.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_PLAYCOUNT] ?? 0),
         FileName = (path != null && path.PathSegments.Count > 0) ? StringUtils.RemovePrefixIfPresent(path.LastPathSegment.Path, "/") : string.Empty,
       };

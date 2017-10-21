@@ -88,11 +88,11 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
     /// <example>
     /// "493f2b3b-8025-4db1-80dc-c3cd39683c9f.Album.Descending" sorts by the AudioAspect's Album Attribute in a descending way.
     /// </example>
-    public static List<SortInformation> ValidateSortInformation(string[] sortInformationStrings, ILogger logger = null)
+    public static List<ISortInformation> ValidateSortInformation(string[] sortInformationStrings, ILogger logger = null)
     {
       sortInformationStrings = sortInformationStrings ?? new string[0];
 
-      var result = new List<SortInformation>();
+      var result = new List<ISortInformation>();
       foreach (var sortInformationString in sortInformationStrings)
       {
         var subStrings = sortInformationString?.Split('.');
@@ -106,7 +106,7 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
         if (subStrings?.Count() == 3 && !Enum.TryParse(subStrings[2], out sortDirection))
           NotifyBadQueryString("Invald sortDirection", subStrings[2], logger);
 
-        result.Add(new SortInformation(attributeType, sortDirection));
+        result.Add(new AttributeSortInformation(attributeType, sortDirection));
       }
       return result;
     }

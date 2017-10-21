@@ -36,7 +36,6 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
@@ -97,11 +96,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         optionalMIATypes.Add(VideoAspect.ASPECT_ID);
         optionalMIATypes.Add(AudioAspect.ASPECT_ID);
         optionalMIATypes.Add(ImageAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemAudioAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemImageAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemVideoAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemVideoAudioAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemVideoEmbeddedAspect.ASPECT_ID);
 
         mediaItem = GetMediaItems.GetMediaItemById(itemGuid, necessaryMIATypes, optionalMIATypes);
         if (mediaItem == null)
