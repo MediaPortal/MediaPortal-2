@@ -118,6 +118,8 @@ namespace MediaPortal.Plugins.MP2Extended
             });
           });*/
           //app.UseMiddleware<ExceptionHandlerMiddleware>();
+
+          app.UseSwagger();
           app.UseSwaggerUI(so => so.SwaggerEndpoint(BASE_PATH + "/swagger/v1/swagger.json", "v1"));
 
           // Swagger File Provider
