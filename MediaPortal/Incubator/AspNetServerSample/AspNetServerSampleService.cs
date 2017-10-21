@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,11 +27,10 @@ using System;
 using System.IO;
 using System.Reflection;
 using MediaPortal.Plugins.AspNetServer;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.FileProviders;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.StaticFiles;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 
 namespace MediaPortal.Plugins.AspNetServerSample
 {
@@ -58,7 +57,9 @@ namespace MediaPortal.Plugins.AspNetServerSample
             // finds the view files (which need to be copied to the plugin directory via build.targets and need to be in the default
             // folders as defined by Razor: [PluginDirectory]\Views\[ControllerName]
             // ToDo: In later versions of MvcRazorOptions, FileProvider was made a List so we can .Clear() and .Add our FileProvider
-            .AddRazorOptions(options => options.FileProvider = new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
+            .AddRazorOptions(options => options.FileProviders.Add(new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))))
+            // This line is important to register the controllers from this webApp. If this is missing, no controller can be reached / no route gets generated
+            .AddApplicationPart(this.GetType().Assembly);
         },
         configureApp: app =>
         {
@@ -69,6 +70,7 @@ namespace MediaPortal.Plugins.AspNetServerSample
             EnableDirectoryBrowsing = true,
           });
           app.UseMvc();
+
           app.Run(context => context.Response.WriteAsync("Hello World"));
         },
         port: PORT,

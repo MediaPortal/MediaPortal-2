@@ -14,7 +14,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       MediaItemAspect episodeAspect = MediaItemAspect.GetAspect(item.Aspects, EpisodeAspect.Metadata);
 
       if (showItem == null)
-        showItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME], null);
+        showItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[EpisodeAspect.ATTR_SERIES_NAME], null);
 
       WebTVEpisodeDetailed webTvEpisodeDetailed = new WebTVEpisodeDetailed
       {
@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       };
       
       webTvEpisodeDetailed.Summary = (string)MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata)[VideoAspect.ATTR_STORYPLOT];
-      webTvEpisodeDetailed.Show = (string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME];
+      webTvEpisodeDetailed.Show = (string)episodeAspect[EpisodeAspect.ATTR_SERIES_NAME];
       var videoWriters = (HashSet<object>)MediaItemAspect.GetAspect(item.Aspects, VideoAspect.Metadata)[VideoAspect.ATTR_WRITERS];
       if (videoWriters != null)
         webTvEpisodeDetailed.Writers = videoWriters.Cast<string>().ToList();

@@ -17,19 +17,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
     {
       MediaItemAspect albumAspect = MediaItemAspect.GetAspect(item.Aspects, AudioAlbumAspect.Metadata);
       var artists = (HashSet<object>)albumAspect[AudioAlbumAspect.ATTR_ARTISTS];
-      var genres = (HashSet<object>)albumAspect[AudioAlbumAspect.ATTR_GENRES];
-      var composers = (HashSet<object>)albumAspect[AudioAlbumAspect.ATTR_COMPOSERS];
+
+      IList<MultipleMediaItemAspect> genres;
+      if (!MediaItemAspect.TryGetAspects(item.Aspects, GenreAspect.Metadata, out genres))
+        genres = new List<MultipleMediaItemAspect>();
+
+      //var composers = (HashSet<object>)albumAspect[AudioAlbumAspect.ATTR_COMPOSERS];
 
       return new WebMusicAlbumBasic
       {
         PID = 0,
         Id = item.MediaItemId.ToString(),
         Artists = artists.Cast<string>().ToList(),
-        Genres = genres.Cast<string>().ToList(),
-        Composer = composers.Cast<string>().ToList()
+        Genres = genres.Select(a => a.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)).ToList(),
+        //Composer = composers.Cast<string>().ToList()
       };
 
-      
+
 
     }
   }

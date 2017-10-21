@@ -13,6 +13,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using Newtonsoft.Json;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
@@ -39,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 
       foreach (var item in items)
       {
-        MediaItemAspect imageAspects = item[ImageAspect.Metadata];
+        MediaItemAspect imageAspects = item.GetAspect(ImageAspect.Metadata);
 
         WebPictureDetailed webPictureDetailed = new WebPictureDetailed();
 
@@ -47,11 +48,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
         //webPictureBasic.DateTaken = imageAspects.GetAttributeValue(ImageAspect.);
         webPictureDetailed.Type = WebMediaType.Picture;
         //webPictureBasic.Artwork;
-        webPictureDetailed.DateAdded = (DateTime)item[ImporterAspect.Metadata].GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
+        webPictureDetailed.DateAdded = (DateTime)item.GetAspect(ImporterAspect.Metadata).GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
         webPictureDetailed.Id = item.MediaItemId.ToString();
         webPictureDetailed.PID = 0;
         //webPictureBasic.Path;
-        webPictureDetailed.Title = (string)item[MediaAspect.Metadata].GetAttributeValue(MediaAspect.ATTR_TITLE);
+        webPictureDetailed.Title = (string)item.GetAspect(MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE);
         //webPictureDetailed.Rating = imageAspects.GetAttributeValue(ImageAspect.);
         //webPictureDetailed.Author = imageAspects.GetAttributeValue(ImageAspect.);
         //webPictureDetailed.Dpi = imageAspects.GetAttributeValue(ImageAspect.);

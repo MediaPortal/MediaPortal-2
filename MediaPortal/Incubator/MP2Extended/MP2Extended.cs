@@ -1,35 +1,24 @@
-﻿using System.Linq.Expressions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using MediaPortal.Common.PathManager;
-using System.IO;
-using System.Xml;
-using System;
-using System.Reflection;
-using System.Text.Encodings.Web;
-using MediaPortal.Plugins.MP2Extended.OnlineVideos;
-using MediaPortal.Plugins.MP2Extended.Settings;
-using Microsoft.AspNet.Diagnostics;
-using Microsoft.AspNet.FileProviders;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.StaticFiles;
 using MediaPortal.Plugins.AspNetServer;
+using MediaPortal.Plugins.MP2Extended.OnlineVideos;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
+using MediaPortal.Plugins.MP2Extended.Settings;
 using MediaPortal.Plugins.MP2Extended.Swagger;
-using Swashbuckle.SwaggerGen.Generator;
-using Microsoft.AspNet.Builder;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNet.Http.Features;
-using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet.Cors;
-using Microsoft.AspNet.Cors.Infrastructure;
-using Microsoft.AspNet.Hosting.Startup;
-using Microsoft.AspNet.Mvc.Formatters;
+using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.Swagger;
+using System;
+using System.Buffers;
+using System.IO;
+using System.Reflection;
 
 namespace MediaPortal.Plugins.MP2Extended
 {
@@ -69,25 +58,23 @@ namespace MediaPortal.Plugins.MP2Extended
               Duration = 100,
               Location = ResponseCacheLocation.Client
             });
-            var jsonOutputFormatter = new JsonOutputFormatter
-            {
-              // MPExtended used the Microsoft DateTime Format
-              SerializerSettings = { DateFormatHandling = DateFormatHandling.MicrosoftDateFormat}
-            };
+            var settings = JsonSerializerSettingsProvider.CreateSerializerSettings();
+            settings.DateFormatHandling = DateFormatHandling.MicrosoftDateFormat;
+            var jsonOutputFormatter = new JsonOutputFormatter(settings, ArrayPool<Char>.Shared);
             options.OutputFormatters.RemoveType<JsonOutputFormatter>();
             options.OutputFormatters.Insert(0, jsonOutputFormatter);
           })
           // MVC Razor
-          .AddRazorOptions(options => options.FileProvider = new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
+          .AddRazorOptions(options => options.FileProviders.Add(new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))))
+          // This line is important to register the controllers from this webApp. If this is missing, no controller can be reached / no route gets generated
+          .AddApplicationPart(this.GetType().Assembly);
 
           // Swagger
           services.AddSwaggerGen(c =>
           {
             c.DescribeAllEnumsAsStrings();
             c.OperationFilter<HandleModelbinding>();
-            c.OrderActionGroupsBy(new DescendingAlphabeticComparer());
-            //c.IncludeXmlComments(Path.Combine(ASSEMBLY_PATH, ASS.GetName().Name+".xml"));
-            c.SingleApiVersion(new Info
+            c.SwaggerDoc("v1", new Info
             {
               Title = "MP2Extended API",
               Description = "MP2Extended brings the well known MPExtended from MP1 to MP2",
@@ -97,6 +84,9 @@ namespace MediaPortal.Plugins.MP2Extended
               },
               Version = "v1"
             });
+            c.OrderActionsBy(d => d.GroupName);
+            //c.OrderActionGroupsBy(new DescendingAlphabeticComparer());
+            //c.IncludeXmlComments(Path.Combine(ASSEMBLY_PATH, ASS.GetName().Name+".xml"));
           });
         },
         configureApp: app =>
@@ -128,15 +118,15 @@ namespace MediaPortal.Plugins.MP2Extended
             });
           });*/
           //app.UseMiddleware<ExceptionHandlerMiddleware>();
-          app.UseSwaggerUi(swaggerUrl: BASE_PATH + "/swagger/v1/swagger.json");
+          app.UseSwaggerUI(so => so.SwaggerEndpoint(BASE_PATH + "/swagger/v1/swagger.json", "v1"));
 
           // Swagger File Provider
-          string resourcePath = Path.Combine(ASSEMBLY_PATH, "wwwroot/swagger").TrimEnd(Path.DirectorySeparatorChar);
-          app.UseStaticFiles(new StaticFileOptions
-          {
-            FileProvider = new PhysicalFileProvider(resourcePath),
-            RequestPath = new PathString("/swagger/ui")
-          });
+          //string resourcePath = Path.Combine(ASSEMBLY_PATH, "wwwroot/swagger").TrimEnd(Path.DirectorySeparatorChar);
+          //app.UseStaticFiles(new StaticFileOptions
+          //{
+          //  FileProvider = new PhysicalFileProvider(resourcePath),
+          //  RequestPath = new PathString("/swagger/ui")
+          //});
           // View File Provider
           string resourcePathView = Path.Combine(ASSEMBLY_PATH, "Views").TrimEnd(Path.DirectorySeparatorChar);
           app.UseStaticFiles(new StaticFileOptions
@@ -145,16 +135,16 @@ namespace MediaPortal.Plugins.MP2Extended
             RequestPath = new PathString("/wwwViews")
           });
           // www File Provider
-          string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "wwwroot").TrimEnd(Path.DirectorySeparatorChar);
-          app.UseStaticFiles(new StaticFileOptions
-          {
-            FileProvider = new PhysicalFileProvider(resourcePathWww),
-            RequestPath = new PathString("/wwwroot")
-          });
+          //string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "wwwroot").TrimEnd(Path.DirectorySeparatorChar);
+          //app.UseStaticFiles(new StaticFileOptions
+          //{
+          //  FileProvider = new PhysicalFileProvider(resourcePathWww),
+          //  RequestPath = new PathString("/wwwroot")
+          //});
           // MVC
           app.UseMvc();
           // Swagger
-          app.UseSwaggerGen();
+          //app.UseSwaggerGen();
           // some standard output
           app.Run(context => context.Response.WriteAsync("Hello MP2Extended"));
         },

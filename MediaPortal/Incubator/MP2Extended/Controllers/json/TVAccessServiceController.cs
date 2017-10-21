@@ -15,7 +15,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {

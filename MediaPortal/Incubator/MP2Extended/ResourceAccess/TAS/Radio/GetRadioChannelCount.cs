@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 
       int output = 0;
 
-      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.Radio))
+      foreach (var group in channelGroups)
       {
         // get channel for goup
         IList<IChannel> channels = new List<IChannel>();

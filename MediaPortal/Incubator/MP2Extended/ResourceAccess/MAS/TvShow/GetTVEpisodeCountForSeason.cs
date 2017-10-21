@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       IFilter episodeFilter = new RelationshipFilter(item.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE);
       MediaItemQuery episodeQuery = new MediaItemQuery(necessaryMIATypes, null, episodeFilter);
 
-      IList<MediaItem> episodesInThisSeason = ServiceRegistration.Get<IMediaLibrary>().Search(episodeQuery, false);
+      IList<MediaItem> episodesInThisSeason = ServiceRegistration.Get<IMediaLibrary>().Search(episodeQuery, false, null, false);
 
       return new WebIntResult { Result = episodesInThisSeason.Count };
     }

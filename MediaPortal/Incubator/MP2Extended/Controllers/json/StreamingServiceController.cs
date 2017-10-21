@@ -11,7 +11,7 @@ using MediaPortal.Plugins.MP2Extended.WSS;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {

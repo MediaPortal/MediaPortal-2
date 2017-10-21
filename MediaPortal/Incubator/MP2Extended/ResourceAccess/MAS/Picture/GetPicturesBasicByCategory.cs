@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
       IFilter searchFilter = new BetweenFilter(MediaAspect.ATTR_RECORDINGTIME, new DateTime(recordingTime.Year, 1, 1), new DateTime(recordingTime.Year, 12, 31));
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, searchFilter);
 
-      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
+      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
 
       var output = items.Select(item => PictureBasic(item)).ToList();
 

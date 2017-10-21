@@ -10,6 +10,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using Newtonsoft.Json;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
@@ -33,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 
       foreach (var item in items)
       {
-        var recodringTime = item[MediaAspect.Metadata][MediaAspect.ATTR_RECORDINGTIME];
+        var recodringTime = item.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_RECORDINGTIME];
         if (recodringTime == null)
           continue;
         string recordingTimeString = ((DateTime)recodringTime).ToString("yyyy");

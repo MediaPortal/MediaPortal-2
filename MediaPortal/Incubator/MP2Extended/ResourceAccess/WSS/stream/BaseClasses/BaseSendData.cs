@@ -28,7 +28,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.AspNet.Http;
 using HttpServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -37,6 +36,7 @@ using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using Microsoft.Net.Http.Headers;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 {

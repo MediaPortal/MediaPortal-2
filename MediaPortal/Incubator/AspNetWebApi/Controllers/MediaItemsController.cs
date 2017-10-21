@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,7 +33,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
@@ -131,7 +131,7 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
       query.Offset = offset;
       query.Limit = limit;
 
-      return ServiceRegistration.Get<IMediaLibrary>().Search(query, filterOnlyOnline);
+      return ServiceRegistration.Get<IMediaLibrary>().Search(query, filterOnlyOnline, null, false);
     }
 
     /// <summary>
@@ -148,7 +148,7 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
     {
       var filter = new MediaItemIdFilter(mediaItemId);
       var query = new MediaItemQuery(null, ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().LocallyKnownMediaItemAspectTypes.Keys, filter);
-      return ServiceRegistration.Get<IMediaLibrary>().Search(query, filterOnlyOnline);
+      return ServiceRegistration.Get<IMediaLibrary>().Search(query, filterOnlyOnline, null, true);
     }
 
     /// <summary>
@@ -174,17 +174,17 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
       if (miam.AttributeType != typeof(byte[]))
         throw new HttpException(HttpStatusCode.BadRequest, $"{miam.ParentMIAM.Name}.{miam.AttributeName} is not of type byte[]");
       var query = new MediaItemQuery(new[] { miam.ParentMIAM.AspectId }, null, filter);
-      var mi = ServiceRegistration.Get<IMediaLibrary>().Search(query, false).FirstOrDefault();
+      var mi = ServiceRegistration.Get<IMediaLibrary>().Search(query, false, null, true).FirstOrDefault();
       if (mi == null)
         throw new HttpException(HttpStatusCode.NotFound, "MediaItem or Aspect not found");
-      var bytes = mi.Aspects[miam.ParentMIAM.AspectId].GetAttributeValue<byte[]>(miam);
+      var bytes = mi.Aspects[miam.ParentMIAM.AspectId].First().GetAttributeValue<byte[]>(miam);
       if (bytes == null)
         throw new HttpException(HttpStatusCode.NotFound, $"{miam.ParentMIAM.Name}.{miam.AttributeName} is empty for MediaItem with ID {mediaItemId}");
       if (maxWidth == DEFAULT_IMAGE_MAX_WIDTH && maxHeight == DEFAULT_IMAGE_MAX_HEIGHT)
         return new FileContentResult(bytes, new MediaTypeHeaderValue(DEFAULT_IMAGE_CONTENT_TYPE_STRING));
       using (var originalImageStream = new MemoryStream(bytes))
       {
-        var resizedBytes = FanArtImage.FromStream(originalImageStream, maxWidth, maxHeight, FanArtMediaTypes.Undefined, FanArtTypes.Undefined, mediaItemId.ToString(), attributeString).BinaryData;
+        var resizedBytes = FanArtImage.FromStream(originalImageStream, maxWidth, maxHeight, mediaItemId.ToString()).BinaryData;
         return new FileContentResult(resizedBytes, new MediaTypeHeaderValue(DEFAULT_IMAGE_CONTENT_TYPE_STRING));
       }
     }

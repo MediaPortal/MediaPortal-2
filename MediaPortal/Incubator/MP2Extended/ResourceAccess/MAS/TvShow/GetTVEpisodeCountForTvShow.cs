@@ -40,9 +40,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       IFilter searchFilter = new RelationshipFilter(item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypesSeason, null, searchFilter);
 
-      IList<MediaItem> seasons = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
+      IList<MediaItem> seasons = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
 
-      WebIntResult webIntResult = new WebIntResult { Result = seasons.Sum(season => MediaItemAspect.GetRelationships(season.Aspects, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE).Count) };
+      WebIntResult webIntResult = new WebIntResult
+      {
+        Result = seasons.Sum(season =>
+          season[RelationshipAspect.ASPECT_ID].Where(r =>
+            r.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == SeasonAspect.ROLE_SEASON && r.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == EpisodeAspect.ROLE_EPISODE)
+         .Count())
+      };
 
       return webIntResult;
     }

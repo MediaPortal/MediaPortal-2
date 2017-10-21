@@ -12,6 +12,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 {
@@ -21,8 +22,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   {
     internal WebTVShowDetailed TVShowDetailed(MediaItem item, MediaItem showItem = null)
     {
-      var seriesAspect = item[SeriesAspect.Metadata];
-      var importerAspect = item[ImporterAspect.Metadata];
+      var seriesAspect = item.GetAspect(SeriesAspect.Metadata);
+      var importerAspect = item.GetAspect(ImporterAspect.Metadata);
 
       var tvShowBasic = TVShowBasic(item);
 

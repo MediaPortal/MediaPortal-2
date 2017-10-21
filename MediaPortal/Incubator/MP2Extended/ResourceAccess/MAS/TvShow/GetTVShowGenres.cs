@@ -27,8 +27,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(EpisodeAspect.ASPECT_ID);
       // Todo: probably filter for Shows only?
-      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(VideoAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMIATypes, null, true);
+      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(GenreAspect.ATTR_GENRE, null, ProjectionFunction.None, necessaryMIATypes, null, true, false);
 
       var output = new List<WebGenre>();
 

@@ -1,5 +1,5 @@
 <Plugin
-    DescriptorVersion="1.0" 
+    DescriptorVersion="1.0"
     Name="AspNetServer"
     PluginId="{F2F6988F-C436-4D74-9819-3947E0DD6974}"
     Author="MJGraf"
@@ -13,10 +13,10 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <!-- NfoMetadataExtractors - this is a workaround to have Newtonsoft.Json.dll loaded -->
     <!-- We need to make Newtonsoft.Json.dll a separate plugin and reference it here -->
-    <PluginReference PluginId="{2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5}" CompatibleAPI="1"/>
+    <PluginReference PluginId="{2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5}" CompatibleAPI="2"/>
   </DependsOn>
 
   <Runtime>

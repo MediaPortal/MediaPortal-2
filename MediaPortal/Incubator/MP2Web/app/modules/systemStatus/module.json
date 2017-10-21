@@ -1,0 +1,12 @@
+﻿[
+  {
+    "Menu": "393F2063-36BE-448D-8E49-BE139A681551",
+    "Name": "SystemStatus",
+    "Label": "Information",
+    "Path": "/systemStatus",
+    "Priority": 1,
+    "ComponentPath": "./app/modules/systemStatus/lib/systemStatus.component",
+    "Component": "SystemStatusComponent",
+    "Visible": true
+  }
+]

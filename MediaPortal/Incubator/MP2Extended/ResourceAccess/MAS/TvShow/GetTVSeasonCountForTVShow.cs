@@ -12,6 +12,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -32,7 +33,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       if (item == null)
         throw new BadRequestException(String.Format("GetTVSeasonCountForTVShow: No MediaItem found with id: {0}", id));
 
-      return new WebIntResult { Result = MediaItemAspect.GetRelationships(item.Aspects, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON).Count };
+      var seasons = item.Aspects[RelationshipAspect.ASPECT_ID]
+        .Where(r => r.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == SeriesAspect.ROLE_SERIES && r.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == SeasonAspect.ROLE_SEASON)
+        .Count();
+      return new WebIntResult { Result = seasons };
     }
 
     internal static ILogger Logger

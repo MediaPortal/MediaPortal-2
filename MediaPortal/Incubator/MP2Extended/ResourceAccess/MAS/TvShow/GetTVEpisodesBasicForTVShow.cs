@@ -32,7 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       IFilter searchFilter = new RelationshipFilter(id, SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
 
-      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
+      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
 
       var output = new List<WebTVEpisodeBasic>();
 

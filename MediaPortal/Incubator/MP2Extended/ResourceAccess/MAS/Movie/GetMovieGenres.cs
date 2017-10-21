@@ -28,7 +28,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       // Todo: probably filter for movies only?
-      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(VideoAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMIATypes, null, true);
+      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(GenreAspect.ATTR_GENRE, null, ProjectionFunction.None, necessaryMIATypes, null, true, false);
 
       var output = new List<WebGenre>();
 

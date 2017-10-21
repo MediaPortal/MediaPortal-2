@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 
       List<WebChannelGroup> output = new List<WebChannelGroup>();
 
-      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
+      foreach (var group in channelGroups)
       {
         output.Add(ChannelGroup(group));
       }

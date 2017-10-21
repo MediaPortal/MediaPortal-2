@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 
       List<WebChannelGroup> output = new List<WebChannelGroup>();
 
-      foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.Radio))
+      foreach (var group in channelGroups)
       {
         output.Add(ChannelGroup(group));
       }

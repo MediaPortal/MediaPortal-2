@@ -12,6 +12,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 {
@@ -21,8 +22,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   {
     internal WebTVShowBasic TVShowBasic(MediaItem item, MediaItem showItem = null)
     {
-      var seriesAspect = item[SeriesAspect.Metadata];
-      var importerAspect = item[ImporterAspect.Metadata];
+      var seriesAspect = item.GetAspect(SeriesAspect.Metadata);
+      var importerAspect = item.GetAspect(ImporterAspect.Metadata);
 
       ISet<Guid> necessaryMIATypespisodes = new HashSet<Guid>();
       necessaryMIATypespisodes.Add(MediaAspect.ASPECT_ID);
@@ -33,14 +34,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       IFilter searchFilter = new RelationshipFilter(item.MediaItemId, SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypespisodes, null, searchFilter);
 
-      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
-      var episodesInThisShowUnwatched = episodes.ToList().FindAll(x => x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == null || (int)x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == 0);
+      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
+      var episodesInThisShowUnwatched = episodes.ToList().FindAll(x => x.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_PLAYCOUNT] == null || (int)x.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_PLAYCOUNT] == 0);
 
 
       return new WebTVShowBasic()
       {
         Id = item.MediaItemId.ToString(),
-        Title = (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME],
+        Title = (string)seriesAspect[SeriesAspect.ATTR_SERIES_NAME],
         DateAdded = (DateTime)importerAspect[ImporterAspect.ATTR_DATEADDED],
         EpisodeCount = episodes.Count,
         UnwatchedEpisodeCount = episodesInThisShowUnwatched.Count

@@ -1,0 +1,33 @@
+﻿[
+  {
+    "Id": "70A31167-2C9C-40B4-9D47-DFA4B316F72F",
+    "Priority": 0,
+    "Name": "MediaLibrary",
+    "Label": "Media Library",
+    "Path": "/MediaLibrary",
+    "Visible": true
+  },
+  {
+    "Id": "7D095C1B-CED7-4D6F-A974-7D9CA04229A9",
+    "Priority": 1,
+    "Name": "Tv",
+    "Label": "Tv",
+    "Path": "/Tv",
+    "Visible": true
+  },
+  {
+    "Id": "9F1F8799-33D1-499C-8228-E94D3E7D1768",
+    "Priority": 2,
+    "Name": "test",
+    "Label": "test",
+    "Visible": true
+  },
+  {
+    "Id": "393F2063-36BE-448D-8E49-BE139A681551",
+    "Priority": 4,
+    "Name": "System",
+    "Label": "System",
+    "Path": "/System",
+    "Visible": true
+  }
+]

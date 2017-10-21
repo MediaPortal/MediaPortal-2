@@ -14,6 +14,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using Newtonsoft.Json;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -35,7 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       IFilter searchFilter = new RelationshipFilter(id, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypesSeason, null, searchFilter);
 
-      IList<MediaItem> seasons = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
+      IList<MediaItem> seasons = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
 
       if (seasons.Count == 0)
         throw new BadRequestException("No seasons found");
@@ -53,15 +54,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
         IFilter episodeFilter = new RelationshipFilter(season.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE);
         MediaItemQuery episodeQuery = new MediaItemQuery(necessaryMIATypesEpisode, null, episodeFilter);
 
-        IList<MediaItem> episodesInThisSeason = ServiceRegistration.Get<IMediaLibrary>().Search(episodeQuery, false);
+        IList<MediaItem> episodesInThisSeason = ServiceRegistration.Get<IMediaLibrary>().Search(episodeQuery, false, null, false);
 
-        var seasonAspect = season[SeasonAspect.Metadata];
+        var seasonAspect = season.GetAspect(SeasonAspect.Metadata);
 
-        var episodesInThisSeasonUnwatched = episodesInThisSeason.ToList().FindAll(x => x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == null || (int)x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == 0);
+        var episodesInThisSeasonUnwatched = episodesInThisSeason.ToList().FindAll(x => x.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_PLAYCOUNT] == null || (int)x.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_PLAYCOUNT] == 0);
 
         WebTVSeasonDetailed webTVSeasonDetailed = new WebTVSeasonDetailed
         {
-          Title = (string)seasonAspect[SeasonAspect.ATTR_SERIES_SEASON],
+          Title = (string)seasonAspect[SeasonAspect.ATTR_SEASON],
           Id = season.MediaItemId.ToString(),
           ShowId = id.ToString(),
           SeasonNumber = (int)seasonAspect[SeasonAspect.ATTR_SEASON],

@@ -37,9 +37,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 
       bool result = false;
 
-      IProgram program;
-      if (programInfo.GetProgram(programIdInt, out program))
-        result = scheduleControl.UnCancelSchedule(program);
+      //IProgram program;
+      //if (programInfo.GetProgram(programIdInt, out program))
+      //  result = scheduleControl.UnCancelSchedule(program);
 
 
       return new WebBoolResult { Result = result };

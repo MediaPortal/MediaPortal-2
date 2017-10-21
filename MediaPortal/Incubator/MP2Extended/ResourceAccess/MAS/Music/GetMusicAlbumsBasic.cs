@@ -31,7 +31,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(AudioAlbumAspect.ASPECT_ID);
 
-      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
+      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
+      optionalMIATypes.Add(GenreAspect.ASPECT_ID);
+
+      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes, optionalMIATypes, null);
 
       var output = items.Select(item => MusicAlbumBasic(item)).ToList();
 

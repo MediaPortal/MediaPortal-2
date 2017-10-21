@@ -33,6 +33,7 @@ using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 {
@@ -61,7 +62,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
       if (!timeshiftControl.StartTimeshift(userName, SlotControl.GetSlotIndex(userName), channel, out item))
         throw new BadRequestException("SwitchTVServerToChannelAndGetStreamingUrl: Couldn't start timeshifting");
 
-      string resourcePathStr = (string)item[ProviderResourceAspect.Metadata][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+      string resourcePathStr = item.PrimaryProviderResourcePath();
       var resourcePath = ResourcePath.Deserialize(resourcePathStr);
       var stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
       string url = "";

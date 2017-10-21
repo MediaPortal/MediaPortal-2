@@ -13,7 +13,7 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <PluginReference PluginId="{F2F6988F-C436-4D74-9819-3947E0DD6974}" CompatibleAPI="1"/> <!-- AspNetServer -->
   </DependsOn>
 

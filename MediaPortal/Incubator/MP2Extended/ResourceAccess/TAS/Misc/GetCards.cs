@@ -21,15 +21,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetCards: ITvProvider not found");
 
-      ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
+      return new List<WebCard>();
+      //ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
 
-      if (tunerInfo == null)
-        throw new BadRequestException("GetCards: ITunerInfo not present");
+      //if (tunerInfo == null)
+      //  throw new BadRequestException("GetCards: ITunerInfo not present");
 
-      List<ICard> cards;
-      tunerInfo.GetCards(out cards);
+      //List<ICard> cards;
+      //tunerInfo.GetCards(out cards);
 
-      return cards.Select(card => Card(card)).ToList();
+      //return cards.Select(card => Card(card)).ToList();
     }
 
     internal static ILogger Logger

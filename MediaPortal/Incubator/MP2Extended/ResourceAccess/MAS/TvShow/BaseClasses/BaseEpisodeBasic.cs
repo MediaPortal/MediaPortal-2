@@ -12,6 +12,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 {
@@ -20,10 +21,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
     internal WebTVEpisodeBasic EpisodeBasic(MediaItem item, MediaItem showItem = null)
     {
       MediaItemAspect episodeAspect = MediaItemAspect.GetAspect(item.Aspects, EpisodeAspect.Metadata);
-      ResourcePath path = ResourcePath.Deserialize((string)MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata)[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH]);
+      ResourcePath path = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
 
       if (showItem == null)
-        showItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME], null);
+        showItem = GetMediaItems.GetMediaItemByName((string)episodeAspect[EpisodeAspect.ATTR_SERIES_NAME], null);
 
       WebTVEpisodeBasic webTvEpisodeBasic = new WebTVEpisodeBasic
       {
@@ -37,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         DateAdded = (DateTime)MediaItemAspect.GetAspect(item.Aspects, ImporterAspect.Metadata)[ImporterAspect.ATTR_DATEADDED],
         Id = item.MediaItemId.ToString(),
         PID = 0,
-        Title = (string)episodeAspect[EpisodeAspect.ATTR_EPISODENAME],
+        Title = (string)episodeAspect[EpisodeAspect.ATTR_EPISODE_NAME],
       };
       var episodeNumber = ((HashSet<object>)MediaItemAspect.GetAspect(item.Aspects, EpisodeAspect.Metadata)[EpisodeAspect.ATTR_EPISODE]).Cast<int>().ToList();
       webTvEpisodeBasic.EpisodeNumber = episodeNumber[0];
@@ -62,9 +63,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         });
       }
 
-      var firstAired = episodeAspect[EpisodeAspect.ATTR_FIRSTAIRED];
-      if (firstAired != null)
-        webTvEpisodeBasic.FirstAired = (DateTime)firstAired;
+      //var firstAired = episodeAspect[EpisodeAspect.ATTR_FIRSTAIRED];
+      //if (firstAired != null)
+      //  webTvEpisodeBasic.FirstAired = (DateTime)firstAired;
 
       // season
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
@@ -72,7 +73,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 
       IFilter seasonFilter = new RelationshipFilter(item.MediaItemId, EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON);
       MediaItemQuery seasonQuery = new MediaItemQuery(necessaryMIATypes, null, seasonFilter);
-      List<MediaItem> season = ServiceRegistration.Get<IMediaLibrary>().Search(seasonQuery, false).ToList();
+      List<MediaItem> season = ServiceRegistration.Get<IMediaLibrary>().Search(seasonQuery, false, null, false).ToList();
 
       if (season.Count > 0)
       {
@@ -82,7 +83,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 
         IFilter showFilter = new RelationshipFilter(season[0].MediaItemId, SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES);
         MediaItemQuery showQuery = new MediaItemQuery(necessaryMIATypes, null, showFilter);
-        List<MediaItem> show = ServiceRegistration.Get<IMediaLibrary>().Search(showQuery, false).ToList();
+        List<MediaItem> show = ServiceRegistration.Get<IMediaLibrary>().Search(showQuery, false, null, false).ToList();
 
         if (season.Count > 0 && show.Count > 0)
         {

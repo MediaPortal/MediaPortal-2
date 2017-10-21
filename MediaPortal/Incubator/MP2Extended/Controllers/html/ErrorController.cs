@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Diagnostics;
-using Microsoft.AspNet.Hosting.Internal;
-using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet.Http.Features;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.html
 {

@@ -2,8 +2,8 @@
 using System.IO;
 using System.Reflection;
 using System.Web;
-using Microsoft.AspNet.Mvc;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.html
 {

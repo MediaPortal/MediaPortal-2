@@ -36,12 +36,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       IFilter searchFilter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, id);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
 
-      IList<MediaItem> tracks = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
+      IList<MediaItem> tracks = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
 
       if (tracks.Count == 0)
         throw new BadRequestException("No Tracks found");
 
-      MediaItemAspect audioAspects = tracks[0][AudioAspect.Metadata];
+      MediaItemAspect audioAspects = MediaItemAspect.GetAspect(tracks[0].Aspects, AudioAspect.Metadata);
 
       WebMusicAlbumBasic webMusicAlbumBasic = new WebMusicAlbumBasic();
       var albumArtists = (HashSet<object>)audioAspects[AudioAspect.ATTR_ALBUMARTISTS];
@@ -55,13 +55,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       if (trackComposers != null)
         webMusicAlbumBasic.Composer = trackComposers.Cast<string>().ToList();
       //webMusicTrackBasic.ArtistId;
-      var trackGenres = (HashSet<object>)audioAspects[AudioAspect.ATTR_GENRES];
-      if (trackGenres != null)
-        webMusicAlbumBasic.Genres = trackGenres.Cast<string>().ToList();
+      //var trackGenres = (HashSet<object>)audioAspects[AudioAspect.ATTR_GENRES];
+      //if (trackGenres != null)
+      //  webMusicAlbumBasic.Genres = trackGenres.Cast<string>().ToList();
       //webMusicTrackBasic.Rating = Convert.ToSingle((double)movieAspects[AudioAspect.]);
       //webMusicTrackBasic.Year;
       //webMusicTrackBasic.Artwork;
-      webMusicAlbumBasic.DateAdded = (DateTime)tracks[0][ImporterAspect.Metadata][ImporterAspect.ATTR_DATEADDED];
+      DateTime dateAdded;
+      if (MediaItemAspect.TryGetAttribute(tracks[0].Aspects, ImporterAspect.ATTR_DATEADDED, out dateAdded))
+        webMusicAlbumBasic.DateAdded = dateAdded;
       webMusicAlbumBasic.Id = id.ToString();
       webMusicAlbumBasic.PID = 0;
       //webMusicTrackBasic.Path;

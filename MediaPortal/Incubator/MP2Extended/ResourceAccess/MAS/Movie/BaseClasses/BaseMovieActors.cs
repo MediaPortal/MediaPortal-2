@@ -3,6 +3,7 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
 {
@@ -12,7 +13,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
     {
       List<WebActor> output = new List<WebActor>();
       
-      var movieActors = (HashSet<object>)item[VideoAspect.Metadata][VideoAspect.ATTR_ACTORS];
+      var movieActors = (HashSet<object>)item.GetAspect(VideoAspect.Metadata)[VideoAspect.ATTR_ACTORS];
       if (movieActors != null)
       {
         output.AddRange(movieActors.Select(actor => new WebActor

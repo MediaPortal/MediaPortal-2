@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       IChannel channel;
       ISchedule schedule;
       if (channelAndGroupInfo.GetChannel(channelId, out channel))
-        result = scheduleControl.CreateScheduleByTimeAndType(channel, title, startTime, endTime, (ScheduleRecordingType)scheduleType, out schedule);
+        result = scheduleControl.CreateScheduleByTime(channel, startTime, endTime, (ScheduleRecordingType)scheduleType, out schedule);
 
 
       return new WebBoolResult { Result = result };

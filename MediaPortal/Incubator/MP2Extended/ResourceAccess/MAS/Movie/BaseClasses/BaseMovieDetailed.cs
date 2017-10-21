@@ -3,6 +3,7 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.MAS.Movie;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
 {
@@ -11,8 +12,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
     internal WebMovieDetailed MovieDetailed(MediaItem item)
     {
       WebMovieBasic webMovieBasic = new BaseMovieBasic().MovieBasic(item);
-      
-      MediaItemAspect movieAspects = item[MovieAspect.Metadata];
+
+      MediaItemAspect movieAspects = item.GetAspect(MovieAspect.Metadata);
+      MediaItemAspect videoAspects = item.GetAspect(VideoAspect.Metadata);
 
       WebMovieDetailed webMovieDetailed = new WebMovieDetailed
       {
@@ -32,14 +34,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
         Path = webMovieBasic.Path,
         Artwork = webMovieBasic.Artwork,
         Tagline = (string)(movieAspects[MovieAspect.ATTR_TAGLINE] ?? string.Empty),
-        Summary = (string)(item[VideoAspect.Metadata][VideoAspect.ATTR_STORYPLOT] ?? string.Empty),
+        Summary = (string)(videoAspects[VideoAspect.ATTR_STORYPLOT] ?? string.Empty),
       };
 
       //webMovieDetailed.Language = ;
-      var videoWriters = (HashSet<object>)item[VideoAspect.Metadata][VideoAspect.ATTR_WRITERS];
+      var videoWriters = (HashSet<object>)videoAspects[VideoAspect.ATTR_WRITERS];
       if (videoWriters != null)
         webMovieDetailed.Writers = videoWriters.Cast<string>().ToList();
-      var videoDirectors = (HashSet<object>)item[VideoAspect.Metadata][VideoAspect.ATTR_DIRECTORS];
+      var videoDirectors = (HashSet<object>)videoAspects[VideoAspect.ATTR_DIRECTORS];
       if (videoDirectors != null)
         webMovieDetailed.Directors = videoDirectors.Cast<string>().ToList();
 

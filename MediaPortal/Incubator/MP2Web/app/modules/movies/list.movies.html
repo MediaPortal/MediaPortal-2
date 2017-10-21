@@ -1,0 +1,38 @@
+<link rel="stylesheet" href="css/movies.css" />
+<link rel="stylesheet" href="../../common/css/cornor_ribbon.css" />
+
+<div style="text-align: center; padding-bottom: 60px;"> <!-- the padding prevents hiding text under the footer -->
+    <div infinite-scroll (infinite-scroll-action)="loadMoreMovies()" [infinite-scroll-disabled]="moviesLoadingBussy" infinite-scroll-distance="1" style="margin: auto; display: inline-block">
+        <div class="row movies" *ngFor="#movie of movieList; #x = index">
+            <template [ngIf]="x % movieCoversPerRow == 0">
+                <!-- columns -->
+                <template ngFor #i [ngForOf]="moviesForLoop | range:movieCoversPerRow">
+                    <div *ngIf="x + i < movieList.length" class="col-sm-3 ih-item square effect11 left_to_right" (click)="go(['Details', {id: movieList[x + i].ID}])" style="width: 200px !important; height: 330px !important; cursor: pointer;">
+                        <a (click)="go(['Details', {id: movieList[x + i].ID}])">
+                            <div class="img">
+                                <!-- watched status -->
+                                <!--<div [ngClass]="{true: 'side-corner-tag', false: ''}[movieList[x + i].Watched]">
+                                    <img [movie-poster]="movieList[x + i].ID" (error)="errorLoadingCover($event)" style="height: 248px;" id="watched">
+                                    <template [ngIf]="movieList[x + i].Watched">
+                                        <p><span>Watched!</span></p>
+                                    </template>
+                                </div>-->
+                                <br>
+                            </div>
+                            <!-- extended information -->
+                            <div class="info">
+                                <h3>{{movieList[x + i].Title}}</h3>
+                                <starrating [rating]="movieList[x + i].TotalRating"></starrating>
+                                <p>Runtime: {{movieList[x + i].Runtime}} minutes</p>
+                                <p>{{movieList[x + i].Tagline}}</p>
+                            </div>
+                        </a>
+                        <div class="movieTitle">{{movieList[x + i].Title}}</div>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </div>
+
+</div>
+

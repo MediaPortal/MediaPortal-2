@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
         channelAndGroupInfo.GetChannelGroups(out channelGroups);
       else
       {
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = groupId.Value, MediaType = MediaType.Radio });
+        channelGroups.Add(new ChannelGroup() { ChannelGroupId = groupId.Value });
       }
 
       List<WebChannelDetailed> output = new List<WebChannelDetailed>();

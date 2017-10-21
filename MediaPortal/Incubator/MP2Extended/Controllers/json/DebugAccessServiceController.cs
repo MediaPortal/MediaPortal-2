@@ -3,7 +3,7 @@ using System.IO;
 using System.Web;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.json.Settings;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {

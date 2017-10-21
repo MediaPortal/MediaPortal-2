@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,8 +24,8 @@
 
 using System;
 using MediaPortal.Common.MediaManagement;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.Http.Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.AspNetWebApi.Json
@@ -102,7 +102,7 @@ namespace MediaPortal.Plugins.AspNetWebApi.Json
 
       writer.WritePropertyName(PROPERTY_NAME_ASPECTS);
       writer.WriteStartArray(); // Array of MIAs
-      foreach (var mia in mi.Aspects.Values)
+      foreach (var mia in MediaItemAspect.GetAspects(mi.Aspects))
       {
         writer.WriteStartObject(); // MIA
 

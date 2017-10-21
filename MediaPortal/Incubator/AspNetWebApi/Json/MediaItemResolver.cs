@@ -1,6 +1,6 @@
 ﻿using System;
 using MediaPortal.Common.MediaManagement;
-using Microsoft.AspNet.Http;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Serialization;
 
 namespace MediaPortal.Plugins.AspNetWebApi.Json

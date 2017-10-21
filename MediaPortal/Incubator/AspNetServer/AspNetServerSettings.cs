@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,11 +33,11 @@ namespace MediaPortal.Plugins.AspNetServer
   {
     #region Consts
 
-    public const string WEB_LISTENER = "Microsoft.AspNet.Server.WebListener";
-    public const string KESTREL = "Microsoft.AspNet.Server.Kestrel";
+    public const string HTTPSYS = "Microsoft.AspNetCore.Server.HttpSys";
+    public const string KESTREL = "Microsoft.AspNetCore.Server.Kestrel";
     public static readonly string[] SUPPORTED_SERVERS =
     {
-      WEB_LISTENER,
+      HTTPSYS,
       KESTREL,
     };
 
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.AspNetServer
     /// <summary>
     /// Http-Server to be used by the AspNetServer
     /// </summary>
-    [Setting(SettingScope.Global, WEB_LISTENER)]
+    [Setting(SettingScope.Global, HTTPSYS)]
     public string Server { get; set; }
 
     /// <summary>
@@ -76,8 +76,8 @@ namespace MediaPortal.Plugins.AspNetServer
     {
       if (SUPPORTED_SERVERS.Contains(Server))
         return Server;
-      ServiceRegistration.Get<ILogger>().Warn("AspNetServerSettings: Unknown Server specified ({0}). Using {1} instead.", Server, WEB_LISTENER);
-      return WEB_LISTENER;
+      ServiceRegistration.Get<ILogger>().Warn("AspNetServerSettings: Unknown Server specified ({0}). Using {1} instead.", Server, HTTPSYS);
+      return HTTPSYS;
     }
 
     #endregion

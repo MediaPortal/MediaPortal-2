@@ -6,7 +6,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
 {
@@ -112,7 +112,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
           MediaItem item = GetMediaItems.GetMediaItemById(identifier.MediaItemId, necessaryMIATypes);
           if (item == null)
             return false;
-          dateAdded = (DateTime)item[ImporterAspect.Metadata][ImporterAspect.ATTR_DATEADDED];
+          dateAdded = (DateTime)item.GetAspect(ImporterAspect.Metadata)[ImporterAspect.ATTR_DATEADDED];
         }
         else
         {

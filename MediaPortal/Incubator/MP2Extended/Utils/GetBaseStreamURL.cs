@@ -10,7 +10,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Utilities.Network;
-using Microsoft.AspNet.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.Utils
 {

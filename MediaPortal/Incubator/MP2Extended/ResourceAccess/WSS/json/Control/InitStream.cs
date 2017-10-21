@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNet.Http;
+using Microsoft.AspNetCore.Http;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -108,7 +108,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         {
           throw new BadRequestException(string.Format("InitStream: Couldn't init stream! No MediaItem found with id: {0}", itemId));
         }
-        streamItem.Title = (string)mediaItem[MediaAspect.Metadata].GetAttributeValue(MediaAspect.ATTR_TITLE);
+        streamItem.Title = mediaItem[MediaAspect.Metadata.AspectId][0].GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
       }
       streamItem.RequestedMediaItem = mediaItem;
 

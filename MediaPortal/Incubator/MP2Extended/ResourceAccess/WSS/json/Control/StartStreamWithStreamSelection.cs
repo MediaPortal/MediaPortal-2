@@ -25,7 +25,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.AspNet.Http;
 using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -38,6 +37,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.Transcoding.Interfaces;
 using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {

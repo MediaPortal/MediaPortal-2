@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
-using Microsoft.AspNet.Mvc;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
 {

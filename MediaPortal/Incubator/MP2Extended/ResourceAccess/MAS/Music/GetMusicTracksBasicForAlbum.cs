@@ -15,6 +15,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using Newtonsoft.Json;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
@@ -38,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       IFilter searchFilter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, id);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
 
-      IList<MediaItem> tracks = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false);
+      IList<MediaItem> tracks = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
 
       if (tracks.Count == 0)
         throw new BadRequestException("No Tracks found");
@@ -47,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 
       foreach (var item in tracks)
       {
-        MediaItemAspect audioAspects = item[AudioAspect.Metadata];
+        MediaItemAspect audioAspects = item.GetAspect(AudioAspect.Metadata);
 
         WebMusicTrackBasic webMusicTrackBasic = new WebMusicTrackBasic();
         webMusicTrackBasic.Album = (string)audioAspects[AudioAspect.ATTR_ALBUM];
@@ -63,19 +64,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
         //webMusicTrackBasic.ArtistId;
         webMusicTrackBasic.DiscNumber = audioAspects[AudioAspect.ATTR_DISCID] != null ? (int)audioAspects[AudioAspect.ATTR_DISCID] : 0;
         webMusicTrackBasic.Duration = Convert.ToInt32((long)audioAspects[AudioAspect.ATTR_DURATION]);
-        var trackGenres = (HashSet<object>)audioAspects[AudioAspect.ATTR_GENRES];
-        if (trackGenres != null)
-          webMusicTrackBasic.Genres = trackGenres.Cast<string>().ToList();
+        //var trackGenres = (HashSet<object>)audioAspects[AudioAspect.ATTR_GENRES];
+        //if (trackGenres != null)
+        //  webMusicTrackBasic.Genres = trackGenres.Cast<string>().ToList();
         //webMusicTrackBasic.Rating = Convert.ToSingle((double)movieAspects[AudioAspect.]);
         webMusicTrackBasic.TrackNumber = (int)audioAspects[AudioAspect.ATTR_TRACK];
         webMusicTrackBasic.Type = WebMediaType.MusicTrack;
         //webMusicTrackBasic.Year;
         //webMusicTrackBasic.Artwork;
-        webMusicTrackBasic.DateAdded = (DateTime)item[ImporterAspect.Metadata][ImporterAspect.ATTR_DATEADDED];
+        webMusicTrackBasic.DateAdded = item.GetAspect(ImporterAspect.Metadata).GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED);
         webMusicTrackBasic.Id = item.MediaItemId.ToString();
         webMusicTrackBasic.PID = 0;
         //webMusicTrackBasic.Path;
-        webMusicTrackBasic.Title = (string)item[MediaAspect.Metadata][MediaAspect.ATTR_TITLE];
+        webMusicTrackBasic.Title = item.GetAspect(MediaAspect.Metadata).GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
 
         output.Add(webMusicTrackBasic);
       }

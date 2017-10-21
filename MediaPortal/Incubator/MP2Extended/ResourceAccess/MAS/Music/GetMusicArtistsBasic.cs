@@ -30,8 +30,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
 
-      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_ARTISTS, null, ProjectionFunction.None, necessaryMIATypes, null, true);
-      HomogenousMap itemsAlbum = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_ALBUMARTISTS, null, ProjectionFunction.None, necessaryMIATypes, null, true);
+      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_ARTISTS, null, ProjectionFunction.None, necessaryMIATypes, null, true, false);
+      HomogenousMap itemsAlbum = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_ALBUMARTISTS, null, ProjectionFunction.None, necessaryMIATypes, null, true, false);
 
       List<WebMusicArtistBasic> output = new List<WebMusicArtistBasic>();
 

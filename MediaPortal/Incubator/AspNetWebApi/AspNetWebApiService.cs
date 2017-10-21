@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,23 +24,29 @@
 
 using MediaPortal.Common;
 using System;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetServer;
 using MediaPortal.Plugins.AspNetWebApi.Json;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.Http.Internal;
-using Microsoft.AspNet.Mvc.Formatters;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Serialization;
 
 namespace MediaPortal.Plugins.AspNetWebApi
 {
-  public class AspNetWebApiService : IDisposable
+  public class AspNetWebApiService : IAspNetWebApiService, IDisposable
   {
     #region Consts
 
     private const string WEB_APPLICATION_NAME = "MP2WebApi";
-    private const int PORT = 5555;
     private const string BASE_PATH = "/api/";
+
+    #endregion
+
+    #region Private fields
+
+    private int? _port;
 
     #endregion
 
@@ -58,12 +64,22 @@ namespace MediaPortal.Plugins.AspNetWebApi
           var httpContextAccessor = new HttpContextAccessor();
           services.AddSingleton<IHttpContextAccessor>(httpContextAccessor);
 
-          services.AddMvc(options =>
-          {
-            var jsonOutputFormatter = new JsonOutputFormatter { SerializerSettings = { ContractResolver = new MediaItemResolver(httpContextAccessor) } };
-            options.OutputFormatters.RemoveType<JsonOutputFormatter>();
-            options.OutputFormatters.Insert(0, jsonOutputFormatter);
-          });
+          services.AddMemoryCache();
+
+          services.AddMvc()
+            .AddJsonOptions(options =>
+            {
+              options.SerializerSettings.ContractResolver = new MediaItemResolver(httpContextAccessor);
+              // https://weblog.west-wind.com/posts/2016/Jun/27/Upgrading-to-ASPNET-Core-RTM-from-RC2
+              // In the RTM release Microsoft has changed the default serialization behavior so that all properties are automatically
+              // camel cased - or really changed to have a lower case first letter (ie. "BirthDate" becomes "birthDate" and
+              // "Birthdate" becomes "birthdate")
+              var resolver = options.SerializerSettings.ContractResolver;
+              var res = (DefaultContractResolver)resolver;
+              res.NamingStrategy = null;  // <<!-- this removes the camelcasing
+            })
+            // This line is important to register the controllers from this webApp. If this is missing, no controller can be reached / no route gets generated
+            .AddApplicationPart(this.GetType().Assembly);
           services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
         },
         configureApp: app =>
@@ -72,8 +88,29 @@ namespace MediaPortal.Plugins.AspNetWebApi
           app.UseCors("AllowAll");
           app.UseMvc();
         },
-        port: PORT,
+        port: Port,
         basePath: BASE_PATH);
+    }
+
+    #endregion
+
+    #region IAspNetWebApiService implmentation
+
+    public int Port
+    {
+      get
+      {
+        if (_port.HasValue)
+          return _port.Value;
+        var port = ServiceRegistration.Get<ISettingsManager>().Load<AspNetWebApiSettings>().TcpPort;
+        if (port < 1 || port > 65535)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("AspNetWebApiService: Tcp-Port {0} from settings is invalid; using default port {1}.", port, AspNetWebApiSettings.DEFAULT_PORT);
+          port = AspNetWebApiSettings.DEFAULT_PORT;
+        }
+        _port = port;
+        return port;
+      }
     }
 
     #endregion

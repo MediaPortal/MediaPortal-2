@@ -25,7 +25,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
       IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
       channelAndGroupInfo.GetChannelGroups(out channelGroups);
 
-      return new WebIntResult { Result = channelGroups.Where(x => x.MediaType == MediaType.TV).ToList().Count };
+      return new WebIntResult { Result = channelGroups.Count };
     }
 
     internal static ILogger Logger

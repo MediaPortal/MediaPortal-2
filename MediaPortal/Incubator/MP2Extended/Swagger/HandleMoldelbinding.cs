@@ -1,4 +1,5 @@
-﻿using Swashbuckle.SwaggerGen.Generator;
+﻿using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace MediaPortal.Plugins.MP2Extended.Swagger
 {

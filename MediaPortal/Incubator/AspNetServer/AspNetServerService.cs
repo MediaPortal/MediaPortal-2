@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,16 +30,15 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
+using ILogger = MediaPortal.Common.Logging.ILogger;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetServer.Logger;
 using MediaPortal.Plugins.AspNetServer.PlatformServices;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Hosting;
-using Microsoft.Extensions.CompilationAbstractions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.Extensions.Logging;
 
 namespace MediaPortal.Plugins.AspNetServer
 {
@@ -253,16 +252,11 @@ namespace MediaPortal.Plugins.AspNetServer
     {
       try
       {
-        var app = new WebApplicationBuilder()
+        var builder = new WebHostBuilder()
           .ConfigureServices(services =>
           {
             // Register dependencies necessary before the registration of dependencies provided by the calling plugin
-            services.AddSingleton<IApplicationEnvironment>(new MP2ApplicationEnvironment());
-            services.AddTransient(typeof(ILibraryManager), typeof(MP2LibraryManager));
-
-            // Register temporary ILibraryExporter
-            // ToDo: Remove this if no longer needed
-            services.AddSingleton<ILibraryExporter, MP2LibraryExporter>();
+            services.AddSingleton<IHostingEnvironment>(new MP2HostingEnvironment());
 
             // Register dependencies provided by the calling plugin
             webApplicationParameter.ConfigureServices(services);
@@ -278,20 +272,30 @@ namespace MediaPortal.Plugins.AspNetServer
 
             // Configurations to be performed after the calling plugin's configuration is performed go here
           })
-          
-          // Use the server (WebListener or Kestrel) as defined in the settings
-          .UseServerFactory(ServiceRegistration.Get<ISettingsManager>().Load<AspNetServerSettings>().CheckAndGetServer())
+
+          .UseUrls(webApplicationParameter.Url)
           
           // If enabled in the settings add a DebuLogger
-          .ConfigureLogging(loggerFactory => loggerFactory.AddProvider(new MP2LoggerProvider(webApplicationParameter.WebApplicationName)))
-          .Build();
+          .ConfigureLogging(loggerFactory => loggerFactory.AddProvider(new MP2LoggerProvider(webApplicationParameter.WebApplicationName)));
 
-        // Set the Url this WebApplication is supposed to listen on
-        app.GetAddresses().Clear();
-        app.GetAddresses().Add(webApplicationParameter.Url);
+        // Use the server (WebListener or Kestrel) as defined in the settings
+        if (string.Equals(ServiceRegistration.Get<ISettingsManager>().Load<AspNetServerSettings>().CheckAndGetServer(), AspNetServerSettings.HTTPSYS, StringComparison.OrdinalIgnoreCase))
+        {
+          ServiceRegistration.Get<ILogger>().Info("AspNetServerService: Use HttpSys");
+          builder.UseHttpSys();
+        }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Info("AspNetServerService: Use Kestrel");
+          builder.UseKestrel();
+        }
+
 
         // Start the WebApplication
-        return app.Start();
+        var app = builder.Build();
+        app.Start();
+
+        return app;
       }
       catch (Exception e)
       {

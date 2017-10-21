@@ -22,7 +22,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {

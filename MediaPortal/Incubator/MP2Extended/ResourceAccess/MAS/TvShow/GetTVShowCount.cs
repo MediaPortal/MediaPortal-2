@@ -12,6 +12,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -34,9 +35,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 
       foreach (var item in items)
       {
-        var seriesAspect = item[SeriesAspect.Metadata];
+        var seriesAspect = item.GetAspect(SeriesAspect.Metadata);
         WebTVShowBasic webTVShowBasic = new WebTVShowBasic();
-        webTVShowBasic.Title = (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME];
+        webTVShowBasic.Title = (string)seriesAspect[SeriesAspect.ATTR_SERIES_NAME];
 
         output.Add(webTVShowBasic);
       }

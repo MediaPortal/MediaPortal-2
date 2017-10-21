@@ -58,7 +58,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
         channelAndGroupInfo.GetChannelGroups(out channelGroups);
 
 
-        foreach (var group in channelGroups.Where(x => x.MediaType == MediaType.TV))
+        foreach (var group in channelGroups)
         {
           // get channel for goup
           IList<IChannel> channels = new List<IChannel>();

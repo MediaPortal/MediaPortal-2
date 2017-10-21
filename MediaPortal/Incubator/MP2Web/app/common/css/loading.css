@@ -1,0 +1,46 @@
+/* source: http://codepen.io/austinmzach/pen/gyfIib */
+
+body {
+    padding: 50px;
+    text-align: center;
+    text-shadow: 0 0 10px #084;
+    background: radial-gradient(center, circle cover,  transparent 0%, transparent 50%, rgba(0,0,0,0.2) 100%);
+    background-color: #222222;
+}
+
+.loading {
+    font-size: 60px;
+    color: white;
+}
+
+.gears {
+    animation: rotate1 6s linear infinite;
+}
+
+.entypo-cog {
+    position: relative;
+    display: block;
+    padding: 0;
+    margin: 0;
+    font-size: 150px;
+    color: #ff6a00;
+}
+
+.entypo-cog:nth-child(1) {
+    animation: rotate1 3s linear infinite;
+}
+
+.entypo-cog:nth-child(2) {
+    margin-top: -35px;
+    transform: rotate(22.5deg);
+    animation: rotate2 3s linear infinite;
+}
+
+@keyframes rotate1 {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rotate2 {
+    from { transform: rotate(-22.5deg) }
+    to { transform: rotate(-382.5deg); }
+}

@@ -28,8 +28,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(AudioAspect.ASPECT_ID);
 
-      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMIATypes, null, true);
+      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(GenreAspect.ATTR_GENRE, null, ProjectionFunction.None, necessaryMIATypes, null, true, false);
 
       if (items.Count == 0)
         return new List<WebGenre>();

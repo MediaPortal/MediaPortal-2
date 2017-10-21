@@ -42,6 +42,7 @@ using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 using MediaPortal.Plugins.Transcoding.Interfaces;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 {
@@ -109,21 +110,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       // decide which type of media item we have
       if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
-        var videoAspect = item[VideoAspect.Metadata];
-        duration = Convert.ToInt64(videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION) ?? 0);
+        var videoAspect = item.GetAspect(VideoAspect.Metadata);
+        var videoStreamAspect = item.GetAspect(VideoStreamAspect.Metadata);
+        duration = Convert.ToInt64(videoStreamAspect.GetAttributeValue(VideoStreamAspect.ATTR_DURATION) ?? 0);
 
         // Video
         WebVideoStream webVideoStream = new WebVideoStream();
-        webVideoStream.Codec = Convert.ToString(videoAspect.GetAttributeValue(VideoAspect.ATTR_VIDEOENCODING) ?? string.Empty);
-        webVideoStream.DisplayAspectRatio = Convert.ToDecimal(videoAspect.GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO) ?? 0);
-        webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString(Convert.ToDecimal(videoAspect.GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO) ?? 0));
-        webVideoStream.Height = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_HEIGHT) ?? 0);
-        webVideoStream.Width = Convert.ToInt32(videoAspect.GetAttributeValue(VideoAspect.ATTR_WIDTH) ?? 0);
+        webVideoStream.Codec = Convert.ToString(videoStreamAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEOENCODING) ?? string.Empty);
+        webVideoStream.DisplayAspectRatio = Convert.ToDecimal(videoStreamAspect.GetAttributeValue(VideoStreamAspect.ATTR_ASPECTRATIO) ?? 0);
+        webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString(Convert.ToDecimal(videoStreamAspect.GetAttributeValue(VideoStreamAspect.ATTR_ASPECTRATIO) ?? 0));
+        webVideoStream.Height = Convert.ToInt32(videoStreamAspect.GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT) ?? 0);
+        webVideoStream.Width = Convert.ToInt32(videoStreamAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH) ?? 0);
         webVideoStreams.Add(webVideoStream);
 
         if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID))
         {
-          var transcodeVideoAspect = item[TranscodeItemVideoAspect.Metadata];
+          var transcodeVideoAspect = item.GetAspect(TranscodeItemVideoAspect.Metadata);
           object videoStream = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_STREAM);
           webVideoStream.ID = int.Parse(videoStream.ToString());
           webVideoStream.Index = 0;
@@ -226,21 +228,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       // Audio File
       if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        var audioAspect = item[AudioAspect.Metadata];
+        var audioAspect = item.GetAspect(AudioAspect.Metadata);
         duration = (long)audioAspect[AudioAspect.ATTR_DURATION];
         if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID))
         {
-          container = (string)item[TranscodeItemAudioAspect.Metadata][TranscodeItemAudioAspect.ATTR_CONTAINER];
+          container = (string)item.GetAspect(TranscodeItemAudioAspect.Metadata)[TranscodeItemAudioAspect.ATTR_CONTAINER];
         }
       }
 
       // Image File
       if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
-        var imageAspect = item[ImageAspect.Metadata];
+        var imageAspect = item.GetAspect(ImageAspect.Metadata);
         if (item.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID))
         {
-          container = (string)item[TranscodeItemImageAspect.Metadata][TranscodeItemImageAspect.ATTR_CONTAINER];
+          container = (string)item.GetAspect(TranscodeItemImageAspect.Metadata)[TranscodeItemImageAspect.ATTR_CONTAINER];
         }
       }
 

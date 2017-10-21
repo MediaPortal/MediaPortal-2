@@ -9,6 +9,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
@@ -44,10 +45,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
       webMediaItem.Id = item.MediaItemId.ToString();
       // TODO: Add Artwork
       //webMediaItem.Artwork
-      webMediaItem.DateAdded = (DateTime)item[ImporterAspect.Metadata][ImporterAspect.ATTR_DATEADDED];
+      webMediaItem.DateAdded = item.GetAspect(ImporterAspect.Metadata).GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED);
       //webMediaItem.Path
       webMediaItem.Type = ResourceAccessUtils.GetWebMediaType(item);
-      webMediaItem.Title = (string)item[MediaAspect.Metadata][MediaAspect.ATTR_TITLE];
+      webMediaItem.Title = item.GetAspect(MediaAspect.Metadata).GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
 
       return webMediaItem;
     }
