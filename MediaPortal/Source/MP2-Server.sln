@@ -142,6 +142,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerStateService.Interfac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerStateService", "Backend\BackendComponents\ServerStateService\ServerStateService\ServerStateService.csproj", "{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.Backend", "..\Tests\IntegrationTests.Backend\IntegrationTests.Backend.csproj", "{80AFD4F1-2971-46E7-BBE9-2A8B12AE2CC1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -353,6 +355,10 @@ Global
 		{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}.Debug|x86.Build.0 = Debug|x86
 		{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}.Release|x86.ActiveCfg = Release|x86
 		{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}.Release|x86.Build.0 = Release|x86
+		{80AFD4F1-2971-46E7-BBE9-2A8B12AE2CC1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{80AFD4F1-2971-46E7-BBE9-2A8B12AE2CC1}.Debug|x86.Build.0 = Debug|Any CPU
+		{80AFD4F1-2971-46E7-BBE9-2A8B12AE2CC1}.Release|x86.ActiveCfg = Release|Any CPU
+		{80AFD4F1-2971-46E7-BBE9-2A8B12AE2CC1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -422,5 +428,6 @@ Global
 		{7EE620EE-533A-4D4F-9F7E-AD54CA872B93} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
 		{1CD36F37-70FF-442F-8B1E-528F41D76F34} = {7EE620EE-533A-4D4F-9F7E-AD54CA872B93}
 		{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0} = {7EE620EE-533A-4D4F-9F7E-AD54CA872B93}
+		{80AFD4F1-2971-46E7-BBE9-2A8B12AE2CC1} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 	EndGlobalSection
 EndGlobal
