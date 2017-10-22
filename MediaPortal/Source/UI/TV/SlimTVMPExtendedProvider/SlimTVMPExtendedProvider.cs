@@ -771,6 +771,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
+      return CreateScheduleByTime(channel, "Manual", from, to, recordingType, out schedule);
+    }
+
+    public bool CreateScheduleByTime(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    {
       Channel indexChannel = channel as Channel;
       schedule = null;
       if (indexChannel == null)
@@ -781,12 +786,22 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       try
       {
-        return TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, "Manual", from, to, (WebScheduleType)recordingType);
+        return TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, title, from, to, (WebScheduleType)recordingType);
       }
       catch
       {
         return false;
       }
+    }
+
+    public bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool EditSchedule(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    {
+      throw new NotImplementedException();
     }
 
     public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
@@ -833,6 +848,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       {
         return false;
       }
+    }
+
+    public bool UnCancelSchedule(IProgram program)
+    {
+      throw new NotImplementedException();
     }
 
     public bool GetSchedules(out IList<ISchedule> schedules)
@@ -904,6 +924,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
       return !string.IsNullOrEmpty(fileOrStream);
     }
+
     #endregion
   }
 }

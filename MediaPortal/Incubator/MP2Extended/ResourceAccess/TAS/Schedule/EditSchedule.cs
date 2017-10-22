@@ -49,18 +49,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
         scheduleSrc = schedules.Single(x => x.ScheduleId == scheduleId);
       }
 
-      bool result = false;
-      //bool result = scheduleControl.EditSchedule(scheduleSrc, 
-      //  (channelId != null) ? channel : null, 
-      //  title, 
-      //  startTime,
-      //  endTime,
-      //  (scheduleType != null) ? (ScheduleRecordingType?)scheduleType : (ScheduleRecordingType?)null,
-      //  preRecordInterval,
-      //  postRecordInterval,
-      //  directory,
-      //  priority);
-
+      bool result = scheduleControl.EditSchedule(scheduleSrc,
+        (channelId != null) ? channel : null,
+        title,
+        startTime,
+        endTime,
+        (scheduleType != null) ? (ScheduleRecordingType?)scheduleType : (ScheduleRecordingType?)null,
+        preRecordInterval,
+        postRecordInterval,
+        directory,
+        priority);
 
       return new WebBoolResult { Result = result };
     }

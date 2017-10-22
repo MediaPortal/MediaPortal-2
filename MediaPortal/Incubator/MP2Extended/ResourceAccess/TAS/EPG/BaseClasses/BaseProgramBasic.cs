@@ -22,7 +22,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
         Title = program.Title,
         Id = program.ProgramId,
         DurationInMinutes = Convert.ToInt32(program.EndTime.Subtract(program.StartTime).TotalMinutes),
-        //IsScheduled = recordingStatus.IsScheduled,
+        IsScheduled = recordingStatus.IsScheduled,
       };
 
       return webProgramBasic;

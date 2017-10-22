@@ -40,5 +40,15 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     /// Gets or Sets the Name.
     /// </summary>    
     String Name { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the MediaType.
+    /// </summary>
+    MediaType MediaType { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the SortOrder
+    /// </summary>    
+    int SortOrder { get; set; }
   }
 }

@@ -21,28 +21,27 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   {
     public dynamic Process(IHttpRequest request, IHttpSession session)
     {
-      return new WebDiskSpaceInformation();
-      //HttpParam httpParam = request.Param;
-      //string id = httpParam["id"].Value;
+      HttpParam httpParam = request.Param;
+      string id = httpParam["id"].Value;
 
-      //int idInt;
-      //if (!Int32.TryParse(id, out idInt))
-      //{
-      //  throw new BadRequestException(String.Format("GetRecordingDiskInformationForCard: Couldn't convert id to int: {0}", id));
-      //}
-      
-      //if (!ServiceRegistration.IsRegistered<ITvProvider>())
-      //  throw new BadRequestException("GetRecordingDiskInformationForCard: ITvProvider not found");
+      int idInt;
+      if (!Int32.TryParse(id, out idInt))
+      {
+        throw new BadRequestException(String.Format("GetRecordingDiskInformationForCard: Couldn't convert id to int: {0}", id));
+      }
 
-      //ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
+      if (!ServiceRegistration.IsRegistered<ITvProvider>())
+        throw new BadRequestException("GetRecordingDiskInformationForCard: ITvProvider not found");
 
-      //if (tunerInfo == null)
-      //  throw new BadRequestException("GetRecordingDiskInformationForCard: ITunerInfo not present");
+      ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
 
-      //List<ICard> cards;
-      //tunerInfo.GetCards(out cards);
+      if (tunerInfo == null)
+        throw new BadRequestException("GetRecordingDiskInformationForCard: ITunerInfo not present");
 
-      //return DiskSpaceInformation.GetSpaceInformation(cards.Select(card => Card(card)).Single(x => x.Id == idInt).RecordingFolder);
+      List<ICard> cards;
+      tunerInfo.GetCards(out cards);
+
+      return DiskSpaceInformation.GetSpaceInformation(cards.Select(card => Card(card)).Single(x => x.Id == idInt).RecordingFolder);
     }
 
     internal static ILogger Logger

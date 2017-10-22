@@ -20,26 +20,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetActiveUsers: ITvProvider not found");
 
-      return new List<WebUser>();
+      ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
 
-      //ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
+      if (tunerInfo == null)
+        throw new BadRequestException("GetActiveUsers: ITunerInfo not present");
 
-      //if (tunerInfo == null)
-      //  throw new BadRequestException("GetActiveUsers: ITunerInfo not present");
+      List<IVirtualCard> cards;
+      tunerInfo.GetActiveVirtualCards(out cards);
 
-      //List<IVirtualCard> cards;
-      //tunerInfo.GetActiveVirtualCards(out cards);
-
-      //return cards.Select(card => new WebUser
-      //{
-      //  ChannelId = card.User.IdChannel, 
-      //  Name = card.User.Name, 
-      //  CardId = card.User.CardId, 
-      //  HeartBeat = card.User.HeartBeat, 
-      //  IsAdmin = card.User.IsAdmin, 
-      //  SubChannel = card.User.SubChannel, 
-      //  TvStoppedReason = (int)card.User.TvStoppedReason,
-      //}).ToList();
+      return cards.Select(card => new WebUser
+      {
+        ChannelId = card.User.IdChannel,
+        Name = card.User.Name,
+        CardId = card.User.CardId,
+        HeartBeat = card.User.HeartBeat,
+        IsAdmin = card.User.IsAdmin,
+        SubChannel = card.User.SubChannel,
+        TvStoppedReason = (int)card.User.TvStoppedReason,
+      }).ToList();
     }
 
     internal static ILogger Logger

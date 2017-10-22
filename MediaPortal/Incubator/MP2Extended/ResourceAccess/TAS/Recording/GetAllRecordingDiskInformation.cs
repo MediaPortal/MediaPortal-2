@@ -22,19 +22,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetAllRecordingDiskInformation: ITvProvider not found");
 
-      return new List<WebDiskSpaceInformation>();
-      //ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
+      ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
 
-      //if (tunerInfo == null)
-      //  throw new BadRequestException("GetAllRecordingDiskInformation: ITunerInfo not present");
+      if (tunerInfo == null)
+        throw new BadRequestException("GetAllRecordingDiskInformation: ITunerInfo not present");
 
-      //List<ICard> cards;
-      //tunerInfo.GetCards(out cards);
+      List<ICard> cards;
+      tunerInfo.GetCards(out cards);
 
-      //return cards.Select(card => Card(card)).Select(x => x.RecordingFolder).Distinct().AsQueryable()
-      //          .Select(x => DiskSpaceInformation.GetSpaceInformation(x))
-      //          .GroupBy(x => x.Disk, (key, list) => list.First())
-      //          .ToList();
+      return cards.Select(card => Card(card)).Select(x => x.RecordingFolder).Distinct().AsQueryable()
+                .Select(x => DiskSpaceInformation.GetSpaceInformation(x))
+                .GroupBy(x => x.Disk, (key, list) => list.First())
+                .ToList();
     }
 
     internal static ILogger Logger

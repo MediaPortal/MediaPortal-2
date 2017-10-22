@@ -11,9 +11,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
       {
         GroupName = @group.Name,
         Id = @group.ChannelGroupId,
-        //IsRadio = @group.MediaType == MediaType.Radio,
-        //IsTv = @group.MediaType == MediaType.TV,
-        //SortOrder = @group.SortOrder,
+        IsRadio = @group.MediaType == MediaType.Radio,
+        IsTv = @group.MediaType == MediaType.TV,
+        SortOrder = @group.SortOrder,
         IsChanged = true,
       };
       //webChannelGroup.IsChanged;

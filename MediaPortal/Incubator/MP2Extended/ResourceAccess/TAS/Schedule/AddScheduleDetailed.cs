@@ -35,11 +35,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 
       bool result = false;
 
-      //IChannel channel;
-      //ISchedule schedule;
-      //if (channelAndGroupInfo.GetChannel(channelId, out channel))
-      //  result = scheduleControl.CreateScheduleDetailed(channel, title, startTime, endTime, (ScheduleRecordingType)scheduleType, preRecordInterval, postRecordInterval, directory, priority, out schedule);
-
+      IChannel channel;
+      ISchedule schedule;
+      if (channelAndGroupInfo.GetChannel(channelId, out channel))
+        result = scheduleControl.CreateScheduleDetailed(channel, title, startTime, endTime, (ScheduleRecordingType)scheduleType, preRecordInterval, postRecordInterval, directory, priority, out schedule);
 
       return new WebBoolResult { Result = result };
     }

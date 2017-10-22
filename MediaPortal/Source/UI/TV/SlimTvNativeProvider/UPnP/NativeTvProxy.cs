@@ -522,10 +522,15 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
+      return CreateScheduleByTime(channel, "Manual", from, to, recordingType, out schedule);
+    }
+
+    public bool CreateScheduleByTime(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    {
       try
       {
         CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE_BY_TIME);
-        IList<object> inParameters = new List<object> { channel.ChannelId, from, to, (int)recordingType };
+        IList<object> inParameters = new List<object> { channel.ChannelId, title, from, to, (int)recordingType };
         IList<object> outParameters = action.InvokeAction(inParameters);
         bool result = (bool)outParameters[0];
         schedule = result ? (ISchedule)outParameters[1] : null;
@@ -537,6 +542,16 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         schedule = null;
         return false;
       }
+    }
+
+    public bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool EditSchedule(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    {
+      throw new NotImplementedException();
     }
 
     public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
@@ -569,6 +584,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         NotifyException(ex);
         return false;
       }
+    }
+
+    public bool UnCancelSchedule(IProgram program)
+    {
+      throw new NotImplementedException();
     }
 
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
