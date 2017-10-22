@@ -933,9 +933,6 @@
     <Content Include="Skin\BlueVision\themes\default\styles\NewsStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\BlueVision\themes\default\styles\VirtualKeyboardStyle.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\dialogBlueVisionConfiguration.xaml">
@@ -1028,9 +1025,6 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Win10\styles\OtherControls.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\styles\VirtualKeyboardStyle.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Win10\styles\WeatherStyles.xaml">

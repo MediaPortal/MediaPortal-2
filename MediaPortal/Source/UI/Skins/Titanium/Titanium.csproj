@@ -364,11 +364,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Titanium\themes\default\styles\VirtualKeyboardStyle.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\Titanium\screens\SimpleShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>

@@ -2151,4 +2151,42 @@
     </Setter>
   </Style>
 
+  <!-- Virtual Keyboard Styles -->
+  <ResourceWrapper x:Key="VKMargin" Resource="4"/>
+
+  <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource WizardButtonStyle}" TargetType="{x:Type Button}">
+    <Setter Property="FontSize" Value="{ThemeResource NormalFontSize}"/>
+    <Setter Property="FontFamily" Value="SegoeUIBold"/>
+  </Style>
+
+  <Style x:Key="VirtualKeyboardControlStyle" TargetType="{x:Type VirtualKeyboardControl}" >
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border BorderThickness="5" CornerRadius="6">
+            <Border.BorderBrush>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+                <GradientStop Color="#D9FFFFFF" Offset="0"/>
+                <GradientStop Color="#59FFFFFF" Offset="0.7"/>
+                <GradientStop Color="#59FFFFFF" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.BorderBrush>
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                <GradientStop Color="#FF447da7" Offset="0"/>
+                <GradientStop Color="#FF124273" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <StackPanel>
+              <Label Content="{Binding RelativeSource={RelativeSource TemplatedParent},Path=VisibleText}"
+                     IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ShowVisibleText}" FontSize="{ThemeResource NormalFontSize}"
+                     Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+              <VirtualKeyboardPresenter/>
+            </StackPanel>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>
