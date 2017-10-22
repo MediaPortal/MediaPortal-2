@@ -27,6 +27,12 @@ using System.Collections.Generic;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using System.Linq;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common;
+using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
