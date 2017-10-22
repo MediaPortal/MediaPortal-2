@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,18 +23,14 @@
 #endregion
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor
 {
@@ -47,35 +43,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Image };
 
-    static TranscodeImageMetadataExtractor()
-    {
-      // All non-default media item aspects must be registered
-      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemImageAspect.Metadata);
-      TranscodeImageMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodeImageMetadataExtractorSettings>();
-      InitializeExtensions(settings);
-    }
-
-    /// <summary>
-    /// (Re)initializes the movie extensions for which this <see cref="TranscodeImageMetadataExtractorSettings"/> used.
-    /// </summary>
-    /// <param name="settings">Settings object to read the data from.</param>
-    internal static void InitializeExtensions(TranscodeImageMetadataExtractorSettings settings)
-    {
-    }
-
     public TranscodeImageMetadataExtractor()
     {
       Metadata = new MetadataExtractorMetadata(
         MetadataExtractorId,
         "Transcode image metadata extractor",
-        MetadataExtractorPriority.Core,
+        MetadataExtractorPriority.Extended,
         true,
         MEDIA_CATEGORIES,
         new[]
           {
             MediaAspect.Metadata,
-            TranscodeItemImageAspect.Metadata
           });
     }
 
@@ -87,15 +65,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     {
       try
       {
+        if (forceQuickMode)
+          return false;
+
+        if (!importOnly)
+          return false;
+
+        if (!(mediaItemAccessor is IFileSystemResourceAccessor))
+          return false;
+
+        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+        {
+          if (!rah.LocalFsResourceAccessor.IsFile)
+            return false;
+        }
+
         MetadataContainer metadata = MediaAnalyzer.ParseMediaStream(mediaItemAccessor);
         if (metadata == null)
         {
           Logger.Info("TranscodeImageMetadataExtractor: Error analyzing stream '{0}'", mediaItemAccessor.CanonicalLocalResourcePath);
-        }
-        else if (metadata.IsImage)
-        {
-          ConvertMetadataToAspectData(metadata, extractedAspectData);
-          return true;
         }
       }
       catch (Exception e)
@@ -107,10 +95,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
       return false;
     }
 
-    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
     {
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemImageAspect.ATTR_CONTAINER, info.Metadata.ImageContainerType.ToString());
-      MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemImageAspect.ATTR_PIXEL_FORMAT, info.Image.PixelFormatType.ToString());
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
+      return false;
     }
 
     #endregion

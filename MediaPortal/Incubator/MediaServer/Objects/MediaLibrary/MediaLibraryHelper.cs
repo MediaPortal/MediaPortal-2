@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,7 +30,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -48,22 +47,19 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       var library = ServiceRegistration.Get<IMediaLibrary>();
 
       var necessaryMIATypeIDs = new Guid[]
-                                  {
-                                    ProviderResourceAspect.ASPECT_ID,
-                                    MediaAspect.ASPECT_ID,
-                                  };
+      {
+        ProviderResourceAspect.ASPECT_ID,
+        MediaAspect.ASPECT_ID,
+        ImporterAspect.ASPECT_ID
+      };
       var optionalMIATypeIDs = new Guid[]
-                                 {
-                                   DirectoryAspect.ASPECT_ID,
-                                   AudioAspect.ASPECT_ID,
-                                   ImageAspect.ASPECT_ID,
-                                   VideoAspect.ASPECT_ID,
-                                   TranscodeItemAudioAspect.ASPECT_ID,
-                                   TranscodeItemImageAspect.ASPECT_ID,
-                                   TranscodeItemVideoAspect.ASPECT_ID,
-                                   TranscodeItemVideoAudioAspect.ASPECT_ID,
-                                   TranscodeItemVideoEmbeddedAspect.ASPECT_ID
-                                 };
+      {
+        DirectoryAspect.ASPECT_ID,
+        AudioAspect.ASPECT_ID,
+        ImageAspect.ASPECT_ID,
+        VideoAspect.ASPECT_ID,
+        GenreAspect.ASPECT_ID,
+      };
 
       return library.GetMediaItem(id, necessaryMIATypeIDs, optionalMIATypeIDs);
     }
@@ -91,6 +87,10 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
         {
           obj = new MediaLibraryMusicTrack(item, parent.Client);
         }
+        else if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+        {
+          obj = new MediaLibraryAlbumItem(item, parent.Client);
+        }
         else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
         {
           obj = new MediaLibraryImageItem(item, parent.Client);
@@ -101,15 +101,11 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
         }
         else if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
         {
-          obj = new MediaLibrarySeriesItem(item, null, parent.Client);
+          obj = new MediaLibrarySeriesItem(item, parent.Client);
         }
         else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
         {
-          obj = new MediaLibrarySeasonItem(item, null, parent.Client);
-        }
-        else if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
-        {
-          obj = new MediaLibraryAlbumItem(item, parent.Client);
+          obj = new MediaLibrarySeasonItem(item, parent.Client);
         }
         else
         {

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,6 +31,7 @@ using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.Transcoding.Service.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -55,21 +56,23 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
       LoadTranscodeSettings();
 
-      var converter = new MediaConverter();
-      converter.CleanUpTranscodeCache();
-      ServiceRegistration.Set<IMediaConverter>(converter);
-      Logger.Debug("TranscodingService: Registered FFMpeg MediaConverter.");
+      if (Settings.Transcoder == Transcoder.FFMpeg)
+      {
+        var converter = new FFMpegMediaConverter();
+        converter.CleanUpTranscodeCache();
+        ServiceRegistration.Set<IMediaConverter>(converter);
+        Logger.Debug("TranscodingService: Registered FFMpeg MediaConverter.");
 
-      var analyzer = new MediaAnalyzer();
-      ServiceRegistration.Set<IMediaAnalyzer>(analyzer);
-      Logger.Debug("TranscodingService: Registered FFMpeg MediaAnalyzer.");
+        var analyzer = new FFMpegMediaAnalyzer();
+        ServiceRegistration.Set<IMediaAnalyzer>(analyzer);
+        Logger.Debug("TranscodingService: Registered FFMpeg MediaAnalyzer.");
+      }
     }
 
     private void TidyUpCache()
     {
       IMediaConverter converter = ServiceRegistration.Get<IMediaConverter>(false);
-      if (converter != null && converter is MediaConverter)
-        ((MediaConverter)converter).CleanUpTranscodeCache();
+      converter?.CleanUpTranscodeCache();
     }
 
     private void LoadTranscodeSettings()
@@ -104,11 +107,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public void Shutdown()
     {
       IMediaConverter converter = ServiceRegistration.Get<IMediaConverter>(false);
-      if (converter != null && converter is MediaConverter)
-      {
-        ((MediaConverter)converter).StopAllTranscodes();
-        ((MediaConverter)converter).CleanUpTranscodeCache();
-      }
+      converter?.StopAllTranscodes();
+      converter?.CleanUpTranscodeCache();
 
       SaveTranscodeSettings();
     }

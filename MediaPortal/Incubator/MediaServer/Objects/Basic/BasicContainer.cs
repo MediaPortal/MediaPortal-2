@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,10 +26,12 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
@@ -44,11 +46,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       VideoAspect.ASPECT_ID,
       AudioAspect.ASPECT_ID,
       ImageAspect.ASPECT_ID,
-      TranscodeItemAudioAspect.ASPECT_ID,
-      TranscodeItemImageAspect.ASPECT_ID,
-      TranscodeItemVideoAspect.ASPECT_ID,
-      TranscodeItemVideoAudioAspect.ASPECT_ID,
-      TranscodeItemVideoEmbeddedAspect.ASPECT_ID
     };
 
     protected static readonly Guid[] NECESSARY_SHARE_MIA_TYPE_IDS = {
@@ -64,29 +61,30 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       ImporterAspect.ASPECT_ID,
       MediaAspect.ASPECT_ID,
       AudioAspect.ASPECT_ID,
-      TranscodeItemAudioAspect.ASPECT_ID,
       ProviderResourceAspect.ASPECT_ID
     };
-    protected static readonly Guid[] OPTIONAL_MUSIC_MIA_TYPE_IDS = null;
+    protected static readonly Guid[] OPTIONAL_MUSIC_MIA_TYPE_IDS = {
+      GenreAspect.ASPECT_ID,
+    };
 
     protected static readonly Guid[] NECESSARY_ALBUM_MIA_TYPE_IDS = {
       MediaAspect.ASPECT_ID,
       AudioAlbumAspect.ASPECT_ID,
       ProviderResourceAspect.ASPECT_ID
     };
-    protected static readonly Guid[] OPTIONAL_ALBUM_MIA_TYPE_IDS = null;
+    protected static readonly Guid[] OPTIONAL_ALBUM_MIA_TYPE_IDS = {
+      GenreAspect.ASPECT_ID,
+    };
 
     protected static readonly Guid[] NECESSARY_EPISODE_MIA_TYPE_IDS = {
       ImporterAspect.ASPECT_ID,
       MediaAspect.ASPECT_ID,
       VideoAspect.ASPECT_ID,
       EpisodeAspect.ASPECT_ID,
-      TranscodeItemVideoAspect.ASPECT_ID,
-      TranscodeItemVideoAudioAspect.ASPECT_ID,
       ProviderResourceAspect.ASPECT_ID
     };
     protected static readonly Guid[] OPTIONAL_EPISODE_MIA_TYPE_IDS = {
-      TranscodeItemVideoEmbeddedAspect.ASPECT_ID
+      GenreAspect.ASPECT_ID,
     };
 
     protected static readonly Guid[] NECESSARY_SEASON_MIA_TYPE_IDS = {
@@ -101,13 +99,14 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       SeriesAspect.ASPECT_ID,
       ProviderResourceAspect.ASPECT_ID
     };
-    protected static readonly Guid[] OPTIONAL_SERIES_MIA_TYPE_IDS = null;
+    protected static readonly Guid[] OPTIONAL_SERIES_MIA_TYPE_IDS = {
+      GenreAspect.ASPECT_ID,
+    };
 
     protected static readonly Guid[] NECESSARY_IMAGE_MIA_TYPE_IDS = {
       ImporterAspect.ASPECT_ID,
       MediaAspect.ASPECT_ID,
       ImageAspect.ASPECT_ID,
-      TranscodeItemImageAspect.ASPECT_ID,
       ProviderResourceAspect.ASPECT_ID
     };
     protected static readonly Guid[] OPTIONAL_IMAGE_MIA_TYPE_IDS = null;
@@ -117,21 +116,28 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       MediaAspect.ASPECT_ID,
       VideoAspect.ASPECT_ID,
       MovieAspect.ASPECT_ID,
-      TranscodeItemVideoAspect.ASPECT_ID,
-      TranscodeItemVideoAudioAspect.ASPECT_ID,
       ProviderResourceAspect.ASPECT_ID
     };
     protected static readonly Guid[] OPTIONAL_MOVIE_MIA_TYPE_IDS = {
-      TranscodeItemVideoEmbeddedAspect.ASPECT_ID
+      GenreAspect.ASPECT_ID,
     };
 
+    protected static readonly Guid[] NECESSARY_PERSON_MIA_TYPE_IDS = {
+      MediaAspect.ASPECT_ID,
+      PersonAspect.ASPECT_ID,
+    };
+    protected static readonly Guid[] OPTIONAL_PERSON_MIA_TYPE_IDS = null;
+
     protected readonly List<BasicObject> _children = new List<BasicObject>();
+    protected readonly Guid? _userId;
 
     private string _containerClass = "object.container";
 
     public BasicContainer(string id, EndPointSettings client) 
       : base(id, client)
     {
+      _userId = client.UserId ?? client.ClientId;
+
       Restricted = true;
       Searchable = false;
       SearchClass = new List<IDirectorySearchClass>();
@@ -142,7 +148,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
     public void Add(BasicObject node)
     {
       if (node == null) return;
-      //Logger.Debug("MediaServer adding {0} to {1}", node.Key, Key);
       node.Parent = this;
       if (!_children.Contains(node))
       {
@@ -190,6 +195,11 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
     {
       get { return _containerClass; }
       set { _containerClass = value; }
+    }
+
+    protected Guid? UserId
+    {
+      get => _userId;
     }
 
     public virtual IList<IDirectoryCreateClass> CreateClass { get; set; }

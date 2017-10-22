@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,28 +30,28 @@ namespace MediaPortal.Plugins.MediaServer.Objects
     string Uri { get; set; }
 
     [DirectoryProperty("@size", Required = false)]
-    ulong Size { get; set; }
+    ulong? Size { get; set; }
 
     [DirectoryProperty("@duration", Required = false)]
     string Duration { get; set; }
 
     [DirectoryProperty("@bitrate", Required = false)]
-    uint BitRate { get; set; }
+    uint? BitRate { get; set; }
 
     [DirectoryProperty("@sampleFrequency", Required = false)]
-    uint SampleFrequency { get; set; }
+    uint? SampleFrequency { get; set; }
 
     [DirectoryProperty("@bitsPerSample", Required = false)]
-    uint BitsPerSample { get; set; }
+    uint? BitsPerSample { get; set; }
 
     [DirectoryProperty("@nrAudioChannels", Required = false)]
-    uint NumberOfAudioChannels { get; set; }
+    uint? NumberOfAudioChannels { get; set; }
 
     [DirectoryProperty("@resolution", Required = false)]
     string Resolution { get; set; }
 
     [DirectoryProperty("@colorDepth", Required = false)]
-    uint ColorDepth { get; set; }
+    uint? ColorDepth { get; set; }
 
     [DirectoryProperty("@protocolInfo")]
     string ProtocolInfo { get; set; }

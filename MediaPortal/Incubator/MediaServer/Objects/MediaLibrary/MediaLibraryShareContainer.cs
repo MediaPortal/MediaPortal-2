@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,22 +48,14 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     private IDictionary<Guid, Share> GetShares()
     {
-      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      if (CategoryFilter == null || CategoryFilter.Count == 0)
-      {
-        return library.GetShares(null);
-      }
+      IDictionary<Guid, Share> shares = new Dictionary<Guid, Share>();
 
-      Dictionary<Guid, Share> shares = new Dictionary<Guid, Share>();
+      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       foreach (KeyValuePair<Guid, Share> share in library.GetShares(null))
       {
-        foreach (string category in CategoryFilter)
+        if ((CategoryFilter == null || CategoryFilter.Count == 0 || share.Value.MediaCategories.Any(x => CategoryFilter.Contains(x))))
         {
-          if (share.Value.MediaCategories.Where(x => x.Contains(category)).FirstOrDefault() != null)
-          {
-            shares.Add(share.Key, share.Value);
-            break;
-          }
+          shares.Add(share.Key, share.Value);
         }
       }
       return shares;
@@ -71,7 +63,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public override void Initialise()
     {
-      Logger.Debug("MediaLibraryShareContainer: Initialise");
+      Logger.Debug("MediaServer initialise share containers");
 
       IDictionary<Guid, Share> shares = GetShares();
 

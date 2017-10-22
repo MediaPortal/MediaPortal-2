@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,7 +41,6 @@ using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Plugins.MediaServer.Parser;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer
 {
@@ -483,19 +482,14 @@ namespace MediaPortal.Plugins.MediaServer
       if (necessaryMIATypes.Contains(VideoAspect.ASPECT_ID) == false)
       {
         optionalMIATypes.Add(VideoAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemVideoAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemVideoAudioAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemVideoEmbeddedAspect.ASPECT_ID);
       }
       if (necessaryMIATypes.Contains(AudioAspect.ASPECT_ID) == false)
       {
         optionalMIATypes.Add(AudioAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemAudioAspect.ASPECT_ID);
       }
       if (necessaryMIATypes.Contains(ImageAspect.ASPECT_ID) == false)
       {
         optionalMIATypes.Add(ImageAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemImageAspect.ASPECT_ID);
       }
       optionalMIATypes.Add(DirectoryAspect.ASPECT_ID);
       optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
@@ -506,7 +500,7 @@ namespace MediaPortal.Plugins.MediaServer
       searchQuery.Limit = requestedCount;
 
       Logger.Debug("MediaServer - OnSearch query {0}", searchQuery);
-      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true, null, false);
+      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true, deviceClient.UserId ?? deviceClient.ClientId, false);
 
       var msgBuilder = new GenericDidlMessageBuilder();
       var o = deviceClient.RootContainer.FindObject(objectId);

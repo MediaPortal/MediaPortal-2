@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,7 +37,8 @@ using System;
 using System.Threading;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using System.Linq;
+using MediaPortal.Plugins.Transcoding.Interfaces.MetaData;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
 {
@@ -125,8 +126,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
       {
         if (_channels.ContainsKey(ChannelId))
         {
-          string resourcePathStr = (string)MediaItemHelper.GetAttributeValue(_channels[ChannelId].MetaData.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-          var resourcePath = ResourcePath.Deserialize(resourcePathStr);
+          var resourcePath = ResourcePath.Deserialize(_channels[ChannelId].MetaData.PrimaryProviderResourcePath());
           IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
           if (stra is ILocalFsResourceAccessor)
           {
@@ -172,8 +172,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
       {
         if (_channels.ContainsKey(ChannelId))
         {
-          string resourcePathStr = (string)MediaItemHelper.GetAttributeValue(_channels[ChannelId].MetaData.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-          var resourcePath = ResourcePath.Deserialize(resourcePathStr);
+          var resourcePath = ResourcePath.Deserialize(_channels[ChannelId].MetaData.PrimaryProviderResourcePath());
           IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
           return stra;
         }
@@ -190,8 +189,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
         channelId = _clients[ClientId];
         if (_channels.ContainsKey(channelId))
         {
-          string resourcePathStr = (string)MediaItemHelper.GetAttributeValue(_channels[channelId].MetaData.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-          var resourcePath = ResourcePath.Deserialize(resourcePathStr);
+          var resourcePath = ResourcePath.Deserialize(_channels[channelId].MetaData.PrimaryProviderResourcePath());
           IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
           if (stra is INetworkResourceAccessor)
           {
@@ -257,9 +255,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
             _channels[ChannelId].MetaData = LiveMediaItem;
             _clients.Add(ClientId, ChannelId);
             _timeShiftings.Add(ClientId, slot);
-
-            string resourcePathStr = (string)MediaItemHelper.GetAttributeValue(LiveMediaItem.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-            var resourcePath = ResourcePath.Deserialize(resourcePathStr);
+            
+            var resourcePath = ResourcePath.Deserialize(LiveMediaItem.PrimaryProviderResourcePath());
             IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
             if (stra is ILocalFsResourceAccessor)
             {

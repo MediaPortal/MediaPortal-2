@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,7 +28,6 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -42,19 +41,21 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       Playlist = new List<string>();
       Contributor = new List<string>();
 
-      var album = MediaItemHelper.GetAttributeValue(item.Aspects, AudioAspect.ATTR_ALBUM);
-      if (album != null) Album.Add(album.ToString());
+      if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out SingleMediaItemAspect audioAspect))
+      {
+        var album = audioAspect.GetAttributeValue(AudioAspect.ATTR_ALBUM);
+        if (album != null) Album.Add(album.ToString());
 
-      var artists = MediaItemHelper.GetCollectionAttributeValues<object>(Item.Aspects, AudioAspect.ATTR_ARTISTS);
-      if (artists != null) Artist = new List<string>(artists.Cast<string>());
+        var artists = audioAspect.GetCollectionAttribute(AudioAspect.ATTR_ARTISTS);
+        if (artists != null) Artist = new List<string>(artists.Cast<string>());
 
-      var composers = MediaItemHelper.GetCollectionAttributeValues<object>(Item.Aspects, AudioAspect.ATTR_COMPOSERS);
-      if (composers != null) Contributor = new List<string>(composers.Cast<string>());
+        var composers = audioAspect.GetCollectionAttribute(AudioAspect.ATTR_COMPOSERS);
+        if (composers != null) Contributor = new List<string>(composers.Cast<string>());
 
-      var originalTrack = MediaItemHelper.GetAttributeValue(Item.Aspects, AudioAspect.ATTR_TRACK);
-      if (originalTrack != null) OriginalTrackNumber = Convert.ToInt32(originalTrack.ToString());
-
-      object oValue = MediaItemHelper.GetAttributeValue(Item.Aspects, MediaAspect.ATTR_RECORDINGTIME);
+        var originalTrack = audioAspect.GetAttributeValue(AudioAspect.ATTR_TRACK);
+        if (originalTrack != null) OriginalTrackNumber = Convert.ToInt32(originalTrack.ToString());
+      }
+      object oValue = item[MediaAspect.ASPECT_ID][0].GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
       if (oValue != null)
       {
         Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");

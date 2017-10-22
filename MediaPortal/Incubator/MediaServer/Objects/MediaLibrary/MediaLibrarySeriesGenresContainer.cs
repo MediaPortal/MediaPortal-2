@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,15 +22,14 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  internal class MediaLibrarySeriesGenresContainer : MediaLibrarySeriesAttributeGroupsContainer
+  internal class MediaLibrarySeriesGenresContainer : MediaLibraryGenreContainer
   {
     public MediaLibrarySeriesGenresContainer(string id, EndPointSettings client)
-      : base(id, GenreAspect.ATTR_GENRE, client)
+      : base(id, NECESSARY_SERIES_MIA_TYPE_IDS, client)
     {
     }
   }

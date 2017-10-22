@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,31 +42,31 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       var dlnaProtocolInfo = DlnaProtocolInfoFactory.GetThumbnailProfileInfo(Item.MimeType, Item.ProfileId).ToString();
       if (dlnaProtocolInfo != null)
         ProtocolInfo = dlnaProtocolInfo.ToString();
-      BitRate = uint.MinValue;
-      SampleFrequency = uint.MinValue;
-      NumberOfAudioChannels = uint.MinValue;
-      BitsPerSample = uint.MinValue;
-      ColorDepth = uint.MinValue;
+      BitRate = null;
+      SampleFrequency = null;
+      NumberOfAudioChannels = null;
+      BitsPerSample = null;
+      ColorDepth = null;
       Resolution = Item.Client.Profile.Settings.Thumbnails.MaxWidth + "x" + Item.Client.Profile.Settings.Thumbnails.MaxHeight;
     }
 
     public string Uri { get; set; }
 
-    public ulong Size { get; set; }
+    public ulong? Size { get; set; }
 
     public string Duration { get; set; }
 
-    public uint BitRate { get; set; }
+    public uint? BitRate { get; set; }
 
-    public uint SampleFrequency { get; set; }
+    public uint? SampleFrequency { get; set; }
 
-    public uint BitsPerSample { get; set; }
+    public uint? BitsPerSample { get; set; }
 
-    public uint NumberOfAudioChannels { get; set; }
+    public uint? NumberOfAudioChannels { get; set; }
 
     public string Resolution { get; set; }
 
-    public uint ColorDepth { get; set; }
+    public uint? ColorDepth { get; set; }
 
     public string ProtocolInfo { get; set; }
 

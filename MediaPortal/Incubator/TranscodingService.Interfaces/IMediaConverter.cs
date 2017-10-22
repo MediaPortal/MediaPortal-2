@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -109,6 +109,16 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     /// <param name="ClientId">ID of the client</param>
     /// <param name="TranscodeId">ID of the transcode</param>
     void StopTranscode(string ClientId, string TranscodeId);
+
+    /// <summary>
+    /// Deletes transcoded files from the cache if needed
+    /// </summary>
+    void CleanUpTranscodeCache();
+
+    /// <summary>
+    /// Stops all currently running client transcodes
+    /// </summary>
+    void StopAllTranscodes();
 
     #endregion
 

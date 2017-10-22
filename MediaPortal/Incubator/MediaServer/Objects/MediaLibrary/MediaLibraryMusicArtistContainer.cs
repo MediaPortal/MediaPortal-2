@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,44 +22,16 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
-using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  internal class MediaLibraryMusicArtistContainer : BasicContainer
+  internal class MediaLibraryMusicArtistContainer : MediaLibraryPersonContainer
   {
     public MediaLibraryMusicArtistContainer(string id, EndPointSettings client)
-      : base(id, client)
+      : base(id, PersonAspect.ROLE_ARTIST, AudioAspect.ROLE_TRACK, NECESSARY_MUSIC_MIA_TYPE_IDS, client)
     {
-    }
-
-    public HomogenousMap GetItems()
-    {
-      List<Guid> necessaryMias = new List<Guid>(NECESSARY_MUSIC_MIA_TYPE_IDS);
-      if (necessaryMias.Contains(AudioAspect.ASPECT_ID)) necessaryMias.Remove(AudioAspect.ASPECT_ID); //Group MIA cannot be present
-      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(AudioAspect.ATTR_ARTISTS, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true, true);
-    }
-
-    public override void Initialise()
-    {
-      HomogenousMap items = GetItems();
-
-      foreach (KeyValuePair<object, object> item in items)
-      {
-        if (item.Key == null) continue;
-        string title = item.Key.ToString();
-        string key = Id + ":" + title;
-
-        Add(new MediaLibraryMusicArtistItem(key, title, Client));
-      }
     }
   }
 }

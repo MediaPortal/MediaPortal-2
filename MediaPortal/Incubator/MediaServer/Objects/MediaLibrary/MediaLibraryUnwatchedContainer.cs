@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,16 +26,24 @@ using System;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.UserProfileDataManagement;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryUnwatchedContainer : MediaLibraryContainer
   {
     public MediaLibraryUnwatchedContainer(string id, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, EndPointSettings client)
-      : base(id, "Unwatched", necessaryMiaTypeIds, optionalMiaTypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-        new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT),
-        new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0)), client)
+      : base(id, "Unwatched", necessaryMiaTypeIds, optionalMiaTypeIds, null, client)
     {
+      _query = new MediaItemQuery(necessaryMiaTypeIds, optionalMiaTypeIds, null)
+      {
+        Filter = UserId.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+            new EmptyUserDataFilter(UserId.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
+            new RelationalUserDataFilter(UserId.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0")) : null,
+        Limit = 10, 
+        SortInformation = new List<SortInformation> { new SortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+      };
     }
   }
 }

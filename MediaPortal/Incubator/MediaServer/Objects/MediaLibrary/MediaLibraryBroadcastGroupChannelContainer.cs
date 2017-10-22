@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -74,7 +74,5 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     }
 
     public int GroupId { get; set; }
-
-    public MediaType GroupMediaType { get; set; }
   }
 }

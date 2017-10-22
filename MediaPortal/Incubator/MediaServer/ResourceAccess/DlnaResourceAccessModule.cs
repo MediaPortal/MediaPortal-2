@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,7 +49,6 @@ using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 using MediaPortal.Plugins.Transcoding.Interfaces;
 using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Plugins.MediaServer.Database;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
@@ -472,7 +471,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             bHandled = true;
             if (dlnaItem.IsTranscoded)
             {
-              using (var subStream = MediaConverter.GetSubtitleStream(deviceClient.ClientId, (VideoTranscoding)dlnaItem.TranscodingParameter))
+              using (var subStream = MediaConverter.GetSubtitleStream(deviceClient.ClientId.ToString(), (VideoTranscoding)dlnaItem.TranscodingParameter))
               {
                 response.ContentType = ((VideoTranscoding)dlnaItem.TranscodingParameter).TargetSubtitleMime;
                 if (subStream != null)
@@ -484,7 +483,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             }
             else
             {
-              using (var subStream = MediaConverter.GetSubtitleStream(deviceClient.ClientId, (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter))
+              using (var subStream = MediaConverter.GetSubtitleStream(deviceClient.ClientId.ToString(), (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter))
               {
                 response.ContentType = ((VideoTranscoding)dlnaItem.SubtitleTranscodingParameter).TargetSubtitleMime;
                 if (subStream != null)
@@ -1130,7 +1129,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
           return;
         }
 
-        _clientManager.AttachClient(client.ClientId, clientID, "DLNA Client " + client.Profile.Name);
+        _clientManager.AttachClient(client.ClientId);
 
         long start = 0;
         if (partialResource == false)

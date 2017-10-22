@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,7 +29,6 @@ using Antlr4.Runtime;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Parser
 {
@@ -363,33 +362,26 @@ namespace MediaPortal.Plugins.MediaServer.Parser
         else if (exp.op == Op.EQUALS && exp.propertyClass == PropertyClass.MUSIC_ALBUM)
         {
           types.Add(AudioAspect.ASPECT_ID);
-          types.Add(TranscodeItemAudioAspect.ASPECT_ID);
           return new PropertyClassFilter(exp.propertyClass.Value);
         }
         else if (exp.op == Op.EQUALS && exp.propertyClass == PropertyClass.MUSIC_ARTIST)
         {
           types.Add(AudioAspect.ASPECT_ID);
-          types.Add(TranscodeItemAudioAspect.ASPECT_ID);
           return new PropertyClassFilter(exp.propertyClass.Value);
         }
         else if (exp.op == Op.DERIVED_FROM && exp.propertyClass == PropertyClass.VIDEO_ITEM)
         {
           types.Add(VideoAspect.ASPECT_ID);
-          types.Add(TranscodeItemVideoAspect.ASPECT_ID);
-          types.Add(TranscodeItemVideoAudioAspect.ASPECT_ID);
           return null;
         }
         else if (exp.op == Op.DERIVED_FROM && exp.propertyClass == PropertyClass.PLAYLIST_CONTAINER)
         {
           types.Add(VideoAspect.ASPECT_ID);
-          types.Add(TranscodeItemVideoAspect.ASPECT_ID);
-          types.Add(TranscodeItemVideoAudioAspect.ASPECT_ID);
           return null;
         }
         else if (exp.op == Op.DERIVED_FROM && exp.propertyClass == PropertyClass.IMAGE_ITEM)
         {
           types.Add(ImageAspect.ASPECT_ID);
-          types.Add(TranscodeItemImageAspect.ASPECT_ID);
           return null;
         }
         else

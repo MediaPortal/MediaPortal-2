@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -157,12 +157,12 @@ namespace MediaPortal.Plugins.MediaServer.DIDL
     /// Default settins to be used by XML writers.
     /// </summary>
     public static XmlWriterSettings DEFAULT_XML_WRITER_SETTINGS = new XmlWriterSettings
-                                                                    {
-                                                                      CheckCharacters = false,
-                                                                      Encoding = Encoding.UTF8,
-                                                                      Indent = false,
-                                                                      OmitXmlDeclaration = true
-                                                                    };
+    {
+      CheckCharacters = false,
+      Encoding = Encoding.UTF8,
+      Indent = false,
+      OmitXmlDeclaration = true
+    };
 
     protected static ILogger Logger
     {

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -39,6 +39,7 @@ using MediaPortal.Common;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Common.Localization;
 using MediaPortal.Utilities;
+using System.Collections.Concurrent;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
 {
@@ -141,11 +142,12 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
     public string PreferredSubtitleLanguages = null;
     public string DefaultSubtitleEncodings = null;
     public string PreferredAudioLanguages = null;
-    public string ClientId = null;
+    public Guid ClientId = Guid.Empty;
+    public Guid? UserId = null;
     public bool EstimateTransodedSize = true;
     public bool AutoProfile = true;
     public BasicContainer RootContainer = null;
-    public Dictionary<Guid, DlnaMediaItem> DlnaMediaItems = new Dictionary<Guid, DlnaMediaItem>();
+    public ConcurrentDictionary<Guid, DlnaMediaItem> DlnaMediaItems = new ConcurrentDictionary<Guid, DlnaMediaItem>();
 
     public DlnaMediaItem GetDlnaItem(MediaItem item, bool isLive)
     {
@@ -155,8 +157,8 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         if (DlnaMediaItems.TryGetValue(item.MediaItemId, out dlnaItem))
           return dlnaItem;
 
-        dlnaItem = new DlnaMediaItem(ClientId, item, this, isLive);
-        DlnaMediaItems.Add(item.MediaItemId, dlnaItem);
+        dlnaItem = new DlnaMediaItem(item, this, isLive);
+        DlnaMediaItems.TryAdd(item.MediaItemId, dlnaItem);
         return dlnaItem;
       }
     }

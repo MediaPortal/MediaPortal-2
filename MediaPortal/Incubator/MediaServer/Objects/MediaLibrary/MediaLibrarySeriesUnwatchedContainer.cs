@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,18 +22,14 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  internal class MediaLibrarySeriesUnwatchedContainer : MediaLibrarySeriesEpisodeFilterContainer
+  internal class MediaLibrarySeriesUnwatchedContainer : MediaLibraryUnwatchedContainer
   {
     public MediaLibrarySeriesUnwatchedContainer(string id, EndPointSettings client)
-      : base(id, BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-        new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT),
-        new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0)), client)
+      : base(id, NECESSARY_EPISODE_MIA_TYPE_IDS, OPTIONAL_EPISODE_MIA_TYPE_IDS, client)
     {
     }
   }

@@ -9,6 +9,7 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(TargetDir)Ude.dll" />
+      <PluginFiles Include="$(TargetDir)Newtonsoft.Json.dll" />
       <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.dll" />
       <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />

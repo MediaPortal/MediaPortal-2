@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 using MediaPortal.Plugins.MediaServer.Objects;
+using System.Globalization;
 
 namespace MediaPortal.Plugins.MediaServer.DIDL
 {
@@ -114,39 +115,21 @@ namespace MediaPortal.Plugins.MediaServer.DIDL
         {
           if (valueObj != null)
           {
-            if (valueObj is bool)
+            if (valueObj is bool boolVal)
             {
-              values.Add(valueObj.ToString().ToLower());
+              values.Add(boolVal.ToString(CultureInfo.InvariantCulture).ToLower());
             }
-            else if (valueObj is uint)
+            else if (valueObj is uint || valueObj is ulong || valueObj is ushort || valueObj is int || valueObj is long|| valueObj is short)
             {
-              if (Convert.ToUInt32(valueObj) != uint.MinValue && Convert.ToUInt32(valueObj) != uint.MaxValue)
-                values.Add(valueObj.ToString());
+              values.Add(valueObj.ToString());
             }
-            else if (valueObj is ulong)
+            else if (valueObj is float floatVal)
             {
-              if (Convert.ToUInt64(valueObj) != ulong.MinValue && Convert.ToUInt64(valueObj) != ulong.MaxValue)
-                values.Add(valueObj.ToString());
+              values.Add(floatVal.ToString(CultureInfo.InvariantCulture));
             }
-            else if (valueObj is ushort)
+            else if (valueObj is double doubleVal)
             {
-              if (Convert.ToUInt16(valueObj) != ushort.MinValue && Convert.ToUInt16(valueObj) != ushort.MaxValue)
-                values.Add(valueObj.ToString());
-            }
-            else if (valueObj is int)
-            {
-              if (Convert.ToInt32(valueObj) != int.MinValue && Convert.ToInt32(valueObj) != int.MaxValue)
-                values.Add(valueObj.ToString());
-            }
-            else if (valueObj is long)
-            {
-              if (Convert.ToInt64(valueObj) != long.MinValue && Convert.ToInt64(valueObj) != long.MaxValue)
-                values.Add(valueObj.ToString());
-            }
-            else if (valueObj is short)
-            {
-              if (Convert.ToInt16(valueObj) != short.MinValue && Convert.ToInt16(valueObj) != short.MaxValue)
-                values.Add(valueObj.ToString());
+              values.Add(doubleVal.ToString(CultureInfo.InvariantCulture));
             }
             else
             {

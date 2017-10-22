@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,15 +26,20 @@ using System;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryRecentContainer : MediaLibraryContainer
   {
     public MediaLibraryRecentContainer(string id, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, EndPointSettings client)
-      : base(id, "Recently Added", necessaryMiaTypeIds, optionalMiaTypeIds,
-      new RelationalFilter(ImporterAspect.ATTR_DATEADDED, RelationalOperator.GE, DateTime.Now.AddMonths(-1)), client)
+      : base(id, "Recently Added", necessaryMiaTypeIds, optionalMiaTypeIds, null, client)
     {
+      _query = new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, null)
+      {
+        Limit = 10,
+        SortInformation = new List<SortInformation>() { new SortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+      };
     }
   }
 }

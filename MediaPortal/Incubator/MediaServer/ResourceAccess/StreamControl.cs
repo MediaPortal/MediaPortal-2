@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,13 +33,12 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
   static class StreamControl
   {
-    private static readonly Dictionary<string, StreamItem> _streamItems = new Dictionary<string, StreamItem>();
+    private static readonly Dictionary<Guid, StreamItem> _streamItems = new Dictionary<Guid, StreamItem>();
 
     /// <summary>
     /// Returns a DLNA media item based on the given client and request
@@ -109,7 +108,8 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       }
       else
       {
-        stream.Title = (string)MediaItemHelper.GetAttributeValue(dlnaItem.MediaSource.Aspects, MediaAspect.ATTR_TITLE);
+        if (MediaItemAspect.TryGetAttribute(dlnaItem.MediaSource.Aspects, MediaAspect.ATTR_TITLE, out string title))
+          stream.Title = title;
         stream.IsLive = false;
         stream.LiveChannelId = 0;
       }
@@ -164,11 +164,11 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
           _streamItems[client.ClientId].TranscoderObject.StartStreaming();
           if (_streamItems[client.ClientId].IsLive == true)
           {
-            _streamItems[client.ClientId].StreamContext = MediaConverter.GetLiveStream(client.ClientId, _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, _streamItems[client.ClientId].LiveChannelId, true);
+            _streamItems[client.ClientId].StreamContext = MediaConverter.GetLiveStream(client.ClientId.ToString(), _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, _streamItems[client.ClientId].LiveChannelId, true);
           }
           else
           {
-            _streamItems[client.ClientId].StreamContext = MediaConverter.GetMediaStream(client.ClientId, _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, startTime, lengthTime, true);
+            _streamItems[client.ClientId].StreamContext = MediaConverter.GetMediaStream(client.ClientId.ToString(), _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, startTime, lengthTime, true);
           }
           _streamItems[client.ClientId].StreamContext.InUse = true;
           _streamItems[client.ClientId].IsActive = true;
