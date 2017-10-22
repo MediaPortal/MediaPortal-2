@@ -11,6 +11,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -22,7 +23,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(RelationshipAspect.ASPECT_ID);
+      necessaryMIATypes.Add(SeasonAspect.ASPECT_ID);
 
       // this is the MediaItem for the season
       MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
@@ -30,12 +31,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       if (item == null)
         throw new BadRequestException(String.Format("GetTVEpisodeCountForSeason: No MediaItem found with id: {0}", id));
 
-      IFilter episodeFilter = new RelationshipFilter(item.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE);
-      MediaItemQuery episodeQuery = new MediaItemQuery(necessaryMIATypes, null, episodeFilter);
+      int count = item.GetAspect(SeasonAspect.Metadata).GetAttributeValue<int>(SeasonAspect.ATTR_AVAILABLE_EPISODES);
 
-      IList<MediaItem> episodesInThisSeason = ServiceRegistration.Get<IMediaLibrary>().Search(episodeQuery, false, null, false);
-
-      return new WebIntResult { Result = episodesInThisSeason.Count };
+      return new WebIntResult { Result = count };
     }
 
     internal static ILogger Logger

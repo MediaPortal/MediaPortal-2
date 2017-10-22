@@ -10,19 +10,17 @@ using System;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetTVEpisodeDetailedById : BaseEpisodeDetailed
+  [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
+  internal class GetTVSeasonBasicById : BaseTvSeasonBasic
   {
-    public WebTVEpisodeDetailed Process(Guid id)
+    public WebTVSeasonBasic Process(Guid id)
     {
-      MediaItem item = GetMediaItems.GetMediaItemById(id, DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds);
+      MediaItem item = GetMediaItems.GetMediaItemById(id, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (item == null)
-        throw new BadRequestException(String.Format("GetTvEpisodeBasicById: No MediaItem found with id: {0}", id));
+        throw new BadRequestException(String.Format("GetTVShowDetailedById: No MediaItem found with id: {0}", id));
 
-      WebTVEpisodeDetailed webTvEpisodeDetailed = EpisodeDetailed(item);
-
-      return webTvEpisodeDetailed;
+      return TVSeasonBasic(item);
     }
 
     internal static ILogger Logger

@@ -12,6 +12,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
+using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -24,31 +25,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
-      necessaryMIATypes.Add(RelationshipAspect.ASPECT_ID);
 
       // this is the MediaItem from the TvShow
       MediaItem item = GetMediaItems.GetMediaItemById(id, necessaryMIATypes);
       if (item == null)
         throw new BadRequestException(String.Format("GetTVEpisodeCountForTvShow: No MediaItem found with id: {0}", id));
 
-      // Get all seasons for this series
-      ISet<Guid> necessaryMIATypesSeason = new HashSet<Guid>();
-      necessaryMIATypesSeason.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypesSeason.Add(SeasonAspect.ASPECT_ID);
-      necessaryMIATypesSeason.Add(RelationshipAspect.ASPECT_ID);
+      int count = item.GetAspect(SeriesAspect.Metadata).GetAttributeValue<int>(SeriesAspect.ATTR_AVAILABLE_EPISODES);
 
-      IFilter searchFilter = new RelationshipFilter(item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypesSeason, null, searchFilter);
-
-      IList<MediaItem> seasons = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
-
-      WebIntResult webIntResult = new WebIntResult
-      {
-        Result = seasons.Sum(season =>
-          season[RelationshipAspect.ASPECT_ID].Where(r =>
-            r.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == SeasonAspect.ROLE_SEASON && r.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == EpisodeAspect.ROLE_EPISODE)
-         .Count())
-      };
+      WebIntResult webIntResult = new WebIntResult { Result = count };
 
       return webIntResult;
     }
