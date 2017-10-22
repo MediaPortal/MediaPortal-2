@@ -24,16 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Service.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor
 {
@@ -45,22 +42,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     public static Guid MetadataExtractorId = new Guid("D03E1343-A2DD-4C77-83F3-08791E85ABD9");
 
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Audio };
-    protected static ICollection<string> AUDIO_EXTENSIONS = new List<string>();
-
-    static TranscodeAudioMetadataExtractor()
-    {
-      TranscodingServiceSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodingServiceSettings>();
-      InitializeExtensions(settings);
-    }
-
-    /// <summary>
-    /// (Re)initializes the audio extensions for which this <see cref="TranscodeAudioMetadataExtractorSettings"/> used.
-    /// </summary>
-    /// <param name="settings">Settings object to read the data from.</param>
-    internal static void InitializeExtensions(TranscodingServiceSettings settings)
-    {
-      AUDIO_EXTENSIONS = new List<string>(settings.AudioFileExtensions.Select(e => e.ToLowerInvariant()));
-    }
 
     public TranscodeAudioMetadataExtractor()
     {
@@ -80,12 +61,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     public MetadataExtractorMetadata Metadata { get; private set; }
 
-    private bool HasAudioExtension(string fileName)
-    {
-      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
-      return AUDIO_EXTENSIONS.Contains(ext);
-    }
-
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
@@ -101,7 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {
-          if (!HasAudioExtension(rah.LocalFsResourceAccessor.LocalFileSystemPath))
+          if (!rah.LocalFsResourceAccessor.IsFile)
             return false;
         }
         

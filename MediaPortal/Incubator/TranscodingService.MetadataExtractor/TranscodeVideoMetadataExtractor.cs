@@ -24,16 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Service.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor
 {
@@ -45,22 +42,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
     public static Guid MetadataExtractorId = new Guid("40302A55-BC21-436C-9544-03AF95F4F7A4");
 
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Video };
-    protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new HashSet<string>();
-
-    static TranscodeVideoMetadataExtractor()
-    {
-      TranscodingServiceSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodingServiceSettings>();
-      InitializeExtensions(settings);
-    }
-
-    /// <summary>
-    /// (Re)initializes the video extensions for which this <see cref="TranscodeVideoMetadataExtractorSettings"/> used.
-    /// </summary>
-    /// <param name="settings">Settings object to read the data from.</param>
-    internal static void InitializeExtensions(TranscodingServiceSettings settings)
-    {
-      VIDEO_FILE_EXTENSIONS = new HashSet<string>(settings.VideoFileExtensions.Select(e => e.ToLowerInvariant()));
-    }
 
     public TranscodeVideoMetadataExtractor()
     {
@@ -80,12 +61,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     public MetadataExtractorMetadata Metadata { get; private set; }
 
-    private bool HasVideoExtension(string fileName)
-    {
-      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
-      return VIDEO_FILE_EXTENSIONS.Contains(ext);
-    }
-
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
@@ -101,7 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {
-          if (!HasVideoExtension(rah.LocalFsResourceAccessor.LocalFileSystemPath))
+          if (!rah.LocalFsResourceAccessor.IsFile)
             return false;
         }
 
