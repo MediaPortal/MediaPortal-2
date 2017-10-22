@@ -30,7 +30,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 using MediaPortal.Plugins.Transcoding.Interfaces;
@@ -66,29 +65,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
       if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
         IsAudio = true;
-        if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == false)
-        {
-          Logger.Warn("MP2Extended: Mediaitem {0} contains no transcoding audio information", item.MediaItemId);
-          return;
-        }
       }
       else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
         IsImage = true;
-        if (item.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID) == false)
-        {
-          Logger.Warn("MP2Extended: Mediaitem {0} contains no transcoding image information", item.MediaItemId);
-          return;
-        }
       }
       else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         IsVideo = true;
-        if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID) == false)
-        {
-          Logger.Warn("MP2Extended: Mediaitem {0} contains no transcoding video information", item.MediaItemId);
-          return;
-        }
       }
       else
       {
