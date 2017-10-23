@@ -10,17 +10,17 @@ using System;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetMovieDetailedById : BaseMovieDetailed
+  [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
+  internal class GetMovieBasicById : BaseMovieBasic
   {
-    public WebMovieDetailed Process(Guid id)
+    public WebMovieBasic Process(Guid id)
     {
       MediaItem item = GetMediaItems.GetMediaItemById(id, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
-
+      
       if (item == null)
-        throw new BadRequestException(String.Format("GetMovieDetailedById: No MediaItem found with id: {0}", id));
+        throw new BadRequestException(String.Format("GetMovieBasicById: No MediaItem found with id: {0}", id));
 
-      return MovieDetailed(item);
+      return MovieBasic(item);
     }
 
     internal static ILogger Logger

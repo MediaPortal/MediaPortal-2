@@ -7,14 +7,14 @@ using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
 {
-  class BaseMovieDetailed
+  class BaseMovieDetailed : BaseMovieBasic
   {
     internal WebMovieDetailed MovieDetailed(MediaItem item)
     {
-      WebMovieBasic webMovieBasic = new BaseMovieBasic().MovieBasic(item);
+      WebMovieBasic webMovieBasic = MovieBasic(item);
 
-      MediaItemAspect movieAspects = item.GetAspect(MovieAspect.Metadata);
-      MediaItemAspect videoAspects = item.GetAspect(VideoAspect.Metadata);
+      MediaItemAspect movieAspect = item.GetAspect(MovieAspect.Metadata);
+      MediaItemAspect videoAspect = item.GetAspect(VideoAspect.Metadata);
 
       WebMovieDetailed webMovieDetailed = new WebMovieDetailed
       {
@@ -33,17 +33,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
         Genres = webMovieBasic.Genres,
         Path = webMovieBasic.Path,
         Artwork = webMovieBasic.Artwork,
-        Tagline = (string)(movieAspects[MovieAspect.ATTR_TAGLINE] ?? string.Empty),
-        Summary = (string)(videoAspects[VideoAspect.ATTR_STORYPLOT] ?? string.Empty),
+        Tagline = movieAspect.GetAttributeValue<string>(MovieAspect.ATTR_TAGLINE) ?? string.Empty,
+        Summary = videoAspect.GetAttributeValue<string>(VideoAspect.ATTR_STORYPLOT) ?? string.Empty,
       };
 
-      //webMovieDetailed.Language = ;
-      var videoWriters = (HashSet<object>)videoAspects[VideoAspect.ATTR_WRITERS];
-      if (videoWriters != null)
-        webMovieDetailed.Writers = videoWriters.Cast<string>().ToList();
-      var videoDirectors = (HashSet<object>)videoAspects[VideoAspect.ATTR_DIRECTORS];
-      if (videoDirectors != null)
-        webMovieDetailed.Directors = videoDirectors.Cast<string>().ToList();
+      IEnumerable<string> aspectWriters = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_WRITERS);
+      if (aspectWriters != null)
+        webMovieDetailed.Writers = aspectWriters.Distinct().ToList();
+
+      IEnumerable<string> aspectDirectors = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_DIRECTORS);
+      if (aspectDirectors != null)
+        webMovieDetailed.Directors = aspectDirectors.Distinct().ToList();
 
       return webMovieDetailed;
     }
