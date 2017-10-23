@@ -29,7 +29,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 
       // sort
       if (sort != null && order != null)
-        output = output.SortWebTVEpisodeBasic(sort, order);
+        output = output.SortWebTVEpisodeDetailed(sort, order);
 
       return output.ToList();
     }

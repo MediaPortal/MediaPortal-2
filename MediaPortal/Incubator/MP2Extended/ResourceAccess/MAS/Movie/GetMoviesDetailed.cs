@@ -30,7 +30,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 
       // sort and filter
       if (sort != null && order != null)
-        output = output.Filter(filter).SortWebMovieBasic(sort, order);
+        output = output.Filter(filter).SortWebMovieDetailed(sort, order);
 
       return output.ToList();
     }
