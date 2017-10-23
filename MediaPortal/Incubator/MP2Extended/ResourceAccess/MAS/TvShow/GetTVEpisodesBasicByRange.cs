@@ -18,10 +18,5 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       output = output.TakeRange(start, end).ToList();
       return output;
     }
-
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }
   }
 }
