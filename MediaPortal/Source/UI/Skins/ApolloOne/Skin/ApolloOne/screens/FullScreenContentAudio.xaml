@@ -19,6 +19,8 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
+    <Include Source="screens\FullScreenContentAudioKeyBindings.inc"/>
+
     <Control x:Name="WindowButtons" Grid.Column="1" Grid.Row="0">
       <Control.TemplateControl>
         <Include Source="screens\FSCWindowButtons.inc"/>

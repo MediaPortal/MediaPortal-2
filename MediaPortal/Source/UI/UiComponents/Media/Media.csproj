@@ -395,6 +395,8 @@
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
+    <Content Include="Skin\default\screens\FullScreenContentAudioKeyBindings.inc" />
+    <Content Include="Skin\default\screens\FullScreenContentVideoKeyBindings.inc" />
     <Content Include="Skin\default\screens\MediaItemsFilterKeyBindings.inc" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />

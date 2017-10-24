@@ -52,7 +52,9 @@
         </VisualBrush.Visual>
       </VisualBrush>
     </Grid.Background>
-    
+
+    <Include Source="screens\FullScreenContentAudioKeyBindings.inc"/>
+
     <!--Playerstate overlay-->
     <Grid Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center"
           DataContext="{Binding ElementName=PrimaryOSD}">
@@ -260,11 +262,6 @@
     
     <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.ColumnSpan="3" Grid.Row="0"
             Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-
-    
-    <KeyBinding Key="Info" Command="{Command ToggleAudioInfo}"/>
-    <KeyBinding Key="Back" Command="{Command CloseAudioInfo}" IsEnabled="{Binding IsOSDVisible}"/>
-    <KeyBinding Key="Escape" Command="{Command CloseAudioInfo}" IsEnabled="{Binding IsOSDVisible}"/>
 
   </Grid>
 </Screen>
