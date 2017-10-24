@@ -192,15 +192,34 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       return info;
     }
 
+    private string GetResourceCategory(string resourceName)
+    {
+      if (HasAudioExtension(resourceName))
+      {
+        return "Audio";
+      }
+      else if (HasImageExtension(resourceName))
+      {
+        return "Image";
+      }
+      else if (HasVideoExtension(resourceName))
+      {
+        return "Video";
+      }
+      return "";
+    }
+
     protected void SaveAnalysis(IResourceAccessor accessor, MetadataContainer analysis)
     {
       string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
       if (accessor is ILocalFsResourceAccessor file)
       {
+        filePath = Path.Combine(filePath, GetResourceCategory(file.ResourceName));
         filePath = Path.Combine(filePath, $"{file.ResourceName}.analysis");
       }
       else if (accessor is INetworkResourceAccessor link)
       {
+        filePath = Path.Combine(filePath, GetResourceCategory(link.ResourceName));
         filePath = Path.Combine(filePath, $"{link.ResourceName}.analysis");
       }
       else
@@ -221,10 +240,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
       if (accessor is ILocalFsResourceAccessor file)
       {
+        filePath = Path.Combine(filePath, GetResourceCategory(file.ResourceName));
         filePath = Path.Combine(filePath, $"{file.ResourceName}.analysis");
       }
       else if (accessor is INetworkResourceAccessor link)
       {
+        filePath = Path.Combine(filePath, GetResourceCategory(link.ResourceName));
         filePath = Path.Combine(filePath, $"{link.ResourceName}.analysis");
       }
       if (File.Exists(filePath))

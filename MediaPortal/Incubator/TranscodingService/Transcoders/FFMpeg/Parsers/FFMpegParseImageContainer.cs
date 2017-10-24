@@ -24,26 +24,43 @@
 
 using System;
 using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseImageContainer
   {
-    internal static ImageContainer ParseImageContainer(string token)
+    internal static ImageContainer ParseImageContainer(string token, ILocalFsResourceAccessor lfsra)
     {
       if (token != null)
       {
-        if (token.Equals("bmp", StringComparison.InvariantCultureIgnoreCase))
+        if (token.Equals("bmp", StringComparison.InvariantCultureIgnoreCase) || token.StartsWith("bmp", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Bmp;
-        if (token.Equals("gif", StringComparison.InvariantCultureIgnoreCase))
+        if (token.Equals("gif", StringComparison.InvariantCultureIgnoreCase) || token.StartsWith("gif", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Gif;
-        if (token.Equals("mjpeg", StringComparison.InvariantCultureIgnoreCase))
+        if (token.Equals("mjpeg", StringComparison.InvariantCultureIgnoreCase) || token.StartsWith("image2", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Jpeg;
-        if (token.Equals("png", StringComparison.InvariantCultureIgnoreCase))
+        if (token.Equals("png", StringComparison.InvariantCultureIgnoreCase) || token.StartsWith("png", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Png;
         if (token.Equals("raw", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Raw;
       }
+
+      //Try file extensions
+      if (lfsra.LocalFileSystemPath != null)
+      {
+        if (lfsra.LocalFileSystemPath.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase))
+          return ImageContainer.Bmp;
+        if (lfsra.LocalFileSystemPath.EndsWith(".gif", StringComparison.InvariantCultureIgnoreCase))
+          return ImageContainer.Gif;
+        if (lfsra.LocalFileSystemPath.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase))
+          return ImageContainer.Jpeg;
+        if (lfsra.LocalFileSystemPath.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
+          return ImageContainer.Png;
+        if (lfsra.LocalFileSystemPath.EndsWith(".raw", StringComparison.InvariantCultureIgnoreCase))
+          return ImageContainer.Raw;
+      }
+
       return ImageContainer.Unknown;
     }
   }

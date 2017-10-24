@@ -34,6 +34,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
     {
       if (token != null)
       {
+        if (token.StartsWith("image", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Unknown;
+
         if (token.Equals("asf", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Asf;
         if (token.Equals("avi", StringComparison.InvariantCultureIgnoreCase))
@@ -75,6 +78,33 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         if (token.Equals("wtv", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Wtv;
       }
+
+      //Try file extensions
+      if (lfsra.LocalFileSystemPath != null)
+      {
+        if (lfsra.LocalFileSystemPath.EndsWith(".wmv", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Asf;
+        if (lfsra.LocalFileSystemPath.EndsWith(".avi", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Avi;
+        if (lfsra.LocalFileSystemPath.EndsWith(".flv", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Flv;
+        if (lfsra.LocalFileSystemPath.EndsWith(".3gp", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".3g", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Gp3;
+        if (lfsra.LocalFileSystemPath.EndsWith(".mov", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".mp4", StringComparison.InvariantCultureIgnoreCase) ||
+          lfsra.LocalFileSystemPath.EndsWith(".mp4v", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Mp4;
+        if (lfsra.LocalFileSystemPath.EndsWith(".mkv", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Matroska;
+        if (lfsra.LocalFileSystemPath.EndsWith(".m2ts", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.M2Ts;
+        if (lfsra.LocalFileSystemPath.EndsWith(".mpeg", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".mpg", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Mpeg2Ps;
+        if (lfsra.LocalFileSystemPath.EndsWith(".ts", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Mpeg2Ts;
+        if (lfsra.LocalFileSystemPath.EndsWith(".ogg", StringComparison.InvariantCultureIgnoreCase))
+          return VideoContainer.Ogg;
+      }
+
       return VideoContainer.Unknown;
     }
   }

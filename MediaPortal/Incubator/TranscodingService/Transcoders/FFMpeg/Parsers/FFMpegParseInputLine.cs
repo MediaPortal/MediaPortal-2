@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
       }
       if (info.IsAudio)
       {
-        info.Metadata.AudioContainerType = FFMpegParseAudioContainer.ParseAudioContainer(ffmContainer);
+        info.Metadata.AudioContainerType = FFMpegParseAudioContainer.ParseAudioContainer(ffmContainer, lfra);
       }
       else if (info.IsVideo)
       {
@@ -50,13 +50,13 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
       }
       else if (info.IsImage)
       {
-        info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(ffmContainer);
+        info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(ffmContainer, lfra);
       }
       else
       {
         info.Metadata.VideoContainerType = FFMpegParseVideoContainer.ParseVideoContainer(ffmContainer, lfra);
-        info.Metadata.AudioContainerType = FFMpegParseAudioContainer.ParseAudioContainer(ffmContainer);
-        info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(ffmContainer);
+        info.Metadata.AudioContainerType = FFMpegParseAudioContainer.ParseAudioContainer(ffmContainer, lfra);
+        info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(ffmContainer, lfra);
       }
     }
   }
