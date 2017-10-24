@@ -172,6 +172,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       const string RES_ALBUM = "[MediaServer.AlbumContainter]";
       const string RES_RECENT = "[MediaServer.RecentContainter]";
       const string RES_ARTIST = "[MediaServer.ArtistContainter]";
+      const string RES_ALBUM_ARTIST = "[MediaServer.AlbumArtistContainter]";
       const string RES_GENRE = "[MediaServer.GenreContainter]";
       const string RES_YEAR = "[MediaServer.YearContainter]";
       const string RES_SHARE = "[MediaServer.ShareContainter]";
@@ -195,7 +196,9 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       { Title = StringUtils.TrimToNull(language.ToString(RES_ALBUM)) ?? "Albums" });
       audioContainer.Add(new MediaLibraryMusicRecentContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "RA", this)
       { Title = StringUtils.TrimToNull(language.ToString(RES_RECENT)) ?? "Recently Added" });
-      audioContainer.Add(new MediaLibraryMusicArtistContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AR", this)
+      audioContainer.Add(new MediaLibraryAlbumArtistContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AR", this)
+      { Title = StringUtils.TrimToNull(language.ToString(RES_ALBUM_ARTIST)) ?? "Album Artists" });
+      audioContainer.Add(new MediaLibraryMusicArtistContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AAR", this)
       { Title = StringUtils.TrimToNull(language.ToString(RES_ARTIST)) ?? "Artists" });
       audioContainer.Add(new MediaLibraryMusicGenreContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "G", this)
       { Title = StringUtils.TrimToNull(language.ToString(RES_GENRE)) ?? "Genres" });

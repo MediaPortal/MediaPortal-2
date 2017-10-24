@@ -49,8 +49,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       _necessaryMiaTypeIds = necessaryMiaTypeIds;
       _optionalMiaTypeIds = optionalMiaTypeIds;
-      if(filter != null)
-        _query = new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, filter);
+      _query = new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, filter);
     }
 
     public MediaLibraryContainer(MediaItem item, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, IFilter filter, EndPointSettings client)
@@ -64,7 +63,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       //TODO: Check if this is correct handling of missing filter
-      if (_query == null && Item != null)
+      if (_query.Filter == null && Item != null)
       {
         return library.Browse(Item.MediaItemId, _necessaryMiaTypeIds, _optionalMiaTypeIds, _userId, false);
       }
@@ -86,7 +85,14 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       IList<MediaItem> items = GetItems();
       foreach (MediaItem item in items)
       {
-        Add((BasicObject)MediaLibraryHelper.InstansiateMediaLibraryObject(item, this));
+        try
+        {
+          Add((BasicObject)MediaLibraryHelper.InstansiateMediaLibraryObject(item, this));
+        }
+        catch(Exception ex)
+        {
+          Logger.Error("Media item '{0}' could not be added", ex, item);
+        }
       }
     }
 

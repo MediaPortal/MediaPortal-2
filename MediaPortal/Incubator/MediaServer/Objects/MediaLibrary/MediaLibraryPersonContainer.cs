@@ -64,19 +64,28 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     {
       foreach (MediaItem item in GetItems())
       {
-        string title = "?";
-        if (MediaItemAspect.TryGetAspect(item.Aspects, PersonAspect.Metadata, out SingleMediaItemAspect personAspect))
+        try
         {
-          title = personAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME);
-        }
-        string key = Id + ":" + item.MediaItemId;
+          string title = "?";
+          if (MediaItemAspect.TryGetAspect(item.Aspects, PersonAspect.Metadata, out SingleMediaItemAspect personAspect))
+          {
+            title = personAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME);
+          }
+          string key = Id + ":" + item.MediaItemId;
 
-        if(_necessaryMIAs.Contains(MovieAspect.ASPECT_ID))
-          Add(new MediaLibraryMovieActorItem(key, title, new RelationshipFilter(_linkedRole, _role, item.MediaItemId), Client));
-        else if (_necessaryMIAs.Contains(AudioAspect.ASPECT_ID))
-          Add(new MediaLibraryMusicArtistItem(key, title, new RelationshipFilter(_linkedRole, _role, item.MediaItemId), Client));
-        else if (_necessaryMIAs.Contains(AudioAlbumAspect.ASPECT_ID))
-          Add(new MediaLibraryAlbumArtistItem(key, title, new RelationshipFilter(_linkedRole, _role, item.MediaItemId), Client));
+          if (_necessaryMIAs.Contains(MovieAspect.ASPECT_ID))
+            Add(new MediaLibraryMovieActorItem(key, title, new RelationshipFilter(_linkedRole, _role, item.MediaItemId), Client));
+          else if (_necessaryMIAs.Contains(SeriesAspect.ASPECT_ID))
+            Add(new MediaLibrarySeriesActorItem(key, title, new RelationshipFilter(_linkedRole, _role, item.MediaItemId), Client));
+          else if (_necessaryMIAs.Contains(AudioAspect.ASPECT_ID))
+            Add(new MediaLibraryMusicArtistItem(key, title, new RelationshipFilter(_linkedRole, _role, item.MediaItemId), Client));
+          else if (_necessaryMIAs.Contains(AudioAlbumAspect.ASPECT_ID))
+            Add(new MediaLibraryAlbumArtistItem(key, title, new RelationshipFilter(_linkedRole, _role, item.MediaItemId), Client));
+        }
+        catch (Exception ex)
+        {
+          Logger.Error("Media item '{0}' could not be added", ex, item);
+        }
       }
     }
   }
