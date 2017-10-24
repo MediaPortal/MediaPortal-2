@@ -23,20 +23,22 @@
 #endregion
 
 using MediaPortal.Common.ResourceAccess;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
 {
   public class MetadataStream
   {
-    public AudioContainer AudioContainerType;
-    public VideoContainer VideoContainerType;
-    public ImageContainer ImageContainerType;
-    public long Size;
-    public long Bitrate;
-    public double Duration;
-    public IResourceAccessor Source;
-    public bool Live;
-    public string Mime;
-    public string MajorBrand;
+    public AudioContainer AudioContainerType { get; set; }
+    public VideoContainer VideoContainerType { get; set; }
+    public ImageContainer ImageContainerType { get; set; }
+    public long Size { get; set; }
+    public long Bitrate { get; set; }
+    public double Duration { get; set; }
+    [JsonIgnore]
+    public IResourceAccessor Source { get; set; }
+    public bool Live { get; set; }
+    public string Mime { get; set; }
+    public string MajorBrand { get; set; }
   }
 }

@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
 {
@@ -35,6 +36,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
     public List<AudioStream> Audio = new List<AudioStream>();
     public List<SubtitleStream> Subtitles = new List<SubtitleStream>();
 
+    [JsonIgnore]
     public bool IsImage
     {
       get
@@ -55,6 +57,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
       }
     }
 
+    [JsonIgnore]
     public bool IsAudio
     {
       get
@@ -79,6 +82,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
       }
     }
 
+    [JsonIgnore]
     public bool IsVideo
     {
       get

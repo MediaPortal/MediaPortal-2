@@ -86,6 +86,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         if (!(HasImageExtension(fileName) || HasVideoExtension(fileName) || HasAudioExtension(fileName)))
           return null;
         string arguments = "";
+
+        //Check cache
+        MetadataContainer info = LoadAnalysis(MediaResource);
+        if (info != null)
+          return info;
+
         if (HasImageExtension(fileName))
         {
           //Default image decoder (image2) fails if file name contains å, ø, ö etc., so force format to image2pipe
@@ -100,7 +106,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
         {
           //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
-          MetadataContainer info = new MetadataContainer { Metadata = { Source = MediaResource } };
+          info = new MetadataContainer { Metadata = { Source = MediaResource } };
           info.Metadata.Size = fileResource.Size;
           FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
 
@@ -128,6 +134,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             info.Metadata.Mime = MimeDetector.GetFileMime(fileResource, "unknown/unknown");
           }
+          SaveAnalysis(MediaResource, info);
           return info;
         }
 
@@ -141,6 +148,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         string url = ((INetworkResourceAccessor)MediaResource).URL;
         if (!(HasImageExtension(url) || HasVideoExtension(url) || HasAudioExtension(url)))
           return null;
+
+        //Check cache
+        MetadataContainer info = LoadAnalysis(MediaResource);
+        if (info != null)
+          return info;
+
         string arguments = "";
         if (url.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase) == true)
         {
@@ -156,7 +169,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
         {
           //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
-          MetadataContainer info = new MetadataContainer { Metadata = { Source = MediaResource } };
+          info = new MetadataContainer { Metadata = { Source = MediaResource } };
           info.Metadata.Size = 0;
           FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
 
@@ -184,6 +197,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             info.Metadata.Mime = MimeDetector.GetUrlMime(url, "unknown/unknown");
           }
+          SaveAnalysis(MediaResource, info);
           return info;
         }
 
