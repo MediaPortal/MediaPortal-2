@@ -295,7 +295,8 @@
           </StackPanel>
         </Grid>
 
-        <DockPanel x:Name="OSD_RightPanel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false">
+        <DockPanel x:Name="OSD_RightPanel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false"
+                   IsVisible="{Binding Source={Model D8998340-DA2D-42be-A29B-6D7A72AEA2DC}, Path=IsOSDVisible}">
           <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
             Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
         </DockPanel>

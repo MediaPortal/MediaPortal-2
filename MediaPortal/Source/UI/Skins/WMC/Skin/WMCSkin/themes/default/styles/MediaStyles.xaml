@@ -212,7 +212,7 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="0"
-                                VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ShowMouseControls}">
+                                VerticalAlignment="Center" HorizontalAlignment="Right">
                       <StackPanel.LayoutTransform>
                         <TransformGroup>
                           <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
