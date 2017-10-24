@@ -10,39 +10,37 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetaData;
+using MP2Extended.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
+namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
+  [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetMovieActors : BaseMovieActors
+  internal class GetTVShowActors
   {
-    public List<WebActor> Process(string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebActor> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(PersonAspect.ASPECT_ID);
 
-      IFilter searchFilter = new RelationshipFilter(PersonAspect.ROLE_ACTOR, MovieAspect.ROLE_MOVIE, Guid.Empty);
+      IFilter searchFilter = new RelationshipFilter(PersonAspect.ROLE_ACTOR, SeriesAspect.ROLE_SERIES, Guid.Empty);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, searchFilter);
       IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
-
+         
       if (items.Count == 0)
-        throw new BadRequestException("No Movies found");
+        throw new BadRequestException("No Tv show actors found");
 
-      var output = items.Select(mi => new WebActor(mi.GetAspect(PersonAspect.Metadata).GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME)))
+      var output = items.Select(a => new WebActor(a.GetAspect(PersonAspect.Metadata).GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME)))
         .Filter(filter);
 
-      // sort and filter
       if (sort != null && order != null)
-        output = output.SortWebActor(sort, order);
+        output.SortWebActor(sort, order);
 
       return output.ToList();
     }

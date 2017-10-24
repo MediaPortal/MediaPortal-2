@@ -92,7 +92,7 @@ namespace MediaPortal.Plugins.AspNetServer
       {
         if (!Initialized)
           throw new InvalidOperationException("WebApplicationParameter not initialized.");
-        return $"http://*:{Port}{BasePath}";
+        return $"http://*:{Port}";
       }
     }
 

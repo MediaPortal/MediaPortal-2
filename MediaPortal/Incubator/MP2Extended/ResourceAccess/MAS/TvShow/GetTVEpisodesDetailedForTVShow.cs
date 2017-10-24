@@ -13,25 +13,25 @@ using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
-  internal class GetTVEpisodesBasicForTVShow : BaseEpisodeBasic
+  internal class GetTVEpisodesDetailedForTVShow : BaseEpisodeDetailed
   {
-    public IList<WebTVEpisodeBasic> Process(Guid id, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVEpisodeDetailed> Process(Guid id, WebSortField? sort, WebSortOrder? order)
     {
       IFilter searchFilter = new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, id);
-      MediaItemQuery searchQuery = new MediaItemQuery(BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, searchFilter);
+      MediaItemQuery searchQuery = new MediaItemQuery(DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds, searchFilter);
 
       IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
 
-      var output = new List<WebTVEpisodeBasic>();
+      var output = new List<WebTVEpisodeDetailed>();
 
       if (episodes.Count == 0)
         return output;
 
-      output.AddRange(episodes.Select(episode => EpisodeBasic(episode, id)));
+      output.AddRange(episodes.Select(episode => EpisodeDetailed(episode, id)));
 
       // sort
       if (sort != null && order != null)
-        output = output.SortWebTVEpisodeBasic(sort, order).ToList();
+        output = output.SortWebTVEpisodeDetailed(sort, order).ToList();
 
       return output;
     }

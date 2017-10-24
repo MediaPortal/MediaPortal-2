@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
+using MediaPortal.Plugins.MP2Extended.MAS.General;
 
 namespace MediaPortal.Plugins.MP2Extended.MAS.TvShow
 {
@@ -64,6 +65,16 @@ namespace MediaPortal.Plugins.MP2Extended.MAS.TvShow
     }
 
     public static IEnumerable<T> SortWebGenre<T>(this IEnumerable<T> list, WebSortField? sortInput, WebSortOrder? orderInput) where T : WebGenre
+    {
+      switch (sortInput)
+      {
+        case WebSortField.Title:
+        default:
+          return list.OrderBy(x => x.Title, orderInput);
+      }
+    }
+
+    public static IEnumerable<T> SortWebActor<T>(this IEnumerable<T> list, WebSortField? sortInput, WebSortOrder? orderInput) where T : WebActor
     {
       switch (sortInput)
       {

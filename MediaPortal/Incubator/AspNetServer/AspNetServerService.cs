@@ -267,6 +267,8 @@ namespace MediaPortal.Plugins.AspNetServer
           {
             // Configurations to be performed before the calling plugin's configuration is performed go here
 
+            applicationBuilder.UsePathBase(webApplicationParameter.BasePath);
+
             // Configuration provided by the calling plugin
             webApplicationParameter.ConfigureApp(applicationBuilder);
 
@@ -293,6 +295,7 @@ namespace MediaPortal.Plugins.AspNetServer
 
         // Start the WebApplication
         var app = builder.Build();
+
         app.Start();
 
         return app;

@@ -15,22 +15,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetTVShowsBasic : BaseTvShowBasic
+  internal class GetTVEpisodesDetailed : BaseEpisodeDetailed
   {
-    public IList<WebTVShowBasic> Process(string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebTVEpisodeDetailed> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
+      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds, null);
 
       if (items.Count == 0)
-        throw new BadRequestException("GetTVShowsBasic: no Tv Episodes found");
+        throw new BadRequestException("No Tv Episodes found");
 
-      var output = items.Select(item => TVShowBasic(item))
+      var output = items.Select(item => EpisodeDetailed(item))
         .Filter(filter);
 
-      // sort and filter
+      // sort
       if (sort != null && order != null)
-        output = output.SortWebTVShowBasic(sort, order).ToList();
+        output = output.SortWebTVEpisodeDetailed(sort, order);
 
       return output.ToList();
     }

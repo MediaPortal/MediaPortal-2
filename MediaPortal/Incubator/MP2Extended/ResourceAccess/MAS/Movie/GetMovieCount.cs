@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
+using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
@@ -20,10 +17,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(MovieAspect.ASPECT_ID);
 
-      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
+      int count = GetMediaItems.CountMediaItems(necessaryMIATypes);
 
-
-      return new WebIntResult { Result = items.Count };
+      return new WebIntResult { Result = count };
     }
 
     internal static ILogger Logger

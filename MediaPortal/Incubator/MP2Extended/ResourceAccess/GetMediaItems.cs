@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       IFilter searchFilter = new MediaItemIdFilter(id);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = limit };
 
-      return ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
+      return MediaLibrary.Search(searchQuery, false, null, false);
     }
 
     #endregion ByID
@@ -106,7 +106,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       IFilter searchFilter = new RelationalFilter(attributeSpecification, RelationalOperator.EQ, name);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = limit };
 
-      return ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
+      return MediaLibrary.Search(searchQuery, false, null, false);
     }
 
     internal static IList<MediaItem> GetMediaItemsByInt(int number, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, MediaItemAspectMetadata.AttributeSpecification attributeSpecification, uint? limit)
@@ -114,7 +114,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       IFilter searchFilter = new RelationalFilter(attributeSpecification, RelationalOperator.EQ, number);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = limit };
 
-      return ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
+      return MediaLibrary.Search(searchQuery, false, null, false);
     }
 
     #endregion ByName
@@ -137,9 +137,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     {
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, null) { Limit = limit };
 
-      return ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
+      return MediaLibrary.Search(searchQuery, false, null, false);
     }
 
     #endregion
+
+    #region Count
+
+    internal static int CountMediaItems(ISet<Guid> necessaryMIATypes, IFilter filter = null)
+    {
+      return MediaLibrary.CountMediaItems(necessaryMIATypes, filter, false, false);
+    }
+
+    #endregion
+
+    internal static IMediaLibrary MediaLibrary
+    {
+      get { return ServiceRegistration.Get<IMediaLibrary>(); }
+    }
   }
 }

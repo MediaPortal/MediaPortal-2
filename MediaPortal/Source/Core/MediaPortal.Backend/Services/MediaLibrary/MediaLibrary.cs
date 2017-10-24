@@ -1317,6 +1317,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return innerFilter == null ? excludeVirtualFilter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, innerFilter, excludeVirtualFilter);
     }
 
+    /// <summary>
+    /// Determines whether the <paramref name="maybeRequestedMIATypeId"/> was included in either <paramref name="necessaryRequestedMIATypeIDs"/> or
+    /// <paramref name="optionalRequestedMIATypeIDs"/>.
+    /// </summary>
+    /// <param name="maybeRequestedMIATypeId">The mia type id to check.</param>
+    /// <param name="necessaryRequestedMIATypeIDs">Enumeration of necessary mia type ids.</param>
+    /// <param name="optionalRequestedMIATypeIDs">Enumeration of optional mia type ids.</param>
+    /// <returns>True if <paramref name="maybeRequestedMIATypeId"/> was included in either <paramref name="necessaryRequestedMIATypeIDs"/> or
+    /// <paramref name="optionalRequestedMIATypeIDs"/>.</returns>
+    protected bool IsMiaTypeRequested(Guid maybeRequestedMIATypeId, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+    {
+      return (necessaryRequestedMIATypeIDs != null && necessaryRequestedMIATypeIDs.Contains(maybeRequestedMIATypeId)) ||
+        (optionalRequestedMIATypeIDs != null && optionalRequestedMIATypeIDs.Contains(maybeRequestedMIATypeId)); 
+    }
+
     protected ICollection<string> GetShareMediaCategories(ITransaction transaction, Guid shareId)
     {
       int mediaCategoryIndex;
@@ -1664,7 +1679,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         var necessaryRequestedMIATypeIDsWithProvierResourceAspect = (necessaryRequestedMIATypeIDs == null) ? new List<Guid>() : necessaryRequestedMIATypeIDs.ToList();
         if (!necessaryRequestedMIATypeIDsWithProvierResourceAspect.Contains(ProviderResourceAspect.ASPECT_ID))
         {
-          removeProviderResourceAspect = true;
+          //MP2-706: Don't remove the provider resource aspect if optionalRequestedMIATypeIDs contains the aspect
+          removeProviderResourceAspect = !IsMiaTypeRequested(ProviderResourceAspect.ASPECT_ID, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
           necessaryRequestedMIATypeIDsWithProvierResourceAspect.Add(ProviderResourceAspect.ASPECT_ID);
         }
         
@@ -1773,13 +1789,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
       LoadUserDataForMediaItems(database, transaction, userProfileId, items);
 
-      if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
+      if (filterOnlyOnline && !IsMiaTypeRequested(ProviderResourceAspect.ASPECT_ID, query.NecessaryRequestedMIATypeIDs, query.OptionalRequestedMIATypeIDs))
       { // The provider resource aspect was not requested and thus has to be removed from the result items
         foreach (MediaItem item in items)
           item.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
       }
-      if (!includeVirtual && !query.NecessaryRequestedMIATypeIDs.Contains(MediaAspect.ASPECT_ID))
-      { // The provider resource aspect was not requested and thus has to be removed from the result items
+      if (!includeVirtual && !IsMiaTypeRequested(MediaAspect.ASPECT_ID, query.NecessaryRequestedMIATypeIDs, query.OptionalRequestedMIATypeIDs))
+      { // The media aspect was not requested and thus has to be removed from the result items
         foreach (MediaItem item in items)
           item.Aspects.Remove(MediaAspect.ASPECT_ID);
       }
