@@ -718,6 +718,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
               PreferredAudioLanguages = pair.Value.PreferredAudioLanguages,
               DefaultSubtitleEncodings = pair.Value.DefaultSubtitleEncodings
             };
+            profileLinks.Links.Add(link);
           }
           else if (link == null)
           {
@@ -729,6 +730,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
               PreferredAudioLanguages = MediaServerPlugin.Settings.PreferredAudioLanguages,
               DefaultSubtitleEncodings = MediaServerPlugin.Settings.DefaultSubtitleEncodings
             };
+            profileLinks.Links.Add(link);
           }
           else if(pair.Value != null)
           {
@@ -737,7 +739,6 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
               link.Profile = "Auto";
             }
           }
-          profileLinks.Links.Add(link);
         }
         settingsManager.Save(profileLinks);
       }
