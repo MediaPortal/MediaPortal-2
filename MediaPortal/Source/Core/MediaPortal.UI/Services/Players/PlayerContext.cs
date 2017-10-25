@@ -376,16 +376,7 @@ namespace MediaPortal.UI.Services.Players
     {
       IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
       if (player != null)
-      {
-        if (player.IsPaused)
-        {
-          player.Resume();
-        }
-        else
-        {
-          player.Pause();
-        }
-      }
+        player.Pause();
     }
 
     public void Play()
