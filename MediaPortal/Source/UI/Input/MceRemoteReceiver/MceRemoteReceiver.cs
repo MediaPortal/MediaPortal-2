@@ -196,6 +196,9 @@ namespace MediaPortal.Plugins.MceRemoteReceiver
         case RemoteButton.Pause:
           InputDevices.LastHidRequest = AppCommands.MediaPause;
           break;
+        case RemoteButton.PlayPause:
+          InputDevices.LastHidRequest = AppCommands.MediaPlayPause;
+          break;
         case RemoteButton.Rewind:
           InputDevices.LastHidRequest = AppCommands.MediaRewind;
           break;

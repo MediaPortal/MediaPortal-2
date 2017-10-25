@@ -34,6 +34,7 @@ namespace MediaPortal.Plugins.MceRemoteReceiver.Hardware
     Stop = 25,
     Pause = 24,
     Rewind = 21,
+    PlayPause = 50,
     Play = 22,
     Forward = 20,
     Replay = 27,

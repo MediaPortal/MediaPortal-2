@@ -139,6 +139,10 @@ namespace MediaPortal.Plugins.MceRemoteReceiver.Hardware
           else
           {
             _doubleClickButton = (RemoteButton) _deviceBuffer[DEV_BUF_INDEX];
+            if (_doubleClickButton == RemoteButton.Pause || _doubleClickButton == RemoteButton.Play)
+            {
+              _doubleClickButton = RemoteButton.PlayPause;
+            }
             _doubleClickTick = Environment.TickCount;
 
             if (Click != null)

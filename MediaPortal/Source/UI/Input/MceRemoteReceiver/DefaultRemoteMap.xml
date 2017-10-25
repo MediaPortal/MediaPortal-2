@@ -48,6 +48,7 @@
 
   <MappedKeyCode Code="25" Key_Name="S:Stop" />
   <MappedKeyCode Code="24" Key_Name="S:Pause" />
+  <MappedKeyCode Code="50" Key_Name="S:PlayPause" />
   <MappedKeyCode Code="23" Key_Name="S:Record" />
   <MappedKeyCode Code="22" Key_Name="S:Play" />
   <MappedKeyCode Code="21" Key_Name="S:Rew" />
