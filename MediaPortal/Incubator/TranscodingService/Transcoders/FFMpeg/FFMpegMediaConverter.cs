@@ -29,19 +29,21 @@ using System.IO;
 using System.Threading;
 using System.Globalization;
 using System.Drawing;
-using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
-using MediaPortal.Utilities.Process;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
-using MediaPortal.Utilities.SystemAPI;
 using MediaPortal.Plugins.Transcoding.Interfaces;
 using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
 using MediaPortal.Common.MediaManagement;
+#if !TRANSCODE_CONSOLE_TEST
+using MediaPortal.Common;
+using MediaPortal.Utilities.Process;
+using MediaPortal.Utilities.SystemAPI;
+#endif
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
@@ -368,7 +370,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             _ffMpegCommandline.AddSubtitleEmbeddingParameters(currentSub, embeddedSubCodec, timeStart, ref data);
           }
-          else if(video.TargetSubtitleSupport != SubtitleSupport.SoftCoded)
+          else if (video.TargetSubtitleSupport != SubtitleSupport.SoftCoded)
           {
             video.TargetSubtitleSupport = SubtitleSupport.HardCoded; //Fallback to hardcoded subtitles
           }
@@ -394,7 +396,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           context.TargetSubtitle = currentSub.Source;
         }
         _ffMpegCommandline.AddVideoAudioParameters(video, ref data);
-        
+
         _ffMpegCommandline.AddStreamMapParameters(video.SourceVideoStreamIndex, video.SourceAudioStreamIndex, subCopyStream, embeddedSupported, ref data);
       }
 
@@ -807,21 +809,34 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         try
         {
           //TODO: Fix usages of obsolete and deprecated methods when alternative is available
+#if !TRANSCODE_CONSOLE_TEST
           using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor((mediaAccessor).CanonicalLocalResourcePath))
           {
+            //Only when the server is running as a service it will have elevation rights
             using (ImpersonationProcess ffmpeg = new ImpersonationProcess { StartInfo = startInfo })
             {
               IntPtr userToken = IntPtr.Zero;
-              if (isFile && !ImpersonationHelper.GetTokenByProcess(out userToken, true)) return;
-
+              if (isFile && !ImpersonationHelper.GetTokenByProcess(out userToken, true))
+                return;
+#else
+          {
+            {
+              Process ffmpeg = new Process() { StartInfo = startInfo };
+#endif
               ffmpeg.EnableRaisingEvents = true; //Enable raising events because Process does not raise events by default.
               if (isStream == false)
               {
                 ffmpeg.OutputDataReceived += data.Context.OutputDataReceived;
               }
               ffmpeg.ErrorDataReceived += data.Context.ErrorDataReceived;
-              if (isFile) ffmpeg.StartAsUser(userToken);
-              else ffmpeg.Start();
+#if !TRANSCODE_CONSOLE_TEST
+              if (isFile) 
+                ffmpeg.StartAsUser(userToken);
+              else 
+                ffmpeg.Start();
+#else
+              ffmpeg.Start();
+#endif
               ffmpeg.BeginErrorReadLine();
               if (isStream == false)
               {
@@ -831,7 +846,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
               {
                 data.TranscodeData.LiveStream = ffmpeg.StandardOutput.BaseStream;
               }
-              if(isSlimTv && isFile)
+              if (isSlimTv && isFile)
               {
                 _slimtTvHandler.AttachConverterStreamHook(identifier, ffmpeg.StandardInput.BaseStream);
               }
@@ -885,7 +900,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
               {
                 data.TranscodeData.LiveStream.Dispose();
               }
-              if (isFile) NativeMethods.CloseHandle(userToken);
+#if !TRANSCODE_CONSOLE_TEST
+              if (isFile)
+                NativeMethods.CloseHandle(userToken);
+#endif
             }
           }
         }
