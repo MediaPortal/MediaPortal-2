@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
+using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -18,13 +15,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(EpisodeAspect.ASPECT_ID);
 
-      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
+      int count = GetMediaItems.CountMediaItems(necessaryMIATypes);
 
-      WebIntResult webIntResult = new WebIntResult { Result = items.Count };
+      WebIntResult webIntResult = new WebIntResult { Result = count };
 
       return webIntResult;
     }

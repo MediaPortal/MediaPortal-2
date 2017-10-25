@@ -83,8 +83,15 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
                    }).ToList();
       foreach (var item in items)
       {
-        if (item.Item != null)
-          Add((BasicObject)MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, parent, item.ShareName));
+        try
+        {
+          if (item.Item != null)
+            Add((BasicObject)MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, parent, item.ShareName));
+        }
+        catch (Exception ex)
+        {
+          Logger.Error("Media item '{0}' could not be added", ex, item.Item);
+        }
       }
     }
   }

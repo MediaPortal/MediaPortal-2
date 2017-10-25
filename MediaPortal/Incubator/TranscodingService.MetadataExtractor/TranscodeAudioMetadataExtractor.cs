@@ -71,6 +71,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
         if (!importOnly)
           return false;
 
+        if (!extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+          return false;
+
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
 

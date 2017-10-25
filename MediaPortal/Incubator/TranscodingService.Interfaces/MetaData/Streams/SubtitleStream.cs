@@ -22,17 +22,20 @@
 
 #endregion
 
+using Newtonsoft.Json;
+
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
 {
   public class SubtitleStream
   {
-    public SubtitleCodec Codec;
-    public int StreamIndex;
-    public string Language;
-    public string Source;
-    public string CharacterEncoding = "";
-    public bool Default;
+    public SubtitleCodec Codec { get; set; }
+    public int StreamIndex { get; set; }
+    public string Language { get; set; }
+    public string Source { get; set; }
+    public string CharacterEncoding { get; set; } = "";
+    public bool Default { get; set; }
 
+    [JsonIgnore]
     public bool IsEmbedded
     {
       get

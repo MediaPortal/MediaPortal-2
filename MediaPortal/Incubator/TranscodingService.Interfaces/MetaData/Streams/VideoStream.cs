@@ -22,28 +22,30 @@
 
 #endregion
 
+using Newtonsoft.Json;
 using System;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
 {
   public class VideoStream
   {
-    public VideoCodec Codec;
-    public string FourCC;
-    public int StreamIndex;
-    public string Language;
-    public float AspectRatio;
-    public float PixelAspectRatio;
-    public PixelFormat PixelFormatType;
-    public long Bitrate;
-    public float Framerate;
-    public EncodingProfile ProfileType;
-    public float HeaderLevel;
-    public float RefLevel;
-    public Timestamp TimestampType;
-    public int Width;
-    public int Height;
+    public VideoCodec Codec { get; set; }
+    public string FourCC { get; set; }
+    public int StreamIndex { get; set; }
+    public string Language { get; set; }
+    public float AspectRatio { get; set; }
+    public float PixelAspectRatio { get; set; }
+    public PixelFormat PixelFormatType { get; set; }
+    public long Bitrate { get; set; }
+    public float Framerate { get; set; }
+    public EncodingProfile ProfileType { get; set; }
+    public float HeaderLevel { get; set; }
+    public float RefLevel { get; set; }
+    public Timestamp TimestampType { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
 
+    [JsonIgnore]
     public bool HasSquarePixels
     {
       get

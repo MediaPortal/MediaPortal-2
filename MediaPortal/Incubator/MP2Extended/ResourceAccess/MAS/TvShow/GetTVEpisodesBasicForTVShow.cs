@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Backend.MediaLibrary;
+﻿using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses;
-using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -22,15 +17,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   {
     public IList<WebTVEpisodeBasic> Process(Guid id, WebSortField? sort, WebSortOrder? order)
     {
-      // Get all seasons for this series
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(EpisodeAspect.ASPECT_ID);
-
-      IFilter searchFilter = new RelationshipFilter(id, SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
+      IFilter searchFilter = new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, id);
+      MediaItemQuery searchQuery = new MediaItemQuery(BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, searchFilter);
 
       IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
 
@@ -39,14 +27,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       if (episodes.Count == 0)
         return output;
 
-
-      output.AddRange(episodes.Select(episode => EpisodeBasic(episode)));
+      output.AddRange(episodes.Select(episode => EpisodeBasic(episode, id)));
 
       // sort
       if (sort != null && order != null)
-      {
         output = output.SortWebTVEpisodeBasic(sort, order).ToList();
-      }
 
       return output;
     }

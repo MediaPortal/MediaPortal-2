@@ -72,6 +72,7 @@
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumArtistItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumGenreItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumGenreContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesActorItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesGenreItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryPersonContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesRecentContainer.cs" />

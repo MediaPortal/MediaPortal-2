@@ -47,6 +47,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       VideoAspect.ASPECT_ID,
       AudioAspect.ASPECT_ID,
       ImageAspect.ASPECT_ID,
+      MovieAspect.ASPECT_ID,
+      EpisodeAspect.ASPECT_ID,
     };
 
     protected static readonly Guid[] NECESSARY_SHARE_MIA_TYPE_IDS = {

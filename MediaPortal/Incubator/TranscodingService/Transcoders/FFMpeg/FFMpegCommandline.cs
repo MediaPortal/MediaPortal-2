@@ -158,23 +158,23 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     {
       if(TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.Auto)
       {
-        data.InputArguments.Add("--hwaccel auto");
+        data.InputArguments.Add("-hwaccel auto");
       }
       else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.DirectX11)
       {
-        data.InputArguments.Add("--hwaccel d3d11va");
+        data.InputArguments.Add("-hwaccel d3d11va");
       }
       else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.DXVA2)
       {
-        data.InputArguments.Add("--hwaccel dxva2");
+        data.InputArguments.Add("-hwaccel dxva2");
       }
       else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.Intel)
       {
-        data.InputArguments.Add("--hwaccel qsv");
+        data.InputArguments.Add("-hwaccel qsv");
       }
       else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.Nvidia)
       {
-        data.InputArguments.Add("--hwaccel cuvid");
+        data.InputArguments.Add("-hwaccel cuvid");
       }
 
       bool isNetworkResource = false;

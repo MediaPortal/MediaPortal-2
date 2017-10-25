@@ -41,9 +41,9 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       Client = client;
     }
 
-    public void Initialise()
+    public void Initialise(string fanartType = null)
     {
-      Uri = DlnaResourceAccessUtils.GetThumbnailBaseURL(Item, Client);
+      Uri = DlnaResourceAccessUtils.GetThumbnailBaseURL(Item, Client, fanartType);
 
       string profileId = "JPEG_TN";
       string mimeType = "image/jpeg";

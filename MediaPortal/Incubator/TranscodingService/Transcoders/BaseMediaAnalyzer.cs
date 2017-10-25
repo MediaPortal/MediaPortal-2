@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
     #region Constants
 
     protected const string LIVE_MEDIAINFO_KEY = "MediaInfo";
-    protected static readonly string DEFAULT_ANALYSIS_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Transcoder\");
+    protected static readonly string DEFAULT_ANALYSIS_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Transcoding\");
 
     #endregion
 
@@ -180,13 +180,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
 
       //Analyze media
       IResourceAccessor mia = Media.GetResourceLocator().CreateAccessor();
-      info = GetCachedAnalysis(mia, Media.MediaItemId);
-      if (info == null)
-      {
-        info = ParseMediaStream(mia);
-        if (info != null)
-          SaveAnalysis(mia, Media.MediaItemId, info);
-      }
+      info = ParseMediaStream(mia);
       if (info == null)
       {
         _logger.Warn("MediaAnalyzer: Mediaitem {0} could not be parsed for information", Media.MediaItemId);
@@ -198,15 +192,34 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       return info;
     }
 
-    private void SaveAnalysis(IResourceAccessor accessor, Guid mediaItemId, MetadataContainer analysis)
+    private string GetResourceCategory(string resourceName)
     {
-      string filePath = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, $"{mediaItemId}");
+      if (HasAudioExtension(resourceName))
+      {
+        return "Audio";
+      }
+      else if (HasImageExtension(resourceName))
+      {
+        return "Image";
+      }
+      else if (HasVideoExtension(resourceName))
+      {
+        return "Video";
+      }
+      return "";
+    }
+
+    protected void SaveAnalysis(IResourceAccessor accessor, MetadataContainer analysis)
+    {
+      string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
       if (accessor is ILocalFsResourceAccessor file)
       {
+        filePath = Path.Combine(filePath, GetResourceCategory(file.ResourceName));
         filePath = Path.Combine(filePath, $"{file.ResourceName}.analysis");
       }
       else if (accessor is INetworkResourceAccessor link)
       {
+        filePath = Path.Combine(filePath, GetResourceCategory(link.ResourceName));
         filePath = Path.Combine(filePath, $"{link.ResourceName}.analysis");
       }
       else
@@ -222,20 +235,24 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       }
     }
 
-    private MetadataContainer GetCachedAnalysis(IResourceAccessor accessor, Guid mediaItemId)
+    protected MetadataContainer LoadAnalysis(IResourceAccessor accessor)
     {
-      string filePath = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, $"{mediaItemId}");
+      string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
       if (accessor is ILocalFsResourceAccessor file)
       {
+        filePath = Path.Combine(filePath, GetResourceCategory(file.ResourceName));
         filePath = Path.Combine(filePath, $"{file.ResourceName}.analysis");
       }
       else if (accessor is INetworkResourceAccessor link)
       {
+        filePath = Path.Combine(filePath, GetResourceCategory(link.ResourceName));
         filePath = Path.Combine(filePath, $"{link.ResourceName}.analysis");
       }
       if (File.Exists(filePath))
       {
-        return JsonConvert.DeserializeObject<MetadataContainer>(File.ReadAllText(filePath, Encoding.UTF8));
+        MetadataContainer info = JsonConvert.DeserializeObject<MetadataContainer>(File.ReadAllText(filePath, Encoding.UTF8));
+        info.Metadata.Source = accessor;
+        return info;
       }
       return null;
     }

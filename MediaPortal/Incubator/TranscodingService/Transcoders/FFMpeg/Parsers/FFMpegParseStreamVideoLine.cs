@@ -29,6 +29,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {
@@ -77,15 +78,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         string token = mediaToken.Trim();
         if (token.StartsWith("Video:", StringComparison.InvariantCultureIgnoreCase))
         {
-          string codecValue = token.Substring(token.Trim().IndexOf("Video: ", StringComparison.InvariantCultureIgnoreCase) + 7).Split(' ')[0];
-          if ((codecValue != null) && (codecValue.StartsWith("drm", StringComparison.InvariantCultureIgnoreCase)))
-          {
-            throw new Exception(info.Metadata.Source + " is DRM protected");
-          }
-
           string[] parts = token.Substring(token.IndexOf("Video: ", StringComparison.InvariantCultureIgnoreCase) + 7).Split(' ');
-          string codec = parts[0];
-          if ((codec != null) && (codec.StartsWith("drm", StringComparison.InvariantCultureIgnoreCase)))
+          string codecValue = parts[0];
+          if ((codecValue != null) && (codecValue.StartsWith("drm", StringComparison.InvariantCultureIgnoreCase)))
           {
             throw new Exception(info.Metadata.Source + " is DRM protected");
           }
@@ -102,7 +97,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           info.Video.Codec = FFMpegParseVideoCodec.ParseVideoCodec(codecValue);
           if (info.IsImage)
           {
-            info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(codecValue);
+            ILocalFsResourceAccessor lfra = null;
+            if (info.Metadata.Source is ILocalFsResourceAccessor)
+            {
+              lfra = (ILocalFsResourceAccessor)info.Metadata.Source;
+            }
+            info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(codecValue, lfra);
           }
           if (info.Video.Codec == VideoCodec.H264 || info.Video.Codec == VideoCodec.H265)
           {

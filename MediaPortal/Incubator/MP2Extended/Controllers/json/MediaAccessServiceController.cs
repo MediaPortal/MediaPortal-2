@@ -88,7 +88,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMovieDetailed> GetMoviesDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMoviesDetailed().Process(filter, sort, order);
     }
 
     [HttpGet]
@@ -109,7 +109,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebMovieBasic GetMovieBasicById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetMovieBasicById().Process(id);
     }
 
     [HttpGet]
@@ -130,14 +130,14 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebGenre> GetMovieGenresByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMovieGenresByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebIntResult GetMovieGenresCount(string filter)
     {
-      throw new NotImplementedException();
+      return new GetMovieGenresCount().Process(filter);
     }
 
     [HttpGet]
@@ -158,7 +158,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebActor> GetMovieActorsByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMovieActorsByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
@@ -574,7 +574,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebTVShowBasic GetTVShowBasicById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetTVShowBasicById().Process(id);
     }
 
     [HttpGet]
@@ -602,14 +602,14 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebTVSeasonBasic GetTVSeasonBasicById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetTVSeasonBasicById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebTVSeasonDetailed GetTVSeasonDetailedById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetTVSeasonDetailedById().Process(id);
     }
 
     [HttpGet]
@@ -623,7 +623,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodesDetailed().Process(filter, sort, order);
     }
 
     [HttpGet]
@@ -651,21 +651,21 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShow(Guid id, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodesDetailedForTVShow().Process(id, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShowByRange(Guid id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodesBasicForTVShowByRange().Process(id, start, end, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShowByRange(Guid id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVEpisodesDetailedForTVShowByRange().Process(id, start, end, filter, sort, order);
     }
 
     [HttpGet]
@@ -728,21 +728,21 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebActor> GetTVShowActors(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVShowActors().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebActor> GetTVShowActorsByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetTVShowActorsByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebIntResult GetTVShowActorCount(string filter)
     {
-      throw new NotImplementedException();
+      return new GetTVShowActorCount().Process(filter);
     }
 
     #endregion

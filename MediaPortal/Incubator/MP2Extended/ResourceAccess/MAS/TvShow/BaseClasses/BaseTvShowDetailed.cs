@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MediaPortal.Common.MediaManagement;
+﻿using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
-using MediaPortal.Utilities;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common.MediaManagement.Helpers;
 using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
@@ -23,12 +12,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
     internal WebTVShowDetailed TVShowDetailed(MediaItem item, MediaItem showItem = null)
     {
       var seriesAspect = item.GetAspect(SeriesAspect.Metadata);
-      var importerAspect = item.GetAspect(ImporterAspect.Metadata);
-
       var tvShowBasic = TVShowBasic(item);
 
       return new WebTVShowDetailed()
       {
+        Summary = seriesAspect.GetAttributeValue<string>(SeriesAspect.ATTR_DESCRIPTION),
         // From TvShowBasic
         Id = tvShowBasic.Id,
         Title = tvShowBasic.Title,

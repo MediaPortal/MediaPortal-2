@@ -59,11 +59,18 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       foreach (KeyValuePair<object, object> item in items)
       {
-        if (item.Key == null) continue;
-        string title = item.Key.ToString();
-        string key = Id + ":" + title;
+        try
+        {
+          if (item.Key == null) continue;
+          string title = item.Key.ToString();
+          string key = Id + ":" + title;
 
-        Add(new MediaLibraryYearItem(key, title, _necessaryMiaTypeIds, _optionalMiaTypeIds, Client));
+          Add(new MediaLibraryYearItem(key, title, _necessaryMiaTypeIds, _optionalMiaTypeIds, Client));
+        }
+        catch (Exception ex)
+        {
+          Logger.Error("Item '{0}' could not be added", ex, item.Key);
+        }
       }
     }
   }

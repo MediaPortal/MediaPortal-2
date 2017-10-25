@@ -24,15 +24,19 @@
 
 using System;
 using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseAudioContainer
   {
-    internal static AudioContainer ParseAudioContainer(string token)
+    internal static AudioContainer ParseAudioContainer(string token, ILocalFsResourceAccessor lfsra)
     {
       if (token != null)
       {
+        if (token.StartsWith("image", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Unknown;
+
         if (token.Equals("ac3", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Ac3;
         if (token.Equals("adts", StringComparison.InvariantCultureIgnoreCase))
@@ -65,6 +69,26 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         if (token.Equals("wavpack", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.WavPack;
       }
+
+      //Try file extensions
+      if (lfsra.LocalFileSystemPath != null)
+      {
+        if (lfsra.LocalFileSystemPath.EndsWith(".ac3", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Ac3;
+        if (lfsra.LocalFileSystemPath.EndsWith(".mp3", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Mp3;
+        if (lfsra.LocalFileSystemPath.EndsWith(".mp2", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Mp2;
+        if (lfsra.LocalFileSystemPath.EndsWith(".wma", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Asf;
+        if (lfsra.LocalFileSystemPath.EndsWith(".mp4", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".mp4a", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Mp4;
+        if (lfsra.LocalFileSystemPath.EndsWith(".flac", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Flac;
+        if (lfsra.LocalFileSystemPath.EndsWith(".ogg", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Ogg;
+      }
+
       return AudioContainer.Unknown;
     }
   }

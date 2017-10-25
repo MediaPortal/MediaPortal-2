@@ -21,29 +21,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   {
     public IList<WebTVShowDetailed> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      // we can't select only for shows, so we take all episodes and filter the shows.
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
-
-      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
+      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
 
       if (items.Count == 0)
         throw new BadRequestException("GetTVShowsBasic: no Tv Episodes found");
 
-      var output = items.Select(item => TVShowDetailed(item)).ToList();
-
+      var output = items.Select(item => TVShowDetailed(item))
+        .Filter(filter);
+      
       // sort and filter
       if (sort != null && order != null)
-      {
-        output = output.Filter(filter).SortWebTVShowBasic(sort, order).ToList();
-      }
-      else
-        output = output.Filter(filter).ToList();
+        output = output.SortWebTVShowBasic(sort, order);
 
-      return output;
+      return output.ToList();
     }
 
     internal static ILogger Logger

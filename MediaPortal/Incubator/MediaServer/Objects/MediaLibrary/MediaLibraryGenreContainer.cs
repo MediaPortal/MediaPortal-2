@@ -59,18 +59,25 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       foreach (var item in items)
       {
-        if (item.Key == null) continue;
-        string title = item.Key.ToString();
-        string key = Id + ":" + title;
+        try
+        {
+          if (item.Key == null) continue;
+          string title = item.Key.ToString();
+          string key = Id + ":" + title;
 
-        if(_necessaryMIAs.Contains(MovieAspect.ASPECT_ID))
-          Add(new MediaLibraryMovieGenreItem(key, title, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), Client));
-        else if (_necessaryMIAs.Contains(AudioAspect.ASPECT_ID))
-          Add(new MediaLibraryMusicGenreItem(key, title, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), Client));
-        else if (_necessaryMIAs.Contains(AudioAlbumAspect.ASPECT_ID))
-          Add(new MediaLibraryAlbumGenreItem(key, title, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), Client));
-        else if (_necessaryMIAs.Contains(SeriesAspect.ASPECT_ID))
-          Add(new MediaLibrarySeriesGenreItem(key, title, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), Client));
+          if (_necessaryMIAs.Contains(MovieAspect.ASPECT_ID))
+            Add(new MediaLibraryMovieGenreItem(key, title, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), Client));
+          else if (_necessaryMIAs.Contains(AudioAspect.ASPECT_ID))
+            Add(new MediaLibraryMusicGenreItem(key, title, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), Client));
+          else if (_necessaryMIAs.Contains(AudioAlbumAspect.ASPECT_ID))
+            Add(new MediaLibraryAlbumGenreItem(key, title, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), Client));
+          else if (_necessaryMIAs.Contains(SeriesAspect.ASPECT_ID))
+            Add(new MediaLibrarySeriesGenreItem(key, title, new RelationalFilter(GenreAspect.ATTR_GENRE, RelationalOperator.EQ, title), Client));
+        }
+        catch (Exception ex)
+        {
+          Logger.Error("Item '{0}' could not be added", ex, item.Key);
+        }
       }
     }
   }

@@ -44,6 +44,15 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       Director = new List<string>();
       Publisher = new List<string>();
 
+      if(item.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+      {
+        Title = item.Aspects[MovieAspect.ASPECT_ID].First().GetAttributeValue<string>(MovieAspect.ATTR_MOVIE_NAME);
+      }
+      else if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+      {
+        Title = item.Aspects[EpisodeAspect.ASPECT_ID].First().GetAttributeValue<string>(EpisodeAspect.ATTR_EPISODE_NAME);
+      }
+
       if (client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {
         if (MediaItemAspect.TryGetAspect(item.Aspects, VideoAspect.Metadata, out SingleMediaItemAspect videoAspect))

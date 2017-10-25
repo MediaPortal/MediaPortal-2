@@ -13,6 +13,7 @@
   <string name="MediaServer.AlbumContainter">Albums</string>
   <string name="MediaServer.RecentContainter">Recently Added</string>
   <string name="MediaServer.ArtistContainter">Artists</string>
+  <string name="MediaServer.AlbumArtistContainter">Album Artists</string>
   <string name="MediaServer.GenreContainter">Genres</string>
   <string name="MediaServer.YearContainter">Year</string>
   <string name="MediaServer.ShareContainter">Shares</string>

@@ -74,7 +74,7 @@ namespace MediaPortal.Plugins.MP2Extended
           {
             c.DescribeAllEnumsAsStrings();
             c.OperationFilter<HandleModelbinding>();
-            c.SwaggerDoc("v1", new Info
+            Info info = new Info
             {
               Title = "MP2Extended API",
               Description = "MP2Extended brings the well known MPExtended from MP1 to MP2",
@@ -83,9 +83,12 @@ namespace MediaPortal.Plugins.MP2Extended
                 Name = "FreakyJ"
               },
               Version = "v1"
-            });
-            c.OrderActionsBy(d => d.GroupName);
-            //c.OrderActionGroupsBy(new DescendingAlphabeticComparer());
+            };
+
+            c.SwaggerDoc("MediaAccessService", info);
+            c.SwaggerDoc("TVAccessService", info);
+            c.SwaggerDoc("StreamingService", info);
+            c.OrderActionsBy(d => d.ActionDescriptor.DisplayName);
             //c.IncludeXmlComments(Path.Combine(ASSEMBLY_PATH, ASS.GetName().Name+".xml"));
           });
         },
@@ -118,15 +121,7 @@ namespace MediaPortal.Plugins.MP2Extended
             });
           });*/
           //app.UseMiddleware<ExceptionHandlerMiddleware>();
-          app.UseSwaggerUI(so => so.SwaggerEndpoint(BASE_PATH + "/swagger/v1/swagger.json", "v1"));
-
-          // Swagger File Provider
-          //string resourcePath = Path.Combine(ASSEMBLY_PATH, "wwwroot/swagger").TrimEnd(Path.DirectorySeparatorChar);
-          //app.UseStaticFiles(new StaticFileOptions
-          //{
-          //  FileProvider = new PhysicalFileProvider(resourcePath),
-          //  RequestPath = new PathString("/swagger/ui")
-          //});
+          
           // View File Provider
           string resourcePathView = Path.Combine(ASSEMBLY_PATH, "Views").TrimEnd(Path.DirectorySeparatorChar);
           app.UseStaticFiles(new StaticFileOptions
@@ -134,6 +129,7 @@ namespace MediaPortal.Plugins.MP2Extended
             FileProvider = new PhysicalFileProvider(resourcePathView),
             RequestPath = new PathString("/wwwViews")
           });
+
           // www File Provider
           //string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "wwwroot").TrimEnd(Path.DirectorySeparatorChar);
           //app.UseStaticFiles(new StaticFileOptions
@@ -141,10 +137,19 @@ namespace MediaPortal.Plugins.MP2Extended
           //  FileProvider = new PhysicalFileProvider(resourcePathWww),
           //  RequestPath = new PathString("/wwwroot")
           //});
+
+          // Swagger
+          app.UseSwagger();
+          app.UseSwaggerUI(o =>
+          {
+            o.SwaggerEndpoint(BASE_PATH + "/swagger/MediaAccessService/swagger.json", "MediaAccessService");
+            o.SwaggerEndpoint(BASE_PATH + "/swagger/TVAccessService/swagger.json", "TVAccessService");
+            o.SwaggerEndpoint(BASE_PATH + "/swagger/StreamingService/swagger.json", "StreamingService");
+          });
+
           // MVC
           app.UseMvc();
-          // Swagger
-          //app.UseSwaggerGen();
+
           // some standard output
           app.Run(context => context.Response.WriteAsync("Hello MP2Extended"));
         },

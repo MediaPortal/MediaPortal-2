@@ -26,7 +26,7 @@ using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryAlbumContainer : MediaLibraryContainer
+  internal class MediaLibraryAlbumContainer : MediaLibraryContainer
   {
     public MediaLibraryAlbumContainer(string id, EndPointSettings client)
       : base(id, "Albums", NECESSARY_ALBUM_MIA_TYPE_IDS, OPTIONAL_ALBUM_MIA_TYPE_IDS, null, client)

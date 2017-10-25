@@ -38,17 +38,13 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       : base(item, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, 
           new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, item.MediaItemId), client)
     {
-    }
-
-    public override void Initialise()
-    {
       Genre = new List<string>();
       Artist = new List<string>();
       Contributor = new List<string>();
 
       if (MediaItemAspect.TryGetAspect(Item.Aspects, AudioAlbumAspect.Metadata, out SingleMediaItemAspect albumAspect))
       {
-        Title = albumAspect.GetAttributeValue<string>(AudioAlbumAspect.ATTR_ALBUM);
+        //Title = albumAspect.GetAttributeValue<string>(AudioAlbumAspect.ATTR_ALBUM);
         if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
         {
           IList<MultipleMediaItemAspect> genreAspects;

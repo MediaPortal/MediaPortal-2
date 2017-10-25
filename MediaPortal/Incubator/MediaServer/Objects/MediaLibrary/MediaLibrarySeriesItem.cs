@@ -27,10 +27,12 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Utilities;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibrarySeriesItem : MediaLibraryContainer
+  public class MediaLibrarySeriesItem : MediaLibraryContainer, IDirectoryMusicAlbum
   {
     public MediaLibrarySeriesItem(MediaItem item, EndPointSettings client)
       : base(item, NECESSARY_SEASON_MIA_TYPE_IDS, OPTIONAL_SEASON_MIA_TYPE_IDS, 
@@ -44,9 +46,18 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       {
         if (MediaItemAspect.TryGetAspect(Item.Aspects, SeriesAspect.Metadata, out SingleMediaItemAspect seriesAspect))
         {
-          var descriptionObj = seriesAspect.GetAttributeValue(SeriesAspect.ATTR_DESCRIPTION);
-          if (descriptionObj != null)
-            Description = descriptionObj.ToString();
+          IList<MultipleMediaItemAspect> genreAspects;
+          if (MediaItemAspect.TryGetAspects(Item.Aspects, GenreAspect.Metadata, out genreAspects))
+          {
+            CollectionUtils.AddAll(Genre, genreAspects.Select(g => g.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)));
+          }
+
+          var artistObj = seriesAspect.GetCollectionAttribute<object>(SeriesAspect.ATTR_ACTORS);
+          if (artistObj != null)
+            CollectionUtils.AddAll(Artist, artistObj.Cast<string>());
+
+          Description = seriesAspect.GetAttributeValue<string>(SeriesAspect.ATTR_DESCRIPTION);
+          LongDescription = Description;
         }
       }
 
@@ -73,10 +84,18 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       get { return "object.container.album.musicAlbum"; }
     }
 
+    public string StorageMedium { get; set; }
+    public string LongDescription { get; set; }
     public string Description { get; set; }
+    public IList<string> Publisher { get; set; }
     public IList<string> Contributor { get; set; }
+    public string Date { get; set; }
+    public string Relation { get; set; }
+    public IList<string> Rights { get; set; }
     public IList<string> Artist { get; set; }
     public IList<string> Genre { get; set; }
+    public IList<string> Producer { get; set; }
     public string AlbumArtUrl { get; set; }
+    public string Toc { get; set; }
   }
 }
