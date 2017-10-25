@@ -164,6 +164,7 @@
     <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoAudioStreamAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs" />
+    <Compile Include="Models\BaseOSDPlayerModel.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />

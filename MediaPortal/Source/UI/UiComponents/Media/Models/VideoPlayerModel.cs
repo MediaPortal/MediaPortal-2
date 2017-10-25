@@ -22,18 +22,15 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
-using MediaPortal.UI.Presentation.Workflow;
+using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -44,16 +41,12 @@ namespace MediaPortal.UiComponents.Media.Models
   /// <remarks>
   /// <seealso cref="IPlayerUIContributor"/>
   /// </remarks>
-  public class VideoPlayerModel : BasePlayerModel
+  public class VideoPlayerModel : BaseOSDPlayerModel
   {
     public const string MODEL_ID_STR = "4E2301B4-3C17-4a1d-8DE5-2CEA169A0256";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
     private bool _isPlayerConfigOpen;
-    private DateTime _lastVideoInfoDemand = DateTime.MinValue;
-    private bool _isOsdOpenOnDemand;
-
-    protected AbstractProperty _isOSDVisibleProperty;
     protected AbstractProperty _isPipProperty;
 
     public VideoPlayerModel() : base(Consts.WF_STATE_ID_CURRENTLY_PLAYING_VIDEO, Consts.WF_STATE_ID_FULLSCREEN_VIDEO)
@@ -68,21 +61,18 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected override void Update()
     {
-      // base.Update is abstract
+      // base.Update handles OSD visibility
+      base.Update();
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext secondaryPlayerContext = playerContextManager.SecondaryPlayerContext;
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
-      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-
-      if (!_isOsdOpenOnDemand && !_isPlayerConfigOpen)
-      {
-        if (DateTime.Now - _lastVideoInfoDemand > DateTime.Now.AddSeconds(5) - DateTime.Now)
-        {
-          IsOSDVisible = inputManager.IsMouseUsed;
-        }
-      }
-
       IsPip = pipPlayer != null;
+    }
+
+    protected override void UpdateOSDVisibilty()
+    {
+      if (!_isPlayerConfigOpen)
+        base.UpdateOSDVisibilty();
     }
 
     private void SubscribeToMessages()
@@ -117,8 +107,8 @@ namespace MediaPortal.UiComponents.Media.Models
           if (statesRemoved.Contains(new Guid("D0B79345-69DF-4870-B80E-39050434C8B3")))
           {
             _isPlayerConfigOpen = false;
-            _lastVideoInfoDemand = DateTime.Now;
             _isOsdOpenOnDemand = false;
+            SetLastOSDMouseUsageTime();
           }
         }
       }
@@ -146,17 +136,6 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Members to be accessed from the GUI
 
-    public AbstractProperty IsOSDVisibleProperty
-    {
-      get { return _isOSDVisibleProperty; }
-    }
-
-    public bool IsOSDVisible
-    {
-      get { return (bool) _isOSDVisibleProperty.GetValue(); }
-      set { _isOSDVisibleProperty.SetValue(value); }
-    }
-
     public AbstractProperty IsPipProperty
     {
       get { return _isPipProperty; }
@@ -168,7 +147,7 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _isPipProperty.SetValue(value); }
     }
 
-    public void ShowVideoInfo()
+    public override void ToggleOSD()
     {
       if (IsOSDVisible)
       {
@@ -176,23 +155,12 @@ namespace MediaPortal.UiComponents.Media.Models
         if (settings.OpenPlayerConfigInOsd)
         {
           PlayerConfigurationDialogModel.OpenPlayerConfigurationDialog();
-        }
-        else
-        {
-          IsOSDVisible = !IsOSDVisible;
-          _lastVideoInfoDemand = DateTime.Now;
+          _isOsdOpenOnDemand = true;
+          return;
         }
       }
-      else
-      {
-        IsOSDVisible = !IsOSDVisible;
-      }
-      _isOsdOpenOnDemand = IsOSDVisible;
+      base.ToggleOSD();
     }
-
-
-      _lastVideoInfoDemand = DateTime.Now;
-      _isOsdOpenOnDemand = false;
 
     public void OpenPlayerConfigurationDialog()
     {

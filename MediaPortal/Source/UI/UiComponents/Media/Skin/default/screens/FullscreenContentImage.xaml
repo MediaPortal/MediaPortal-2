@@ -67,6 +67,6 @@
             AutoVisibility="true"/>
       </DockPanel> <!-- OSD_RightPanel -->
     </DockPanel> <!-- OSD_LayoutPanel -->
-    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
+    <KeyBinding Key="Info" Command="{Command ToggleOSD}"/>
   </Grid>
 </Screen>
