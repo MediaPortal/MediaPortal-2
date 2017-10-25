@@ -199,43 +199,26 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       return false;
     }
 
-    public static string GetThumbnailBaseURL(MediaItem item, EndPointSettings client)
+    public static string GetThumbnailBaseURL(MediaItem item, EndPointSettings client, string fanartType = null)
     {
-      //bool useFanart = false;
-      //if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
-      //{
-      //  useFanart = true;
-      //}
-      //else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-      //{
-      //  useFanart = true;
-      //}
-
-      string url;
-      bool useFanart = true;
-      if (useFanart)
+      string mediaType = fanartType ?? FanArtMediaTypes.Undefined;
+      if (string.IsNullOrEmpty(fanartType))
       {
-        string mediaType = FanArtMediaTypes.Undefined;
         if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Image;
         else if (item.Aspects.ContainsKey(MovieAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Movie;
+        else if (item.Aspects.ContainsKey(MovieCollectionAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.MovieCollection;
         else if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Series;
+        else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.SeriesSeason;
         else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Audio;
         else if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Album;
         else if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Episode;
-        else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.SeriesSeason;
+        else if (item.Aspects.ContainsKey(CharacterAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Character;
+      }
 
-        // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
-        url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}&name={3}&width={4}&height={5}",
-          GetBaseResourceURL(), mediaType, FanArtTypes.Thumbnail, item.MediaItemId, 
-          client.Profile.Settings.Thumbnails.MaxWidth, client.Profile.Settings.Thumbnails.MaxHeight);
-      }
-      else
-      {
-        // Using MP2's thumbnails
-        url = string.Format("{0}{1}?aspect={2}&width={3}&height={4}",
-          GetBaseResourceURL(), GetResourceUrl(item.MediaItemId.ToString()), "THUMBNAIL", 
-          client.Profile.Settings.Thumbnails.MaxWidth, client.Profile.Settings.Thumbnails.MaxHeight);
-      }
+      // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
+      string url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}&name={3}&width={4}&height={5}",
+        GetBaseResourceURL(), mediaType, FanArtTypes.Thumbnail, item.MediaItemId,
+        client.Profile.Settings.Thumbnails.MaxWidth, client.Profile.Settings.Thumbnails.MaxHeight);
       return url;
     }
 
