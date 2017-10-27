@@ -54,9 +54,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="OnlineVideos.Core" Version="1.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0" />

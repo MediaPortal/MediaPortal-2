@@ -1,7 +1,5 @@
 {
-	"name": "MP2Extended",
-	"private": true,
-  "dependencies": {
-    "swagger-ui": "2.1.3"
-  }
+  "name": "MP2Extended",
+  "private": true,
+  "dependencies": {}
 }
