@@ -1,5 +1,4 @@
-﻿using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -25,9 +24,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     {
       // Get all seasons for this series
       IFilter searchFilter = new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, id);
-      MediaItemQuery searchQuery = new MediaItemQuery(DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds, searchFilter);
-
-      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
+      IList<MediaItem> episodes = GetMediaItems.Search(DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds, searchFilter);
 
       if (episodes.Count == 0)
         throw new BadRequestException("No Tv Episodes found");

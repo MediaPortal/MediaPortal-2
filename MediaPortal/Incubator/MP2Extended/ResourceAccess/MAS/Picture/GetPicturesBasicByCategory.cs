@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -14,6 +8,9 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
@@ -34,9 +31,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
       necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
 
       IFilter searchFilter = new BetweenFilter(MediaAspect.ATTR_RECORDINGTIME, new DateTime(recordingTime.Year, 1, 1), new DateTime(recordingTime.Year, 12, 31));
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, searchFilter);
-
-      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
+      IList<MediaItem> items = GetMediaItems.Search(necessaryMIATypes, searchFilter);
 
       var output = items.Select(item => PictureBasic(item)).ToList();
 

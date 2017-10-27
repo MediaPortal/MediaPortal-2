@@ -144,6 +144,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     #region Search
 
+    internal static IList<MediaItem> Search(ISet<Guid> necessaryMIATypes, IFilter filter)
+    {
+      return Search(necessaryMIATypes, null, filter);
+    }
+
     internal static IList<MediaItem> Search(ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, IFilter filter)
     {
       MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter);

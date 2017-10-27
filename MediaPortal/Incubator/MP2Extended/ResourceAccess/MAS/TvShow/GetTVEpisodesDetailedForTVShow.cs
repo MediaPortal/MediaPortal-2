@@ -1,5 +1,4 @@
-﻿using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -18,9 +17,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     public IList<WebTVEpisodeDetailed> Process(Guid id, WebSortField? sort, WebSortOrder? order)
     {
       IFilter searchFilter = new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, id);
-      MediaItemQuery searchQuery = new MediaItemQuery(DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds, searchFilter);
-
-      IList<MediaItem> episodes = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
+      IList<MediaItem> episodes = GetMediaItems.Search(DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds, searchFilter);
 
       var output = new List<WebTVEpisodeDetailed>();
 

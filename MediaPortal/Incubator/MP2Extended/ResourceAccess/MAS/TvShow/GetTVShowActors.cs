@@ -1,5 +1,4 @@
-﻿using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -30,8 +29,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       necessaryMIATypes.Add(PersonAspect.ASPECT_ID);
 
       IFilter searchFilter = new RelationshipFilter(PersonAspect.ROLE_ACTOR, SeriesAspect.ROLE_SERIES, Guid.Empty);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, searchFilter);
-      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
+      IList<MediaItem> items = GetMediaItems.Search(necessaryMIATypes, searchFilter);
          
       if (items.Count == 0)
         throw new BadRequestException("No Tv show actors found");
