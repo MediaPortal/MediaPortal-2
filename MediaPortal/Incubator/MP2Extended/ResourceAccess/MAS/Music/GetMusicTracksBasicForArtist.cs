@@ -21,11 +21,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetMusicTracksBasicForAlbum : BaseMusicTrackBasic
+  internal class GetMusicTracksBasicForArtist : BaseMusicTrackBasic
   {
     public IList<WebMusicTrackBasic> Process(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      IFilter searchFilter = new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, id);
+      IFilter searchFilter = new RelationshipFilter(AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ARTIST, id);
       IList<MediaItem> items = GetMediaItems.Search(BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, searchFilter);
 
       IFilter trackIdFilter = new MediaItemIdFilter(items.Select(i => i.MediaItemId));

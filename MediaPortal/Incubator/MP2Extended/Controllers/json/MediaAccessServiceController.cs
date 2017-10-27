@@ -197,7 +197,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicAlbumBasic> GetMusicAlbumsBasicForArtist(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicAlbumsBasicForArtist().Process(id, filter, sort, order);
     }
 
     [HttpGet]
@@ -232,63 +232,63 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebMusicArtistBasic GetMusicArtistBasicById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetMusicArtistBasicById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicArtistDetailed> GetMusicArtistsDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicArtistsDetailed().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicArtistDetailed> GetMusicArtistsDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicArtistsDetailedByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebMusicArtistDetailed GetMusicArtistDetailedById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetMusicArtistDetailedById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebIntResult GetMusicTrackCount(string filter)
     {
-      throw new NotImplementedException();
+      return new GetMusicTrackCount().Process(filter);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicTrackBasic> GetMusicTracksBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicTracksBasic().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicTrackDetailed> GetMusicTracksDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicTracksDetailed().Process(filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicTrackBasic> GetMusicTracksBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicTracksBasicByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicTrackDetailed> GetMusicTracksDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicTracksDetailedByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
@@ -302,21 +302,21 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicTrackBasic> GetMusicTracksBasicForArtist(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicTracksBasicForArtist().Process(id, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicTrackDetailed> GetMusicTracksDetailedForAlbum(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicTracksDetailedForAlbum().Process(id, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebMusicTrackDetailed> GetMusicTracksDetailedForArtist(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicTracksDetailedForArtist().Process(id, filter, sort, order);
     }
 
     [HttpGet]
@@ -330,12 +330,11 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebMusicTrackDetailed GetMusicTrackDetailedById(Guid id)
     {
-      throw new NotImplementedException();
+      return new GetMusicTrackDetailedById().Process(id);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
-    //[ResponseCache(CacheProfileName = "nonCriticalApiCalls")]
     public IList<WebGenre> GetMusicGenres(WebSortField? sort, WebSortOrder? order)
     {
       return new GetMusicGenres().Process(sort, order);
@@ -345,14 +344,14 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public IList<WebGenre> GetMusicGenresByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      throw new NotImplementedException();
+      return new GetMusicGenresByRange().Process(start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "MediaAccessService")]
     public WebIntResult GetMusicGenresCount(string filter)
     {
-      throw new NotImplementedException();
+      return new GetMusicGenresCount().Process(filter);
     }
 
     [HttpGet]

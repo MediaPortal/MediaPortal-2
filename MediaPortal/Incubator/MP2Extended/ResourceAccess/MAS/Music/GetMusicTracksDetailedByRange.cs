@@ -6,14 +6,12 @@ using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
-  // TODO: This one doesn't to work in the MIA rework yet
-  internal class GetMusicAlbumsBasicByRange : GetMusicAlbumsBasic
+  internal class GetMusicTracksDetailedByRange : GetMusicTracksDetailed
   {
-    public IList<WebMusicAlbumBasic> Process(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackDetailed> Process(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       var output = Process(filter, sort, order);
 
-      // get range
       output = output.TakeRange(start, end).ToList();
 
       return output;

@@ -11,16 +11,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-  internal class GetMusicTrackBasicById : BaseMusicTrackBasic
+  internal class GetMusicTrackDetailedById : BaseMusicTrackDetailed
   {
-    public WebMusicTrackBasic Process(Guid id)
+    public WebMusicTrackDetailed Process(Guid id)
     {
       MediaItem item = GetMediaItems.GetMediaItemById(id, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (item == null)
         throw new BadRequestException($"No track found with id {id}");
 
-      return MusicTrackBasic(item);
+      return MusicTrackDetailed(item);
     }
 
     internal static ILogger Logger

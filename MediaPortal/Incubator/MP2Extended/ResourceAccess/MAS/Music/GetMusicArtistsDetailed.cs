@@ -18,9 +18,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetMusicArtistsBasic : BaseMusicArtistBasic
+  internal class GetMusicArtistsDetailed : BaseMusicArtistDetailed
   {
-    public IList<WebMusicArtistBasic> Process(string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicArtistDetailed> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
       IFilter searchFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
         new RelationshipFilter(PersonAspect.ROLE_ARTIST, AudioAspect.ROLE_TRACK, Guid.Empty),
@@ -29,9 +29,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       IList<MediaItem> items = GetMediaItems.Search(BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, searchFilter);
 
       if (items.Count == 0)
-        return new List<WebMusicArtistBasic>();
+        return new List<WebMusicArtistDetailed>();
 
-      var output = items.Select(item => MusicArtistBasic(item))
+      var output = items.Select(item => MusicArtistDetailed(item))
         .Filter(filter);
 
       // sort

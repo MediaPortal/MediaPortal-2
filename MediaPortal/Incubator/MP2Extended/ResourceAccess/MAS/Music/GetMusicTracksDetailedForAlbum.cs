@@ -21,9 +21,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetMusicTracksBasicForAlbum : BaseMusicTrackBasic
+  internal class GetMusicTracksDetailedForAlbum : BaseMusicTrackDetailed
   {
-    public IList<WebMusicTrackBasic> Process(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicTrackDetailed> Process(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       IFilter searchFilter = new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, id);
       IList<MediaItem> items = GetMediaItems.Search(BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, searchFilter);
@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       IDictionary<Guid, IList<MediaItem>> trackArtistMap = ArtistHelper.MapTracksToArtists(artists);
       IDictionary<Guid, IList<MediaItem>> trackAlbumArtistMap = ArtistHelper.MapTracksToAlbumArtists(artists);
 
-      var output = items.Select(i => MusicTrackBasic(i, trackArtistMap, trackAlbumArtistMap))
+      var output = items.Select(i => MusicTrackDetailed(i, trackArtistMap, trackAlbumArtistMap))
         .Filter(filter);
 
       if (sort != null)

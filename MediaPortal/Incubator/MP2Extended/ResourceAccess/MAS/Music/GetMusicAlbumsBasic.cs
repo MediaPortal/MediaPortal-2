@@ -1,52 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Backend.Services.MediaLibrary;
-using MediaPortal.Common;
-using MediaPortal.Common.General;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
-using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
-using Newtonsoft.Json;
+using MP2Extended.ResourceAccess.MAS.Music.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
-  // TODO: This one doesn't to work in the MIA rework yet
   internal class GetMusicAlbumsBasic : BaseMusicAlbumBasic
   {
     public IList<WebMusicAlbumBasic> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(AudioAlbumAspect.ASPECT_ID);
+      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
 
-      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
-      optionalMIATypes.Add(GenreAspect.ASPECT_ID);
+      //For bulk album requests request all album artists up front to avoid having to do an individual request for every album
+      IList<MediaItem> artists = GetAllArtistsForAlbum(null);
 
-      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes, optionalMIATypes, null);
+      //Map each album artist to their respective albums
+      IDictionary<Guid, IList<MediaItem>> albumToArtistMap = ArtistHelper.MapAlbumsToArtists(artists);
 
-      var output = items.Select(item => MusicAlbumBasic(item)).ToList();
+      var output = items.Select(item =>MusicAlbumBasic(item, albumToArtistMap))
+        .Filter(filter);
 
-      // sort and filter
-      if (sort != null && order != null)
-      {
-        output = output.Filter(filter).AsQueryable().SortMediaItemList(sort, order).ToList();
-      }
-      else
-        output = output.Filter(filter).ToList();
+      //sort
+      if (sort != null)
+        output = output.AsQueryable().SortMediaItemList(sort, order);
 
-      return output;
+      return output.ToList();
     }
 
     internal static ILogger Logger

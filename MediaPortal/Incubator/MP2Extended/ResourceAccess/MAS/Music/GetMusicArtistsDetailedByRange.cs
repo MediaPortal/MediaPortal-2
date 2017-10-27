@@ -13,11 +13,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetMusicArtistsBasicByRange : GetMusicArtistsBasic
+  internal class GetMusicArtistsDetailedByRange : GetMusicArtistsDetailed
   {
-    public IList<WebMusicArtistBasic> Process(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public IList<WebMusicArtistDetailed> Process(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      IList<WebMusicArtistBasic> output = Process(filter, sort, order);
+      var output = Process(filter, sort, order);
 
       output = output.TakeRange(start, end).ToList();
 

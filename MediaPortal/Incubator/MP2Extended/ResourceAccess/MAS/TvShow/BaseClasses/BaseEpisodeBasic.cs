@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 
       IEnumerable<int> episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
       int episodeNumber = episodeNumbers != null ? episodeNumbers.FirstOrDefault() : 0;
-
+            
       GetParentIds(item, ref showId, ref seasonId);
 
       WebTVEpisodeBasic webTvEpisodeBasic = new WebTVEpisodeBasic
@@ -80,18 +80,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         return;
 
       if (!showId.HasValue)
-        showId = relationships.Where(ra =>
-          ra.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == EpisodeAspect.ROLE_EPISODE &&
-          ra.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == SeriesAspect.ROLE_SERIES)
-          .Select(ra => ra.GetAttributeValue<Guid?>(RelationshipAspect.ATTR_LINKED_ID))
-          .FirstOrDefault();
+        showId = relationships.GetLinkedIdOrDefault(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES);
 
       if (!seasonId.HasValue)
-        seasonId = relationships.Where(ra =>
-          ra.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == EpisodeAspect.ROLE_EPISODE &&
-          ra.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == SeasonAspect.ROLE_SEASON)
-          .Select(ra => ra.GetAttributeValue<Guid?>(RelationshipAspect.ATTR_LINKED_ID))
-          .FirstOrDefault();
+        seasonId = relationships.GetLinkedIdOrDefault(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON);
     }
   }
 }

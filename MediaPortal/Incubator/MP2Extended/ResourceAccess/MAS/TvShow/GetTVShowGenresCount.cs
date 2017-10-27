@@ -1,7 +1,4 @@
-﻿using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MP2Extended.Common;
-using System.Linq;
+﻿using MediaPortal.Plugins.MP2Extended.Common;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -9,7 +6,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   {
     public WebIntResult Process()
     {
-      var output = Process(null, null).ToList();
+      var output = Process(null, null);
 
       return new WebIntResult { Result = output.Count };
     }

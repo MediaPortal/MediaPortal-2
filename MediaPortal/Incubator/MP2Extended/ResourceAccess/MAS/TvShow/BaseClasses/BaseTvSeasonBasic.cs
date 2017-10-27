@@ -37,7 +37,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 
       int unwatchedCount = GetMediaItems.CountMediaItems(necessaryMIATypespisodes, unwatchedEpisodeFilter);
 
-      GetShowId(item, ref showId);
+      if (!showId.HasValue)
+        showId = item.GetLinkedIdOrDefault(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES);
 
       var mediaAspect = item.GetAspect(MediaAspect.Metadata);
       var seasonAspect = item.GetAspect(SeasonAspect.Metadata);
@@ -58,22 +59,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         IsProtected = false,
         PID = 0
       };
-    }
-
-    protected void GetShowId(MediaItem item, ref Guid? showId)
-    {
-      if (showId.HasValue)
-        return;
-
-      IList<MediaItemAspect> relationshipAspects;
-      if (!item.Aspects.TryGetValue(RelationshipAspect.ASPECT_ID, out relationshipAspects))
-        return;
-
-      showId = relationshipAspects.Where(ra =>
-        ra.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == SeasonAspect.ROLE_SEASON &&
-        ra.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == SeriesAspect.ROLE_SERIES)
-        .Select(ra => ra.GetAttributeValue<Guid?>(RelationshipAspect.ATTR_LINKED_ID))
-        .FirstOrDefault();
     }
   }
 }

@@ -142,6 +142,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     #endregion
 
+    #region Search
+
+    internal static IList<MediaItem> Search(ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, IFilter filter)
+    {
+      MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter);
+      return Search(query);
+    }
+
+    internal static IList<MediaItem> Search(MediaItemQuery query)
+    {
+      return MediaLibrary.Search(query, false, null, false);
+    }
+
+    #endregion
+
     #region Count
 
     internal static int CountMediaItems(ISet<Guid> necessaryMIATypes, IFilter filter = null)
