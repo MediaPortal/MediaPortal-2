@@ -48,7 +48,7 @@ using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
-  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, IMessageReceiver
+  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, ITunerInfo, IMessageReceiver
   {
     public static readonly MediaCategory Series = new MediaCategory("Series", null);
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
@@ -495,6 +495,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       return string.Format("{0}-{1}", clientName, slotIndex);
     }
+
+    #endregion
+
+    #region ITunerInfo implementation
+
+    public abstract bool GetCards(out List<ICard> cards);
+
+    public abstract bool GetActiveVirtualCards(out List<IVirtualCard> cards);
 
     #endregion
   }

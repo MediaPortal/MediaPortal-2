@@ -56,7 +56,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
   public class SlimTvService : AbstractSlimTvService
   {
     private TvServiceThread _tvServiceThread;
-    protected readonly Dictionary<string, IUser> _tvUsers = new Dictionary<string, IUser>();
+    protected readonly Dictionary<string, TvControl.IUser> _tvUsers = new Dictionary<string, TvControl.IUser>();
     protected IController _tvControl;
     protected TvBusinessLayer _tvBusiness;
     protected Thread _serviceThread;
@@ -304,7 +304,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       try
       {
         TvBusinessLayer layer = new TvBusinessLayer();
-        IList<Card> allCards = Card.ListAll();
+        IList<TvDatabase.Card> allCards = TvDatabase.Card.ListAll();
         // Get all different recording folders
         recordingFolders = allCards.Select(c => c.RecordingFolder).Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
@@ -326,19 +326,19 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     #region ITvProvider implementation
 
-    private IUser GetUserByUserName(string userName)
+    private TvControl.IUser GetUserByUserName(string userName)
     {
       if (_tvControl == null)
         return null;
-      return Card.ListAll()
+      return TvDatabase.Card.ListAll()
         .Where(c => c != null && c.Enabled)
-        .SelectMany(c => { var users = _tvControl.GetUsersForCard(c.IdCard); return users ?? new IUser[] { }; })
+        .SelectMany(c => { var users = _tvControl.GetUsersForCard(c.IdCard); return users ?? new TvControl.IUser[] { }; })
         .FirstOrDefault(u => u.Name == userName);
     }
 
     public override bool StopTimeshift(string userName, int slotIndex)
     {
-      IUser user;
+      TvControl.IUser user;
       user = GetUserByUserName(GetUserName(userName, slotIndex));
       if (user == null)
         return false;
@@ -665,11 +665,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
         throw new ArgumentNullException("userName");
       }
 
-      IUser currentUser = UserFactory.CreateBasicUser(userName, -1);
+      TvControl.IUser currentUser = UserFactory.CreateBasicUser(userName, -1);
       ServiceRegistration.Get<ILogger>().Debug("Starting timeshifiting with username {0} on channel id {1}", userName, channelId);
 
       // actually start timeshifting
-      VirtualCard card;
+      TvControl.VirtualCard card;
       TvResult result = _tvControl.StartTimeShifting(ref currentUser, channelId, out card);
       // make sure result is correct and return
       if (result != TvResult.Succeeded)
@@ -685,7 +685,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return userName.StartsWith(LOCAL_USERNAME + "-") ? card.TimeShiftFileName : card.RTSPUrl;
     }
 
-    protected IUser GetUserByUserName(string userName, bool create = false)
+    protected TvControl.IUser GetUserByUserName(string userName, bool create = false)
     {
       if (userName == null)
       {
@@ -697,9 +697,33 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return null;
 
       if (!_tvUsers.ContainsKey(userName) && create)
-        _tvUsers.Add(userName, new User(userName, false));
+        _tvUsers.Add(userName, new TvControl.User(userName, false));
 
       return _tvUsers[userName];
+    }
+
+    #endregion
+
+    #region ITunerInfo implementation
+
+    public override bool GetCards(out List<ICard> cards)
+    {
+      cards = TvDatabase.Card.ListAll().Select(c => c.ToCard()).ToList();
+      return cards.Count > 0;
+    }
+
+    public override bool GetActiveVirtualCards(out List<IVirtualCard> cards)
+    {
+      cards = TvDatabase.Card.ListAll()
+        .Where(card => RemoteControl.Instance.CardPresent(card.IdCard))
+        .Select(card => RemoteControl.Instance.GetUsersForCard(card.IdCard))
+        .Where(users => users != null)
+        .SelectMany(user => user)
+        .Select(user => new TvControl.VirtualCard(user, RemoteControl.HostName))
+        .Where(virtualCard => virtualCard.IsTimeShifting || virtualCard.IsRecording)
+        .Select(virtualCard => virtualCard.ToVirtualCard())
+        .ToList();
+      return cards.Count > 0;
     }
 
     #endregion

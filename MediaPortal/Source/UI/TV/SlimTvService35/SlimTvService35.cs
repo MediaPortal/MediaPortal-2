@@ -51,12 +51,13 @@ using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 using Mediaportal.TV.Server.TVLibrary;
 using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
-using Mediaportal.TV.Server.TVService.Interfaces;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
-using Mediaportal.TV.Server.TVService.Interfaces.Services;
 using Channel = Mediaportal.TV.Server.TVDatabase.Entities.Channel;
 using Program = Mediaportal.TV.Server.TVDatabase.Entities.Program;
 using Schedule = Mediaportal.TV.Server.TVDatabase.Entities.Schedule;
+using Card = Mediaportal.TV.Server.TVDatabase.Entities.Card;
+using IUser = Mediaportal.TV.Server.TVService.Interfaces.Services.IUser;
+using IVirtualCard = Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard;
 using MediaPortal.Backend.ClientCommunication;
 
 namespace MediaPortal.Plugins.SlimTv.Service
@@ -534,8 +535,30 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return null;
 
       if (!_tvUsers.ContainsKey(userName) && create)
-        _tvUsers.Add(userName, new User(userName, UserType.Normal));
+        _tvUsers.Add(userName, new Mediaportal.TV.Server.TVControl.User(userName, UserType.Normal));
       return _tvUsers[userName];
+    }
+
+    #endregion
+
+    #region ITunerInfo implementation
+
+    public override bool GetCards(out List<ICard> cards)
+    {
+      IInternalControllerService control = GlobalServiceProvider.Instance.Get<IInternalControllerService>();
+      cards = control.CardCollection.Select(kv => kv.Value.ToCard()).ToList();
+      return cards.Count > 0;
+    }
+
+    public override bool GetActiveVirtualCards(out List<Interfaces.Items.IVirtualCard> cards)
+    {
+      cards = ServiceAgents.Instance.CardServiceAgent.ListAllCards()
+        .SelectMany(card => ServiceAgents.Instance.ControllerServiceAgent.GetUsersForCard(card.IdCard).Values)
+        .Select(user => new Mediaportal.TV.Server.TVControl.VirtualCard(user, RemoteControl.HostName))
+        .Where(virtualCard => virtualCard.IsTimeShifting || virtualCard.IsRecording)
+        .Select(virtualCard => virtualCard.ToVirtualCard())
+        .ToList();
+      return cards.Count > 0;
     }
 
     #endregion
