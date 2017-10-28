@@ -32,7 +32,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 
       IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
 
-
       return new WebIntResult { Result = items.Count };
     }
 

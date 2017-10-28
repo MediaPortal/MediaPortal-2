@@ -1,7 +1,4 @@
-﻿using System;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
@@ -9,7 +6,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Newtonsoft.Json;
+using System;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
@@ -35,11 +32,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 
       bool result = false;
 
-      //IChannel channel;
-      //ISchedule schedule;
-      //if (channelAndGroupInfo.GetChannel(channelId, out channel))
-      //  result = scheduleControl.CreateScheduleDetailed(channel, title, startTime, endTime, (ScheduleRecordingType)scheduleType, preRecordInterval, postRecordInterval, directory, priority, out schedule);
-
+      IChannel channel;
+      ISchedule schedule;
+      if (channelAndGroupInfo.GetChannel(channelId, out channel))
+        //ToDo: implement full support for detailed schedule in SlimTv
+        result = scheduleControl.CreateScheduleByTime(channel, startTime, endTime, (ScheduleRecordingType)scheduleType, out schedule);
 
       return new WebBoolResult { Result = result };
     }

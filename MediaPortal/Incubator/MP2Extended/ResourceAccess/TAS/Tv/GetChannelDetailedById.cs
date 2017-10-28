@@ -1,6 +1,4 @@
-﻿using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;

@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
@@ -12,7 +8,8 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
@@ -29,17 +26,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       IList<ISchedule> schedules;
       scheduleControl.GetSchedules(out schedules);
 
-      List<WebScheduleBasic> output = schedules.Select(schedule => ScheduleBasic(schedule)).ToList();
+      var output = schedules.Select(schedule => ScheduleBasic(schedule))
+        .Filter(filter);
 
       // sort and filter
-      if (sort != null && order != null)
-      {
-        output = output.Filter(filter).SortScheduleList(sort, order).ToList();
-      }
-      else
-        output = output.Filter(filter).ToList();
+      if (sort != null)
+        output = output.SortScheduleList(sort, order);
 
-      return output;
+      return output.ToList();
     }
 
     internal static ILogger Logger

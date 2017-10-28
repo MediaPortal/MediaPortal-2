@@ -1,14 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MP2Extended.TAS.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
@@ -22,10 +18,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
       
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
 
-      IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-      channelAndGroupInfo.GetChannelGroups(out channelGroups);
-
-      return new WebIntResult { Result = channelGroups.Count };
+      return new WebIntResult { Result = channelAndGroupInfo.GetRadioGroups().Count };
     }
 
     internal static ILogger Logger

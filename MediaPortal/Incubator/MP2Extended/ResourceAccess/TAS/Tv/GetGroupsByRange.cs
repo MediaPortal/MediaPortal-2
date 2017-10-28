@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
@@ -22,35 +16,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetGroupsByRange : BaseChannelGroup
+  internal class GetGroupsByRange : GetGroups
   {
     public IList<WebChannelGroup> Process(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetGroupsByRange: ITvProvider not found");
-      
-      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
 
-      IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-      channelAndGroupInfo.GetChannelGroups(out channelGroups);
-
-      List<WebChannelGroup> output = new List<WebChannelGroup>();
-
-      foreach (var group in channelGroups)
-      {
-        output.Add(ChannelGroup(group));
-      }
-
-      // sort
-      if (sort != null && order != null)
-      {
-        output = output.SortGroupList(sort, order).ToList();
-      }
-
+      var output = Process(sort, order)
       // get range
-      output = output.TakeRange(start, end).ToList();
+        .TakeRange(start, end);
 
-      return output;
+      return output.ToList();
     }
 
     internal static ILogger Logger

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
@@ -13,7 +8,9 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
@@ -34,17 +31,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       IList<ISchedule> schedules;
       scheduleControl.GetSchedules(out schedules);
 
-      List<WebScheduledRecording> output = schedules.Select(schedule => ScheduledRecording(schedule)).Where(x => x.StartTime.Date == date.Date).ToList();
+      var output = schedules.Select(schedule => ScheduledRecording(schedule)).Where(x => x.StartTime.Date == date.Date)
+        .Filter(filter);
 
-      // sort and filter
-      if (sort != null && order != null)
-      {
-        output = output.Filter(filter).SortScheduledRecordingList(sort, order).ToList();
-      }
-      else
-        output = output.Filter(filter).ToList();
+      // sort
+      if (sort != null)
+        output = output.SortScheduledRecordingList(sort, order);
 
-      return output;
+      return output.ToList();
     }
 
     internal static ILogger Logger

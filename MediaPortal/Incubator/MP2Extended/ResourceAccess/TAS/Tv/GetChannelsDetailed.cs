@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
@@ -10,9 +6,9 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Newtonsoft.Json;
+using MP2Extended.TAS.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
@@ -28,35 +24,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
         throw new BadRequestException("GetChannelsDetailed: ITvProvider not found");
 
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-        
 
-      IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-      if (groupId == null)
-        channelAndGroupInfo.GetChannelGroups(out channelGroups);
-      else
-      {
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = groupId.Value });
-      }
-
-      List<WebChannelDetailed> output = new List<WebChannelDetailed>();
-
-      foreach (var group in channelGroups)
-      {
-        // get channel for goup
-        IList<IChannel> channels = new List<IChannel>();
-        if (!channelAndGroupInfo.GetChannels(group, out channels))
-          continue;
-
-        output.AddRange(channels.Where(x => x.MediaType == MediaType.TV).Select(channel => ChannelDetailed(channel)));
-      }
+      var output = channelAndGroupInfo.GetTvChannelsForGroup(groupId)
+              .Select(c => ChannelDetailed(c));
 
       // sort
-      if (sort != null && order != null)
-      {
-        output = output.SortChannelList(sort, order).ToList();
-      }
+      if (sort != null)
+        output = output.SortChannelList(sort, order);
 
-      return output;
+      return output.ToList();
     }
 
     internal static ILogger Logger

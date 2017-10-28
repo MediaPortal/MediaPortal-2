@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using MP2Extended.TAS.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
@@ -23,29 +18,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
         throw new BadRequestException("GetRadioChannelCount: ITvProvider not found");
 
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-        
 
-      IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-      if (groupId == null)
-        channelAndGroupInfo.GetChannelGroups(out channelGroups);
-      else
-      {
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = groupId.Value });
-      }
-
-      int output = 0;
-
-      foreach (var group in channelGroups)
-      {
-        // get channel for goup
-        IList<IChannel> channels = new List<IChannel>();
-        if (!channelAndGroupInfo.GetChannels(group, out channels))
-          continue;
-
-        output += channels.Count;
-      }
-
-      return new WebIntResult { Result = output };
+      return new WebIntResult { Result = channelAndGroupInfo.GetRadioChannelsForGroup(groupId).Count };
     }
 
     internal static ILogger Logger

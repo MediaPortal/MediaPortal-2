@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
@@ -10,6 +6,8 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MP2Extended.TAS.Extensions;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
@@ -24,19 +22,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
 
-      IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-      channelAndGroupInfo.GetChannelGroups(out channelGroups);
-
       // select the channel Group we are looking for
-      IChannelGroup group = channelGroups.First(x => x.ChannelGroupId == groupId);
+      IChannelGroup group = channelAndGroupInfo.GetTvGroups().FirstOrDefault(x => x.ChannelGroupId == groupId);
 
       if (group == null)
         throw new BadRequestException(string.Format("GetGroupById: group with id: {0} not found", groupId));
-
-      WebChannelGroup webChannelGroup = ChannelGroup(group);
-
-
-      return webChannelGroup;
+      
+      return ChannelGroup(group);
     }
 
     internal static ILogger Logger

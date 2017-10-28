@@ -1,5 +1,6 @@
 ﻿using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MP2Extended.TAS.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
 {
@@ -7,18 +8,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
   {
     internal WebChannelGroup ChannelGroup(IChannelGroup group)
     {
-      WebChannelGroup webChannelGroup = new WebChannelGroup
+      return new WebChannelGroup
       {
-        GroupName = @group.Name,
-        Id = @group.ChannelGroupId,
-        //IsRadio = @group.MediaType == MediaType.Radio,
-        //IsTv = @group.MediaType == MediaType.TV,
-        //SortOrder = @group.SortOrder,
-        IsChanged = true,
+        GroupName = group.Name,
+        Id = group.ChannelGroupId,
+        IsRadio = group.GetMediaType() == MediaType.Radio,
+        IsTv = group.GetMediaType() == MediaType.TV,
+        SortOrder = 0,
+        IsChanged = false,
       };
-      //webChannelGroup.IsChanged;
-
-      return webChannelGroup;
     }
   }
 }

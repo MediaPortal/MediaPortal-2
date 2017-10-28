@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
@@ -10,8 +6,9 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Newtonsoft.Json;
+using MP2Extended.TAS.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
@@ -24,26 +21,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelsBasic: ITvProvider not found");
-      
+
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
 
-      IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-      channelAndGroupInfo.GetChannelGroups(out channelGroups);
-
-      List<WebChannelGroup> output = new List<WebChannelGroup>();
-
-      foreach (var group in channelGroups)
-      {
-        output.Add(ChannelGroup(group));
-      }
+      var output = channelAndGroupInfo.GetTvGroups()
+        .Select(g => ChannelGroup(g));
 
       // sort
-      if (sort != null && order != null)
-      {
-        output = output.SortGroupList(sort, order).ToList();
-      }
+      if (sort != null)
+        output = output.SortGroupList(sort, order);
 
-      return output;
+      return output.ToList();
     }
 
     internal static ILogger Logger

@@ -27,8 +27,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
       IProgram program;
       if (programInfo.GetProgram(programId, out program))
         result = scheduleControl.RemoveScheduleForProgram(program, ScheduleRecordingType.Once);  // TODO: not sure if ScheduleRecordingType is right
-
-
+      
       return new WebBoolResult { Result = result };
     }
 

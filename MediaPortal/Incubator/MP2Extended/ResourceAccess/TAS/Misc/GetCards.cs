@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
@@ -10,6 +6,8 @@ using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc.BaseClasses;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
@@ -21,16 +19,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetCards: ITvProvider not found");
 
-      return new List<WebCard>();
-      //ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
+      ITunerInfo tunerInfo = ServiceRegistration.Get<ITvProvider>() as ITunerInfo;
 
-      //if (tunerInfo == null)
-      //  throw new BadRequestException("GetCards: ITunerInfo not present");
+      List<ICard> cards;
+      tunerInfo.GetCards(out cards);
 
-      //List<ICard> cards;
-      //tunerInfo.GetCards(out cards);
-
-      //return cards.Select(card => Card(card)).ToList();
+      return cards.Select(card => Card(card)).ToList();
     }
 
     internal static ILogger Logger
