@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors</RootNamespace>
     <AssemblyName>NfoMetadataExtractors</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
@@ -48,8 +48,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -65,6 +65,7 @@
     </Compile>
     <Compile Include="Metadata\TempSeriesAspect.cs" />
     <Compile Include="Metadata\TempPersonAspect.cs" />
+    <Compile Include="NfoVideoMetadataExtractor.cs" />
     <Compile Include="RelationshipExtractors\INfoRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieActorRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieCharacterRelationshipExtractor.cs" />

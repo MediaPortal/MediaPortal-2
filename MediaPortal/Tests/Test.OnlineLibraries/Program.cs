@@ -119,7 +119,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
-      CDFreeDbMatcher matcher = new CDFreeDbMatcher();
+      MusicFreeDbMatcher matcher = new MusicFreeDbMatcher();
       matcher.Init();
 
       TrackInfo track = new TrackInfo();
@@ -211,7 +211,7 @@ namespace Test.OnlineLibraries
 
       IMetadataExtractor extractor = new Tve3RecordingMetadataExtractor();
       IResourceAccessor accessor = new MockLocalFsResourceAccessor(ProviderPathHelper.ChangeExtension(filename, ".ts"));
-      extractor.TryExtractMetadata(accessor, aspects, false);
+      extractor.TryExtractMetadata(accessor, aspects, false, false);
 
       Console.WriteLine("After extract:");
       ShowMIAs(aspects, registration);

@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public AudioFilterByComposerScreenData() :
         base(Consts.SCREEN_AUDIO_FILTER_BY_COMPOSER, Consts.RES_COMMON_BY_COMPOSER_MENU_ITEM,
-        Consts.RES_FILTER_COMPOSER_NAVBAR_DISPLAY_LABEL, new FilterByComposerCriterion())
+        Consts.RES_FILTER_COMPOSER_NAVBAR_DISPLAY_LABEL, new FilterByComposerCriterion(AudioAspect.ROLE_TRACK))
     {
       _availableMias = Consts.NECESSARY_PERSON_MIAS;
       if (Consts.OPTIONAL_PERSON_MIAS != null)

@@ -85,15 +85,15 @@
               <Button x:Name="ScrollBackwardButton" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
                       Command="{Command ScrollBackward}" VerticalAlignment="Center"/>
               <Label Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                 Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="1,0,1,0" Opacity="1.2"/>
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 VerticalAlignment="Center" Margin="1,0,1,0"/>
               <Button x:Name="ScrollForwardButton" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
                       Command="{Command ScrollForward}" VerticalAlignment="Center"/>
             </StackPanel>
           </Grid>
 
-          <Label Grid.Column="1" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
+          <Label Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 VerticalAlignment="Center" Margin="7,0,0,0">
             <Label.Content>
               <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.25">
                 <Binding Path="GuideStartTime"/>
@@ -101,8 +101,8 @@
               </MultiBinding>
             </Label.Content>
           </Label>
-          <Label Grid.Column="2" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
+          <Label Grid.Column="2" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 VerticalAlignment="Center" Margin="7,0,0,0">
             <Label.Content>
               <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.5">
                 <Binding Path="GuideStartTime"/>
@@ -110,8 +110,8 @@
               </MultiBinding>
             </Label.Content>
           </Label>
-          <Label Grid.Column="3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
+          <Label Grid.Column="3" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 VerticalAlignment="Center" Margin="7,0,0,0">
             <Label.Content>
               <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.75">
                 <Binding Path="GuideStartTime"/>
@@ -126,11 +126,12 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="SearchButton" Grid.Column="0" Style="{ThemeResource SearchButtonStyle}" Margin="1,0,1,0" 
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}"
-                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
-          <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0" VerticalAlignment="Center"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          <Button x:Name="SearchButton" Grid.Column="0" Style="{ThemeResource SearchButtonStyle}" Margin="1,0,1,0"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}"
+                  VerticalAlignment="Center" HorizontalAlignment="Left"/>
+          <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0" Wrap="False" VerticalAlignment="Center"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
+          </Label>
           <Grid.Triggers>
             <MultiTrigger>
               <MultiTrigger.Conditions>
@@ -156,7 +157,7 @@
                Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
           <Label Content="  "/-->
           <Label x:Name="Time" FontSize="{ThemeResource SmallFontSize}"
-               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}"/>
         </StackPanel>
         
         <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 

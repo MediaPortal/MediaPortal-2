@@ -38,6 +38,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.Media.Views;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -64,6 +65,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected IEnumerable<string> _restrictedMediaCategories = null;
     protected IFilter _filter = null; // Can be set by derived classes to apply an inital filter
     protected List<IFilter> _filters = new List<IFilter>();
+    protected Guid? _rootRole = null;
     protected FixedItemStateTracker _tracker;
 
     #endregion
@@ -132,9 +134,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias);
         optionalMIATypeIDs = optionalMIATypeIDs.Except(_necessaryMias);
       }
+
+      IFilterTree filterTree = _rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree();
+      filterTree.AddFilter(_filter);
+
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(_viewName, _filter, _necessaryMias, optionalMIATypeIDs, true, _necessaryMias)
+        new MediaLibraryQueryViewSpecification(_viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
         };

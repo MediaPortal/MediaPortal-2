@@ -57,8 +57,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public virtual bool IsAvailable(AbstractScreenData visibleScreen)
     {
       return visibleScreen == null || visibleScreen.AvailableMias == null ||
-        (_excludeMias != null && _excludeMias.Intersect(visibleScreen.AvailableMias).Count() > 0 ? false :
-        (_includeMias != null && _includeMias.Intersect(visibleScreen.AvailableMias).Count() > 0));
+        (_excludeMias != null && _excludeMias.Intersect(visibleScreen.AvailableMias).Any() ? false :
+        (_includeMias != null && _includeMias.Intersect(visibleScreen.AvailableMias).Any()));
     }
 
     public static MediaItemAspectMetadata.AttributeSpecification GetAttributeSpecification(MediaItem mediaItem, IEnumerable<MediaItemAspectMetadata.SingleAttributeSpecification> attributes, out MediaItemAspect aspect)

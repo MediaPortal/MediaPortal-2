@@ -7,10 +7,18 @@
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exklusiver Modus</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Musik-Übergänge</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Pausen und Überblendzeiten zwischen Titeln festlegen</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normal</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Ohne Pause</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Überblenden</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Wiedergabepuffer</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Pufferzeit in ms [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Rendering</string>
-  <string name="Settings.Players.Rendering.CrossFading">Überblenden</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Überblenden aktiviert</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Legt fest, ob MediaPortal Songs überblenden soll, falls möglich</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Überblendungsdauer</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Dauer der Überblendung in Sekunden</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Sprungweite Sekunden</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Sprungweite in Sekunden festlegen</string>
 </resources>

@@ -52,6 +52,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected int _lastProgramId;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelLogoTypeProperty = null;
     protected AbstractProperty _programSearchTextProperty = null;
     protected readonly ItemsList _programsList = new ItemsList();
 
@@ -74,6 +75,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ChannelNameProperty
     {
       get { return _channelNameProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public string ChannelLogoType
+    {
+      get { return (string)_channelLogoTypeProperty.GetValue(); }
+      set { _channelLogoTypeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public AbstractProperty ChannelLogoTypeProperty
+    {
+      get { return _channelLogoTypeProperty; }
     }
 
     /// <summary>
@@ -134,6 +152,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_isInitialized)
       {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _programSearchTextProperty = new WProperty(typeof(string), string.Empty);
         _programSearchTextProperty.Attach(ProgramSearchTextChanged);
       }
@@ -203,6 +222,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       IChannel channel;
       ChannelName = _tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel) ? channel.Name : string.Empty;
+      ChannelLogoType = channel.GetFanArtMediaType();
     }
 
     protected override bool UpdateRecordingStatus(IProgram program)

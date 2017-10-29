@@ -1,16 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Grotuvai</string>
-  <string name="Settings.Players.AudioPlayer">Audio grotuvas</string>
   <string name="Settings.Players.BassPlayer.Setup">Konfigūruoti išvesties įrenginius</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Konfigūruoja BassPlayer išvesties įrenginį ir pasirinkimus</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">DirectSound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exclusive režimas</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normalus</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Generuojama</string>
-  <string name="Settings.Players.Rendering.CrossFading">Suliejimas</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Suliejimas įgalintas</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Jei galima, nustato MediaPortal sulieti dainas</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Suliejimo trukmė</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Suliejimo trukmė sekundėmis</string>
 </resources>

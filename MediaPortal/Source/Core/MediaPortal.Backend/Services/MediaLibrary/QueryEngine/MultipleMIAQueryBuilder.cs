@@ -39,15 +39,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           : base(miaManagement, simpleSelectAttributes,
           null,
           new List<MediaItemAspectMetadata> { requestedMIA }, new List<MediaItemAspectMetadata> { },
-          new MediaItemIdFilter(mediaItemIds), null)
+          new MediaItemIdFilter(mediaItemIds), null, null)
         {
-          _requestedMIA = requestedMIA;
-        }
-
-        protected override bool Include(MediaItemAspectMetadata miam)
-        {
-            // Make it's only the requested MIA in use
-            return miam == _requestedMIA;
         }
     }
 }

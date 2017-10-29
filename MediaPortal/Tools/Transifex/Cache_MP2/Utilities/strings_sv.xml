@@ -9,7 +9,7 @@
   <string name="Utilities.ImportPlaylistFile">Importera spellista</string>
   <string name="Utilities.ChoosePlaylistFile">Välj fil</string>
   <string name="Utilities.ChooseImportFileDialogHeader">Välj fil att importera</string>
-  <string name="Utilities.EditPlaylistName">Redigera namnet på den nya spellistan</string>
+  <string name="Utilities.EditPlaylistName">Ändra namnet på den nya spellistan</string>
   <string name="Utilities.LocationOfShareContainingItems">Plats där den utdelade mappen, som innehåller media-filerna, finns </string>
   <string name="Utilities.LocalShareLocation">Lokal mapp</string>
   <string name="Utilities.ServerShareLocation">Utdelad mapp på servern</string>

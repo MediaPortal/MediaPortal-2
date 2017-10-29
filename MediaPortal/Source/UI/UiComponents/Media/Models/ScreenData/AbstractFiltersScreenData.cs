@@ -38,6 +38,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.Utilities;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -47,6 +48,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected string _navbarSubViewNavigationDisplayLabel;
     protected IFilter _clusterFilter = null;
     protected bool _sortable = false;
+
+    protected FilterTreePath _filterPath = null;
+    protected ICollection<Guid> _necessaryFilteredMIATypeIds;
+
 
     // Variables to be synchronized for multithreading access
     protected bool _buildingList = false;
@@ -203,17 +208,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         {
           Display_ListBeingBuilt();
           bool grouping = true;
-          //If currentVS is the base view it's possible that it has a filter that is incompatible with _filterCriterion.
-          //This is the case if a plugin has added a base filter to exclude certain items, e.g. TV excludes recordings
-          //and the new filter filters by a different media type, e.g. series'. Ignore the base filter in this case.
-          IFilter currentFilter = (_navigationData.Parent != null && CanFilter(_navigationData.Parent.CurrentScreenData)) ||
-            currentVS.CanCombineFilters(_filteredMias) ? currentVS.Filter : null;
+          IFilter filter = currentVS.FilterTree.BuildFilter(_filterPath);
+          ICollection<Guid> necessaryMIAs = _necessaryFilteredMIATypeIds ?? currentVS.NecessaryMIATypeIds;
           ICollection<FilterValue> fv = _clusterFilter == null ?
-              _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentFilter) : null;
+              _filterCriterion.GroupValues(necessaryMIAs, _clusterFilter, filter) : null;
           
           if (fv == null || fv.Count <= Consts.MAX_NUM_ITEMS_VISIBLE)
           {
-            fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentFilter);
+            fv = _filterCriterion.GetAvailableValues(necessaryMIAs, _clusterFilter, filter);
             grouping = false;
           }
           if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
@@ -238,12 +240,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             // So we need an equality criterion when the screen to be removed is equal to this screen in terms of its
             // filter criterion. But with the given data, we actually cannot derive that equality.
             // So we simply use the MenuItemLabel, which should be the same in this and the base screen of the same filter.
-            foreach (FilterValue filterValue in fv)
+            foreach (FilterValue f in fv)
             {
+              //Used for enclosure
+              FilterValue filterValue = f;
               _sortable &= filterValue.Item != null;
               string filterTitle = filterValue.Title;
               IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
-              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter, _filteredMias);
               T filterValueItem = new T
               {
                 // Support non-playable MediaItems (i.e. Series, Seasons)
@@ -251,9 +254,15 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 SimpleTitle = filterTitle,
                 NumItems = filterValue.NumItems,
                 Id = filterValue.Id,
-                Command = grouping ? 
-                  new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) :
-                  new MethodDelegateCommand(() => NavigateToSubView(subVS))
+                Command = new MethodDelegateCommand(()=>
+                {
+                  MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle,
+                    FilterTreePath.Combine(_filterPath, filterValue.RelativeFilterPath), filterValue.Filter, filterValue.LinkedId);
+                  if (grouping)
+                    NavigateToGroup(subVS, selectAttributeFilter);
+                  else
+                    NavigateToSubView(subVS);
+                })
               };
               itemsList.Add(filterValueItem);
               if (filterValue.NumItems.HasValue)

@@ -684,8 +684,10 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonCoverControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="2,2,2,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonCoverControlStyle}" 
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Panel.ZIndex="100"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="2,2,2,2" Panel.ZIndex="99"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1020,6 +1022,24 @@
     </Style.Resources>
   </Style>
 
+  <Style x:Key="ChannelUpButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource ChannelUpControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="ChannelDownButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource ChannelDownControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="RecordButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource RecordControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
   <!-- audio mute dark control style -->
   <Style x:Key="AudioActiveDarkButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
@@ -1110,13 +1130,13 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="0.5" >
+          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="1" >
             <Border.Background>
               <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                 <LinearGradientBrush.GradientStops>
-                  <GradientStop Color="#666666" Offset="0"  />
-                  <GradientStop Color="#666666" Offset="0.95"  />
-                  <GradientStop Color="#666666" Offset="1"  />
+                  <GradientStop Color="#444444" Offset="0"  />
+                  <GradientStop Color="#444444" Offset="0.95"  />
+                  <GradientStop Color="#444444" Offset="1"  />
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Border.Background>
@@ -1147,7 +1167,7 @@
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.9"/>
+              <Setter TargetName="ButtonControlRectangle" Property="Background" Value="{ThemeResource FocusedButtonGradient1Color}"/>
               <Trigger.EnterActions>
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>

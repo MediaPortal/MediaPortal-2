@@ -9,8 +9,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Podesite ako bi čuv. zaslona bio prikazan</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Trajanje čuvara zaslona</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Podesite vrijeme u minutama, kad bi čuv. zaslona trebao biti prikazan nakon korisnikovog zadnjeg unosa.</string>
-  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing poboljšava GUI vizualno, ali smanjuje video performanse</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skin i tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Promijenite skin</string>

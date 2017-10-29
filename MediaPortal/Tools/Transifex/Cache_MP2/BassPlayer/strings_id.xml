@@ -1,10 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Pemutar</string>
+  <string name="Settings.Players.AudioPlayer">Pemain Audio</string>
+  <string name="Settings.Players.BassPlayer.Setup">Setel peranti output</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Setel peranti output BassPlayer dan opsi</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Mode Ekslusif</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Mod Peralihan Lagu</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Setel masa jeda/resap silang semasa mengubah trek</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normal</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Nirjurang</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Resapan silang</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Tampanan mainan</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Masa tampanan dalam ms [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Rendering</string>
-  <string name="Settings.Players.Rendering.CrossFading">CrossFading</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Cross fading aktif</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Tentukan bila MediaPortal harus menerapkan cross-fade antar lagu, bila memungkinkan</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Durasi cross fade</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Waktu untuk melakukan cross-fade dalam detik</string>
 </resources>

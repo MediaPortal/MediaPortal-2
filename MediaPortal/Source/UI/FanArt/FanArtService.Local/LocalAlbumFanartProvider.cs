@@ -131,6 +131,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                 potentialFanArtFileNameWithoutExtension == "cover"
                 select potentialFanArtFile);
 
+            if (fanArtType == FanArtTypes.DiscArt)
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc"
+                select potentialFanArtFile);
+
             if (fanArtType == FanArtTypes.FanArt)
             {
               fanArtPaths.AddRange(
@@ -184,6 +191,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       int albumNo = 0;
       if (album != null &&
         (albumFolder.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase) && !album.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase)) ||
+        (albumFolder.StartsWith("Disc", StringComparison.InvariantCultureIgnoreCase) && !album.StartsWith("Disc", StringComparison.InvariantCultureIgnoreCase)) ||
         (int.TryParse(albumFolder, out discNo) && int.TryParse(album, out albumNo) && discNo != albumNo))
       {
         return true;

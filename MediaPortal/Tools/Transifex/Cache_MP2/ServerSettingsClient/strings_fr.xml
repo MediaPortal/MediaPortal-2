@@ -1,25 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Paramètres du serveur</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive">Lettre du lecteur permettant de monter des ressources</string>
-  <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Configurez la lettre du lecteur afin de permettre de monter des ressources distantes sur ce serveur.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Informations concernant l\'identification du réseau</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configurer le  nom d\'utilisateur et le mot de passe afin d\'accéder aux ressources du réseau depuis le serveur.</string>
   <string name="Settings.ServerSettings.UseCredentials">Utiliser votre nom d\'utilisateur et mot de passe pour accéder au réseau</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Nom d\'utilisateur et mot de passe</string>
   <string name="Settings.ServerSettings.Username">Nom d\'utilisateur:</string>
   <string name="Settings.ServerSettings.Password">Mot de passe:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Configuration de l\'importation de la source de médias</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configurer l\'actualisation automatique des actions</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Activer l\'actualisation automatique</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Heure de démarrage du processus  (base de 24h)</string>
   <string name="Settings.ServerSettings.AudioMDESettings">Paramètres d\'importation Audio</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable">Autoriser les sources internet durant l\'import. </string>
-  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable.Help">Sélectionnez les sources internet qui doivent être autorisées pendant l\'importation. Le refus des sources internet améliorera la vitesse d\'importation, mais certaines métadonnées pourraient ne pas être disponibles.</string>
+  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable.Help">Sélectionnez les sources internet qui doivent être autorisées pendant l\'importation. La désactivation des sources internet améliorera la vitesse d\'importation, mais certaines métadonnées pourraient ne pas être disponibles.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary">Utiliser les infos internet pour les nouveaux médias</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary.Help">Sélectionnez les sources internet à utiliser lors de la première importation de nouveaux médias. La désactivation des sources internet améliorera la vitesse d\'importation des nouveaux médias, mais certaines métadonnées ne seront disponibles qu\'après un rafraîchissement.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData">Données à télécharger à partir d\'internet</string>
-  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help">Sélectionnez les données à télécharger à partir des sources internet.</string>
+  <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help">Sélectionnez les données à télécharger à partir de sources internet.</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.MediaFanArt">Télécharger les détails audio et FanArt</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Media">Télécharger uniquement les détails audio</string>
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.FanArt">Télécharger le FanArt audio uniquement</string>
@@ -35,7 +32,7 @@
   <string name="Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOfflineLocal">Cache FanArt sur un dossier local</string>
   <string name="Settings.ServerSettings.MovieMDESettings">Paramètres d\'importation de Film</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable">Autoriser les sources internet durant l\'import. </string>
-  <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable.Help">Sélectionnez les sources internet qui doivent être autorisées pendant l\'importation. Le refus des sources internet améliorera la vitesse d\'importation, mais certaines métadonnées pourraient ne pas être disponibles.</string>
+  <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable.Help">Sélectionnez les sources internet qui doivent être autorisées pendant l\'importation. La désactivation des sources internet améliorera la vitesse d\'importation, mais certaines métadonnées pourraient ne pas être disponibles.</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary">Utiliser les sources internet pour les nouveaux médias</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary.Help">Sélectionnez les sources internet à utiliser lors de la première importation de nouveaux médias. La désactivation des sources internet améliorera la vitesse d\'importation des nouveaux médias, mais certaines métadonnées ne seront disponibles qu\'après un rafraîchissement.</string>
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData">Données à télécharger à partir d\'internet</string>
@@ -57,7 +54,7 @@
   <string name="Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOfflineLocal">Cache FanArt sur un dossier locale </string>
   <string name="Settings.ServerSettings.SeriesMDESettings">Paramètres d\'importation Séries</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable">Autorisé les sources internet durant l\'import. </string>
-  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable.Help">Sélectionnez les sources internet qui doivent être autorisées pendant l\'importation. Le refus des sources internet améliorera la vitesse d\'importation, mais certaines métadonnées pourraient ne pas être disponibles.</string>
+  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable.Help">Sélectionnez les sources internet qui doivent être autorisées pendant l\'importation. La désactivation des sources internet améliorera la vitesse d\'importation, mais certaines métadonnées pourraient ne pas être disponibles.</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary">Utiliser les sources internet pour les nouveaux médias</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary.Help">Sélectionnez les sources internet à utiliser lors de la première importation de nouveaux médias. La désactivation des sources internet améliorera la vitesse d\'importation des nouveaux médias, mais certaines métadonnées ne seront disponibles qu\'après un rafraîchissement.</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData">Données à télécharger à partir d\'internet </string>
@@ -67,7 +64,7 @@
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.FanArt">Télécharger le FanArt des séries uniquement</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.None">Ne rien télécharger</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter">Filtres à remplir lors de l\'importation </string>
-  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Help">Sélectionnez les filtres à remplir lors de l\'importation. La désactivation des filtres améliorera la vitesse d\'importation. </string>
+  <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Help">Sélectionnez les filtres à remplir lors de l\'importation. La désactivation des filtres améliorera la vitesse d\'importation.</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Actors">Populer le filtre \"acteur\"</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Characters">Populer le filtre \"Personnage\"</string>
   <string name="Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Directors">Populer le filtre \"directeur\"</string>

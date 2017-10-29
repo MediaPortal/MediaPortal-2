@@ -76,7 +76,7 @@
           </Button>
         </StackPanel>
 
-        <ListView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+        <ListView x:Name="ExtScheduleList" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
               Margin="0,0,2,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource ExtScheduleListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"
@@ -89,7 +89,27 @@
           </ListView.Resources>
         </ListView>
 
-        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="-10,10,0,-10">
+        <!-- Actual Item / Total items -->
+        <DockPanel VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" IsVisible="{Binding IsItemsValid}" Margin="98,-153,25,-10">
+          <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Top">
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="ExtScheduleList" Path="CurrentItem"/>
+                  <Binding ElementName="ExtScheduleList" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top"/>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top">
+              <Label.Content>
+                <Binding ElementName="ExtScheduleList" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+        </DockPanel>
+
+        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="-10,10,0,50">
           <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>
               <Include Source="screens\ProgramInfo.inc"/>

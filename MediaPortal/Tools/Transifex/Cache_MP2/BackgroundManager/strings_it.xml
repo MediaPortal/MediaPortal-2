@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Video di sfondo</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Abilita il video di sfondo e seleziona il filmato da utilizzare</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Abilita il video di sfondo</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Configurazione video di sfondo</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">File video</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">Scegli</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Scegli il video da riprodurre come sfondo</string>
+</resources>

@@ -36,6 +36,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
 
       CharacterInfo character = new CharacterInfo();
       if (!character.FromMetadata(mediaItem.Aspects))

@@ -57,6 +57,7 @@ using Mediaportal.TV.Server.TVService.Interfaces.Services;
 using Channel = Mediaportal.TV.Server.TVDatabase.Entities.Channel;
 using Program = Mediaportal.TV.Server.TVDatabase.Entities.Program;
 using Schedule = Mediaportal.TV.Server.TVDatabase.Entities.Schedule;
+using MediaPortal.Backend.ClientCommunication;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -137,6 +138,27 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     #endregion
 
+    #region Server state
+
+    protected void UpdateServerState()
+    {
+      IInternalControllerService controller = GlobalServiceProvider.Instance.Get<IInternalControllerService>();
+      IRecordingService recordings = GlobalServiceProvider.Get<IRecordingService>();
+      IList<ISchedule> currentlyRecordingSchedules = recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.TV)
+        .Union(recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.Radio))
+        .Select(r => r.Schedule.ToSchedule()).ToList();
+      
+      TvServerState state = new TvServerState
+      {
+        IsRecording = controller.IsAnyCardRecording(),
+        CurrentlyRecordingSchedules = currentlyRecordingSchedules
+      };
+
+      ServiceRegistration.Get<IServerStateService>().UpdateState(TvServerState.STATE_ID, state);
+    }
+
+    #endregion
+
     #region Recordings / MediaLibrary synchronization
 
     protected override bool RegisterEvents()
@@ -156,6 +178,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         if (tvEvent.EventType == TvServerEventType.RecordingStarted || tvEvent.EventType == TvServerEventType.RecordingEnded)
         {
+          UpdateServerState();
           var recording = ServiceAgents.Instance.RecordingServiceAgent.GetRecording(tvEvent.Recording);
           if (recording != null)
           {
@@ -320,13 +343,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
-    public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, out ISchedule schedule)
+    public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
       Schedule tvSchedule = ScheduleFactory.CreateSchedule(channel.ChannelId, "Manual", from, to);
       tvSchedule.PreRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("preRecordInterval", 5);
       tvSchedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
-      tvSchedule.ScheduleType = (int)ScheduleRecordingType.Once;
+      tvSchedule.ScheduleType = (int)recordingType;
       scheduleService.SaveSchedule(tvSchedule);
       schedule = tvSchedule.ToSchedule();
       return true;

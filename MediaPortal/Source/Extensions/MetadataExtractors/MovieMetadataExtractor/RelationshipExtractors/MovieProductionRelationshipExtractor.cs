@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -170,7 +171,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return false;
 
       IEnumerable<string> companies = aspect.GetCollectionAttribute<string>(MovieAspect.ATTR_COMPANIES);
-      List<string> nameList = new List<string>(companies);
+      List<string> nameList = new SafeList<string>(companies);
 
       index = nameList.IndexOf(name);
       return index >= 0;

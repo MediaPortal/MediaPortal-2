@@ -308,6 +308,7 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder != null)
         FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
 
+      FilterGraphTools.TryDispose(ref _mpcSubsRenderer);
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder, true);
     }

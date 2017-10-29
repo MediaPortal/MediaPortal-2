@@ -122,7 +122,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Gets a list of episode numbers.
     /// </summary>
-    public List<int> EpisodeNumbers = new List<int>();
+    public ICollection<int> EpisodeNumbers = new HashSet<int>();
+    /// <summary>
+    /// Gets the first episode number in ascending order.
+    /// </summary>
+    public int FirstEpisodeNumber
+    {
+      get { return EpisodeNumbers.OrderBy(e => e).FirstOrDefault(); }
+    }
     /// <summary>
     /// Gets a list of episode numbers as they are released on DVD.
     /// </summary>
@@ -211,8 +218,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesNameId = SeriesName.Text;
         SeriesNameId = GetNameId(SeriesNameId);
       }
-      NameId = SeriesNameId + string.Format("S{0}E{1}", SeasonNumber.HasValue ? SeasonNumber.Value : 0, 
-        EpisodeNumbers.Count > 0 ? EpisodeNumbers[0] : 0);
+      NameId = SeriesNameId + string.Format("S{0}E{1}", SeasonNumber.HasValue ? SeasonNumber.Value : 0, FirstEpisodeNumber);
     }
 
     public EpisodeInfo Clone()
@@ -386,7 +392,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       EpisodeNumbers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, out collection))
-        EpisodeNumbers.AddRange(collection.Cast<int>());
+        CollectionUtils.AddAll(EpisodeNumbers, collection.Cast<int>());
 
       DvdEpisodeNumbers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, out collection))
@@ -516,7 +522,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           AlternateName = SeriesAlternateName,
           FirstAired = SeriesFirstAired,
           SearchSeason = SeasonNumber,
-          SearchEpisode = EpisodeNumbers != null && EpisodeNumbers.Count > 0 ? (int?)EpisodeNumbers[0] : null,
+          SearchEpisode = EpisodeNumbers != null && EpisodeNumbers.Count > 0 ? (int?)FirstEpisodeNumber : null,
           LastChanged = LastChanged,
           DateAdded = DateAdded
         };

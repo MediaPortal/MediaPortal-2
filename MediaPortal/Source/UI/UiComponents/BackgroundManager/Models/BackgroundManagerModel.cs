@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.Presentation.Workflow;
@@ -31,7 +32,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.UiComponents.BackgroundManager.Models
 {
-  public class BackgroundManagerModel
+  public class BackgroundManagerModel: IDisposable
   {
     #region Consts
 
@@ -46,6 +47,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     protected AbstractProperty _selectedItemProperty;
     protected AbstractProperty _backgroundImageProperty;
+    private AsynchronousMessageQueue _messageQueue;
 
     public BackgroundManagerModel()
     {
@@ -53,6 +55,41 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
       _selectedItemProperty.Attach(SetBackgroundImage);
       _backgroundImageProperty = new WProperty(typeof (string), string.Empty);
       SetBackgroundImage();
+      SubscribeToMessages();
+    }
+
+    public void Dispose()
+    {
+      DisposeMessageQueue();
+    }
+
+    void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { WorkflowManagerMessaging.CHANNEL });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void DisposeMessageQueue()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+            SelectedItem = null; // Clear current data for new screen
+            break;
+        }
+      }
     }
 
     public Guid ModelId

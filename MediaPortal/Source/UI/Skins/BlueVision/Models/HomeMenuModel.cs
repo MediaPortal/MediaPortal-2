@@ -44,6 +44,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Xml;
+using MediaPortal.Common.Runtime;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -321,6 +322,21 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
     }
 
+    /// <summary>
+    /// Sets the initial state of the home screen
+    /// </summary>
+    private void InitMenu()
+    {
+      if (_menuSettings != null)
+        return;
+
+      UpdateMenu(true);
+      IsHomeScreen = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("7F702D9C-F2DD-42da-9ED8-0BA92F07787F", StringComparison.OrdinalIgnoreCase);
+      if (!string.Equals(_menuSettings.Settings.DefaultMenuGroupId, MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase))
+        _lastActiveGroup = _menuSettings.Settings.DefaultMenuGroupId;
+      UpdateSelectedGroup();
+    }
+
     private void UpdateMenu(bool firstTimeOnly = false)
     {
       var doUpdate = !firstTimeOnly || _menuSettings == null;
@@ -352,7 +368,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         if (_menuSettings != null)
         {
           CreateRegularGroupItems();
-          CreateShortcutItems();
+          CreateShortcutItems(_mainMenuGroupList);
           SetFallbackSelection();
         }
       }
@@ -394,47 +410,84 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         return;
 
       // Do not remove the "CP" button, because when the WF state is active, the menu item will not be part of available menu items.
-      if (!IsCurrentPlaying())
-      {
-        foreach (var shortutItem in _mainMenuGroupList.Where(groupItem => ((GroupMenuListItem)groupItem).AdditionalProperties.ContainsKey("ActionId")).ToList())
-        {
-          _mainMenuGroupList.Remove(shortutItem);
-        }
-      }
+      bool includeCurrentlyPlaying = !IsCurrentPlaying();
+      var currentShortcuts = _mainMenuGroupList.Where(groupItem => IsShortcutItem(groupItem, includeCurrentlyPlaying)).ToList();
+      //Get new shortcuts
+      var newShortcuts = new List<ListItem>();
+      CreateShortcutItems(newShortcuts);
 
-      CreateShortcutItems();
+      //if shortcuts haven't changed just return to avoid unnecessary menu updates
+      if (ShortcutsAreEqual(currentShortcuts, newShortcuts))
+        return;
+
+      //remove old shortcuts
+      foreach (var item in currentShortcuts)
+        _mainMenuGroupList.Remove(item);
+
+      //add new shortcuts
+      foreach (var item in newShortcuts)
+        _mainMenuGroupList.Add(item);
+
       _mainMenuGroupList.FireChange();
     }
 
-    private void CreateShortcutItems()
+    private bool IsShortcutItem(ListItem item, bool includeCurrentlyPlaying)
     {
-      foreach (var menuItem in MenuItems)
+      return item.AdditionalProperties.ContainsKey("ActionId") &&
+        (includeCurrentlyPlaying || !string.Equals(item.AdditionalProperties["Id"] as string, MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase));
+    }
+
+    protected bool ShortcutsAreEqual(ICollection<ListItem> currentShortcuts, ICollection<ListItem> newShortcuts)
+    {
+      if (currentShortcuts.Count != newShortcuts.Count)
+        return false;
+      var ids = currentShortcuts.Select(cs => cs.AdditionalProperties["Id"] as string).ToList();
+      return newShortcuts.All(ns => ids.Contains(ns.AdditionalProperties["Id"] as string));
+    }
+
+    private void CreateShortcutItems(ICollection<ListItem> itemsList)
+    {
+      ItemsList menuItems = MenuItems;
+      lock (menuItems.SyncRoot)
       {
-        object action;
-        if (!menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out action))
-          continue;
-        WorkflowAction wfAction = action as WorkflowAction;
-        if (wfAction == null)
-          continue;
+        foreach (var menuItem in menuItems)
+        {
+          object action;
+          if (!menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out action))
+            continue;
+          WorkflowAction wfAction = action as WorkflowAction;
+          if (wfAction == null)
+            continue;
 
-        var shortCut = _menuSettings.Settings.MainMenuShortCuts.FirstOrDefault(sc => sc.ActionId == wfAction.ActionId);
-        if (shortCut == null)
-          continue;
+          var shortCut = _menuSettings.Settings.MainMenuShortCuts.FirstOrDefault(sc => sc.ActionId == wfAction.ActionId);
+          if (shortCut == null)
+            continue;
 
-        string groupId = shortCut.Id.ToString();
-        string groupName = shortCut.Name;
-        var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
-        if (_menuSettings.Settings.DisableAutoSelection)
-          groupItem.Command = new MethodDelegateCommand(() =>
-          {
-            wfAction.Execute();
-            SetGroup(groupId, true);
-          });
+          string groupId = shortCut.Id.ToString();
+          string groupName = shortCut.Name;
+          var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
+          if (_menuSettings.Settings.DisableAutoSelection)
+            groupItem.Command = new MethodDelegateCommand(() =>
+            {
+              ExecuteShortcutAction(groupId, wfAction);
+            });
 
-        groupItem.AdditionalProperties["Id"] = groupId;
-        groupItem.AdditionalProperties["ActionId"] = wfAction.ActionId;
-        _mainMenuGroupList.Add(groupItem);
+          groupItem.AdditionalProperties["Id"] = groupId;
+          groupItem.AdditionalProperties["ActionId"] = wfAction.ActionId;
+          itemsList.Add(groupItem);
+        }
       }
+    }
+
+    protected void ExecuteShortcutAction(string groupId, WorkflowAction action)
+    {
+      //MP2-635: Don't execute the CP action again if we are already on the CP screen.
+      //TODO: Make this more generic so it can handle any type of shortcut.
+      if (groupId.Equals(MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase) && IsCurrentPlaying())
+        return;
+
+      action.Execute();
+      SetGroup(groupId, true);
     }
 
     /// <summary>
@@ -508,45 +561,49 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       list.Clear();
 
       int x = 0;
-      foreach (var menuItem in MenuItems)
+      ItemsList menuItems = MenuItems;
+      lock (menuItems.SyncRoot)
       {
-        object action;
-        if (!menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out action))
-          continue;
-        WorkflowAction wfAction = action as WorkflowAction;
-        if (wfAction == null)
-          continue;
+        foreach (var menuItem in menuItems)
+        {
+          object action;
+          if (!menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out action))
+            continue;
+          WorkflowAction wfAction = action as WorkflowAction;
+          if (wfAction == null)
+            continue;
 
-        // Under "others" all items are places, that do not fit into any other category
-        if (currentKey == MenuSettings.MENU_NAME_OTHERS)
-        {
-          bool found = IsManuallyPositioned(wfAction);
-          if (!found)
+          // Under "others" all items are places, that do not fit into any other category
+          if (currentKey == MenuSettings.MENU_NAME_OTHERS)
           {
-            GridListItem gridItem = new GridListItem(menuItem)
+            bool found = IsManuallyPositioned(wfAction);
+            if (!found)
             {
-              GridColumn = x % MenuSettings.DEFAULT_NUM_COLS,
-              GridRow = x / MenuSettings.DEFAULT_NUM_COLS * MenuSettings.DEFAULT_ROWSPAN_SMALL,
-              GridRowSpan = MenuSettings.DEFAULT_ROWSPAN_SMALL,
-              GridColumnSpan = MenuSettings.DEFAULT_COLSPAN_SMALL,
-            };
-            list.Add(gridItem);
-            x += MenuSettings.DEFAULT_COLSPAN_SMALL;
+              GridListItem gridItem = new GridListItem(menuItem)
+              {
+                GridColumn = x % MenuSettings.DEFAULT_NUM_COLS,
+                GridRow = x / MenuSettings.DEFAULT_NUM_COLS * MenuSettings.DEFAULT_ROWSPAN_SMALL,
+                GridRowSpan = MenuSettings.DEFAULT_ROWSPAN_SMALL,
+                GridColumnSpan = MenuSettings.DEFAULT_COLSPAN_SMALL,
+              };
+              list.Add(gridItem);
+              x += MenuSettings.DEFAULT_COLSPAN_SMALL;
+            }
           }
-        }
-        else
-        {
-          GridPosition gridPosition;
-          if (gridPositions.TryGetValue(wfAction.ActionId, out gridPosition))
+          else
           {
-            GridListItem gridItem = new GridListItem(menuItem)
+            GridPosition gridPosition;
+            if (gridPositions.TryGetValue(wfAction.ActionId, out gridPosition))
             {
-              GridRow = gridPosition.Row,
-              GridColumn = gridPosition.Column,
-              GridRowSpan = gridPosition.RowSpan,
-              GridColumnSpan = gridPosition.ColumnSpan,
-            };
-            list.Add(gridItem);
+              GridListItem gridItem = new GridListItem(menuItem)
+              {
+                GridRow = gridPosition.Row,
+                GridColumn = gridPosition.Column,
+                GridRowSpan = gridPosition.RowSpan,
+                GridColumnSpan = gridPosition.ColumnSpan,
+              };
+              list.Add(gridItem);
+            }
           }
         }
       }
@@ -591,9 +648,28 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       Guid? currentlyPlayingWorkflowStateId;
       if (!GetPlayerWorkflowStates(out fullscreenContentWfStateId, out currentlyPlayingWorkflowStateId))
         return false;
+      
+      NavigationContext context = GetCurrentScreenNavigationContext();
+      return context != null && context.WorkflowState.StateId == currentlyPlayingWorkflowStateId.Value;
+    }
 
+    /// <summary>
+    /// Gets the context for the current screen, ignoring the contexts of any overlaying dialogs.
+    /// </summary>
+    /// <returns></returns>
+    private NavigationContext GetCurrentScreenNavigationContext()
+    {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      return workflowManager.IsStateContainedInNavigationStack(currentlyPlayingWorkflowStateId.Value);
+      workflowManager.Lock.EnterReadLock();
+      try
+      {
+        //Skip any dialog states, we want the state of the underlying screen
+        return workflowManager.NavigationContextStack.SkipWhile(c => c.DialogInstanceId.HasValue).FirstOrDefault();
+      }
+      finally
+      {
+        workflowManager.Lock.ExitReadLock();
+      }
     }
 
     private void IsHomeChanged(AbstractProperty property, object oldvalue)
@@ -630,7 +706,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     private void UpdateSelectedGroup()
     {
       List<string> groups = new List<string>();
-      if (IsCurrentPlaying() && MenuSettings.MENU_ID_PLAYING.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.OrdinalIgnoreCase) ||
+      if (MenuSettings.MENU_ID_PLAYING.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.OrdinalIgnoreCase) && IsCurrentPlaying() ||
         !MenuSettings.MENU_ID_PLAYING.Equals(_menuSettings.Settings.DefaultMenuGroupId, StringComparison.OrdinalIgnoreCase))
         groups.Add(_menuSettings.Settings.DefaultMenuGroupId);
       if (!string.IsNullOrEmpty(_lastActiveGroup))
@@ -763,12 +839,16 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       if (_messageQueue == null)
         return;
+      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      UpdateMenu(true);
+      if (!IsSystemActive())
+        return;
+
+      InitMenu();
 
       if (message.ChannelName == MenuModelMessaging.CHANNEL)
       {
@@ -789,6 +869,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.StatesPopped)
         {
           UpdateSelectedGroup();
+          // MP2-665: Make sure to recreate the main tiles when navigating back into Home screen
+          if (IsHomeScreen)
+            CreatePositionedItems();
         }
         if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
         {

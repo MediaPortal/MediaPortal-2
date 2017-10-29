@@ -1958,11 +1958,11 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_skipbackward.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_skipback.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
-              <Setter TargetName="image" Property="Source" Value="topbar_skipbackward_focus.png"/>
+              <Setter TargetName="image" Property="Source" Value="topbar_skipback_focus.png"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

@@ -8,32 +8,20 @@
   <string name="Media.SeriesMenuItem">系列</string>
   <string name="Media.MoviesMenuItem">电影</string>
   <string name="Media.ImagesMenuItem">图片</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">艺术家过滤</string>
-  <string name="Media.FilterByAlbumMenuItem">专辑过滤</string>
-  <string name="Media.FilterByAudioGenreMenuItem">按流派过滤</string>
-  <string name="Media.FilterByDecadeMenuItem">年代过滤</string>
-  <string name="Media.FilterByActorMenuItem">艺人过滤</string>
-  <string name="Media.FilterByDirectorMenuItem">按导演过滤</string>
-  <string name="Media.FilterByWriterMenuItem">按作者过滤</string>
-  <string name="Media.FilterByVideoGenreMenuItem">按流派过滤</string>
-  <string name="Media.FilterByVideoYearMenuItem">年份过滤</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">语言过滤</string>
-  <string name="Media.FilterByImageSizeMenuItem">大小过滤</string>
-  <string name="Media.FilterByImageYearMenuItem">年份过滤</string>
-  <string name="Media.FilterByImageCountryMenuItem">国家过滤</string>
-  <string name="Media.FilterByImageStateMenuItem">省份，州过滤</string>
-  <string name="Media.FilterByImageCityMenuItem">城市过滤</string>
-  <string name="Media.FilterBySystemMenuItem">按系统过滤</string>
-  <string name="Media.FilterByMoviesCollectionMenuItem">选集过滤</string>
-  <string name="Media.FilterBySeriesNameMenuItem">系列过滤</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">按季过滤</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">按集过滤</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">名称</string>
+  <string name="Media.TitleMenuItem">标题</string>
+  <string name="Media.ArtistMenuItem">艺术家</string>
+  <string name="Media.GenreMenuItem">流派</string>
+  <string name="Media.SizeMenuItem">大小</string>
+  <string name="Media.SystemMenuItem">系统</string>
+  <string name="Media.EpisodeMenuItem">集</string>
+  <string name="Media.AudioLanguageMenuItem">语言</string>
+  <string name="Media.ImageStateMenuItem">状态</string>
+  <string name="Media.SeriesNameMenuItem">系列</string>
   <string name="Media.SimpleSearchFilterMenuItem">搜索</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">显示所有</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">显示所有</string>
-  <string name="Media.ShowAllImageItemsMenuItem">显示所有</string>
-  <string name="Media.ShowAllMoviesMenuItem">显示所有</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">过滤器</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">小</string>
   <string name="Media.ImageFilterMedium">中等</string>
@@ -105,6 +93,7 @@
   <string name="Media.ChooseWriterHeader">编剧</string>
   <string name="Media.ChooseImageHeader">图片</string>
   <string name="Media.ChooseSeriesHeader">系列</string>
+  <string name="Media.ChooseSeasonHeader">季剧</string>
   <string name="Media.ChooseEpisodeHeader">集</string>
   <string name="Media.ChooseAudioHeader">音频项</string>
   <string name="Media.ChooseVideoHeader">视频</string>
@@ -207,6 +196,7 @@
   <string name="Media.VideoDurationLabel">时期：</string>
   <string name="Media.VideoActorsLabel">艺人(们):</string>
   <string name="Media.VideoStoryPlotLabel">故事情节：</string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">系列：</string>
   <string name="Media.SeriesSeasonLabel">季：</string>
@@ -285,27 +275,8 @@
   <string name="Media.Watched">已观看</string>
   <string name="Media.Unwatched">未观看</string>
   <string name="Media.SwitchSortingMenuItem">排序</string>
-  <string name="Media.SwitchSortingDialogTitle">排序</string>
-  <string name="Media.SortByTitle">按标题排序</string>
-  <string name="Media.SortByAlbumTrack">按专辑和曲目 排序</string>
-  <string name="Media.SortByGenre">按流派排序</string>
-  <string name="Media.SortByAlbum">按专辑和标题排序</string>
-  <string name="Media.SortByTrack">按曲目排序</string>
-  <string name="Media.SortByArtist">按艺术家排序</string>
-  <string name="Media.SortByYear">按年份排序</string>
-  <string name="Media.SortBySize">按文件大小排序</string>
-  <string name="Media.SortBySystem">按系统排序</string>
-  <string name="Media.SortByActor">用艺人排序</string>
-  <string name="Media.SortByDirector">安导演排序</string>
-  <string name="Media.SortByWriter">按作者排序</string>
-  <string name="Media.SortByDuration">按年代排序</string>
-  <string name="Media.SortByAspectRatio">按宽高比排序</string>
-  <string name="Media.SortByFirstAiredDate">上市时间排序</string>
-  <string name="Media.SortByDate">按录制日期排序</string>
-  <string name="Media.SortByEpisode">按剧集排序</string>
-  <string name="Media.SortingBrowseDefault">默认排序</string>
-  <string name="Media.SwitchFilterMenuItem">过滤器</string>
-  <string name="Media.SwitchFilterDialogTitle">过滤器</string>
+  <string name="Media.SortByDate">日期</string>
+  <string name="Media.GroupingBrowseDefault">默认</string>
   <string name="Settings.Players">播放器</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">结束后关闭播放器</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">启用自动关闭播放器</string>

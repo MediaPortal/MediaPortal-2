@@ -111,18 +111,7 @@
     </Grid>
     <Image Source="Clock.Background.png" DockPanel.Dock="Center" Opacity="0.1" Width="380" Stretch="Uniform" Margin="-25,-25,0,0"/>
     <Control Style="{ThemeResource AnalogClockStyle}" DockPanel.Dock="Center"/>
-    <Control Style="{ThemeResource MetroAnimationControlStyle}" DockPanel.Dock="Center" Margin="318,318,0,0"/>
-    
-    <!--StackPanel Orientation="Vertical" DockPanel.Dock="Center"
-      HorizontalAlignment="Stretch" VerticalAlignment="Center">
-      <Control x:Name="AnalogClock" Style="{ThemeResource AnalogClockStyle}" HorizontalAlignment="Center"/>
-      <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}"
-        HorizontalAlignment="Center"
-        Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
-      <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}"
-        HorizontalAlignment="Center"
-        Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}"/>
-    </-->
+    <!--Control Style="{ThemeResource MetroAnimationControlStyle}" DockPanel.Dock="Center" Margin="318,318,0,0"/-->
 
   </DockPanel>
 </Screen>

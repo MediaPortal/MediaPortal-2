@@ -101,8 +101,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       _progressProperty = new WProperty(typeof(double), 0d);
       SetLabel(Consts.KEY_NAME, program.Title);
       SetLabel("Title", program.Title);
-      SetLabel("StartTime", program.StartTime.FormatProgramTime());
-      SetLabel("EndTime", program.EndTime.FormatProgramTime());
+      SetLabel("StartTime", program.StartTime.FormatProgramStartTime());
+      SetLabel("EndTime", program.EndTime.FormatProgramEndTime());
       SetLabel("Series", BuildSeriesText(program));
       Update();
     }

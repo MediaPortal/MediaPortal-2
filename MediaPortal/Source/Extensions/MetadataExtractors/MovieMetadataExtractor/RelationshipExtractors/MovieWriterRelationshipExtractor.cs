@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -170,7 +171,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return false;
 
       IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(VideoAspect.ATTR_WRITERS);
-      List<string> nameList = new List<string>(persons);
+      List<string> nameList = new SafeList<string>(persons);
 
       index = nameList.IndexOf(name);
       return index >= 0;

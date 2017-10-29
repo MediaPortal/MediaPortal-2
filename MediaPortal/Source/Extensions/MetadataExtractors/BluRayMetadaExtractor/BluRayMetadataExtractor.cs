@@ -108,7 +108,7 @@ namespace MediaPortal.Media.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
@@ -119,11 +119,10 @@ namespace MediaPortal.Media.MetadataExtractors
           return false;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-        using (ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor)
         {
-          if (!lfsra.IsFile && lfsra.ResourceExists("BDMV"))
+          if (!rah.LocalFsResourceAccessor.IsFile && rah.LocalFsResourceAccessor.ResourceExists("BDMV"))
           {
-            using (IFileSystemResourceAccessor fsraBDMV = lfsra.GetResource("BDMV"))
+            using (IFileSystemResourceAccessor fsraBDMV = rah.LocalFsResourceAccessor.GetResource("BDMV"))
               if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
               {
                 MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
@@ -144,11 +143,24 @@ namespace MediaPortal.Media.MetadataExtractors
                 MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
                 mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
 
-                using (lfsra.EnsureLocalFileSystemAccess())
+                using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
                 {
-                  BDInfoExt bdinfo = new BDInfoExt(lfsra.LocalFileSystemPath);
+                  BDInfoExt bdinfo = new BDInfoExt(rah.LocalFsResourceAccessor.LocalFileSystemPath);
                   string title = bdinfo.GetTitle();
-                  mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? mediaItemAccessor.ResourceName);
+                  if(title == null)
+                  {
+                    try
+                    {
+                      title = mediaItemAccessor.ResourceName;
+                      if (title.StartsWith($"[{rah.LocalFsResourceAccessor.Path.Substring(1)}] "))
+                        title = title.Substring(rah.LocalFsResourceAccessor.Path.Length + 2).Trim();
+                    }
+                    catch
+                    {
+                      title = mediaItemAccessor.ResourceName;
+                    }
+                  }
+                  mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
 
                   // Check for BD disc thumbs
                   FileInfo thumbnail = bdinfo.GetBiggestThumb();

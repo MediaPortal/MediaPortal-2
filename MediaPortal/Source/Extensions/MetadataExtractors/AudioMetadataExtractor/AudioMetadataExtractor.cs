@@ -130,6 +130,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Audio);
 
+      // All non-default media item aspects must be registered
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempAlbumAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(TempPersonAspect.Metadata);
+
       AudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>();
       InitializeExtensions(settings);
       InitializeUnsplittableID3v23Values(settings);
@@ -232,7 +237,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeComposerDetails { get; private set; }
     public static bool IncludeMusicLabelDetails { get; private set; }
-    public static bool OnlyLocalMedia { get; private set; }
 
     private void LoadSettings()
     {
@@ -243,7 +247,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeComposerDetails = _settingWatcher.Settings.IncludeComposerDetails;
       IncludeMusicLabelDetails = _settingWatcher.Settings.IncludeMusicLabelDetails;
-      OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
     }
 
     private void SettingsChanged(object sender, EventArgs e)
@@ -365,6 +368,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       int albumNo = 0;
       if (album != null &&
         (albumFolder.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase) && !album.StartsWith("CD", StringComparison.InvariantCultureIgnoreCase)) ||
+        (albumFolder.StartsWith("Disc", StringComparison.InvariantCultureIgnoreCase) && !album.StartsWith("Disc", StringComparison.InvariantCultureIgnoreCase)) ||
         (int.TryParse(albumFolder, out discNo) && int.TryParse(album, out albumNo) && discNo != albumNo))
       {
         return true;
@@ -417,7 +421,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null)
@@ -657,7 +661,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               else
               {
                 // In quick mode only allow thumbs taken from cache.
-                bool cachedOnly = importOnly;
+                bool cachedOnly = importOnly || forceQuickMode;
 
                 // Thumbnail extraction
                 fileName = mediaItemAccessor.ResourcePathName;
@@ -695,12 +699,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
             var artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
 
-            if (IsDiscFolder(trackInfo.Album, albumMediaItemDirectoryPath.FileName))
+            if (albumMediaItemDirectoryPath.FileName != null && 
+              IsDiscFolder(trackInfo.Album, albumMediaItemDirectoryPath.FileName))
             {
               //Probably a CD folder so try next parent
               artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../../");
             }
-            if (artistMediaItemDirectoryPath.FileName.IndexOf("Compilation", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            if (artistMediaItemDirectoryPath.FileName != null && 
+              artistMediaItemDirectoryPath.FileName.IndexOf("Compilation", StringComparison.InvariantCultureIgnoreCase) >= 0)
             {
               trackInfo.Compilation = true;
             }
@@ -716,18 +722,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         trackInfo.AssignNameId();
 
-        AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);
+        if (!forceQuickMode)
+        {
+          AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);
 
-        if (SkipOnlineSearches && !SkipFanArtDownload)
-        {
-          TrackInfo tempInfo = trackInfo.Clone();
-          OnlineMatcherService.Instance.FindAndUpdateTrack(tempInfo, importOnly);
-          trackInfo.CopyIdsFrom(tempInfo);
-          trackInfo.HasChanged = tempInfo.HasChanged;
-        }
-        else if (!SkipOnlineSearches)
-        {
-          OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, importOnly);
+          if (SkipOnlineSearches && !SkipFanArtDownload)
+          {
+            TrackInfo tempInfo = trackInfo.Clone();
+            OnlineMatcherService.Instance.FindAndUpdateTrack(tempInfo, importOnly);
+            trackInfo.CopyIdsFrom(tempInfo);
+            trackInfo.HasChanged = tempInfo.HasChanged;
+          }
+          else if (!SkipOnlineSearches)
+          {
+            OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, importOnly);
+          }
         }
 
         if (refresh)
@@ -745,7 +754,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         trackInfo.SetMetadata(extractedAspectData);
 
-        if (importOnly)
+        if (importOnly && !forceQuickMode)
         {
           //Store metadata for the Relationship Extractors
           if (IncludeArtistDetails)

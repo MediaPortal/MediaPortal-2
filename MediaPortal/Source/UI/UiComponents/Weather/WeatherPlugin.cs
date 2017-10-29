@@ -34,7 +34,8 @@ namespace MediaPortal.UiComponents.Weather
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      ServiceRegistration.Set<IWeatherCatcher>(new WorldWeatherOnlineCatcher());
+      //ServiceRegistration.Set<IWeatherCatcher>(new WorldWeatherOnlineCatcher());
+      ServiceRegistration.Set<IWeatherCatcher>(new OpenWeatherMapCatcher());
     }
 
     public bool RequestEnd()

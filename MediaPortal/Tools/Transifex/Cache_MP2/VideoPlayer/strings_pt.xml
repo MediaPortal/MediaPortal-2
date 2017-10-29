@@ -8,6 +8,10 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Configura o codificador usado para vídeos MPEG4 (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">Codificador de Vídeo AVC</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Configura o codificador usado para vídeos AVC (HDTV, BlueRay)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">Codec de Video HEVC</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Definir codec usado para video HEVC  (HD, UHD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter">Separador audio/vídeo</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter.Help">Indique o separador audio/vídeo</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Codificadores de Áudio</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Processadores de Áudio</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">Codificador de áudio MPEG1/2</string>

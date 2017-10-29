@@ -54,6 +54,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       public List<string> LastUpdatedTracks { get; set; }
     }
 
+    protected readonly object _initSyncObj = new object();
+    protected bool _isInit = false;
+
     #region Init
 
     public MusicMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
@@ -69,8 +72,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _labelMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "LabelMatches.xml"));
       _albumMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "AlbumMatches.xml"));
       _configFile = Path.Combine(cachePath, "MusicConfig.xml");
-
-      Init();
     }
 
     public override bool Init()
@@ -78,21 +79,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!_enabled)
         return false;
 
-      if (_wrapper != null)
-        return true;
-
-      if (!base.Init())
-        return false;
-
-      LoadConfig();
-
-      if (InitWrapper(UseSecureWebCommunication))
+      lock (_initSyncObj)
       {
-        if (_wrapper != null)
-          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
-        return true;
+        if (_isInit)
+          return true;
+
+        if (!base.Init())
+          return false;
+
+        LoadConfig();
+
+        if (InitWrapper(UseSecureWebCommunication))
+        {
+          if (_wrapper != null)
+            _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+          _isInit = true;
+          return true;
+        }
+        return false;
       }
-      return false;
     }
 
     private void LoadConfig()
@@ -213,6 +218,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         _labelMatcher.StoreNameMatch(id, company.Name, company.Name);
     }
 
+    public virtual void StoreAlbumMatch(AlbumInfo albumSearch, AlbumInfo albumMatch)
+    {
+      string id = "";
+      if (!GetTrackAlbumId(albumSearch, out id))
+        id = "";
+      _albumMatcher.StoreNameMatch(id, GetUniqueAlbumName(albumSearch), GetUniqueAlbumName(albumMatch));
+    }
+
     #endregion
 
     #region Metadata updaters
@@ -307,7 +320,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (matchFound)
         {
           //Only update album related info if they are equal
-          bool albumMatch = trackInfo.CloneBasicInstance<AlbumInfo>().Equals(trackMatch.CloneBasicInstance<AlbumInfo>());
+          bool albumMatch = false;
+          if(!string.IsNullOrEmpty(trackInfo.Album))
+            albumMatch = trackInfo.CloneBasicInstance<AlbumInfo>().Equals(trackMatch.CloneBasicInstance<AlbumInfo>());
 
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AudioDbId, trackMatch.AudioDbId);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicBrainzId, trackMatch.MusicBrainzId);
@@ -351,13 +366,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), trackInfo.Artists.Count == 0, false);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
           MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), trackInfo.Composers.Count == 0, false);
           if (albumMatch)
           {
             MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), trackInfo.MusicLabels.Count == 0, false);
             //In some cases the album artists can be "Various Artist" and/or "Multiple Artists" or other variations
-            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), trackInfo.AlbumArtists.Count == 0, false);
+            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
           }
 
           //Store person matches
@@ -888,6 +903,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           updated = true;
         }
 
+        if (updateTrackList) //Check that the tracks are for the right artists
+        {
+          if (albumMatch.Tracks.Count == 0)
+            return false;
+
+          if (albumInfo.Artists.Count > 0 && albumMatch.Tracks.Count > 1)
+          {
+            int wrongArtitsts = 0;
+            foreach (TrackInfo track in albumMatch.Tracks)
+            {
+              wrongArtitsts += track.AlbumArtists.Count(p => !albumInfo.Artists.Contains(p));
+              if (wrongArtitsts > 1)
+              {
+                //Wrong album
+                break;
+              }
+            }
+            if (wrongArtitsts > 1)
+            {
+              Logger.Info(_id + ": Track album artist(s) don't match album artist(s) for album {0}", albumInfo.ToString());
+              return false;
+            }
+          }
+        }
+
         if (updated)
         {
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.AudioDbId, albumMatch.AudioDbId);
@@ -928,7 +968,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), albumInfo.Artists.Count == 0, false);
+          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false, false);
           MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), albumInfo.MusicLabels.Count == 0, false);
 
           if (updateTrackList) //Comparing all tracks can be quite time consuming
@@ -976,16 +1016,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!importOnly)
         {
-          string Id;
-          if (!GetTrackAlbumId(albumInfo, out Id))
-            id = "";
-          _albumMatcher.StoreNameMatch(id, GetUniqueAlbumName(albumInfo), GetUniqueAlbumName(albumMatch));
+          StoreAlbumMatch(albumInfo, albumMatch);
         }
         return updated;
       }
       catch (Exception ex)
       {
-        Logger.Debug(_id + ": Exception while processing collection {0}", ex, albumInfo.ToString());
+        Logger.Debug(_id + ": Exception while processing album {0}", ex, albumInfo.ToString());
         return false;
       }
     }
@@ -1186,6 +1223,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<AlbumInfo> GetLastChangedAudioAlbums()
     {
       List<AlbumInfo> albums = new List<AlbumInfo>();
+
+      if (!Init())
+        return albums;
+
       foreach (string id in _config.LastUpdatedAlbums)
       {
         AlbumInfo a = new AlbumInfo();
@@ -1197,6 +1238,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedAudioAlbums()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedAlbums.Clear();
       SaveConfig();
     }
@@ -1204,6 +1248,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<TrackInfo> GetLastChangedAudio()
     {
       List<TrackInfo> tracks = new List<TrackInfo>();
+      if (!Init())
+        return tracks;
+
       foreach (string id in _config.LastUpdatedTracks)
       {
         TrackInfo t = new TrackInfo();
@@ -1215,6 +1262,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedAudio()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedTracks.Clear();
       SaveConfig();
     }
@@ -1225,6 +1275,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
+      if (!Init())
+        return false;
+
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
       if (info is TrackInfo)

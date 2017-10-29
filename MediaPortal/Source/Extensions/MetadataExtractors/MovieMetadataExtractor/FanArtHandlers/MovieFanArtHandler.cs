@@ -31,7 +31,6 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.OnlineLibraries;
 using System;
 using System.Collections.Generic;
@@ -67,7 +66,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     #endregion
 
     protected FanArtHandlerMetadata _metadata;
-    private SynchronizedCollection<Guid> _checkCache = new SynchronizedCollection<Guid>();
+    private readonly SynchronizedCollection<Guid> _checkCache = new SynchronizedCollection<Guid>();
 
     public MovieFanArtHandler()
     {
@@ -116,12 +115,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           {
             int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
             if (index.HasValue && actors.Count > index.Value && index.Value >= 0)
-              actorMediaItems.Add((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], actors[index.Value]);
+              actorMediaItems[(Guid)relation[RelationshipAspect.ATTR_LINKED_ID]] = actors[index.Value];
           }
         }
       }
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects, collectionMediaItemId, actorMediaItems));
+
       _checkCache.Add(mediaItemId);
+      Task.Run(() => ExtractFanArt(mediaItemId, aspects, collectionMediaItemId, actorMediaItems));
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? collectionMediaItemId, IDictionary<Guid, string> actorMediaItems)
@@ -142,9 +142,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         //Take advantage of the movie language being known and download collection too
         if (collectionMediaItemId.HasValue && !_checkCache.Contains(collectionMediaItemId.Value))
         {
+          _checkCache.Add(collectionMediaItemId.Value);
           if (!MovieMetadataExtractor.SkipFanArtDownload)
             OnlineMatcherService.Instance.DownloadMovieFanArt(collectionMediaItemId.Value, collectionInfo, forceFanart);
-          _checkCache.Contains(collectionMediaItemId.Value);
         }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
@@ -202,81 +202,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return;
 
       ExtractFolderImages(mediaItemLocater, movieMediaItemId, collectionMediaItemId, movieName, collectionName, actorMediaItems);
-      using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
-      {
-        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-        {
-          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-          {
-            ExtractMkvImages(rah.LocalFsResourceAccessor, movieMediaItemId, movieName);
-          }
-        }
-      }
-    }
-
-    private void ExtractMkvImages(ILocalFsResourceAccessor lfsra, Guid? movieMediaItemId, string movieTitle)
-    {
-      if (!movieMediaItemId.HasValue)
-        return;
-
-      string mediaItemId = movieMediaItemId.Value.ToString().ToUpperInvariant();
-      string fileSystemPath = string.Empty;
-      IDictionary<string, string> patterns = new Dictionary<string, string>()
-      {
-        { "banner.", FanArtTypes.Banner },
-        { "clearart.", FanArtTypes.ClearArt },
-        { "cover.", FanArtTypes.Cover },
-        { "poster.", FanArtTypes.Poster },
-        { "folder.", FanArtTypes.Poster },
-        { "backdrop.", FanArtTypes.FanArt },
-        { "fanart.", FanArtTypes.FanArt },
-      };
-
-      // File based access
-      try
-      {
-        if (lfsra != null)
-        {
-          fileSystemPath = lfsra.LocalFileSystemPath;
-          var ext = ResourcePathHelper.GetExtension(lfsra.LocalFileSystemPath);
-          if (!MKV_EXTENSIONS.Contains(ext))
-            return;
-
-          MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
-          byte[] binaryData = null;
-          foreach (string pattern in patterns.Keys)
-          {
-            if (mkvReader.GetAttachmentByName(pattern, out binaryData))
-            {
-              string fanArtType = patterns[pattern];
-              using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanArtType))
-              {
-                if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
-                  return;
-
-                FanArtCache.InitFanArtCache(mediaItemId, movieTitle);
-                string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
-                  "File." + pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
-                if (!File.Exists(cacheFile))
-                {
-                  using (MemoryStream ms = new MemoryStream(binaryData))
-                  {
-                    using (Image img = Image.FromStream(ms, true, true))
-                    {
-                      img.Save(cacheFile, System.Drawing.Imaging.ImageFormat.Jpeg);
-                      countLock.Count++;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Warn("MovieFanArtHandler: Exception while reading mkv attachments from '{0}'", ex, fileSystemPath);
-      }
     }
 
     private void ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? movieMediaItemId, Guid? collectionMediaItemId, string movieTitle, string collectionTitle, IDictionary<Guid, string> actorMediaItems)
@@ -295,12 +220,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           var collectionMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
 
           //Movie fanart
+          //Also saved by the video MDE but saved here again in case of the offline option being different
           var thumbPaths = new List<ResourcePath>();
           var fanArtPaths = new List<ResourcePath>();
           var posterPaths = new List<ResourcePath>();
           var bannerPaths = new List<ResourcePath>();
           var logoPaths = new List<ResourcePath>();
           var clearArtPaths = new List<ResourcePath>();
+          var discArtPaths = new List<ResourcePath>();
           if (movieMediaItemId.HasValue)
           {
             using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
@@ -355,6 +282,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                     where potentialFanArtFileNameWithoutExtension == "clearart" || potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-clearart")
                     select potentialFanArtFile);
 
+                discArtPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc" || 
+                    potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-discart")
+                    select potentialFanArtFile);
+
                 bannerPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
@@ -379,6 +313,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               SaveFolderFile(mediaItemLocater, logoPath, FanArtTypes.Logo, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath clearArtPath in clearArtPaths)
               SaveFolderFile(mediaItemLocater, clearArtPath, FanArtTypes.ClearArt, movieMediaItemId.Value, movieTitle);
+            foreach (ResourcePath discArtPath in discArtPaths)
+              SaveFolderFile(mediaItemLocater, discArtPath, FanArtTypes.DiscArt, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath bannerPath in bannerPaths)
               SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
@@ -393,6 +329,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           bannerPaths.Clear();
           logoPaths.Clear();
           clearArtPaths.Clear();
+          discArtPaths.Clear();
           if (collectionMediaItemId.HasValue)
           {
             using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, collectionMediaItemDirectoryPath).CreateAccessor())
@@ -507,7 +444,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public void DeleteFanArt(Guid mediaItemId)
     {
-      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+      _checkCache.Remove(mediaItemId);
+      //Deletion handled by video MDE
     }
 
     public void ClearCache()

@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         });
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
@@ -97,7 +97,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
         EpisodeInfo episodeInfo = GetSeriesFromTags(tags);
         if (episodeInfo.IsBaseInfoPresent)
         {
-          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
+          if(!forceQuickMode)
+            OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
@@ -258,14 +259,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
-          return false;
-        if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
           return false;
 
         Tags tags;
@@ -275,10 +274,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
             tags = (Tags)GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
+        string value;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ISDVD, false);
 
-        string value;
         if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
         {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);

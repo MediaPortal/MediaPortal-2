@@ -98,15 +98,11 @@
   <string name="Settings.Appearance">Utseende</string>
   <string name="Settings.Appearance.Skin">Skinn</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datoformat</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datoformatet som er brukt i skinnet, bruker formatet spesifisert i .net DateTime klassen.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Tidsformat</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tidsformatet i som er brukt i skinnet, bruker formatet spesifisert i .net DateTime klassen.</string>
   <string name="Settings.General">Generelt</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Start MediaPortal 2 automatisk når Windows starter opp</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Stasjonsnavn for tilordning av ressurser</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Konfigurere stasjonsnavn for tilordning av delte ressurser på denne klienten</string>
   <string name="Settings.General.Connectivity">Tilkobling</string>
   <string name="Settings.General.Connectivity.HomeServer">Hjemmeserver</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informasjon om hjemmeserveren, koble til og koble fra hjemmeserveren</string>

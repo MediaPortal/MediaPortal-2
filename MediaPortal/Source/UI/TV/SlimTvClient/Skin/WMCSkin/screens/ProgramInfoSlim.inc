@@ -24,7 +24,7 @@
       <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0" FontSize="{ThemeResource SmallFontSize}"
              Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
                                     fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
@@ -46,7 +46,7 @@
     </Grid>
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-           Wrap="True" TextTrimming="WordEllipsis" Opacity="1.3" FontSize="{ThemeResource SmallFontSize}"
+           Wrap="True" TextTrimming="WordEllipsis" Opacity="1.4" FontSize="{ThemeResource SmallFontSize}"
            Content="{Binding Path=CurrentProgram.Description}"
            Color="{ThemeResource MenuTextBackground}" Margin="10,0,0,5" />
   </Grid>

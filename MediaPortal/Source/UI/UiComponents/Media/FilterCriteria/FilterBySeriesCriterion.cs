@@ -22,17 +22,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Exceptions;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.SystemCommunication;
-using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -41,11 +34,10 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   /// </summary>
   public class FilterBySeriesCriterion : RelationshipMLFilterCriterion
   {
-    public FilterBySeriesCriterion() :
-      base(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, Consts.NECESSARY_SERIES_MIAS, Consts.OPTIONAL_SERIES_MIAS,
+    public FilterBySeriesCriterion(Guid linkedRole) :
+      base(SeriesAspect.ROLE_SERIES, linkedRole, Consts.NECESSARY_SERIES_MIAS, Consts.OPTIONAL_SERIES_MIAS,
         new SortInformation(SeriesAspect.ATTR_SERIES_NAME, SortDirection.Ascending))
     {
-      
     }
   }
 }

@@ -24,6 +24,7 @@
 
 using System;
 using System.Globalization;
+using MediaPortal.Plugins.SlimTv.Client.Controls;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 {
@@ -59,17 +60,35 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       get { return GetDay(DateTime.Now); }
     }
 
-    public static String FormatProgramTime(this DateTime dateTime, CultureInfo cultureInfo = null)
+    public static string FormatProgramStartTime(this DateTime dateTime, CultureInfo cultureInfo = null)
+    {
+      return FormatProgramTime(dateTime, cultureInfo);
+    }
+    public static string FormatProgramEndTime(this DateTime dateTime, CultureInfo cultureInfo = null)
+    {
+      return FormatProgramTime(dateTime, cultureInfo, TvDateFormat.Time);
+    }
+    public static string FormatProgramTime(this DateTime dateTime, CultureInfo cultureInfo = null, TvDateFormat format = TvDateFormat.Default)
     {
       if (dateTime == DateTime.MinValue)
         return string.Empty;
       cultureInfo = cultureInfo ?? CultureInfo.CurrentUICulture;
-      if (GetDay(dateTime) != Today)
-        return String.Format("{0} {1}",
-                     dateTime.ToString("d", cultureInfo),
-                     dateTime.ToString("t", cultureInfo));
+      string result = "";
 
-      return dateTime.ToString("t", cultureInfo);
+      // Date formats are exclusive
+      if (format.HasFlag(TvDateFormat.DifferentDay) && GetDay(dateTime) != Today || format.HasFlag(TvDateFormat.Day))
+      {
+        result += dateTime.ToString("d", cultureInfo);
+      }
+
+      // Time format
+      if (format.HasFlag(TvDateFormat.Time))
+      {
+        if (!string.IsNullOrEmpty(result))
+          result += " ";
+        result += dateTime.ToString("t", cultureInfo);
+      }
+      return result;
     }
   }
 }

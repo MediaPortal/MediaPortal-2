@@ -44,7 +44,7 @@
   <string name="ServerConnection.NoHomeServerAttached">Ce client MediaPortal 2 est déconnecté du serveur local</string>
   <string name="ServerConnection.HomeServerIsConnected">Le serveur local est ouvert</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Le serveur local est fermé</string>
-  <string name="ServerConnection.DetachMenu">Déconnexion</string>
+  <string name="ServerConnection.DetachMenu">Détacher</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Déconnexion du serveur local</string>
   <string name="ServerConnection.DetachConfirmDialogText">Si vous quitter le serveur local, toutes les données concernant les partages locaux et les fichiers multimédias seront supprimés de la bibliothèque du serveur. Vous pourrez joindre à nouveau, plus tard, le serveur local. Voulez-vous vraiment quitter le serveur local \"{0} \'sur l\'hôte\' {1} \'?</string>
   <string name="ServerConnection.SearchForServers">Recherche de serveurs</string>
@@ -107,15 +107,13 @@
   <string name="Settings.Appearance">Apparence</string>
   <string name="Settings.Appearance.Skin">Thème</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format de la date</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Format  de la date utilisé par le thème. Utilisez la norme \".net DateTime Class\". </string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Format de date utilisé par le skin. Utilisez \'d\' pour afficher \"1/14/2017\" ou \'D\' pour afficher \"Samedi, 1/14/2017\".</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Format de l\'heure</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format de l\'heure utilisé par le thème. Utilisez la norme \".net DateTime Class\".</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Format de l\'heure utilisé par le skin. Utilisez \'t\' pour afficher \"11:50\" ou \'T\' pour afficher \"11:50:37\".</string>
   <string name="Settings.General">Général</string>
   <string name="Settings.General.System">Système</string>
   <string name="Settings.General.System.Autostart">Démarrage automatique</string>
   <string name="Settings.General.System.Autostart.Help">Démarrer MediaPortal automatiquement après le lancement de Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Lettre du lecteur permettant de monter des ressources</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Configurez la lettre du lecteur afin de permettre de monter des ressources distantes sur ce client.</string>
   <string name="Settings.General.Connectivity">Connectivité</string>
   <string name="Settings.General.Connectivity.HomeServer">Serveur local</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Connexion, déconnexion, informations concernant le serveur local</string>
@@ -220,6 +218,8 @@
   <string name="SharesConfig.Relocate">Déplacer</string>
   <string name="SharesConfig.ReImport">Ré-importer</string>
   <string name="SharesConfig.ManualPathInput">Saisie manuelle</string>
+  <string name="SharesConfig.UseShareWatcher">Visualisation partagée:</string>
+  <string name="SharesConfig.UseShareWatcher.Help">Surveiller la source et mettre à jour la base de donnée automatiquement en cas de changements. </string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>

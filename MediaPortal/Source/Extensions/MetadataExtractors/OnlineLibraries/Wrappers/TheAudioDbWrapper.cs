@@ -219,42 +219,50 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      AudioDbArtist artistDetail = null;
-      language = language ?? PreferredLanguage;
-
-      if (person.AudioDbId > 0)
-        artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, language, cacheOnly);
-      if (artistDetail == null && !string.IsNullOrEmpty(person.MusicBrainzId))
+      try
       {
-        List<AudioDbArtist> foundArtists = _audioDbHandler.GetArtistByMbid(person.MusicBrainzId, language, cacheOnly);
-        if (foundArtists != null && foundArtists.Count == 1)
+        AudioDbArtist artistDetail = null;
+        language = language ?? PreferredLanguage;
+
+        if (person.AudioDbId > 0)
+          artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, language, cacheOnly);
+        if (artistDetail == null && !string.IsNullOrEmpty(person.MusicBrainzId))
         {
-          artistDetail = _audioDbHandler.GetArtist(foundArtists[0].ArtistId, language, cacheOnly);
+          List<AudioDbArtist> foundArtists = _audioDbHandler.GetArtistByMbid(person.MusicBrainzId, language, cacheOnly);
+          if (foundArtists != null && foundArtists.Count == 1)
+          {
+            artistDetail = _audioDbHandler.GetArtist(foundArtists[0].ArtistId, language, cacheOnly);
+          }
         }
+        if (artistDetail == null) return false;
+
+        bool languageSet = artistDetail.SetLanguage(language);
+
+        int? year = artistDetail.BornYear == null ? artistDetail.FormedYear : artistDetail.BornYear;
+        DateTime? born = null;
+        if (year.HasValue && year.Value > 1900)
+          born = new DateTime(year.Value, 1, 1);
+        DateTime? died = null;
+        if (artistDetail.DiedYear.HasValue && artistDetail.DiedYear.Value > 1900)
+          died = new DateTime(artistDetail.DiedYear.Value, 1, 1);
+
+        person.MusicBrainzId = artistDetail.MusicBrainzID;
+        person.Name = artistDetail.Artist;
+        person.AlternateName = artistDetail.ArtistAlternate;
+        person.Biography = new SimpleTitle(artistDetail.Biography, !languageSet);
+        person.DateOfBirth = born;
+        person.DateOfDeath = died;
+        person.Orign = artistDetail.Country;
+        person.IsGroup = artistDetail.Members.HasValue ? artistDetail.Members.Value > 1 : false;
+        person.Occupation = PersonAspect.OCCUPATION_ARTIST;
+
+        return true;
       }
-      if (artistDetail == null) return false;
-
-      bool languageSet = artistDetail.SetLanguage(language);
-
-      int? year = artistDetail.BornYear == null ? artistDetail.FormedYear : artistDetail.BornYear;
-      DateTime? born = null;
-      if (year.HasValue && year.Value > 1900)
-        born = new DateTime(year.Value, 1, 1);
-      DateTime? died = null;
-      if (artistDetail.DiedYear.HasValue && artistDetail.DiedYear.Value > 1900)
-        died = new DateTime(artistDetail.DiedYear.Value, 1, 1);
-
-      person.MusicBrainzId = artistDetail.MusicBrainzID;
-      person.Name = artistDetail.Artist;
-      person.AlternateName = artistDetail.ArtistAlternate;
-      person.Biography = new SimpleTitle(artistDetail.Biography, !languageSet);
-      person.DateOfBirth = born;
-      person.DateOfDeath = died;
-      person.Orign = artistDetail.Country;
-      person.IsGroup = artistDetail.Members.HasValue ? artistDetail.Members.Value > 1 : false;
-      person.Occupation = PersonAspect.OCCUPATION_ARTIST;
-
-      return true;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing person {0}", ex, person.ToString());
+        return false;
+      }
     }
 
     public override bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
@@ -264,180 +272,204 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
     {
-      bool cacheIncomplete = false;
-      AudioDbTrack trackDetail = null;
-      language = language ?? PreferredLanguage;
-
-      if (track.AudioDbId > 0)
-        trackDetail = _audioDbHandler.GetTrack(track.AudioDbId, language, cacheOnly);
-
-      if (trackDetail == null && track.TrackNum > 0 && track.AlbumAudioDbId > 0)
+      try
       {
-        List<AudioDbTrack> foundTracks = _audioDbHandler.GetTracksByAlbumId(track.AlbumAudioDbId, language, cacheOnly);
-        if (foundTracks != null && foundTracks.Count > 0)
-          trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
+        bool cacheIncomplete = false;
+        AudioDbTrack trackDetail = null;
+        language = language ?? PreferredLanguage;
+
+        if (track.AudioDbId > 0)
+          trackDetail = _audioDbHandler.GetTrack(track.AudioDbId, language, cacheOnly);
+
+        if (trackDetail == null && track.TrackNum > 0 && track.AlbumAudioDbId > 0)
+        {
+          List<AudioDbTrack> foundTracks = _audioDbHandler.GetTracksByAlbumId(track.AlbumAudioDbId, language, cacheOnly);
+          if (foundTracks != null && foundTracks.Count > 0)
+            trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
+        }
+
+        //Musicbrainz Id can be unreliable in this regard because it is linked to a recording and the same recording can 
+        //be across multiple different albums. In other words the Id is unique per song not per album song, so using this can
+        //lead to the wrong album id.
+        //if (trackDetail == null && !string.IsNullOrEmpty(track.MusicBrainzId))
+        //  trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, language, cacheOnly);
+
+        if (trackDetail == null) return false;
+
+        //Get the track into the cache
+        AudioDbTrack trackTempDetail = _audioDbHandler.GetTrack(trackDetail.TrackID, language, cacheOnly);
+        if (trackTempDetail != null)
+          trackDetail = trackTempDetail;
+
+        track.AudioDbId = trackDetail.TrackID;
+        track.LyricId = trackDetail.LyricID.HasValue ? trackDetail.LyricID.Value : 0;
+        track.MvDbId = trackDetail.MvDbID.HasValue ? trackDetail.MvDbID.Value : 0;
+        track.MusicBrainzId = trackDetail.MusicBrainzID;
+        track.AlbumAudioDbId = trackDetail.AlbumID.HasValue ? trackDetail.AlbumID.Value : 0;
+        track.AlbumMusicBrainzGroupId = trackDetail.MusicBrainzAlbumID;
+
+        track.TrackName = trackDetail.Track;
+        track.Album = trackDetail.Album;
+        track.TrackNum = trackDetail.TrackNumber;
+        track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 1;
+        track.Rating = new SimpleRating(trackDetail.Rating, trackDetail.RatingCount);
+        track.TrackLyrics = trackDetail.TrackLyrics;
+        track.Duration = trackDetail.Duration.HasValue ? trackDetail.Duration.Value / 1000 : 0;
+
+        if (trackDetail.ArtistID.HasValue)
+        {
+          track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, trackDetail.Album);
+          track.AlbumArtists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, trackDetail.Album);
+        }
+
+        if (!string.IsNullOrEmpty(trackDetail.Genre))
+          track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });
+
+        if (trackDetail.AlbumID.HasValue)
+        {
+          AudioDbAlbum album = _audioDbHandler.GetAlbum(trackDetail.AlbumID.Value, language, cacheOnly);
+          if (cacheOnly && album == null)
+            cacheIncomplete = true;
+          if (album != null && album.LabelId.HasValue)
+            track.MusicLabels = ConvertToCompanies(album.LabelId.Value, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
+        }
+
+        return !cacheIncomplete;
       }
-
-      //Musicbrainz Id can be unreliable in this regard because it is linked to a recording and the same recording can 
-      //be across multiple different albums. In other words the Id is unique per song not per album song, so using this can
-      //lead to the wrong album id.
-      //if (trackDetail == null && !string.IsNullOrEmpty(track.MusicBrainzId))
-      //  trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, language, cacheOnly);
-
-      if (trackDetail == null) return false;
-
-      //Get the track into the cache
-      AudioDbTrack trackTempDetail = _audioDbHandler.GetTrack(trackDetail.TrackID, language, cacheOnly);
-      if (trackTempDetail != null)
-        trackDetail = trackTempDetail;
-
-      track.AudioDbId = trackDetail.TrackID;
-      track.LyricId = trackDetail.LyricID.HasValue ? trackDetail.LyricID.Value : 0;
-      track.MvDbId = trackDetail.MvDbID.HasValue ? trackDetail.MvDbID.Value : 0;
-      track.MusicBrainzId = trackDetail.MusicBrainzID;
-      track.AlbumAudioDbId = trackDetail.AlbumID.HasValue ? trackDetail.AlbumID.Value : 0;
-      track.AlbumMusicBrainzGroupId = trackDetail.MusicBrainzAlbumID;
-
-      track.TrackName = trackDetail.Track;
-      track.Album = trackDetail.Album;
-      track.TrackNum = trackDetail.TrackNumber;
-      track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 1;
-      track.Rating = new SimpleRating(trackDetail.Rating, trackDetail.RatingCount);
-      track.TrackLyrics = trackDetail.TrackLyrics;
-      track.Duration = trackDetail.Duration.HasValue ? trackDetail.Duration.Value / 1000 : 0;
-
-      if (trackDetail.ArtistID.HasValue)
+      catch (Exception ex)
       {
-        track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, trackDetail.Album);
-        track.AlbumArtists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, trackDetail.Album);
+        ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing track {0}", ex, track.ToString());
+        return false;
       }
-
-      if (!string.IsNullOrEmpty(trackDetail.Genre))
-        track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });
-
-      if (trackDetail.AlbumID.HasValue)
-      {
-        AudioDbAlbum album = _audioDbHandler.GetAlbum(trackDetail.AlbumID.Value, language, cacheOnly);
-        if (cacheOnly && album == null)
-          cacheIncomplete = true;
-        if (album != null && album.LabelId.HasValue)
-          track.MusicLabels = ConvertToCompanies(album.LabelId.Value, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
-      }
-
-      return !cacheIncomplete;
     }
 
     public override bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, string language, bool cacheOnly)
     {
-      bool cacheIncomplete = false;
-      AudioDbAlbum albumDetail = null;
-      language = language ?? PreferredLanguage;
-
-      if (album.AudioDbId > 0)
-        albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, cacheOnly);
-      if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzId))
+      try
       {
-        List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, language, cacheOnly);
-        if (foundAlbums != null && foundAlbums.Count == 1)
+        bool cacheIncomplete = false;
+        AudioDbAlbum albumDetail = null;
+        language = language ?? PreferredLanguage;
+
+        if (album.AudioDbId > 0)
+          albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, cacheOnly);
+        if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzGroupId))
         {
-          albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, language, cacheOnly);
+          List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzGroupId, language, cacheOnly);
+          if (foundAlbums != null && foundAlbums.Count == 1)
+          {
+            albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, language, cacheOnly);
+          }
         }
+        if (albumDetail == null) return false;
+
+        bool languageSet = albumDetail.SetLanguage(language);
+
+        album.AudioDbId = albumDetail.AlbumId;
+        album.MusicBrainzGroupId = albumDetail.MusicBrainzID;
+        album.AmazonId = albumDetail.AmazonID;
+        album.ItunesId = albumDetail.ItunesID;
+
+        album.Album = albumDetail.Album;
+        album.Description = new SimpleTitle(albumDetail.Description, !languageSet);
+
+        if (!string.IsNullOrEmpty(albumDetail.Genre))
+          album.Genres.Add(new GenreInfo { Name = albumDetail.Genre });
+
+        album.Sales = albumDetail.Sales ?? 0;
+        album.ReleaseDate = albumDetail.Year.HasValue && albumDetail.Year.Value > 1900 ? new DateTime(albumDetail.Year.Value, 1, 1) : default(DateTime?);
+        album.Rating = new SimpleRating(albumDetail.Rating, albumDetail.RatingCount);
+
+        if (albumDetail.ArtistId.HasValue)
+          album.Artists = ConvertToPersons(albumDetail.ArtistId.Value, albumDetail.MusicBrainzArtistID, albumDetail.Artist, PersonAspect.OCCUPATION_ARTIST, null, albumDetail.Album);
+
+        if (albumDetail.LabelId.HasValue)
+          album.MusicLabels = ConvertToCompanies(albumDetail.LabelId.Value, albumDetail.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
+
+        List<AudioDbTrack> albumTracks = _audioDbHandler.GetTracksByAlbumId(albumDetail.AlbumId, language, cacheOnly);
+        if (cacheOnly && albumTracks == null)
+          cacheIncomplete = true;
+        if (albumTracks != null && albumTracks.Count > 0)
+        {
+          album.TotalTracks = albumTracks.Count;
+
+          foreach (AudioDbTrack trackDetail in albumTracks)
+          {
+            TrackInfo track = new TrackInfo();
+            track.AudioDbId = trackDetail.TrackID;
+            track.LyricId = trackDetail.LyricID.HasValue ? trackDetail.LyricID.Value : 0;
+            track.MvDbId = trackDetail.MvDbID.HasValue ? trackDetail.MvDbID.Value : 0;
+            track.MusicBrainzId = trackDetail.MusicBrainzID;
+            track.AlbumAudioDbId = trackDetail.AlbumID.HasValue ? trackDetail.AlbumID.Value : 0;
+            track.AlbumMusicBrainzGroupId = trackDetail.MusicBrainzAlbumID;
+            track.AlbumAmazonId = albumDetail.AmazonID;
+            track.AlbumItunesId = albumDetail.ItunesID;
+
+            track.TrackName = trackDetail.Track;
+            track.Album = albumDetail.Album;
+            track.TrackNum = trackDetail.TrackNumber;
+            track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 1;
+            track.Rating = new SimpleRating(trackDetail.Rating, trackDetail.RatingCount);
+            track.TrackLyrics = trackDetail.TrackLyrics;
+            track.Duration = trackDetail.Duration.HasValue ? trackDetail.Duration.Value / 1000 : 0;
+
+            if (trackDetail.ArtistID.HasValue)
+              track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, albumDetail.Album);
+
+            if (!string.IsNullOrEmpty(trackDetail.Genre))
+              track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });
+
+            track.AlbumArtists = album.Artists;
+            track.MusicLabels = album.MusicLabels;
+
+            album.Tracks.Add(track);
+          }
+        }
+
+        return !cacheIncomplete;
       }
-      if (albumDetail == null) return false;
-
-      bool languageSet = albumDetail.SetLanguage(language);
-
-      album.AudioDbId = albumDetail.AlbumId;
-      album.MusicBrainzGroupId = albumDetail.MusicBrainzID;
-      album.AmazonId = albumDetail.AmazonID;
-      album.ItunesId = albumDetail.ItunesID;
-
-      album.Album = albumDetail.Album;
-      album.Description = new SimpleTitle(albumDetail.Description, !languageSet);
-
-      if (!string.IsNullOrEmpty(albumDetail.Genre))
-        album.Genres.Add(new GenreInfo { Name = albumDetail.Genre });
-
-      album.Sales = albumDetail.Sales ?? 0;
-      album.ReleaseDate = albumDetail.Year.HasValue && albumDetail.Year.Value > 1900 ? new DateTime(albumDetail.Year.Value, 1, 1) : default(DateTime?);
-      album.Rating = new SimpleRating(albumDetail.Rating, albumDetail.RatingCount);
-
-      if (albumDetail.ArtistId.HasValue)
-        album.Artists = ConvertToPersons(albumDetail.ArtistId.Value, albumDetail.MusicBrainzArtistID, albumDetail.Artist, PersonAspect.OCCUPATION_ARTIST, null, albumDetail.Album);
-
-      if (albumDetail.LabelId.HasValue)
-        album.MusicLabels = ConvertToCompanies(albumDetail.LabelId.Value, albumDetail.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
-
-      List<AudioDbTrack> albumTracks = _audioDbHandler.GetTracksByAlbumId(albumDetail.AlbumId, language, cacheOnly);
-      if (cacheOnly && albumTracks == null)
-        cacheIncomplete = true;
-      if (albumTracks != null && albumTracks.Count > 0)
+      catch (Exception ex)
       {
-        album.TotalTracks = albumTracks.Count;
-
-        foreach (AudioDbTrack trackDetail in albumTracks)
-        {
-          TrackInfo track = new TrackInfo();
-          track.AudioDbId = trackDetail.TrackID;
-          track.LyricId = trackDetail.LyricID.HasValue ? trackDetail.LyricID.Value : 0;
-          track.MvDbId = trackDetail.MvDbID.HasValue ? trackDetail.MvDbID.Value : 0;
-          track.MusicBrainzId = trackDetail.MusicBrainzID;
-          track.AlbumAudioDbId = trackDetail.AlbumID.HasValue ? trackDetail.AlbumID.Value : 0;
-          track.AlbumMusicBrainzGroupId = trackDetail.MusicBrainzAlbumID;
-          track.AlbumAmazonId = albumDetail.AmazonID;
-          track.AlbumItunesId = albumDetail.ItunesID;
-
-          track.TrackName = trackDetail.Track;
-          track.Album = albumDetail.Album;
-          track.TrackNum = trackDetail.TrackNumber;
-          track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 1;
-          track.Rating = new SimpleRating(trackDetail.Rating, trackDetail.RatingCount);
-          track.TrackLyrics = trackDetail.TrackLyrics;
-          track.Duration = trackDetail.Duration.HasValue ? trackDetail.Duration.Value / 1000 : 0;
-
-          if (trackDetail.ArtistID.HasValue)
-            track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, albumDetail.Album);
-
-          if (!string.IsNullOrEmpty(trackDetail.Genre))
-            track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });
-
-          track.AlbumArtists = album.Artists;
-          track.MusicLabels = album.MusicLabels;
-
-          album.Tracks.Add(track);
-        }
+        ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing album {0}", ex, album.ToString());
+        return false;
       }
-
-      return !cacheIncomplete;
     }
 
     public override bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo album, CompanyInfo company, string language, bool cacheOnly)
     {
-      AudioDbAlbum albumDetail = null;
-      language = language ?? PreferredLanguage;
-
-      if (album.AudioDbId > 0)
-        albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, cacheOnly);
-      if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzId))
+      try
       {
-        List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, language, cacheOnly);
-        if (foundAlbums != null && foundAlbums.Count == 1)
+        AudioDbAlbum albumDetail = null;
+        language = language ?? PreferredLanguage;
+
+        if (album.AudioDbId > 0)
+          albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, cacheOnly);
+        if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzId))
         {
-          //Get the album into the cache
-          albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, language, cacheOnly);
+          List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, language, cacheOnly);
+          if (foundAlbums != null && foundAlbums.Count == 1)
+          {
+            //Get the album into the cache
+            albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, language, cacheOnly);
+          }
         }
-      }
-      if (albumDetail == null) return false;
+        if (albumDetail == null) return false;
 
-      if (!string.IsNullOrEmpty(albumDetail.Label) && company.MatchNames(company.Name, albumDetail.Label) && albumDetail.LabelId.HasValue)
+        if (!string.IsNullOrEmpty(albumDetail.Label) && company.MatchNames(company.Name, albumDetail.Label) && albumDetail.LabelId.HasValue)
+        {
+          company.AudioDbId = albumDetail.LabelId.Value;
+          company.Name = albumDetail.Label;
+          company.Type = CompanyAspect.COMPANY_MUSIC_LABEL;
+          return true;
+        }
+
+        return false;
+      }
+      catch (Exception ex)
       {
-        company.AudioDbId = albumDetail.LabelId.Value;
-        company.Name = albumDetail.Label;
-        company.Type = CompanyAspect.COMPANY_MUSIC_LABEL;
-        return true;
+        ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing company {0}", ex, company.ToString());
+        return false;
       }
-
-      return false;
     }
 
     #endregion

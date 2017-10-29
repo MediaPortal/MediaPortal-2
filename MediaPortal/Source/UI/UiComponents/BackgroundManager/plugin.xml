@@ -66,15 +66,21 @@
 
   <!-- Contents of '/Appearance/Skin' section -->
   <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigSection
+      Id="SkinSettings"
+      Redundant="true"
+      Text="[SkinSettings.Configuration.SkinSettings]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
     <ConfigGroup
         Id="Background"
         Redundant="true"
         Text="[Settings.Appearance.Skin.Background]"/>
   </Register>
 
-
   <!-- Contents of '/Appearance/Skin/Background' group -->
-  <Register Location="/Configuration/Settings/Appearance/Skin/Background">
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings/Background">
     <CustomConfigSetting
         Id="VideoBackgroundFilename"
         Text="[Settings.Appearance.Skin.Background.VideoBackground]"

@@ -91,11 +91,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="debugLogger">Debug logger to log to</param>
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
-    /// <param name="importOnly">If true, no long lasting operations such as parsing images are performed</param>
+    /// <param name="importOnly">If true, this is an import only cycle meaning no refresh of existing media</param>
+    /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoSeriesMetadataExtractor"/></param>
-    public NfoSeriesEpisodeReader(ILogger debugLogger, long miNumber, bool importOnly, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
-      : base(debugLogger, miNumber, importOnly, httpClient, settings)
+    public NfoSeriesEpisodeReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
+      : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
     {
       InitializeSupportedElements();
       InitializeSupportedAttributes();
