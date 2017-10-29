@@ -2,9 +2,11 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MediaPortal.Utilities;
 using MP2Extended.Extensions;
+using MP2Extended.ResourceAccess;
 using MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
 using MP2Extended.ResourceAccess.MAS.Music.Helpers;
 using System;
@@ -90,6 +92,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
         ArtistId = artistIds,
         DateAdded = importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED),        
         Genres = genres.Select(a => a.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)).ToList(),
+        Artwork = GetFanart.GetArtwork(item.MediaItemId, WebMediaType.MusicTrack)
       };
     }
 

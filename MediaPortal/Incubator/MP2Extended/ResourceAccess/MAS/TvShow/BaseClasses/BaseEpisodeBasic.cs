@@ -6,6 +6,7 @@ using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Utilities;
 using MP2Extended.Extensions;
+using MP2Extended.ResourceAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +57,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         SeasonNumber = episodeAspect.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON),
         FirstAired = mediaAspect.GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME),
         Rating = Convert.ToSingle(episodeAspect.GetAttributeValue<double>(EpisodeAspect.ATTR_TOTAL_RATING)),
+        Artwork = GetFanart.GetArtwork(item.MediaItemId, WebMediaType.TVEpisode)
       };
       
       string TvDbId;

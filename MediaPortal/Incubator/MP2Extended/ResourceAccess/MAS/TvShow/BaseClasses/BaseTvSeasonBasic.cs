@@ -1,11 +1,12 @@
 ﻿using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MP2Extended.Extensions;
+using MP2Extended.ResourceAccess;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 {
@@ -56,6 +57,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         UnwatchedEpisodeCount = unwatchedCount,
         DateAdded = importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED),
         Year = firstAired.HasValue ? firstAired.Value.Year : 0,
+        Artwork = GetFanart.GetArtwork(item.MediaItemId, WebMediaType.TVSeason),
         IsProtected = false,
         PID = 0
       };

@@ -3,10 +3,12 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MP2Extended.Extensions;
+using MP2Extended.ResourceAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,6 +63,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         Actors = actors,
         UnwatchedEpisodeCount = unwatchedCount,
         Year = firstAired.HasValue ? firstAired.Value.Year : 0,
+        Artwork = GetFanart.GetArtwork(item.MediaItemId, WebMediaType.TVShow)
       };
 
       IList<MediaItemAspect> genres;

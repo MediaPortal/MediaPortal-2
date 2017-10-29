@@ -21,6 +21,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         UnwatchedEpisodeCount = basic.UnwatchedEpisodeCount,
         DateAdded = basic.DateAdded,
         Year = basic.Year,
+        Artwork = basic.Artwork,
         IsProtected = basic.IsProtected,
         PID = basic.PID
       };

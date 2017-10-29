@@ -45,7 +45,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
         Artist = basic.Artist,
         ArtistId = basic.ArtistId,
         DateAdded = basic.DateAdded,
-        Genres = basic.Genres
+        Genres = basic.Genres,
+        Artwork = basic.Artwork
       };
 
       BaseMusicArtistBasic artistBasic = new BaseMusicArtistBasic();

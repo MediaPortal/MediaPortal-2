@@ -16,7 +16,9 @@ namespace MP2Extended.ResourceAccess.MAS.Music.BaseClasses
         Title = basic.Title,
         Id = basic.Id,
         HasAlbums = basic.HasAlbums,
-        Biography = item.GetAspect(PersonAspect.Metadata).GetAttributeValue<string>(PersonAspect.ATTR_BIOGRAPHY)
+        Artwork = basic.Artwork,
+        Biography = item.GetAspect(PersonAspect.Metadata).GetAttributeValue<string>(PersonAspect.ATTR_BIOGRAPHY),
+        PID = basic.PID
       };
     }
   }

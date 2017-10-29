@@ -10,6 +10,7 @@ using MediaPortal.Plugins.MP2Extended.MAS.Movie;
 using MediaPortal.Utilities;
 using MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
+using MP2Extended.ResourceAccess;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
 {
@@ -51,6 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
         Watched = mediaAspect.GetAttributeValue<int>(MediaAspect.ATTR_PLAYCOUNT) > 0,
         DateAdded = importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED),
         Rating = Convert.ToSingle(movieAspect.GetAttributeValue<double>(MovieAspect.ATTR_TOTAL_RATING)),
+        Artwork = GetFanart.GetArtwork(item.MediaItemId, WebMediaType.Movie)
       };
 
       IEnumerable<string> aspectActors = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_ACTORS);

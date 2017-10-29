@@ -1,5 +1,6 @@
 ﻿using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MP2Extended.Extensions;
 using System;
@@ -27,7 +28,8 @@ namespace MP2Extended.ResourceAccess.MAS.Music.BaseClasses
       {
         Title = item.GetAspect(PersonAspect.Metadata).GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME),
         Id = item.MediaItemId.ToString(),
-        HasAlbums = item.GetLinkedIds(PersonAspect.ROLE_ALBUMARTIST, AudioAlbumAspect.ROLE_ALBUM).Any()
+        HasAlbums = item.GetLinkedIds(PersonAspect.ROLE_ALBUMARTIST, AudioAlbumAspect.ROLE_ALBUM).Any(),
+        Artwork = GetFanart.GetArtwork(item.MediaItemId, WebMediaType.MusicArtist)
       };
     }
   }
