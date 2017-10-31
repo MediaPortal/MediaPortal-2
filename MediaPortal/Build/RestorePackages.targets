@@ -33,6 +33,8 @@
   -->
   <Target Name="RestoreBuildPackages"
           DependsOnTargets="DownloadNuGet">
+    <!-- First do a self update of nuget.exe -->
+    <Exec Command='"$(NuGetExePath)" update -self'/>
     <Exec Command='"$(NuGetExePath)" install "$(MSBuildThisFileDirectory)\packages.config"'/>
   </Target>
 </Project>
