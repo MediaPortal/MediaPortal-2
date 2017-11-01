@@ -8,7 +8,7 @@
   <string name="Media.ImagesMenuItem">وێنە</string>
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.GenreMenuItem">جۆر</string>
-  <string name="Media.EpisodeDateMenuItem">زنجیرە</string>
+  <string name="Media.EpisodeMenuItem">زنجیرە</string>
   <string name="Media.SimpleSearchFilterMenuItem">گەڕان</string>
   <!--Filter titles-->
   <!--Special filters names-->

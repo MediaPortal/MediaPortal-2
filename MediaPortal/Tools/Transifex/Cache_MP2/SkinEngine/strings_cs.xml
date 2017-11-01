@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Konfigurujte, zda má být zobrazen spořič obrazovky</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Časový limit spořiče obrazovky</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Konfigurujte časový interval v minutách, kdy má být zobrazen spořič obrazovky po posledním vstupu uživatele</string>
-  <string name="Settings.Appearance.System.Antialiasing">Vyhlazování grafického rozhraní</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Vyhlazování zlepšuje kvalitu zobrazení grafického rozhraní, ale může snížit výkon videa</string>
   <string name="Settings.Appearance.Skin">Vzhled</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Vzhled a motiv</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Změnit vzhled</string>

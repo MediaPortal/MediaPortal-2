@@ -70,5 +70,9 @@
   <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-50,-40,-50,20"/>
 
   <ResourceWrapper x:Key="ContentGroupBoxCornerRadius" Resource="0"/>
-  
+
+  <!-- OSD / Notifier -->
+  <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="0"/>
+  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="0"/>
+
 </ResourceDictionary>

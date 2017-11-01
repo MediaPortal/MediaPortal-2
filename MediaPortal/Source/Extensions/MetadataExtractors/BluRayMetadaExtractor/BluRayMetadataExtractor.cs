@@ -147,7 +147,20 @@ namespace MediaPortal.Media.MetadataExtractors
                 {
                   BDInfoExt bdinfo = new BDInfoExt(rah.LocalFsResourceAccessor.LocalFileSystemPath);
                   string title = bdinfo.GetTitle();
-                  mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? mediaItemAccessor.ResourceName);
+                  if(title == null)
+                  {
+                    try
+                    {
+                      title = mediaItemAccessor.ResourceName;
+                      if (title.StartsWith($"[{rah.LocalFsResourceAccessor.Path.Substring(1)}] "))
+                        title = title.Substring(rah.LocalFsResourceAccessor.Path.Length + 2).Trim();
+                    }
+                    catch
+                    {
+                      title = mediaItemAccessor.ResourceName;
+                    }
+                  }
+                  mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
 
                   // Check for BD disc thumbs
                   FileInfo thumbnail = bdinfo.GetBiggestThumb();

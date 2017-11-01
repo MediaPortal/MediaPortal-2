@@ -33,7 +33,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractVideosFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
         MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion)
     {
-      _filteredMias = new[] { VideoAspect.ASPECT_ID };
     }
   }
 }

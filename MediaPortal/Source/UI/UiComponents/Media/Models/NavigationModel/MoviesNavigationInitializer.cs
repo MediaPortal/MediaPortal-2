@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -41,6 +42,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
       _optionalMias = Consts.OPTIONAL_MOVIES_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+      _rootRole = MovieAspect.ROLE_MOVIE;
     }
 
     protected override void Prepare()

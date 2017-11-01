@@ -24,7 +24,7 @@
     <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="1" Width="{ThemeResource ChannelLogoLarge}" Margin="25,10,10,45"
            Height="{ThemeResource ChannelLogoLarge}" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top">
       <Image.Source>
-        <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+        <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
       </Image.Source>
     </Image>
 

@@ -96,26 +96,33 @@
           </Grid.ColumnDefinitions>
 
           <Image x:Name="CDImage" Stretch="Uniform" 
-                 Source="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
+                 FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
                  VerticalAlignment="Bottom" Width="290" Height="290" Margin="0,0,150,25">
-            <Image.Resources>
-              <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
-                <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"
-                                  From="0" To="360" Duration="0:0:2" RepeatBehavior="Forever" />
-              </Storyboard>
-            </Image.Resources>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                        fanart:MaxWidth="290" fanart:MaxHeight="290"/>
+            </Image.Source>
+
             <Image.RenderTransform>
               <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
             </Image.RenderTransform>
+            
+            <Image.Resources>
+              <Storyboard x:Key="DiskRotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                 From="0" To="360" Duration="0:0:4.5" RepeatBehavior="Forever" />
+              </Storyboard>
+            </Image.Resources>
+
             <Image.Triggers>
-              <Trigger Property="IsEnabled" Value="True">
-                <Trigger.EnterActions>
-                  <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
-                </Trigger.EnterActions>
-                <Trigger.ExitActions>
+              <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DiskRotationStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
                   <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-                </Trigger.ExitActions>
-              </Trigger>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
             </Image.Triggers>
           </Image>
 

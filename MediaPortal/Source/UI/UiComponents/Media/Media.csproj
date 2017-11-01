@@ -15,7 +15,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -113,6 +113,7 @@
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
+    <Compile Include="FilterCriteria\FilterByPersonCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByDiscNumberCriterion.cs" />
@@ -126,14 +127,16 @@
     <Compile Include="FilterCriteria\FilterByDirectorCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByActorCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByMovieCollectionCriterion.cs" />
-    <Compile Include="FilterCriteria\FilterBySeasonEpisodeCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesSeasonCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByPlayCountCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
-    <Compile Include="FilterCriteria\FilteredRelationshipMLFilterCriterion.cs" />
+    <Compile Include="FilterTrees\FilterTreePath.cs" />
+    <Compile Include="FilterTrees\IFilterTree.cs" />
     <Compile Include="FilterCriteria\RelationshipMLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
+    <Compile Include="FilterTrees\RelationshipFilterTree.cs" />
+    <Compile Include="FilterTrees\SimpleFilterTree.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
     <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />
@@ -181,6 +184,8 @@
     <Compile Include="Models\NavigationModel\MoviesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\SeriesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
+    <Compile Include="Models\Navigation\PersonFilterItem.cs" />
+    <Compile Include="Models\Navigation\SimplePersonFilterItem.cs" />
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\ArtistFilterItem.cs" />
     <Compile Include="Models\Navigation\SeriesGenreFilterItem.cs" />

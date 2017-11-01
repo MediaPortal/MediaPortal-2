@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       LoadSettings();
 
-      _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoSeriesMetadataExtractorSettings>();
+      _settings = _settingWatcher.Settings;
 
       if (_settings.EnableDebugLogging)
       {

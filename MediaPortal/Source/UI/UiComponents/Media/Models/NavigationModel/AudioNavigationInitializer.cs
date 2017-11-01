@@ -26,12 +26,15 @@ using System.Collections.Generic;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
   class AudioNavigationInitializer : BaseNavigationInitializer
   {
     internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Audio }; // "Audio"
+
+    protected AudioFilterByAlbumScreenData _albumScreen;
 
     public AudioNavigationInitializer()
     {
@@ -41,6 +44,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
       _optionalMias = Consts.OPTIONAL_AUDIO_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+      _rootRole = AudioAspect.ROLE_TRACK;
     }
 
     protected override void Prepare()
@@ -48,6 +52,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       base.Prepare();
 
       _defaultScreen = new AudioFilterByArtistScreenData();
+      _albumScreen = new AudioFilterByAlbumScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
           new AudioShowItemsScreenData(_genericPlayableItemCreatorDelegate),
@@ -55,7 +60,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           _defaultScreen,
           new AudioFilterByComposerScreenData(),
           new AudioFilterByAlbumArtistScreenData(),
-          new AudioFilterByAlbumScreenData(),
+          _albumScreen,
           new AudioFilterByAlbumLabelScreenData(),
           new AudioFilterByDiscNumberScreenData(),
           new AudioFilterByGenreScreenData(),

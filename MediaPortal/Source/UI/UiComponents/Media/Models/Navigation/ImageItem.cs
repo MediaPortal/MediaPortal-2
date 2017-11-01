@@ -40,6 +40,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
+
       SingleMediaItemAspect imageAspect;
       if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ImageAspect.Metadata, out imageAspect))
       {

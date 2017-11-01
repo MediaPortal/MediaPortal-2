@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Configurar si el salvapantallas debe mostrarse</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Tiempo de espera para salvapantallas</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configura el intervalo de tiempo en minutos cuando el salvapantallas debe aparecer despues de la última entrada del usuario</string>
-  <string name="Settings.Appearance.System.Antialiasing">Antialiasing del interfaz de usuario</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">El Antialiasing mejora el aspecto visual del interfaz de usuario pero puede disminuir el rendimiento</string>
   <string name="Settings.Appearance.Skin">Piel</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Piel y tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Cambia de piel</string>

@@ -77,6 +77,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
       StereoVideoRegex = new SerializableRegex(@"\\.*?[-. _](3d|.*?)?([-. _]?|3d)(?<mode>h[-]?|half[-]?|full[-]?)*(?<stereo>sbs|tab|ou|mvc|anaglyph)[-. _]", RegexOptions.IgnoreCase);
       MaxSampleSize = 150;
       SampleVideoRegex = new SerializableRegex(@"(sample)|(trailer)", RegexOptions.IgnoreCase);
+      CacheOfflineFanArt = true;
+      CacheLocalFanArt = false;
     }
 
     /// <summary>
@@ -120,5 +122,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
     /// </summary>
     [Setting(SettingScope.Global)]
     public SerializableRegex SampleVideoRegex { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of FanArt placed on network drives to allow browsing when they are offline.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool CacheOfflineFanArt { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of FanArt placed on local drives to allow browsing when they are asleep.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool CacheLocalFanArt { get; set; }
   }
 }

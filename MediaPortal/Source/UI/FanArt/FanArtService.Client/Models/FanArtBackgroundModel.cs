@@ -22,23 +22,22 @@
 
 #endregion
 
-using System;
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UI.SkinEngine.Controls.ImageSources;
-using MediaPortal.UiComponents.Media.Models.Navigation;
-using MediaPortal.UI.SkinEngine.MpfElements;
-using System.Collections.Generic;
-using MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Exceptions;
-using MediaPortal.Common.FanArt;
+using MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.SkinEngine.Controls.ImageSources;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 {
@@ -88,7 +87,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new[] { WorkflowManagerMessaging.CHANNEL });
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { ScreenManagerMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -103,12 +102,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      if (message.ChannelName == ScreenManagerMessaging.CHANNEL)
       {
-        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
+        ScreenManagerMessaging.MessageType messageType = (ScreenManagerMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
-          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+          case ScreenManagerMessaging.MessageType.ShowScreen:
             SelectedItem = null; // Clear current data for new screen
             break;
         }
@@ -247,6 +246,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
+      ListItem item = e.FirstAddedItem as ListItem;
+      if (item != null)
+        SelectedItem = item;
+    }
+
+    public void SetSelectedItemOrNull(object sender, SelectionChangedEventArgs e)
+    {
       SelectedItem = e.FirstAddedItem as ListItem;
     }
 
@@ -303,8 +309,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (series != null)
       {
         MediaItem = series.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Series;
-        FanArtName = series.MediaItem.MediaItemId.ToString();
         SimpleTitle = series.SimpleTitle;
         ItemDescription = series.StoryPlot;
         return;
@@ -313,8 +317,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (season != null)
       {
         MediaItem = season.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.SeriesSeason;
-        FanArtName = season.MediaItem.MediaItemId.ToString();
         SimpleTitle = season.SimpleTitle;
         ItemDescription = season.StoryPlot;
         return;
@@ -323,8 +325,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (episode != null)
       {
         MediaItem = episode.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Episode;
-        FanArtName = episode.MediaItem.MediaItemId.ToString();
         SimpleTitle = episode.Series;
         ItemDescription = episode.StoryPlot;
         return;
@@ -333,8 +333,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (movieCollection != null)
       {
         MediaItem = movieCollection.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.MovieCollection;
-        FanArtName = movieCollection.MediaItem.MediaItemId.ToString();
         SimpleTitle = movieCollection.SimpleTitle;
         ItemDescription = null;
         return;
@@ -343,8 +341,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (movie != null)
       {
         MediaItem = movie.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Movie;
-        FanArtName = movie.MediaItem.MediaItemId.ToString();
         SimpleTitle = movie.SimpleTitle;
         ItemDescription = movie.StoryPlot;
         return;
@@ -353,7 +349,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (video != null)
       {
         MediaItem = video.MediaItem;
-        FanArtName = video.MediaItem.MediaItemId.ToString();
         SimpleTitle = video.SimpleTitle;
         ItemDescription = video.StoryPlot;
         return;
@@ -362,8 +357,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (albumItem != null)
       {
         MediaItem = albumItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Album;
-        FanArtName = albumItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = albumItem.SimpleTitle;
         ItemDescription = albumItem.Description;
         return;
@@ -372,8 +365,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (audioItem != null)
       {
         MediaItem = audioItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Audio;
-        FanArtName = audioItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = audioItem.SimpleTitle;
         ItemDescription = string.Empty;
         return;
@@ -382,8 +373,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (actorItem != null)
       {
         MediaItem = actorItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Actor;
-        FanArtName = actorItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = actorItem.SimpleTitle;
         ItemDescription = actorItem.Description;
         return;
@@ -392,8 +381,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (directorItem != null)
       {
         MediaItem = directorItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Director;
-        FanArtName = directorItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = directorItem.SimpleTitle;
         ItemDescription = directorItem.Description;
       }
@@ -401,8 +388,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (writerItem != null)
       {
         MediaItem = writerItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Writer;
-        FanArtName = writerItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = writerItem.SimpleTitle;
         ItemDescription = writerItem.Description;
       }
@@ -410,8 +395,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (artisitItem != null)
       {
         MediaItem = artisitItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Artist;
-        FanArtName = artisitItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = artisitItem.SimpleTitle;
         ItemDescription = artisitItem.Description;
       }
@@ -419,8 +402,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (composerItem != null)
       {
         MediaItem = composerItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Writer;
-        FanArtName = composerItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = composerItem.SimpleTitle;
         ItemDescription = composerItem.Description;
       }
@@ -428,8 +409,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (characterItem != null)
       {
         MediaItem = characterItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Character;
-        FanArtName = characterItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = characterItem.SimpleTitle;
         ItemDescription = string.Empty;
       }
@@ -437,8 +416,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (companyItem != null)
       {
         MediaItem = companyItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Company;
-        FanArtName = companyItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = companyItem.SimpleTitle;
         ItemDescription = companyItem.Description;
       }
@@ -446,8 +423,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (tvNetworkItem != null)
       {
         MediaItem = tvNetworkItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.TVNetwork;
-        FanArtName = tvNetworkItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = tvNetworkItem.SimpleTitle;
         ItemDescription = tvNetworkItem.Description;
       }

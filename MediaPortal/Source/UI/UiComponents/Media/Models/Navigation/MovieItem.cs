@@ -22,11 +22,9 @@
 
 #endregion
 
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
-using System;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -40,6 +38,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
 
       MovieInfo movieInfo = new MovieInfo();
       if (!movieInfo.FromMetadata(mediaItem.Aspects)) 

@@ -16,7 +16,7 @@
   <string name="Media.YearMenuItem">År</string>
   <string name="Media.SizeMenuItem">Størrelse</string>
   <string name="Media.SystemMenuItem">System</string>
-  <string name="Media.EpisodeDateMenuItem">Episode</string>
+  <string name="Media.EpisodeMenuItem">Episode</string>
   <string name="Media.AudioLanguageMenuItem">Språk</string>
   <string name="Media.ImageStateMenuItem">Tilstand</string>
   <string name="Media.SeriesNameMenuItem">Serie</string>
@@ -271,6 +271,8 @@
   <string name="Media.CoverLayout">Cover</string>
   <string name="Media.Watched">Sett</string>
   <string name="Media.SwitchSortingMenuItem">Sorter</string>
+  <string name="Media.SortByDate">Dato</string>
+  <string name="Media.GroupingBrowseDefault">Standard</string>
   <string name="Settings.Players">Avspillere</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Lukk spilleren når den er ferdig</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Velg denne innstillingen for at MediaPortal skal lukke spilleren automatisk</string>

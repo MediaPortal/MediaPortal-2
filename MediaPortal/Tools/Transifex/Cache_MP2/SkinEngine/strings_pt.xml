@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Configurar se a proteção de ecrã deve ser mostrada</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Espera até ativar a proteção de ecrã</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configurar o espaço de tempo em minutos desde a última ação do utilizador até ativar a proteção de ecrã</string>
-  <string name="Settings.Appearance.System.Antialiasing">Antialiasing da Interface Gráfica</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">O Antialiasing melhora a qualidade visual da Interface Gráfica, mas pode diminuir o desempenho do vídeo</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skin e tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Mudar a skin</string>

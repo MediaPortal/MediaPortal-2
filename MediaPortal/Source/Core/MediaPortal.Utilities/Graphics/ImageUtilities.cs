@@ -188,6 +188,30 @@ namespace MediaPortal.Utilities.Graphics
     }
 
     /// <summary> 
+    /// Saves an image as a png image.
+    /// </summary> 
+    /// <param name="path">Path to which the image would be saved.</param>
+    /// <param name="image">Image to save.</param>
+    public static void SavePng(string path, Image image)
+    {
+      //png is lossless so there is no quality setting and it doesn't seem that .net
+      //supports setting the compression ratio so we can't do much else but save it
+      image.Save(path, ImageFormat.Png);
+    }
+
+    /// <summary> 
+    /// Saves an image as a png image into the given <paramref name="stream"/>.
+    /// </summary> 
+    /// <param name="stream">Stream to save the image into.</param>
+    /// <param name="image">Image to save.</param>
+    public static void SavePng(Stream stream, Image image)
+    {
+      //png is lossless so there is no quality setting and it doesn't seem that .net
+      //supports setting the compression ratio so we can't do much else but save it
+      image.Save(stream, ImageFormat.Png);
+    }
+
+    /// <summary> 
     /// Returns the image codec with the given mime type 
     /// </summary> 
     public static ImageCodecInfo GetEncoderInfo(string mimeType)

@@ -122,6 +122,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           matcher.PreferredLanguageCulture = languageCulture;
         }
       }
+      matchers = matchers.Where(m => m.Primary).Union(matchers.Where(m => !m.Primary)).ToList();
     }
 
     private void SaveSettings()
@@ -218,7 +219,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public List<AlbumInfo> GetLastChangedAudioAlbums()
     {
       List<AlbumInfo> albums = new List<AlbumInfo>();
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         foreach (AlbumInfo album in matcher.GetLastChangedAudioAlbums())
           if (!albums.Contains(album))
@@ -229,7 +230,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedAudioAlbums()
     {
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedAudioAlbums();
       }
@@ -238,7 +239,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public List<TrackInfo> GetLastChangedAudio()
     {
       List<TrackInfo> tracks = new List<TrackInfo>();
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         foreach (TrackInfo track in matcher.GetLastChangedAudio())
           if (!tracks.Contains(track))
@@ -249,7 +250,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedAudio()
     {
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedAudio();
       }
@@ -258,7 +259,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.FindAndUpdateTrack(trackInfo, matcher.Primary ? false : importOnly);
       }
@@ -268,7 +269,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateAlbumPersons(albumInfo, occupation, importOnly);
       }
@@ -278,7 +279,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateTrackPersons(trackInfo, occupation, forAlbum, importOnly);
       }
@@ -288,7 +289,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateAlbumCompanies(albumInfo, companyType, importOnly);
       }
@@ -298,7 +299,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateAlbum(albumInfo, updateTrackList, matcher.Primary ? false : importOnly);
       }
@@ -311,7 +312,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         for (int i = 0; i < albumInfo.Tracks.Count; i++)
         {
           //TrackInfo trackInfo = albumInfo.Tracks[i];
-          //foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+          //foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
           //{
           //  matcher.FindAndUpdateTrack(trackInfo, importOnly);
           //}
@@ -323,7 +324,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
       }
@@ -371,7 +372,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public List<MovieInfo> GetLastChangedMovies()
     {
       List<MovieInfo> movies = new List<MovieInfo>();
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         foreach (MovieInfo movie in matcher.GetLastChangedMovies())
           if (!movies.Contains(movie))
@@ -382,7 +383,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedMovies()
     {
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedMovies();
       }
@@ -391,7 +392,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public List<MovieCollectionInfo> GetLastChangedMovieCollections()
     {
       List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         foreach (MovieCollectionInfo collection in matcher.GetLastChangedMovieCollections())
           if (!collections.Contains(collection))
@@ -402,7 +403,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedMovieCollections()
     {
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedMovieCollections();
       }
@@ -411,7 +412,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.FindAndUpdateMovie(movieInfo, matcher.Primary ? false : importOnly);
       }
@@ -421,7 +422,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdatePersons(movieInfo, occupation, importOnly);
       }
@@ -431,7 +432,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateCharacters(movieInfo, importOnly);
       }
@@ -441,7 +442,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateCollection(collectionInfo, updateMovieList, importOnly);
       }
@@ -454,7 +455,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         for (int i = 0; i < collectionInfo.Movies.Count; i++)
         {
           //MovieInfo movieInfo = collectionInfo.Movies[i];
-          //foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+          //foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
           //{
           //  success |= matcher.FindAndUpdateMovie(movieInfo, importOnly);
           //}
@@ -466,7 +467,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateCompanies(movieInfo, companyType, importOnly);
       }
@@ -476,7 +477,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
       }
@@ -536,7 +537,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public List<SeriesInfo> GetLastChangedSeries()
     {
       List<SeriesInfo> series = new List<SeriesInfo>();
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         foreach (SeriesInfo ser in matcher.GetLastChangedSeries())
           if (!series.Contains(ser))
@@ -547,7 +548,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedSeries()
     {
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedSeries();
       }
@@ -556,7 +557,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public List<EpisodeInfo> GetLastChangedEpisodes()
     {
       List<EpisodeInfo> episodes = new List<EpisodeInfo>();
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         foreach (EpisodeInfo episode in matcher.GetLastChangedEpisodes())
           if (!episodes.Contains(episode))
@@ -567,7 +568,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedEpisodes()
     {
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedEpisodes();
       }
@@ -576,7 +577,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.FindAndUpdateEpisode(episodeInfo, matcher.Primary ? false : importOnly);
       }
@@ -586,7 +587,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateEpisodePersons(episodeInfo, occupation, importOnly);
       }
@@ -596,7 +597,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateEpisodeCharacters(episodeInfo, importOnly);
       }
@@ -606,7 +607,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeason(seasonInfo, importOnly);
       }
@@ -616,7 +617,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeries(seriesInfo, updateEpisodeList, matcher.Primary ? false : importOnly);
       }
@@ -630,7 +631,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           //Gives more detail to the missing episodes but will be very slow
           //EpisodeInfo episodeInfo = seriesInfo.Episodes[i];
-          //foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+          //foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
           //{
           //  success |= matcher.FindAndUpdateEpisode(episodeInfo, importOnly);
           //}
@@ -642,7 +643,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeriesPersons(seriesInfo, occupation, importOnly);
       }
@@ -652,7 +653,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeriesCharacters(seriesInfo, importOnly);
       }
@@ -662,7 +663,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeriesCompanies(seriesInfo, companyType, importOnly);
       }
@@ -672,7 +673,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
       }

@@ -7,7 +7,6 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Utilizador e palavra-passe</string>
   <string name="Settings.ServerSettings.Username">Utilizador:</string>
   <string name="Settings.ServerSettings.Password">Palavra-passe:</string>
-  <string name="Settings.ServerSettings.ImporterWorker">Configuração do importador de origem de conteúdos multimédia</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configurar atualização automática das partilhas</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Ativar actualização automática</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Executar á hora (Base 24h)</string>

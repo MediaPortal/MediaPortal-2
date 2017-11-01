@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Подеси да ли чувар екрана треба бити приказан</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Временско трајање чувара екрана</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Подеси временски оквир у минутама када би требало чувар екрана да се прикаже после задњег уноса корисника</string>
-  <string name="Settings.Appearance.System.Antialiasing">Омекшавање приказа</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Омекшавање приказа побољшава приказ али може да умањи брзину приказивања видеа</string>
   <string name="Settings.Appearance.Skin">Изглед прогрма</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Изглед и тематике изгледа</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Изглед приказ</string>

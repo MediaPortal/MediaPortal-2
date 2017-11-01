@@ -134,6 +134,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                 where potentialFanArtFileNameWithoutExtension == "clearart" || potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-clearart")
                 select potentialFanArtFile);
 
+            if (fanArtType == FanArtTypes.DiscArt)
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc" || 
+                potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-discart")
+                select potentialFanArtFile);
+
             if (fanArtType == FanArtTypes.Banner)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles

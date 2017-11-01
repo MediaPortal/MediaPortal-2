@@ -67,6 +67,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _guideStartTimeProperty = null;
     protected AbstractProperty _visibleHoursProperty = null;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelLogoTypeProperty = null;
 
     protected DateTime _bufferStartTime;
     protected DateTime _bufferEndTime;
@@ -103,6 +104,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ChannelNameProperty
     {
       get { return _channelNameProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public string ChannelLogoType
+    {
+      get { return (string)_channelLogoTypeProperty.GetValue(); }
+      set { _channelLogoTypeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public AbstractProperty ChannelLogoTypeProperty
+    {
+      get { return _channelLogoTypeProperty; }
     }
 
     /// <summary>
@@ -167,6 +185,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
         _visibleHoursProperty = new WProperty(typeof(double), settings.EpgVisibleHours);
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
       }
       base.InitModel();
     }
@@ -294,7 +313,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
       IChannel currentChannel;
       if (_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out currentChannel))
+      {
         ChannelName = currentChannel.Name;
+        ChannelLogoType = currentChannel.GetFanArtMediaType();
+      }
     }
 
     protected void UpdatePrograms()

@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Määritä onko näytönsäästäjä käytössä</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Näytönsäästäjän aikakatkaisu</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Määritä aikaväli minuuteissa, milloin näytönsäästäjän pitäisi tulla näkyviin käyttäjän viimeisen painalluksen jälkeen</string>
-  <string name="Settings.Appearance.System.Antialiasing">Graafisen käyttöliittymän vasta-laskostuminen (Antialiasing)</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Vasta-laskostuminen (Antialiasing) parantaa graafisen käyttöliittymän laatua, mutta voi heikentää näytönohjaimen suorituskykyä</string>
   <string name="Settings.Appearance.Skin">Ulkoasu</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Ulkoasu ja teema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Vaihda ulkoasua</string>

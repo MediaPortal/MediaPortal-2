@@ -19,6 +19,6 @@
   <string name="Settings.Players.Rendering">Uppspelning</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Längd på tonade övergångar</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Bestäm längden på tonade övergångar i sekunder</string>
-  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Söksteg</string>
-  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Storlek på söksteg i sekunder</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Söksteg i sekunder </string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Bestäm hur många sekunder varje steg ska vara vid sökning</string>
 </resources>

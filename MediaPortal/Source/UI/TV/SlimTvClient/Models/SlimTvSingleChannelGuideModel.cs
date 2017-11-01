@@ -45,6 +45,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Protected fields
 
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelLogoTypeProperty = null;
 
     #endregion
 
@@ -75,6 +76,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public string ChannelLogoType
+    {
+      get { return (string)_channelLogoTypeProperty.GetValue(); }
+      set { _channelLogoTypeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public AbstractProperty ChannelLogoTypeProperty
+    {
+      get { return _channelLogoTypeProperty; }
+    }
+
+    /// <summary>
     /// Exposes the list of channels in current group.
     /// </summary>
     public ItemsList ProgramsList
@@ -91,7 +109,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void InitModel()
     {
       if (!_isInitialized)
+      {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
+      }
 
       base.InitModel();
     }
@@ -107,7 +128,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.UpdateGuiProperties();
 
-      ChannelName = CurrentChannel != null ? CurrentChannel.Name : String.Empty;
+      ChannelName = CurrentChannel != null ? CurrentChannel.Name : string.Empty;
+      ChannelLogoType = CurrentChannel.GetFanArtMediaType();
       _channel = CurrentChannel;
     }
 

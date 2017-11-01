@@ -105,8 +105,6 @@
   <string name="Settings.General.System">系统</string>
   <string name="Settings.General.System.Autostart">自动启动</string>
   <string name="Settings.General.System.Autostart.Help">Windows开机时自动启动MediaPortal </string>
-  <string name="Settings.General.System.ClientDOKANDrive">资源安装的盘符</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">在此客户端上配置挂载远程资源的驱动盘符。</string>
   <string name="Settings.General.Connectivity">连接</string>
   <string name="Settings.General.Connectivity.HomeServer">家庭服务器</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">家庭服务器信息，连接和脱离家庭服务器</string>

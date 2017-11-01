@@ -109,8 +109,6 @@
   <string name="Settings.General.System">מערכת</string>
   <string name="Settings.General.System.Autostart">הפעלה אוטומטית</string>
   <string name="Settings.General.System.Autostart.Help">הפעל את מדיה פורטל בעת עליית המערכת</string>
-  <string name="Settings.General.System.ClientDOKANDrive">שם כונן הטענת משאבים</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">מגדיר את שם הכונן לצורך הטענת משאבים מרוחקים ללקוח</string>
   <string name="Settings.General.Connectivity">קישוריות</string>
   <string name="Settings.General.Connectivity.HomeServer">שרת ביתי</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">מידע שרת בייתי, התחבר והתנתק מהשרת</string>

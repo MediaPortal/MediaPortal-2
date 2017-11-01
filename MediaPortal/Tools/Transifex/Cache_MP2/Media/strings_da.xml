@@ -17,7 +17,7 @@
   <string name="Media.YearMenuItem">År</string>
   <string name="Media.SizeMenuItem">Størrelse</string>
   <string name="Media.SystemMenuItem">System</string>
-  <string name="Media.EpisodeDateMenuItem">Afsnit</string>
+  <string name="Media.EpisodeMenuItem">Afsnit</string>
   <string name="Media.AudioLanguageMenuItem">Sprog</string>
   <string name="Media.ImageStateMenuItem">Status</string>
   <string name="Media.SeriesNameMenuItem">Serie</string>
@@ -284,6 +284,8 @@
   <string name="Media.Watched">Set</string>
   <string name="Media.Unwatched">Ikke set</string>
   <string name="Media.SwitchSortingMenuItem">Sortering</string>
+  <string name="Media.SortByDate">Dato</string>
+  <string name="Media.GroupingBrowseDefault">normal</string>
   <string name="Settings.Players">Afspillere</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Luk afspillere når slut</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aktiver denne indstilling til at få MediaPortal til at lukke færdige afspillere automatisk</string>

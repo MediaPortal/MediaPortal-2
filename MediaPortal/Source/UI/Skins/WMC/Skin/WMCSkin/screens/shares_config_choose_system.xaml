@@ -24,7 +24,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <!--Label Grid.Row="0" Content="[SharesConfig.ChooseSystemForShare]" Color="{ThemeResource TextColor}" Wrap="True"/-->
-        <ListView Grid.Row="1" Margin="0,20,0,0"
+        <ListView Grid.Row="1" Margin="0,20,0,0" SetFocusPrio="DefaultLow"
             Style="{ThemeResource SingleMarkableSubItemListViewStyle}"
             ItemsSource="{Binding Path=SystemsList,Mode=OneTime}"/>
         <Grid Grid.Row="2" Margin="10,20,10,0">
@@ -36,10 +36,11 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
-              Content="[System.Back]" IsEnabled="false"/>
+          <!--<Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
+              Content="[System.Back]" IsEnabled="false"/>-->
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding IsResourceProviderSelected}"
+              SetFocusPrio="{Binding Path=IsResourceProviderSelected, Converter={StaticResource BoolToFocusPriorityConverter}}"
               Command="{Command Source={StaticResource Model},Path=SelectResourceProviderAndContinue}"/>
         </Grid>
       </Grid>

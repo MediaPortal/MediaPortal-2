@@ -45,6 +45,8 @@
   <string name="Media.RepeatMode.All">Всичко</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.SortByDate">Дата</string>
+  <string name="Media.GroupingBrowseDefault">По подразбиране</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>

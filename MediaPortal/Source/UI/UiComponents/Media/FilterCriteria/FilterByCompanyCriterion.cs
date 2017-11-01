@@ -31,8 +31,8 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterByCompanyCriterion : RelationshipMLFilterCriterion
   {
-    public FilterByCompanyCriterion(Guid linkedRole) :
-      base(CompanyAspect.ROLE_COMPANY, linkedRole, Consts.NECESSARY_COMPANY_MIAS, Consts.OPTIONAL_COMPANY_MIAS,
+    public FilterByCompanyCriterion(Guid role, Guid linkedRole) :
+      base(role, linkedRole, Consts.NECESSARY_COMPANY_MIAS, Consts.OPTIONAL_COMPANY_MIAS,
         new SortInformation(CompanyAspect.ATTR_COMPANY_NAME, SortDirection.Ascending))
     {
     }

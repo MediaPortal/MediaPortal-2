@@ -75,7 +75,7 @@
          HorizontalAlignment="Left"/>
         
         <Label x:Name="TimeLabel" Grid.Column="1" Grid.Row="1"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
-               FontSize="{ThemeResource BigFontSize}" Margin="0,0,20,8"
+               FontSize="{ThemeResource BigFontSize}" Margin="0,0,30,8"
                Color="{ThemeResource TextColor}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
 
         <Label x:Name="CurrentProgramLabel" Content="[SlimTvClient.CurrentProgram]" VerticalAlignment="Center" Grid.Column="1"
@@ -121,7 +121,7 @@
             <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}"
                    Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
               <Image.Source>
-                <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding SelectedChannelLogoType}" fanart:FanArtType="Banner"
                                           fanart:FanArtName="{Binding SelectedChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
               </Image.Source>
             </Image>

@@ -38,6 +38,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
 
       MovieCollectionInfo movieCollection = new MovieCollectionInfo();
       if (!movieCollection.FromMetadata(mediaItem.Aspects))

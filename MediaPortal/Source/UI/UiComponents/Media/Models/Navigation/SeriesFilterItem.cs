@@ -38,6 +38,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
 
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(mediaItem.Aspects))

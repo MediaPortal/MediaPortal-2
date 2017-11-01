@@ -289,6 +289,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected Screen _currentScreen = null; // "Normal" screen
     protected Screen _nextScreen = null; // Holds the next screen while the current screen finishes closing
     protected Screen _currentSuperLayer = null; // Layer on top of screen and all dialogs - busy indicator and additional popups
+    protected Screen _nextSuperLayer = null; //Holds the next superlayer while the current superlayer finishes closing
     protected volatile int _numPendingAsyncOperations = 0;
     protected Screen _focusedScreen = null;
 
@@ -686,7 +687,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       // Don't hold the ScreenManager's lock while calling the next methods - they call event handlers
       if (unfocusScreen != null)
         unfocusScreen.DetachInput();
-      if (focusScreen != null)
+      //Brownard 2017-08-04: We might end up here during a screen closure. Don't reattach to
+      //a closing screen that has just been detached
+      if (focusScreen != null && focusScreen.ScreenState != Screen.State.Closing)
         focusScreen.AttachInput();
     }
 
@@ -862,8 +865,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return;
         currentScreen = _currentScreen;
       }
-      DoCloseDialogs_NoLock(true, true);
       currentScreen.ScreenState = Screen.State.Closing;
+      DoCloseDialogs_NoLock(true, true);
       currentScreen.TriggerScreenClosingEvent_Sync();
       UnfocusScreen_NoLock(screen);
     }
@@ -913,22 +916,66 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (screen == null)
         ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Hiding superlayer");
       else
-      {
         ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing superlayer '{0}'", screen.ResourceName);
-        screen.Prepare();
-      }
+
+      DoStartClosingSuperLayer_NoLock(_currentSuperLayer);
+      DoExchangeSuperLayer_NoLock(screen);
+    }
+
+    protected internal void DoStartClosingSuperLayer_NoLock(Screen screen)
+    {
+      Screen currentSuperLayer;
       lock (_syncObj)
       {
-        if (_currentSuperLayer != null)
-        {
-          _currentSuperLayer.ScreenState = Screen.State.Closing;
-          // Super layers must close at once, we don't wait for DoneClosing. Else, we would need to make
-          // the superlayer handling asynchronous.
-          ScheduleDisposeScreen(_currentSuperLayer);
-        }
-        _currentSuperLayer = screen;
+        if (_currentSuperLayer == null || _currentSuperLayer.ScreenState == Screen.State.Closing ||
+            screen == null || screen != _currentSuperLayer)
+          return;
+        currentSuperLayer = _currentSuperLayer;
       }
-      if (screen == null)
+      currentSuperLayer.ScreenState = Screen.State.Closing;
+      currentSuperLayer.TriggerScreenClosingEvent_Sync();
+    }
+
+    protected internal void DoExchangeSuperLayer_NoLock(Screen screen)
+    {
+      lock (_syncObj)
+      {
+        if (_nextSuperLayer != null)
+        { // If next superlayer is already set, dispose it. This might happen if during a superlayer change, another superlayer change is scheduled.
+          ScheduleDisposeScreen(_nextSuperLayer);
+        }
+        if (_currentSuperLayer != null)
+          _currentSuperLayer.ScreenState = Screen.State.Closing;
+
+        _nextSuperLayer = screen;
+      }
+
+      if (screen != null)
+        screen.Prepare();
+    }
+
+    protected internal void CompleteSuperLayerClosure_NoLock()
+    {
+      Screen nextSuperLayer;
+      Screen currentSuperLayer;
+      lock (_syncObj)
+      {
+        // Has the current screen finished closing?
+        if (_currentSuperLayer != null && (_currentSuperLayer.ScreenState != Screen.State.Closing || !_currentSuperLayer.DoneClosing))
+          return;
+
+        nextSuperLayer = _nextSuperLayer;
+        currentSuperLayer = _currentSuperLayer;
+        _currentSuperLayer = nextSuperLayer;
+        _nextSuperLayer = null;
+      }
+      if (nextSuperLayer != null)
+        // Outside the lock - we're firing events
+        nextSuperLayer.TriggerScreenShowingEvent();
+      if (currentSuperLayer != null)
+        ScheduleDisposeScreen(currentSuperLayer);
+
+      if (nextSuperLayer == null)
         SetInputFocus_NoLock();
       else
         UnfocusCurrentScreen_NoLock();
@@ -1116,6 +1163,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       // Check if we're waiting for screens to finish closing
       CompleteScreenClosure_NoLock();
       CompleteDialogClosures_NoLock();
+      CompleteSuperLayerClosure_NoLock();
 
       _renderFinished.Reset();
       try

@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Grotuvai</string>
-  <string name="Settings.Players.AudioPlayer">Audio grotuvas</string>
   <string name="Settings.Players.BassPlayer.Setup">Konfigūruoti išvesties įrenginius</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Konfigūruoja BassPlayer išvesties įrenginį ir pasirinkimus</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">DirectSound</string>

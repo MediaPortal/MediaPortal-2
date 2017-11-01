@@ -113,9 +113,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
         return;
       }
 
-      int currentPlayCount;
-      MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out currentPlayCount);
-
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
       {
         PlayPercentage = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE]);
@@ -156,8 +153,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
           }
           if (duration.TotalSeconds > 0)
             PlayPercentage = (int)(resumePosition.TotalSeconds * 100 / duration.TotalSeconds);
-          else if (currentPlayCount > 0)
-            PlayPercentage = 100;
           else
             PlayPercentage = 0;
         }
@@ -170,10 +165,6 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       {
         PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
       }
-      else
-      {
-        PlayCount = currentPlayCount;
-      }
     }
 
     public void SetEmpty()
@@ -182,9 +173,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       PlayPercentage = null;
     }
 
-
     #endregion
 
   }
-
 }

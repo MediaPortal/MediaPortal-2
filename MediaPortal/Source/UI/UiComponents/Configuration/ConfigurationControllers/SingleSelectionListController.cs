@@ -44,6 +44,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
     #region Protected fields
 
     protected int _selectedIndex = -1;
+    protected AbstractProperty _isSelectionValidProperty = new WProperty(typeof(bool), false);
 
     #endregion
 
@@ -62,12 +63,14 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
     protected void OnSelectionChanged(AbstractProperty property, object oldValue)
     {
       _selectedIndex = FindSelectedIndex();
+      IsSelectionValid = _selectedIndex >= 0;
     }
 
     protected override void SettingChanged()
     {
-        SingleSelectionList ssl = (SingleSelectionList) _setting;
+      SingleSelectionList ssl = (SingleSelectionList)_setting;
       _selectedIndex = ssl.Selected;
+      IsSelectionValid = _selectedIndex >= 0;
       base.SettingChanged();
     }
 
@@ -76,15 +79,16 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       _items.Clear();
       if (_setting != null)
       {
-        SingleSelectionList ssl = (SingleSelectionList) _setting;
+        SingleSelectionList ssl = (SingleSelectionList)_setting;
         int current = 0;
         _selectedIndex = ssl.Selected;
+        IsSelectionValid = _selectedIndex >= 0;
         foreach (IResourceString item in ssl.Items)
         {
           ListItem listItem = new ListItem(KEY_NAME, item)
-            {
-                Selected = (current == _selectedIndex)
-            };
+          {
+            Selected = (current == _selectedIndex)
+          };
           listItem.SelectedProperty.Attach(OnSelectionChanged);
           _items.Add(listItem);
           current++;
@@ -95,7 +99,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
     protected override void UpdateSetting()
     {
-      SingleSelectionList ssl = (SingleSelectionList) _setting;
+      SingleSelectionList ssl = (SingleSelectionList)_setting;
       ssl.Selected = _selectedIndex;
       base.UpdateSetting();
     }
@@ -103,6 +107,17 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
     public override Type ConfigSettingType
     {
       get { return typeof(SingleSelectionList); }
+    }
+
+    public AbstractProperty IsSelectionValidProperty
+    {
+      get { return _isSelectionValidProperty; }
+    }
+
+    public bool IsSelectionValid
+    {
+      get { return (bool)_isSelectionValidProperty.GetValue(); }
+      protected set { _isSelectionValidProperty.SetValue(value); }
     }
 
     protected override string DialogScreen

@@ -26,12 +26,15 @@ using System.Collections.Generic;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
   internal class SeriesNavigationInitializer : BaseNavigationInitializer
   {
     internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Series }; // "Series"
+
+    protected SeriesFilterByNameScreenData _seriesScreen;
 
     public SeriesNavigationInitializer()
     {
@@ -41,12 +44,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
       _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+      _rootRole = EpisodeAspect.ROLE_EPISODE;
     }
 
     protected override void Prepare()
     {
       base.Prepare();
-      _defaultScreen = new SeriesFilterByNameScreenData();
+      _defaultScreen = _seriesScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),

@@ -22,14 +22,13 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.Models.Sorting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.Settings;
-using MediaPortal.UiComponents.Media.Models.Sorting;
-using MediaPortal.UI.Presentation.DataObjects;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
