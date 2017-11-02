@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public MovieFilterByCollectionScreenData() :
       base(Consts.SCREEN_MOVIES_FILTER_BY_COLLECTION, Consts.RES_COMMON_BY_MOVIES_COLLECTION_MENU_ITEM,
-        Consts.RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL, new FilterByMovieCollectionCriterion())
+        Consts.RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL, new FilterByMovieCollectionCriterion(MovieAspect.ROLE_MOVIE))
     {
       _availableMias = Consts.NECESSARY_MOVIE_COLLECTION_MIAS;
       if (Consts.OPTIONAL_MOVIE_COLLECTION_MIAS != null)

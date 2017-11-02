@@ -83,9 +83,8 @@
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledMediaItemQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledCountItemsQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\BindVarNamespace.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\RelationshipCompiledFilter.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\InverseRelationshipCompiledFilter.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\RelationshipQueryBuilder.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\SubQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\InverseRelationshipQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\RequestedAttribute.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\ComplexAttributeQueryBuilder.cs" />

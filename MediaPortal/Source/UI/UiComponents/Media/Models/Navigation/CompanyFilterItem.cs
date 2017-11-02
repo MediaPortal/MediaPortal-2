@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
 
@@ -37,6 +36,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
 
       CompanyInfo company = new CompanyInfo();
       if (!company.FromMetadata(mediaItem.Aspects))

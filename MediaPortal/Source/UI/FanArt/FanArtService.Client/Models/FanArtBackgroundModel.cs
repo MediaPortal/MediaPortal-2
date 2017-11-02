@@ -309,8 +309,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (series != null)
       {
         MediaItem = series.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Series;
-        FanArtName = series.MediaItem.MediaItemId.ToString();
         SimpleTitle = series.SimpleTitle;
         ItemDescription = series.StoryPlot;
         return;
@@ -319,8 +317,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (season != null)
       {
         MediaItem = season.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.SeriesSeason;
-        FanArtName = season.MediaItem.MediaItemId.ToString();
         SimpleTitle = season.SimpleTitle;
         ItemDescription = season.StoryPlot;
         return;
@@ -329,8 +325,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (episode != null)
       {
         MediaItem = episode.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Episode;
-        FanArtName = episode.MediaItem.MediaItemId.ToString();
         SimpleTitle = episode.Series;
         ItemDescription = episode.StoryPlot;
         return;
@@ -339,8 +333,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (movieCollection != null)
       {
         MediaItem = movieCollection.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.MovieCollection;
-        FanArtName = movieCollection.MediaItem.MediaItemId.ToString();
         SimpleTitle = movieCollection.SimpleTitle;
         ItemDescription = null;
         return;
@@ -349,8 +341,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (movie != null)
       {
         MediaItem = movie.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Movie;
-        FanArtName = movie.MediaItem.MediaItemId.ToString();
         SimpleTitle = movie.SimpleTitle;
         ItemDescription = movie.StoryPlot;
         return;
@@ -359,7 +349,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (video != null)
       {
         MediaItem = video.MediaItem;
-        FanArtName = video.MediaItem.MediaItemId.ToString();
         SimpleTitle = video.SimpleTitle;
         ItemDescription = video.StoryPlot;
         return;
@@ -368,8 +357,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (albumItem != null)
       {
         MediaItem = albumItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Album;
-        FanArtName = albumItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = albumItem.SimpleTitle;
         ItemDescription = albumItem.Description;
         return;
@@ -378,8 +365,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (audioItem != null)
       {
         MediaItem = audioItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Audio;
-        FanArtName = audioItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = audioItem.SimpleTitle;
         ItemDescription = string.Empty;
         return;
@@ -388,8 +373,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (actorItem != null)
       {
         MediaItem = actorItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Actor;
-        FanArtName = actorItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = actorItem.SimpleTitle;
         ItemDescription = actorItem.Description;
         return;
@@ -398,8 +381,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (directorItem != null)
       {
         MediaItem = directorItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Director;
-        FanArtName = directorItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = directorItem.SimpleTitle;
         ItemDescription = directorItem.Description;
       }
@@ -407,8 +388,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (writerItem != null)
       {
         MediaItem = writerItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Writer;
-        FanArtName = writerItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = writerItem.SimpleTitle;
         ItemDescription = writerItem.Description;
       }
@@ -416,8 +395,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (artisitItem != null)
       {
         MediaItem = artisitItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Artist;
-        FanArtName = artisitItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = artisitItem.SimpleTitle;
         ItemDescription = artisitItem.Description;
       }
@@ -425,8 +402,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (composerItem != null)
       {
         MediaItem = composerItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Writer;
-        FanArtName = composerItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = composerItem.SimpleTitle;
         ItemDescription = composerItem.Description;
       }
@@ -434,8 +409,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (characterItem != null)
       {
         MediaItem = characterItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Character;
-        FanArtName = characterItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = characterItem.SimpleTitle;
         ItemDescription = string.Empty;
       }
@@ -443,8 +416,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (companyItem != null)
       {
         MediaItem = companyItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Company;
-        FanArtName = companyItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = companyItem.SimpleTitle;
         ItemDescription = companyItem.Description;
       }
@@ -452,8 +423,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       if (tvNetworkItem != null)
       {
         MediaItem = tvNetworkItem.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.TVNetwork;
-        FanArtName = tvNetworkItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = tvNetworkItem.SimpleTitle;
         ItemDescription = tvNetworkItem.Description;
       }

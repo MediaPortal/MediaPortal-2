@@ -1294,11 +1294,42 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return affectedRows;
     }
 
+    protected IFilter CreateAddtionalFilter(bool filterOnlyOnline, bool includeVirtual)
+    {
+      IFilter additionalFilter = null;
+      if (filterOnlyOnline)
+        additionalFilter = AddOnlyOnlineFilter(additionalFilter);
+      if (!includeVirtual)
+        additionalFilter = AddExcludeVirtualFilter(additionalFilter);
+      return additionalFilter;
+    }
+
     protected IFilter AddOnlyOnlineFilter(IFilter innerFilter)
     {
       IFilter onlineFilter = new BooleanCombinationFilter(BooleanOperator.Or, _systemsOnline.Select(
           systemEntry => new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemEntry.Key)));
       return innerFilter == null ? onlineFilter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, innerFilter, onlineFilter);
+    }
+
+    protected IFilter AddExcludeVirtualFilter(IFilter innerFilter)
+    {
+      IFilter excludeVirtualFilter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, false);
+      return innerFilter == null ? excludeVirtualFilter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, innerFilter, excludeVirtualFilter);
+    }
+
+    /// <summary>
+    /// Determines whether the <paramref name="maybeRequestedMIATypeId"/> was included in either <paramref name="necessaryRequestedMIATypeIDs"/> or
+    /// <paramref name="optionalRequestedMIATypeIDs"/>.
+    /// </summary>
+    /// <param name="maybeRequestedMIATypeId">The mia type id to check.</param>
+    /// <param name="necessaryRequestedMIATypeIDs">Enumeration of necessary mia type ids.</param>
+    /// <param name="optionalRequestedMIATypeIDs">Enumeration of optional mia type ids.</param>
+    /// <returns>True if <paramref name="maybeRequestedMIATypeId"/> was included in either <paramref name="necessaryRequestedMIATypeIDs"/> or
+    /// <paramref name="optionalRequestedMIATypeIDs"/>.</returns>
+    protected bool IsMiaTypeRequested(Guid maybeRequestedMIATypeId, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+    {
+      return (necessaryRequestedMIATypeIDs != null && necessaryRequestedMIATypeIDs.Contains(maybeRequestedMIATypeId)) ||
+        (optionalRequestedMIATypeIDs != null && optionalRequestedMIATypeIDs.Contains(maybeRequestedMIATypeId)); 
     }
 
     protected ICollection<string> GetShareMediaCategories(ITransaction transaction, Guid shareId)
@@ -1648,7 +1679,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         var necessaryRequestedMIATypeIDsWithProvierResourceAspect = (necessaryRequestedMIATypeIDs == null) ? new List<Guid>() : necessaryRequestedMIATypeIDs.ToList();
         if (!necessaryRequestedMIATypeIDsWithProvierResourceAspect.Contains(ProviderResourceAspect.ASPECT_ID))
         {
-          removeProviderResourceAspect = true;
+          //MP2-706: Don't remove the provider resource aspect if optionalRequestedMIATypeIDs contains the aspect
+          removeProviderResourceAspect = !IsMiaTypeRequested(ProviderResourceAspect.ASPECT_ID, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
           necessaryRequestedMIATypeIDsWithProvierResourceAspect.Add(ProviderResourceAspect.ASPECT_ID);
         }
         
@@ -1732,35 +1764,42 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       // We add the provider resource aspect to the necessary aspect types be able to filter online systems
       MediaItemQuery executeQuery = query;
-      if (filterOnlyOnline)
+      IFilter additionalFilter = null;
+      if (filterOnlyOnline || !includeVirtual)
       {
         executeQuery = new MediaItemQuery(query); // Use constructor by other query to make sure all properties are copied (including sorting and limits)
-        executeQuery.NecessaryRequestedMIATypeIDs.Add(ProviderResourceAspect.ASPECT_ID);
-        executeQuery.Filter = AddOnlyOnlineFilter(query.Filter);
-      }
+        if (filterOnlyOnline)
+          executeQuery.NecessaryRequestedMIATypeIDs.Add(ProviderResourceAspect.ASPECT_ID);
+        if (!includeVirtual)
+          executeQuery.NecessaryRequestedMIATypeIDs.Add(MediaAspect.ASPECT_ID);
 
-      if (includeVirtual == false)
-      {
-        if (executeQuery.Filter == null)
-          executeQuery.Filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
-        else
-          executeQuery.Filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, executeQuery.Filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
+        additionalFilter = CreateAddtionalFilter(filterOnlyOnline, includeVirtual);
+        executeQuery.Filter = executeQuery.Filter != null ?
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, executeQuery.Filter, additionalFilter) : additionalFilter;
+        executeQuery.SubqueryFilter = executeQuery.SubqueryFilter != null ?
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, executeQuery.SubqueryFilter, additionalFilter) : additionalFilter;
       }
 
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
       IList<MediaItem> items = null;
-      if(database == null || transaction == null)
+      if (database == null || transaction == null)
         items = cmiq.QueryList();
       else
         items = cmiq.QueryList(database, transaction);
       //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
       LoadUserDataForMediaItems(database, transaction, userProfileId, items);
 
-      if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
+      if (filterOnlyOnline && !IsMiaTypeRequested(ProviderResourceAspect.ASPECT_ID, query.NecessaryRequestedMIATypeIDs, query.OptionalRequestedMIATypeIDs))
       { // The provider resource aspect was not requested and thus has to be removed from the result items
         foreach (MediaItem item in items)
           item.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
       }
+      if (!includeVirtual && !IsMiaTypeRequested(MediaAspect.ASPECT_ID, query.NecessaryRequestedMIATypeIDs, query.OptionalRequestedMIATypeIDs))
+      { // The media aspect was not requested and thus has to be removed from the result items
+        foreach (MediaItem item in items)
+          item.Aspects.Remove(MediaAspect.ASPECT_ID);
+      }
+
       return items;
     }
 
@@ -1786,24 +1825,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       IAttributeFilter saf = selectAttributeFilter as IAttributeFilter;
       if (saf == null && selectAttributeFilter != null)
-        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {filter, selectAttributeFilter});
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { filter, selectAttributeFilter });
 
-      if (includeVirtual == false)
-      {
-        if (filter == null)
-          filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
-        else
-          filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
-      }
+      IFilter additionalFilter = CreateAddtionalFilter(filterOnlyOnline, includeVirtual);
+      if (additionalFilter != null)
+        filter = filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, additionalFilter) : additionalFilter;
 
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
-          filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) : necessaryMIATypeIDs, 
-          attributeType, saf, selectProjectionFunctionImpl, projectionValueType, 
-          filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+          filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] { ProviderResourceAspect.ASPECT_ID }) : necessaryMIATypeIDs,
+          attributeType, saf, selectProjectionFunctionImpl, projectionValueType,
+          filter, additionalFilter);
       return cdavq.Execute().Item1;
     }
 
-    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
+    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
       IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
       SelectProjectionFunction selectProjectionFunctionImpl;
@@ -1827,18 +1862,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (saf == null && selectAttributeFilter != null)
         filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { filter, selectAttributeFilter });
 
-      if (includeVirtual == false)
-      {
-        if (filter == null)
-          filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
-        else
-          filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
-      }
+      IFilter additionalFilter = CreateAddtionalFilter(filterOnlyOnline, includeVirtual);
+      if (additionalFilter != null)
+        filter = filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, additionalFilter) : additionalFilter;
 
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
           filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] { ProviderResourceAspect.ASPECT_ID }) : necessaryMIATypeIDs,
           keyAttributeType, valueAttributeType, saf, selectProjectionFunctionImpl, projectionValueType,
-          filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+          filter, additionalFilter);
       return cdavq.Execute();
     }
 
@@ -1878,16 +1909,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
-      if (includeVirtual == false)
-      {
-        if (filter == null)
-          filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
-        else
-          filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
-      }
+      IFilter additionalFilter = CreateAddtionalFilter(filterOnlyOnline, includeVirtual);
+      if (additionalFilter != null)
+        filter = filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, additionalFilter) : additionalFilter;
 
       CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,
-          necessaryMIATypeIDs, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+          necessaryMIATypeIDs, filter, additionalFilter);
       return cciq.Execute();
     }
 

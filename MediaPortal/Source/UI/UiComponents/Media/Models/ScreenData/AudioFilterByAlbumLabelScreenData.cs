@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public AudioFilterByAlbumLabelScreenData() :
       base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM_LABEL, Consts.RES_COMMON_BY_ALBUM_LABEL_MENU_ITEM,
-      Consts.RES_FILTER_ALBUM_LABEL_NAVBAR_DISPLAY_LABEL, new FilterByMusicLabelCriterion())
+      Consts.RES_FILTER_ALBUM_LABEL_NAVBAR_DISPLAY_LABEL, new FilterByMusicLabelCriterion(AudioAlbumAspect.ROLE_ALBUM))
     {
       _availableMias = Consts.NECESSARY_COMPANY_MIAS;
       if (Consts.OPTIONAL_COMPANY_MIAS != null)

@@ -147,7 +147,16 @@ namespace MediaPortal.UiComponents.Media.Views
           return;
         }
         // Add all items at the specified path
-        ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(fsra, false);
+        ICollection<IFileSystemResourceAccessor> files = null;
+        try
+        {
+          files = FileSystemResourceNavigator.GetFiles(fsra, false);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error getting files for '{0}': {1}", fsra, e.Message);
+        }
+
         if (files != null)
           foreach (IFileSystemResourceAccessor childAccessor in files)
             using (childAccessor)
@@ -159,9 +168,19 @@ namespace MediaPortal.UiComponents.Media.Views
               }
               catch (Exception e)
               {
-                ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating local media item for '{0}'", e, childAccessor);
+                ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating local media item for '{0}': {1}", childAccessor, e.Message);
               }
-        ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(fsra, false);
+
+        ICollection<IFileSystemResourceAccessor> directories = null;
+        try
+        {
+          directories = FileSystemResourceNavigator.GetChildDirectories(fsra, false);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error getting child directories for '{0}': {1}", fsra, e.Message);
+        }
+
         if (directories != null)
           foreach (IFileSystemResourceAccessor childAccessor in directories)
             using (childAccessor)
@@ -176,7 +195,7 @@ namespace MediaPortal.UiComponents.Media.Views
               }
               catch (Exception e)
               {
-                ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating media item or view specification for '{0}'", e, childAccessor);
+                ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating media item or view specification for '{0}': {1}", childAccessor, e.Message);
               }
       }
     }

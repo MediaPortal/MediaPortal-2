@@ -22,16 +22,22 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
+namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
-  public class RelationshipCompiledFilter : CompiledFilter
+  public class ShowRecordingStartedNotifications : YesNo
   {
-    public RelationshipCompiledFilter(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins)
-      : base(miaManagement, filter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins)
+    public override void Load()
     {
+      Yes = SettingsManager.Load<SlimTvClientSettings>().ShowRecordingStartedNotifications;
+    }
+
+    public override void Save()
+    {
+      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      settings.ShowRecordingStartedNotifications = Yes;
+      SettingsManager.Save(settings);
     }
   }
 }

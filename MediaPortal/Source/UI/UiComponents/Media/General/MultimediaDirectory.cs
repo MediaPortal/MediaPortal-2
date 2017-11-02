@@ -116,33 +116,49 @@ namespace MediaPortal.UiComponents.Media.General
       ICollection<IFileSystemResourceAccessor> fileRAs = FileSystemResourceNavigator.GetFiles(directoryRA, false);
       if (fileRAs != null)
         foreach (IFileSystemResourceAccessor fileRA in fileRAs)
-          using (fileRA)
+          try
           {
-            MediaItem item = mediaAccessor.CreateLocalMediaItem(fileRA, metadataExtractorIds);
-            if (item != null)
+            using (fileRA)
             {
-              MultiMediaType itemType = GetTypeOfMediaItem(item);
-              if (type == MultiMediaType.None) // Initialize the result type with the type of the first media item
+              MediaItem item = mediaAccessor.CreateLocalMediaItem(fileRA, metadataExtractorIds);
+              if (item != null)
               {
-                type = itemType;
-              }
-              else if (type != itemType) // Check if we have different item types
-              {
-                type = MultiMediaType.Diverse;
-                return;
+                MultiMediaType itemType = GetTypeOfMediaItem(item);
+                if (type == MultiMediaType.None) // Initialize the result type with the type of the first media item
+                {
+                  type = itemType;
+                }
+                else if (type != itemType) // Check if we have different item types
+                {
+                  type = MultiMediaType.Diverse;
+                  return;
+                }
               }
             }
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Info("MultimediaDirectoy: Error while detection of media type of file '{0}': {1}", fileRA.Path, e.Message);
           }
 
       ICollection<IFileSystemResourceAccessor> directoryRAs = FileSystemResourceNavigator.GetChildDirectories(directoryRA, false);
       if (directoryRAs != null)
         foreach (IFileSystemResourceAccessor subDirectoryRA in directoryRAs)
-          using (subDirectoryRA)
+        {
+          try
           {
-            DetectMultimediaTypeRecursive(subDirectoryRA, metadataExtractorIds, mediaAccessor, ref type);
-            if (type == MultiMediaType.Diverse)
-              return;
+            using (subDirectoryRA)
+            {
+              DetectMultimediaTypeRecursive(subDirectoryRA, metadataExtractorIds, mediaAccessor, ref type);
+              if (type == MultiMediaType.Diverse)
+                return;
+            }
           }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Info("MultimediaDirectoy: Error while detection of media type of folder '{0}': {1}", subDirectoryRA.Path, e.Message);
+          }
+        }
     }
 
     /// <summary>

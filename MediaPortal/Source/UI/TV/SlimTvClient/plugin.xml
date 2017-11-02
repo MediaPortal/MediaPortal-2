@@ -132,6 +132,7 @@
     <Model Id="B2428C91-6B70-42E1-9519-1D5AA9D558A3" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvManualScheduleModel"/>
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
     <Model Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375" Name="ChannelZapModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.ChannelZapModel" />
+    <Model Id="7F283468-27E9-46B9-8B3B-17E3143AFEEB" Name="SlimTvNotificationModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvNotificationModel" />
   </Register>
 
   <Register Location="/Resources/Skin">
@@ -148,6 +149,12 @@
   </Register>
 
   <Register Location="/Configuration/Settings/TV">
+    <ConfigSection
+        Id="Notifications"
+        Sort="F100"
+        Redundant="true"
+        Text="[SlimTvClient.Notifications]"/>
+    
     <ConfigSetting
         Id="AutoStartTvSetting"
         Text="[SlimTvClient.AutoStartTv]"
@@ -199,4 +206,24 @@
         HelpText="[SlimTvClient.ChannelLogoStyle.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ChannelLogoStyleSetting"/>
   </Register>
+  
+  <!--Notifications-->
+  <Register Location="/Configuration/Settings/TV/Notifications">
+    <ConfigSetting
+        Id="ShowRecordingStartedNotifications"
+        Text="[SlimTvClient.ShowRecordingStartedNotifications]"
+        HelpText="[SlimTvClient.ShowRecordingStartedNotifications.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ShowRecordingStartedNotifications"/>
+    <ConfigSetting
+        Id="ShowRecordingEndedNotifications"
+        Text="[SlimTvClient.ShowRecordingEndedNotifications]"
+        HelpText="[SlimTvClient.ShowRecordingEndedNotifications.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ShowRecordingEndedNotifications"/>
+    <ConfigSetting
+        Id="RecordingNotificationDuration"
+        Text="[SlimTvClient.RecordingNotificationDuration]"
+        HelpText="[SlimTvClient.RecordingNotificationDuration.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.RecordingNotificationDuration"/>
+  </Register>
+
 </Plugin>

@@ -29,11 +29,10 @@ using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterByDirectorCriterion : RelationshipMLFilterCriterion
+  public class FilterByDirectorCriterion : FilterByPersonCriterion
   {
     public FilterByDirectorCriterion(Guid linkedRole) :
-      base(PersonAspect.ROLE_DIRECTOR, linkedRole, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
-        new SortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
+      base(PersonAspect.ROLE_DIRECTOR, linkedRole)
     {
     }
   }

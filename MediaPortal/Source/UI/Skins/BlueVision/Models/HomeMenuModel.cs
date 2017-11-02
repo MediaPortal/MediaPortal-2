@@ -44,6 +44,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Xml;
+using MediaPortal.Common.Runtime;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -321,6 +322,21 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
     }
 
+    /// <summary>
+    /// Sets the initial state of the home screen
+    /// </summary>
+    private void InitMenu()
+    {
+      if (_menuSettings != null)
+        return;
+
+      UpdateMenu(true);
+      IsHomeScreen = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("7F702D9C-F2DD-42da-9ED8-0BA92F07787F", StringComparison.OrdinalIgnoreCase);
+      if (!string.Equals(_menuSettings.Settings.DefaultMenuGroupId, MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase))
+        _lastActiveGroup = _menuSettings.Settings.DefaultMenuGroupId;
+      UpdateSelectedGroup();
+    }
+
     private void UpdateMenu(bool firstTimeOnly = false)
     {
       var doUpdate = !firstTimeOnly || _menuSettings == null;
@@ -431,31 +447,35 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void CreateShortcutItems(ICollection<ListItem> itemsList)
     {
-      foreach (var menuItem in MenuItems)
+      ItemsList menuItems = MenuItems;
+      lock (menuItems.SyncRoot)
       {
-        object action;
-        if (!menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out action))
-          continue;
-        WorkflowAction wfAction = action as WorkflowAction;
-        if (wfAction == null)
-          continue;
+        foreach (var menuItem in menuItems)
+        {
+          object action;
+          if (!menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out action))
+            continue;
+          WorkflowAction wfAction = action as WorkflowAction;
+          if (wfAction == null)
+            continue;
 
-        var shortCut = _menuSettings.Settings.MainMenuShortCuts.FirstOrDefault(sc => sc.ActionId == wfAction.ActionId);
-        if (shortCut == null)
-          continue;
+          var shortCut = _menuSettings.Settings.MainMenuShortCuts.FirstOrDefault(sc => sc.ActionId == wfAction.ActionId);
+          if (shortCut == null)
+            continue;
 
-        string groupId = shortCut.Id.ToString();
-        string groupName = shortCut.Name;
-        var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
-        if (_menuSettings.Settings.DisableAutoSelection)
-          groupItem.Command = new MethodDelegateCommand(() =>
-          {
-            ExecuteShortcutAction(groupId, wfAction);
-          });
+          string groupId = shortCut.Id.ToString();
+          string groupName = shortCut.Name;
+          var groupItem = new GroupMenuListItem(Consts.KEY_NAME, groupName);
+          if (_menuSettings.Settings.DisableAutoSelection)
+            groupItem.Command = new MethodDelegateCommand(() =>
+            {
+              ExecuteShortcutAction(groupId, wfAction);
+            });
 
-        groupItem.AdditionalProperties["Id"] = groupId;
-        groupItem.AdditionalProperties["ActionId"] = wfAction.ActionId;
-        itemsList.Add(groupItem);
+          groupItem.AdditionalProperties["Id"] = groupId;
+          groupItem.AdditionalProperties["ActionId"] = wfAction.ActionId;
+          itemsList.Add(groupItem);
+        }
       }
     }
 
@@ -541,45 +561,49 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       list.Clear();
 
       int x = 0;
-      foreach (var menuItem in MenuItems)
+      ItemsList menuItems = MenuItems;
+      lock (menuItems.SyncRoot)
       {
-        object action;
-        if (!menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out action))
-          continue;
-        WorkflowAction wfAction = action as WorkflowAction;
-        if (wfAction == null)
-          continue;
+        foreach (var menuItem in menuItems)
+        {
+          object action;
+          if (!menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out action))
+            continue;
+          WorkflowAction wfAction = action as WorkflowAction;
+          if (wfAction == null)
+            continue;
 
-        // Under "others" all items are places, that do not fit into any other category
-        if (currentKey == MenuSettings.MENU_NAME_OTHERS)
-        {
-          bool found = IsManuallyPositioned(wfAction);
-          if (!found)
+          // Under "others" all items are places, that do not fit into any other category
+          if (currentKey == MenuSettings.MENU_NAME_OTHERS)
           {
-            GridListItem gridItem = new GridListItem(menuItem)
+            bool found = IsManuallyPositioned(wfAction);
+            if (!found)
             {
-              GridColumn = x % MenuSettings.DEFAULT_NUM_COLS,
-              GridRow = x / MenuSettings.DEFAULT_NUM_COLS * MenuSettings.DEFAULT_ROWSPAN_SMALL,
-              GridRowSpan = MenuSettings.DEFAULT_ROWSPAN_SMALL,
-              GridColumnSpan = MenuSettings.DEFAULT_COLSPAN_SMALL,
-            };
-            list.Add(gridItem);
-            x += MenuSettings.DEFAULT_COLSPAN_SMALL;
+              GridListItem gridItem = new GridListItem(menuItem)
+              {
+                GridColumn = x % MenuSettings.DEFAULT_NUM_COLS,
+                GridRow = x / MenuSettings.DEFAULT_NUM_COLS * MenuSettings.DEFAULT_ROWSPAN_SMALL,
+                GridRowSpan = MenuSettings.DEFAULT_ROWSPAN_SMALL,
+                GridColumnSpan = MenuSettings.DEFAULT_COLSPAN_SMALL,
+              };
+              list.Add(gridItem);
+              x += MenuSettings.DEFAULT_COLSPAN_SMALL;
+            }
           }
-        }
-        else
-        {
-          GridPosition gridPosition;
-          if (gridPositions.TryGetValue(wfAction.ActionId, out gridPosition))
+          else
           {
-            GridListItem gridItem = new GridListItem(menuItem)
+            GridPosition gridPosition;
+            if (gridPositions.TryGetValue(wfAction.ActionId, out gridPosition))
             {
-              GridRow = gridPosition.Row,
-              GridColumn = gridPosition.Column,
-              GridRowSpan = gridPosition.RowSpan,
-              GridColumnSpan = gridPosition.ColumnSpan,
-            };
-            list.Add(gridItem);
+              GridListItem gridItem = new GridListItem(menuItem)
+              {
+                GridRow = gridPosition.Row,
+                GridColumn = gridPosition.Column,
+                GridRowSpan = gridPosition.RowSpan,
+                GridColumnSpan = gridPosition.ColumnSpan,
+              };
+              list.Add(gridItem);
+            }
           }
         }
       }
@@ -815,12 +839,16 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       if (_messageQueue == null)
         return;
+      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      UpdateMenu(true);
+      if (!IsSystemActive())
+        return;
+
+      InitMenu();
 
       if (message.ChannelName == MenuModelMessaging.CHANNEL)
       {

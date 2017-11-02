@@ -26,28 +26,15 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterByAlbumCriterion : RelationshipMLFilterCriterion
   {
-    public FilterByAlbumCriterion() :
-      base(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, Consts.NECESSARY_ALBUM_MIAS, Consts.OPTIONAL_ALBUM_MIAS,
+    public FilterByAlbumCriterion(Guid linkedRole) :
+      base(AudioAlbumAspect.ROLE_ALBUM, linkedRole, Consts.NECESSARY_ALBUM_MIAS, Consts.OPTIONAL_ALBUM_MIAS,
         new SortInformation(AudioAlbumAspect.ATTR_ALBUM, SortDirection.Ascending))
     {
-    }
-
-    protected override IFilter CreateQueryFilter(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, bool showVirtual)
-    {
-      //If previous filter is an album filter we can just use it directly
-      if (filter != null && necessaryMIATypeIds != null && necessaryMIATypeIds.Contains(AudioAlbumAspect.ASPECT_ID))
-        return filter;
-      //else we'll use the default relationship filter
-      return base.CreateQueryFilter(necessaryMIATypeIds, filter, showVirtual);
     }
   }
 }
