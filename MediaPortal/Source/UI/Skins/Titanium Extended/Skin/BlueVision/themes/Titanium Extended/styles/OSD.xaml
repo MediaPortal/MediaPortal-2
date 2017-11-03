@@ -16,7 +16,7 @@
           <ControlTemplate.Resources>
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
-          <Grid x:Name="MainOSDGrid" Margin="225,0,225,64" MinHeight="270" IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=IsOSDVisible}">
+          <Grid x:Name="MainOSDGrid" Margin="225,0,225,64" MinHeight="270">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>
@@ -82,7 +82,7 @@
           <ControlTemplate.Resources>
             <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
           </ControlTemplate.Resources>
-          <Grid x:Name="MainOSDGrid" Margin="225,0,225,64" MinHeight="270" IsVisible="{Binding Source={StaticResource AudioPlayerModel},Path=IsOSDVisible}">
+          <Grid x:Name="MainOSDGrid" Margin="225,0,225,64" MinHeight="270">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>

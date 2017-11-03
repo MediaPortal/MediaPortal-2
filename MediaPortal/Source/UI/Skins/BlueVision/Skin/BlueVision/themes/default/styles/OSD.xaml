@@ -16,7 +16,7 @@
           <ControlTemplate.Resources>
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=IsOSDVisible}">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>

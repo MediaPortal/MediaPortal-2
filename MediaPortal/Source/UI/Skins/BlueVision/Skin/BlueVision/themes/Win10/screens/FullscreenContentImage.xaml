@@ -46,7 +46,7 @@
             AutoVisibility="true"/>
     </DockPanel>
 
-    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0"
+    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" IsVisible="{Binding IsOSDVisible}"
             Style="{ThemeResource PrimaryImageOSDStyle}" Margin="0,0,0,0"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 

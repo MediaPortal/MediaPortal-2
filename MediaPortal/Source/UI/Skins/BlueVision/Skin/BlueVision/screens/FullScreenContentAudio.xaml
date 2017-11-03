@@ -17,6 +17,7 @@
         <Grid.Resources>
           <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
           <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+          <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
           <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
@@ -263,7 +264,8 @@
           x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
 
         <mp_special_controls:PlayerControl x:Name="PrimaryOSD" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="200,0,0,0"
-            Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+          IsVisible="{Binding Source={StaticResource AudioPlayerModel}, Path=IsOSDVisible}"
+          Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
       </Grid>
     </mp_special_controls:PlayerControl.TemplateControl>
   </mp_special_controls:PlayerControl>

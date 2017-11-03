@@ -437,7 +437,7 @@
               <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" FontFamily="SegoeUIBold"
                      Color="{ThemeResource TextColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </DockPanel>
-            
+
             <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Margin="0"
                         VerticalAlignment="Center" HorizontalAlignment="Right">
               <StackPanel.LayoutTransform>

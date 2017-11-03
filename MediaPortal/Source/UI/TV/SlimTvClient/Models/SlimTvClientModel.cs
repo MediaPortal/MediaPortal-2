@@ -99,12 +99,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _piPAvailableProperty = null;
     protected AbstractProperty _piPEnabledProperty = null;
 
-    // OSD Control properties
-    private AbstractProperty _isOSDVisibleProperty = null;
-    private AbstractProperty _isOSDLevel0Property = null;
-    private AbstractProperty _isOSDLevel1Property = null;
-    private AbstractProperty _isOSDLevel2Property = null;
-
     // Channel zapping
     protected DelayedEvent _zapTimer;
     protected int _zapChannelIndex;
@@ -386,50 +380,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _piPEnabledProperty; }
     }
 
-    public bool IsOSDVisible
-    {
-      get { return (bool)_isOSDVisibleProperty.GetValue(); }
-      set { _isOSDVisibleProperty.SetValue(value); }
-    }
-
-    public AbstractProperty IsOSDVisibleProperty
-    {
-      get { return _isOSDVisibleProperty; }
-    }
-
-    public bool IsOSDLevel0
-    {
-      get { return (bool)_isOSDLevel0Property.GetValue(); }
-      set { _isOSDLevel0Property.SetValue(value); }
-    }
-
-    public AbstractProperty IsOSDLevel0Property
-    {
-      get { return _isOSDLevel0Property; }
-    }
-
-    public bool IsOSDLevel1
-    {
-      get { return (bool)_isOSDLevel1Property.GetValue(); }
-      set { _isOSDLevel1Property.SetValue(value); }
-    }
-
-    public AbstractProperty IsOSDLevel1Property
-    {
-      get { return _isOSDLevel1Property; }
-    }
-
-    public bool IsOSDLevel2
-    {
-      get { return (bool)_isOSDLevel2Property.GetValue(); }
-      set { _isOSDLevel2Property.SetValue(value); }
-    }
-
-    public AbstractProperty IsOSDLevel2Property
-    {
-      get { return _isOSDLevel2Property; }
-    }
-
     public void UpdateProgram(object sender, SelectionChangedEventArgs e)
     {
       var channelItem = e.FirstAddedItem as ChannelProgramListItem;
@@ -464,55 +414,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
       }
       PiPEnabled = !PiPEnabled;
-    }
-
-    public void ShowVideoInfo()
-    {
-      if (!IsOSDVisible)
-      {
-        IsOSDVisible = IsOSDLevel0 = true;
-        IsOSDLevel1 = IsOSDLevel2 = false;
-        Update();
-        return;
-      }
-
-      if (IsOSDLevel0)
-      {
-        IsOSDVisible = IsOSDLevel1 = true;
-        IsOSDLevel0 = IsOSDLevel2 = false;
-        Update();
-        return;
-      }
-
-      if (IsOSDLevel1)
-      {
-        IsOSDVisible = IsOSDLevel2 = true;
-        IsOSDLevel0 = IsOSDLevel1 = false;
-        Update();
-        return;
-      }
-
-      if (IsOSDLevel2)
-      {
-        // Hide OSD
-        IsOSDVisible = IsOSDLevel0 = IsOSDLevel1 = IsOSDLevel2 = false;
-
-        // Pressing the info button twice will bring up the context menu
-        PlayerConfigurationDialogModel.OpenPlayerConfigurationDialog();
-      }
-      Update();
-    }
-
-    public void CloseOSD()
-    {
-      // Makes sure to always have model initialized first and the property created
-      InitModel();
-      if (IsOSDVisible)
-      {
-        // Hide OSD
-        IsOSDVisible = IsOSDLevel0 = IsOSDLevel1 = IsOSDLevel2 = false;
-        Update();
-      }
     }
 
     #endregion
@@ -719,11 +620,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     private void ReSetSkipTimer()
     {
-      IsOSDVisible = true;
-      IsOSDLevel0 = true;
-      IsOSDLevel1 = false;
-      IsOSDLevel2 = false;
-
       UpdateRunningChannelPrograms(ChannelContext.Instance.Channels[_zapChannelIndex]);
 
       if (_zapTimer == null)
@@ -738,8 +634,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ZapTimerElapsed(object sender, EventArgs e)
     {
-      CloseOSD();
-
       if (!ChannelContext.IsSameChannel(ChannelContext.Instance.Channels[_zapChannelIndex], _lastTunedChannel))
       {
         ChannelContext.Instance.Channels.SetIndex(_zapChannelIndex);
@@ -804,11 +698,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         _piPAvailableProperty = new WProperty(typeof(bool), false);
         _piPEnabledProperty = new WProperty(typeof(bool), false);
-
-        _isOSDVisibleProperty = new WProperty(typeof(bool), false);
-        _isOSDLevel0Property = new WProperty(typeof(bool), false);
-        _isOSDLevel1Property = new WProperty(typeof(bool), false);
-        _isOSDLevel2Property = new WProperty(typeof(bool), false);
 
         //Get current Tv Server state
         var ssm = ServiceRegistration.Get<IServerStateManager>();

@@ -4,8 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     x:Name="FullscreenLayoutTv"
-    Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"
-    >   <!-- DataContext model = SlimTvClient -->
+    Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}"
+    >   <!-- DataContext model = VideoPlayerModel -->
+
+  <!-- All KeyBindings are included from shared resource -->
+  <Include Source="screens\FullscreenTvKeybindings.inc"/>
 
   <Grid x:Name="FullscreenLayoutGrid">
     <Grid.Resources>
@@ -51,7 +54,5 @@
             AutoVisibility="true"/>
     </DockPanel>
 
-    <!-- All KeyBindings are included from shared resource -->
-    <Include Source="screens\FullscreenTvKeybindings.inc"/>
   </Grid>
 </Screen>

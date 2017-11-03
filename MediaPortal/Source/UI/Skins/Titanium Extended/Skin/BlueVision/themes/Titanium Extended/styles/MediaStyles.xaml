@@ -8,7 +8,7 @@
     xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
-    DependsOnStyleResources="OSD,OSDAudio,FullScreenContentConsts,MediaButtons,MediaColors,MediaConsts,Consts,Colors,Buttons,OtherControls,Widgets"
+    DependsOnStyleResources="OSD,FullScreenContentConsts,MediaButtons,MediaColors,MediaConsts,Consts,Colors,Buttons,OtherControls,Widgets"
     >
 
   <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
