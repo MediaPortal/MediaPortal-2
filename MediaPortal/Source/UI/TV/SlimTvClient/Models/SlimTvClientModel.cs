@@ -46,6 +46,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -565,6 +566,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    private void ShowOSD()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      VideoPlayerModel model = workflowManager.GetModel(VideoPlayerModel.MODEL_ID) as VideoPlayerModel;
+      if (model == null)
+        return;
+
+      if (!model.IsOSDVisible)
+        model.ToggleOSD();
+    }
+
+    private void CloseOSD()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      VideoPlayerModel model = workflowManager.GetModel(VideoPlayerModel.MODEL_ID) as VideoPlayerModel;
+      if (model == null)
+        return;
+
+      if (model.IsOSDVisible)
+        model.CloseOSD();
+    }
+
     private bool InitActionsList()
     {
       _dialogActionsList.Clear();
@@ -620,6 +643,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     private void ReSetSkipTimer()
     {
+      ShowOSD();
       UpdateRunningChannelPrograms(ChannelContext.Instance.Channels[_zapChannelIndex]);
 
       if (_zapTimer == null)
@@ -634,12 +658,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ZapTimerElapsed(object sender, EventArgs e)
     {
+      CloseOSD();
       if (!ChannelContext.IsSameChannel(ChannelContext.Instance.Channels[_zapChannelIndex], _lastTunedChannel))
       {
         ChannelContext.Instance.Channels.SetIndex(_zapChannelIndex);
         Tune(ChannelContext.Instance.Channels[_zapChannelIndex]);
       }
-
       // When not zapped the previous channel information is restored during the next Update() call
     }
 
