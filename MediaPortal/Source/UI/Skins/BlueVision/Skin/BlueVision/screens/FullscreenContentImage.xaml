@@ -20,6 +20,8 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
+    <Include Source="screens\FullScreenContentImageKeyBindings.inc"/>
+    
     <mp_special_controls:PlayerControl x:Name="FullscreenImage"  Grid.Row="0" Grid.RowSpan="4" Grid.Column="0" Grid.ColumnSpan="3"
         VerticalAlignment="Stretch" HorizontalAlignment="Stretch" PlayerContext="PrimaryPlayer">
       <mp_special_controls:PlayerControl.TemplateControl>
@@ -54,9 +56,5 @@
             Style="{ThemeResource PrimaryImageOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
-    <KeyBinding Key="Info" Command="{Command ToggleOSD}"/>
-    <KeyBinding Key="Back" Command="{Command CloseOSD}" IsEnabled="{Binding IsOSDVisible}"/>
-    <KeyBinding Key="Escape" Command="{Command CloseOSD}" IsEnabled="{Binding IsOSDVisible}"/>
-    
   </Grid>
 </Screen>
