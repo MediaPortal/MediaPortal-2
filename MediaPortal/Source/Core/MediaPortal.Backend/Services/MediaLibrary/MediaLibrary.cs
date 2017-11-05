@@ -935,7 +935,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
 
       try
       {

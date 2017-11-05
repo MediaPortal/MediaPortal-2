@@ -480,7 +480,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       uint? offset = null, uint? limit = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         int dataNoIndex;
@@ -517,7 +517,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       uint? offset = null, uint? limit = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         int dataNoIndex;
