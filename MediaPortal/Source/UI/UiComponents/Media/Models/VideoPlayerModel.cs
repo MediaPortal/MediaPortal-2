@@ -31,6 +31,8 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common.Settings;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
