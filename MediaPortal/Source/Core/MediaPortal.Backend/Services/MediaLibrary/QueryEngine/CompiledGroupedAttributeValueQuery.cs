@@ -172,7 +172,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public Tuple<HomogenousMap, HomogenousMap> Execute()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         using (IDbCommand command = transaction.CreateCommand())

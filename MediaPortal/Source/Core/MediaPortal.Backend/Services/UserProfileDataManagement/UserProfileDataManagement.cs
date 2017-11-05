@@ -67,7 +67,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     protected ICollection<UserProfile> GetProfiles(Guid? profileId, string name, bool loadData = true)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         int profileIdIndex;
@@ -312,7 +312,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public bool GetUserPlaylistData(Guid profileId, Guid playlistId, string key, out string data)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         int dataIndex;
@@ -366,7 +366,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public bool GetUserMediaItemData(Guid profileId, Guid mediaItemId, string key, out string data)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         int dataIndex;
@@ -428,7 +428,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public bool GetUserAdditionalData(Guid profileId, string key, out string data, int dataNo = 0)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         int dataIndex;

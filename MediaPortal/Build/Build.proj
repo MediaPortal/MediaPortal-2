@@ -59,7 +59,7 @@
   <ItemGroup>
     <DependsOnTargets Include="WriteBuildInfos" />
     <DependsOnTargets Include="ClearBinDirectory" Condition="$(ClearBinDirectory) == 'true'" />
-    <DependsOnTargets Include="RestoreOVPackages" />
+    <DependsOnTargets Include="RestoreOVPackages" Condition="$(BuildOnlineVideos) == 'true'" />
     <DependsOnTargets Include="RestoreAllPackages" />
     <DependsOnTargets Include="DownloadTranslations" Condition="$(DownloadTranslations) == 'true'" />
     <DependsOnTargets Include="CopyTranslations" Condition="$(CopyTranslations) == 'true'" />

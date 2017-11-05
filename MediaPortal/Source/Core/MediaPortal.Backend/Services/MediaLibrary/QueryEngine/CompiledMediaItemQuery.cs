@@ -415,7 +415,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public IList<MediaItem> Query(bool singleMode)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         return Query(database, transaction, singleMode);

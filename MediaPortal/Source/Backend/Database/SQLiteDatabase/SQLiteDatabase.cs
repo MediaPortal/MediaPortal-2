@@ -473,11 +473,6 @@ namespace MediaPortal.Database.SQLite
       return new SQLiteTransaction(this, IsolationLevel.Serializable, _settings);
     }
 
-    public ITransaction CreateTransaction()
-    {
-      return new SQLiteTransaction(this, _settings);
-    }
-
     public bool TableExists(string tableName)
     {
       using (var transaction = BeginTransaction())

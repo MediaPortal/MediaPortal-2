@@ -51,24 +51,15 @@ namespace MediaPortal.Database.MySQL
       get { return _connection; }
     }
 
-    public void Begin(IsolationLevel level)
-    {
-      if (_transaction != null)
-        _transaction.Rollback();
-      _transaction = ((MySqlConnection)_connection).BeginTransaction(level);
-    }
-
     public void Commit()
     {
-      if (_transaction != null)
-        _transaction.Commit();
+      _transaction.Commit();
       Dispose();
     }
 
     public void Rollback()
     {
-      if (_transaction != null)
-        _transaction.Rollback();
+      _transaction.Rollback();
       Dispose();
     }
 
@@ -103,13 +94,6 @@ namespace MediaPortal.Database.MySQL
       MySqlConnection connection = new MySqlConnection(connectionString);
       connection.Open();
       return new MySQLTransaction(database, connection, connection.BeginTransaction(level));
-    }
-
-    public static ITransaction CreateTransaction(MySQLDatabase database, string connectionString)
-    {
-      MySqlConnection connection = new MySqlConnection(connectionString);
-      connection.Open();
-      return new MySQLTransaction(database, connection, null);
     }
 
     public MySQLTransaction(ISQLDatabase database, IDbConnection connection, MySqlTransaction transaction)

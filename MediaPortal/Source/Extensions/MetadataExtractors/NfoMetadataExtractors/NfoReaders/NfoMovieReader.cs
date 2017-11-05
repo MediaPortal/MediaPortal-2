@@ -189,7 +189,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("id", new TryReadElementDelegate(TryReadId));
       _supportedElements.Add("imdb", new TryReadElementDelegate(TryReadImdb));
       _supportedElements.Add("tmdbid", new TryReadElementDelegate(TryReadTmdbId));
+      _supportedElements.Add("tmdbcolid", new TryReadElementDelegate(TryReadTmdbCollection));
       _supportedElements.Add("tmdbId", new TryReadElementDelegate(TryReadTmdbId)); // Tiny Media Manager (v2.6.5) uses <tmdbId> instead of <tmdbid>
+      _supportedElements.Add("tmdbColId", new TryReadElementDelegate(TryReadTmdbCollection));
       _supportedElements.Add("thmdb", new TryReadElementDelegate(TryReadThmdb));
       _supportedElements.Add("ids", new TryReadElementDelegate(TryReadIds)); // Used by Tiny MediaManager (as of v2.6.0)
       _supportedElements.Add("allocine", new TryReadElementDelegate(TryReadAllocine));
@@ -357,6 +359,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         _supportedAttributes.Add(TryWriteMovieAspectMovieName);
         _supportedAttributes.Add(TryWriteMovieAspectOrigName);
         _supportedAttributes.Add(TryWriteMovieAspectTmdbId);
+        _supportedAttributes.Add(TryWriteMovieAspectTmdbCollectionId);
         _supportedAttributes.Add(TryWriteMovieAspectImdbId);
         _supportedAttributes.Add(TryWriteMovieAspectAllocineId);
         _supportedAttributes.Add(TryWriteMovieAspectCinePassionId);
@@ -410,6 +413,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // <tmdbId>52913<tmdbId>
       // <tmdbid>52913<tmdbid>
       return ((_currentStub.TmdbId = ParseSimpleInt(element)) != null);
+    }
+
+    /// <summary>
+    /// Tries to read the Tmdb Collection ID
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadTmdbCollection(XElement element)
+    {
+      // Examples of valid elements:
+      // <tmdbColId>131296<tmdbColId>
+      // <tmdbcolid>131296<tmdbcolid>
+      return ((_currentStub.TmdbCollectionId = ParseSimpleInt(element)) != null);
     }
 
     /// <summary>
@@ -1552,6 +1568,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_stubs[0].IdsTmdbId.HasValue)
       {
         MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].IdsTmdbId.Value.ToString());
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write movie collection metadata into <see cref="ExternalIdentifierAspect"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectTmdbCollectionId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].TmdbCollectionId.HasValue)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, _stubs[0].TmdbCollectionId.Value.ToString());
         return true;
       }
       return false;
