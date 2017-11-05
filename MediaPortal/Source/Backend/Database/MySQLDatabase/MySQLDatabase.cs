@@ -173,11 +173,6 @@ namespace MediaPortal.Database.MySQL
       return BeginTransaction(IsolationLevel.ReadCommitted);
     }
 
-    public ITransaction CreateTransaction()
-    {
-      return MySQLTransaction.CreateTransaction(this, _connectionString);
-    }
-
     public bool TableExists(string tableName)
     {
       long cnt = (long) ExecuteScalar(@"SELECT COUNT(TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='" + _dbSchema + "' AND TABLE_NAME='" + tableName + "'");

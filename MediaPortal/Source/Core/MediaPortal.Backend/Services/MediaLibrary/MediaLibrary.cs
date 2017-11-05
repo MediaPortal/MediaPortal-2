@@ -1932,7 +1932,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (createTransaction)
       {
         database = ServiceRegistration.Get<ISQLDatabase>();
-        transaction = database.CreateTransaction();
+        transaction = database.BeginTransaction();
       }
 
       try
@@ -1965,7 +1965,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public ICollection<PlaylistInformationData> GetPlaylists()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         int playlistIdIndex;
@@ -2063,7 +2063,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public PlaylistRawData ExportPlaylist(Guid playlistId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         int nameIndex;
@@ -2769,7 +2769,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       //reload all updated items and reconcile as they might have changed
       ICollection <MediaItem> items;
-      using (ITransaction transaction = database.CreateTransaction())
+      using (ITransaction transaction = database.BeginTransaction())
         items = GetMediaItems(database, transaction, updatedItems, null, GetManagedMediaItemAspectMetadata().Keys, false, null, true);
 
       foreach (MediaItem item in items)
@@ -3938,7 +3938,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public IDictionary<Guid, Share> GetShares(string systemId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         int shareIdIndex;
@@ -3991,7 +3991,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public Share GetShare(Guid shareId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         return GetShare(transaction, shareId);

@@ -225,11 +225,6 @@ namespace MediaPortal.Database.SQLCE
       return BeginTransaction(IsolationLevel.ReadCommitted);
     }
 
-    public ITransaction CreateTransaction()
-    {
-      return SQLCETransaction.CreateTransaction(this, _connectionString);
-    }
-
     public bool TableExists(string tableName)
     {
       using (SqlCeConnection conn = new SqlCeConnection(_connectionString))
