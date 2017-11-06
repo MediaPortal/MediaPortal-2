@@ -1124,7 +1124,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   MediaItemQuery changeQuery = new MediaItemQuery(requiredAspects, changeFilter.Key);
                   if (changeFilter.Value > 0)
                     changeQuery.Limit = changeFilter.Value;
-                  IList<MediaItem> foundItems = Search(changeQuery, false, null, false);
+                  IList<MediaItem> foundItems = Search(database, transaction, changeQuery, false, null, false);
                   if (foundItems != null)
                   {
                     int currentItem = 0;
