@@ -86,6 +86,8 @@
                   Command="{Command ZapNextChannel}" Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
           <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Command="{Command RecordDialog}"
                   Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}" Margin="{ThemeResource PlayerControlButtonMargins}"/>
+          <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
           <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
@@ -106,89 +108,6 @@
     </DockPanel>
   </ControlTemplate>
 
-  <!-- FIXME: Morpheus_xx, 2017-04-29: This is a temporary workaround for a bug, that the OSD doesn't appear in LiveTV. The cause are the animation that will not be 
-       started (they referencing VideoPlayerModel, which is not used for TV). The style is a copy of OSD.xaml, with removed RenderTransforms and Animations. -->
-  <Style x:Key="StaticOSDContainer" TargetType="{x:Type Control}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="150"/>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="200"/>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="250"/>
-            </Grid.RowDefinitions>
-
-            <Grid x:Name="InfoControlPanel" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="180"/>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="250"/>
-              </Grid.RowDefinitions>
-
-              <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2" BorderThickness="0">
-                <Border.IsVisible>
-                  <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
-                    <Binding Path="MediaItem"/>
-                    <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
-                  </MultiBinding>
-                </Border.IsVisible>
-                <Border.Background>
-                  <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                    <LinearGradientBrush.GradientStops>
-                      <GradientStop Color="#00000000" Offset="0"  />
-                      <GradientStop Color="#CC000000" Offset="0.05"  />
-                      <GradientStop Color="#E6000000" Offset="1"  />
-                    </LinearGradientBrush.GradientStops>
-                  </LinearGradientBrush>
-                </Border.Background>
-              </Border>
-              <Control x:Name="OSDCoverPresenter" Margin="0,10,20,10" HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
-              <Control Grid.Column="1" x:Name="OSDInfoAreaPresenter" Margin="0,10,0,0"
-                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
-            </Grid>
-
-            <Grid x:Name="PlayerControlPanel" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="90"/>
-                <RowDefinition Height="30"/>
-              </Grid.RowDefinitions>
-              
-              <Border Margin="-40,-25,-40,0" Grid.RowSpan="2" BorderThickness="0">
-                <Border.Background>
-                  <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                    <LinearGradientBrush.GradientStops>
-                      <GradientStop Color="#CC000000" Offset="0"  />
-                      <GradientStop Color="#CC000000" Offset="0.95"  />
-                      <GradientStop Color="#00000000" Offset="1"  />
-                    </LinearGradientBrush.GradientStops>
-                  </LinearGradientBrush>
-                </Border.Background>
-              </Border>
-
-              <Control x:Name="ControlsPresenter" HorizontalAlignment="Stretch"
-                       Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
-              <Control Grid.Row="1" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,-2,0,2"
-                       Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
-            </Grid>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
   <Style x:Key="PrimarySlimTvOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
@@ -197,14 +116,15 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
 
-          <Control Style="{ThemeResource StaticOSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
                 <Image x:Name="ChannelLogo" Stretch="Uniform" Width="280" Margin="8" VerticalAlignment="Top">
                   <Image.Source>
-                    <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource SlimTvClient}, Path=ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
-                                fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                    <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource SlimTvClient}, Path=ChannelLogoType}" 
+                                              fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
+                                              fanart:MaxWidth="280" fanart:MaxHeight="0"/>
                   </Image.Source>
                 </Image>
               </ControlTemplate>
@@ -219,7 +139,7 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
 
-                  <Grid Grid.Row="1" DataContext="{Binding Source={StaticResource SlimTvClient}}" IsVisible="{Binding !IsOSDLevel2}" MaxWidth="900">
+                  <Grid Grid.Row="1" DataContext="{Binding Source={StaticResource SlimTvClient}}" MaxWidth="900">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="*"/>
@@ -234,20 +154,7 @@
                     </Label>
                   </Grid>
 
-                  <Label x:Name="NextProgramTitleLabel" Grid.Column="0" Grid.Row="2" 
-                           Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}"
-                           HorizontalAlignment="Left" VerticalAlignment="Top" Color="{ThemeResource TextColor}" Opacity="0.7"
-                           IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel0}"/>
-
-                  <!-- Title lable for OSD Level 2 (next program) -->
-                  <Label x:Name="NextProgramTitleLabelLevel2" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}"
-                           HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="DefaultBold" Grid.Row="1"
-                           IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}"
-                           Color="{ThemeResource TextColor}" Opacity="0.7"/>
-
-                  <!-- Current Program detailed information -->
-                  <Grid Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,20"
-                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel1}">
+                  <Grid Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,20">
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>
                       <RowDefinition Height="*"/>
@@ -279,45 +186,6 @@
                              Wrap="True" Scroll="Auto" Color="{ThemeResource TextColor}"
                              Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Description}"/>
                   </Grid>
-
-                  <!-- Next Program detailed information -->
-                  <Grid Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,20"
-                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}">
-                    <Grid.RowDefinitions>
-                      <RowDefinition Height="Auto"/>
-                      <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="320"/>
-                      <ColumnDefinition Width="Auto"/>
-                      <ColumnDefinition Width="15"/>
-                      <ColumnDefinition Width="Auto"/>
-                      <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label x:Name="NextChannel" Grid.Row="0" Grid.Column="0" Scroll="Auto" 
-                           Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
-                           Color="{ThemeResource TextColor}"/>
-
-                    <Label x:Name="NextProgramStart" Grid.Row="0" Grid.Column="1" Margin="5,0,5,0" HorizontalAlignment="Right"
-                             Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                             Color="{ThemeResource TextColor}"/>
-                    <Label Grid.Row="0" Grid.Column="2" Content="-" Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
-                    <Label x:Name="NextProgramEnd" Grid.Row="0" Grid.Column="3" Margin="5,0,5,0" HorizontalAlignment="Left"
-                             Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                             Color="{ThemeResource TextColor}"/>
-
-                    <Label x:Name="NextGenre" Grid.Row="0" Grid.Column="4" Margin="5,0,0,0" 
-                             Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Genre}"
-                             Color="{ThemeResource TextColor}"/>
-
-                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" x:Name="NextDescription" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                           Wrap="True" Scroll="Auto" Color="{ThemeResource TextColor}"
-                           Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Description}"/>
-                  </Grid>
-
-                  <!--<Label x:Name="TimeLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"
-                        HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" 
-                        Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />-->
 
                 </Grid>
               </ControlTemplate>

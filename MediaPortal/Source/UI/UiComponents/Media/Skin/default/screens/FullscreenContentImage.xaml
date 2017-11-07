@@ -17,7 +17,9 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-  
+
+    <Include Source="screens\FullScreenContentImageKeyBindings.inc"/>
+
     <mp_special_controls:PlayerControl x:Name="FullscreenImage" Grid.Column="0" Grid.Row="0"
         VerticalAlignment="Stretch" HorizontalAlignment="Stretch" PlayerContext="PrimaryPlayer">
       <mp_special_controls:PlayerControl.TemplateControl>
@@ -67,6 +69,5 @@
             AutoVisibility="true"/>
       </DockPanel> <!-- OSD_RightPanel -->
     </DockPanel> <!-- OSD_LayoutPanel -->
-    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
   </Grid>
 </Screen>

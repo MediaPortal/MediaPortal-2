@@ -198,7 +198,7 @@
   <Storyboard x:Key="FocusedOSDButtonStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="Opacity">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="{ThemeResource PlayerControlButtonOpacity}"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.6"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.20" Value="1"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
@@ -834,17 +834,16 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" Margin="5,8,5,8" Opacity="0.6">
+          <Grid Margin="5,8,5,8">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1"
-                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
-            <!-- Embedded symbol  -->
-            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" />
+            <Control x:Name="GrowControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" Panel.ZIndex="1" Opacity="0.6"/>
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="2" Margin="-2" Opacity="1" Panel.ZIndex="2"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

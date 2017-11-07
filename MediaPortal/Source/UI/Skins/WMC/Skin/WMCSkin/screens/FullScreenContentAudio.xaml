@@ -54,6 +54,8 @@
             </VisualBrush.Visual>
           </VisualBrush>
         </Grid.Background>
+        
+        <Include Source="screens\FullScreenContentAudioKeyBindings.inc"/>
 
         <!--Playerstate overlay-->
         <Grid Grid.ColumnSpan="3" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -293,11 +295,11 @@
           </StackPanel>
         </Grid>
 
-        <DockPanel x:Name="OSD_RightPanel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false">
+        <DockPanel x:Name="OSD_RightPanel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false"
+                   IsVisible="{Binding Source={StaticResource AudioPlayerModel}, Path=IsOSDVisible}">
           <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
             Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
         </DockPanel>
-
       </Grid>
     </mp_special_controls:PlayerControl.TemplateControl>
   </mp_special_controls:PlayerControl>
