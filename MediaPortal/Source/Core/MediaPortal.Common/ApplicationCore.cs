@@ -94,10 +94,21 @@ namespace MediaPortal.Common
 
       // Assembly and build information
       FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
-      logger.Info("ApplicationCore: Comments:   {0}", fileVersionInfo.Comments);
-      logger.Info("ApplicationCore: Copyright:  {0}", fileVersionInfo.LegalCopyright);
-      logger.Info("ApplicationCore: Version:    {0}", fileVersionInfo.FileVersion);
-      logger.Info("ApplicationCore: Source:     {0}", fileVersionInfo.ProductVersion);
+      logger.Info("ApplicationCore: Comments:         {0}", fileVersionInfo.Comments);
+      logger.Info("ApplicationCore: Copyright:        {0}", fileVersionInfo.LegalCopyright);
+      logger.Info("ApplicationCore: Version:          {0}", fileVersionInfo.FileVersion);
+      logger.Info("ApplicationCore: Source:           {0}", fileVersionInfo.ProductVersion);
+      // Operating system info
+      logger.Info("ApplicationCore: OS version:       {0}", Environment.OSVersion);
+      foreach (string key in new[] { "ProductName", "ReleaseId", "BuildLab", "InstallationType", "EditionID", "EditionSubstring" })
+      {
+        try
+        {
+          var value = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", key, string.Empty).ToString();
+          logger.Info("ApplicationCore: {0,-18}{1}", key + ":", value);
+        }
+        catch { break; }
+      }
       logger.Info("ApplicationCore: ----------------------------------------------------------");
 
       logger.Debug("ApplicationCore: Registering ILogger service");
@@ -153,7 +164,7 @@ namespace MediaPortal.Common
       else
       {
         logger.Debug("ApplicationCore: Registering IImporterWorker service");
-        ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());        
+        ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());
       }
 
       logger.Debug("ApplicationCore: Registering IResourceServer service");
