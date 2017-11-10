@@ -940,9 +940,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         "DELETE FROM " + mediaItemTable + " WHERE " + mediaItemIdAttribute + " IN(" +
           " SELECT P." + mediaItemIdAttribute + " FROM " + providerTable + " P" +
           " INNER JOIN " + relationshipTable + " R ON P." + mediaItemIdAttribute + " = R." + linkedIdAttribute +
-          " WHERE R." + mediaItemIdAttribute + " = @" + idVar.Name +
+          " WHERE P." + mediaItemIdAttribute + " = @" + idVar.Name +
           " AND P." + providerResourceTypeAttribute + " = " + ProviderResourceAspect.TYPE_VIRTUAL +
-          " AND P." + linkedIdAttribute + " NOT IN(" +
+          " AND R." + linkedIdAttribute + " NOT IN(" +
             " SELECT " + linkedIdAttribute + " FROM " + relationshipTable +
             " WHERE " + mediaItemIdAttribute + " != @" + idVar.Name + 
           ")" +
