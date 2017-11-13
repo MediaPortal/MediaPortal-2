@@ -38,40 +38,46 @@
   <ControlTemplate x:Key="GenericTVOSDControlsControl">
     <DockPanel x:Name="PlayControlsPanel" VerticalAlignment="Top" HorizontalAlignment="Stretch" LastChildFill="True">
 
-      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Context="{Service Window}" HorizontalAlignment="Left">
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
         <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,0,5,0" Height="71"
-                HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+                HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"
+                IsEnabled="{Binding IsEnabled}"/>
         <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
+                IsEnabled="{Binding IsEnabled}"/>
       </StackPanel>
 
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
         <Button x:Name="VolUpButton" Style="{ThemeResource VolUpButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top"/>
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top"
+                IsEnabled="{Binding IsEnabled}"/>
         <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top"/>
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top"
+                IsEnabled="{Binding IsEnabled}"/>
         <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="4,9,0,-8">
-          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
-          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
         </Grid>
       </StackPanel>
 
       <DockPanel LastChildFill="False" Margin="80,0,80,0">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Left" Margin="0,0,40,0">
           <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
-                  Command="{Command Previous}"/>
+                  Command="{Command Previous}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
-                  Command="{Command SeekBackward}"/>
+                  Command="{Command SeekBackward}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                  Command="{Command Play}"/>
+                  Command="{Command Play}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                  Command="{Command Pause}"/>
+                  Command="{Command Pause}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
-                  Command="{Command Stop}"/>
+                  Command="{Command Stop}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
-                  Command="{Command SeekForward}"/>
+                  Command="{Command SeekForward}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
-                  Command="{Command Next}"/>
+                  Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
           <DockPanel LastChildFill="False">
             <Label DockPanel.Dock="Top" x:Name="EndTimeLabel" Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold" Margin="10,10,20,0"
                    Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
@@ -81,28 +87,28 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
           <Button x:Name="PreviousChannelButton" Style="{ThemeResource ChannelDownButtonStyle}"
-                  Command="{Command ZapPrevChannel}" Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
+                  Command="{Command Source={StaticResource SlimTvClient},Path=ZapPrevChannel}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="NextChannelButton" Style="{ThemeResource ChannelUpButtonStyle}" 
-                  Command="{Command ZapNextChannel}" Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
-          <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Command="{Command RecordDialog}"
-                  Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}" Margin="{ThemeResource PlayerControlButtonMargins}"/>
+                  Command="{Command Source={StaticResource SlimTvClient},Path=ZapNextChannel}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Command="{Command Source={StaticResource SlimTvClient},Path=RecordDialog}"
+                  Margin="{ThemeResource PlayerControlButtonMargins}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}" IsEnabled="{Binding IsEnabled}"/>
         </StackPanel>
       </DockPanel>
     </DockPanel>

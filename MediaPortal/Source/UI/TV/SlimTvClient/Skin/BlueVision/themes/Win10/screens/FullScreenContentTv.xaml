@@ -44,7 +44,7 @@
              IsVisible="{Binding !IsOSDVisible}"/>
     
     <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="4"
-        Style="{ThemeResource PrimarySlimTvOSDStyle}"
+        Style="{ThemeResource PrimarySlimTvOSDStyle}" IsEnabled="{Binding IsOSDVisible}"
         VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
     
     <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">

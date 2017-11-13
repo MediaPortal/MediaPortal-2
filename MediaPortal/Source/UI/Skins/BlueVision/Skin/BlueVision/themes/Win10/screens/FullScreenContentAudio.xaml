@@ -261,7 +261,8 @@
 
     
     <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.ColumnSpan="3" Grid.Row="0"
-            Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            IsEnabled="{Binding IsOSDVisible}"/>
 
   </Grid>
 </Screen>
