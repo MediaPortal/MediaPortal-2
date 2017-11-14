@@ -211,11 +211,11 @@ namespace MediaPortal.Common.ResourceAccess
     MediaItem CreateLocalMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds);
 
     /// <summary>
-    /// Checks if the given <paramref name="mediaItemAccessor"/> points to a directory and if it is considered a "single item" media source (like DVD or BD folders on hard drive).
+    /// Checks if the given directory <paramref name="mediaItemAccessor"/> is considered a "single item" media source (like DVD or BD folders on hard drive).
     /// </summary>
     /// <param name="mediaItemAccessor">The media item resource accessor to open the stream to the physical media.</param>
     /// <returns><c>true</c> if it is a single item.</returns>
-    bool IsSingleResource(IResourceAccessor mediaItemAccessor);
+    bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor);
 
     /// <summary>
     /// Checks if the given <paramref name="mediaItemAccessor"/> points to a stub (a CD, DVD or BD placeholder).

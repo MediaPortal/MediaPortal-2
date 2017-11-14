@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public MetadataExtractorMetadata Metadata { get { return _metadata; } }
 
-    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
     {
       return false;
     }
