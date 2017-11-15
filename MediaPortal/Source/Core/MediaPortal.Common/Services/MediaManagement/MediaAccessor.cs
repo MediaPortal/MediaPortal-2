@@ -735,13 +735,13 @@ namespace MediaPortal.Common.Services.MediaManagement
       return null;
     }
 
-    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
     {
       foreach (IMetadataExtractor extractor in LocalMetadataExtractors.Values)
       {
         try
         {
-          if (extractor.IsSingleResource(mediaItemAccessor))
+          if (extractor.IsDirectorySingleResource(mediaItemAccessor))
             return true;
         }
         catch (Exception e)

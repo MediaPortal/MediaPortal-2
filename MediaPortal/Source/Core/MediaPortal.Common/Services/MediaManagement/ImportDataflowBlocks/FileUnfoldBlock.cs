@@ -103,6 +103,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         IEnumerable<MediaItem> mediaItems = null;
         if (importResource.IsSingleResource)
         {
+          files.Add(importResource.ResourceAccessor);
           MediaItem mi = await LoadLocalItem(importResource.PendingResourcePath, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, null);
           if (mi != null)
           {

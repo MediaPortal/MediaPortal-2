@@ -1447,7 +1447,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return false;
     }
 
-    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null)

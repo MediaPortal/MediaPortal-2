@@ -347,7 +347,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return true;
     }
 
-    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
     {
       return false;
     }
