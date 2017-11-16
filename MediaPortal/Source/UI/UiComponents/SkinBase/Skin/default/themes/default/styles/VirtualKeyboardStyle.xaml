@@ -36,8 +36,8 @@
         <CheckBox Content="[Keys.AltGr]" Grid.Row="0" Grid.Column="1" Margin="{ThemeResource VKMargin}" IsChecked="{Binding Path=AltGrState,Mode=TwoWay}"/>
         <CheckBox Content="[Keys.Shift]" Grid.Row="1" Grid.Column="0" Margin="{ThemeResource VKMargin}" IsChecked="{Binding Path=ShiftState,Mode=TwoWay}"/>
         <CheckBox Content="[Keys.CapsLock]" Grid.Row="2" Grid.Column="0" Margin="{ThemeResource VKMargin}" IsChecked="{Binding Path=CapsLockState,Mode=TwoWay}"/>
-        <Button Content="[Keys.Copy]"  Style="{ThemeResource DefaultButtonStyle}" Grid.Row="3" Grid.Column="0" Margin="{ThemeResource VKMargin}" Command="{Command Copy}"/>
-        <Button Content="[Keys.Paste]" Style="{ThemeResource DefaultButtonStyle}" Grid.Row="4" Grid.Column="0" Margin="{ThemeResource VKMargin}" Command="{Command Paste}"/>
+        <Button Content="[Keys.Copy]"  Style="{ThemeResource VKButtonStyle}" Grid.Row="3" Grid.Column="0" Margin="{ThemeResource VKMargin}" Command="{Command Copy}"/>
+        <Button Content="[Keys.Paste]" Style="{ThemeResource VKButtonStyle}" Grid.Row="4" Grid.Column="0" Margin="{ThemeResource VKMargin}" Command="{Command Paste}"/>
       </Grid>
 
       <Grid x:Name="Keyboard-Normal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
