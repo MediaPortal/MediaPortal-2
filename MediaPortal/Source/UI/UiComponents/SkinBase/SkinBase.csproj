@@ -234,6 +234,8 @@
     <Content Include="Skin\default\screens\DialogPlayerConfiguration.xaml" />
     <Content Include="Skin\default\screens\SharesOverview.xaml" />
     <Content Include="Skin\default\screens\DialogPathBrowser.xaml" />
+    <Content Include="Skin\default\screens\DialogPlayerChooseSubtitle.xaml" />
+    <Content Include="Skin\default\themes\default\styles\VirtualKeyboardStyle_de.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Skin\default\fonts\DejaVuSans.desc" />
@@ -251,9 +253,9 @@
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\DialogPlayerChooseSubtitle.xaml">
+    <None Include="Skin\default\themes\default\styles\VirtualKeyboardStyle_fr.xaml">
       <SubType>Designer</SubType>
-    </Content>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

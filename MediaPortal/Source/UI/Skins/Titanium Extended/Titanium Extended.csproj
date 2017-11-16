@@ -504,9 +504,6 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\OtherControls.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\VirtualKeyboardStyle.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\WeatherStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
