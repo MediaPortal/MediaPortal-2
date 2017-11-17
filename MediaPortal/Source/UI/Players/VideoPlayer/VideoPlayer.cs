@@ -229,7 +229,7 @@ namespace MediaPortal.UI.Players.Video
           ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, CCFILTER_FILENAME);
           return;
         }
-        _graphBuilder.AddFilter(baseFilter, CCFILTER_FILENAME);
+        _graphBuilder.AddFilter(baseFilter, CCFILTER_NAME);
       }
     }
 
