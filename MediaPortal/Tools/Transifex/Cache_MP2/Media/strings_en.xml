@@ -145,6 +145,7 @@
   <string name="Media.SeasonItemsHeader">Season(s)</string>
   <string name="Media.MoviesItemsHeader">Movie(s)</string>
   <string name="Media.ImageItemsHeader">Image(s)</string>
+  <string name="Media.DiscItemsHeader">Disc(s)</string>
   <string name="Media.TrackItemsHeader">Track(s)</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
   <string name="Media.ChooseCollectionHeader">Collections</string>
@@ -437,8 +438,8 @@
 
   <string name="Settings.Players.WatchedPlayPercentage">Watched play percentage</string>
   <string name="Settings.Players.WatchedPlayPercentage.Help">Select what percentage of a media item needs to be played before it is marked as watched</string>
-  <string name="Settings.Players.VideoOsdTimeout">Video OSD timeout</string>
-  <string name="Settings.Players.VideoOsdTimeout.Help">Timeout in seconds after the video OSD gets automatically closed</string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd">Open player config in OSD</string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd.Help">Enable this option to display the player configuration after pressing 'Info' a second time</string>
 
   <string name="Settings.Media">Media library</string>
   
