@@ -379,6 +379,11 @@
       HelpText="[Settings.Players.WatchedPlayPercentage.Help]"
       ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.WatchedPlayPercentage"/>
 
+    <ConfigSetting
+      Id="OpenPlayerConfigInOsd"
+      Text="[Settings.Players.OpenPlayerConfigInOsd]"
+      HelpText="[Settings.Players.OpenPlayerConfigInOsd.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.OpenPlayerConfigInOsd"/>
   </Register>
 
   <!-- Contents of '/Media' section -->

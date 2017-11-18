@@ -222,6 +222,7 @@
     <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoAudioStreamAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs" />
+    <Compile Include="Models\BaseOSDPlayerModel.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
@@ -425,6 +426,7 @@
     <Compile Include="Settings\Configuration\ShowVirtual.cs" />
     <Compile Include="Settings\Configuration\SkipStepList.cs" />
     <Compile Include="Settings\Configuration\SkipStepTimeout.cs" />
+    <Compile Include="Settings\Configuration\OpenPlayerConfigInOsd.cs" />
     <Compile Include="Settings\Configuration\WatchedPlayPercentage.cs" />
     <Compile Include="Settings\MediaCertificationSettings.cs" />
     <Compile Include="Helpers\CertificationHelper.cs" />
@@ -473,6 +475,10 @@
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
+    <Content Include="Skin\default\screens\FullScreenContentAudioKeyBindings.inc" />
+    <Content Include="Skin\default\screens\FullScreenContentDVDKeyBindings.inc" />
+    <Content Include="Skin\default\screens\FullScreenContentImageKeyBindings.inc" />
+    <Content Include="Skin\default\screens\FullScreenContentVideoKeyBindings.inc" />
     <Content Include="Skin\default\screens\MediaItemsFilterKeyBindings.inc" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />

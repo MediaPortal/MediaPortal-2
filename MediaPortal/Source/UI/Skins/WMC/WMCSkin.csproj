@@ -1162,11 +1162,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\VirtualKeyboardStyle.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\DialogVirtualKeyboard.xaml">
       <SubType>Designer</SubType>
     </Content>

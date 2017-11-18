@@ -127,7 +127,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Border>
 
     </Grid>
-
-
+    <Control x:Name="AdditionalKeyBindings" Visibility="Hidden" Template="{DynamicResource ResourceKey=Additional_KeyBindings}"/>
   </Grid>
 </Screen>

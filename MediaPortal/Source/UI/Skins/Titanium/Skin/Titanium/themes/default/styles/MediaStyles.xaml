@@ -13,6 +13,7 @@
 
   <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
 
   <!-- ***************************************** OSD ************************************************** -->
   <Storyboard x:Key="OSDCurrentPlayerControlStoryboard" FillBehavior="Stop">

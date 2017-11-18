@@ -229,7 +229,7 @@ namespace MediaPortal.UI.Players.Video
           ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, CCFILTER_FILENAME);
           return;
         }
-        _graphBuilder.AddFilter(baseFilter, CCFILTER_FILENAME);
+        _graphBuilder.AddFilter(baseFilter, CCFILTER_NAME);
       }
     }
 
@@ -993,6 +993,9 @@ namespace MediaPortal.UI.Players.Video
       settings.EnableSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
         subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
+
+      // Make sure MPC subs engine is enabled when valid subtitle got selected.
+      MpcSubtitles.SetEnable(settings.EnableSubtitles);
     }
 
     public virtual void DisableSubtitle()

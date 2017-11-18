@@ -1956,8 +1956,21 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ProgressBar x:Name="ProgressBar" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
+        <ProgressBar x:Name="ProgressBar" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
                      Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
+      </Grid>
+    </DockPanel>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GenericImageOSDProgressControl">
+    <DockPanel LastChildFill="true">
+      <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="10"/>
+        </Grid.RowDefinitions>
       </Grid>
     </DockPanel>
   </ControlTemplate>
@@ -1965,40 +1978,44 @@
   <ControlTemplate x:Key="GenericVideoOSDControlsControl">
     <DockPanel x:Name="PlayControlsPanel" VerticalAlignment="Top" HorizontalAlignment="Stretch" LastChildFill="True">
 
-      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Context="{Service Window}" HorizontalAlignment="Left">
-        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,0,5,0" Height="71"
-                HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
+        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,-2,5,0" Height="72"
+                HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"
+                IsEnabled="{Binding IsEnabled}"/>
         <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
+                IsEnabled="{Binding IsEnabled}"/>
       </StackPanel>
 
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
         <Button x:Name="VolUpButton" Style="{ThemeResource VolUpButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top"/>
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
         <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top"/>
-        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="4,9,0,-8">
-          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
-          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
+        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="5,8,0,-7">
+          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
         </Grid>
       </StackPanel>
 
       <DockPanel LastChildFill="False" Margin="80,0,80,0">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Left" Margin="0,0,40,0">
           <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
-                  Command="{Command Previous}"/>
+                  Command="{Command Previous}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
-                  Command="{Command SeekBackward}"/>
+                  Command="{Command SeekBackward}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                  Command="{Command Play}"/>
+                  Command="{Command Play}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                  Command="{Command Pause}"/>
+                  Command="{Command Pause}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
-                  Command="{Command Stop}"/>
+                  Command="{Command Stop}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
-                  Command="{Command SeekForward}"/>
+                  Command="{Command SeekForward}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
-                  Command="{Command Next}"/>
+                  Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
           <DockPanel LastChildFill="False">
             <Label DockPanel.Dock="Top" x:Name="DurationLabel" Content="{Binding Duration}" Margin="10,10,20,0"
                    Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold"/>
@@ -2007,21 +2024,23 @@
           </DockPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
+          <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}" IsEnabled="{Binding IsEnabled}"/>
         </StackPanel>
       </DockPanel>
     </DockPanel>
@@ -2030,46 +2049,97 @@
   <ControlTemplate x:Key="GenericAudioOSDControlsControl">
     <DockPanel x:Name="PlayControlsPanel" VerticalAlignment="Top" HorizontalAlignment="Stretch" LastChildFill="True">
 
-      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Context="{Service Window}" HorizontalAlignment="Left">
-        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,0,5,0" Height="71"
-                HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
+        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,-2,5,0" Height="72"
+                HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"
+                IsEnabled="{Binding IsEnabled}"/>
         <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
+                IsEnabled="{Binding IsEnabled}"/>
       </StackPanel>
 
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
         <Button x:Name="VolUpButton" Style="{ThemeResource VolUpButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top"/>
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top"
+                IsEnabled="{Binding IsEnabled}"/>
         <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top"/>
-        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="4,9,0,-8">
-          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
-          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top"
+                IsEnabled="{Binding IsEnabled}"/>
+        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="5,8,0,-7">
+          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
         </Grid>
       </StackPanel>
 
       <DockPanel LastChildFill="False" Margin="80,0,80,0">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Left" Margin="0,0,40,0">
           <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
-                  Command="{Command Previous}"/>
+                  Command="{Command Previous}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
-                  Command="{Command SeekBackward}"/>
+                  Command="{Command SeekBackward}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                  Command="{Command Play}"/>
+                  Command="{Command Play}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                  Command="{Command Pause}"/>
+                  Command="{Command Pause}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
-                  Command="{Command Stop}"/>
+                  Command="{Command Stop}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
-                  Command="{Command SeekForward}"/>
+                  Command="{Command SeekForward}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
-                  Command="{Command Next}"/>
+                  Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
           <DockPanel LastChildFill="False">
             <Label DockPanel.Dock="Top" x:Name="DurationLabel" Content="{Binding Duration}" Margin="10,10,20,0"
                    Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold"/>
             <Label DockPanel.Dock="Bottom" x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}" Margin="10,0,20,10"
                    Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="DefaultBold"/>
           </DockPanel>
+        </StackPanel>
+      </DockPanel>
+    </DockPanel>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GenericImageOSDControlsControl">
+    <DockPanel x:Name="PlayControlsPanel" VerticalAlignment="Top" HorizontalAlignment="Stretch" LastChildFill="True" Margin="0,0,0,0">
+
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Context="{Service Window}" HorizontalAlignment="Left">
+        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,-2,5,0" Height="72"
+                HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"
+                IsEnabled="{Binding IsEnabled}"/>
+        <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
+                IsEnabled="{Binding IsEnabled}"/>
+      </StackPanel>
+
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <Button x:Name="VolUpButton" Style="{ThemeResource VolUpButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
+        <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
+        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="4,9,0,-8">
+          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
+        </Grid>
+      </StackPanel>
+
+      <DockPanel LastChildFill="False" Margin="80,0,80,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Left" Margin="0,0,40,0">
+          <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
+                    Command="{Command Previous}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
+                    Command="{Command Play}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
+                    Command="{Command Pause}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
+                    Command="{Command Stop}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
+                    Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
+          <Label x:Name="ImageName" Margin="10,0,20,10" FontFamily="DefaultBold" FontSize="28"
+                 Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
+                 HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </StackPanel>
       </DockPanel>
     </DockPanel>
@@ -2183,14 +2253,15 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+                    
+          <Control Style="{ThemeResource OSDAudioContainer}" Width="{ThemeResource FullScreenContentAudioPrimaryPlayerOSDWidth}"
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
-
+              
               <ControlTemplate x:Key="OSD_Progress_Template">
                 <Control Template="{ThemeResource GenericVideoOSDProgressControl}" />
               </ControlTemplate>
-
+              
               <ControlTemplate x:Key="OSD_Controls_Template">
                 <Control Template="{ThemeResource GenericAudioOSDControlsControl}" />
               </ControlTemplate>
@@ -2207,70 +2278,20 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-          <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
-              BorderThickness="0" Margin="0,0,38,-10"
-              DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <LinearGradientBrush.GradientStops>
-                  <GradientStop Color="#CC000000" Offset="0"  />
-                  <GradientStop Color="#CC000000" Offset="0.95"  />
-                  <GradientStop Color="#00000000" Offset="1"  />
-                </LinearGradientBrush.GradientStops>
-              </LinearGradientBrush>
-            </Border.Background>
-            <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="300"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-              <DockPanel x:Name="HeadLine" Grid.Row="1" Grid.Column="0" LastChildFill="True">
-                <!--Grid x:Name="PlayerStatePanel" DockPanel.Dock="Left">
-                  <Control x:Name="StatePlay" IsVisible="{Binding IsPlaying}" Template="{ThemeResource PlayControlTemplate}"
-                      VerticalAlignment="Center"/>
-                  <Control x:Name="StatePause" IsVisible="{Binding IsPaused}" Template="{ThemeResource PauseControlTemplate}"
-                      VerticalAlignment="Center"/>
-                </Grid-->
-                <!-- PlayerStatePanel -->
-                <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="40,10,40,10" FontFamily="DefaultBold"
-                    Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
-                    HorizontalAlignment="Left" VerticalAlignment="Center"/>
-              </DockPanel>
-              <!-- HeadLine -->
-              <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="10,10,10,0" HorizontalAlignment="Center"
-                  IsVisible="{Binding ShowMouseControls}" >
-                <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
-                    Command="{Command Previous}"/>
-                <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                    Command="{Command Play}"/>
-                <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                    Command="{Command Pause}"/>
-                <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
-                    Command="{Command Stop}"/>
-                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
-                    Command="{Command Next}"/>
-              </StackPanel>
-              <!-- PlayControlsPanel -->
-            </Grid>
-            <!-- PlayerGrid -->
-          </Border>
-          <!-- OSD_Background -->
-          <!--ControlTemplate.Triggers>
-            <Trigger Property="IsCurrentPlayer" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers-->
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Control.Resources>
+
+              <ControlTemplate x:Key="OSD_Progress_Template">
+                <Control Template="{ThemeResource GenericImageOSDProgressControl}" />
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Controls_Template">
+                <Control Template="{ThemeResource GenericImageOSDControlsControl}" />
+              </ControlTemplate>
+
+            </Control.Resources>
+          </Control>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
