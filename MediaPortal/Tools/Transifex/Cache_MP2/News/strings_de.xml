@@ -12,5 +12,5 @@
   <string name="Settings.Plugins.News.FeedsSetup">Feeds verwalten</string>
   <string name="Settings.Plugins.News.FeedsSetup.Help">Einstellungen für Feeds, die Daten für News sammeln</string>
   <string name="Settings.Plugins.News.RefreshInterval">Aktualisierungshäufigkeit</string>
-  <string name="Settings.Plugins.News.RefreshInterval.Help">Feed-Daten alle ... Minuten laden</string>
+  <string name="Settings.Plugins.News.RefreshInterval.Help">Feed-Daten alle ... Minuten aktualisieren</string>
 </resources>

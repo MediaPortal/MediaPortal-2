@@ -26,6 +26,7 @@
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV kilde er tilgjengelig (enda)</string>
   <!--Settings-->
+  <string name="SlimTvClient.Notifications">Beskjeder</string>
   <string name="SlimTvClient.RecordingsMenuItem">Opptak</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV opptak</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer etter kanal</string>

@@ -69,6 +69,7 @@
   <string name="SlimTvClient.AutoStartTv.Help">Jos päällä, viimeiseksi käynnissä ollut kanava valitaan kun TV käynnistetään</string>
   <string name="SlimTvClient.ShowSeriesInfo">Näytä sarjojen tiedot</string>
   <string name="SlimTvClient.ShowSeriesInfo.Help">Jos päällä, ohjelmaopas näyttää sarjan ja jakson tiedot, jos saatavilla.</string>
+  <string name="SlimTvClient.Notifications">Ilmoitukset</string>
   <string name="SlimTvClient.RecordingsMenuItem">Tallennukset</string>
   <string name="SlimTvClient.Recordings.Help">Täällä voit löytää listan tallennetuista ohjelmistasi.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV tallennukset</string>

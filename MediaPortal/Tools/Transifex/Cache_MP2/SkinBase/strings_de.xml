@@ -38,7 +38,7 @@
   <string name="ServerConnection.HomeServer">Heimserver</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">An Server anbinden</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Vom Server abkoppeln</string>
-  <string name="ServerConnection.HomeServerWorkflowStateLabel">MediaPortal Server</string>
+  <string name="ServerConnection.HomeServerWorkflowStateLabel">MP2-Server</string>
   <string name="ServerConnection.AttachedText.Before">Dieser Client ist einem MP2-Server zugewiesen.</string>
   <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Dieser Client ist momentan keinem MP2-Server zugewiesen.</string>
@@ -127,7 +127,7 @@
   <string name="Settings.General.Connectivity.UseIPv4.Help">Legt fest, ob dieser Client IPv4-Verbindungen zum MP2-Server verwenden soll.</string>
   <string name="Settings.General.Connectivity.UseIPv6">IPv6 verwenden</string>
   <string name="Settings.General.Connectivity.UseIPv6.Help">Legt fest, ob dieser Client IPv6-Verbindungen zum MP2-Server verwenden soll.</string>
-  <string name="Settings.General.Connectivity.IPAddressBindings">IP-Adressen-Bindungen</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">IP-Adressbindungen</string>
   <string name="Settings.General.Connectivity.IPAddressBindings.Help">Legt eine Liste von IP-Adressen fest, die von diesem Client für Verbindungen zum MP2-Server verwendet werden sollen.</string>
   <string name="Settings.Regional">Spracheinstellungen</string>
   <string name="Settings.Regional.Language">Sprache</string>
@@ -201,7 +201,7 @@
   <string name="SharesConfig.ShareNameExists">Eine Medienquelle mit diesem Namen ist bereits vorhanden</string>
   <string name="SharesConfig.ShareNameEmpty">Gib einen Namen für die Medienquelle ein</string>
   <string name="SharesConfig.EditShareProblemHeader">Problem beim Konfigurieren der Medienquelle</string>
-  <string name="SharesConfig.EditShareProblemText">Es trat ein interner Fehler beim Konfigurieren der Medienquelle auf</string>
+  <string name="SharesConfig.EditShareProblemText">Es ist ein interner Fehler beim Konfigurieren der Medienquelle aufgetreten.</string>
   <string name="SharesConfig.MenuAddShare">Hinzufügen</string>
   <string name="SharesConfig.MenuEditShares">Bearbeiten</string>
   <string name="SharesConfig.MenuRemoveShares">Entfernen</string>
@@ -214,7 +214,7 @@
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Medienquelle aktualisieren</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Der Ressourcen-Provider und/oder der Pfad haben sich geändert.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Die Informationen in der Medienbibliothek über die Medienelemente in dieser Medienquelle können entweder aktualisiert (verschoben) oder gelöscht und neu importiert werden.</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Möchtest du verschieben oder löschen und importieren?</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Möchtest du verschieben oder löschen und neu importieren?</string>
   <string name="SharesConfig.Relocate">Verschieben</string>
   <string name="SharesConfig.ReImport">(Erneuter) Import</string>
   <string name="SharesConfig.ManualPathInput">Manuelle Eingabe</string>

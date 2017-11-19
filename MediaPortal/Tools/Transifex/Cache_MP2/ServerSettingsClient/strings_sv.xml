@@ -79,6 +79,11 @@
   <string name="Settings.ServerSettings.ImageMDESettings">Inställningar för import av bilder</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Hämta platsinformation</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Aktivera hämta platsinformation från de geografiska koordinaterna som finns sparade i bilden</string>
+  <string name="Settings.ServerSettings.VideoMDESettings">Inställningar för import av video</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline">Spara FanArt för att användas utan Internetuppkoppling.</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help">Välj vilken FanArt som ska vara tillgänglig från en disk även om disken inte är inkopplad.</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineNetwork">Spara Fanart på en nätverksdisk.</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineLocal">Spara Fanart på en lokal disk.</string>
   <string name="Settings.ServerSettings.FanArtSettings">Inställningar för Fanart</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops">Maximalt antal bakgrundsbilder</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help">Maximalt antal bakgrundsbilder som ska vara tillgängliga. Ett större antal bakgrundsbilder kräver mer diskutrymme</string>

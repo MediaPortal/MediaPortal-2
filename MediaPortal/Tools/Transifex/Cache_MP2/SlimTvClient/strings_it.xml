@@ -90,6 +90,7 @@
   <string name="SlimTvClient.HideAllChannelsGroup.Help">Se abilitato, il gruppo tutti i canali verrà nascosto</string>
   <string name="SlimTvClient.ChannelLogoStyle">Stile del logo canale</string>
   <string name="SlimTvClient.ChannelLogoStyle.Help">Scegli lo stile del logo canale. Server e client dovranno essere riavviati per ottenere i cambiamenti.</string>
+  <string name="SlimTvClient.Notifications">Notifiche</string>
   <string name="SlimTvClient.RecordingsMenuItem">Registrazioni</string>
   <string name="SlimTvClient.Recordings.Help">Qui trovi al lista dei programmi registrati, per poterli riprodurre.</string>
   <string name="SlimTvClient.RecordingsRootViewName">Registrazioni TV</string>
