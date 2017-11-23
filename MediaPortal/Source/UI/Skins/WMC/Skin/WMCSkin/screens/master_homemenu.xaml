@@ -44,6 +44,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
     <Model x:Key="HomeMediaListModel" Id="47700DBB-C5B5-4723-8055-F2641C0A37B4"/>
+    <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
+    <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
@@ -216,14 +218,79 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="605"/>
           </Grid.RowDefinitions>
 
-          <ListView x:Name="HomeContent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,-50,0,0"
-                    Style="{ThemeResource MainMediaListListViewStyle}"
+          <ListView x:Name="HomeContent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Style="{ThemeResource MainMediaListListViewStyle}" Width="1538" Height="931"
                     ItemsSource="{Binding Source={StaticResource HomeMediaListModel},Path=Lists}">
             <ListView.RenderTransform>
               <TranslateTransform X="0"/>
             </ListView.RenderTransform>
           </ListView>
-          
+
+          <!--++++++++++ CURRENT WEATHER +++++++++++-->
+          <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,30,0,0">
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {1}">
+                <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                <Binding Source="e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"/>
+              </MultiBinding>
+            </Grid.IsVisible>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="30" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Label x:Name="Temperature" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" 
+                   Content="{Binding CurrentLocation.Condition.Temperature}" HorizontalAlignment="Center"/>
+            <Label Grid.Column="2" x:Name="LocName" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Name}"/>
+            <Image Grid.Row="1" x:Name="BigIcon" Stretch="Fill" Height="175" Width="175" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
+
+            <StackPanel Grid.Row="1" Grid.Column="2">
+              <Label x:Name="Date" FontSize="{ThemeResource NormalFontSize}"
+                     Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="Wind" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                     Content="{Binding CurrentLocation.Condition.Wind}" Opacity="1.3"/>
+              <StackPanel Orientation="Horizontal">
+                <Label x:Name="Humidity" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                       Content="{Binding CurrentLocation.Condition.Humidity}" Opacity="1.3"/>
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Content="   " Opacity="1.3"/>
+                <Label x:Name="Pressure" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                       Content="{Binding CurrentLocation.Condition.Pressure}" Opacity="1.3"/>
+              </StackPanel>
+            </StackPanel>
+          </Grid>
+
+          <!--++++++++++ CURRENT NEWS +++++++++++-->
+          <Grid Margin="0,30,0,0" Height="350" Width="980" HorizontalAlignment="Left" VerticalAlignment="Top"
+                DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                            ConverterParameter="{}{0} == {1}">
+                <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                <Binding Source="bb49a591-7705-408f-8177-45d633fdfad0"/>
+              </MultiBinding>
+            </Grid.IsVisible>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True"
+                   Content="{Binding CurrentNewsItem.Title}" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch"/>
+            <Label Grid.Row="1" Margin="0,10,0,20" x:Name="NewSummary" Wrap="True"
+                   Content="{Binding CurrentNewsItem.Summary}" HorizontalAlignment="Stretch"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          </Grid>
+
         </Grid>
         
         <Grid x:Name="LeftButtonGrid" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,-140" Panel.ZIndex="1000"
