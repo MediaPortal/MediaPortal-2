@@ -256,10 +256,10 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+          <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,-50,-20,0"
                         Style="{ThemeResource VerticalMediaScrollViewerStyle}" CanContentScroll="True"
                         HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,50,20,0"/>
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
