@@ -13,6 +13,7 @@
   <ResourceWrapper x:Key="HeaderFontSize" Resource="80"/>
   <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
   <ResourceWrapper x:Key="DateTimeFontSize" Resource="30"/>
+  <ResourceWrapper x:Key="HomeContentFontSize" Resource="42"/>
 
   <ResourceWrapper x:Key="HugeFontSize" Resource="72"/>
   <ResourceWrapper x:Key="NormalFontSize" Resource="45"/>

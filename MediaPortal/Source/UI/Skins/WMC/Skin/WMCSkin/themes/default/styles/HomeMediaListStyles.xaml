@@ -54,7 +54,7 @@
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Height="{StaticResource VIDEO_GRID_HEIGHT}"
              Wrap="True" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Width="{StaticResource VIDEO_GRID_WIDTH}"
              HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding Channel.Name}"
-             Color="Black" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+             Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
     </Grid>
   </DataTemplate>
 
@@ -71,8 +71,8 @@
         <ColumnDefinition Width="10*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="40"/>
-        <RowDefinition Height="40"/>
+        <RowDefinition Height="60"/>
+        <RowDefinition Height="60"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5" Grid.RowSpan="2" VerticalAlignment="Center" >
         <Image.Source>
@@ -81,10 +81,10 @@
         </Image.Source>
       </Image>
       <Label x:Name="ProgramLabel" VerticalAlignment="Center" Grid.Column="1" Margin="3" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
-             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
       <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="3" Content="{Binding Program.StartTime}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
-      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="65" Height="65" Grid.Column="2" Margin="3" Grid.RowSpan="2">
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
+      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="85" Height="85" Grid.Column="2" Margin="3" Grid.RowSpan="2">
         <Image.Source>
           <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
         </Image.Source>
@@ -125,9 +125,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="0,5,0,0" HorizontalScrollBarVisibility="Disabled"
+          <ScrollViewer CanContentScroll="True" Margin="-20,5,-20,0" HorizontalScrollBarVisibility="Disabled"
                         VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,0,20,0" />
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
@@ -163,7 +163,7 @@
               <Binding Source="{Binding Items}" Path="Count" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0"/>
             </StackPanel.IsVisible>
 
-            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" Margin="0,10,0,-5"
                    Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
 
             <ListView x:Name="MediaList" HorizontalAlignment="Left" Margin="10"
