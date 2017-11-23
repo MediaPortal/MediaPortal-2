@@ -76,11 +76,11 @@
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5" Grid.RowSpan="2" VerticalAlignment="Center" >
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ProgramLabel" VerticalAlignment="Center" Grid.Column="1" Margin="3" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="3" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
              TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
       <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="3" Content="{Binding Program.StartTime}"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
@@ -135,7 +135,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" HorizontalAlignment="Center" LoopScroll="False"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -166,7 +166,7 @@
             <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" Margin="0,10,0,-5"
                    Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
 
-            <ListView x:Name="MediaList" HorizontalAlignment="Left" Margin="10"
+            <ListView x:Name="MediaList" HorizontalAlignment="Stretch" Margin="10"
                       Style="{Binding Source={DynamicResource List_Style},Path=Resource}"
                       ItemsSource="{Binding Items}">
               <ListView.Resources>

@@ -97,20 +97,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <TranslateTransform Y="0"/>
           </Grid.RenderTransform>
 
-          <Grid.Resources>
-            <!-- HomeContent Storyboard -->
-            <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="450"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
-              </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="Opacity">
-                <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="1"/>
-              </DoubleAnimationUsingKeyFrames>
-            </Storyboard>
-          </Grid.Resources>
-
           <Grid.Triggers>
             <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableSubMenuAnimations}" Value="True">
               <DataTrigger.EnterActions>
@@ -146,13 +132,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <StopStoryboard BeginStoryboardName="BeginTransformUpAnimation" />
               </MultiTrigger.ExitActions>
             </MultiTrigger>
-
-            <!-- Trigger for the HomeContent Storyboard -->
-            <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.CurrentIndexChanged">
-              <EventTrigger.Actions>
-                <BeginStoryboard Storyboard="{StaticResource SlideInStoryboard}"/>
-              </EventTrigger.Actions>
-            </EventTrigger>
 
           </Grid.Triggers>
 
@@ -217,20 +196,56 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="605"/>
           </Grid.RowDefinitions>
+          <Grid.RenderTransform>
+            <TranslateTransform X="0"/>
+          </Grid.RenderTransform>
+
+          <Grid.Resources>
+            <!-- HomeContent Storyboard -->
+            <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContentGrid" Storyboard.TargetProperty="RenderTransform.X">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="450"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContentGrid" Storyboard.TargetProperty="Opacity">
+                <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="1"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContentGrid" Storyboard.TargetProperty="RenderTransform.X">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-450"/>
+              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContentGrid" Storyboard.TargetProperty="Opacity">
+                <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+          </Grid.Resources>
+
+          <Grid.Triggers>
+            <!-- Trigger for the HomeContent Storyboard -->
+            <DataTrigger Binding="{Binding Source={StaticResource HomeMediaListModel},Path=HasLists}" Value="True">
+              <DataTrigger.EnterActions>
+                <BeginStoryboard x:Name="BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+              </DataTrigger.EnterActions>
+              <DataTrigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="BeginSlideInStoryboard"/>
+                <BeginStoryboard Storyboard="{StaticResource SlideOutStoryboard}"/>                
+              </DataTrigger.ExitActions>
+            </DataTrigger>
+          </Grid.Triggers>
 
           <ListView x:Name="HomeContent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     Style="{ThemeResource MainMediaListListViewStyle}" Width="1538" Height="931"
-                    ItemsSource="{Binding Source={StaticResource HomeMediaListModel},Path=Lists}">
-            <ListView.RenderTransform>
-              <TranslateTransform X="0"/>
-            </ListView.RenderTransform>
-          </ListView>
+                    ItemsSource="{Binding Source={StaticResource HomeMediaListModel},Path=Lists}"/>
 
           <!--++++++++++ CURRENT WEATHER +++++++++++-->
           <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,30,0,0">
             <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {1}">
-                <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                <Binding Source="{StaticResource HomeMediaListModel}" Path="CurrentActionId"/>
                 <Binding Source="e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"/>
               </MultiBinding>
             </Grid.IsVisible>
@@ -271,7 +286,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Grid.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                             ConverterParameter="{}{0} == {1}">
-                <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
+                <Binding Source="{StaticResource HomeMediaListModel}" Path="CurrentActionId"/>
                 <Binding Source="bb49a591-7705-408f-8177-45d633fdfad0"/>
               </MultiBinding>
             </Grid.IsVisible>

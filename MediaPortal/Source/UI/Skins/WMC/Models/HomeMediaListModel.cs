@@ -28,6 +28,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.SkinBase.General;
+using MediaPortal.Utilities.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -185,11 +186,15 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public const string STR_MODEL_ID = "47700DBB-C5B5-4723-8055-F2641C0A37B4";
     public static readonly Guid MODEL_ID = new Guid(STR_MODEL_ID);
 
-    protected static readonly ItemsList EMPTY_ITEMS_LIST = new ItemsList();
+    protected const int UPDATE_DELAY_MS = 500;
 
+    protected AbstractProperty _hasListsProperty;
+    protected AbstractProperty _currentActionProperty;
+    protected AbstractProperty _currentActionIdProperty;
     protected ItemsList _lists;
-
     protected IDictionary<Guid, MediaListGroup> _actionToListsMap;
+    protected WorkflowAction _nextAction;
+    protected DelayedEvent _updateEvent;
 
     public HomeMediaListModel()
     {
@@ -199,8 +204,13 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     protected void Init()
     {
+      _hasListsProperty = new WProperty(typeof(bool), false);
+      _currentActionProperty = new WProperty(typeof(WorkflowAction), null);
+      _currentActionIdProperty = new WProperty(typeof(string), null);
       _lists = new ItemsList();
       _actionToListsMap = DEFAULT_LISTS_GROUPS.ToDictionary(mg => mg.ActionId);
+      _updateEvent = new DelayedEvent(UPDATE_DELAY_MS);
+      _updateEvent.OnEventHandler += OnUpdate;
     }
 
     protected void Attach()
@@ -208,9 +218,54 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       GetHomeModel().CurrentSubItemProperty.Attach(OnCurrentHomeItemChanged);
     }
 
+    public AbstractProperty HasListsProperty
+    {
+      get { return _hasListsProperty; }
+    }
+
+    public bool HasLists
+    {
+      get { return (bool)_hasListsProperty.GetValue(); }
+      set { _hasListsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentActionProperty
+    {
+      get { return _currentActionIdProperty; }
+    }
+
+    public WorkflowAction CurrentAction
+    {
+      get { return (WorkflowAction)_currentActionProperty.GetValue(); }
+      set { _currentActionProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentActionIdProperty
+    {
+      get { return _currentActionIdProperty; }
+    }
+
+    public string CurrentActionId
+    {
+      get { return (string)_currentActionIdProperty.GetValue(); }
+      set { _currentActionIdProperty.SetValue(value); }
+    }
+
     public ItemsList Lists
     {
       get { return _lists; }
+    }
+
+    private void EnqueueUpdate(WorkflowAction action)
+    {
+      HasLists = false;
+      _nextAction = action;
+      _updateEvent.EnqueueEvent(this, EventArgs.Empty);
+    }
+
+    private void OnUpdate(object sender, EventArgs e)
+    {
+      UpdateMediaLists(_nextAction);
     }
 
     private void OnCurrentHomeItemChanged(AbstractProperty property, object oldValue)
@@ -218,14 +273,14 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       WorkflowAction action;
       if (!TryGetAction(property.GetValue() as ListItem, out action))
         action = null;
-      UpdateMediaLists(action);
+      EnqueueUpdate(action);
     }
 
-    protected void UpdateMediaLists(WorkflowAction currentAction)
+    protected void UpdateMediaLists(WorkflowAction action)
     {
       _lists.Clear();
       MediaListGroup group;
-      if (currentAction != null && _actionToListsMap.TryGetValue(currentAction.ActionId, out group))
+      if (action != null && _actionToListsMap.TryGetValue(action.ActionId, out group))
       {
         MediaListModel mlm = GetMediaListModel();
         foreach (IMediaListCreator creator in group.Creators)
@@ -236,6 +291,9 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         }
       }
       _lists.FireChange();
+      HasLists = true;
+      CurrentAction = action;
+      CurrentActionId = action?.ActionId.ToString();
     }
 
     protected static HomeMenuModel GetHomeModel()
