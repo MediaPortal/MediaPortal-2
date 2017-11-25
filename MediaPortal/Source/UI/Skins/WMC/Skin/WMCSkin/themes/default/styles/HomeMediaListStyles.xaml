@@ -18,12 +18,8 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ButtonWideStyle_Grid}"
-                  Command="{DynamicResource ResourceKey=Menu_Command}"
-                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-            <Button.ContextMenuCommand>
-              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
-            </Button.ContextMenuCommand>
-          </Button>
+                  Command="{Binding Path=Command,Mode=OneTime}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -168,11 +164,7 @@
 
             <ListView x:Name="MediaList" HorizontalAlignment="Stretch" Margin="10"
                       Style="{Binding Source={DynamicResource List_Style},Path=Resource}"
-                      ItemsSource="{Binding Items}">
-              <ListView.Resources>
-                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-              </ListView.Resources>
-            </ListView>
+                      ItemsSource="{Binding Path=Items,Mode=OneTime}"/>
 
           </StackPanel>
         </ControlTemplate>
