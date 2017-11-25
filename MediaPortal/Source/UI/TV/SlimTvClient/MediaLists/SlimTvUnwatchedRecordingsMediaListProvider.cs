@@ -22,36 +22,20 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.Commands;
+using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.UiComponents.Media.MediaLists;
-using System;
-using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public class SlimTvUnwatchedRecordingsMediaListProvider : BaseRecordingMediaListProvider
+  public class SlimTvUnwatchedRecordingsMediaListProvider : BaseUnwatchedMediaListProvider
   {
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
+    public SlimTvUnwatchedRecordingsMediaListProvider()
     {
-      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-          (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete ||
-          (updateReason & UpdateReason.ImportComplete) == UpdateReason.ImportComplete)
-      {
-        Guid? userProfile = CurrentUserProfile?.ProfileId;
-        _query = new MediaItemQuery(SlimTvConsts.NECESSARY_RECORDING_MIAS, null)
-        {
-          Filter = userProfile.HasValue ? AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-            new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
-            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0"))) : null,
-          Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
-        };
-        return base.UpdateItems(maxItems, UpdateReason.Forced);
-      }
-      return true;
+      _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
+      _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
     }
   }
 }
