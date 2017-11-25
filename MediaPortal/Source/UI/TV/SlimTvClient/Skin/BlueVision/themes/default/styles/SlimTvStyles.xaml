@@ -90,7 +90,7 @@
                    ScrollSpeed="15" />
 
             <!-- Dummy button which makes the panel focusable -->
-            <Button Style="{ThemeResource EmptyStyle}"/>
+            <Button Style="{ThemeResource EmptyStyle}" SetFocusPrio="{DynamicResource ButtonFocus}"/>
           </Grid>
 
         </ControlTemplate>
@@ -115,10 +115,11 @@
             <ScrollContentPresenter Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
             <!-- Arrow up -->
-            <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center">
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center">
               <StackPanel.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>0">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>0 &amp;&amp; {1}">
                   <TemplateBinding Path="ScrollBarYKnobPos" />
+                  <Binding ElementName="ScrollViewerGrid" Path="IsKeyboardFocusWithin" />
                 </MultiBinding>
               </StackPanel.IsVisible>
               <Image Source="details_arrow_left.png" Opacity="0.5">
@@ -129,10 +130,11 @@
             </StackPanel>
 
             <!-- Arrow down -->
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+            <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center">
               <StackPanel.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}==0">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}==0 &amp;&amp; {1}">
                   <TemplateBinding Path="ScrollBarYKnobPos" />
+                  <Binding ElementName="ScrollViewerGrid" Path="IsKeyboardFocusWithin" />
                 </MultiBinding>
               </StackPanel.IsVisible>
               <Image Source="details_arrow_left.png" Opacity="0.5">
@@ -196,13 +198,14 @@
                     </Grid.RowDefinitions>
 
                     <!-- Now / next program informations -->
-                    <ListView Grid.Column="0" Grid.Row="1" Height="{StaticResource ProgramDetailsHeight}" Focusable="True" Style="{ThemeResource ProgramInfoListViewStyle}"
+                    <ListView Grid.Column="0" Grid.Row="1" Height="{StaticResource ProgramDetailsHeight}" Style="{ThemeResource ProgramInfoListViewStyle}"
                               Margin="0,0,0,20">
 
                       <!-- Current Program detailed information -->
                       <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram}">
                         <Control.Resources>
                           <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource TextColor}"/>
+                          <ResourceWrapper x:Key="ButtonFocus" Resource="Default"/>
                         </Control.Resources>
                       </Control>
 
@@ -210,6 +213,7 @@
                       <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=NextProgram}">
                         <Control.Resources>
                           <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource NextProgramLabelColor}"/>
+                          <ResourceWrapper x:Key="ButtonFocus" Resource="None"/>
                         </Control.Resources>
                       </Control>
 
