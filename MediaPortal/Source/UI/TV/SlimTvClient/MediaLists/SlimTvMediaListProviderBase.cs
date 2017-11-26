@@ -71,6 +71,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
     {
       if (_tvHandler != null)
         return true;
+      ITvProvider provider = ServiceRegistration.Get<ITvProvider>(false);
+      if (provider == null)
+        return false;
       ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
       tvHandler.Initialize();
       if (tvHandler.ChannelAndGroupInfo == null)
