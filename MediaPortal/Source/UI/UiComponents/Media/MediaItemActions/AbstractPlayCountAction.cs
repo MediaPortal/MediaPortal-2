@@ -81,9 +81,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
       //Also update media item locally so changes are reflected in GUI without reloading
       MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, playCount);
-      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = playCount.ToString();
+      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = UserDataKeysKnown.GetSortablePlayCountString(playCount);
       if(mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
-        mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
+        mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = UserDataKeysKnown.GetSortablePlayPercentageString(playPercentage);
       if (playCount <= 0)
         mediaItem.UserData.Remove(UserDataKeysKnown.KEY_PLAY_DATE);
       changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;

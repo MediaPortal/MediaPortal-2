@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
         {
           Filter = userProfile.HasValue ? AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.And, 
             new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100"))) : null,
+            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, UserDataKeysKnown.GetSortablePlayPercentageString(100)))) : null,
           Limit = (uint)maxItems, // Last 5 imported items
           SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
         };

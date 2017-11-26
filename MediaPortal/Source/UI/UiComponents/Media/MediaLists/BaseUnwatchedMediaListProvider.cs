@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       {
         Filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
           new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
-          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0")) : null,
+          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayCountString(0))) : null,
         SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
     }

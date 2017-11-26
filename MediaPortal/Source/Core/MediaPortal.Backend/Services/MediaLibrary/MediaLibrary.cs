@@ -1865,10 +1865,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           command.CommandText = INSERT_USER_PLAYCOUNT_SQL;
           database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId.Value, typeof(Guid));
           IDbDataParameter dataKey = database.AddParameter(command, "DATA_KEY", UserDataKeysKnown.KEY_PLAY_PERCENTAGE, typeof(string));
-          IDbDataParameter dataValue = database.AddParameter(command, "MEDIA_ITEM_DATA", "100", typeof(string));
+          IDbDataParameter dataValue = database.AddParameter(command, "MEDIA_ITEM_DATA", UserDataKeysKnown.GetSortablePlayPercentageString(100), typeof(string));
           command.ExecuteNonQuery();
           dataKey.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
-          dataValue.Value = playCount.Value.ToString();
+          dataValue.Value = UserDataKeysKnown.GetSortablePlayCountString(playCount.Value);
           command.ExecuteNonQuery();
         }
 
@@ -2373,7 +2373,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 watchPercentage = 100;
 
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_PERCENTAGE;
-              valueParam.Value = watchPercentage.ToString();
+              valueParam.Value = UserDataKeysKnown.GetSortablePlayPercentageString(watchPercentage);
               if (command.ExecuteNonQuery() == 0)
               {
                 command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
@@ -2383,7 +2383,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               Logger.Debug("MediaLibrary: Set parent media item {0} watch percentage = {1}", parentId, valueParam.Value);
 
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
-              valueParam.Value = watchPercentage >= 100 ? "1" : "0";
+              valueParam.Value = watchPercentage >= 100 ? UserDataKeysKnown.GetSortablePlayPercentageString(1) : UserDataKeysKnown.GetSortablePlayPercentageString(0);
               if (command.ExecuteNonQuery() == 0)
               {
                 command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
@@ -2395,7 +2395,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               if (updatePlayDate)
               {
                 keyParam.Value = UserDataKeysKnown.KEY_PLAY_DATE;
-                valueParam.Value = watchPercentage >= 100 ? DateTime.Now.ToString("s") : null;
+                valueParam.Value = watchPercentage >= 100 ? UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now) : null;
                 if (command.ExecuteNonQuery() == 0)
                 {
                   command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
@@ -2464,7 +2464,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               itemParam.Value = key.Key;
 
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_PERCENTAGE;
-              valueParam.Value = key.Value > 0 ? "100" : "0";
+              valueParam.Value = key.Value > 0 ? UserDataKeysKnown.GetSortablePlayPercentageString(100) : UserDataKeysKnown.GetSortablePlayPercentageString(0);
               if (command.ExecuteNonQuery() == 0)
               {
                 command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
@@ -2474,7 +2474,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               Logger.Debug("MediaLibrary: Set parent media item {0} watch percentage = {1}", key.Key, valueParam.Value);
 
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
-              valueParam.Value = key.Value.ToString();
+              valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(key.Value);
               if (command.ExecuteNonQuery() == 0)
               {
                 command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
@@ -2486,7 +2486,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               if(updateWatchedDate)
               {
                 keyParam.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
-                valueParam.Value = key.Value > 0 ? DateTime.Now.ToString("s") : null;
+                valueParam.Value = key.Value > 0 ? UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now) : null;
                 if (command.ExecuteNonQuery() == 0)
                 {
                   command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
@@ -2674,28 +2674,28 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           updateParents = true;
 
           //Update play count
-          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, count.ToString());
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, UserDataKeysKnown.GetSortablePlayCountString(count));
           //Update last played
-          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now));
           //Update play percentage
-          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, "100");
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, UserDataKeysKnown.GetSortablePlayPercentageString(100));
         }
         else if (percentage >= 0)
         {
           if (updatePlayDate)
           {
             //Update last played
-            SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, DateTime.Now.ToString("s"));
+            SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now));
           }
           //Update play percentage
-          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, percentage.ToString());
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, UserDataKeysKnown.GetSortablePlayPercentageString(percentage));
         }
         else
         {
           updateParents = true;
 
           //Reset play count
-          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, "0");
+          SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, UserDataKeysKnown.GetSortablePlayCountString(0));
           //Delete last played
           SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_DATE, null);
           //Delete percentage

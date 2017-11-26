@@ -53,9 +53,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
       IFilter unwatchedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
         new EmptyUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT),
-        new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0"));
+        new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayCountString(0)));
 
-      IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.GT, "0");
+      IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayCountString(0));
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
       int numUnwatchedItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, unwatchedFilter), true, showVirtual);
       int numWatchedItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, watchedFilter), true, showVirtual);

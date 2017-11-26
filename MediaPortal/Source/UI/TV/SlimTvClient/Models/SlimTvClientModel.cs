@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -47,7 +48,6 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
-using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Events;
@@ -118,7 +118,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected bool _tvWasActive;
 
     // Watched handling
-    protected DelayedEvent _watchedTimer;
+    protected Dictionary<IChannel, DateTime> _watchStart = new Dictionary<IChannel, DateTime>();
 
     #endregion
 
@@ -477,9 +477,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       else
         _zapChannelIndex = 0;
 
+      // Update watch info
+      UpdateWatchDuration(_lastTunedChannel);
+
       BeginZap();
       if (_tvHandler.StartTimeshift(SlotIndex, channel))
       {
+        _watchStart[channel] = DateTime.UtcNow;
         _lastTunedChannel = channel;
         EndZap();
         Update();
@@ -488,14 +492,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       // Notify end of zapping
       SlotPlayer?.OnEndZap?.Invoke(this, EventArgs.Empty);
-
-      if (_watchedTimer == null)
-      {
-        _watchedTimer = new DelayedEvent(PROGRAM_WATCHED_SEC * 1000);
-        _watchedTimer.OnEventHandler += WatchedTimerElapsed;
-      }
-      // In case of new user action, reset the timer.
-      _watchedTimer.EnqueueEvent(channel, EventArgs.Empty);
     }
 
     protected bool ShouldAutoTune()
@@ -681,10 +677,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // When not zapped the previous channel information is restored during the next Update() call
     }
 
-    private void WatchedTimerElapsed(object sender, EventArgs e)
+    private void UpdateWatchDuration(IChannel channel)
     {
-      IChannel channel = sender as IChannel;
-      if (channel != null)
+      if (channel != null && _watchStart.ContainsKey(channel) && (DateTime.UtcNow - _watchStart[channel]).TotalSeconds > PROGRAM_WATCHED_SEC)
       {
         Guid? userProfile = null;
         IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
@@ -696,11 +691,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           string data = null;
           userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalData(userProfile.Value,
             UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, out data, channel.ChannelId);
-          int count = data != null ? Convert.ToInt32(data) + 1 : 1;
+          double count = (data != null ? Convert.ToDouble(data, CultureInfo.InvariantCulture) : 0) + (DateTime.UtcNow - _watchStart[channel]).TotalHours;
           userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalData(userProfile.Value,
-            UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, count.ToString(), channel.ChannelId);
+            UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, UserDataKeysKnown.GetSortableChannelPlayCountString(count), channel.ChannelId);
           userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalData(userProfile.Value, 
-            UserDataKeysKnown.KEY_CHANNEL_PLAY_DATE, DateTime.Now.ToString("s"), channel.ChannelId);
+            UserDataKeysKnown.KEY_CHANNEL_PLAY_DATE, UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now), channel.ChannelId);
         }
       }
     }
@@ -780,6 +775,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
       _messageQueue.SubscribeToMessageChannel(ServerStateMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
       _messageQueue.PreviewMessage += OnMessageReceived;
     }
 
@@ -804,8 +800,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
               {
                 IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
-                if (playerContext != null && playerContext.CurrentMediaItem is LiveTvMediaItem)
+                if (playerContext != null && playerContext.CurrentMediaItem is LiveTvMediaItem ltvi)
                 {
+                  if (ltvi.AdditionalProperties.ContainsKey(LiveTvMediaItem.CHANNEL))
+                    UpdateWatchDuration((IChannel)ltvi.AdditionalProperties[LiveTvMediaItem.CHANNEL]);
                   playerContext.Stop();
                   _tvWasActive = true;
                 }
@@ -823,6 +821,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           var states = message.MessageData[ServerStateMessaging.STATES] as IDictionary<Guid, object>;
           if (states != null && states.ContainsKey(TvServerState.STATE_ID))
             ServerState = states[TvServerState.STATE_ID] as TvServerState;
+        }
+      }
+      else if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
+      {
+        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerStopped:
+          case PlayerManagerMessaging.MessageType.PlayerEnded:
+            if (_lastTunedChannel != null)
+            {
+                UpdateWatchDuration(_lastTunedChannel);
+            }
+            break;
         }
       }
     }
@@ -917,8 +929,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _resumeEvent.Dispose();
       if (_zapTimer != null)
         _zapTimer.Dispose();
-      if (_watchedTimer != null)
-        _watchedTimer.Dispose();
       _isInitialized = false;
       base.Dispose();
     }

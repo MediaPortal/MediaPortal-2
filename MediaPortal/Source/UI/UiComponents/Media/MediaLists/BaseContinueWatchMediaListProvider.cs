@@ -38,7 +38,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       {
         Filter = userProfile.HasValue ? AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
             new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100")),
+            new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, UserDataKeysKnown.GetSortablePlayPercentageString(100))),
             _necessaryMias) : null,
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
       };
@@ -64,7 +64,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
         Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, AppendUserFilter(
           BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, "100")),
+          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, UserDataKeysKnown.GetSortablePlayPercentageString(100))),
           _necessaryLinkedMias)) : null,
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
       };

@@ -341,7 +341,7 @@ namespace MediaPortal.UI.Services.Players
       // Update loaded item also, so changes will be visible in GUI without reloading
       if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
         mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_PERCENTAGE, "0");
-      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
+      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = UserDataKeysKnown.GetSortablePlayPercentageString(playPercentage);
 
       if (watched)
       {
@@ -353,10 +353,10 @@ namespace MediaPortal.UI.Services.Players
         }
 
         if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
-          mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_COUNT, "0");
+          mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_COUNT, UserDataKeysKnown.GetSortablePlayCountString(0));
         currentPlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
         currentPlayCount++;
-        mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = currentPlayCount.ToString();
+        mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = UserDataKeysKnown.GetSortablePlayCountString(currentPlayCount);
       }
       ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
     }
