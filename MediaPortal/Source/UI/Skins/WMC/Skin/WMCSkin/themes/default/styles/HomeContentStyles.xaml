@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    DependsOnStyleResources="Colors,Consts,OtherControlsOverrides,OtherControls,MediaStyles"
+    >
+
+  <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
+  <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
+  <Model x:Key="MediaListModel" Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414"/>
+
+  <!--++++++++++++++++++++++++++++++++++-->
+  <!--++++ HOME CONTENT ITEM STYLES ++++-->
+  <!--++++++++++++++++++++++++++++++++++-->
+
+  <Style x:Key="HomeMediaListGridViewContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_Grid}"
+                  Command="{Binding Path=Command,Mode=OneTime}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="ChannelDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
+      </Grid.RowDefinitions>
+      <Grid.OpacityMask>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Grid.OpacityMask>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="White"/>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Height="{StaticResource VIDEO_GRID_HEIGHT}"
+             Wrap="True" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Width="{StaticResource VIDEO_GRID_WIDTH}"
+             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding Channel.Name}"
+             Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+    </Grid>
+  </DataTemplate>
+
+  <DataTemplate x:Key="ProgramsDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch">
+      <Grid.Background>
+        <VisualBrush.Visual>
+          <Border Background="White" CornerRadius="3" BorderThickness="0" BorderBrush="Black"/>
+        </VisualBrush.Visual>
+      </Grid.Background>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="15*"/>
+        <ColumnDefinition Width="75*"/>
+        <ColumnDefinition Width="10*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="60"/>
+        <RowDefinition Height="60"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5" Grid.RowSpan="2" VerticalAlignment="Center" >
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="3" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="3" Content="{Binding Program.StartTime}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
+      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="85" Height="85" Grid.Column="2" Margin="3" Grid.RowSpan="2">
+        <Image.Source>
+          <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+        </Image.Source>
+      </Image>
+    </Grid>
+  </DataTemplate>
+
+  <DataTemplate x:Key="SchedulesDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" 
+             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+             Content="{Binding Channel.Name}" Color="Black" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+    </Grid>
+  </DataTemplate>
+
+  <!--++++++++++++++++++++++++++++++++++-->
+  <!--++++ HOME CONTENT LIST STYLES ++++-->
+  <!--++++++++++++++++++++++++++++++++++-->
+
+  <Style x:Key="HomeScreenMediaItemViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
+    <Setter Property="ItemTemplate"/>
+    <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
+    <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeMediaListGridViewContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="-20,5,-20,0" HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,0,20,0" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeScreenChannelViewStyle" BasedOn="{ThemeResource HomeScreenMediaItemViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ChannelDataTemplate}"/>
+  </Style>
+
+  <Style x:Key="HomeScreenCurrentProgramsListViewStyle" BasedOn="{ThemeResource HomeScreenMediaItemViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ProgramsDataTemplate}"/>
+  </Style>
+
+  <Style x:Key="HomeScreenCurrentSchedulesListViewStyle" BasedOn="{ThemeResource HomeScreenMediaItemViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource SchedulesDataTemplate}"/>
+  </Style>
+
+  <Style x:Key="HomeMediaListTemplateStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <StackPanel>
+
+            <StackPanel.IsVisible>
+              <Binding Source="{Binding Items}" Path="Count" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0"/>
+            </StackPanel.IsVisible>
+
+            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" Margin="0,10,0,-5"
+                   Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
+
+            <ListView x:Name="MediaList" HorizontalAlignment="Stretch" Margin="10"
+                      Style="{Binding Source={DynamicResource List_Style},Path=Resource}"
+                      ItemsSource="{Binding Path=Items,Mode=OneTime}"/>
+
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--+++++++++++++++++++++++++++++++++++++++-->
+  <!--++++ HOME CONTENT LIST GROUP STYLE ++++-->
+  <!--+++++++++++++++++++++++++++++++++++++++-->
+
+  <Style x:Key="MainMediaListListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate"/>
+    <!-- Don't inherit the ItemTemplate from DefaultListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,-50,-20,0"
+                        Style="{ThemeResource VerticalMediaScrollViewerStyle}" CanContentScroll="True"
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,50,20,0"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="LayoutTransform">
+      <Setter.Value>
+        <TransformGroup>
+            <ScaleTransform ScaleX="0.65" ScaleY="0.65"/>
+          </TransformGroup>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MediaListTemplateStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <StackPanel>
+            <StackPanel.IsVisible>
+              <Binding Source="{Binding AllItems}" Path="Count" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0"/>
+            </StackPanel.IsVisible>
+
+            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" Margin="0,10,0,-5"
+                   Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
+
+            <ListView x:Name="MediaList" HorizontalAlignment="Stretch" Margin="10"
+                      Style="{Binding Source={DynamicResource List_Style},Path=Resource}"
+                      ItemsSource="{Binding Path=AllItems}"/>
+
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MultipleMediaListTemplateStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+            <ListViewItem>
+              <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 DataContext="{Binding Source={DynamicResource Latest_Added_List}, Path=Resource}">
+                <Control.Resources>
+                  <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestAdded]"/>
+                  <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+                </Control.Resources>
+              </Control>
+            </ListViewItem>
+            <ListViewItem>
+              <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 DataContext="{Binding Source={DynamicResource Latest_Play_List}, Path=Resource}">
+                <Control.Resources>
+                  <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestPlayed]"/>
+                  <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+                </Control.Resources>
+              </Control>
+            </ListViewItem>
+            <ListViewItem>
+              <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 DataContext="{Binding Source={DynamicResource Favorite_List}, Path=Resource}">
+                <Control.Resources>
+                  <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Favorites]"/>
+                  <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+                </Control.Resources>
+              </Control>
+            </ListViewItem>
+          </ListView>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--+++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--++++ ACTION ID -> HOME CONTENT TEMPLATES ++++-->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++-->
+
+  <!--++++++++++ Movies +++++++++++-->
+
+  <ControlTemplate x:Key="80d2e2cc-baaa-4750-807b-f37714153751">
+    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestMovies]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayMovies]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
+                         EnableBindings="True"/>
+      </Control.Resources>
+    </Control>
+  </ControlTemplate>
+
+  <!--++++++++++ Audio +++++++++++-->
+
+  <ControlTemplate x:Key="30715d73-4205-417f-80aa-e82f0834171f">
+    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayAudio]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAudio]}"
+                         EnableBindings="True"/>
+      </Control.Resources>
+    </Control>
+  </ControlTemplate>
+
+  <!--++++++++++ Episodes +++++++++++-->
+  
+  <ControlTemplate x:Key="30f57cba-459c-4202-a587-09fff5098251">
+    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayEpisodes]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteEpisodes]}"
+                         EnableBindings="True"/>
+      </Control.Resources>
+    </Control>
+  </ControlTemplate>
+
+  <!--++++++++++ Recordings +++++++++++-->
+
+  <ControlTemplate x:Key="7f52d0a1-b7f8-46a1-a56b-1110bbfb7d51">
+    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestRecordings]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayRecordings]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteRecordings]}"
+                         EnableBindings="True"/>
+      </Control.Resources>
+    </Control>
+  </ControlTemplate>
+
+  <!--++++++++++ Images +++++++++++-->
+
+  <ControlTemplate x:Key="55556593-9fe9-436c-a3b6-a971e10c9d44">
+    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestImages]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayImages]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteImages]}"
+                         EnableBindings="True"/>
+      </Control.Resources>
+    </Control>
+  </ControlTemplate>
+
+  <!--++++++++++ Video +++++++++++-->
+
+  <ControlTemplate x:Key="a4df2df6-8d66-479a-9930-d7106525eb07">
+    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestVideo]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayVideo]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteVideo]}"
+                         EnableBindings="True"/>
+      </Control.Resources>
+    </Control>
+  </ControlTemplate>
+
+  <!--++++++++++ TV +++++++++++-->
+
+  <ControlTemplate x:Key="b4a9199f-6dd4-4bda-a077-de9c081f7703">
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <ListViewItem>
+        <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestAdded]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </ListViewItem>
+      <ListViewItem>
+        <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteTV]}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Favorites]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </ListViewItem>
+    </ListView>
+  </ControlTemplate>
+
+  <!--++++++++++ TV Guide +++++++++++-->
+
+  <ControlTemplate x:Key="a298dfbe-9da8-4c16-a3ea-a9b354f3910c">
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <ListViewItem>
+        <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentPrograms]}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[Media.CurrentPrograms]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenCurrentProgramsListViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </ListViewItem>
+    </ListView>
+  </ControlTemplate>
+
+  <!--++++++++++ Schedules +++++++++++-->
+
+  <ControlTemplate x:Key="87355e05-a15b-452a-85b8-98d4fc80034e">
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <ListViewItem>
+        <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentSchedules]}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[Media.CurrentSchedules]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenCurrentSchedulesListViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </ListViewItem>
+    </ListView>
+  </ControlTemplate>
+
+  <!--++++++++++ Weather +++++++++++-->
+
+  <ControlTemplate x:Key="e34fdb62-1f3e-4aa9-8a61-d143e0af77b5">
+    <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,30,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="30" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <Label x:Name="Temperature" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" 
+                   Content="{Binding CurrentLocation.Condition.Temperature}" HorizontalAlignment="Center"/>
+      <Label Grid.Column="2" x:Name="LocName" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Name}"/>
+      <Image Grid.Row="1" x:Name="BigIcon" Stretch="Fill" Height="175" Width="175" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
+
+      <StackPanel Grid.Row="1" Grid.Column="2">
+        <Label x:Name="Date" FontSize="{ThemeResource NormalFontSize}"
+                     Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
+        <Label x:Name="Wind" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                     Content="{Binding CurrentLocation.Condition.Wind}" Opacity="1.3"/>
+        <StackPanel Orientation="Horizontal">
+          <Label x:Name="Humidity" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                       Content="{Binding CurrentLocation.Condition.Humidity}" Opacity="1.3"/>
+          <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Content="   " Opacity="1.3"/>
+          <Label x:Name="Pressure" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                       Content="{Binding CurrentLocation.Condition.Pressure}" Opacity="1.3"/>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ News +++++++++++-->
+
+  <ControlTemplate x:Key="bb49a591-7705-408f-8177-45d633fdfad0">
+    <Grid Margin="0,30,0,0" Height="350" Width="980" HorizontalAlignment="Left" VerticalAlignment="Top"
+                DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <Label Grid.Row="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True"
+                   Content="{Binding CurrentNewsItem.Title}" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch"/>
+      <Label Grid.Row="1" Margin="0,10,0,20" x:Name="NewSummary" Wrap="True"
+                   Content="{Binding CurrentNewsItem.Summary}" HorizontalAlignment="Stretch"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+    </Grid>
+  </ControlTemplate>
+
+</ResourceDictionary>
