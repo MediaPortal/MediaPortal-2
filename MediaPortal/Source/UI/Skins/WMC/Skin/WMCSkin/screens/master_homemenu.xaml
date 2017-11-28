@@ -203,22 +203,24 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <!-- HomeContent Storyboard -->
             <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="450"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1000"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
               </DoubleAnimationUsingKeyFrames>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
-                <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="1"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
             <Storyboard x:Key="SlideOutStoryboard" FillBehavior="Stop">
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-450"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="-1000"/>
               </DoubleAnimationUsingKeyFrames>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
                 <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </Grid.Resources>
