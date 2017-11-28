@@ -152,29 +152,6 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource SchedulesDataTemplate}"/>
   </Style>
 
-  <Style x:Key="HomeMediaListTemplateStyle" TargetType="{x:Type Control}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <StackPanel>
-
-            <StackPanel.IsVisible>
-              <Binding Source="{Binding Items}" Path="Count" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0"/>
-            </StackPanel.IsVisible>
-
-            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" Margin="0,10,0,-5"
-                   Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
-
-            <ListView x:Name="MediaList" HorizontalAlignment="Stretch" Margin="10"
-                      Style="{Binding Source={DynamicResource List_Style},Path=Resource}"
-                      ItemsSource="{Binding Path=Items,Mode=OneTime}"/>
-
-          </StackPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
   <!--+++++++++++++++++++++++++++++++++++++++-->
   <!--++++ HOME CONTENT LIST GROUP STYLE ++++-->
   <!--+++++++++++++++++++++++++++++++++++++++-->
