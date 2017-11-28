@@ -195,9 +195,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="605"/>
           </Grid.RowDefinitions>
-          <Grid.RenderTransform>
-            <TranslateTransform X="0"/>
-          </Grid.RenderTransform>
 
           <Grid.Resources>
             <!-- HomeContent Storyboard -->
@@ -229,13 +226,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
                To alternate the content between HomeContent0Control and HomeContent1Control below -->
 
           <!-- Home Content 0 -->
-          
-          <Control x:Name="HomeContent0Control" HorizontalAlignment="Left" VerticalAlignment="Top"
-                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content0ActionId}}">
-            <Control.RenderTransform>
+          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.RenderTransform>
               <TranslateTransform X="1200"/>
-            </Control.RenderTransform>
-            <Control.Triggers>
+            </Grid.RenderTransform>
+            <Grid.Triggers>
               <!-- Trigger for the HomeContent Storyboard -->
               <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="0">
                 <DataTrigger.EnterActions>
@@ -246,17 +241,20 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
                 </DataTrigger.ExitActions>
               </DataTrigger>
-            </Control.Triggers>
-          </Control>
+            </Grid.Triggers>
+            
+            <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content0ActionId}}"/>
+            
+          </Grid>
 
           <!-- Home Content 1 -->
 
-          <Control x:Name="HomeContent1Control" HorizontalAlignment="Left" VerticalAlignment="Top"
-                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content1ActionId}}">
-            <Control.RenderTransform>
+          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.RenderTransform>
               <TranslateTransform X="1200"/>
-            </Control.RenderTransform>
-            <Control.Triggers>
+            </Grid.RenderTransform>
+            <Grid.Triggers>
               <!-- Trigger for the HomeContent Storyboard -->
               <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="1">
                 <DataTrigger.EnterActions>
@@ -267,8 +265,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
                 </DataTrigger.ExitActions>
               </DataTrigger>
-            </Control.Triggers>
-          </Control>
+            </Grid.Triggers>
+            
+            <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content1ActionId}}"/>
+            
+          </Grid>
 
         </Grid>
         
