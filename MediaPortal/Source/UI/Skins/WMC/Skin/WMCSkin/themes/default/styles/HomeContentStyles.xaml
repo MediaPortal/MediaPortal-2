@@ -53,37 +53,39 @@
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Height="{StaticResource VIDEO_GRID_HEIGHT}"
              Wrap="True" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Width="{StaticResource VIDEO_GRID_WIDTH}"
              HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding Channel.Name}"
-             Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+             Color="Black" FontSize="{ThemeResource HomeContentFontSize}" Margin="5"/>
     </Grid>
   </DataTemplate>
 
   <DataTemplate x:Key="ProgramsDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Grid.Background>
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch">
+      <!--Grid.Background>
         <VisualBrush.Visual>
           <Border Background="White" CornerRadius="3" BorderThickness="0" BorderBrush="Black"/>
         </VisualBrush.Visual>
-      </Grid.Background>
+      </Grid.Background-->
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="15*"/>
-        <ColumnDefinition Width="75*"/>
+        <ColumnDefinition Width="14*"/>
+        <ColumnDefinition Width="74*"/>
         <ColumnDefinition Width="10*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="60"/>
-        <RowDefinition Height="60"/>
+        <RowDefinition Height="65"/>
+        <RowDefinition Height="65"/>
       </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5" Grid.RowSpan="2" VerticalAlignment="Center" >
+      <Border Background="Black" CornerRadius="5" BorderThickness="0" Opacity="0.2" HorizontalAlignment="Stretch" 
+              Grid.ColumnSpan="3" Grid.RowSpan="2" VerticalAlignment="Stretch"/>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="10" Grid.RowSpan="2" VerticalAlignment="Center" >
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="3" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
-             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
-      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="3" Content="{Binding Program.StartTime}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
-      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="85" Height="85" Grid.Column="2" Margin="3" Grid.RowSpan="2">
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,1,0,0" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" />
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,0,0,1" Content="{Binding Program.StartTime}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" />
+      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="95" Height="95" Grid.Column="2" Margin="3" Grid.RowSpan="2">
         <Image.Source>
           <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
         </Image.Source>
@@ -189,7 +191,6 @@
               </EventTrigger>
             </AnimatedStackPanel.Triggers>
           </AnimatedStackPanel>
-          <!--StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/-->
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -416,7 +417,7 @@
   <!--++++++++++ Weather +++++++++++-->
 
   <ControlTemplate x:Key="e34fdb62-1f3e-4aa9-8a61-d143e0af77b5">
-    <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,30,0,0">
+    <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,70,0,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto" />
         <ColumnDefinition Width="30" />
@@ -428,22 +429,22 @@
       </Grid.RowDefinitions>
 
       <Label x:Name="Temperature" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" 
-                   Content="{Binding CurrentLocation.Condition.Temperature}" HorizontalAlignment="Center"/>
+             Content="{Binding CurrentLocation.Condition.Temperature}" HorizontalAlignment="Center"/>
       <Label Grid.Column="2" x:Name="LocName" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Name}"/>
       <Image Grid.Row="1" x:Name="BigIcon" Stretch="Fill" Height="175" Width="175" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
+             Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
 
       <StackPanel Grid.Row="1" Grid.Column="2">
         <Label x:Name="Date" FontSize="{ThemeResource NormalFontSize}"
-                     Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
         <Label x:Name="Wind" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
-                     Content="{Binding CurrentLocation.Condition.Wind}" Opacity="1.3"/>
+               Content="{Binding CurrentLocation.Condition.Wind}" Opacity="1.3"/>
         <StackPanel Orientation="Horizontal">
           <Label x:Name="Humidity" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
-                       Content="{Binding CurrentLocation.Condition.Humidity}" Opacity="1.3"/>
+                 Content="{Binding CurrentLocation.Condition.Humidity}" Opacity="1.3"/>
           <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Content="   " Opacity="1.3"/>
           <Label x:Name="Pressure" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
-                       Content="{Binding CurrentLocation.Condition.Pressure}" Opacity="1.3"/>
+                 Content="{Binding CurrentLocation.Condition.Pressure}" Opacity="1.3"/>
         </StackPanel>
       </StackPanel>
     </Grid>
@@ -452,8 +453,8 @@
   <!--++++++++++ News +++++++++++-->
 
   <ControlTemplate x:Key="bb49a591-7705-408f-8177-45d633fdfad0">
-    <Grid Margin="0,30,0,0" Height="350" Width="980" HorizontalAlignment="Left" VerticalAlignment="Top"
-                DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
+    <Grid Margin="0,70,0,0" Height="350" Width="980" HorizontalAlignment="Left" VerticalAlignment="Top"
+          DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
@@ -464,10 +465,10 @@
       </Grid.RowDefinitions>
 
       <Label Grid.Row="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True"
-                   Content="{Binding CurrentNewsItem.Title}" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch"/>
+             Content="{Binding CurrentNewsItem.Title}" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch"/>
       <Label Grid.Row="1" Margin="0,10,0,20" x:Name="NewSummary" Wrap="True"
-                   Content="{Binding CurrentNewsItem.Summary}" HorizontalAlignment="Stretch"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+             Content="{Binding CurrentNewsItem.Summary}" HorizontalAlignment="Stretch" Opacity="1.3"
+             Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </ControlTemplate>
 
