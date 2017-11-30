@@ -5,6 +5,7 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
     DependsOnStyleResources="Colors,Consts,OtherControlsOverrides,OtherControls,MediaStyles"
     >
 
@@ -308,6 +309,9 @@
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteEpisodes]}"
                          EnableBindings="True"/>
+        <DataTemplate DataType="{x:Type navitems:EpisodeItem}">
+          <Control Template="{StaticResource GridViewEpisodeItemSmallTemplate}"/>
+        </DataTemplate>
       </Control.Resources>
     </Control>
   </ControlTemplate>

@@ -49,6 +49,9 @@
     <ResourceWrapper x:Key="VIDEO_GRID_WIDTH" Resource="263"/>
     <ResourceWrapper x:Key="VIDEO_GRID_HEIGHT" Resource="162"/>
 
+    <ResourceWrapper x:Key="VIDEO_GRID_WIDTH_S" Resource="171"/>
+    <ResourceWrapper x:Key="VIDEO_GRID_HEIGHT_S" Resource="105"/>
+
     <ResourceWrapper x:Key="VIDEO_COVER_WIDTH" Resource="260"/>
     <ResourceWrapper x:Key="VIDEO_COVER_HEIGHT" Resource="390"/>
 

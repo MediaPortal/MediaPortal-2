@@ -1837,13 +1837,13 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewEpisodeItemTemplate">
-    <Grid x:Name="ItemControl">
+  <ControlTemplate x:Key="GridViewEpisodeContentTemplate">
+    <Grid>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Image x:Name="thumb" Stretch="UniformToFill" Margin="1" Source="{Binding MediaItem}">
         <Image.OpacityMask>
@@ -1854,8 +1854,7 @@
           </VisualBrush>
         </Image.OpacityMask>
       </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
-              Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}"
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0"
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
@@ -1864,13 +1863,36 @@
           </LinearGradientBrush>
         </Border.Background>
       </Border>
-      <Image Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}"
-             Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       <!-- watched indicator -->
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GridViewEpisodeItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
+      </Grid.RowDefinitions>
+      <Control Template="{StaticResource GridViewEpisodeContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GridViewEpisodeItemSmallTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH_S}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
+      </Grid.RowDefinitions>
+      <Control Template="{StaticResource GridViewEpisodeContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Grid>
   </ControlTemplate>
 
