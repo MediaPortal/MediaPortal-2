@@ -188,7 +188,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Control.TemplateControl>
         </Control>
 
-        <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-110,50,0">
+        <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-140,50,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1000"/>
           </Grid.ColumnDefinitions>
@@ -226,7 +226,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
                To alternate the content between HomeContent0Control and HomeContent1Control below -->
 
           <!-- Home Content 0 -->
-          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TranslateTransform X="1200"/>
             </Grid.RenderTransform>
@@ -242,7 +248,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </DataTrigger.ExitActions>
               </DataTrigger>
             </Grid.Triggers>
-            
+
             <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                    Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content0ActionId}}"/>
             
@@ -250,7 +256,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <!-- Home Content 1 -->
 
-          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TranslateTransform X="1200"/>
             </Grid.RenderTransform>
@@ -266,7 +278,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </DataTrigger.ExitActions>
               </DataTrigger>
             </Grid.Triggers>
-            
+
             <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                    Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content1ActionId}}"/>
             
