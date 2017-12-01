@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
@@ -73,17 +74,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
 
     public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
     {
+      changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
       if (_schedule != null)
       {
         var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
         if (tvHandler != null && !tvHandler.ScheduleControl.RemoveSchedule(_schedule))
-        {
-          changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
           return false;
-        }
       }
-      var result = base.Process(mediaItem, out changeType);
-      return result;
+
+      // When the recording is stopped, it will be imported into library. This can lead to locked files by MetaDataExtractors.
+      // So we allow a 2nd try after a small delay here.
+      for (int i = 2; i > 0; i--)
+      {
+        if (base.Process(mediaItem, out changeType))
+          return true;
+
+        Thread.Sleep(1000);
+      }
+      return false;
     }
 
     public override string ConfirmationMessage
