@@ -279,9 +279,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (scheduleControl != null)
       {
         RecordingStatus? recordingStatus = GetRecordingStatus(program);
-        if (!recordingStatus.HasValue)
-          return null;
-        if (recordingStatus.Value.HasFlag(RecordingStatus.Scheduled) || recordingStatus.Value.HasFlag(RecordingStatus.SeriesScheduled))
+        if (recordingStatus.HasValue && (recordingStatus.Value.HasFlag(RecordingStatus.Scheduled) || recordingStatus.Value.HasFlag(RecordingStatus.SeriesScheduled)))
         {
           if (scheduleControl.RemoveScheduleForProgram(program, recordingType))
             newStatus = RecordingStatus.None;
@@ -292,6 +290,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           if (scheduleControl.CreateSchedule(program, recordingType, out schedule))
             newStatus = recordingType == ScheduleRecordingType.Once ? RecordingStatus.Scheduled : RecordingStatus.SeriesScheduled;
         }
+      }
+      return newStatus;
+    }
+
+    protected virtual RecordingStatus? CreateOrDeleteScheduleByTime(IChannel program, DateTime start, DateTime end)
+    {
+      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      RecordingStatus? newStatus = null;
+      if (scheduleControl != null)
+      {
+        ISchedule schedule;
+        if (scheduleControl.CreateScheduleByTime(program, start, end, ScheduleRecordingType.Once, out schedule))
+          newStatus = RecordingStatus.Scheduled;
       }
       return newStatus;
     }

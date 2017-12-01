@@ -624,13 +624,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.RecordManual]")
         {
-          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(new Program
-          {
-            Title = localization.ToString("[SlimTvClient.ManualRecordingTitle]"),
-            ChannelId = context.Channel.ChannelId,
-            StartTime = DateTime.Now,
-            EndTime = DateTime.Now.AddDays(1)
-          }))
+          Command = new MethodDelegateCommand(() => CreateOrDeleteScheduleByTime(context.Channel, DateTime.Now, DateTime.Now.AddDays(1)))
         };
         _dialogActionsList.Add(item);
       }
