@@ -32,10 +32,10 @@
   <DataTemplate x:Key="ChannelDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource CHANNEL_GRID_WIDTH_S}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
+        <RowDefinition Height="{StaticResource CHANNEL_GRID_HEIGHT_S}"/>
       </Grid.RowDefinitions>
       <Grid.OpacityMask>
         <VisualBrush>
@@ -48,13 +48,13 @@
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
-                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource CHANNEL_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource CHANNEL_GRID_HEIGHT_S}"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Height="{StaticResource VIDEO_GRID_HEIGHT}"
-             Wrap="True" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Width="{StaticResource VIDEO_GRID_WIDTH}"
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}"
+             Wrap="True" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Width="{StaticResource CHANNEL_GRID_WIDTH_S}"
              HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding Channel.Name}"
-             Color="Black" FontSize="{ThemeResource HomeContentFontSize}" Margin="5"/>
+             Color="Black" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
     </Grid>
   </DataTemplate>
 
@@ -79,13 +79,13 @@
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="10" Grid.RowSpan="2" VerticalAlignment="Center" >
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
-                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
         </Image.Source>
       </Image>
       <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,1,0,0" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
-             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" />
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
       <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,0,0,1" Content="{Binding Program.StartTime}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" />
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
       <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="95" Height="95" Grid.Column="2" Margin="3" Grid.RowSpan="2">
         <Image.Source>
           <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
@@ -105,12 +105,12 @@
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
-                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
         </Image.Source>
       </Image>
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" 
              TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding Channel.Name}" Color="Black" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+             Content="{Binding Channel.Name}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
     </Grid>
   </DataTemplate>
 
@@ -165,10 +165,10 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,-50,-20,0" Height="938" Width="1538"
+          <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,-40,-20,0"
                         Style="{ThemeResource VerticalMediaScrollViewerStyle}" CanContentScroll="True"
                         HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,50,20,0"/>
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,40,20,0"/>
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
@@ -198,7 +198,7 @@
     <Setter Property="LayoutTransform">
       <Setter.Value>
         <TransformGroup>
-            <ScaleTransform ScaleX="0.65" ScaleY="0.65"/>
+            <ScaleTransform ScaleX="1" ScaleY="1"/>
           </TransformGroup>
       </Setter.Value>
     </Setter>
@@ -213,7 +213,7 @@
               <Binding Source="{Binding AllItems}" Path="Count" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0"/>
             </StackPanel.IsVisible>
 
-            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource HomeContentFontSize}" Margin="0,10,0,-5"
+            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,10,0,-6"
                    Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
 
             <ListView x:Name="MediaList" HorizontalAlignment="Stretch" Margin="10"
@@ -279,6 +279,9 @@
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
                          EnableBindings="True"/>
+        <DataTemplate DataType="{x:Type navitems:MovieItem}">
+          <Control Template="{StaticResource GridViewMovieItemSmallTemplate}"/>
+        </DataTemplate>
       </Control.Resources>
     </Control>
   </ControlTemplate>
@@ -294,6 +297,9 @@
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAudio]}"
                          EnableBindings="True"/>
+        <DataTemplate DataType="{x:Type navitems:AudioItem}">
+          <Control Template="{StaticResource GridViewAudioItemSmallTemplate}"/>
+        </DataTemplate>
       </Control.Resources>
     </Control>
   </ControlTemplate>
