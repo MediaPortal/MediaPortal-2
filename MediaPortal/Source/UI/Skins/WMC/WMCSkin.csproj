@@ -70,6 +70,8 @@
     <Compile Include="Controls\SubItemsContentPresenter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
+    <Compile Include="MarkupExtensions\DynamicResourceBindingExtension.cs" />
+    <Compile Include="Models\HomeContentModel.cs" />
     <Compile Include="Models\HomeMenuActionProxy.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\NavigationList.cs" />
@@ -655,7 +657,9 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeEpisodeDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\WMCSkin\screens\MediaItemHomeAudioDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeAudioDetails.inc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeImageDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListAudioAlbumDetails.inc">
       <SubType>Designer</SubType>
@@ -673,6 +677,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeOthersDetails.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemSeasonDetails.inc" />
@@ -1219,6 +1226,11 @@
   <ItemGroup>
     <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\styles\Colors.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\HomeContentStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

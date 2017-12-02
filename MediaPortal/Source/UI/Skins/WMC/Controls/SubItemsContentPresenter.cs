@@ -34,7 +34,19 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
 {
   public class SubItemsContentPresenter : AnimatedScrollContentPresenter
   {
-    protected AbstractProperty _currentIndexProperty = new SProperty(typeof(int), 0);
+    public const string CURRENT_INDEX_CHANGED_EVENT = "AnimatedScrollContentPresenter.CurrentIndexChanged";
+
+    protected AbstractProperty _currentIndexProperty;
+
+    public SubItemsContentPresenter()
+    {
+      Init();
+    }
+
+    void Init()
+    {
+      _currentIndexProperty = new SProperty(typeof(int), 0);
+    }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -60,6 +72,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
       if (AutoCentering != ScrollAutoCenteringEnum.None && IsMouseOverElement(element) && !ShouldBringIntoView(element))
         return;
       UpdateCurrentIndex(element);
+      FireEvent(CURRENT_INDEX_CHANGED_EVENT, RoutingStrategyEnum.Bubble);
       base.BringIntoView(element, elementBounds);
     }
 

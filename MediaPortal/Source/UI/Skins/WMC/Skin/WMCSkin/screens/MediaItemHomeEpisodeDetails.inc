@@ -17,7 +17,7 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="480"/>
+    <ColumnDefinition Width="700"/>
   </Grid.ColumnDefinitions>
 
   <StackPanel Orientation="Vertical" Margin="0,0,30,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

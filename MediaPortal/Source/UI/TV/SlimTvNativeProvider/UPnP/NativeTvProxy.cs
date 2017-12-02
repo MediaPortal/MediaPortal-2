@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
@@ -52,7 +53,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
     protected readonly IChannel[] _channels = new IChannel[2];
     protected readonly object _syncObj = new object();
     protected readonly ProgramCache _programCache = new ProgramCache();
-    protected Dictionary<int, IChannel> _channelCache = new Dictionary<int, IChannel>();
+    protected IDictionary<int, IChannel> _channelCache = new ConcurrentDictionary<int, IChannel>();
 
     #endregion
 

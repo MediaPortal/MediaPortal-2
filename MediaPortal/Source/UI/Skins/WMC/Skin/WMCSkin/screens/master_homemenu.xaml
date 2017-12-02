@@ -32,6 +32,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_home.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:wmc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Controls;assembly=WMCSkin"
+    xmlns:wmc_markup_extensions="clr-namespace:MediaPortal.UiComponents.WMCSkin.MarkupExtensions;assembly=WMCSkin"
     >
   <Include.Resources>
 
@@ -39,17 +41,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
     </ControlTemplate>
 
-    <ResourceWrapper x:Key="HomeScreenMediaItemStyle" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
-    <ResourceWrapper x:Key="HomeScreenChannelStyle" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
-    <ResourceWrapper x:Key="HomeScreenProgramsStyle" Resource="{ThemeResource HomeScreenCurrentProgramsListViewStyle}"/>
-    <ResourceWrapper x:Key="HomeScreenSchedulesStyle" Resource="{ThemeResource HomeScreenCurrentSchedulesListViewStyle}"/>
-    <ResourceWrapper x:Key="HomeScreenCurrentProgramsLabel" Resource="[Media.CurrentPrograms]"/>
-    <ResourceWrapper x:Key="HomeScreenCurrentSchedulesLabel" Resource="[Media.CurrentSchedules]"/>
-
     <!-- Background Manager for menu hovers -->
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
-    <Model x:Key="MediaListModel" Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414"/>
+    <Model x:Key="HomeContentModel" Id="24BB1BBE-A3B3-474A-8D55-C37EBE182F6C"/>
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
@@ -101,20 +96,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <TranslateTransform Y="0"/>
           </Grid.RenderTransform>
 
-          <Grid.Resources>
-            <!-- HomeContent Storyboard -->
-            <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="450"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
-              </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HomeContent" Storyboard.TargetProperty="Opacity">
-                <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="1"/>
-              </DoubleAnimationUsingKeyFrames>
-            </Storyboard>
-          </Grid.Resources>
-
           <Grid.Triggers>
             <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableSubMenuAnimations}" Value="True">
               <DataTrigger.EnterActions>
@@ -150,13 +131,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <StopStoryboard BeginStoryboardName="BeginTransformUpAnimation" />
               </MultiTrigger.ExitActions>
             </MultiTrigger>
-
-            <!-- Trigger for the HomeContent Storyboard -->
-            <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-              <EventTrigger.Actions>
-                <BeginStoryboard Storyboard="{StaticResource SlideInStoryboard}"/>
-              </EventTrigger.Actions>
-            </EventTrigger>
 
           </Grid.Triggers>
 
@@ -214,212 +188,102 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Control.TemplateControl>
         </Control>
 
-        <Grid Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-110,50,0">
+        <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-150,50,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1000"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="605"/>
+            <RowDefinition Height="615"/>
           </Grid.RowDefinitions>
 
-          <ScrollViewer x:Name="HomeContent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        Margin="-20,-50,0,0" Style="{ThemeResource VerticalMediaScrollViewerStyle}" CanContentScroll="True"
-                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
-            <ScrollViewer.RenderTransform>
-              <TranslateTransform X="0"/>
-            </ScrollViewer.RenderTransform>
+          <Grid.Resources>
+            <!-- HomeContent Storyboard -->
+            <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1000"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="1"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <Storyboard x:Key="SlideOutStoryboard" FillBehavior="Stop">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="-1000"/>
+              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
+                <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+          </Grid.Resources>
+          
+          <!-- To allow the next home content to slide in whilst the previous slides out we use the HomeContentModel
+               To alternate the content between HomeContent0Control and HomeContent1Control below -->
 
-            <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="0,350,0,350" Margin="20,-300,0,-350"
-                                DataContext="{Binding Source={StaticResource MediaListModel}}">
-              <AnimatedStackPanel.Resources>
-                <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                  <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
-                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
-                </Storyboard>
-              </AnimatedStackPanel.Resources>
-              <AnimatedStackPanel.Triggers>
-                <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
-                  <EventTrigger.Actions>
-                    <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
-                  </EventTrigger.Actions>
-                </EventTrigger>
-              </AnimatedStackPanel.Triggers>
-              
-            <!-- LATEST ADDED -->
-                <StackPanel>
-                <Label x:Name="LatestAddedLabel" Content="[Media.LatestAdded]" 
-                     FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0"/>
-                  <ListView x:Name="Latest" Style="{ThemeResource HomeScreenMediaItemViewStyle}" HorizontalAlignment="Left">
-                    <ListView.ItemsSource>
-                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : ({0} == {11} ? {12} : {13}))))))">
-                        <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
-                        <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
-                        <Binding Source="{Binding Lists[LatestMovies].AllItems}"/>
-                        <Binding Source="30715d73-4205-417f-80aa-e82f0834171f"/>
-                        <Binding Source="{Binding Lists[LatestAudio].AllItems}"/>
-                        <Binding Source="30f57cba-459c-4202-a587-09fff5098251"/>
-                        <Binding Source="{Binding Lists[LatestEpisodes].AllItems}"/>
-                        <Binding Source="7f52d0a1-b7f8-46a1-a56b-1110bbfb7d51"/>
-                        <Binding Source="{Binding Lists[LatestRecordings].AllItems}"/>
-                        <Binding Source="55556593-9fe9-436c-a3b6-a971e10c9d44"/>
-                        <Binding Source="{Binding Lists[LatestImages].AllItems}"/>
-                        <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
-                        <Binding Source="{Binding Lists[LatestVideo].AllItems}"/>
-                        <Binding Source=""/>
-                      </MultiBinding>
-                    </ListView.ItemsSource>
-                    <ListView.Resources>
-                      <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-                    </ListView.Resources>
-                    <ListView.Triggers>
-                      <Trigger Property="IsEmpty" Value="True">
-                        <Setter TargetName="LatestAddedLabel" Property="IsVisible" Value="False" />
-                      </Trigger>
-                    </ListView.Triggers>
-                  </ListView>
-                </StackPanel>
+          <!-- Home Content 0 -->
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TranslateTransform X="1200"/>
+            </Grid.RenderTransform>
+            <Grid.Triggers>
+              <!-- Trigger for the HomeContent Storyboard -->
+              <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="0">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="Content0BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="Content0BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                  <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </Grid.Triggers>
 
-                <!-- LATEST PLAYED -->
-                <StackPanel>
-                  <Label x:Name="LatestPlayedLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
-                     FontFamily="SegoeUIBold" Content="[Media.LatestPlayed]" Margin="0,20,0,0"/>
-                  <ListView x:Name="LatestPlayed" HorizontalAlignment="Left">
-                    <ListView.Style>
-                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}({0} == {1} ? {2} : {3})">
-                        <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
-                        <Binding Source="b4a9199f-6dd4-4bda-a077-de9c081f7703"/>
-                        <Binding Source="{StaticResource HomeScreenChannelStyle}" Path="Resource"/>
-                        <Binding Source="{StaticResource HomeScreenMediaItemStyle}" Path="Resource"/>
-                      </MultiBinding>
-                    </ListView.Style>
-                    <ListView.ItemsSource>
-                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : ({0} == {11} ? {12} : ({0} == {13} ? {14} : {15})))))))">
-                        <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
-                        <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
-                        <Binding Source="{Binding Lists[LastPlayMovies].AllItems}"/>
-                        <Binding Source="30715d73-4205-417f-80aa-e82f0834171f"/>
-                        <Binding Source="{Binding Lists[LastPlayAudio].AllItems}"/>
-                        <Binding Source="30f57cba-459c-4202-a587-09fff5098251"/>
-                        <Binding Source="{Binding Lists[LastPlayEpisodes].AllItems}"/>
-                        <Binding Source="7f52d0a1-b7f8-46a1-a56b-1110bbfb7d51"/>
-                        <Binding Source="{Binding Lists[LastPlayRecordings].AllItems}"/>
-                        <Binding Source="55556593-9fe9-436c-a3b6-a971e10c9d44"/>
-                        <Binding Source="{Binding Lists[LastPlayImages].AllItems}"/>
-                        <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
-                        <Binding Source="{Binding Lists[LastPlayVideo].AllItems}"/>
-                        <Binding Source="b4a9199f-6dd4-4bda-a077-de9c081f7703"/>
-                        <Binding Source="{Binding Lists[LastPlayTV].AllItems}"/>
-                        <Binding Source=""/>
-                      </MultiBinding>
-                    </ListView.ItemsSource>
-                    <ListView.Resources>
-                      <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-                    </ListView.Resources>
-                    <ListView.Triggers>
-                      <Trigger Property="IsEmpty" Value="True">
-                        <Setter TargetName="LatestPlayedLabel" Property="Visibility" Value="Hidden" />
-                      </Trigger>
-                    </ListView.Triggers>
-                  </ListView>
-                </StackPanel>
+            <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content0ActionId}}"/>
+            
+          </Grid>
 
-                <!-- FAVORITES -->
-                <StackPanel>
-                <Label x:Name="FavoriteLabel" Content="[Media.Favorites]" Color="{ThemeResource TextColor}" 
-                     FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0"/>
-                  <ListView x:Name="Favorits" HorizontalAlignment="Left">
-                    <ListView.Style>
-                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}({0} == {1} ? {2} : {3})">
-                        <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
-                        <Binding Source="b4a9199f-6dd4-4bda-a077-de9c081f7703"/>
-                        <Binding Source="{StaticResource HomeScreenChannelStyle}" Path="Resource"/>
-                        <Binding Source="{StaticResource HomeScreenMediaItemStyle}" Path="Resource"/>
-                      </MultiBinding>
-                    </ListView.Style>
-                    <ListView.ItemsSource>
-                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : ({0} == {5} ? {6} : ({0} == {7} ? {8} : ({0} == {9} ? {10} : ({0} == {11} ? {12} : ({0} == {13} ? {14} : {15})))))))">
-                        <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
-                        <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
-                        <Binding Source="{Binding Lists[FavoriteMovies].AllItems}"/>
-                        <Binding Source="30715d73-4205-417f-80aa-e82f0834171f"/>
-                        <Binding Source="{Binding Lists[FavoriteAudio].AllItems}"/>
-                        <Binding Source="30f57cba-459c-4202-a587-09fff5098251"/>
-                        <Binding Source="{Binding Lists[FavoriteEpisodes].AllItems}"/>
-                        <Binding Source="7f52d0a1-b7f8-46a1-a56b-1110bbfb7d51"/>
-                        <Binding Source="{Binding Lists[FavoriteRecordings].AllItems}"/>
-                        <Binding Source="55556593-9fe9-436c-a3b6-a971e10c9d44"/>
-                        <Binding Source="{Binding Lists[FavoriteImages].AllItems}"/>
-                        <Binding Source="80d2e2cc-baaa-4750-807b-f37714153751"/>
-                        <Binding Source="{Binding Lists[FavoriteVideo].AllItems}"/>
-                        <Binding Source="b4a9199f-6dd4-4bda-a077-de9c081f7703"/>
-                        <Binding Source="{Binding Lists[FavoriteTV].AllItems}"/>
-                        <Binding Source=""/>
-                      </MultiBinding>
-                    </ListView.ItemsSource>
-                    <ListView.Resources>
-                      <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-                    </ListView.Resources>
-                    <ListView.Triggers>
-                      <Trigger Property="IsEmpty" Value="True">
-                        <Setter TargetName="FavoriteLabel" Property="Visibility" Value="Hidden" />
-                      </Trigger>
-                    </ListView.Triggers>
-                  </ListView>
-                </StackPanel>
+          <!-- Home Content 1 -->
 
-              <!-- CURRENT PROGRAM AND SCHEDULE -->
-              <StackPanel HorizontalAlignment="Stretch">
-                <Label x:Name="CurrentProgramLabel" Color="{ThemeResource TextColor}" 
-                       FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0">
-                  <Label.Content>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                                  ConverterParameter="{}({0} == {1} ? {2} : {3})">
-                      <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
-                      <Binding Source="a298dfbe-9da8-4c16-a3ea-a9b354f3910c"/>
-                      <Binding Source="{StaticResource HomeScreenCurrentProgramsLabel}" Path="Resource"/>
-                      <Binding Source="{StaticResource HomeScreenCurrentSchedulesLabel}" Path="Resource"/>
-                    </MultiBinding>
-                  </Label.Content>
-                </Label>
-                <ListView x:Name="CurrentProgram" HorizontalAlignment="Left">
-                  <ListView.Style>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                                  ConverterParameter="{}({0} == {1} ? {2} : {3})">
-                      <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
-                      <Binding Source="a298dfbe-9da8-4c16-a3ea-a9b354f3910c"/>
-                      <Binding Source="{StaticResource HomeScreenProgramsStyle}" Path="Resource"/>
-                      <Binding Source="{StaticResource HomeScreenSchedulesStyle}" Path="Resource"/>
-                    </MultiBinding>
-                  </ListView.Style>
-                  <ListView.ItemsSource>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                                  ConverterParameter="{}({0} == {1} ? {2} : ({0} == {3} ? {4} : {5}))">
-                      <Binding Source="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItem}" Path="AdditionalProperties[HomeMenuModel: ActionId]"/>
-                      <Binding Source="a298dfbe-9da8-4c16-a3ea-a9b354f3910c"/>
-                      <Binding Source="{Binding Lists[CurrentPrograms].AllItems}"/>
-                      <Binding Source="87355e05-a15b-452a-85b8-98d4fc80034e"/>
-                      <Binding Source="{Binding Lists[CurrentSchedules].AllItems}"/>
-                      <Binding Source=""/>
-                    </MultiBinding>
-                  </ListView.ItemsSource>
-                  <ListView.Resources>
-                    <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-                  </ListView.Resources>
-                  <ListView.Triggers>
-                    <Trigger Property="IsEmpty" Value="True">
-                      <Setter TargetName="CurrentProgramLabel" Property="Visibility" Value="Hidden" />
-                    </Trigger>
-                  </ListView.Triggers>
-                </ListView>
-              </StackPanel>
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TranslateTransform X="1200"/>
+            </Grid.RenderTransform>
+            <Grid.Triggers>
+              <!-- Trigger for the HomeContent Storyboard -->
+              <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="1">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="Content1BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                  <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </Grid.Triggers>
 
-            </AnimatedStackPanel>
-          </ScrollViewer>
+            <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content1ActionId}}"/>
+            
+          </Grid>
+
         </Grid>
         
         <Grid x:Name="LeftButtonGrid" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,-140" Panel.ZIndex="1000"
@@ -434,8 +298,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNextSubItem}"/>
         </Grid>
 
-        <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}"/>
-        <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}"/>
+        <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
+        <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
 
       </Grid>
     </ControlTemplate>

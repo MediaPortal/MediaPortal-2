@@ -219,10 +219,13 @@ namespace MediaPortal.UI.Players.BassPlayer
     protected void NotifyPlayback()
     {
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      double playPercentage = CurrentTime.TotalSeconds / Duration.TotalSeconds;
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
+      int playPercentage = GetCurrentPlayPercentage();
       bool played = playPercentage >= settings.WatchedPlayPercentage;
+      if (played)
+        playPercentage = 100;
+
       if (_mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
       {
         IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
@@ -231,13 +234,22 @@ namespace MediaPortal.UI.Players.BassPlayer
         {
           bool updateLastPlayed = (played || playPercentage >= PLAY_THRESHOLD_PERCENT || CurrentTime.TotalSeconds >= PLAY_THRESHOLD_SEC);
           if (cd != null)
-            cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, _mediaItemId.Value, Convert.ToInt32(playPercentage), updateLastPlayed);
+            cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, _mediaItemId.Value, playPercentage, updateLastPlayed);
         }
         else if (cd != null)
         {
           cd.NotifyPlayback(_mediaItemId.Value, played);
         }
       }
+    }
+
+    protected int GetCurrentPlayPercentage()
+    {
+      double total = Duration.TotalSeconds;
+      if (total == 0)
+        return 0;
+      double current = CurrentTime.TotalSeconds;
+      return (int)(100 * current / total);
     }
 
     #endregion

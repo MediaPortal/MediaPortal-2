@@ -12,7 +12,7 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="480"/>
+    <ColumnDefinition Width="700"/>
   </Grid.ColumnDefinitions>
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>

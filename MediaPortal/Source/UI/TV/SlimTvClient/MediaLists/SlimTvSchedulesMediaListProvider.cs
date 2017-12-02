@@ -23,36 +23,25 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Common.Commands;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.MediaLists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.Common.Commands;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public class SlimTvSchedulesMediaListProvider : IMediaListProvider
+  public class SlimTvSchedulesMediaListProvider : SlimTvMediaListProviderBase
   {
-    protected ITvHandler _tvHandler;
-    protected object _syncLock = new object();
+    ICollection<Tuple<ISchedule, IChannel>> _currentSchedules = new List<Tuple<ISchedule, IChannel>>();
 
-    public SlimTvSchedulesMediaListProvider()
+    private ListItem CreateScheduleItem(ISchedule schedule, IChannel channel)
     {
-      AllItems = new ItemsList();
-    }
-
-    public ItemsList AllItems { get; private set; }
-
-    private ListItem CreateScheduleItem(ISchedule schedule)
-    {
-      ISchedule currentSchedule = schedule;
-      IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelId == currentSchedule.ChannelId && c.MediaType == MediaType.TV);
       ListItem item = null;
       if (channel != null)
       {
@@ -66,9 +55,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
             Command = new MethodDelegateCommand(() => ShowSchedules()),
           };
           item.SetLabel("Name", schedule.Name);
-        }       
+        }
       }
-      if(item == null)
+      if (item == null)
       {
         item = new ListItem("Name", schedule.Name)
         {
@@ -79,20 +68,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       item.SetLabel("StartTime", schedule.StartTime.FormatProgramStartTime());
       item.SetLabel("EndTime", schedule.EndTime.FormatProgramEndTime());
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
-      item.AdditionalProperties["SCHEDULE"] = currentSchedule;
+      item.AdditionalProperties["SCHEDULE"] = schedule;
       return item;
     }
 
-    private int ChannelAndProgramStartTimeComparison(ListItem p1, ListItem p2)
+    private int ChannelAndProgramStartTimeComparison(Tuple<ISchedule, IChannel> p1, Tuple<ISchedule, IChannel> p2)
     {
-      var schedule1 = ((ISchedule)p1.AdditionalProperties["SCHEDULE"]);
-      var schedule2 = ((ISchedule)p2.AdditionalProperties["SCHEDULE"]);
+      var schedule1 = p1.Item1;
+      var schedule2 = p2.Item1;
 
       // The "Once" schedule should appear first
       if (schedule1.RecordingType == ScheduleRecordingType.Once && schedule2.RecordingType != ScheduleRecordingType.Once)
         return -1;
       if (schedule1.RecordingType != ScheduleRecordingType.Once && schedule2.RecordingType == ScheduleRecordingType.Once)
-        return +1;
+        return 1;
 
       int res;
       if (schedule1.RecordingType == ScheduleRecordingType.Once && schedule2.RecordingType == ScheduleRecordingType.Once)
@@ -106,8 +95,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       if (res != 0)
         return res;
 
-      string channel1Name = p1.Labels["ChannelName"].Evaluate();
-      string channel2Name = p2.Labels["ChannelName"].Evaluate();
+      string channel1Name = p1.Item2 != null ? p1.Item2.Name : string.Empty;
+      string channel2Name = p2.Item2 != null ? p2.Item2.Name : string.Empty;
       return String.Compare(channel1Name, channel2Name, StringComparison.InvariantCultureIgnoreCase);
     }
 
@@ -118,52 +107,40 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       workflowManager.NavigatePush(WF_STATE_ID_SCHEDULE_LIST);
     }
 
-    public bool UpdateItems(int maxItems, UpdateReason updateReason)
+    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
     {
-      if (_tvHandler == null)
-      {
-        ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
-        tvHandler.Initialize();
-        if (tvHandler.ChannelAndGroupInfo == null)
-          return false;
-        _tvHandler = tvHandler;
-      }
-
-      if (_tvHandler.ScheduleControl == null)
+      if (!TryInitTvHandler() || _tvHandler.ScheduleControl == null)
         return false;
 
-      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-          (updateReason & UpdateReason.PeriodicMinute) == UpdateReason.PeriodicMinute)
+      if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
+        return true;
+
+      IList<ISchedule> schedules;
+      if (!_tvHandler.ScheduleControl.GetSchedules(out schedules))
+        return false;
+
+      var scheduleSortList = new List<Tuple<ISchedule, IChannel>>();
+      foreach (ISchedule schedule in schedules.Take(maxItems))
       {
-        IList<ISchedule> schedules;
-        if (!_tvHandler.ScheduleControl.GetSchedules(out schedules))
-          return false;
-
-        List<ListItem> sortList = new List<ListItem>();
-        Comparison<ListItem> sortMode;
-        foreach (ISchedule schedule in schedules)
-        {
-          var item = CreateScheduleItem(schedule);
-          sortList.Add(item);
-        }
-        sortMode = ChannelAndProgramStartTimeComparison;
-        sortList.Sort(sortMode);
-
-        lock (_syncLock)
-        {
-          if (!AllItems.Select(s => ((ISchedule)s.AdditionalProperties["SCHEDULE"]).ScheduleId).SequenceEqual(sortList.Select(si => ((ISchedule)si.AdditionalProperties["SCHEDULE"]).ScheduleId)))
-          {
-            AllItems.Clear();
-            foreach (var schedule in sortList)
-            {
-              AllItems.Add(schedule);
-              if (AllItems.Count >= maxItems)
-                break;
-            }
-            AllItems.FireChange();
-          }
-        }
+        IChannel channel;
+        if (!_tvHandler.ChannelAndGroupInfo.GetChannel(schedule.ChannelId, out channel))
+          channel = null;
+        scheduleSortList.Add(new Tuple<ISchedule, IChannel>(schedule, channel));
       }
+      scheduleSortList.Sort(ChannelAndProgramStartTimeComparison);
+
+      var scheduleList = new List<Tuple<ISchedule, IChannel>>(scheduleSortList.Take(maxItems));
+
+      lock (_allItems.SyncRoot)
+      {
+        if (_currentSchedules.Select(s => s.Item1.ScheduleId).SequenceEqual(scheduleList.Select(s => s.Item1.ScheduleId)))
+          return true;
+        _currentSchedules = scheduleList;
+        _allItems.Clear();
+        foreach (var schedule in scheduleList)
+          _allItems.Add(CreateScheduleItem(schedule.Item1, schedule.Item2));
+      }
+      _allItems.FireChange();
       return true;
     }
   }
