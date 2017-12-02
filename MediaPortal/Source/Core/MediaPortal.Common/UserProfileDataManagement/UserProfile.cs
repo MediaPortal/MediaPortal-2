@@ -33,6 +33,16 @@ using System.Xml.Serialization;
 namespace MediaPortal.Common.UserProfileDataManagement
 {
   /// <summary>
+  /// Defines the known user profile types.
+  /// </summary>
+  public enum UserProfileType
+  {
+    ClientProfile = 0,
+    UserProfile = 1,
+    AdminProfile = 100
+  }
+
+  /// <summary>
   /// Data object for a named user profile.
   /// </summary>
   /// <remarks>
@@ -43,22 +53,18 @@ namespace MediaPortal.Common.UserProfileDataManagement
   /// </remarks>
   public class UserProfile
   {
-    public const int CLIENT_PROFILE = 0;
-    public const int USER_PROFILE = 1;
-    public const int ADMIN_PROFILE = 100;
-
     protected Guid _profileId;
     protected string _name;
     protected string _password;
     protected DateTime? _lastLogin;
-    protected int _profileType;
+    protected UserProfileType _profileType;
     protected byte[] _image;
     protected IDictionary<string, IDictionary<int, string>> _userData = new Dictionary<string, IDictionary<int, string>>();
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
-    public UserProfile(Guid profileId, string name, int profileType = CLIENT_PROFILE, string password = null, DateTime? lastLogin = null, byte[] image = null)
+    public UserProfile(Guid profileId, string name, UserProfileType profileType = UserProfileType.ClientProfile, string password = null, DateTime? lastLogin = null, byte[] image = null)
     {
       _profileId = profileId;
       _name = name;
@@ -82,7 +88,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
 
     public void AddAdditionalData(string key, int valueNo, string value)
     {
-      if(!AdditionalData.ContainsKey(key))
+      if (!AdditionalData.ContainsKey(key))
         AdditionalData.Add(key, new Dictionary<int, string>());
       AdditionalData[key].Add(valueNo, value);
     }
@@ -109,7 +115,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     /// Returns the type this profile.
     /// </summary>
     [XmlIgnore]
-    public int ProfileType
+    public UserProfileType ProfileType
     {
       get { return _profileType; }
     }
@@ -160,7 +166,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
       StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
-      using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
+      using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings { OmitXmlDeclaration = true }))
         xs.Serialize(writer, this);
       return sb.ToString();
     }
@@ -204,7 +210,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       if (!(obj is UserProfile))
         return false;
-      UserProfile other = (UserProfile) obj;
+      UserProfile other = (UserProfile)obj;
       return _profileId == other._profileId;
     }
 
@@ -253,7 +259,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     /// For internal use of the XML serialization system only.
     /// </summary>
     [XmlAttribute("ProfileType")]
-    public int XML_ProfileType
+    public UserProfileType XML_ProfileType
     {
       get { return _profileType; }
       set { _profileType = value; }
@@ -305,7 +311,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
             convert.Add(new Tuple<string, string, string>(key.Key, val.Key.ToString(), val.Value));
           }
         }
-        if(convert.Count > 0)
+        if (convert.Count > 0)
           return MarshallingHelper.SerializeTuple3EnumerationToCsv(convert);
         return null;
       }
@@ -316,7 +322,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
         if (convert == null)
           return;
 
-        foreach(var data in convert)
+        foreach (var data in convert)
         {
           if (!_userData.ContainsKey(data.Item1))
             _userData.Add(data.Item1, new Dictionary<int, string>());

@@ -90,7 +90,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
               result.Add(new UserProfile(
                 database.ReadDBValue<Guid>(reader, profileIdIndex),
                 database.ReadDBValue<string>(reader, nameIndex),
-                database.ReadDBValue<int>(reader, idIndex),
+                (UserProfileType)database.ReadDBValue<int>(reader, idIndex),
                 database.ReadDBValue<string>(reader, dataIndex),
                 database.ReadDBValue<DateTime?>(reader, lastLoginIndex),
                 database.ReadDBValue<byte[]>(reader, imageIndex))
@@ -178,7 +178,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
-    public async Task<Guid> CreateProfileAsync(string profileName, int profileType, string profilePassword)
+    public async Task<Guid> CreateProfileAsync(string profileName, UserProfileType profileType, string profilePassword)
     {
       //Profile might already exist.
       var result = await GetProfileByNameAsync(profileName);
@@ -203,7 +203,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
-    public Task<bool> UpdateProfileAsync(Guid profileId, string profileName, int profileType, string profilePassword)
+    public Task<bool> UpdateProfileAsync(Guid profileId, string profileName, UserProfileType profileType, string profilePassword)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();

@@ -71,7 +71,7 @@ namespace MediaPortal.UiComponents.Login.Models
     protected object _syncObj = new object();
     protected bool _updatingProperties = false;
     protected string _imagePath = null;
-    protected Dictionary<int, string> _profileTypes = new Dictionary<int, string>();
+    protected Dictionary<UserProfileType, string> _profileTypes = new Dictionary<UserProfileType, string>();
     protected PathBrowserCloseWatcher _pathBrowserCloseWatcher = null;
     protected ItemsList _serverSharesList = null;
     protected ItemsList _localSharesList = null;
@@ -115,13 +115,13 @@ namespace MediaPortal.UiComponents.Login.Models
       _isUserSelectedProperty = new WProperty(typeof(bool), false);
       _isSystemUserSelectedProperty = new WProperty(typeof(bool), false);
 
-      _profileTypes.Add(UserProfile.CLIENT_PROFILE, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
-      _profileTypes.Add(UserProfile.USER_PROFILE, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
-      _profileTypes.Add(UserProfile.ADMIN_PROFILE, LocalizationHelper.Translate(Consts.RES_ADMIN_PROFILE_TEXT));
+      _profileTypes.Add(UserProfileType.ClientProfile, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
+      _profileTypes.Add(UserProfileType.UserProfile, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
+      _profileTypes.Add(UserProfileType.AdminProfile, LocalizationHelper.Translate(Consts.RES_ADMIN_PROFILE_TEXT));
 
       _profileList = new ItemsList();
       ListItem item = null;
-      foreach (var profile in _profileTypes.Where(p => p.Key != UserProfile.CLIENT_PROFILE))
+      foreach (var profile in _profileTypes.Where(p => p.Key != UserProfileType.ClientProfile))
       {
         item = new ListItem();
         item.SetLabel(Consts.KEY_NAME, profile.Value);
@@ -436,7 +436,7 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       try
       {
-        UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProfile.USER_PROFILE);
+        UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProfileType.UserProfile);
         user.LastLogin = DateTime.Now;
 
         ListItem item = new ListItem();
@@ -544,7 +544,7 @@ namespace MediaPortal.UiComponents.Login.Models
           bool wasCreated = false;
           if(UserProxy.IsPasswordChanged)
             hash = Utils.HashPassword(UserProxy.Password);
-          if (UserProxy.ProfileType == UserProfile.CLIENT_PROFILE)
+          if (UserProxy.ProfileType == UserProfileType.ClientProfile)
             hash = ""; //Client profiles can't have passwords
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
           if (userManagement != null && userManagement.UserProfileDataManagement != null)
@@ -621,7 +621,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void SelectProfileType(ListItem item)
     {
-      int profileType = (int)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE];
+      UserProfileType profileType = (UserProfileType)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE];
       UserProxy.ProfileType = profileType;
     }
 
@@ -643,7 +643,7 @@ namespace MediaPortal.UiComponents.Login.Models
           UserProxy.SetUserProfile(userProfile, _localSharesList, _serverSharesList);
           foreach (var item in _profileList)
           {
-            item.Selected = (int)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType;
+            item.Selected = (UserProfileType)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType;
           }
         }
         else
@@ -652,7 +652,7 @@ namespace MediaPortal.UiComponents.Login.Models
         }
 
         IsUserSelected = userProfile != null;
-        IsSystemUserSelected = userProfile?.ProfileType == UserProfile.CLIENT_PROFILE;
+        IsSystemUserSelected = userProfile?.ProfileType == UserProfileType.ClientProfile;
 
         SetSelectedShares();
       }

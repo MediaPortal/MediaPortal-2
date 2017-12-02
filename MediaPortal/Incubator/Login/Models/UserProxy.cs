@@ -69,7 +69,7 @@ namespace MediaPortal.UiComponents.Login.Models
       _userNameProperty = new WProperty(typeof(string), string.Empty);
       _selectedSharesList = new List<Guid>();
       _isUserValidProperty = new WProperty(typeof(bool), false);
-      _profileTypeProperty = new WProperty(typeof(int), UserProfile.USER_PROFILE);
+      _profileTypeProperty = new WProperty(typeof(UserProfileType), UserProfileType.UserProfile);
       _restrictAgesProperty = new WProperty(typeof(bool), false);
       _restrictSharesProperty = new WProperty(typeof(bool), false);
       _allowedAgeProperty = new WProperty(typeof(int), 5);
@@ -144,7 +144,7 @@ namespace MediaPortal.UiComponents.Login.Models
       Id = Guid.Empty;
       Name = String.Empty;
       Password = String.Empty;
-      ProfileType = UserProfile.USER_PROFILE;
+      ProfileType = UserProfileType.UserProfile;
       LastLogin = DateTime.MinValue;
       Image = null;
 
@@ -221,9 +221,9 @@ namespace MediaPortal.UiComponents.Login.Models
       get { return _profileTypeProperty; }
     }
 
-    public int ProfileType
+    public UserProfileType ProfileType
     {
-      get { return (int)_profileTypeProperty.GetValue(); }
+      get { return (UserProfileType)_profileTypeProperty.GetValue(); }
       set { _profileTypeProperty.SetValue(value); }
     }
 

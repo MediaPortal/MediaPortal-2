@@ -419,7 +419,7 @@ namespace MediaPortal.UiComponents.Login.Models
           await userProfileDataManagement.UserProfileDataManagement.LoginProfileAsync(userProfile.ProfileId);
         _lastActivity = DateTime.Now;
         IsUserLoggedIn = !userProfile.Name.Equals(System.Windows.Forms.SystemInformation.ComputerName, StringComparison.InvariantCultureIgnoreCase) ||
-          userProfile.ProfileType != UserProfile.CLIENT_PROFILE;
+          userProfile.ProfileType != UserProfileType.ClientProfile;
       }
       else
       {
@@ -442,7 +442,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
       UserProfile defaultProfile = new UserProfile(Guid.Empty, 
         LocalizationHelper.Translate(Consts.RES_SYSTEM_DEFAULT_TEXT) + " (" + System.Windows.Forms.SystemInformation.ComputerName + ")", 
-        UserProfile.CLIENT_PROFILE);
+        UserProfileType.ClientProfile);
       UserProxy proxy = new UserProxy();
       proxy.SetLabel(Consts.KEY_NAME, defaultProfile.Name);
       proxy.SetUserProfile(defaultProfile);
@@ -454,7 +454,7 @@ namespace MediaPortal.UiComponents.Login.Models
       var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
       foreach (UserProfile user in users)
       {
-        if (user.ProfileType != UserProfile.CLIENT_PROFILE)
+        if (user.ProfileType != UserProfileType.ClientProfile)
         {
           proxy = new UserProxy();
           proxy.SetLabel(Consts.KEY_NAME, user.Name);
