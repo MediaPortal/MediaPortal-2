@@ -77,7 +77,7 @@
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
-      <Include Source="screens\MediaItemOthersDetails.inc"/>
+      <Include Source="screens\MediaItemHomeOthersDetails.inc"/>
     </Control.TemplateControl>
   </Control>
   

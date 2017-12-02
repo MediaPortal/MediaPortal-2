@@ -2484,6 +2484,48 @@
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="GridViewVideoContentTemplate">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.OpacityMask>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Grid.OpacityMask>
+      <Image x:Name="thumb" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Source="{Binding MediaItem}">
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask2" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="6" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+    </Grid>
+  </ControlTemplate>
+
   <ControlTemplate x:Key="GridViewVideoItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -2492,39 +2534,19 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      
-      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center"
-                  MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}" Width="{StaticResource VIDEO_GRID_WIDTH}">
-        <Grid.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="7" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Grid.OpacityMask>
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-        </Grid>
-        <Image x:Name="thumb" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
-               Source="{Binding MediaItem}"/>
-        <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
-              Width="{StaticResource VIDEO_GRID_WIDTH}" Height="{StaticResource VIDEO_GRID_HEIGHT}"
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <Image Width="{StaticResource VIDEO_GRID_WIDTH}" Height="{StaticResource VIDEO_GRID_HEIGHT}"
-             Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
-      </Grid>
-      <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+      <Control Template="{StaticResource GridViewVideoContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GridViewVideoItemSmallTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH_S}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
+      </Grid.RowDefinitions>
+      <Control Template="{StaticResource GridViewVideoContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Grid>
   </ControlTemplate>
 
@@ -2589,6 +2611,8 @@
       <!-- watched indicator -->
       <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableCoverWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
 
       <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                            RadiusX="4" RadiusY="4" StrokeThickness="0" Grid.Row="1"

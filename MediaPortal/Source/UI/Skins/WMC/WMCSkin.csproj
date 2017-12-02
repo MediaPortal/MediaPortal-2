@@ -657,7 +657,9 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeEpisodeDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\WMCSkin\screens\MediaItemHomeAudioDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeAudioDetails.inc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeImageDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListAudioAlbumDetails.inc">
       <SubType>Designer</SubType>
@@ -675,6 +677,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeOthersDetails.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemSeasonDetails.inc" />

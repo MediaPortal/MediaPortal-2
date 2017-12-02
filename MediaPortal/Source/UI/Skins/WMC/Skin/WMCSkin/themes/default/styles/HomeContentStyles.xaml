@@ -59,20 +59,15 @@
   </DataTemplate>
 
   <DataTemplate x:Key="ProgramsDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch">
-      <!--Grid.Background>
-        <VisualBrush.Visual>
-          <Border Background="White" CornerRadius="3" BorderThickness="0" BorderBrush="Black"/>
-        </VisualBrush.Visual>
-      </Grid.Background-->
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Margin="-5,0,-35,0">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="14*"/>
-        <ColumnDefinition Width="74*"/>
+        <ColumnDefinition Width="20*"/>
+        <ColumnDefinition Width="70*"/>
         <ColumnDefinition Width="10*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="65"/>
-        <RowDefinition Height="65"/>
+        <RowDefinition Height="45"/>
+        <RowDefinition Height="45"/>
       </Grid.RowDefinitions>
       <Border Background="Black" CornerRadius="5" BorderThickness="0" Opacity="0.2" HorizontalAlignment="Stretch" 
               Grid.ColumnSpan="3" Grid.RowSpan="2" VerticalAlignment="Stretch"/>
@@ -82,11 +77,11 @@
                                     fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,1,0,0" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
-             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
-      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,0,0,1" Content="{Binding Program.StartTime}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
-      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="95" Height="95" Grid.Column="2" Margin="3" Grid.RowSpan="2">
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,1,0,-1" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,-1,0,1" Content="{Binding Program.StartTime}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="75" Height="75" Grid.Column="2" Margin="3" Grid.RowSpan="2">
         <Image.Source>
           <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
         </Image.Source>
@@ -95,22 +90,35 @@
   </DataTemplate>
 
   <DataTemplate x:Key="SchedulesDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Margin="-5,0,-35,0">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="20*"/>
+        <ColumnDefinition Width="70*"/>
+        <ColumnDefinition Width="10*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="45"/>
+        <RowDefinition Height="45"/>
       </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
+      <Border Background="Black" CornerRadius="5" BorderThickness="0" Opacity="0.2" HorizontalAlignment="Stretch" 
+              Grid.ColumnSpan="3" Grid.RowSpan="2" VerticalAlignment="Stretch"/>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="10" Grid.RowSpan="2">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
         </Image.Source>
       </Image>
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" 
              TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding Channel.Name}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+             Content="{Binding Program.ChannelName}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+      
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,1,0,-1" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,-1,0,1" Content="{Binding Program.StartTime}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+
+      <Label x:Name="ScheduleTypeLabel" VerticalAlignment="Center" Grid.Column="2" Grid.RowSpan="2" Content="{Binding Program.RecordingType}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
     </Grid>
   </DataTemplate>
 
@@ -143,15 +151,42 @@
     </Setter>
   </Style>
 
+  <Style x:Key="HomeScreenProgramItemViewStyle" BasedOn="{ThemeResource LeftMenuListViewStyle}">
+    <Setter Property="LayoutTransform">
+      <Setter.Value>
+        <TransformGroup>
+          <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </TransformGroup>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0,5,0,-25"
+                        VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Vertical" IsItemsHost="True" HorizontalAlignment="Center" LoopScroll="False"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="HomeScreenChannelViewStyle" BasedOn="{ThemeResource HomeScreenMediaItemViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource ChannelDataTemplate}"/>
   </Style>
 
-  <Style x:Key="HomeScreenCurrentProgramsListViewStyle" BasedOn="{ThemeResource HomeScreenMediaItemViewStyle}">
+  <Style x:Key="HomeScreenCurrentProgramsListViewStyle" BasedOn="{ThemeResource HomeScreenProgramItemViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource ProgramsDataTemplate}"/>
   </Style>
 
-  <Style x:Key="HomeScreenCurrentSchedulesListViewStyle" BasedOn="{ThemeResource HomeScreenMediaItemViewStyle}">
+  <Style x:Key="HomeScreenCurrentSchedulesListViewStyle" BasedOn="{ThemeResource HomeScreenProgramItemViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource SchedulesDataTemplate}"/>
   </Style>
 
@@ -363,6 +398,9 @@
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteVideo]}"
                          EnableBindings="True"/>
+        <DataTemplate DataType="{x:Type navitems:VideoItem}">
+          <Control Template="{StaticResource GridViewVideoItemSmallTemplate}"/>
+        </DataTemplate>
       </Control.Resources>
     </Control>
   </ControlTemplate>
