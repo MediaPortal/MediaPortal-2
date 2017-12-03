@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -32,6 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
   /// Specifies the visual structure and behavioral aspects of a Control that
   /// can be shared across multiple instances of the control.
   /// </summary>
+  [ContentProperty("TemplateElement")]
   public class ControlTemplate : TemplateWithTriggers
   {
     #region Protected fields

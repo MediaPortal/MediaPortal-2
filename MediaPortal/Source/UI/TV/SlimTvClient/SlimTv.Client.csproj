@@ -124,6 +124,7 @@
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
+    <Compile Include="MediaItemActions\DeleteRecordingFromStorage.cs" />
     <Compile Include="Messaging\SlimTvClientMessaging.cs" />
     <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs" />
     <Compile Include="Models\ChannelZapModel.cs" />

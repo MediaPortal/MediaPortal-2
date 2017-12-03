@@ -857,6 +857,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return true;
     }
 
+    public bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
+    {
+      // TODO
+      schedule = null;
+      return false;
+    }
+
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
     {
       recordingStatus = RecordingStatus.None;
