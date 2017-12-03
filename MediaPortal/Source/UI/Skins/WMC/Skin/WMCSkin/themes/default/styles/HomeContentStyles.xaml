@@ -413,7 +413,7 @@
         <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                  DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}">
           <Control.Resources>
-            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestAdded]"/>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestPlayed]"/>
             <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
           </Control.Resources>
         </Control>
