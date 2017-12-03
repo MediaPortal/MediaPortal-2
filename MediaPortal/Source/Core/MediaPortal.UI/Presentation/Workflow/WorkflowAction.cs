@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UI.Presentation.Workflow
 {
@@ -46,6 +47,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     protected ICollection<Guid> _sourceStateIds;
     protected IResourceString _displayTitle;
     protected IResourceString _helpText;
+    protected UserProfileType? _minUserProfile;
 
     #endregion
 
@@ -137,6 +139,15 @@ namespace MediaPortal.UI.Presentation.Workflow
     public virtual IResourceString HelpText
     {
       get { return _helpText; }
+    }
+
+    /// <summary>
+    /// Can be used to restrict the action to a given user profile. By default, all actions are available to all profiles.
+    /// </summary>
+    public virtual UserProfileType? MinUserProfile
+    {
+      get { return _minUserProfile; }
+      set { _minUserProfile = value; }
     }
 
     /// <summary>

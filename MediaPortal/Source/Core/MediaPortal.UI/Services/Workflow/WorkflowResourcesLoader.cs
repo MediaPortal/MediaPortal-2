@@ -29,6 +29,7 @@ using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Utilities;
@@ -169,6 +170,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sourceStates = null;
       string targetState = null;
       string navigationContextDisplayLabel = null;
+      string minUserProfile = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -202,6 +204,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "HelpText":
               helpText = attrNav.Value;
               break;
+            case "MinUserProfile":
+              minUserProfile = attrNav.Value;
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -214,12 +219,14 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceStates' attribute missing", actionNav.Name, name));
       if (string.IsNullOrEmpty(targetState))
         throw new ArgumentException(string.Format("{0} '{1}': 'TargetState' attribute missing", actionNav.Name, name));
+
       PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, ParseActionSourceStates(sourceStates),
           LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText),
           new Guid(targetState), navigationContextDisplayLabel)
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
+            SortOrder = sortOrder,
+            MinUserProfile = ParseOptionalProfileType(actionNav.Name, minUserProfile, name)
         };
       return result;
     }
@@ -233,6 +240,7 @@ namespace MediaPortal.UI.Services.Workflow
       string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
+      string minUserProfile = null;
       int numPop = -1;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
@@ -265,6 +273,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "HelpText":
               helpText = attrNav.Value;
               break;
+            case "MinUserProfile":
+              minUserProfile = attrNav.Value;
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -281,8 +292,9 @@ namespace MediaPortal.UI.Services.Workflow
           LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText), numPop)
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
-        };
+            SortOrder = sortOrder,
+            MinUserProfile = ParseOptionalProfileType(actionNav.Name, minUserProfile, name)
+      };
       return result;
     }
 
@@ -296,6 +308,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sortOrder = null;
       string sourceStates = null;
       string contributorModel = null;
+      string minUserProfile = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -326,6 +339,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "HelpText":
               helpText = attrNav.Value;
               break;
+            case "MinUserProfile":
+              minUserProfile = attrNav.Value;
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -342,8 +358,9 @@ namespace MediaPortal.UI.Services.Workflow
           LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText), new Guid(contributorModel))
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
-        };
+            SortOrder = sortOrder,
+            MinUserProfile = ParseOptionalProfileType(actionNav.Name, minUserProfile, name)
+      };
       return result;
     }
 
@@ -358,6 +375,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sourceStates = null;
       string modelId = null;
       string methodName = null;
+      string minUserProfile = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -391,6 +409,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "MethodName":
               methodName = attrNav.Value;
               break;
+            case "MinUserProfile":
+              minUserProfile = attrNav.Value;
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -410,9 +431,20 @@ namespace MediaPortal.UI.Services.Workflow
           new Guid(modelId), methodName)
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
-        };
+            SortOrder = sortOrder,
+            MinUserProfile = ParseOptionalProfileType(actionNav.Name, minUserProfile, name)
+      };
       return result;
+    }
+
+    protected static UserProfileType? ParseOptionalProfileType(string actionNavName, string minUserProfile, string name)
+    {
+      if (string.IsNullOrEmpty(minUserProfile)) return null;
+
+      UserProfileType tmpValue;
+      if (!Enum.TryParse(minUserProfile, out tmpValue))
+        throw new ArgumentException(string.Format("{0} '{1}': Invalid value '{2}' for 'MinUserProfile'", actionNavName, name, minUserProfile));
+      return tmpValue;
     }
   }
 }
