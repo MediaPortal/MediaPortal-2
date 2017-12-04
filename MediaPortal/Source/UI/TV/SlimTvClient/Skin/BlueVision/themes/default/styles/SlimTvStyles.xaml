@@ -78,7 +78,7 @@
                    Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                    Color="{DynamicResource ProgramFontColor}"/>
 
-            <Label x:Name="Genre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"
+            <Label x:Name="Genre" Grid.Row="1" Grid.Column="4" Scroll="Auto" Margin="30,0,0,0"
                    Content="{Binding Genre}"
                    Color="{DynamicResource ProgramFontColor}"/>
 
