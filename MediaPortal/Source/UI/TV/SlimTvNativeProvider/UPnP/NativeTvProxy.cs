@@ -26,6 +26,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -44,7 +45,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 {
-  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
+  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, IProgramInfoAsync
   {
     #region Protected fields
 
@@ -211,6 +212,48 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       programNow = null;
       programNext = null;
       return false;
+    }
+
+    public async Task<Tuple<bool, IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_NOW_NEXT_PROGRAM_FOR_GROUP);
+        IList<object> inParameters = new List<object>
+            {
+              channelGroup.ChannelGroupId
+            };
+
+        var nowNextPrograms = new Dictionary<int, IProgram[]>();
+
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool success = (bool)outParameters[0];
+        if (success)
+        {
+          DateTime now = DateTime.Now;
+          var programs = (IList<Program>)outParameters[1];
+          foreach (Program program in programs)
+          {
+            IProgram[] nowNext;
+            int channelId = program.ChannelId;
+            if (!nowNextPrograms.TryGetValue(channelId, out nowNext))
+              nowNext = new IProgram[2];
+
+            if (program.StartTime > now)
+              nowNext[1] = program;
+            else
+              nowNext[0] = program;
+
+            nowNextPrograms[channelId] = nowNext;
+          }
+          return new Tuple<bool, IDictionary<int, IProgram[]>>( true, nowNextPrograms);
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return new Tuple<bool, IDictionary<int, IProgram[]>>(false, null);
     }
 
     public bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> nowNextPrograms)
@@ -667,5 +710,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
     }
 
     #endregion
+  }
+
+  public static class CpActionExtension
+  {
+    public static async Task<IList<object>> InvokeAsync(this CpAction action, IList<object> inParameters)
+    {
+      return await Task.Factory.FromAsync((callback, stateObject) => action.BeginInvokeAction(inParameters, callback, stateObject), action.EndInvokeAction, null);
+    }
   }
 }

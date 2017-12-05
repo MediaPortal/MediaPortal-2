@@ -25,9 +25,15 @@
 using System.Collections.Generic;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
+  public interface IProgramInfoAsync
+  {
+    Task<Tuple<bool, IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup);
+  }
+
   /// <summary>
   /// IProgramInfo defines all actions and properties for TV programs handling.
   /// </summary>

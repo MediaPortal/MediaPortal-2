@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -33,6 +34,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.TaskScheduler;
 using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Player;
@@ -51,6 +53,7 @@ using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Events;
+using Task = System.Threading.Tasks.Task;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -697,6 +700,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected override void InitModel()
     {
+      lock(this)
       if (!_isInitialized)
       {
         _currentGroupNameProperty = new WProperty(typeof(string), string.Empty);
@@ -798,14 +802,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return PiPEnabled ? PlayerContextIndex.SECONDARY : PlayerContextIndex.PRIMARY; }
     }
 
-    protected override void Update()
+    protected async override void Update()
     {
       // Don't update the current channel and program information if we are in zap osd.
       if (_tvHandler == null || (_zapTimer != null && _zapTimer.IsEventPending))
         return;
 
       // Update current programs for all channels of current group (visible inside MiniGuide).
-      UpdateAllCurrentPrograms();
+      await UpdateAllCurrentPrograms();
 
       _zapChannelIndex = ChannelContext.Instance.Channels.CurrentIndex;
 
@@ -886,16 +890,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// Usually the update logic is done in Workflow events, but the MiniGuide is opened as dialog
     /// in current workflow state (which doesn't invoke workflow transistions).
     /// </summary>
-    public void UpdateChannelsMiniGuide()
+    public async Task UpdateChannelsMiniGuide()
     {
-      UpdateChannels();
+      await UpdateChannels();
     }
     protected virtual void UpdateGuiProperties()
     {
       CurrentGroupName = CurrentChannelGroup != null ? CurrentChannelGroup.Name : string.Empty;
     }
 
-    protected void UpdateChannels()
+    protected async Task UpdateChannels()
     {
       UpdateGuiProperties();
 
@@ -928,34 +932,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _channelList.First().Selected = true;
 
       // Load programs asynchronously, this increases performance of list building
-      GetNowAndNextProgramsList_Async();
+      await GetNowAndNextProgramsList_Async();
       CurrentGroupChannels.FireChange();
     }
 
-    protected void UpdateAllCurrentPrograms()
+    protected async Task UpdateAllCurrentPrograms()
     {
       DateTime now = DateTime.Now;
       if ((now - _lastChannelListUpdate).TotalSeconds > PROGRAM_UPDATE_SEC)
       {
         _lastChannelListUpdate = now;
-        GetNowAndNextProgramsList_Async();
+        await GetNowAndNextProgramsList_Async();
       }
     }
 
-    protected void GetNowAndNextProgramsList_Async()
-    {
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(GetNowAndNextProgramsList);
-    }
-
-    protected void GetNowAndNextProgramsList()
+    protected async Task GetNowAndNextProgramsList_Async()
     {
       IChannelGroup currentChannelGroup = CurrentChannelGroup;
       if (_tvHandler.ProgramInfo == null || currentChannelGroup == null)
         return;
-      IDictionary<int, IProgram[]> programs;
 
-      _tvHandler.ProgramInfo.GetNowAndNextForChannelGroup(currentChannelGroup, out programs);
+      var programInfoAsync = (IProgramInfoAsync)_tvHandler.ProgramInfo;
+
+      //_tvHandler.ProgramInfo.GetNowAndNextForChannelGroup(currentChannelGroup, out programs);
+      var result = await programInfoAsync.GetNowAndNextForChannelGroupAsync(currentChannelGroup);
+      if (!result.Item1)
+        return;
+
+      var programs = result.Item2;
       lock (CurrentGroupChannels.SyncRoot)
         foreach (ChannelProgramListItem channelItem in CurrentGroupChannels)
         {
