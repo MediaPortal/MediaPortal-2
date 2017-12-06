@@ -293,6 +293,15 @@
                 </Control.Resources>
               </Control>
             </ListViewItem>
+            <ListViewItem>
+              <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 DataContext="{Binding Source={DynamicResource Unplayed_List}, Path=Resource}">
+                <Control.Resources>
+                  <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Unplayed]"/>
+                  <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+                </Control.Resources>
+              </Control>
+            </ListViewItem>
           </ListView>
         </ControlTemplate>
       </Setter.Value>
@@ -314,6 +323,8 @@
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
                          EnableBindings="True"/>
+        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedMovies]}"
+                         EnableBindings="True"/>
         <DataTemplate DataType="{x:Type navitems:MovieItem}">
           <Control Template="{StaticResource GridViewMovieItemSmallTemplate}"/>
         </DataTemplate>
@@ -331,6 +342,8 @@
         <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayAudio]}"
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAudio]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAudio]}"
                          EnableBindings="True"/>
         <DataTemplate DataType="{x:Type navitems:AudioItem}">
           <Control Template="{StaticResource GridViewAudioItemSmallTemplate}"/>
@@ -350,8 +363,13 @@
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteEpisodes]}"
                          EnableBindings="True"/>
+        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedSeries]}"
+                         EnableBindings="True"/>
         <DataTemplate DataType="{x:Type navitems:EpisodeItem}">
           <Control Template="{StaticResource GridViewEpisodeItemSmallTemplate}"/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type navitems:SeriesFilterItem}">
+          <Control Template="{StaticResource GridViewSeriesFilterItemSmallTemplate}"/>
         </DataTemplate>
       </Control.Resources>
     </Control>
@@ -368,6 +386,8 @@
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteRecordings]}"
                          EnableBindings="True"/>
+        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedRecordings]}"
+                         EnableBindings="True"/>
       </Control.Resources>
     </Control>
   </ControlTemplate>
@@ -383,6 +403,8 @@
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteImages]}"
                          EnableBindings="True"/>
+        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedImages]}"
+                         EnableBindings="True"/>
       </Control.Resources>
     </Control>
   </ControlTemplate>
@@ -397,6 +419,8 @@
         <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayVideo]}"
                          EnableBindings="True"/>
         <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteVideo]}"
+                         EnableBindings="True"/>
+        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedVideo]}"
                          EnableBindings="True"/>
         <DataTemplate DataType="{x:Type navitems:VideoItem}">
           <Control Template="{StaticResource GridViewVideoItemSmallTemplate}"/>

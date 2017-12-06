@@ -1476,6 +1476,42 @@
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="GridViewSeriesFilterItemSmallTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="thumb" Width="{StaticResource POSTER_GRID_WIDTH_S}" Height="{StaticResource POSTER_GRID_HEIGHT_S}" Stretch="Fill">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                      fanart:MaxWidth="{StaticResource POSTER_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource POSTER_GRID_HEIGHT_S}"/>
+        </Image.Source>
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="6" BorderThickness="0"
+                Width="{StaticResource POSTER_GRID_WIDTH_S}" Height="{StaticResource POSTER_GRID_HEIGHT_S}"
+                IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Image Width="{StaticResource POSTER_GRID_WIDTH_S}" Height="{StaticResource POSTER_GRID_HEIGHT_S}"
+             Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+    </Grid>
+  </ControlTemplate>
+
   <ControlTemplate x:Key="CoverViewSeriesFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
