@@ -944,8 +944,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void GetNowAndNextProgramsList_Async()
     {
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(GetNowAndNextProgramsList);
+      //IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      //threadPool.Add(GetNowAndNextProgramsList);
+      // Morpheus_xx, 2017-12-06: temporary load programs synchronously to fix initial empty program infos.
+      // This part will be reworked completely to a real "async" pattern.
+      GetNowAndNextProgramsList();
     }
 
     protected void GetNowAndNextProgramsList()
