@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
@@ -79,18 +80,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
       {
         var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
         if (tvHandler != null && !tvHandler.ScheduleControl.RemoveSchedule(_schedule))
+        {
+          ServiceRegistration.Get<ILogger>().Warn("DeleteRecordingFromStorage: Failed to remove current schedule.");
           return false;
+        }
       }
 
       // When the recording is stopped, it will be imported into library. This can lead to locked files by MetaDataExtractors.
-      // So we allow a 2nd try after a small delay here.
-      for (int i = 2; i > 0; i--)
+      // So we allow some retries after a small delay here.
+      for (int i = 1; i <= 3; i++)
       {
-        if (base.Process(mediaItem, out changeType))
-          return true;
+         if (base.Process(mediaItem, out changeType))
+            return true;
 
-        Thread.Sleep(1000);
+        ServiceRegistration.Get<ILogger>().Info("DeleteRecordingFromStorage: Failed to delete recording (try {0})", i);
+        Thread.Sleep(i * 1000);
       }
+      ServiceRegistration.Get<ILogger>().Warn("DeleteRecordingFromStorage: Failed to delete recording.");
       return false;
     }
 
