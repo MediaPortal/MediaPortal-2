@@ -71,12 +71,6 @@ namespace MediaPortal.UiComponents.Media.Models
       IsPip = pipPlayer != null;
     }
 
-    protected override void UpdateOSDVisibilty()
-    {
-      if (!_isPlayerConfigOpen)
-        base.UpdateOSDVisibilty();
-    }
-
     private void SubscribeToMessages()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
