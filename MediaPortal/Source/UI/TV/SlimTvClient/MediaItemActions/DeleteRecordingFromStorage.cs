@@ -64,12 +64,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
     {
       _schedule = null;
       var rl = mediaItem.GetResourceLocator();
-      var serverLocalPath = LocalFsResourceProviderBase.ToDosPath(rl.NativeResourcePath);
+      ILocalFsResourceAccessor lfsra;
+      if (!rl.TryCreateLocalFsAccessor(out lfsra))
+        return;
+
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-      ISchedule schedule;
-      if (tvHandler != null && tvHandler.ScheduleControl.IsCurrentlyRecording(serverLocalPath, out schedule))
+      using (lfsra)
       {
-        _schedule = schedule;
+        string filePath = lfsra.LocalFileSystemPath;
+        ISchedule schedule;
+        if (tvHandler != null && tvHandler.ScheduleControl.IsCurrentlyRecording(filePath, out schedule))
+          _schedule = schedule;
       }
     }
 
@@ -90,8 +95,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
       // So we allow some retries after a small delay here.
       for (int i = 1; i <= 3; i++)
       {
-         if (base.Process(mediaItem, out changeType))
-            return true;
+        if (base.Process(mediaItem, out changeType))
+          return true;
 
         ServiceRegistration.Get<ILogger>().Info("DeleteRecordingFromStorage: Failed to delete recording (try {0})", i);
         Thread.Sleep(i * 1000);
