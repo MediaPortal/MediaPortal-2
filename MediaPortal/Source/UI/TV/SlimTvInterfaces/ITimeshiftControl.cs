@@ -22,11 +22,36 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
+  /// <summary>
+  /// ITimeshiftControl defines all actions and properties for TV providers timeshift features.
+  /// </summary>
+  public interface ITimeshiftControlAsync
+  {
+    /// <summary>
+    /// Starts timeshifting a channel an returns the created MediaItem.
+    /// </summary>
+    /// <param name="slotIndex">Slot Index for Playback (0=Primary, 1=PiP).</param>
+    /// <param name="channel">Channel.</param>
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if programs could be found.
+    /// <see cref="AsyncResult{T}.Result"/> returns the created MediaItem.
+    /// </returns>
+    Task<AsyncResult<MediaItem>> StartTimeshiftAsync(int slotIndex, IChannel channel);
+
+    /// <summary>
+    /// Stops the active timeshifting.
+    /// </summary>
+    /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
+    /// <returns>True if succeeded.</returns>
+    Task<bool> StopTimeshiftAsync(int slotIndex);
+  }
+
   /// <summary>
   /// ITimeshiftControl defines all actions and properties for TV providers timeshift features.
   /// </summary>

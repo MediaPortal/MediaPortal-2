@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -272,13 +273,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Recording related
 
-    protected virtual RecordingStatus? CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
+    protected virtual async Task<RecordingStatus?> CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
     {
       IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
       RecordingStatus? newStatus = null;
       if (scheduleControl != null)
       {
-        RecordingStatus? recordingStatus = GetRecordingStatus(program);
+        RecordingStatus? recordingStatus = await GetRecordingStatusAsync(program);
         if (recordingStatus.HasValue && (recordingStatus.Value.HasFlag(RecordingStatus.Scheduled) || recordingStatus.Value.HasFlag(RecordingStatus.SeriesScheduled)))
         {
           if (scheduleControl.RemoveScheduleForProgram(program, recordingType))
@@ -307,12 +308,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return newStatus;
     }
 
-    protected virtual RecordingStatus? GetRecordingStatus(IProgram program)
+    protected virtual async Task<RecordingStatus?> GetRecordingStatusAsync(IProgram program)
     {
       IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
       if (scheduleControl == null)
         return null;
 
+      // TODO: Async
       RecordingStatus recordingStatus;
       if (scheduleControl.GetRecordingStatus(program, out recordingStatus))
         return recordingStatus;

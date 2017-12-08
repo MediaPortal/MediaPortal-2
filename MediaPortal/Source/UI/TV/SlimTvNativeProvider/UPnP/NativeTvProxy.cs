@@ -45,7 +45,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 {
-  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, IProgramInfoAsync
+  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControl, ITimeshiftControlAsync, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, IProgramInfoAsync
   {
     #region Protected fields
 
@@ -102,12 +102,23 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
+      var result = StartTimeshiftAsync(slotIndex, channel).Result;
+      if (result.Success)
+      {
+        timeshiftMediaItem = result.Result;
+        return true;
+      }
       timeshiftMediaItem = null;
+      return false;
+    }
+
+    public async Task<AsyncResult<MediaItem>> StartTimeshiftAsync(int slotIndex, IChannel channel)
+    {
       // If we change between radio and tv channels, stop current timeshift before. This is required, so that the new
       // player starts with a new stream from beginning. Otherwise a VideoPlayer could be ran with an older Radio stream part.
       bool mediaTypeChanged = _channels[slotIndex] != null && _channels[slotIndex].MediaType != channel.MediaType;
       if (mediaTypeChanged && !StopTimeshift(slotIndex))
-        return false;
+        return new AsyncResult<MediaItem>(false, null);
       try
       {
         CpAction action = GetAction(Consts.ACTION_START_TIMESHIFT);
@@ -117,25 +128,30 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               channel.ChannelId
             };
 
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         if (success)
         {
           _channels[slotIndex] = channel;
 
           // Assign a MediaItem, can be null if streamUrl is the same.
-          timeshiftMediaItem = (MediaItem)outParameters[1];
-          return true;
+          var timeshiftMediaItem = (MediaItem)outParameters[1];
+          return new AsyncResult<MediaItem>(true, timeshiftMediaItem);
         }
       }
       catch (Exception ex)
       {
         NotifyException(ex);
       }
-      return false;
+      return new AsyncResult<MediaItem>(false, null);
     }
 
     public bool StopTimeshift(int slotIndex)
+    {
+      return StopTimeshiftAsync(slotIndex).Result;
+    }
+
+    public async Task<bool> StopTimeshiftAsync(int slotIndex)
     {
       try
       {
@@ -145,7 +161,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               slotIndex
             };
 
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         if (success)
         {
@@ -179,13 +195,28 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext)
     {
+      var result = GetNowNextProgramAsync(channel).Result;
+      if (result.Success && result.Result?.Length == 2)
+      {
+        programNow = result.Result[0];
+        programNext = result.Result[1];
+        return true;
+      }
+      programNow = programNext = null;
+      return false;
+    }
+
+    public async Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
+    {
       ProgramNowNextValue programs;
+      IProgram[] programNowNext = new IProgram[2];
+
       _programCache.ClearCache(channel);
       if (_programCache.TryGetPrograms(channel, out programs))
       {
-        programNow = programs.ProgramNow;
-        programNext = programs.ProgramNext;
-        return true;
+        programNowNext[0] = programs.ProgramNow;
+        programNowNext[1] = programs.ProgramNext;
+        return new AsyncResult<IProgram[]>(true, programNowNext);
       }
       try
       {
@@ -195,26 +226,24 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               channel.ChannelId
             };
 
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         if (success)
         {
-          programNow = (Program)outParameters[1];
-          programNext = (Program)outParameters[2];
-          _programCache.TryAdd(channel, programNow, programNext);
-          return true;
+          programNowNext[0] = (Program)outParameters[1];
+          programNowNext[1] = (Program)outParameters[2];
+          _programCache.TryAdd(channel, programNowNext[0], programNowNext[1]);
+          return new AsyncResult<IProgram[]>(true, programNowNext);
         }
       }
       catch (Exception ex)
       {
         NotifyException(ex);
       }
-      programNow = null;
-      programNext = null;
-      return false;
+      return new AsyncResult<IProgram[]>(false, null);
     }
 
-    public async Task<Tuple<bool, IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup)
+    public async Task<AsyncResult<IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup)
     {
       try
       {
@@ -246,61 +275,32 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
             nowNextPrograms[channelId] = nowNext;
           }
-          return new Tuple<bool, IDictionary<int, IProgram[]>>( true, nowNextPrograms);
+          return new AsyncResult<IDictionary<int, IProgram[]>>(true, nowNextPrograms);
         }
       }
       catch (Exception ex)
       {
         NotifyException(ex);
       }
-      return new Tuple<bool, IDictionary<int, IProgram[]>>(false, null);
+      return new AsyncResult<IDictionary<int, IProgram[]>>(false, null);
     }
 
     public bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> nowNextPrograms)
     {
-      try
-      {
-        CpAction action = GetAction(Consts.ACTION_GET_NOW_NEXT_PROGRAM_FOR_GROUP);
-        IList<object> inParameters = new List<object>
-            {
-              channelGroup.ChannelGroupId
-            };
-
-        IList<object> outParameters = action.InvokeAction(inParameters);
-        bool success = (bool)outParameters[0];
-        if (success)
-        {
-          DateTime now = DateTime.Now;
-          nowNextPrograms = new Dictionary<int, IProgram[]>();
-          var programs = (IList<Program>)outParameters[1];
-          foreach (Program program in programs)
-          {
-            IProgram[] nowNext;
-            int channelId = program.ChannelId;
-            if (!nowNextPrograms.TryGetValue(channelId, out nowNext))
-              nowNext = new IProgram[2];
-
-            if (program.StartTime > now)
-              nowNext[1] = program;
-            else
-              nowNext[0] = program;
-
-            nowNextPrograms[channelId] = nowNext;
-          }
-          return true;
-        }
-      }
-      catch (Exception ex)
-      {
-        NotifyException(ex);
-      }
-      nowNextPrograms = null;
-      return false;
+      var result = GetNowAndNextForChannelGroupAsync(channelGroup).Result;
+      nowNextPrograms = result.Result;
+      return result.Success;
     }
 
     public bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs)
     {
-      programs = null;
+      var result = GetProgramsGroupAsync(channelGroup, from, to).Result;
+      programs = result.Result;
+      return result.Success;
+    }
+
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to)
+    {
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_PROGRAMS_GROUP);
@@ -311,25 +311,31 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               to
             };
 
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         if (success)
         {
           IList<Program> programList = (IList<Program>)outParameters[1];
-          programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
-          return true;
+          IList<IProgram> programs = programList.Distinct(ProgramComparer.Instance).ToList();
+          return new AsyncResult<IList<IProgram>>(true, programs);
         }
       }
       catch (Exception ex)
       {
         NotifyException(ex);
       }
-      return false;
+      return new AsyncResult<IList<IProgram>>(false, null);
     }
 
     public bool GetPrograms(string title, DateTime from, DateTime to, out IList<IProgram> programs)
     {
-      programs = null;
+      var result = GetProgramsAsync(title, from, to).Result;
+      programs = result.Result;
+      return result.Success;
+    }
+
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to)
+    {
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_PROGRAMS_BY_TITLE);
@@ -340,25 +346,31 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               to
             };
 
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         if (success)
         {
           IList<Program> programList = (IList<Program>)outParameters[1];
-          programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
-          return true;
+          var programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
+          return new AsyncResult<IList<IProgram>>(true, programs);
         }
       }
       catch (Exception ex)
       {
         NotifyException(ex);
       }
-      return false;
+      return new AsyncResult<IList<IProgram>>(false, null);
     }
 
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
-      programs = null;
+      var result = GetProgramsAsync(channel, from, to).Result;
+      programs = result.Result;
+      return result.Success;
+    }
+
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to)
+    {
       // We only want to cache single time queries
       if (from == to)
       {
@@ -366,8 +378,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         ProgramNowNextValue programsCache;
         if (_programCache.TryGetProgramsByTime(channel, from, out programsCache))
         {
-          programs = new List<IProgram> { programsCache.ProgramNow };
-          return true;
+          var programs = new List<IProgram> { programsCache.ProgramNow };
+          return new AsyncResult<IList<IProgram>>(true, programs);
         }
       }
       try
@@ -380,47 +392,53 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               to
             };
 
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         if (success)
         {
           IList<Program> programList = (IList<Program>)outParameters[1];
-          programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
+          var programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
           if (from == to)
           {
             _programCache.TryAdd(channel, programs[0], null);
           }
-          return true;
+          return new AsyncResult<IList<IProgram>>(true, programs);
         }
       }
       catch (Exception ex)
       {
         NotifyException(ex);
       }
-      return false;
+      return new AsyncResult<IList<IProgram>>(false, null);
     }
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
+    {
+      var result = GetProgramsForScheduleAsync(schedule).Result;
+      programs = result.Result;
+      return result.Success;
+    }
+
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_PROGRAMS_FOR_SCHEDULE);
         IList<object> inParameters = new List<object> { schedule };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         if (success)
         {
           IList<Program> programList = (IList<Program>)outParameters[1];
-          programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
-          return true;
+          var programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
+          return new AsyncResult<IList<IProgram>>(true, programs);
         }
       }
       catch (Exception ex)
       {
         NotifyException(ex);
       }
-      programs = null;
-      return false;
+      return new AsyncResult<IList<IProgram>>(false, null);
     }
 
     public bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)
@@ -502,7 +520,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         if (success)
         {
           channels = channelList.Cast<IChannel>().ToList();
-          foreach(var channel in channels)
+          foreach (var channel in channels)
             _channelCache[channel.ChannelId] = channel;
           return true;
         }
@@ -550,7 +568,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       try
       {
         CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE);
-        IList<object> inParameters = new List<object> { program.ProgramId, (int) recordingType };
+        IList<object> inParameters = new List<object> { program.ProgramId, (int)recordingType };
         IList<object> outParameters = action.InvokeAction(inParameters);
         bool result = (bool)outParameters[0];
         schedule = result ? (ISchedule)outParameters[1] : null;

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -359,10 +360,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _programsList.FireChange();
     }
 
-    protected override RecordingStatus? CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
+    protected override async Task<RecordingStatus?> CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
     {
       _lastProgramId = program.ProgramId;
-      var newStatus = base.CreateOrDeleteSchedule(program, recordingType);
+      var newStatus = await base.CreateOrDeleteSchedule(program, recordingType);
 
       UpdateButtonStateForSchedule();
 

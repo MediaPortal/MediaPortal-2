@@ -25,14 +25,84 @@
 using System.Collections.Generic;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
+
+  public class AsyncResult<T>
+  {
+    public AsyncResult() { }
+
+    public AsyncResult(bool success, T result)
+    {
+      Success = success;
+      Result = result;
+    }
+    public bool Success { get; set; }
+    public T Result { get; set; }
+  }
+
   public interface IProgramInfoAsync
   {
-    Task<Tuple<bool, IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup);
+    /// <summary>
+    /// Tries to get the current and next program for the given <paramref name="channel"/>.
+    /// </summary>
+    /// <param name="channel">Channel</param>
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if programs could be found.
+    /// <see cref="AsyncResult{T}.Result"/> an array of now/next programs.
+    /// </returns>
+    Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel);
+
+    /// <summary>
+    /// Tries to get the current and next program for all channels of the the given <paramref name="channelGroup"/>.
+    /// </summary>
+    /// <param name="channelGroup">Channel group</param>
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if programs could be found.
+    /// <see cref="AsyncResult{T}.Result"/> programs.
+    /// </returns>
+    Task<AsyncResult<IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup);
+
+    /// <summary>
+    /// Tries to get a list of programs for the given <paramref name="channel"/> and time range.
+    /// </summary>
+    /// <param name="channel">Channel</param>
+    /// <param name="from">Time from</param>
+    /// <param name="to">Time to</param>
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one program could be found.
+    /// <see cref="AsyncResult{T}.Result"/> programs.
+    /// </returns>
+    Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to);
+
+    /// <summary>
+    /// Tries to get a list of programs for the given <paramref name="channelGroup"/> and time range.
+    /// </summary>
+    /// <param name="channelGroup">Channel group</param>
+    /// <param name="from">Time from</param>
+    /// <param name="to">Time to</param>
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one program could be found.
+    /// <see cref="AsyncResult{T}.Result"/> programs.
+    /// </returns>
+    Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to);
   }
+
+  ///// <summary>
+  ///// Tries to get a list of programs for the given <paramref name="schedule"/>.
+  ///// </summary>
+  ///// <param name="channelGroup">Channel group</param>
+  ///// <param name="from">Time from</param>
+  ///// <param name="to">Time to</param>
+  ///// <returns>
+  ///// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one program could be found.
+  ///// <see cref="AsyncResult{T}.Result"/> programs.
+  ///// </returns>
+  //Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule);
+
 
   /// <summary>
   /// IProgramInfo defines all actions and properties for TV programs handling.
