@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -117,7 +118,7 @@ namespace MediaPortal.UiComponents.Media.Views
       return new ServerConnectionChangeNotificator();
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -139,6 +140,7 @@ namespace MediaPortal.UiComponents.Media.Views
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
       return cd.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
+      //return cd.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

@@ -31,6 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -728,13 +729,5 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
     }
 
     #endregion
-  }
-
-  public static class CpActionExtension
-  {
-    public static async Task<IList<object>> InvokeAsync(this CpAction action, IList<object> inParameters)
-    {
-      return await Task.Factory.FromAsync((callback, stateObject) => action.BeginInvokeAction(inParameters, callback, stateObject), action.EndInvokeAction, null);
-    }
   }
 }

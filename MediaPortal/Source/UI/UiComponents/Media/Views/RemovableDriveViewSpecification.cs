@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Views.RemovableMediaDrives;
@@ -109,7 +110,7 @@ namespace MediaPortal.UiComponents.Media.Views
       return new RemovableDriveChangeNotificator(_driveInfo.Name);
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       return _removableDriveHandler.GetAllMediaItems();
     }

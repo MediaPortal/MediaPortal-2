@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
@@ -94,7 +95,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       DoSearch();
     }
 
-    protected override IEnumerable<MediaItem> GetAllMediaItemsOverride()
+    protected override async Task<IEnumerable<MediaItem>> GetAllMediaItemsOverride()
     {
       return BuildAllItemsView().MediaItems;
     }

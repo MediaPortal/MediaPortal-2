@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.Views;
 
@@ -70,7 +71,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       }
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       return _mediaItems;
     }

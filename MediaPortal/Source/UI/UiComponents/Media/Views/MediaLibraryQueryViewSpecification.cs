@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -125,7 +126,7 @@ namespace MediaPortal.UiComponents.Media.Views
       };
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -136,16 +137,23 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      return cd.Search(_query, _onlyOnline, userProfile, ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs));
+      return await cd.SearchAsync(_query, _onlyOnline, userProfile, ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs));
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
-      mediaItems = null;
-      subViewSpecifications = null;
+      var result = ReLoadItemsAndSubViewSpecificationsAsync().Result;
+      mediaItems = result.Item1;
+      subViewSpecifications = result.Item2;
+    }
+
+    protected internal async Task<Tuple<IList<MediaItem>, IList<ViewSpecification>>> ReLoadItemsAndSubViewSpecificationsAsync()
+    {
+      IList<MediaItem> mediaItems = null;
+      IList<ViewSpecification> subViewSpecifications = null;
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        return;
+        return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(null, null);
 
       bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
       Guid? userProfile = null;
@@ -176,19 +184,19 @@ namespace MediaPortal.UiComponents.Media.Views
               subViewSpecification._absNumItems = group.NumItemsInGroup;
               subViewSpecifications.Add(subViewSpecification);
             }
-            return;
+            return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(mediaItems, subViewSpecifications);
           }
           // Else: No grouping
         }
         // Else: No grouping
-        mediaItems = cd.Search(_query, _onlyOnline, userProfile, showVirtual);
+        mediaItems = await cd.SearchAsync(_query, _onlyOnline, userProfile, showVirtual);
         subViewSpecifications = new List<ViewSpecification>(0);
+        return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(mediaItems, subViewSpecifications);
       }
       catch (UPnPRemoteException e)
       {
         ServiceRegistration.Get<ILogger>().Error("SimpleTextSearchViewSpecification.ReLoadItemsAndSubViewSpecifications: Error requesting server", e);
-        mediaItems = null;
-        subViewSpecifications = null;
+        return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(null, null);
       }
     }
   }

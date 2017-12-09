@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
@@ -293,8 +294,13 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (IList<MediaItem>)outParameters[0];
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual, 
+    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual,
       uint? offset = null, uint? limit = null)
+    {
+      return SearchAsync(query, onlyOnline, userProfile, includeVirtual, offset, limit).Result;
+    }
+
+    public async Task<IList<MediaItem>> SearchAsync(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual,  uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_Search");
       String onlineStateStr = SerializeOnlineState(onlyOnline);
@@ -307,7 +313,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
         includeVirtual
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
 
