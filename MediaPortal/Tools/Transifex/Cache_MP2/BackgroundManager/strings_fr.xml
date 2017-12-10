@@ -3,6 +3,7 @@
   <string name="Settings.Appearance.Skin.Background.VideoBackground">Vidéo en arrière plan</string>
   <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Activer la vidéo en arrière-plan et sélectionner la vidéo</string>
   <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Activer vidéo en arrière-plan</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Paramétrage de la vidéo en arrière plan</string>
   <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Fichier vidéo</string>
   <string name="Settings.Appearance.Skin.Background.Setup.Select">Sélectionner</string>
   <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Sélectionner la vidéo désirée</string>

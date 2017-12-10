@@ -23,6 +23,7 @@
   <!--Extended recording features-->
   <!--Schedule management-->
   <!--Settings-->
+  <string name="SlimTvClient.Notifications">Bildirimler</string>
   <string name="SlimTvClient.RecordingsMenuItem">Kayıtlar</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV Kayıtları</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Kanala göre filtrele</string>

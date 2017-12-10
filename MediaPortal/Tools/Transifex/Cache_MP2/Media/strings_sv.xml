@@ -140,6 +140,7 @@
   <string name="Media.SeasonItemsHeader">Säsong(er)</string>
   <string name="Media.MoviesItemsHeader">Film(er)</string>
   <string name="Media.ImageItemsHeader">Bild(er)</string>
+  <string name="Media.DiscItemsHeader">Skivor</string>
   <string name="Media.TrackItemsHeader">Spår</string>
   <string name="Media.SimpleSearchHeader">Enkel sökning</string>
   <string name="Media.ChooseCollectionHeader">Samling(ar)</string>
@@ -252,6 +253,7 @@
   <string name="Media.SetWatched">Markera som sedda</string>
   <string name="Media.SetUnwatched">Markera som inte sedda</string>
   <string name="Media.DeleteFromStorage">Ta bort filen.</string>
+  <string name="Media.DeleteFromStorage.Confirmation">Är du säker på att du vill ta bort filen? Du kan inte ångra borttagningen.</string>
   <string name="Media.ConfirmAction">Bekräfta</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spela media-fil</string>
@@ -390,9 +392,11 @@
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, hur nya spelare ska positioneras bland redan öppna spelare</string>
   <string name="Settings.Players.WatchedPlayPercentage">Gräns för markering som sedd i procent </string>
   <string name="Settings.Players.WatchedPlayPercentage.Help">Sätt gräns för hur många procent av en video som behöver visas innan den markeras som sedd. </string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd">Konfigurera spelare i OSD</string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd.Help">Aktivera detta för att visa konfigurering av spelare när du trycker på \'Info\' andra gången</string>
   <string name="Settings.Media">Mediabibliotek</string>
   <string name="Settings.Media.ShowVirtual">Visa all känd media</string>
-  <string name="Settings.Media.ShowVirtual.Help">Välj om alla kända media ska visas även det inte finns någon lokal fil,</string>
+  <string name="Settings.Media.ShowVirtual.Help">Välj om alla kända media ska visas även det inte finns någon lokal fil</string>
   <string name="Settings.Media.ShowVirtual.Audio">Visa alla kända albumspår</string>
   <string name="Settings.Media.ShowVirtual.Movie">Visa alla kända filmsamlingar</string>
   <string name="Settings.Media.ShowVirtual.Series">Visa alla kända säsonger och avsnitt</string>

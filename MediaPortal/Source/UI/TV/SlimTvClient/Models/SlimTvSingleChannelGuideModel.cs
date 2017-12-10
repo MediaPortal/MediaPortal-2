@@ -140,7 +140,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IChannel channel = CurrentChannel;
       if (channel != null)
       {
-        if (_tvHandler.ProgramInfo.GetPrograms(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24), out _programs))
+        if (_tvHandler.ProgramInfo.GetPrograms(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddDays(8), out _programs))
         {
           foreach (IProgram program in _programs)
           {

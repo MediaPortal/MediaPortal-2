@@ -49,6 +49,7 @@
   <!--Settings-->
   <string name="SlimTvClient.EpgNumberOfHours">Antal af timer i EPG</string>
   <string name="SlimTvClient.AutoStartTv">Start TV automatisk</string>
+  <string name="SlimTvClient.Notifications">Meddelelser</string>
   <string name="SlimTvClient.RecordingsMenuItem">Optagelser</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV optagelser</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer pr. kanal</string>

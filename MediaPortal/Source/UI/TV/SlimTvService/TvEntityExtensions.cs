@@ -52,6 +52,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         ProgramId = tvProgram.IdProgram,
         Title = tvProgram.Title,
         Description = tvProgram.Description,
+        Genre = tvProgram.Genre,
         StartTime = tvProgram.StartTime,
         EndTime = tvProgram.EndTime,
         SeasonNumber = tvProgram.SeriesNum,
@@ -128,6 +129,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
           ProgramId = tvProgram.IdProgram,
           Title = tvProgram.Title,
           Description = tvProgram.Description,
+          // TODO: Morpheus_xx, 2017-11-25: TVE35 handles genres differently, needs to be checked and fixed.
+          // Genre = tvProgram.ProgramCategory?.Category,
           StartTime = tvProgram.StartTime,
           EndTime = tvProgram.EndTime,
           SeasonNumber = tvProgram.SeriesNum,

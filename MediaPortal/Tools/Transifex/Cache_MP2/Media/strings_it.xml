@@ -252,6 +252,7 @@
   <string name="Media.SetWatched">Imposta come già visto</string>
   <string name="Media.SetUnwatched">Imposta come non ancora visto</string>
   <string name="Media.DeleteFromStorage">Cancella dal supporto</string>
+  <string name="Media.DeleteFromStorage.Confirmation">Sei sicuro di volere rimuovere questo elemento? L\'azione non può essere annullata.</string>
   <string name="Media.ConfirmAction">Conferma l\'azione</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Riproduci contenuto</string>

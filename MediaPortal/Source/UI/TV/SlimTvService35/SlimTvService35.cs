@@ -331,6 +331,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
+    public override bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
+    {
+      // TODO:
+      schedule = null;
+      return false;
+    }
+
     public override bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
