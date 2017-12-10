@@ -90,6 +90,13 @@
   <string name="SlimTvClient.HideAllChannelsGroup.Help">När funktionen är aktiverad så döljs kanalgruppen \"Alla kanaler\" </string>
   <string name="SlimTvClient.ChannelLogoStyle">Utseende på kanallogotyperna.</string>
   <string name="SlimTvClient.ChannelLogoStyle.Help">Välj utseende på kanallogotyperna. Både servern och klienten måste startas om.</string>
+  <string name="SlimTvClient.RecordingNotificationDuration">Timeout för meddelanden om inspelningar</string>
+  <string name="SlimTvClient.RecordingNotificationDuration.Help">Bestäm hur lång timeout du vill ha för meddelanden om inspelningar</string>
+  <string name="SlimTvClient.Notifications">Meddelanden</string>
+  <string name="SlimTvClient.ShowRecordingStartedNotifications">Visa ett meddelande när en inspelning startar</string>
+  <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Bestäm om du vill visa ett meddelande när inspelningar startar</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications">Visa ett meddelande när en inspelning slutar</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Bestäm om du vill visa ett meddelande när inspelningar slutar</string>
   <string name="SlimTvClient.RecordingsMenuItem">Inspelningar</string>
   <string name="SlimTvClient.Recordings.Help">Här kan du se en lista av dina inspelade program. Du kan även spela upp dessa program.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV-inspelningar</string>
@@ -99,4 +106,6 @@
   <string name="SlimTvClient.NameFilterMenuItemLabel">Filtrera på namn</string>
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
   <string name="SlimTvClient.RecordingsByNameHeader">Inspelningar per namn</string>
+  <string name="SlimTvClient.RecordingStartedHeader">Inspelningen startade</string>
+  <string name="SlimTvClient.RecordingEndedHeader">Inspelningen slutade</string>
 </resources>

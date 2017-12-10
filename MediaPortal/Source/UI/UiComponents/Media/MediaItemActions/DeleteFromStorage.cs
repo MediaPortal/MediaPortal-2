@@ -62,18 +62,14 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     }
 
     // TODO: Add to Settings
-    protected List<DeleteRule> _defaultRules = new List<DeleteRule>
-    {
-      new DeleteRule
-      {
-        IsEnabled = true,
-        DeleteEmptyFolders = true,
-        HasAspectGuid = new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913") /* RecordingAspect.ASPECT_ID*/,
-        DeleteOtherExtensions = new List<string> { ".xml", ".jpg" } /* Standard .xml file of recording and optional created thumbnail */
-      }
-    };
+    protected List<DeleteRule> _defaultRules = new List<DeleteRule>();
 
     public override bool IsAvailable(MediaItem mediaItem)
+    {
+      return !IsRecording(mediaItem) && IsResourceDeletor(mediaItem);
+    }
+
+    protected static bool IsResourceDeletor(MediaItem mediaItem)
     {
       try
       {
@@ -85,6 +81,11 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       {
         return false;
       }
+    }
+
+    protected static bool IsRecording(MediaItem mediaItem)
+    {
+      return mediaItem.Aspects.ContainsKey(new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913") /* RecordingAspect.ASPECT_ID*/);
     }
 
     public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
@@ -175,7 +176,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       return true;
     }
 
-    public string ConfirmationMessage
+    public virtual string ConfirmationMessage
     {
       get { return "[Media.DeleteFromStorage.Confirmation]"; }
     }

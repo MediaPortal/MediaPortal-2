@@ -378,6 +378,7 @@
             <ColumnDefinition Width="AutoStretch"/>
             <ColumnDefinition Width="AutoStretch"/>
             <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -401,7 +402,7 @@
           <Button Content="L" Grid.Row="0" Grid.Column="8" Margin="{ThemeResource VKMargin}" Style="{ThemeResource VKButtonStyle}"
               Command="{Command Path=Character,Parameters=L}"/>
           <Button Content="Ö" Grid.Row="0" Grid.Column="9" Margin="{ThemeResource VKMargin}" Style="{ThemeResource VKButtonStyle}"
-              Command="{Command Path=Character,Parameters=:}"/>
+              Command="{Command Path=Character,Parameters=Ö}"/>
           <Button Content="Ä" Grid.Row="0" Grid.Column="10" Margin="{ThemeResource VKMargin}" Style="{ThemeResource VKButtonStyle}"
                   Command="{Command Path=Character,Parameters=Ä}"/>
           <Button Content="'" Grid.Row="0" Grid.Column="11" Margin="{ThemeResource VKMargin}" Style="{ThemeResource VKButtonStyle}"

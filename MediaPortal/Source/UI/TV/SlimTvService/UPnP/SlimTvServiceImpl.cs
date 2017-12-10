@@ -247,7 +247,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("Schedules", A_ARG_TYPE_Schedules, ArgumentDirection.Out, true)
+                                       new DvArgument("Schedules", A_ARG_TYPE_Schedules, ArgumentDirection.Out, false)
                                      });
       AddAction(getSchedules);
 
@@ -260,7 +260,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, true)
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, false)
                                      });
       AddAction(createSchedule);
 
@@ -275,7 +275,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, true)
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, false)
                                      });
       AddAction(createScheduleByTime);
 
@@ -322,7 +322,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("RecordingStatus", A_ARG_TYPE_RecordingStatus, ArgumentDirection.Out, true)
+                                       new DvArgument("RecordingStatus", A_ARG_TYPE_RecordingStatus, ArgumentDirection.Out, false)
                                      });
       AddAction(getRecordingStatus);
 
@@ -334,9 +334,21 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("FileOrStream", A_ARG_TYPE_String, ArgumentDirection.Out, true)
+                                       new DvArgument("FileOrStream", A_ARG_TYPE_String, ArgumentDirection.Out, false)
                                      });
       AddAction(getRecordingFileOrStream);
+
+      DvAction isCurrentlyRecording = new DvAction(Consts.ACTION_GET_IS_CURRENT_REC, OnIsCurrentlyRecording,
+                            new[]
+                                     {
+                                       new DvArgument("FileName", A_ARG_TYPE_String, ArgumentDirection.In)
+                                     },
+                            new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, false)
+                                     });
+      AddAction(isCurrentlyRecording);
 
       #endregion
     }
@@ -660,6 +672,21 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       bool result = programInfo.GetProgram(programId, out program) && scheduleControl.GetRecordingFileOrStream(program, out fileOrStream);
 
       outParams = new List<object> { result, fileOrStream };
+      return null;
+    }
+
+    private UPnPError OnIsCurrentlyRecording(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      if (scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      string fileName = (string)inParams[0];
+      ISchedule schedule;
+      bool result = scheduleControl.IsCurrentlyRecording(fileName, out schedule);
+
+      outParams = new List<object> { result, schedule };
       return null;
     }
   }

@@ -26,6 +26,7 @@
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Tidak ada penyedia TV tersedia (belum)</string>
   <!--Settings-->
+  <string name="SlimTvClient.Notifications">Notifikasi</string>
   <string name="SlimTvClient.RecordingsMenuItem">Rekaman</string>
   <string name="SlimTvClient.RecordingsRootViewName">Rekaman TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Saring berdasarkan saluran</string>

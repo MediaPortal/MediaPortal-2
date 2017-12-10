@@ -78,6 +78,10 @@
   <string name="Settings.ServerSettings.ImageMDESettings">Подешавање уноса слике</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Претражи детаље геолокације</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Да ли користити геолокацију нађену са географских координата смештених у слици.</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline">Скини ФанАрт за коришћење без прикључења на интернет</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help">Подеси који ФанАрт је доступан чак и без интернета.</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineNetwork">Сачувај ФанАрт на мрежи</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineLocal">Сачувај Фан Арт локално</string>
   <string name="Settings.ServerSettings.FanArtSettings">ФанАрт подешавања</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops">Максимални број позадине</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help">Максимум број доступних позадина. Већи број захтева више места за чување на диску.</string>

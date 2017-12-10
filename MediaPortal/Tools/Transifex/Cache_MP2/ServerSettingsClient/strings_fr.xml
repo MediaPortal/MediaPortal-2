@@ -78,6 +78,10 @@
   <string name="Settings.ServerSettings.ImageMDESettings">Paramètres d\'importation des Images</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Détails de la recherche par géolocalisation</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Autorisé la géolocalisation à partir des coordonnées géographiques stockées dans l\'image.</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline">Cache FanArt pour la navigation hors connexion</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help">Sélectionnez quel FanArt doit être disponible à partir d\'un partage, même lorsqu\'il est hors ligne. </string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineNetwork">Cache FanArt sur un partage réseau </string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineLocal">Cache FanArt sur un dossier locale </string>
   <string name="Settings.ServerSettings.FanArtSettings">Paramètres FanArt</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops">Nombre max d\'arriere plan</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help">Le nombre maximum d’arrière plan disponible. Un nombre plus élevé d’arrière plan nécessitera plus d\'espace disque.</string>

@@ -13,7 +13,7 @@
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Övergång utan toning</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Tonad övergång</string>
   <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Uppspelningsbuffert</string>
-  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Buffertstorlek i sekunder [0-300]</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Buffertstorlek i millisekunder [0-300]</string>
   <string name="Settings.Players.Rendering.DirectSoundBufferSize">Direct Sound</string>
   <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Uppspelning</string>

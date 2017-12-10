@@ -634,13 +634,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.RecordManual]")
         {
-          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(new Program
-          {
-            Title = localization.ToString("[SlimTvClient.ManualRecordingTitle]"),
-            ChannelId = context.Channel.ChannelId,
-            StartTime = DateTime.Now,
-            EndTime = DateTime.Now.AddDays(1)
-          }))
+          Command = new MethodDelegateCommand(() => CreateOrDeleteScheduleByTime(context.Channel, DateTime.Now, DateTime.Now.AddDays(1)))
         };
         _dialogActionsList.Add(item);
       }
@@ -1000,8 +994,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void GetNowAndNextProgramsList_Async()
     {
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(GetNowAndNextProgramsList);
+      //IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      //threadPool.Add(GetNowAndNextProgramsList);
+      // Morpheus_xx, 2017-12-06: temporary load programs synchronously to fix initial empty program infos.
+      // This part will be reworked completely to a real "async" pattern.
+      GetNowAndNextProgramsList();
     }
 
     protected void GetNowAndNextProgramsList()

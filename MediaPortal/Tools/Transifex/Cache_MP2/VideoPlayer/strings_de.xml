@@ -15,7 +15,7 @@
   <string name="Settings.Players.Codecs.AudioCodecs">Audio-Codecs</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Audio-Ausgabegerät</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2-Audiocodec</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Audio-Codec für MPGE1/2 auswählen</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Audio-Codec für MPEG1/2 auswählen</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC-Audiocodec</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Audio-Codec für LATM-AAC auswählen</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC-Audiocodec</string>

@@ -31,6 +31,7 @@
   <string name="SlimTvClient.EpgNumberOfRows.Help">מגדיר את מספר השורות (הערוצים) המוצגים במדריך הערוצים</string>
   <string name="SlimTvClient.EpgNumberOfHours">מספר השעות במדריך הערוצים</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">מגדיר את מספר השעות (התוכניות) המוצגות במדריך הערוצים</string>
+  <string name="SlimTvClient.Notifications">התראות</string>
   <string name="SlimTvClient.RecordingsMenuItem">הקלטות</string>
   <string name="SlimTvClient.RecordingsRootViewName">הקלטות מטלויזיה</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">סנן לפי ערוץ</string>
