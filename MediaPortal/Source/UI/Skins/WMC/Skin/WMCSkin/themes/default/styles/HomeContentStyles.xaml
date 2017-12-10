@@ -59,15 +59,15 @@
   </DataTemplate>
 
   <DataTemplate x:Key="ProgramsDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Margin="-5,0,-35,0">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Margin="-5,0,-35,0" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="20*"/>
         <ColumnDefinition Width="70*"/>
         <ColumnDefinition Width="10*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="45"/>
-        <RowDefinition Height="45"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Border Background="Black" CornerRadius="5" BorderThickness="0" Opacity="0.2" HorizontalAlignment="Stretch" 
               Grid.ColumnSpan="3" Grid.RowSpan="2" VerticalAlignment="Stretch"/>
@@ -90,15 +90,15 @@
   </DataTemplate>
 
   <DataTemplate x:Key="SchedulesDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Margin="-5,0,-35,0">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Margin="-5,0,-35,0" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="20*"/>
         <ColumnDefinition Width="70*"/>
         <ColumnDefinition Width="10*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="45"/>
-        <RowDefinition Height="45"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Border Background="Black" CornerRadius="5" BorderThickness="0" Opacity="0.2" HorizontalAlignment="Stretch" 
               Grid.ColumnSpan="3" Grid.RowSpan="2" VerticalAlignment="Stretch"/>

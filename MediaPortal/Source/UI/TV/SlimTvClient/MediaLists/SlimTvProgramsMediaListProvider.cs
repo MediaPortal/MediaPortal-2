@@ -81,8 +81,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
         if (currentProgram != null)
           programs.Add(new Tuple<IProgram, IChannel>(currentProgram, channel));
-        if (nextProgram != null)
-          programs.Add(new Tuple<IProgram, IChannel>(nextProgram, channel));
+
       }
 
       lock (_allItems.SyncRoot)
