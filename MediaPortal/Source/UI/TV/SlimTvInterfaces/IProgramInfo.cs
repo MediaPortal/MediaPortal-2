@@ -105,9 +105,11 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// Gets a channel from an IProgram.
     /// </summary>
     /// <param name="program">Program.</param>
-    /// <param name="channel">Channel.</param>
-    /// <returns>True if succeeded.</returns>
-    bool GetChannel(IProgram program, out IChannel channel);
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one program could be found.
+    /// <see cref="AsyncResult{T}.Result"/> Channel.
+    /// </returns>
+    Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program);
   }
 
   ///// <summary>

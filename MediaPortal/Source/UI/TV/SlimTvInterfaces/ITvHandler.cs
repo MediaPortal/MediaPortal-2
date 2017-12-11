@@ -39,24 +39,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     void Initialize();
 
     /// <summary>
-    /// Exposes the ITimeshiftControl interface of active TvProvider.
-    /// </summary>
-    //ITimeshiftControl TimeshiftControl { get; }
-
-    /// <summary>
     /// Exposes the ITimeshiftControlAsync interface of active TvProvider.
     /// </summary>
     ITimeshiftControlAsync TimeshiftControl { get; }
 
     /// <summary>
-    /// Exposes the IChannelAndGroupInfo interface of active TvProvider.
+    /// Exposes the IChannelAndGroupInfoAsync interface of active TvProvider.
     /// </summary>
-    IChannelAndGroupInfo ChannelAndGroupInfo { get; }
-
-    /// <summary>
-    /// Exposes the IProgramInfo interface of active TvProvider.
-    /// </summary>
-    //IProgramInfo ProgramInfo { get; }
+    IChannelAndGroupInfoAsync ChannelAndGroupInfo { get; }
 
     /// <summary>
     /// Exposes the IProgramInfoAsync interface of active TvProvider.

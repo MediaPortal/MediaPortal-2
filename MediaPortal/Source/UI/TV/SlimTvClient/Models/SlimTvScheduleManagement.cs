@@ -213,7 +213,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (selectedItem == null)
         return;
       ISchedule schedule = (ISchedule)selectedItem.AdditionalProperties["SCHEDULE"];
-      UpdateScheduleDetails(schedule);
+      UpdateScheduleDetails(schedule).Wait();
       if (selectedItem.AdditionalProperties.ContainsKey("PROGRAM"))
       {
         IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
@@ -225,7 +225,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
-    private void UpdateScheduleDetails(ISchedule schedule)
+    private async Task UpdateScheduleDetails(ISchedule schedule)
     {
       // Clear properties if no schedule is given
       if (schedule == null)
@@ -236,8 +236,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
       string channelName = string.Empty;
       IChannel channel = null;
-      if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.GetChannel(schedule.ChannelId, out channel))
-        channelName = channel.Name;
+      if (_tvHandler.ChannelAndGroupInfo != null)
+      {
+        var result = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(schedule.ChannelId);
+        if (result.Success)
+        {
+          channel = result.Result;
+          channelName = channel.Name;
+        }
+      }
 
       StartTime = schedule.StartTime;
       EndTime = schedule.EndTime;
@@ -255,7 +262,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected async Task LoadSchedules()
     {
-      UpdateScheduleDetails(null);
+      await UpdateScheduleDetails(null);
       if (_tvHandler.ScheduleControl == null)
         return;
 
@@ -318,17 +325,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     private int ProgramStartTimeComparison(ListItem p1, ListItem p2)
     {
-      var program1 = ((IProgram)p1.AdditionalProperties["PROGRAM"]);
-      var program2 = ((IProgram)p2.AdditionalProperties["PROGRAM"]);
+      var program1 = (IProgram)p1.AdditionalProperties["PROGRAM"];
+      var program2 = (IProgram)p2.AdditionalProperties["PROGRAM"];
       int res = DateTime.Compare(program1.StartTime, program2.StartTime);
       if (res != 0)
         return res;
 
-      IChannel channel1;
-      IChannel channel2;
-      if (_tvHandler.ChannelAndGroupInfo.GetChannel(program1.ChannelId, out channel1) &&
-          _tvHandler.ChannelAndGroupInfo.GetChannel(program2.ChannelId, out channel2))
-        return String.Compare(channel1.Name, channel2.Name, StringComparison.InvariantCultureIgnoreCase);
+      var ch1 = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program1.ChannelId).Result;
+      var ch2 = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program2.ChannelId).Result;
+      if (ch1.Success && ch2.Success)
+        return String.Compare(ch1.Result.Name, ch2.Result.Name, StringComparison.InvariantCultureIgnoreCase);
 
       return 0;
     }
@@ -338,8 +344,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     private int ChannelAndProgramStartTimeComparison(ListItem p1, ListItem p2)
     {
-      var schedule1 = ((ISchedule)p1.AdditionalProperties["SCHEDULE"]);
-      var schedule2 = ((ISchedule)p2.AdditionalProperties["SCHEDULE"]);
+      var schedule1 = (ISchedule)p1.AdditionalProperties["SCHEDULE"];
+      var schedule2 = (ISchedule)p2.AdditionalProperties["SCHEDULE"];
 
       // The "Once" schedule should appear first
       if (schedule1.RecordingType == ScheduleRecordingType.Once && schedule2.RecordingType != ScheduleRecordingType.Once)
@@ -359,11 +365,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (res != 0)
         return res;
 
-      IChannel channel1;
-      IChannel channel2;
-      if (_tvHandler.ChannelAndGroupInfo.GetChannel(schedule1.ChannelId, out channel1) &&
-          _tvHandler.ChannelAndGroupInfo.GetChannel(schedule2.ChannelId, out channel2))
-        return String.Compare(channel1.Name, channel2.Name, StringComparison.InvariantCultureIgnoreCase);
+      var ch1 = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(schedule1.ChannelId).Result;
+      var ch2 = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(schedule2.ChannelId).Result;
+      if (ch1.Success && ch2.Success)
+        return String.Compare(ch1.Result.Name, ch2.Result.Name, StringComparison.InvariantCultureIgnoreCase);
+
       return 0;
     }
 
@@ -374,9 +380,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         Command = new MethodDelegateCommand(() => ShowActions(currentSchedule))
       };
-      IChannel channel;
-      if (_tvHandler.ChannelAndGroupInfo.GetChannel(currentSchedule.ChannelId, out channel))
-        item.SetLabel("ChannelName", channel.Name);
+      var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(currentSchedule.ChannelId).Result;
+      if (result.Success)
+        item.SetLabel("ChannelName", result.Result.Name);
       item.SetLabel("StartTime", schedule.StartTime.FormatProgramStartTime());
       item.SetLabel("EndTime", schedule.EndTime.FormatProgramEndTime());
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
@@ -388,9 +394,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       ProgramProperties programProperties = new ProgramProperties();
       IProgram currentProgram = program;
-      IChannel channel;
-      if (!_tvHandler.ChannelAndGroupInfo.GetChannel(currentProgram.ChannelId, out channel))
-        channel = null;
+      var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(currentProgram.ChannelId).Result;
+      var channel = !result.Success ? null : result.Result;
       programProperties.SetProgram(currentProgram, channel);
 
       ListItem item = new ProgramListItem(programProperties)

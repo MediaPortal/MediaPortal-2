@@ -150,14 +150,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         ChannelGroup = _channelGroups.FirstOrDefault();
     }
 
-    protected void InitChannels(IChannelGroup channelGroup)
+    protected async Task InitChannels(IChannelGroup channelGroup)
     {
-      if (channelGroup == null || !_tvHandler.ChannelAndGroupInfo.GetChannels(channelGroup, out _channels))
-      {
-        _channels = new List<IChannel>();
-        Channel = null;
+      _channels = new List<IChannel>();
+      Channel = null;
+
+      if (channelGroup == null)
         return;
-      }
+
+      var result = await _tvHandler.ChannelAndGroupInfo.GetChannelsAsync(channelGroup);
+      if (result.Success)
+        _channels = result.Result;
 
       IChannel channel = Channel;
       if (channel != null)

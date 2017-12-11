@@ -312,17 +312,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       base.UpdateProgramStatus(program);
       if (program == null || _tvHandler == null || _tvHandler.ChannelAndGroupInfo == null)
         return;
-      IChannel currentChannel;
-      if (_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out currentChannel))
+      var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
+      if (result.Success)
       {
+        var currentChannel = result.Result;
         ChannelName = currentChannel.Name;
         ChannelLogoType = currentChannel.GetFanArtMediaType();
       }
     }
 
-    protected void UpdatePrograms()
+    protected async Task UpdatePrograms()
     {
-      UpdateProgramsForGroup();
+      await UpdateProgramsForGroup();
       foreach (ChannelProgramListItem channel in _channelList)
         UpdateChannelPrograms(channel);
 

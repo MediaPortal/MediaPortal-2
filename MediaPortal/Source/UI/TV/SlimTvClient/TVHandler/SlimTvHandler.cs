@@ -85,9 +85,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       get { return _tvProvider as ITimeshiftControlAsync; }
     }
 
-    public IChannelAndGroupInfo ChannelAndGroupInfo
+    public IChannelAndGroupInfoAsync ChannelAndGroupInfo
     {
-      get { return _tvProvider as IChannelAndGroupInfo; }
+      get { return _tvProvider as IChannelAndGroupInfoAsync; }
     }
 
     //public IProgramInfo ProgramInfo
@@ -358,9 +358,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       if (result.Success)
       {
         string fileOrStream = result.Result;
-        if (ChannelAndGroupInfo.GetChannel(program.ChannelId, out var channel))
+
+        var channelResult = await ChannelAndGroupInfo.GetChannelAsync(program.ChannelId);
+        if (channelResult.Success)
         {
-          MediaItem recordig = SlimTvMediaItemBuilder.CreateRecordingMediaItem(0, fileOrStream, program, channel);
+
+          MediaItem recordig = SlimTvMediaItemBuilder.CreateRecordingMediaItem(0, fileOrStream, program, channelResult.Result);
           PlayItemsModel.CheckQueryPlayAction(recordig);
           return true;
         }

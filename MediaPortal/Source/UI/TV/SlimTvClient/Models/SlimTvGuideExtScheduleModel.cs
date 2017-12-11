@@ -252,8 +252,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.UpdateProgramStatus(program);
 
-      IChannel channel;
-      ChannelName = _tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel) ? channel.Name : string.Empty;
+      var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
+      IChannel channel = result.Result;
+      ChannelName =  channel != null ? channel.Name : string.Empty;
       ChannelLogoType = channel.GetFanArtMediaType();
     }
 
@@ -325,9 +326,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       bool isSeries = false;
       foreach (IProgram program in _programs)
       {
-        IChannel channel;
-        if (!_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
-          channel = null;
+        var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
+        var channel = !result.Success ? null : result.Result;
         // Use local variable, otherwise delegate argument is not fixed
         ProgramProperties programProperties = new ProgramProperties();
         IProgram currentProgram = program;

@@ -46,7 +46,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 {
-  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControlAsync, IProgramInfoAsync, IChannelAndGroupInfo, IScheduleControlAsync
+  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControlAsync, IProgramInfoAsync, IChannelAndGroupInfoAsync, IScheduleControlAsync
   {
     #region Protected fields
 
@@ -447,9 +447,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       throw new NotImplementedException();
     }
 
-    public bool GetChannel(IProgram program, out IChannel channel)
+    public async Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program)
     {
-      return GetChannel(program.ChannelId, out channel);
+      return await GetChannelAsync(program.ChannelId);
     }
 
     public bool GetProgram(int programId, out IProgram program)
@@ -457,81 +457,80 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       throw new NotImplementedException();
     }
 
-    public bool GetChannelGroups(out IList<IChannelGroup> groups)
+    //public bool GetChannelGroups(out IList<IChannelGroup> groups)
+    public async Task<AsyncResult<IList<IChannelGroup>>> GetChannelGroupsAsync()
     {
-      groups = null;
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_CHANNELGROUPS);
         IList<object> inParameters = new List<object>();
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         IList<ChannelGroup> channelGroups = (IList<ChannelGroup>)outParameters[1];
         if (success)
         {
-          groups = channelGroups.Cast<IChannelGroup>().ToList();
-          return true;
+          var groups = channelGroups.Cast<IChannelGroup>().ToList();
+          return new AsyncResult<IList<IChannelGroup>>(true, groups);
         }
-        return false;
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        return false;
       }
+      return new AsyncResult<IList<IChannelGroup>>(false, null);
     }
 
-    public bool GetChannel(int channelId, out IChannel channel)
+    //public bool GetChannel(int channelId, out IChannel channel)
+    public async Task<AsyncResult<IChannel>> GetChannelAsync(int channelId)
     {
+      IChannel channel;
       if (_channelCache.TryGetValue(channelId, out channel))
-        return true;
+        return new AsyncResult<IChannel>(true, channel);
 
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_CHANNEL);
         IList<object> inParameters = new List<object> { channelId };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         IList<Channel> channelList = (IList<Channel>)outParameters[1];
         if (success)
         {
           channel = channelList.Cast<IChannel>().First();
           _channelCache[channelId] = channel;
-          return true;
+          return new AsyncResult<IChannel>(true, channel);
         }
-        return false;
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        return false;
       }
+      return new AsyncResult<IChannel>(false, null);
     }
 
-    public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
+    //public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
+    public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
     {
-      channels = null;
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_CHANNELS);
         IList<object> inParameters = new List<object> { group.ChannelGroupId };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         IList<Channel> channelList = (IList<Channel>)outParameters[1];
         if (success)
         {
-          channels = channelList.Cast<IChannel>().ToList();
+          var channels = channelList.Cast<IChannel>().ToList();
           foreach (var channel in channels)
             _channelCache[channel.ChannelId] = channel;
-          return true;
+          return new AsyncResult<IList<IChannel>>(true, channels);
         }
-        return false;
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        return false;
       }
+      return new AsyncResult<IList<IChannel>>(false, null);
     }
 
     public int SelectedChannelId

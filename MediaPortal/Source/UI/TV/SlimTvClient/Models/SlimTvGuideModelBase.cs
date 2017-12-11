@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -218,7 +219,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           _programActions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
               {
-                Command = new MethodDelegateCommand(() => { TuneChannelByProgram(program); })
+                Command = new MethodDelegateCommand(async () => { await TuneChannelByProgram(program); })
               });
         }
 
@@ -287,16 +288,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       screenManager.ShowDialog(_programActionsDialogName);
     }
 
-    protected void TuneChannelByProgram(IProgram program)
+    protected async Task TuneChannelByProgram(IProgram program)
     {
-      IChannel channel;
-      if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
+      var result = await _tvHandler.ProgramInfo.GetChannelAsync(program);
+      if (result.Success)
       {
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
         if (model != null)
         {
-          model.Tune(channel);
+          await model.Tune(result.Result);
           // Always switch to fullscreen
           workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
         }
