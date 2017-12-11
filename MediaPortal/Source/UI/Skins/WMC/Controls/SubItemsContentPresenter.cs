@@ -26,12 +26,13 @@ using MediaPortal.Common;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UiComponents.WMCSkin.Controls
 {
   public class SubItemsContentPresenter : AnimatedScrollContentPresenter
   {
-    public override void BringIntoView(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RawRectangleF elementBounds)
     {
       //disable auto centering if using mouse, prevents items from scrolling
       if (AutoCentering != ScrollAutoCenteringEnum.None && IsMouseOverElement(element))

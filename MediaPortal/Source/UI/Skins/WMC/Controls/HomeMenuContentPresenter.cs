@@ -31,12 +31,13 @@ using System.Threading.Tasks;
 using SharpDX;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.WMCSkin.Models;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UiComponents.WMCSkin.Controls
 {
   public class HomeMenuContentPresenter : AnimatedScrollContentPresenter
   {
-    public override void BringIntoView(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RawRectangleF elementBounds)
     {
       if (IsSelectedItem(element))
         base.BringIntoView(element, elementBounds);
