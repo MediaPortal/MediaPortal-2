@@ -253,15 +253,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       LoadSchedules();
     }
 
-    protected void LoadSchedules()
+    protected async Task LoadSchedules()
     {
       UpdateScheduleDetails(null);
       if (_tvHandler.ScheduleControl == null)
         return;
 
-      IList<ISchedule> schedules;
-      if (!_tvHandler.ScheduleControl.GetSchedules(out schedules))
+      var result = await _tvHandler.ScheduleControl.GetSchedulesAsync();
+      if (!result.Success)
         return;
+
+      IList<ISchedule> schedules = result.Result;
 
       _schedulesList.Clear();
 
@@ -275,9 +277,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         // Load all series type schedules and their programs which will be recorded.
         foreach (ISchedule schedule in schedules)
         {
-          IList<IProgram> schedulePrograms;
-          if (!_tvHandler.ScheduleControl.GetProgramsForSchedule(schedule, out schedulePrograms))
+          var progResult = await _tvHandler.ScheduleControl.GetProgramsForScheduleAsync(schedule);
+          if (!progResult.Success)
             continue;
+
+          IList<IProgram> schedulePrograms = progResult.Result;
 
           // The GetProgramsForSchedule returns all matching programs, also the canceled ones. So we need to filter them out here.
           allPrograms[schedule] = schedulePrograms.OfType<IProgramRecordingStatus>().Where(p => p.RecordingStatus != RecordingStatus.None).Cast<IProgram>().ToList();
@@ -441,9 +445,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       SlimTvExtScheduleModel.Show(schedule);
     }
 
-    private void DeleteSchedule(ISchedule schedule)
+    private async Task DeleteSchedule(ISchedule schedule)
     {
-      if (_tvHandler.ScheduleControl != null && _tvHandler.ScheduleControl.RemoveSchedule(schedule))
+      if (_tvHandler.ScheduleControl != null && await _tvHandler.ScheduleControl.RemoveScheduleAsync(schedule))
       {
         LoadSchedules();
       }

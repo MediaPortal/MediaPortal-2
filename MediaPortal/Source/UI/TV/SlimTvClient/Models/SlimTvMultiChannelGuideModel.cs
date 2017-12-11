@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -330,7 +331,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       UpdateProgramsState();
     }
 
-    protected void UpdateProgramsForGroup()
+    protected async Task UpdateProgramsForGroup()
     {
       if (
         _bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex || /* Group changed */
@@ -344,7 +345,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _bufferEndTime = GuideEndTime.AddHours(_bufferHours);
         IChannelGroup group = CurrentChannelGroup;
         if (group != null)
-          _tvHandler.ProgramInfo.GetProgramsGroup(group, _bufferStartTime, _bufferEndTime, out _groupPrograms);
+        {
+          var result = await _tvHandler.ProgramInfo.GetProgramsGroupAsync(group, _bufferStartTime, _bufferEndTime);
+          if (result.Success)
+            _groupPrograms = result.Result;
+        }
       }
     }
 

@@ -46,7 +46,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 {
-  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControl, ITimeshiftControlAsync, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, IProgramInfoAsync
+  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControlAsync, IProgramInfoAsync, IChannelAndGroupInfo, IScheduleControlAsync
   {
     #region Protected fields
 
@@ -413,12 +413,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return new AsyncResult<IList<IProgram>>(false, null);
     }
 
-    public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
-    {
-      var result = GetProgramsForScheduleAsync(schedule).Result;
-      programs = result.Result;
-      return result.Success;
-    }
+    //public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
+    //{
+    //  var result = GetProgramsForScheduleAsync(schedule).Result;
+    //  programs = result.Result;
+    //  return result.Success;
+    //}
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
     {
@@ -564,51 +564,52 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
+    //public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
+    public async Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE);
         IList<object> inParameters = new List<object> { program.ProgramId, (int)recordingType };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool result = (bool)outParameters[0];
-        schedule = result ? (ISchedule)outParameters[1] : null;
-        return result;
+        var schedule = result ? (ISchedule)outParameters[1] : null;
+        return new AsyncResult<ISchedule>(result, schedule);
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        schedule = null;
-        return false;
+        return new AsyncResult<ISchedule>(false, null);
       }
     }
 
-    public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    //public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE_BY_TIME);
         IList<object> inParameters = new List<object> { channel.ChannelId, from, to, (int)recordingType };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool result = (bool)outParameters[0];
-        schedule = result ? (ISchedule)outParameters[1] : null;
-        return result;
+        var schedule = result ? (ISchedule)outParameters[1] : null;
+        return new AsyncResult<ISchedule>(result, schedule);
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        schedule = null;
-        return false;
+        return new AsyncResult<ISchedule>(false, null);
       }
     }
 
-    public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
+    //public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
+    public async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_REMOVE_SCHEDULE_FOR_PROGRAM);
         IList<object> inParameters = new List<object> { program.ProgramId, (int)recordingType };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         return (bool)outParameters[0];
       }
       catch (Exception ex)
@@ -618,13 +619,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public bool RemoveSchedule(ISchedule schedule)
+    //public bool RemoveSchedule(ISchedule schedule)
+    public async Task<bool> RemoveScheduleAsync(ISchedule schedule)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_REMOVE_SCHEDULE);
         IList<object> inParameters = new List<object> { schedule };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         return (bool)outParameters[0];
       }
       catch (Exception ex)
@@ -634,86 +636,84 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
+    //public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
+    public async Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_REC_STATUS);
         IList<object> inParameters = new List<object> { program.ProgramId };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool result = (bool)outParameters[0];
-        recordingStatus = (RecordingStatus)Enum.Parse(typeof(RecordingStatus), outParameters[1].ToString());
-        return result;
+        var recordingStatus = (RecordingStatus)Enum.Parse(typeof(RecordingStatus), outParameters[1].ToString());
+        return new AsyncResult<RecordingStatus>(result, recordingStatus);
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        recordingStatus = RecordingStatus.None;
-        return false;
+        return new AsyncResult<RecordingStatus>(false, RecordingStatus.None);
       }
     }
 
-    public bool GetRecordingFileOrStream(IProgram program, out string fileOrStream)
+    //public bool GetRecordingFileOrStream(IProgram program, out string fileOrStream)
+    public async Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_REC_FILE_OR_STREAM);
         IList<object> inParameters = new List<object> { program.ProgramId };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool result = (bool)outParameters[0];
-        fileOrStream = (string)outParameters[1];
-        return result;
+        var fileOrStream = (string)outParameters[1];
+        return new AsyncResult<string>(result, fileOrStream);
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        fileOrStream = null;
-        return false;
+        return new AsyncResult<string>(false, null);
       }
     }
 
-    public bool GetSchedules(out IList<ISchedule> schedules)
+    //public bool GetSchedules(out IList<ISchedule> schedules)
+    public async Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
     {
-      schedules = null;
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_SCHEDULES);
         IList<object> inParameters = new List<object>();
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         IList<Schedule> scheduleList = (List<Schedule>)outParameters[1];
         if (success)
         {
-          schedules = scheduleList.Cast<ISchedule>().ToList();
-          return true;
+          var schedules = scheduleList.Cast<ISchedule>().ToList();
+          return new AsyncResult<IList<ISchedule>>(true, schedules);
         }
-        return false;
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        return false;
       }
+      return new AsyncResult<IList<ISchedule>>(false, null);
     }
 
-    public bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
+    //public bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
+    public async Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
     {
-      schedule = null;
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_IS_CURRENT_REC);
         IList<object> inParameters = new List<object> { fileName };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
-        schedule = (Schedule)outParameters[1];
-        return success;
+        var schedule = (Schedule)outParameters[1];
+        return new AsyncResult<ISchedule>(success, schedule);
       }
       catch (Exception ex)
       {
         NotifyException(ex);
-        return false;
+        return new AsyncResult<ISchedule>(false, null);
       }
-
     }
 
     #region Exeption handling

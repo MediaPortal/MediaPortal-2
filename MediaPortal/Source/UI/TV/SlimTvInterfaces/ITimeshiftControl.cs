@@ -50,33 +50,38 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
     /// <returns>True if succeeded.</returns>
     Task<bool> StopTimeshiftAsync(int slotIndex);
-  }
-
-  /// <summary>
-  /// ITimeshiftControl defines all actions and properties for TV providers timeshift features.
-  /// </summary>
-  public interface ITimeshiftControl
-  {
-    /// <summary>
-    /// Starts timeshifting a channel an returns the created MediaItem.
-    /// </summary>
-    /// <param name="slotIndex">Slot Index for Playback (0=Primary, 1=PiP).</param>
-    /// <param name="channel">Channel.</param>
-    /// <param name="timeshiftMediaItem">Returns the created MediaItem.</param>
-    /// <returns>True if succeeded.</returns>
-    bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem);
-
-    /// <summary>
-    /// Stops the active timeshifting.
-    /// </summary>
-    /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
-    /// <returns>True if succeeded.</returns>
-    bool StopTimeshift(int slotIndex);
 
     /// <summary>
     /// Gets the currently timeshifting channel.
     /// </summary>
     IChannel GetChannel(int slotIndex);
-    //TODO: define methods for error and message handling
   }
+
+  ///// <summary>
+  ///// ITimeshiftControl defines all actions and properties for TV providers timeshift features.
+  ///// </summary>
+  //public interface ITimeshiftControl
+  //{
+  //  /// <summary>
+  //  /// Starts timeshifting a channel an returns the created MediaItem.
+  //  /// </summary>
+  //  /// <param name="slotIndex">Slot Index for Playback (0=Primary, 1=PiP).</param>
+  //  /// <param name="channel">Channel.</param>
+  //  /// <param name="timeshiftMediaItem">Returns the created MediaItem.</param>
+  //  /// <returns>True if succeeded.</returns>
+  //  bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem);
+
+  //  /// <summary>
+  //  /// Stops the active timeshifting.
+  //  /// </summary>
+  //  /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
+  //  /// <returns>True if succeeded.</returns>
+  //  bool StopTimeshift(int slotIndex);
+
+  //  /// <summary>
+  //  /// Gets the currently timeshifting channel.
+  //  /// </summary>
+  //  IChannel GetChannel(int slotIndex);
+  //  //TODO: define methods for error and message handling
+  //}
 }

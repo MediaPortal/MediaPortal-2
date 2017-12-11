@@ -271,7 +271,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <summary>
     /// For extended scheduling we will load all programs with same title independent from channel.
     /// </summary>
-    protected void UpdatePrograms()
+    protected async void UpdatePrograms()
     {
       if (_selectedProgram == null)
         return;
@@ -280,8 +280,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
 
       DateTime dtDay = DateTime.Now;
-      if (!_tvHandler.ProgramInfo.GetPrograms(_selectedProgram.Title, dtDay, dtDay.AddDays(28), out _programs))
+      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(_selectedProgram.Title, dtDay, dtDay.AddDays(28));
+      if (!result.Success)
         return;
+      _programs = result.Result;
 
       FillProgramsList();
     }
@@ -289,7 +291,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <summary>
     /// Loads all programs that are affected by the given series schedule.
     /// </summary>
-    protected void UpdateProgramsForSchedule()
+    protected async Task UpdateProgramsForSchedule()
     {
       if (_selectedSchedule == null)
         return;
@@ -297,8 +299,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (_tvHandler.ScheduleControl == null)
         return;
 
-      if (!_tvHandler.ScheduleControl.GetProgramsForSchedule(_selectedSchedule, out _programs))
+      var result = await _tvHandler.ScheduleControl.GetProgramsForScheduleAsync(_selectedSchedule);
+      if (!result.Success)
         return;
+      _programs = result.Result;
 
       FillProgramsList();
       _selectedProgram = _programs.FirstOrDefault();

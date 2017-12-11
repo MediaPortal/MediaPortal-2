@@ -36,6 +36,8 @@ using MediaPortal.UiComponents.Media.General;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -337,7 +339,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <summary>
     /// Creates a schedule using the configured properties.
     /// </summary>
-    public void CreateSchedule()
+    public async Task CreateSchedule()
     {
       IChannel channel = Channel;
       DateTime startTime = StartTime;
@@ -348,8 +350,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
 
       ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
-      ISchedule schedule;
-      bool result = tvHandler.ScheduleControl.CreateScheduleByTime(channel, startTime, endTime, recordingType, out schedule);
+      var result = await tvHandler.ScheduleControl.CreateScheduleByTimeAsync(channel, startTime, endTime, recordingType);
+      if (!result.Success)
+        ServiceRegistration.Get<ILogger>().Warn("SlimTvManualScheduleModel: Could not create schedule.");
 
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(STATE_MANUAL_SCHEDULE, true);

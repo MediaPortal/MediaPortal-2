@@ -240,7 +240,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <summary>
     /// For extended scheduling we will load all programs with same title independent from channel.
     /// </summary>
-    protected void UpdatePrograms()
+    protected async Task UpdatePrograms()
     {
       if (_tvHandler.ProgramInfo == null)
         return;
@@ -252,11 +252,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       DateTime dtDay = DateTime.Now;
-      if (!_tvHandler.ProgramInfo.GetPrograms(ProgramSearchText, dtDay, dtDay.AddDays(28), out _programs))
+      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(ProgramSearchText, dtDay, dtDay.AddDays(28));
+      if (!result.Success)
       {
         SetEmptyPrograms();
         return;
       }
+      _programs = result.Result;
       FillProgramsList();
     }
 
@@ -264,7 +266,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       _programs = new List<IProgram>();
       FillProgramsList();
-      return;
     }
 
     private void FillProgramsList()

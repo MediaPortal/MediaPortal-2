@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
@@ -54,22 +55,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
       var isAvailable = IsRecording(mediaItem) && IsResourceDeletor(mediaItem);
       if (!isAvailable)
         return false;
-
-      TryGetSchedule(mediaItem);
+      // TODO: make async as well
+      TryGetScheduleAsync(mediaItem).Wait();
       return true;
     }
 
-    private void TryGetSchedule(MediaItem mediaItem)
+    private async Task TryGetScheduleAsync(MediaItem mediaItem)
     {
       _schedule = null;
       var rl = mediaItem.GetResourceLocator();
       var serverLocalPath = LocalFsResourceProviderBase.ToDosPath(rl.NativeResourcePath);
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-      ISchedule schedule;
-      if (tvHandler != null && tvHandler.ScheduleControl.IsCurrentlyRecording(serverLocalPath, out schedule))
-      {
-        _schedule = schedule;
-      }
+      if (tvHandler == null)
+        return;
+
+      var result = await tvHandler.ScheduleControl.IsCurrentlyRecordingAsync(serverLocalPath);
+      if (result.Success)
+        _schedule = result.Result;
     }
 
     public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
@@ -78,8 +80,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
       if (_schedule != null)
       {
         var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-        if (tvHandler != null && !tvHandler.ScheduleControl.RemoveSchedule(_schedule))
-          return false;
+        if (tvHandler != null)
+        {
+          //var result = await tvHandler.ScheduleControl.RemoveScheduleAsync(_schedule);
+          // TODO: Async
+          var result = tvHandler.ScheduleControl.RemoveScheduleAsync(_schedule).Result;
+          if (!result)
+            return false;
+        }
       }
 
       // When the recording is stopped, it will be imported into library. This can lead to locked files by MetaDataExtractors.

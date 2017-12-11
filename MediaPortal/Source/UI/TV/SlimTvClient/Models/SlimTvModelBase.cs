@@ -275,34 +275,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected virtual async Task<RecordingStatus?> CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
     {
-      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      IScheduleControlAsync scheduleControl = _tvHandler.ScheduleControl;
       RecordingStatus? newStatus = null;
       if (scheduleControl != null)
       {
         RecordingStatus? recordingStatus = await GetRecordingStatusAsync(program);
         if (recordingStatus.HasValue && (recordingStatus.Value.HasFlag(RecordingStatus.Scheduled) || recordingStatus.Value.HasFlag(RecordingStatus.SeriesScheduled)))
         {
-          if (scheduleControl.RemoveScheduleForProgram(program, recordingType))
+          if (await scheduleControl.RemoveScheduleForProgramAsync(program, recordingType))
             newStatus = RecordingStatus.None;
         }
         else
         {
-          ISchedule schedule;
-          if (scheduleControl.CreateSchedule(program, recordingType, out schedule))
+          var result = await scheduleControl.CreateScheduleAsync(program, recordingType);
+          if (result.Success)
             newStatus = recordingType == ScheduleRecordingType.Once ? RecordingStatus.Scheduled : RecordingStatus.SeriesScheduled;
         }
       }
       return newStatus;
     }
 
-    protected virtual RecordingStatus? CreateOrDeleteScheduleByTime(IChannel program, DateTime start, DateTime end)
+    protected virtual async Task<RecordingStatus?> CreateOrDeleteScheduleByTimeAsync(IChannel program, DateTime start, DateTime end)
     {
-      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      IScheduleControlAsync scheduleControl = _tvHandler.ScheduleControl;
       RecordingStatus? newStatus = null;
       if (scheduleControl != null)
       {
-        ISchedule schedule;
-        if (scheduleControl.CreateScheduleByTime(program, start, end, ScheduleRecordingType.Once, out schedule))
+        var result = await scheduleControl.CreateScheduleByTimeAsync(program, start, end, ScheduleRecordingType.Once);
+        if (result.Success)
           newStatus = RecordingStatus.Scheduled;
       }
       return newStatus;
@@ -310,14 +310,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected virtual async Task<RecordingStatus?> GetRecordingStatusAsync(IProgram program)
     {
-      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      IScheduleControlAsync scheduleControl = _tvHandler.ScheduleControl;
       if (scheduleControl == null)
         return null;
 
-      // TODO: Async
-      RecordingStatus recordingStatus;
-      if (scheduleControl.GetRecordingStatus(program, out recordingStatus))
-        return recordingStatus;
+      var result = await scheduleControl.GetRecordingStatusAsync(program);
+      if (result.Success)
+        return result.Result;
       return null;
     }
 

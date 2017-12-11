@@ -41,12 +41,12 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <summary>
     /// Exposes the ITimeshiftControl interface of active TvProvider.
     /// </summary>
-    ITimeshiftControl TimeshiftControl { get; }
+    //ITimeshiftControl TimeshiftControl { get; }
 
     /// <summary>
     /// Exposes the ITimeshiftControlAsync interface of active TvProvider.
     /// </summary>
-    ITimeshiftControlAsync TimeshiftControlAsync { get; }
+    ITimeshiftControlAsync TimeshiftControl { get; }
 
     /// <summary>
     /// Exposes the IChannelAndGroupInfo interface of active TvProvider.
@@ -56,17 +56,17 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <summary>
     /// Exposes the IProgramInfo interface of active TvProvider.
     /// </summary>
-    IProgramInfo ProgramInfo { get; }
+    //IProgramInfo ProgramInfo { get; }
 
     /// <summary>
     /// Exposes the IProgramInfoAsync interface of active TvProvider.
     /// </summary>
-    IProgramInfoAsync ProgramInfoAsync { get; }
+    IProgramInfoAsync ProgramInfo { get; }
 
     /// <summary>
-    /// Exposes the IScheduleControl interface of active TvProvider.
+    /// Exposes the IScheduleControlAsync interface of active TvProvider.
     /// </summary>
-    IScheduleControl ScheduleControl { get; }
+    IScheduleControlAsync ScheduleControl { get; }
 
     /// <summary>
     /// Uses the <see cref="TimeshiftControl"/> to start timeshifting and the playback of
@@ -109,6 +109,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// </summary>
     /// <param name="program">Program that is currently recording.</param>
     /// <returns>True if succeeded.</returns>
-    bool WatchRecordingFromBeginning(IProgram program);
+    Task<bool> WatchRecordingFromBeginningAsync(IProgram program);
   }
 }

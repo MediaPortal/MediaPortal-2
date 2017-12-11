@@ -28,10 +28,10 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
   /// <summary>
-  /// ITimeshiftControl extents <see cref="ITimeshiftControl"/> with methods for server side handling for multiple
+  /// ITimeshiftControl extents <see cref="ITimeshiftControlAsync"/> with methods for server side handling for multiple
   /// clients. Each client needs to be uniquely identified by its userName.
   /// </summary>
-  public interface ITimeshiftControlEx : ITimeshiftControl
+  public interface ITimeshiftControlEx : ITimeshiftControlAsync
   {
     /// <summary>
     /// Starts timeshifting a channel an returns the created MediaItem.

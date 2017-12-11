@@ -605,7 +605,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       ListItem item;
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
       bool isRecording = false;
-      var result = await _tvHandler.ProgramInfoAsync.GetNowNextProgramAsync(context.Channel);
+      var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(context.Channel);
       if (result.Success)
       {
         IProgram programNow = result.Result[0];
@@ -621,7 +621,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.RecordManual]")
         {
-          Command = new MethodDelegateCommand(() => CreateOrDeleteScheduleByTime(context.Channel, DateTime.Now, DateTime.Now.AddDays(1)))
+          Command = new MethodDelegateCommand(() => CreateOrDeleteScheduleByTimeAsync(context.Channel, DateTime.Now, DateTime.Now.AddDays(1)))
         };
         _dialogActionsList.Add(item);
       }
@@ -671,7 +671,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected async Task UpdateForChannel(IChannel channel, ProgramProperties current, ProgramProperties next, AbstractProperty channelNameProperty, AbstractProperty progressProperty)
     {
       channelNameProperty.SetValue(channel.Name);
-      var result = await _tvHandler.ProgramInfoAsync.GetNowNextProgramAsync(channel);
+      var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(channel);
       if (result.Success)
       {
         var currentProgram = result.Result[0];
@@ -834,11 +834,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             channel = context.Channel;
             ChannelName = channel.Name;
             ChannelLogoType = channel.GetFanArtMediaType();
-            if (_tvHandler.ProgramInfo != null && _tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram) && currentProgram != null)
+            if (_tvHandler.ProgramInfo != null)
             {
-              double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
-                                (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
-              _programProgressProperty.SetValue(progress);
+              var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(channel);
+              if (result.Success)
+              {
+                currentProgram = result.Result[0];
+                nextProgram = result.Result[1];
+                double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
+                                  (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
+                _programProgressProperty.SetValue(progress);
+              }
             }
           }
           CurrentProgram.SetProgram(currentProgram, channel);
@@ -947,10 +953,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (_tvHandler.ProgramInfo == null || currentChannelGroup == null)
         return;
 
-      var programInfoAsync = (IProgramInfoAsync)_tvHandler.ProgramInfo;
-
-      //_tvHandler.ProgramInfo.GetNowAndNextForChannelGroup(currentChannelGroup, out programs);
-      var result = await programInfoAsync.GetNowAndNextForChannelGroupAsync(currentChannelGroup);
+      var result = await _tvHandler.ProgramInfo.GetNowAndNextForChannelGroupAsync(currentChannelGroup);
       if (!result.Success)
         return;
 

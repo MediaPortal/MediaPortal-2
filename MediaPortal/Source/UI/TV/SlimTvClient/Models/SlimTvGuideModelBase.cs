@@ -224,22 +224,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         if (_tvHandler.ScheduleControl != null)
         {
-          RecordingStatus recordingStatus;
-          if (_tvHandler.ScheduleControl.GetRecordingStatus(program, out recordingStatus) && recordingStatus != RecordingStatus.None)
+          var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
+          if (result.Success && result.Result != RecordingStatus.None)
           {
             if (isRunning)
               _programActions.Add(
                 new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
                   {
-                    Command = new MethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginning(program))
+                    Command = new MethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
                   });
 
             _programActions.Add(
               new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.DeleteSchedule]", program.Title))
                 {
-                  Command = new MethodDelegateCommand(() =>
+                  Command = new MethodDelegateCommand(async () =>
                                                         {
-                                                          if (_tvHandler.ScheduleControl.RemoveScheduleForProgram(program, ScheduleRecordingType.Once))
+                                                          if (await _tvHandler.ScheduleControl.RemoveScheduleForProgramAsync(program, ScheduleRecordingType.Once))
                                                             UpdateRecordingStatus(program, RecordingStatus.None);
                                                         }
                     )
@@ -250,17 +250,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             _programActions.Add(
               new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.RecordNow]" : "[SlimTvClient.CreateSchedule]"))
                 {
-                  Command = new MethodDelegateCommand(() =>
+                  Command = new MethodDelegateCommand(async () =>
                                                         {
-                                                          ISchedule schedule;
-                                                          bool result;
+                                                          AsyncResult<ISchedule> recResult;
                                                           // "No Program" placeholder
                                                           if (program.ProgramId == -1)
-                                                            result = _tvHandler.ScheduleControl.CreateScheduleByTime(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, ScheduleRecordingType.Once, out schedule);
+                                                            recResult = await _tvHandler.ScheduleControl.CreateScheduleByTimeAsync(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, ScheduleRecordingType.Once);
                                                           else
-                                                            result = _tvHandler.ScheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule);
+                                                            recResult = await _tvHandler.ScheduleControl.CreateScheduleAsync(program, ScheduleRecordingType.Once);
 
-                                                          if (result)
+                                                          if (recResult.Success)
                                                             UpdateRecordingStatus(program, RecordingStatus.Scheduled);
                                                         }
                     )
