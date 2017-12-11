@@ -186,8 +186,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       if (_zapping)
       {
         // While zapping fill the current video frame with black. This avoids a frozen last frame from previous channel.
-        using(new TemporaryRenderTarget2D(targetSurface.Bitmap))
-          GraphicsDevice11.Instance.Context2D1.Clear(Color.Black);
+     //   using(new TemporaryRenderTarget2D(targetSurface.Bitmap))
+      //    GraphicsDevice11.Instance.Context2D1.Clear(Color.Black);
       }
       else
         base.PostProcessTexture(targetSurface);
