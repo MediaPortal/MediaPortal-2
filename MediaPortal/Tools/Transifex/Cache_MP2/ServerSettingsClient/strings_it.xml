@@ -79,6 +79,7 @@
   <string name="Settings.ServerSettings.ImageMDESettings">Impostazione importazione Immagini</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Verifica i dettagli di geolocalizzazione</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Decidi se i dati di localizzazione memorizzati nelle immagini debbano essere utilizzati</string>
+  <string name="Settings.ServerSettings.VideoMDESettings">Impostazioni di importazione video</string>
   <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline">Memorizza le FanArt per la navigazione offline</string>
   <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help">Scegli quale FanArt dovrebbe essere resa disponibile da una condivisione anche se quest\'ultima è offline</string>
   <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineNetwork">Memorizza FanArt in una condivisione di rete</string>

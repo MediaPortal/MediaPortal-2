@@ -28,7 +28,11 @@
   <string name="SlimTvClient.RecordNow">Enregister</string>
   <string name="SlimTvClient.DeleteSchedule">Effacer l\'enregistrement programmé</string>
   <string name="SlimTvClient.CreateSchedule">Programmer un enregistrement</string>
+  <string name="SlimTvClient.CreateManualSchedule">Programmer un enregistrement manuellement</string>
+  <string name="SlimTvClient.DeleteRecording.Confirmation">Êtes vous sur de vouloir arrêter ou supprimer cet enregistrement?
+Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="SlimTvClient.ProgramSearch">Recherche de programmes</string>
+  <string name="SlimTvClient.ProgramSearch.Help">Chercher les titre des programmes dans l\'EPG et trouver vos émissions souhaitées. </string>
   <!--Extended recording features-->
   <string name="SlimTvClient.RecordActions">Enregistrement en cours</string>
   <string name="SlimTvClient.StopCurrentRecording">Arrêtez l\'enregistrement en cours \'{0}\'</string>
@@ -62,6 +66,7 @@
   <string name="SlimTvClient.ExtendedSchedule">Programmation avancée</string>
   <string name="SlimTvClient.ScheduleManagement">Gestion des programmations</string>
   <string name="SlimTvClient.ScheduleModeSeries">Gérer les enregistrements de la série</string>
+  <string name="SlimTvClient.NewSchedule">Nouvelle programmation manuel</string>
   <string name="SlimTvClient.ErrorNoTvProvider">Aucun fournisseur TV disponible (pour l`instant)</string>
   <!--Settings-->
   <string name="SlimTvClient.EpgNumberOfRows">Nombre de lignes dans l\'EPG</string>
@@ -87,7 +92,13 @@
   <string name="SlimTvClient.HideAllChannelsGroup.Help">Si activer, le groupe \"All Channels\" sera caché.</string>
   <string name="SlimTvClient.ChannelLogoStyle">Style du logo de la chaîne</string>
   <string name="SlimTvClient.ChannelLogoStyle.Help">Sélectionnez le style du logo de la chaîne. Le serveur et les clients doivent être redémarrés après les modifications.</string>
+  <string name="SlimTvClient.RecordingNotificationDuration">Durée de la notification d\'enregistrement </string>
+  <string name="SlimTvClient.RecordingNotificationDuration.Help">Configurer la durée d\'affichage de la notification pour les enregistrements.</string>
   <string name="SlimTvClient.Notifications">Notifications</string>
+  <string name="SlimTvClient.ShowRecordingStartedNotifications">Afficher une notification lorsqu\'un enregistrement commence</string>
+  <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Indique que cela affiche une notification lorsqu\'un enregistrement commence.</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications">Afficher une notification lorsqu\'un enregistrement est fini</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Indique que cela affiche une notification lorsqu\'un enregistrement se termine.</string>
   <string name="SlimTvClient.RecordingsMenuItem">Enregistrements</string>
   <string name="SlimTvClient.Recordings.Help">Ici vous trouverez une liste de vos programmes enregistrés accessible à la lecture.</string>
   <string name="SlimTvClient.RecordingsRootViewName">Enregistrements TV</string>
