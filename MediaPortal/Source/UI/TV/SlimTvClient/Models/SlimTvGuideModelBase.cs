@@ -219,7 +219,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           _programActions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
               {
-                Command = new MethodDelegateCommand(async () => { await TuneChannelByProgram(program); })
+                Command = new AsyncMethodDelegateCommand(() => TuneChannelByProgram(program))
               });
         }
 
