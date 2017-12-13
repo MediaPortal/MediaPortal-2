@@ -32,7 +32,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
   {
     public static async Task<IList<object>> InvokeAsync(this CpAction action, IList<object> inParameters)
     {
-      return await Task.Factory.FromAsync((callback, stateObject) => action.BeginInvokeAction(inParameters, callback, stateObject), action.EndInvokeAction, null);
+      return await Task.Factory.FromAsync((callback, stateObject) => action.BeginInvokeAction(inParameters, callback, stateObject), action.EndInvokeAction, null).ConfigureAwait(false);
     }
   }
 }

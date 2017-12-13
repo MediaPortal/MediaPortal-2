@@ -129,7 +129,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               channel.ChannelId
             };
 
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         if (success)
         {
@@ -162,7 +162,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               slotIndex
             };
 
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         if (success)
         {
@@ -227,7 +227,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               channel.ChannelId
             };
 
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         if (success)
         {
@@ -256,7 +256,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
         var nowNextPrograms = new Dictionary<int, IProgram[]>();
 
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         if (success)
         {
@@ -312,7 +312,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               to
             };
 
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         if (success)
         {
@@ -347,7 +347,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               to
             };
 
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         if (success)
         {
@@ -393,7 +393,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
               to
             };
 
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         if (success)
         {
@@ -426,7 +426,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_GET_PROGRAMS_FOR_SCHEDULE);
         IList<object> inParameters = new List<object> { schedule };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         if (success)
         {
@@ -464,7 +464,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_GET_CHANNELGROUPS);
         IList<object> inParameters = new List<object>();
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         IList<ChannelGroup> channelGroups = (IList<ChannelGroup>)outParameters[1];
         if (success)
@@ -491,7 +491,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_GET_CHANNEL);
         IList<object> inParameters = new List<object> { channelId };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         IList<Channel> channelList = (IList<Channel>)outParameters[1];
         if (success)
@@ -515,7 +515,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_GET_CHANNELS);
         IList<object> inParameters = new List<object> { group.ChannelGroupId };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         IList<Channel> channelList = (IList<Channel>)outParameters[1];
         if (success)
@@ -570,7 +570,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE);
         IList<object> inParameters = new List<object> { program.ProgramId, (int)recordingType };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool result = (bool)outParameters[0];
         var schedule = result ? (ISchedule)outParameters[1] : null;
         return new AsyncResult<ISchedule>(result, schedule);
@@ -589,7 +589,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE_BY_TIME);
         IList<object> inParameters = new List<object> { channel.ChannelId, from, to, (int)recordingType };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool result = (bool)outParameters[0];
         var schedule = result ? (ISchedule)outParameters[1] : null;
         return new AsyncResult<ISchedule>(result, schedule);
@@ -608,7 +608,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_REMOVE_SCHEDULE_FOR_PROGRAM);
         IList<object> inParameters = new List<object> { program.ProgramId, (int)recordingType };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         return (bool)outParameters[0];
       }
       catch (Exception ex)
@@ -625,7 +625,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_REMOVE_SCHEDULE);
         IList<object> inParameters = new List<object> { schedule };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         return (bool)outParameters[0];
       }
       catch (Exception ex)
@@ -642,7 +642,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_GET_REC_STATUS);
         IList<object> inParameters = new List<object> { program.ProgramId };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool result = (bool)outParameters[0];
         var recordingStatus = (RecordingStatus)Enum.Parse(typeof(RecordingStatus), outParameters[1].ToString());
         return new AsyncResult<RecordingStatus>(result, recordingStatus);
@@ -661,7 +661,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_GET_REC_FILE_OR_STREAM);
         IList<object> inParameters = new List<object> { program.ProgramId };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool result = (bool)outParameters[0];
         var fileOrStream = (string)outParameters[1];
         return new AsyncResult<string>(result, fileOrStream);
@@ -680,7 +680,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_GET_SCHEDULES);
         IList<object> inParameters = new List<object>();
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         IList<Schedule> scheduleList = (List<Schedule>)outParameters[1];
         if (success)
@@ -703,7 +703,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       {
         CpAction action = GetAction(Consts.ACTION_GET_IS_CURRENT_REC);
         IList<object> inParameters = new List<object> { fileName };
-        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
         bool success = (bool)outParameters[0];
         var schedule = (Schedule)outParameters[1];
         return new AsyncResult<ISchedule>(success, schedule);

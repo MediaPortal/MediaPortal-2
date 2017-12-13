@@ -313,7 +313,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
         includeVirtual
       };
-      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
       return (IList<MediaItem>) outParameters[0];
     }
 
