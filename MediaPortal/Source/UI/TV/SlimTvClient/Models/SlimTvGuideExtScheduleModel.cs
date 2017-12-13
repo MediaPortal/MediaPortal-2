@@ -341,7 +341,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         ProgramListItem item = new ProgramListItem(programProperties)
         {
-          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(currentProgram))
+          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(currentProgram))
         };
         item.AdditionalProperties["PROGRAM"] = currentProgram;
         item.Selected = _lastProgramId == program.ProgramId; // Restore focus

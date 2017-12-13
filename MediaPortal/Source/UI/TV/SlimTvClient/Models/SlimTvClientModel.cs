@@ -613,7 +613,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         isRecording = recStatus.HasValue && recStatus.Value.HasFlag(RecordingStatus.Scheduled | RecordingStatus.Recording);
         item = new ListItem(Consts.KEY_NAME, localization.ToString(isRecording ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.RecordCurrentProgram]", programNow.Title))
         {
-          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(programNow))
+          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(programNow))
         };
         _dialogActionsList.Add(item);
       }
@@ -621,7 +621,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.RecordManual]")
         {
-          Command = new MethodDelegateCommand(() => CreateOrDeleteScheduleByTimeAsync(context.Channel, DateTime.Now, DateTime.Now.AddDays(1)))
+          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteScheduleByTimeAsync(context.Channel, DateTime.Now, DateTime.Now.AddDays(1)))
         };
         _dialogActionsList.Add(item);
       }

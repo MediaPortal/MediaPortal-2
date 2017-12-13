@@ -30,18 +30,18 @@
   <KeyBinding Key="Record" Command="{Command RecordDialog}"/>
   <KeyBinding Key="R" Command="{Command RecordDialog}"/>
 
-  <KeyBinding Key="Ok" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=SlimTVClient-miniguide}" IsEnabled="{Binding !IsOSDVisible}"/>
+  <KeyBinding Key="Ok" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=SlimTVClient-miniguide}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
 
   <!-- Channel zapping by numbers -->
-  <KeyBinding Key="0" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=0}" IsEnabled="{Binding !IsOSDVisible}"/>
-  <KeyBinding Key="1" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=1}" IsEnabled="{Binding !IsOSDVisible}"/>
-  <KeyBinding Key="2" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=2}" IsEnabled="{Binding !IsOSDVisible}"/>
-  <KeyBinding Key="3" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=3}" IsEnabled="{Binding !IsOSDVisible}"/>
-  <KeyBinding Key="4" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=4}" IsEnabled="{Binding !IsOSDVisible}"/>
-  <KeyBinding Key="5" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=5}" IsEnabled="{Binding !IsOSDVisible}"/>
-  <KeyBinding Key="6" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=6}" IsEnabled="{Binding !IsOSDVisible}"/>
-  <KeyBinding Key="7" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=7}" IsEnabled="{Binding !IsOSDVisible}"/>
-  <KeyBinding Key="8" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=8}" IsEnabled="{Binding !IsOSDVisible}"/>
-  <KeyBinding Key="9" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=9}" IsEnabled="{Binding !IsOSDVisible}"/>
+  <KeyBinding Key="0" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=0}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="1" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=1}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="2" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=2}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="3" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=3}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="4" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=4}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="5" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=5}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="6" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=6}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="7" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=7}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="8" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=8}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="9" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=9}" IsEnabled="{Binding Source={StaticResource VideoPlayerModel}, Path=!IsOSDVisible}"/>
 
 </Grid>

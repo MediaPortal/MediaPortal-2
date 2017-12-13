@@ -229,7 +229,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       for (int idx = 0; idx < ChannelContext.Instance.ChannelGroups.Count; idx++)
       {
         IChannelGroup group = ChannelContext.Instance.ChannelGroups[idx];
-        ListItem channelGroupItem = new ListItem(UiComponents.Media.General.Consts.KEY_NAME, group.Name)
+        ListItem channelGroupItem = new ListItem(Consts.KEY_NAME, group.Name)
         {
           Command = new MethodDelegateCommand(() =>
           {

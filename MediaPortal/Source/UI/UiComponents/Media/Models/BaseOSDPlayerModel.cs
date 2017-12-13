@@ -25,6 +25,7 @@
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.Presentation.Screens;
 using System;
 
 namespace MediaPortal.UiComponents.Media.Models
@@ -52,6 +53,14 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected virtual void UpdateOSDVisibilty()
     {
+      //Don't show the OSD if there is a dialog visible
+      var sm = ServiceRegistration.Get<IScreenManager>();
+      if (sm.IsDialogVisible)
+      {
+        IsOSDVisible = false;
+        return;
+      }
+
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       //Only show the OSD on mouse usage if the mouse has been used again since the last time it was closed.
       if (!_isOsdOpenOnDemand && inputManager.LastMouseUsageTime > _lastOSDMouseUsageTime)

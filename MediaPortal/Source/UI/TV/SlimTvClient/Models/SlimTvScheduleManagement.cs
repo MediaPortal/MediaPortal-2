@@ -419,7 +419,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         ListItem item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteSingle]")
         {
-          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(program))
+          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(program))
         };
         _dialogActionsList.Add(item);
       }
@@ -427,7 +427,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         ListItem item = new ListItem(Consts.KEY_NAME, currentSchedule.IsSeries ? "[SlimTvClient.DeleteFullSchedule]" : "[SlimTvClient.DeleteSingle]")
         {
-          Command = new MethodDelegateCommand(() => DeleteSchedule(currentSchedule))
+          Command = new AsyncMethodDelegateCommand(() => DeleteSchedule(currentSchedule))
         };
         _dialogActionsList.Add(item);
         if (currentSchedule.IsSeries)
@@ -454,14 +454,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (_tvHandler.ScheduleControl != null && await _tvHandler.ScheduleControl.RemoveScheduleAsync(schedule))
       {
-        LoadSchedules();
+        await LoadSchedules();
       }
     }
 
     protected override async Task<RecordingStatus?> CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
     {
       var result = await base.CreateOrDeleteSchedule(program, recordingType);
-      LoadSchedules();
+      await LoadSchedules();
       return result;
     }
 

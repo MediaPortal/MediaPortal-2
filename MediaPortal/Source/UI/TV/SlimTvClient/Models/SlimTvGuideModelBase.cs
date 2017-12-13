@@ -232,13 +232,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               _programActions.Add(
                 new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
                   {
-                    Command = new MethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
+                    Command = new AsyncMethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
                   });
 
             _programActions.Add(
               new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.DeleteSchedule]", program.Title))
                 {
-                  Command = new MethodDelegateCommand(async () =>
+                  Command = new AsyncMethodDelegateCommand(async () =>
                                                         {
                                                           if (await _tvHandler.ScheduleControl.RemoveScheduleForProgramAsync(program, ScheduleRecordingType.Once))
                                                             UpdateRecordingStatus(program, RecordingStatus.None);
@@ -251,7 +251,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             _programActions.Add(
               new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.RecordNow]" : "[SlimTvClient.CreateSchedule]"))
                 {
-                  Command = new MethodDelegateCommand(async () =>
+                  Command = new AsyncMethodDelegateCommand(async () =>
                                                         {
                                                           AsyncResult<ISchedule> recResult;
                                                           // "No Program" placeholder
