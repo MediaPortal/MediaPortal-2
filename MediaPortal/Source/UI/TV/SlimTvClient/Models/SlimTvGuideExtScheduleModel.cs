@@ -147,9 +147,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       screenManager.ShowDialog("DialogExtSchedule");
     }
 
-    public void RecordOrCancelSeries(ScheduleRecordingType scheduleRecordingType)
+    public async Task RecordOrCancelSeries(ScheduleRecordingType scheduleRecordingType)
     {
-      CreateOrDeleteSchedule(_selectedProgram, scheduleRecordingType);
+      await CreateOrDeleteSchedule(_selectedProgram, scheduleRecordingType);
       _selectedSchedule = null;
       UpdateButtonStateForSchedule();
     }
@@ -218,7 +218,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         string currentName = name;
         ListItem recTypeItem = new ListItem(Consts.KEY_NAME, string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", name))
         {
-          Command = new MethodDelegateCommand(() => RecordOrCancelSeries((ScheduleRecordingType)Enum.Parse(typeof(ScheduleRecordingType), currentName)))
+          Command = new AsyncMethodDelegateCommand(() => RecordOrCancelSeries((ScheduleRecordingType)Enum.Parse(typeof(ScheduleRecordingType), currentName)))
         };
         _dialogActionsList.Add(recTypeItem);
       }
@@ -230,12 +230,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _dialogActionsList.Clear();
       ListItem recTypeItem = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteSingle]")
           {
-            Command = new MethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.Once))
+            Command = new AsyncMethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.Once))
           };
       _dialogActionsList.Add(recTypeItem);
       recTypeItem = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteFullSchedule]")
       {
-        Command = new MethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.EveryTimeOnEveryChannel))
+        Command = new AsyncMethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.EveryTimeOnEveryChannel))
       };
       _dialogActionsList.Add(recTypeItem);
     }
