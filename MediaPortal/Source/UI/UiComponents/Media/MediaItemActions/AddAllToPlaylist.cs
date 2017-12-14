@@ -23,8 +23,10 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
@@ -33,15 +35,16 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
   {
     public static Guid ACTION_ID_ADD_ALL_TO_PLAYLIST = new Guid("09243059-EE44-460d-8412-2E994CCB5A98");
 
-    public override bool IsAvailable(MediaItem mediaItem)
+    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
       return ServiceRegistration.Get<IWorkflowManager>().MenuStateActions.ContainsKey(ACTION_ID_ADD_ALL_TO_PLAYLIST);
     }
 
-    public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
+    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
-      return ServiceRegistration.Get<IWorkflowManager>().TryExecuteAction(ACTION_ID_ADD_ALL_TO_PLAYLIST);
+      var result = new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
+      result.Success = ServiceRegistration.Get<IWorkflowManager>().TryExecuteAction(ACTION_ID_ADD_ALL_TO_PLAYLIST);
+      return result;
     }
   }
 }

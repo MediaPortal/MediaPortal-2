@@ -29,6 +29,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 
@@ -39,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     protected abstract bool AppliesForPlayCount(int playCount);
     protected abstract int GetNewPlayCount();
 
-    public override bool IsAvailable(MediaItem mediaItem)
+    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
       int playCount = 0;
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
@@ -50,16 +52,16 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       return cd != null;
     }
 
-    public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
+    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
+      var falseResult = new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        return false;
-      
+        return falseResult;
+
       IList<MultipleMediaItemAspect> pras;
       if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
-        return false;
+        return falseResult;
 
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
@@ -68,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
       int playCount = GetNewPlayCount();
       int playPercentage = playCount > 0 ? 100 : 0;
-      
+
       if (playCount > 0)
       {
         cd.NotifyPlayback(mediaItem.MediaItemId, true);
@@ -86,8 +88,8 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, playCount);
       mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = playCount.ToString();
       mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
-      return true;
+
+      return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
     }
   }
 }

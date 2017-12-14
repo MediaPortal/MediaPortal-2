@@ -23,12 +23,12 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -51,13 +51,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
       });
     }
 
-    public override bool IsAvailable(MediaItem mediaItem)
+    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
-      var isAvailable = IsRecording(mediaItem) && IsResourceDeletor(mediaItem);
+      var isAvailable = IsRecordingItem(mediaItem) && IsResourceDeletor(mediaItem);
       if (!isAvailable)
         return false;
-      // TODO: make async as well
-      TryGetScheduleAsync(mediaItem).Wait();
+
+      await TryGetScheduleAsync(mediaItem);
       return true;
     }
 
@@ -79,9 +79,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
       }
     }
 
-    public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
+    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
+      var falseResult = new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
       if (_schedule != null)
       {
         var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
@@ -90,7 +90,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
           ServiceRegistration.Get<ILogger>().Warn("DeleteRecordingFromStorage: Failed to remove current schedule.");
           var result = tvHandler.ScheduleControl.RemoveScheduleAsync(_schedule).Result;
           if (!result)
-            return false;
+            return falseResult;
         }
       }
 
@@ -98,14 +98,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
       // So we allow some retries after a small delay here.
       for (int i = 1; i <= 3; i++)
       {
-        if (base.Process(mediaItem, out changeType))
-          return true;
+        var res = await base.ProcessAsync(mediaItem);
+        if (res.Success)
+          return res;
 
         ServiceRegistration.Get<ILogger>().Info("DeleteRecordingFromStorage: Failed to delete recording (try {0})", i);
-        Thread.Sleep(i * 1000);
+        await Task.Delay(i * 1000);
       }
       ServiceRegistration.Get<ILogger>().Warn("DeleteRecordingFromStorage: Failed to delete recording.");
-      return false;
+      return falseResult;
     }
 
     public override string ConfirmationMessage

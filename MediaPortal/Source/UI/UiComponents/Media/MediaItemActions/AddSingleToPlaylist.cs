@@ -22,8 +22,10 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.Presentation.Players;
 
@@ -31,17 +33,16 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
   public class AddSingleToPlaylist : AbstractMediaItemAction
   {
-    public override bool IsAvailable(MediaItem mediaItem)
+    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
       // We only add all items to playlist for Image and Audio. Other media types are using single item only.
       return mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID);
     }
 
-    public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
+    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
       PlayItemsModel.PlayOrEnqueueItem(mediaItem, false, PlayerContextConcurrencyMode.None);
-      return true;
+      return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
     }
   }
 }

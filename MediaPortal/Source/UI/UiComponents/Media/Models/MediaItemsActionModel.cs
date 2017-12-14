@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -113,24 +114,24 @@ namespace MediaPortal.UiComponents.Media.Models
       string text = LocalizationHelper.Translate(confirmation.ConfirmationMessage);
       Guid handle = dialogManager.ShowDialog(header, text, DialogType.YesNoDialog, false, DialogButtonType.No);
       _dialogCloseWatcher = new DialogCloseWatcher(this, handle,
-        dialogResult =>
+        async dialogResult =>
         {
           if (dialogResult == DialogResult.Yes)
           {
-            InvokeAction(confirmation, mediaItem);
+            await InvokeAction(confirmation, mediaItem);
           }
           _dialogCloseWatcher?.Dispose();
         });
     }
 
-    protected void InvokeAction(IMediaItemAction action, MediaItem mediaItem)
+    protected async Task InvokeAction(IMediaItemAction action, MediaItem mediaItem)
     {
       try
       {
-        ContentDirectoryMessaging.MediaItemChangeType changeType;
-        if (action.Process(mediaItem, out changeType) && changeType != ContentDirectoryMessaging.MediaItemChangeType.None)
+        var result = await action.ProcessAsync(mediaItem);
+        if (result.Success && result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
         {
-          ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, changeType);
+          ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, result.Result);
         }
       }
       catch (Exception ex)
@@ -179,12 +180,12 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    protected bool FillItemsList(MediaItem mediaItem)
+    protected async Task<bool> FillItemsList(MediaItem mediaItem)
     {
       _mediaItemActionItems.Clear();
       foreach (MediaItemActionExtension action in _actions.OrderBy(a => a.Sort))
       {
-        if (!action.Action.IsAvailable(mediaItem))
+        if (!await action.Action.IsAvailableAsync(mediaItem))
           continue;
 
         ListItem item = new ListItem(Consts.KEY_NAME, action.Caption);
@@ -196,10 +197,10 @@ namespace MediaPortal.UiComponents.Media.Models
       return _mediaItemActionItems.Count > 0;
     }
 
-    protected bool PrepareState(NavigationContext context)
+    protected async Task<bool> PrepareState(NavigationContext context)
     {
       MediaItem item = (MediaItem)context.GetContextVariable(KEY_MEDIA_ITEM, false);
-      return item != null && FillItemsList(item);
+      return item != null && await FillItemsList(item);
     }
 
     protected void LeaveMediaItemActionState()
@@ -220,7 +221,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
       BuildExtensions();
-      return PrepareState(newContext);
+      return PrepareState(newContext).Result;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)

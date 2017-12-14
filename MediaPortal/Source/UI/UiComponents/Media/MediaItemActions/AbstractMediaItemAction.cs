@@ -23,7 +23,9 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.UiComponents.Media.Extensions;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
@@ -43,7 +45,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       return mediaItem != null && mediaItem.MediaItemId != Guid.Empty;
     }
 
-    public abstract bool IsAvailable(MediaItem mediaItem);
-    public abstract bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType);
+    public abstract Task<bool> IsAvailableAsync(MediaItem mediaItem);
+    public abstract Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem);
   }
 }

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -1128,17 +1129,17 @@ namespace MediaPortal.UiComponents.Trakt.Models
       return string.Format("{0}_{1}_{2}", show, episode.Season, episode.Number);
     }
 
-    private void MarkAsWatched(MediaItem mediaItem)
+    private async Task MarkAsWatched(MediaItem mediaItem)
     {
       SetWatched setWatchedAction = new SetWatched();
-      if (setWatchedAction.IsAvailable(mediaItem))
+      if (await setWatchedAction.IsAvailableAsync(mediaItem))
       {
         try
         {
-          ContentDirectoryMessaging.MediaItemChangeType changeType;
-          if (setWatchedAction.Process(mediaItem, out changeType) && changeType != ContentDirectoryMessaging.MediaItemChangeType.None)
+          var result = await setWatchedAction.ProcessAsync(mediaItem);
+          if (result.Success && result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
           {
-            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, changeType);
+            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, result.Result);
             TraktLogger.Info("Marking media item '{0}' as watched", mediaItem.GetType());
           }
         }
@@ -1149,17 +1150,17 @@ namespace MediaPortal.UiComponents.Trakt.Models
       }
     }
 
-    private void MarkAsUnWatched(MediaItem mediaItem)
+    private async Task MarkAsUnWatched(MediaItem mediaItem)
     {
       SetUnwatched setUnwatchedAction = new SetUnwatched();
-      if (setUnwatchedAction.IsAvailable(mediaItem))
+      if (await setUnwatchedAction.IsAvailableAsync(mediaItem))
       {
         try
         {
-          ContentDirectoryMessaging.MediaItemChangeType changeType;
-          if (setUnwatchedAction.Process(mediaItem, out changeType) && changeType != ContentDirectoryMessaging.MediaItemChangeType.None)
+          var result = await setUnwatchedAction.ProcessAsync(mediaItem);
+          if (result.Success && result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
           {
-            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, changeType);
+            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, result.Result);
             TraktLogger.Info("Marking media item '{0}' as unwatched", mediaItem.GetType());
           }
         }

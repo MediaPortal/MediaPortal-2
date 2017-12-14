@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MediaPortal.Common.Logging;
 

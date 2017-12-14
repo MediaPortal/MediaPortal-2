@@ -25,11 +25,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UI.ServerCommunication;
@@ -64,9 +66,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     // TODO: Add to Settings
     protected List<DeleteRule> _defaultRules = new List<DeleteRule>();
 
-    public override bool IsAvailable(MediaItem mediaItem)
+    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
-      return !IsRecording(mediaItem) && IsResourceDeletor(mediaItem);
+      return !IsRecordingItem(mediaItem) && IsResourceDeletor(mediaItem);
     }
 
     protected static bool IsResourceDeletor(MediaItem mediaItem)
@@ -83,22 +85,22 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       }
     }
 
-    protected static bool IsRecording(MediaItem mediaItem)
+    protected static bool IsRecordingItem(MediaItem mediaItem)
     {
       return mediaItem.Aspects.ContainsKey(new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913") /* RecordingAspect.ASPECT_ID*/);
     }
 
-    public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
+    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       bool removeFromML = IsManagedByMediaLibrary(mediaItem) && cd != null;
 
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
+      var falseResult = new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
 
       // Support multi-resource media items and secondary resources
       IList<MultipleMediaItemAspect> providerAspects;
       if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
-        return false;
+        return falseResult;
 
       foreach (MultipleMediaItemAspect providerAspect in providerAspects)
       {
@@ -109,17 +111,16 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
         {
           var rad = ra as IResourceDeletor;
           if (rad == null)
-            return false;
+            return falseResult;
 
           // First try to delete the file from storage.
           if (!rad.Delete())
-            return false;
-
-          changeType = ContentDirectoryMessaging.MediaItemChangeType.Deleted;
+            return falseResult;
 
           // If the MediaItem was loaded from ML, remove it there as well.
           if (removeFromML)
           {
+            // TODO: make async
             cd.DeleteMediaItemOrPath(rl.NativeSystemId, rl.NativeResourcePath, true);
           }
         }
@@ -173,7 +174,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
         }
       }
 
-      return true;
+      return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Deleted);
     }
 
     public virtual string ConfirmationMessage

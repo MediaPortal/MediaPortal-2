@@ -26,22 +26,10 @@ using System.Collections.Generic;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System;
 using System.Threading.Tasks;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
-
-  public class AsyncResult<T>
-  {
-    public AsyncResult() { }
-
-    public AsyncResult(bool success, T result)
-    {
-      Success = success;
-      Result = result;
-    }
-    public bool Success { get; set; }
-    public T Result { get; set; }
-  }
 
   public interface IProgramInfoAsync
   {
