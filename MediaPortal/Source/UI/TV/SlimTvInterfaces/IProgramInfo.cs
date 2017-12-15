@@ -98,82 +98,90 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <see cref="AsyncResult{T}.Result"/> Channel.
     /// </returns>
     Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program);
+
+    /// <summary>
+    /// Gets a program by its <see cref="IProgram.ProgramId"/>.
+    /// </summary>
+    /// <param name="programId">Program ID.</param>
+    /// <param name="program">Program.</param>
+    /// <returns>True if succeeded.</returns>
+    bool GetProgram(int programId, out IProgram program);
   }
 
-  ///// <summary>
-  ///// IProgramInfo defines all actions and properties for TV programs handling.
-  ///// </summary>
-  //public interface IProgramInfo
-  //{
-  //  /// <summary>
-  //  /// Tries to get the current and next program for the given <paramref name="channel"/>.
-  //  /// </summary>
-  //  /// <param name="channel">Channel</param>
-  //  /// <param name="programNow">Returns current program</param>
-  //  /// <param name="programNext">Returns next program</param>
-  //  /// <returns><c>true</c> if a program could be found</returns>
-  //  bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext);
+    ///// <summary>
+    ///// IProgramInfo defines all actions and properties for TV programs handling.
+    ///// </summary>
+    //public interface IProgramInfo
+    //{
+    //  /// <summary>
+    //  /// Tries to get the current and next program for the given <paramref name="channel"/>.
+    //  /// </summary>
+    //  /// <param name="channel">Channel</param>
+    //  /// <param name="programNow">Returns current program</param>
+    //  /// <param name="programNext">Returns next program</param>
+    //  /// <returns><c>true</c> if a program could be found</returns>
+    //  bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext);
 
-  //  /// <summary>
-  //  /// Tries to get the current and next program for all channels of the the given <paramref name="channelGroup"/>.
-  //  /// </summary>
-  //  /// <param name="channelGroup">Channel group</param>
-  //  /// <param name="nowNextPrograms">Returns programs</param>
-  //  /// <returns><c>true</c> if successful</returns>
-  //  bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> nowNextPrograms);
+    //  /// <summary>
+    //  /// Tries to get the current and next program for all channels of the the given <paramref name="channelGroup"/>.
+    //  /// </summary>
+    //  /// <param name="channelGroup">Channel group</param>
+    //  /// <param name="nowNextPrograms">Returns programs</param>
+    //  /// <returns><c>true</c> if successful</returns>
+    //  bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> nowNextPrograms);
 
-  //  /// <summary>
-  //  /// Tries to get a list of programs for the given <paramref name="channel"/> and time range.
-  //  /// </summary>
-  //  /// <param name="channel">Channel</param>
-  //  /// <param name="from">Time from</param>
-  //  /// <param name="to">Time to</param>
-  //  /// <param name="programs">Returns programs</param>
-  //  /// <returns><c>true</c> if at least one program could be found</returns>
-  //  bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs);
+    //  /// <summary>
+    //  /// Tries to get a list of programs for the given <paramref name="channel"/> and time range.
+    //  /// </summary>
+    //  /// <param name="channel">Channel</param>
+    //  /// <param name="from">Time from</param>
+    //  /// <param name="to">Time to</param>
+    //  /// <param name="programs">Returns programs</param>
+    //  /// <returns><c>true</c> if at least one program could be found</returns>
+    //  bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs);
 
-  //  /// <summary>
-  //  /// Tries to get a list of programs for the given <paramref name="title"/> and time range.
-  //  /// </summary>
-  //  /// <param name="title">Program title</param>
-  //  /// <param name="from">Time from</param>
-  //  /// <param name="to">Time to</param>
-  //  /// <param name="programs">Returns programs</param>
-  //  /// <returns><c>true</c> if at least one program could be found</returns>
-  //  bool GetPrograms(string title, DateTime from, DateTime to, out IList<IProgram> programs);
+    //  /// <summary>
+    //  /// Tries to get a list of programs for the given <paramref name="title"/> and time range.
+    //  /// </summary>
+    //  /// <param name="title">Program title</param>
+    //  /// <param name="from">Time from</param>
+    //  /// <param name="to">Time to</param>
+    //  /// <param name="programs">Returns programs</param>
+    //  /// <returns><c>true</c> if at least one program could be found</returns>
+    //  bool GetPrograms(string title, DateTime from, DateTime to, out IList<IProgram> programs);
 
-  //  /// <summary>
-  //  /// Tries to get a list of programs for all channels of the given <paramref name="channelGroup"/> and time range.
-  //  /// </summary>
-  //  /// <param name="channelGroup">Channel group</param>
-  //  /// <param name="from">Time from</param>
-  //  /// <param name="to">Time to</param>
-  //  /// <param name="programs">Returns programs</param>
-  //  /// <returns><c>true</c> if at least one program could be found</returns>
-  //  bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs);
+    //  /// <summary>
+    //  /// Tries to get a list of programs for all channels of the given <paramref name="channelGroup"/> and time range.
+    //  /// </summary>
+    //  /// <param name="channelGroup">Channel group</param>
+    //  /// <param name="from">Time from</param>
+    //  /// <param name="to">Time to</param>
+    //  /// <param name="programs">Returns programs</param>
+    //  /// <returns><c>true</c> if at least one program could be found</returns>
+    //  bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs);
 
-  //  /// <summary>
-  //  /// Tries to get a list of programs for the given <paramref name="channel"/>.
-  //  /// </summary>
-  //  /// <param name="channel">Channel</param> 
-  //  /// <param name="programs">Returns programs</param>
-  //  /// <returns><c>true</c> if at least one program could be found</returns>
-  //  bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs);
+    //  /// <summary>
+    //  /// Tries to get a list of programs for the given <paramref name="channel"/>.
+    //  /// </summary>
+    //  /// <param name="channel">Channel</param> 
+    //  /// <param name="programs">Returns programs</param>
+    //  /// <returns><c>true</c> if at least one program could be found</returns>
+    //  bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs);
 
-  //  /// <summary>
-  //  /// Gets a channel from an IProgram.
-  //  /// </summary>
-  //  /// <param name="program">Program.</param>
-  //  /// <param name="channel">Channel.</param>
-  //  /// <returns>True if succeeded.</returns>
-  //  bool GetChannel(IProgram program, out IChannel channel);
+    //  /// <summary>
+    //  /// Gets a channel from an IProgram.
+    //  /// </summary>
+    //  /// <param name="program">Program.</param>
+    //  /// <param name="channel">Channel.</param>
+    //  /// <returns>True if succeeded.</returns>
+    //  bool GetChannel(IProgram program, out IChannel channel);
 
-  //  /// <summary>
-  //  /// Gets a program by its <see cref="IProgram.ProgramId"/>.
-  //  /// </summary>
-  //  /// <param name="programId">Program ID.</param>
-  //  /// <param name="program">Program.</param>
-  //  /// <returns>True if succeeded.</returns>
-  //  bool GetProgram(int programId, out IProgram program);
-  //}
-}
+    //  /// <summary>
+    //  /// Gets a program by its <see cref="IProgram.ProgramId"/>.
+    //  /// </summary>
+    //  /// <param name="programId">Program ID.</param>
+    //  /// <param name="program">Program.</param>
+    //  /// <returns>True if succeeded.</returns>
+    //  bool GetProgram(int programId, out IProgram program);
+    //}
+  }

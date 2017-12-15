@@ -22,7 +22,9 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
@@ -39,9 +41,12 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="userName">Unique name that identifies one TV client.</param>
     /// <param name="slotIndex">Slot Index for Playback (0=Primary, 1=PiP).</param>
     /// <param name="channel">Channel.</param>
-    /// <param name="timeshiftMediaItem">Returns the created MediaItem.</param>
     /// <returns>True if succeeded.</returns>
-    bool StartTimeshift(string userName, int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem);
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if programs could be found.
+    /// <see cref="AsyncResult{T}.Result"/> returns the created MediaItem.
+    /// </returns>
+    Task<AsyncResult<MediaItem>> StartTimeshiftAsync(string userName, int slotIndex, IChannel channel);
 
     /// <summary>
     /// Stops the active timeshifting.
@@ -49,6 +54,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="userName">Unique name that identifies one TV client.</param>
     /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
     /// <returns>True if succeeded.</returns>
-    bool StopTimeshift(string userName, int slotIndex);
+    Task<bool> StopTimeshiftAsync(string userName, int slotIndex);
   }
 }
