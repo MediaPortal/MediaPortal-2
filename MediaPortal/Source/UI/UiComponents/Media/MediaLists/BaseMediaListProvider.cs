@@ -36,6 +36,7 @@ using System;
 using System.Linq;
 using MediaPortal.Common.UserProfileDataManagement;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
@@ -45,7 +46,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public delegate PlayableMediaItem PlayableMediaItemToListItemAction(MediaItem mediaItem);
     public delegate PlayableContainerMediaItem PlayableContainerMediaItemToListItemAction(MediaItem mediaItem);
 
-    ItemsList _allItems;
+    private readonly ItemsList _allItems;
     protected IEnumerable<Guid> _necessaryMias;
     protected PlayableMediaItemToListItemAction _playableConverterAction;
     protected PlayableContainerMediaItemToListItemAction _playableContainerConverterAction;
@@ -90,7 +91,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       return filter;
     }
 
-    public virtual bool UpdateItems(int maxItems, UpdateReason updateReason)
+    public virtual async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
     {
       if (!ShouldUpdate(updateReason))
         return false;
@@ -110,7 +111,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMias);
 
-      var items = contentDirectory.Search(query, false, userProfile, showVirtual);
+      var items = await contentDirectory.SearchAsync(query, false, userProfile, showVirtual);
       lock (_allItems.SyncRoot)
       {
         if (_allItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))

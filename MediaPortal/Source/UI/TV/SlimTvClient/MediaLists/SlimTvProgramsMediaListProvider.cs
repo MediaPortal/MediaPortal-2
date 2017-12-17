@@ -32,6 +32,7 @@ using MediaPortal.UiComponents.Media.MediaLists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -54,7 +55,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       return item;
     }
 
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
+    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
     {
       if (!TryInitTvHandler() || _tvHandler.ProgramInfo == null)
         return false;
@@ -67,21 +68,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
       ICollection<IChannel> channels;
       if (_currentChannels == null || updateReason.HasFlag(UpdateReason.Forced) || updateReason.HasFlag(UpdateReason.PlaybackComplete))
-        channels = _currentChannels = GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT);
+        channels = _currentChannels = await GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT);
       else
         channels = _currentChannels;
 
       IList<Tuple<IProgram, IChannel>> programs = new List<Tuple<IProgram, IChannel>>();
       foreach (IChannel channel in channels)
       {
-        IProgram currentProgram;
-        IProgram nextProgram;
-        if (!_tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
+        var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(channel);
+        if (!result.Success)
           continue;
+
+        IProgram currentProgram = result.Result[0];
 
         if (currentProgram != null)
           programs.Add(new Tuple<IProgram, IChannel>(currentProgram, channel));
-
       }
 
       lock (_allItems.SyncRoot)

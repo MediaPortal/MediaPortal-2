@@ -36,6 +36,7 @@ using MediaPortal.UiComponents.Media.MediaLists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -55,7 +56,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       get { return _allItems; }
     }
 
-    public abstract bool UpdateItems(int maxItems, UpdateReason updateReason);
+    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason);
     
     protected ListItem CreateChannelItem(IChannel channel)
     {
@@ -82,7 +83,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       return true;
     }
 
-    protected IList<IChannel> GetUserChannelList(int maxItems, string userDataKey)
+    protected async Task<IList<IChannel>> GetUserChannelList(int maxItems, string userDataKey)
     {
       IList<IChannel> userChannels = new List<IChannel>();
 
@@ -101,9 +102,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
       foreach (int channelId in channelList.Select(c => c.Item1))
       {
-        IChannel channel;
-        if (_tvHandler.ChannelAndGroupInfo.GetChannel(channelId, out channel) && channel.MediaType == _mediaType)
-          userChannels.Add(channel);
+        var result = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
+        if (result.Success && result.Result.MediaType == _mediaType)
+          userChannels.Add(result.Result);
         if (userChannels.Count >= maxItems)
           break;
       }

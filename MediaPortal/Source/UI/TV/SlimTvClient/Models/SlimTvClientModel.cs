@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -34,8 +35,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
-using MediaPortal.Common.TaskScheduler;
-using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Player;
 using MediaPortal.Plugins.SlimTv.Client.Settings;
@@ -53,8 +52,8 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Events;
 using MediaPortal.UI.Services.UserManagement;
-using Task = System.Threading.Tasks.Task;
 using MediaPortal.Common.UserProfileDataManagement;
+using Task = System.Threading.Tasks.Task;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
