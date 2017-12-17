@@ -198,6 +198,20 @@ namespace MediaPortal.Common.SystemCommunication
     /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
     /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
     IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
+
+    /// <summary>
+    /// Starts a search for media items asynchronously.
+    /// </summary>
+    /// <param name="query">Query object which specifies the search parameters.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
+    /// are currently online are returned.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
+    /// <returns>List of matching media items with the media item aspects of the given
+    /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
+    /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
     Task<IList<MediaItem>> SearchAsync(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
 
     /// <summary>
@@ -246,6 +260,26 @@ namespace MediaPortal.Common.SystemCommunication
     /// Returns a map of existing attribute values mapped to their occurence count for the given
     /// <paramref name="attributeType"/> for the media items specified by the <paramref name="filter"/>.
     /// </summary>
+    /// <param name="attributeType">Attribute type, whose values will be returned.</param>
+    /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="attributeType"/> to restrict the
+    /// result values.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    /// <paramref name="attributeType"/>.</param>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types, which need to be present in each media item
+    /// whose attribute values are part of the result collection.</param>
+    /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    /// systems which are currently online.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <returns>Mapping set of existing attribute values to their occurence count for the given
+    /// <paramref name="attributeType"/> (long).</returns>
+    Task<HomogenousMap> GetValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
+
+    /// <summary>
+    /// Returns a map of existing attribute values mapped to their occurence count for the given
+    /// <paramref name="attributeType"/> for the media items specified by the <paramref name="filter"/>.
+    /// </summary>
     /// <param name="keyAttributeType">Attribute type, whose keys will be returned.</param>
     /// <param name="valueAttributeType">Attribute type, whose values will be returned.</param>
     /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="attributeType"/> to restrict the
@@ -262,6 +296,28 @@ namespace MediaPortal.Common.SystemCommunication
     /// <paramref name="valueAttributeType"/> (long) in Item1 and values to their keys
     /// for the given <paramref name="valueAttributeType"/> in Item2.</returns>
     Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
+
+    /// <summary>
+    /// Returns a map of existing attribute values mapped to their occurence count for the given
+    /// <paramref name="attributeType"/> for the media items specified by the <paramref name="filter"/>.
+    /// </summary>
+    /// <param name="keyAttributeType">Attribute type, whose keys will be returned.</param>
+    /// <param name="valueAttributeType">Attribute type, whose values will be returned.</param>
+    /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="attributeType"/> to restrict the
+    /// result values.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    /// <paramref name="keyAttributeType"/>.</param>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types, which need to be present in each media item
+    /// whose attribute values are part of the result collection.</param>
+    /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    /// systems which are currently online.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <returns>Mapping set of existing attribute values to their occurence count for the given
+    /// <paramref name="valueAttributeType"/> (long) in Item1 and values to their keys
+    /// for the given <paramref name="valueAttributeType"/> in Item2.</returns>
+    Task<Tuple<HomogenousMap, HomogenousMap>> GetKeyValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
       IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
 
     /// <summary>
@@ -284,6 +340,25 @@ namespace MediaPortal.Common.SystemCommunication
         IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual);
 
     /// <summary>
+    /// Executes <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
+    /// </summary>
+    /// <param name="attributeType">Attribute type, whose values will be returned. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="attributeType"/> to restrict the
+    /// result value groups.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    /// <paramref name="attributeType"/>.</param>
+    /// <param name="necessaryMIATypes">Necessary media item types. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="filter">Filter specifying the base media items for the query. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    /// systems which are currently online.</param>
+    /// <param name="groupingFunction">Determines, how result values are grouped.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <returns>List of value groups for the given query.</returns>
+    Task<IList<MLQueryResultGroup>> GroupValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
+        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual);
+
+    /// <summary>
     /// Counts the count of media items matching the given criteria.
     /// </summary>
     /// <param name="necessaryMIATypes">IDs of media item aspect types, which need to be present in each counted media item. Only
@@ -294,6 +369,18 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>Number of matching media items.</returns>
     int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
+
+    /// <summary>
+    /// Counts the count of media items matching the given criteria.
+    /// </summary>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types, which need to be present in each counted media item. Only
+    /// media items with those media item aspect types are counted.</param>
+    /// <param name="filter">Filter specifying the media items which will be counted.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only items hosted by systems which are currently online
+    /// are counted.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <returns>Number of matching media items.</returns>
+    Task<int> CountMediaItemsAsync(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
 
     #endregion
 

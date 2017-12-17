@@ -363,6 +363,12 @@ namespace MediaPortal.Common.Services.ServerCommunication
     }
 
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
+      ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
+    {
+      return GetValueGroupsAsync(attributeType, selectAttributeFilter, projectionFunction, necessaryMIATypes, filter, onlyOnline, includeVirtual).Result;
+    }
+
+    public async Task<HomogenousMap> GetValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
         ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
     {
       CpAction action = GetAction("X_MediaPortal_GetValueGroups");
@@ -379,11 +385,17 @@ namespace MediaPortal.Common.Services.ServerCommunication
         onlineStateStr,
         includeVirtual,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
       return (HomogenousMap) outParameters[0];
     }
 
     public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
+    {
+      return GetKeyValueGroupsAsync(keyAttributeType, valueAttributeType, selectAttributeFilter, projectionFunction, necessaryMIATypes, filter, onlyOnline, includeVirtual).Result;
+    }
+
+    public async Task<Tuple<HomogenousMap, HomogenousMap>> GetKeyValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
       IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
     {
       CpAction action = GetAction("X_MediaPortal_GetKeyValueGroups");
@@ -402,11 +414,18 @@ namespace MediaPortal.Common.Services.ServerCommunication
         onlineStateStr,
         includeVirtual,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
       return new Tuple<HomogenousMap, HomogenousMap>((HomogenousMap)outParameters[0], (HomogenousMap)outParameters[1]);
     }
 
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
+        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual)
+    {
+      return GroupValueGroupsAsync(attributeType, selectAttributeFilter, projectionFunction, necessaryMIATypes, filter, onlyOnline, groupingFunction, includeVirtual).Result;
+    }
+
+    public async Task<IList<MLQueryResultGroup>> GroupValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
         IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual)
     {
@@ -433,11 +452,16 @@ namespace MediaPortal.Common.Services.ServerCommunication
         groupingFunctionStr,
         includeVirtual,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
       return (IList<MLQueryResultGroup>) outParameters[0];
     }
 
     public int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
+    {
+      return CountMediaItemsAsync(necessaryMIATypes, filter, onlyOnline, includeVirtual).Result;
+    }
+
+    public async Task<int> CountMediaItemsAsync(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
     {
       CpAction action = GetAction("X_MediaPortal_CountMediaItems");
       string onlineStateStr = SerializeOnlineState(onlyOnline);
@@ -448,7 +472,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         onlineStateStr,
         includeVirtual,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
       return (int)(uint) outParameters[0];
     }
 
