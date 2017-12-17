@@ -143,8 +143,7 @@ namespace MediaPortal.UiComponents.Media.Views
       }
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
 
-      return cd.Search(query, false, userProfile, showVirtual);
-      //return cd.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
+      return await cd.SearchAsync(query, false, userProfile, showVirtual);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
