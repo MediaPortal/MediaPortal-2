@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -501,15 +502,15 @@ namespace MediaPortal.UiComponents.Media.Models
           LeaveCheckQueryPlayActionMultipleItemsState());
     }
 
-    protected void CheckResumeMenuInternal(MediaItem item)
+    protected async Task CheckResumeMenuInternal(MediaItem item)
     {
       IResumeState resumeState = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
       {
-        string resumeStateString;
-        if (userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, item.MediaItemId, PlayerContext.KEY_RESUME_STATE, out resumeStateString))
-          resumeState = ResumeStateBase.Deserialize(resumeStateString);
+        var userResult = await userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemDataAsync(userProfileDataManagement.CurrentUser.ProfileId, item.MediaItemId, PlayerContext.KEY_RESUME_STATE);
+        if (userResult.Success)
+          resumeState = ResumeStateBase.Deserialize(userResult.Result);
       }
 
       if (resumeState == null)

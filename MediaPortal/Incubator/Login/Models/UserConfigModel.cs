@@ -45,6 +45,7 @@ using MediaPortal.Common.Localization;
 using System.IO;
 using MediaPortal.Utilities.Graphics;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.Utilities;
 
@@ -493,7 +494,7 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
-    public void DeleteUser()
+    public async Task DeleteUser()
     {
       try
       {
@@ -512,7 +513,7 @@ namespace MediaPortal.UiComponents.Login.Models
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
           if (userManagement != null && userManagement.UserProfileDataManagement != null)
           {
-            if (!userManagement.UserProfileDataManagement.DeleteProfile(user.ProfileId))
+            if (!await userManagement.UserProfileDataManagement.DeleteProfileAsync(user.ProfileId))
             {
               ServiceRegistration.Get<ILogger>().Warn("UserConfigModel: Problems deleting user '{0}' (name '{1}')", user.ProfileId, user.Name);
             }
@@ -531,7 +532,7 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
-    public void SaveUser()
+    public async Task SaveUser()
     {
       try
       {
@@ -550,12 +551,12 @@ namespace MediaPortal.UiComponents.Login.Models
           {
             if (UserProxy.Id == Guid.Empty)
             {
-              UserProxy.Id = userManagement.UserProfileDataManagement.CreateProfile(UserProxy.Name, UserProxy.ProfileType, hash);
+              UserProxy.Id = await userManagement.UserProfileDataManagement.CreateProfileAsync(UserProxy.Name, UserProxy.ProfileType, hash);
               wasCreated = true;
             }
             else
             {
-              success = userManagement.UserProfileDataManagement.UpdateProfile(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash);
+              success = await userManagement.UserProfileDataManagement.UpdateProfileAsync(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash);
             }
             if (UserProxy.Id == Guid.Empty)
             {
@@ -564,15 +565,15 @@ namespace MediaPortal.UiComponents.Login.Models
             }
 
             if (UserProxy.Image != null)
-              success &= userManagement.UserProfileDataManagement.SetProfileImage(UserProxy.Id, UserProxy.Image);
-            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
-            success &= userManagement.UserProfileDataManagement.ClearUserAdditionalDataKey(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE);
+              success &= await userManagement.UserProfileDataManagement.SetProfileImageAsync(UserProxy.Id, UserProxy.Image);
+            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
+            success &= await userManagement.UserProfileDataManagement.ClearUserAdditionalDataKeyAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE);
             foreach (var shareId in UserProxy.SelectedShares)
-              success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE, shareId.ToString(), ++shareCount);
-            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.RestrictAges ? "0" : "1");
-            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
-            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
-            success &= userManagement.UserProfileDataManagement.SetUserAdditionalData(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE, shareId.ToString(), ++shareCount);
+            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.RestrictAges ? "0" : "1");
+            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
+            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
+            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
 
             if (!success)
             {
@@ -667,7 +668,7 @@ namespace MediaPortal.UiComponents.Login.Models
         SelectedSharesInfo = string.Format("{0}: {1}", LocalizationHelper.Translate(Consts.RES_SHARES_TEXT), UserProxy.SelectedShares.Count);
     }
 
-    protected internal void UpdateUserLists_NoLock(bool create)
+    protected internal async Task UpdateUserLists_NoLock(bool create)
     {
       lock (_syncObj)
       {
@@ -684,7 +685,7 @@ namespace MediaPortal.UiComponents.Login.Models
           return;
 
         // add users to expose them
-        var users = userManagement.UserProfileDataManagement.GetProfiles();
+        var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
         _userList.Clear();
         foreach (UserProfile user in users)
         {

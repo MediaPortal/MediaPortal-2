@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.ServerCommunication;
@@ -45,7 +46,7 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public UserProfile CurrentUser
     {
-      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser() ?? UNKNOWN_USER); }
+      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().Result ?? UNKNOWN_USER); }
       set { _currentUser = value; }
     }
 
@@ -64,18 +65,22 @@ namespace MediaPortal.UI.Services.UserManagement
       set { _applyRestrictions = value; }
     }
 
-    public UserProfile GetOrCreateDefaultUser()
+    public async Task<UserProfile> GetOrCreateDefaultUser()
     {
-      UserProfile user = null;
       string profileName = SystemInformation.ComputerName;
       IUserProfileDataManagement updm = UserProfileDataManagement;
-      if (updm != null && !updm.GetProfileByName(profileName, out user))
-      {
-        Guid profileId = updm.CreateProfile(profileName);
-        if (!updm.GetProfile(profileId, out user))
-          return null;
-      }
-      return user;
+      if (updm == null)
+        return null;
+
+      var result = await updm.GetProfileByNameAsync(profileName);
+      if (result.Success)
+        return result.Result;
+
+      Guid profileId = await updm.CreateProfileAsync(profileName);
+      result = await updm.GetProfileAsync(profileId);
+      if (result.Success)
+        return result.Result;
+      return null;
     }
   }
 }

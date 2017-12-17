@@ -666,7 +666,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // When not zapped the previous channel information is restored during the next Update() call
     }
 
-    private void UpdateWatchDuration(IChannel channel)
+    private async Task UpdateWatchDuration(IChannel channel)
     {
       if (channel != null && _watchStart.ContainsKey(channel) && (DateTime.UtcNow - _watchStart[channel]).TotalSeconds > PROGRAM_WATCHED_SEC)
       {
@@ -677,13 +677,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         if (userProfile.HasValue)
         {
-          string data = null;
-          userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalData(userProfile.Value,
-            UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, out data, channel.ChannelId);
+          var userResult = await userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataAsync(userProfile.Value, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, channel.ChannelId);
+          if (!userResult.Success)
+            return;
+
+          string data = userResult.Result;
           double count = (data != null ? Convert.ToDouble(data, CultureInfo.InvariantCulture) : 0) + (DateTime.UtcNow - _watchStart[channel]).TotalHours;
-          userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalData(userProfile.Value,
+          await userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userProfile.Value,
             UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, UserDataKeysKnown.GetSortableChannelPlayCountString(count), channel.ChannelId);
-          userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalData(userProfile.Value, 
+          await userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userProfile.Value, 
             UserDataKeysKnown.KEY_CHANNEL_PLAY_DATE, UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now), channel.ChannelId);
         }
       }

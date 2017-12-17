@@ -25,7 +25,6 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -95,10 +94,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
         return userChannels;
 
       Guid userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-      IEnumerable<Tuple<int, string>> channelList;
-      if (!userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataList(userProfile, userDataKey,
-        out channelList, true, SortDirection.Descending))
+      var userResult = await userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataListAsync(userProfile, userDataKey, true, SortDirection.Descending);
+      if (!userResult.Success)
         return userChannels;
+
+      IEnumerable<Tuple<int, string>> channelList = userResult.Result;
 
       foreach (int channelId in channelList.Select(c => c.Item1))
       {

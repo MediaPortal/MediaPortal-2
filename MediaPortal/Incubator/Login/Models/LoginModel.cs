@@ -33,6 +33,7 @@ using MediaPortal.UiComponents.Login.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Login.General;
 using MediaPortal.Common.Messaging;
@@ -195,7 +196,7 @@ namespace MediaPortal.UiComponents.Login.Models
       if (!string.IsNullOrEmpty(item.Password))
       {
         ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
-          (string name, System.Guid id) =>
+          (string name, Guid id) =>
           {
             LoginUser(_passwordUser, UserPassword);
           });
@@ -227,7 +228,7 @@ namespace MediaPortal.UiComponents.Login.Models
       if (!string.IsNullOrEmpty(item.Password) && UserSettingStorage.AutoLoginUser != item.Id)
       {
         ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
-          (string name, System.Guid id) =>
+          (string name, Guid id) =>
           {
             SetAutoLoginUser(_passwordUser, UserPassword);
           });
@@ -241,12 +242,14 @@ namespace MediaPortal.UiComponents.Login.Models
     public void ConfirmPassword()
     {
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      UserProfile userProfile;
       if (userManagement.UserProfileDataManagement == null)
         return;
-      if (!userManagement.UserProfileDataManagement.GetProfile(_passwordUser, out userProfile))
+
+      var result = userManagement.UserProfileDataManagement.GetProfileAsync(_passwordUser).Result;
+      if (!result.Success)
         return;
-      if (General.Utils.VerifyPassword(UserPassword, userProfile.Password))
+      UserProfile userProfile = result.Result;
+      if (Utils.VerifyPassword(UserPassword, userProfile.Password))
       {
         IsPasswordIncorrect = false;
         ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
@@ -380,7 +383,7 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
-    private void SetCurrentUser(UserProfile userProfile = null)
+    private async Task SetCurrentUser(UserProfile userProfile = null)
     {
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfile == null)
@@ -389,9 +392,10 @@ namespace MediaPortal.UiComponents.Login.Models
         {
           if (userProfileDataManagement.UserProfileDataManagement != null)
           {
-            if (userProfileDataManagement.UserProfileDataManagement.GetProfile(UserSettingStorage.AutoLoginUser, out userProfile))
+            var result = await userProfileDataManagement.UserProfileDataManagement.GetProfileAsync(UserSettingStorage.AutoLoginUser);
+            if (result.Success)
             {
-              userProfileDataManagement.CurrentUser = userProfile;
+              userProfile = userProfileDataManagement.CurrentUser = result.Result;
               _firstLogin = false;
             }
           }
@@ -412,7 +416,7 @@ namespace MediaPortal.UiComponents.Login.Models
       if (userProfile != UserManagement.UNKNOWN_USER)
       {
         if (userProfileDataManagement.UserProfileDataManagement != null)
-          userProfileDataManagement.UserProfileDataManagement.LoginProfile(userProfile.ProfileId);
+          await userProfileDataManagement.UserProfileDataManagement.LoginProfileAsync(userProfile.ProfileId);
         _lastActivity = DateTime.Now;
         IsUserLoggedIn = !userProfile.Name.Equals(System.Windows.Forms.SystemInformation.ComputerName, StringComparison.InvariantCultureIgnoreCase) ||
           userProfile.ProfileType != UserProfile.CLIENT_PROFILE;
@@ -426,7 +430,7 @@ namespace MediaPortal.UiComponents.Login.Models
     /// <summary>
     /// this will turn the _users list into the _usersExposed list
     /// </summary>
-    private void RefreshUserList()
+    private async Task RefreshUserList()
     {
       // clear the exposed users list
       _loginUserList.Clear();
@@ -447,7 +451,7 @@ namespace MediaPortal.UiComponents.Login.Models
       _autoLoginUserList.Add(proxy);
 
       // add users to expose them
-      var users = userManagement.UserProfileDataManagement.GetProfiles();
+      var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
       foreach (UserProfile user in users)
       {
         if (user.ProfileType != UserProfile.CLIENT_PROFILE)
@@ -475,36 +479,36 @@ namespace MediaPortal.UiComponents.Login.Models
       _autoLoginUserList.FireChange();
     }
 
-    private void LoginUser(Guid profileId, string password)
+    private async Task LoginUser(Guid profileId, string password)
     {
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      UserProfile userProfile;
       if (userManagement.UserProfileDataManagement == null)
         return;
-      if (!userManagement.UserProfileDataManagement.GetProfile(profileId, out userProfile))
+      var result = await userManagement.UserProfileDataManagement.GetProfileAsync(profileId);
+      if (!result.Success)
         return;
-      if (string.IsNullOrEmpty(userProfile.Password) || General.Utils.VerifyPassword(password, userProfile.Password))
+      UserProfile userProfile = result.Result;
+
+      if (string.IsNullOrEmpty(userProfile.Password) || Utils.VerifyPassword(password, userProfile.Password))
       {
-        SetCurrentUser(userProfile);
-        userManagement.UserProfileDataManagement.LoginProfile(profileId);
+        await SetCurrentUser(userProfile);
+        await userManagement.UserProfileDataManagement.LoginProfileAsync(profileId);
         ShowHomeScreen(false);
       }
     }
 
-    private void SetAutoLoginUser(Guid profileId, string password)
+    private async Task SetAutoLoginUser(Guid profileId, string password)
     {
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      UserProfile userProfile = new UserProfile(Guid.Empty, "");
-      UserProxy listUser = null;
-      bool storeUser = true;
-      if (profileId != Guid.Empty)
+      UserProfile userProfile = null;
+      UserProxy listUser;
+      if (profileId != Guid.Empty && userManagement.UserProfileDataManagement != null)
       {
-        if (userManagement.UserProfileDataManagement == null || !userManagement.UserProfileDataManagement.GetProfile(profileId, out userProfile))
-          storeUser = false;
-        if(!Utils.VerifyPassword(password, userProfile.Password))
-          storeUser = false;
+        var result = await userManagement.UserProfileDataManagement.GetProfileAsync(profileId);
+        if (result.Success && Utils.VerifyPassword(password, result.Result.Password))
+          userProfile = result.Result;
       }
-      if (storeUser)
+      if (userProfile != null)
       {
         ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
         UserSettings settings = localSettings.Load<UserSettings>();

@@ -252,7 +252,7 @@ namespace MediaPortal.UI.Services.Players
 
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemDataAsync(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
 
       if (!mediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
         mediaItem.UserData.Add(PlayerContext.KEY_RESUME_STATE, "");
@@ -330,12 +330,11 @@ namespace MediaPortal.UI.Services.Players
       if (userProfileDataManagement.IsValidUser)
       {
         bool updatePlayDate = (watched || playDuration >= MINIMUM_WATCHED_SEC || playPercentage >= MINIMUM_WATCHED_PERCENT);
-        if (cd != null)
-          cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, playPercentage, updatePlayDate);
+        cd?.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, playPercentage, updatePlayDate);
       }
-      else if (cd != null)
+      else
       {
-        cd.NotifyPlayback(mediaItem.MediaItemId, watched);
+        cd?.NotifyPlayback(mediaItem.MediaItemId, watched);
       }
 
       // Update loaded item also, so changes will be visible in GUI without reloading

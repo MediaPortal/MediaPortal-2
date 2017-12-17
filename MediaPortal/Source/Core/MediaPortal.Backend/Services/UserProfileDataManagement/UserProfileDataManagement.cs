@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -34,6 +35,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -64,7 +66,8 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     #region Protected methods
 
-    protected ICollection<UserProfile> GetProfiles(Guid? profileId, string name, bool loadData = true)
+    //TODO: DbCommand Async call?
+    protected async Task<ICollection<UserProfile>> GetProfiles(Guid? profileId, string name, bool loadData = true)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -131,31 +134,31 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     #region User profiles management
 
-    public ICollection<UserProfile> GetProfiles()
+    public async Task<ICollection<UserProfile>> GetProfilesAsync()
     {
-      return GetProfiles(null, null);
+      return await GetProfiles(null, null);
     }
 
-    public bool GetProfile(Guid profileId, out UserProfile userProfile)
+    public async Task<AsyncResult<UserProfile>> GetProfileAsync(Guid profileId)
     {
-      ICollection<UserProfile> profiles = GetProfiles(profileId, null);
-      userProfile = profiles.FirstOrDefault();
-      return userProfile != null;
+      ICollection<UserProfile> profiles = await GetProfiles(profileId, null);
+      var userProfile = profiles.FirstOrDefault();
+      return new AsyncResult<UserProfile>(userProfile != null, userProfile);
     }
 
-    public bool GetProfileByName(string profileName, out UserProfile userProfile)
+    public async Task<AsyncResult<UserProfile>> GetProfileByNameAsync(string profileName)
     {
-      ICollection<UserProfile> profiles = GetProfiles(null, profileName);
-      userProfile = profiles.FirstOrDefault();
-      return userProfile != null;
+      ICollection<UserProfile> profiles = await GetProfiles(null, profileName);
+      var userProfile = profiles.FirstOrDefault();
+      return new AsyncResult<UserProfile>(userProfile != null, userProfile);
     }
 
-    public Guid CreateProfile(string profileName)
+    public async Task<Guid> CreateProfileAsync(string profileName)
     {
       //Profile might already exist.
-      UserProfile existingProfile;
-      if (GetProfileByName(profileName, out existingProfile))
-        return existingProfile.ProfileId;
+      var result = await GetProfileByNameAsync(profileName);
+      if (result.Success)
+        return result.Result.ProfileId;
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -175,12 +178,12 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
-    public Guid CreateProfile(string profileName, int profileType, string profilePassword)
+    public async Task<Guid> CreateProfileAsync(string profileName, int profileType, string profilePassword)
     {
       //Profile might already exist.
-      UserProfile existingProfile;
-      if (GetProfileByName(profileName, out existingProfile))
-        return existingProfile.ProfileId;
+      var result = await GetProfileByNameAsync(profileName);
+      if (result.Success)
+        return result.Result.ProfileId;
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -200,7 +203,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
-    public bool UpdateProfile(Guid profileId, string profileName, int profileType, string profilePassword)
+    public async Task<bool> UpdateProfileAsync(Guid profileId, string profileName, int profileType, string profilePassword)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -221,7 +224,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool SetProfileImage(Guid profileId, byte[] profileImage)
+    public async Task<bool> SetProfileImageAsync(Guid profileId, byte[] profileImage)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -242,7 +245,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool RenameProfile(Guid profileId, string newName)
+    public async Task<bool> RenameProfileAsync(Guid profileId, string newName)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -263,7 +266,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool DeleteProfile(Guid profileId)
+    public async Task<bool> DeleteProfileAsync(Guid profileId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -284,7 +287,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool LoginProfile(Guid profileId)
+    public async Task<bool> LoginProfileAsync(Guid profileId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -309,7 +312,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     #region User playlist data
 
-    public bool GetUserPlaylistData(Guid profileId, Guid playlistId, string key, out string data)
+    public async Task<AsyncResult<string>> GetUserPlaylistDataAsync(Guid profileId, Guid playlistId, string key)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -323,13 +326,12 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           {
             if (reader.Read())
             {
-              data = database.ReadDBValue<string>(reader, dataIndex);
-              return true;
+              string data = database.ReadDBValue<string>(reader, dataIndex);
+              return new AsyncResult<string>(true, data);
             }
           }
         }
-        data = null;
-        return false;
+        return new AsyncResult<string>(false, null);
       }
       finally
       {
@@ -337,7 +339,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool SetUserPlaylistData(Guid profileId, Guid playlistId, string key, string data)
+    public async Task<bool> SetUserPlaylistDataAsync(Guid profileId, Guid playlistId, string key, string data)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -363,7 +365,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     #region User media item data
 
-    public bool GetUserMediaItemData(Guid profileId, Guid mediaItemId, string key, out string data)
+    public async Task<AsyncResult<string>> GetUserMediaItemDataAsync(Guid profileId, Guid mediaItemId, string key)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -377,13 +379,12 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           {
             if (reader.Read())
             {
-              data = database.ReadDBValue<string>(reader, dataIndex);
-              return true;
+              var data = database.ReadDBValue<string>(reader, dataIndex);
+              return new AsyncResult<string>(true, data);
             }
           }
         }
-        data = null;
-        return false;
+        return new AsyncResult<string>(false, null);
       }
       finally
       {
@@ -391,7 +392,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool SetUserMediaItemData(Guid profileId, Guid mediaItemId, string key, string data)
+    public async Task<bool> SetUserMediaItemDataAsync(Guid profileId, Guid mediaItemId, string key, string data)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -425,7 +426,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     #region User additional data
 
-    public bool GetUserAdditionalData(Guid profileId, string key, out string data, int dataNo = 0)
+    public async Task<AsyncResult<string>> GetUserAdditionalDataAsync(Guid profileId, string key, int dataNo = 0)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -439,13 +440,12 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           {
             if (reader.Read())
             {
-              data = database.ReadDBValue<string>(reader, dataIndex);
-              return true;
+              var data = database.ReadDBValue<string>(reader, dataIndex);
+              return new AsyncResult<string>(true, data);
             }
           }
         }
-        data = null;
-        return false;
+        return new AsyncResult<string>(false, null);
       }
       finally
       {
@@ -453,7 +453,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool SetUserAdditionalData(Guid profileId, string key, string data, int dataNo = 0)
+    public async Task<bool> SetUserAdditionalDataAsync(Guid profileId, string key, string data, int dataNo = 0)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -476,8 +476,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, 
-      uint? offset = null, uint? limit = null)
+    public async Task<AsyncResult<IEnumerable<Tuple<int, string>>>> GetUserAdditionalDataListAsync(Guid profileId, string key, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -502,10 +501,10 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
             }
           }
         }
-        data = null;
+        IEnumerable<Tuple<int, string>> data = null;
         if (list.Count > 0)
           data = list;
-        return data != null;
+        return new AsyncResult<IEnumerable<Tuple<int, string>>>(data != null, data);
       }
       finally
       {
@@ -513,7 +512,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, 
+    public async Task<AsyncResult<IEnumerable<Tuple<string, int, string>>>> GetUserSelectedAdditionalDataListAsync(Guid profileId, string[] keys, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, 
       uint? offset = null, uint? limit = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
@@ -541,10 +540,10 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
             }
           }
         }
-        data = null;
+        IEnumerable<Tuple<string, int, string>> data = null;
         if (list.Count > 0)
           data = list;
-        return data != null;
+        return new AsyncResult<IEnumerable<Tuple<string, int, string>>>(data != null, data);
       }
       finally
       {
@@ -556,7 +555,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     #region Cleanup user data
 
-    public bool ClearAllUserData(Guid profileId)
+    public async Task<bool> ClearAllUserDataAsync(Guid profileId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -580,7 +579,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool ClearUserMediaItemDataKey(Guid profileId, string key)
+    public async Task<bool> ClearUserMediaItemDataKeyAsync(Guid profileId, string key)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -599,7 +598,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public bool ClearUserAdditionalDataKey(Guid profileId, string key)
+    public async Task<bool> ClearUserAdditionalDataKeyAsync(Guid profileId, string key)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
