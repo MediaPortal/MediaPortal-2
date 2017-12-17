@@ -192,6 +192,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
               <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-5,0,-15"/>
             </StackPanel>
+            <Button Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}" 
+                    IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" Margin="0,0,18,0"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
             <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="32" FontFamily="DefaultBold"
                    Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>            
           </StackPanel>

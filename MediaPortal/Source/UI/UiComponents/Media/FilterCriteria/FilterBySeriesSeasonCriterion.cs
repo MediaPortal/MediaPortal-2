@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     public FilterBySeriesSeasonCriterion(Guid linkedRole) :
       base(SeasonAspect.ROLE_SEASON, linkedRole, Consts.NECESSARY_SEASON_MIAS, Consts.OPTIONAL_SEASON_MIAS,
-        new SortInformation(SeasonAspect.ATTR_SEASON, SortDirection.Ascending))
+        new AttributeSortInformation(SeasonAspect.ATTR_SEASON, SortDirection.Ascending))
     {
     }
   }

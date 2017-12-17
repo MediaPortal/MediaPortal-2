@@ -44,6 +44,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Role", typeof(Guid), Cardinality.Inline, true);
 
     /// <summary>
+    /// If set to <c>true</c>, this media item is playable. Used for updating parent after playback.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_PLAYABLE =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsPlayable", typeof(bool), Cardinality.Inline, true);
+
+    /// <summary>
     /// The role played by the media item being linked to
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_LINKED_ROLE =
@@ -68,6 +74,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ROLE,
             ATTR_LINKED_ROLE,
             ATTR_LINKED_ID,
+            ATTR_PLAYABLE,
             ATTR_RELATIONSHIP_INDEX,
           },
           new[]

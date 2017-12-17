@@ -44,6 +44,11 @@ namespace MediaPortal.UI.Services.UserManagement
     UserProfile CurrentUser { get; set; }
 
     /// <summary>
+    /// Indicates if any restrictions for the current user should be applied to Media Library searches.
+    /// </summary>
+    bool ApplyUserRestriction { get; set; }
+
+    /// <summary>
     /// Exposes access to the <see cref="IUserProfileDataManagement"/> service. This property will be <c>null</c>, if no server connection is available.
     /// </summary>
     IUserProfileDataManagement UserProfileDataManagement { get; }

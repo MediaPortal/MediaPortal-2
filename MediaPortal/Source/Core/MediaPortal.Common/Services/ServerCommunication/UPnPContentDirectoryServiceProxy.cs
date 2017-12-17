@@ -275,20 +275,39 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (MediaItem) outParameters[0];
     }
 
-    public IList<MediaItem> Browse(Guid parentDirectory,
-      IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile, 
-      bool includeVirtual, uint? offset = null, uint? limit = null)
+    public MediaItem LoadItem(string systemId, Guid mediaItemId,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile)
+    {
+      CpAction action = GetAction("X_MediaPortal_LoadItemId");
+      IList<object> inParameters = new List<object> {systemId, MarshallingHelper.SerializeGuid(mediaItemId),
+          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
+          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
+          userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (MediaItem)outParameters[0];
+    }
+
+    public void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata)
+    {
+      CpAction action = GetAction("X_MediaPortal_RefreshMediaItem");
+      IList<object> inParameters = new List<object> { systemId, MarshallingHelper.SerializeGuid(mediaItemId), clearMetadata };
+      action.InvokeAction(inParameters);
+    }
+
+    public IList<MediaItem> Browse(Guid parentDirectoryId,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+        Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_Browse");
       IList<object> inParameters = new List<object>
       {
-        MarshallingHelper.SerializeGuid(parentDirectory),
+        MarshallingHelper.SerializeGuid(parentDirectoryId),
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
+        includeVirtual,
         offset,
         limit,
-        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
-        includeVirtual
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>)outParameters[0];
@@ -308,17 +327,17 @@ namespace MediaPortal.Common.Services.ServerCommunication
       {
         query,
         onlineStateStr,
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
+        includeVirtual,
         offset,
         limit,
-        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
-        includeVirtual
       };
       IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
       return (IList<MediaItem>) outParameters[0];
     }
 
-    public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes,
-      IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
+    public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+      IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
       Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_SimpleTextSearch");
@@ -330,9 +349,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
         searchText,
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
-        filter, searchModeStr, onlineStateStr, capitalizationMode, offset, limit,
+        filter,
+        searchModeStr,
+        onlineStateStr,
+        capitalizationMode,
         userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null,
-        includeVirtual
+        includeVirtual,
+        offset,
+        limit,
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>)outParameters[0];
@@ -353,13 +377,13 @@ namespace MediaPortal.Common.Services.ServerCommunication
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         filter,
         onlineStateStr,
-        includeVirtual
+        includeVirtual,
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (HomogenousMap) outParameters[0];
     }
 
-    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
+    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
       IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
     {
       CpAction action = GetAction("X_MediaPortal_GetKeyValueGroups");
@@ -376,7 +400,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         filter,
         onlineStateStr,
-        includeVirtual
+        includeVirtual,
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return new Tuple<HomogenousMap, HomogenousMap>((HomogenousMap)outParameters[0], (HomogenousMap)outParameters[1]);
@@ -407,7 +431,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         filter,
         onlineStateStr,
         groupingFunctionStr,
-        includeVirtual
+        includeVirtual,
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MLQueryResultGroup>) outParameters[0];
@@ -422,7 +446,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         filter,
         onlineStateStr,
-        includeVirtual
+        includeVirtual,
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (int)(uint) outParameters[0];
@@ -495,6 +519,22 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.DeserializeGuid((string) outParameters[0]);
     }
 
+    public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
+        Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      CpAction action = GetAction("X_MediaPortal_AddOrUpdateMediaItemId");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(parentDirectoryId),
+            systemId,
+            path.Serialize(),
+            MarshallingHelper.SerializeGuid(mediaItemId),
+            mediaItemAspects
+        };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
+    }
+
     public void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive)
     {
       CpAction action = GetAction("X_MediaPortal_DeleteMediaItemOrPath");
@@ -530,6 +570,19 @@ namespace MediaPortal.Common.Services.ServerCommunication
       {
         MarshallingHelper.SerializeGuid(mediaItemId),
         watched
+      };
+      action.InvokeAction(inParameters);
+    }
+
+    public void NotifyUserPlayback(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate = true)
+    {
+      CpAction action = GetAction("X_MediaPortal_NotifyUserPlayback");
+      IList<object> inParameters = new List<object>
+      {
+        MarshallingHelper.SerializeGuid(userId),
+        MarshallingHelper.SerializeGuid(mediaItemId),
+        percentage,
+        updatePlayDate
       };
       action.InvokeAction(inParameters);
     }

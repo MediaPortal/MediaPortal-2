@@ -77,6 +77,7 @@
     <Compile Include="Services\MediaLibrary\BindVar.cs" />
     <Compile Include="Services\MediaLibrary\FirstCharGroupingFunction.cs" />
     <Compile Include="Services\MediaLibrary\IGroupingFunctionImpl.cs" />
+    <Compile Include="Services\MediaLibrary\MediaLibraryMessaging.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\BaseQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledGroupedAttributeValueQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledFilter.cs" />
@@ -101,6 +102,8 @@
     <Compile Include="Services\MediaLibrary\MediaLibrary.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary_SubSchema.cs" />
     <Compile Include="Services\MediaLibrary\MIA_Management.cs" />
+    <Compile Include="Services\MediaLibrary\RelationshipManagement.cs" />
+    <Compile Include="Services\MediaManagement\RelationshipTypeRegistration.cs" />
     <Compile Include="Services\MediaManagement\MediaItemAspectTypeRegistration.cs" />
     <Compile Include="Services\Database\DBUtils.cs" />
     <Compile Include="Services\SystemResolver\SystemResolver.cs" />

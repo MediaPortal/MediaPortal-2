@@ -34,6 +34,8 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
+using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.Utilities;
@@ -123,8 +125,11 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         return;
 
       if (!_attachedToMenuItems)
+      {
+        SetLayout();
         UpdateMenu();
-      
+      }
+
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
         WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
@@ -132,7 +137,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         {
           var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
           if (context != null && context.WorkflowState.StateId == HOME_STATE_ID)
+          {
+            SetLayout();
             UpdateMenu();
+          }
         }
       }
     }
@@ -300,7 +308,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       workflowManager.Lock.EnterReadLock();
       try
       {
-        homeContext = workflowManager.NavigationContextStack.FirstOrDefault(c => c.WorkflowState.StateId == HOME_STATE_ID);          
+        homeContext = workflowManager.NavigationContextStack.FirstOrDefault(c => c.WorkflowState.StateId == HOME_STATE_ID);
       }
       finally
       {
@@ -528,7 +536,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
       WorkflowAction action;
       int index = 0;
-      foreach(ListItem subItem in _subItems)
+      foreach (ListItem subItem in _subItems)
       {
         bool selected = (currentActionId == null && index == 0) ||
           (TryGetAction(subItem, out action) && action.ActionId == currentActionId);
@@ -551,6 +559,17 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       }
       action = null;
       return false;
+    }
+
+    protected void SetLayout()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      ViewModeModel vwm = workflowManager.GetModel(ViewModeModel.VM_MODEL_ID) as ViewModeModel;
+      if (vwm != null)
+      {
+        vwm.LayoutType = LayoutType.GridLayout;
+        vwm.LayoutSize = LayoutSize.Medium;
+      }
     }
 
     #endregion

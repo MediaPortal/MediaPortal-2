@@ -75,6 +75,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     public HashSet<string> IgnoreStrings { get; set; }
 
     /// <summary>
+    /// If <c>true</c>, no FanArt is downloaded.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool SkipFanArtDownload { get; set; }
+
+    /// <summary>
     /// Indicates whether a very detailed Nfo[...]MetadataExtractorDebug.log is created.
     /// </summary>
 #if DEBUG

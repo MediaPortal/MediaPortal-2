@@ -66,6 +66,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected IFilter _filter = null; // Can be set by derived classes to apply an inital filter
     protected List<IFilter> _filters = new List<IFilter>();
     protected Guid? _rootRole = null;
+    protected IFilterTree _customFilterTree = null;
     protected FixedItemStateTracker _tracker;
 
     #endregion
@@ -135,14 +136,14 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         optionalMIATypeIDs = optionalMIATypeIDs.Except(_necessaryMias);
       }
 
-      IFilterTree filterTree = _rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree();
+      IFilterTree filterTree = _customFilterTree ?? (_rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree());
       filterTree.AddFilter(_filter);
 
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
         new MediaLibraryQueryViewSpecification(_viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
         {
-          MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
+          MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE,
         };
 
       if (nextScreen == null)

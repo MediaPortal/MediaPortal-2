@@ -32,6 +32,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
   public class StreamDetailsStub
   {
     /// <summary>
+    /// Extension of the container file
+    /// </summary>
+    /// <example>".avi"</example>
+    public string Container { get; set; }
+
+    /// <summary>
     /// Details of the video stream(s)
     /// </summary>
     public HashSet<VideoStreamDetailsStub> VideoStreams { get; set; }

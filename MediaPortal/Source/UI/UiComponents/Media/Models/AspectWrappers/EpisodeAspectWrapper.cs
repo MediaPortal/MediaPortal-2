@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -203,9 +202,6 @@ public void Init(MediaItem mediaItem)
   EpisodeName = (string) aspect[EpisodeAspect.ATTR_EPISODE_NAME];
   TotalRating = (double?) aspect[EpisodeAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[EpisodeAspect.ATTR_RATING_COUNT];
-  // Sorting
-  Episode = Episode?.Distinct()?.OrderBy(e => e);
-  DvdEpisode = DvdEpisode?.OrderBy(e => e);
 }
 
 public void SetEmpty()

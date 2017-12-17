@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -33,9 +34,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     private int _bindVarCount = 0;
 
     public SubQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
-      ICollection<MediaItemAspectMetadata> requiredMIATypes, IFilter filter, IFilter subQueryFilter, int bindVarCount)
+      ICollection<MediaItemAspectMetadata> requiredMIATypes, IFilter filter, IFilter subQueryFilter, int bindVarCount, Guid? userProfileId = null)
       : base(miaManagement, simpleSelectAttributes, null, requiredMIATypes, new List<MediaItemAspectMetadata> { },
-          filter, subQueryFilter, null)
+          filter, subQueryFilter, null, userProfileId)
     {
       _bindVarCount = bindVarCount;
     }

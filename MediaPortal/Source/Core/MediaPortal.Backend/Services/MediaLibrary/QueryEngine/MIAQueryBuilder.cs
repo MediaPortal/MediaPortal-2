@@ -24,22 +24,22 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
-  public class MIAQueryBuilder : MainQueryBuilder
-  {
-    public MIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
-        SelectProjectionFunction selectProjectionFunction,
-        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-        IFilter filter, IFilter subqueryFilter, IList<SortInformation> sortInformation)
-      : base(miaManagement, simpleSelectAttributes,
-        selectProjectionFunction,
-        necessaryRequestedMIAs, optionalRequestedMIAs,
-        filter, subqueryFilter, sortInformation)
+    public class MIAQueryBuilder : MainQueryBuilder
     {
-    }
+        public MIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
+            SelectProjectionFunction selectProjectionFunction,
+            IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
+            IFilter filter, IFilter subqueryFilter, IList<ISortInformation> sortInformation, Guid? userProfileId = null) : base(miaManagement, simpleSelectAttributes,
+            selectProjectionFunction,
+            necessaryRequestedMIAs, optionalRequestedMIAs,
+            filter, subqueryFilter, sortInformation, userProfileId)
+        {
+        }
 
     /// <summary>
     /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute

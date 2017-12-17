@@ -108,7 +108,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="plugin.xml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
@@ -125,6 +127,20 @@
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="MediaItemActions\DeleteRecordingFromStorage.cs" />
+    <Compile Include="MediaLists\BaseFavoriteChannelMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLastWatchedRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvMediaListProviderBase.cs" />
+    <Compile Include="MediaLists\SlimTvUnwatchedRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvProgramsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvSchedulesMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvFavoriteRadioMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvFavoriteTVMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvFavoriteRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseLastWatchedChannelMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLastWatchedRadioMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLastWatchedTVMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvContinueWatchRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLatestRecordingsMediaListProvider.cs" />
     <Compile Include="Messaging\SlimTvClientMessaging.cs" />
     <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs" />
     <Compile Include="Models\ChannelZapModel.cs" />

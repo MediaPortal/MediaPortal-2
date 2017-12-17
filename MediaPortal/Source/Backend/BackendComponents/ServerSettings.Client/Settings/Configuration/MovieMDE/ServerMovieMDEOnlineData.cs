@@ -29,6 +29,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -69,6 +70,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
+
       MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
       if (Selected == 0)
       {
@@ -92,6 +94,11 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       }
       serverSettings.Save(settings);
       localSettings.Save(settings);
+
+      NfoMovieMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoMovieMetadataExtractorSettings>();
+      nfoSettings.SkipFanArtDownload = settings.SkipFanArtDownload;
+      serverSettings.Save(nfoSettings);
+      localSettings.Save(nfoSettings);
     }
 
     public void Dispose()

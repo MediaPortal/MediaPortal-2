@@ -67,6 +67,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
           if (setting.Enabled)
             _selected.Add(_items.Count - 1);
         }
+        else if (setting.Id.Equals("MovieSimApiMatcher", StringComparison.InvariantCultureIgnoreCase))
+        {
+          _items.Add(LocalizationHelper.CreateStaticString("MoviesApi.com"));
+          if (setting.Enabled)
+            _selected.Add(_items.Count - 1);
+        }
       }
     }
 
@@ -94,6 +100,11 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
           selectedNo++;
         }
         else if (setting.Id.Equals("MovieTheMovieDbMatcher", StringComparison.InvariantCultureIgnoreCase))
+        {
+          setting.Enabled = _selected.Contains(selectedNo);
+          selectedNo++;
+        }
+        else if (setting.Id.Equals("MovieSimApiMatcher", StringComparison.InvariantCultureIgnoreCase))
         {
           setting.Enabled = _selected.Contains(selectedNo);
           selectedNo++;

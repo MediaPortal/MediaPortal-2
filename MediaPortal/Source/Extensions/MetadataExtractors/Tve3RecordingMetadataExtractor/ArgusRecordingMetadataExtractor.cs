@@ -36,6 +36,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -206,7 +207,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (!string.IsNullOrEmpty(recording.Category))
       {
         episodeInfo.Genres.Add(new GenreInfo { Name = recording.Category });
-        OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episodeInfo.Genres);
+        GenreMapper.AssignMissingSeriesGenreIds(episodeInfo.Genres);
       }
 
       episodeInfo.HasChanged = true;
@@ -252,7 +253,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (!string.IsNullOrEmpty(recording.Category))
         {
           List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = recording.Category } });
-          OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+          GenreMapper.AssignMissingMovieGenreIds(genreList);
 
           if (genreList.Count > 0)
           {
@@ -311,6 +312,21 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (!ResourcePath.Deserialize(metaFilePath).TryCreateLocalResourceAccessor(out metaFileAccessor))
         return false;
       return true;
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
+      return false;
     }
 
     #endregion

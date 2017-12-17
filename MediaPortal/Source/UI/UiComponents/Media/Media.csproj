@@ -47,6 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Bass.Net, Version=2.4.12.5, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\BASS.NET.2.4.12.5\lib\net45\Bass.Net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <ProjectReference Include="..\..\..\Extensions\BassLibraries\BassLibraries.csproj">
       <Project>{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}</Project>
       <Name>BassLibraries</Name>
@@ -115,7 +119,13 @@
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByPersonCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByAlbumCompilationCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByMovieCertificationCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterBySeriesCertificationCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByConductorCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByContentGroupCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByCompilationCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByDiscNumberCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByTvNetworkCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCompanyCriterion.cs" />
@@ -143,8 +153,56 @@
     <Compile Include="MediaItemActions\AddAllToPlaylist.cs" />
     <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
     <Compile Include="MediaItemActions\AbstractPlayCountAction.cs" />
+    <Compile Include="MediaItemActions\AbstractRefeshMediaItemAction.cs" />
+    <Compile Include="MediaItemActions\ReimportMediaItem.cs" />
+    <Compile Include="MediaItemActions\RefreshMediaItem.cs" />
     <Compile Include="MediaItemActions\SetWatched.cs" />
     <Compile Include="MediaItemActions\SetUnwatched.cs" />
+    <Compile Include="MediaLists\BaseContinueWatchMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseFavoriteMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseUnwatchedMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseLastWatchedMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseLatestMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedAlbumMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedAudioMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedEpisodeMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedSeriesMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteSeriesMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteAudioMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteEpisodeMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteImageMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteAlbumMediaListProvider.cs" />
+    <Compile Include="MediaLists\FavoriteVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\IMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchSeriesMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchAlbumMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchAudioMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchEpisodeMediaListProvider.cs" />
+    <Compile Include="MediaLists\LastWatchedImageMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\ContinueWatchVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedSeriesMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedAudioMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedEpisodeMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedImageMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\UnwatchedAlbumMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestAudioMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestEpisodeMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestImageMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestMovieMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestRecordingMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\MediaListProviderBuilder.cs" />
     <Compile Include="Models\AspectWrappers\AudioAlbumAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\CharacterAspectWrapper.cs" />
@@ -170,6 +228,7 @@
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaGroupingModel.cs" />
+    <Compile Include="Models\MediaListModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
@@ -186,9 +245,11 @@
     <Compile Include="Models\NavigationModel\SeriesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
     <Compile Include="Models\Navigation\PersonFilterItem.cs" />
+    <Compile Include="Models\Navigation\CertificationFilterItem.cs" />
     <Compile Include="Models\Navigation\SimplePersonFilterItem.cs" />
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\ArtistFilterItem.cs" />
+    <Compile Include="Models\Navigation\ConductorFilterItem.cs" />
     <Compile Include="Models\Navigation\SeriesGenreFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieGenreFilterItem.cs" />
     <Compile Include="Models\Navigation\AudioGenreFilterItem.cs" />
@@ -214,9 +275,15 @@
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByCertificationScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByCertificationScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumLabelScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumArtistScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByAlbumCompilationScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByConductorScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByComposerScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByContentGroupScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByCompilationScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByDiscNumberScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
@@ -250,10 +317,14 @@
     <Compile Include="Models\ScreenData\SeriesFilterByNameScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesSimpleSearchScreenData.cs" />
     <Compile Include="Models\Sorting\AudioAlbumSortByFirstMusicLabel.cs" />
+    <Compile Include="Models\Sorting\AudioSortByContentGroup.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbumTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbum.cs" />
     <Compile Include="Models\Sorting\AudioAlbumSortByFirstArtist.cs" />
+    <Compile Include="Models\Sorting\AudioAlbumSortByCompilation.cs" />
+    <Compile Include="Models\Sorting\AudioSortByFirstConductor.cs" />
     <Compile Include="Models\Sorting\AudioSortByFirstComposer.cs" />
+    <Compile Include="Models\Sorting\AudioSortByCompilation.cs" />
     <Compile Include="Models\Sorting\AudioSortByTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByFirstArtist.cs" />
     <Compile Include="Models\Sorting\BrowseDefaultSorting.cs" />
@@ -261,7 +332,9 @@
     <Compile Include="Models\Sorting\AbstractSortByFirstComparableAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableObjectAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableValueAttribute.cs" />
+    <Compile Include="Models\Sorting\MovieSortByCertification.cs" />
     <Compile Include="Models\Sorting\SeriesSortByDVDEpisode.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByCertification.cs" />
     <Compile Include="Models\Sorting\SeriesSortByFirstProductionStudio.cs" />
     <Compile Include="Models\Sorting\SeriesSortByFirstTVNetwork.cs" />
     <Compile Include="Models\Sorting\SeriesSortByEpisodeTitle.cs" />
@@ -346,17 +419,21 @@
     <Compile Include="SecondaryFilter\IItemsFilter.cs" />
     <Compile Include="SecondaryFilter\RemoteNumpadFilter.cs" />
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
+    <Compile Include="Settings\Configuration\SeriesCertificationCountry.cs" />
     <Compile Include="Settings\Configuration\OpenPlayerStrategy.cs" />
     <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
+    <Compile Include="Settings\Configuration\MovieCertificationCountry.cs" />
     <Compile Include="Settings\Configuration\ShowVirtual.cs" />
     <Compile Include="Settings\Configuration\SkipStepList.cs" />
     <Compile Include="Settings\Configuration\SkipStepTimeout.cs" />
     <Compile Include="Settings\Configuration\OpenPlayerConfigInOsd.cs" />
     <Compile Include="Settings\Configuration\WatchedPlayPercentage.cs" />
+    <Compile Include="Settings\MediaCertificationSettings.cs" />
+    <Compile Include="Helpers\CertificationHelper.cs" />
     <Compile Include="Settings\ViewSettings.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="General\MultimediaDirectory.cs" />
-    <Compile Include="Settings\ShowVirtualSetting.cs" />
+    <Compile Include="Helpers\VirtualMediaHelper.cs" />
     <Compile Include="Views\BrowseMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\AbstractMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\LocalMediaRootProxyViewSpecification.cs" />
@@ -387,7 +464,9 @@
     <Content Include="Language\strings_en.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="plugin.xml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml" />
     <Content Include="Skin\default\screens\DialogChooseAVType.xaml" />
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
@@ -505,6 +584,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Skin\default\screens\DialogChooseTitle.xaml">
       <SubType>Designer</SubType>
     </None>
@@ -612,6 +692,36 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\AudioFilterByDiscNumber.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByConductor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByCompilation.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByAlbumCompilation.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByContentGroup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByCertification.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByCertification.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

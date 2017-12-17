@@ -34,6 +34,8 @@ using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -72,21 +74,21 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
+
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds;
       HomogenousMap valueGroups = null;
       HomogenousMap valueKeys = null;
       if (_keyAttributeType != null)
       {
-        Tuple<HomogenousMap, HomogenousMap> values = cd.GetKeyValueGroups(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, 
-          ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+        Tuple<HomogenousMap, HomogenousMap> values = cd.GetKeyValueGroups(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
         valueGroups = values.Item1;
         valueKeys = values.Item2;
       }
       else
       {
-        valueGroups = cd.GetValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, 
-          ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+        valueGroups = cd.GetValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
       }
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -126,10 +128,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
+
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds.ToList();
       IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None,
-          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, showVirtual);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (MLQueryResultGroup group in valueGroups)

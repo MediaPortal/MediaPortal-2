@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Utilities;
+using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -434,9 +435,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         if (seriesDetail.ContentRatingResults.Results.Count > 0)
         {
-          var cert = seriesDetail.ContentRatingResults.Results.Where(c => c.CountryId == "US").First();
+          var cert = seriesDetail.ContentRatingResults.Results.Where(c => c.CountryId == "US").FirstOrDefault();
           if (cert != null)
-            series.Certification = cert.ContentRating;
+          {
+            CertificationMapping certification = null;
+            if (CertificationMapper.TryFindMovieCertification(cert.ContentRating, out certification))
+            {
+              series.Certification = certification.CertificationId;
+            }
+          }
+          else
+          {
+            cert = seriesDetail.ContentRatingResults.Results.FirstOrDefault();
+            if (cert != null)
+            {
+              CertificationMapping certification = null;
+              if (CertificationMapper.TryFindMovieCertification(cert.ContentRating, out certification))
+              {
+                series.Certification = certification.CertificationId;
+              }
+            }
+          }
         }
 
         MovieCasts seriesCast = _movieDbHandler.GetSeriesCastCrew(seriesDetail.Id, language, cacheOnly);

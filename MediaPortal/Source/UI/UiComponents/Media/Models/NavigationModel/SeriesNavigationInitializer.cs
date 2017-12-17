@@ -27,6 +27,10 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.Helpers;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -50,6 +54,21 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected override void Prepare()
     {
       base.Prepare();
+
+      if (_rootRole.HasValue)
+      {
+        _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
+
+        //Update filter by adding the user filter to the already loaded filters
+        IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+        if (userFilter != null)
+          _customFilterTree.AddFilter(userFilter);
+
+        userFilter = CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
+        if (userFilter != null)
+          _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
+      }
+
       _defaultScreen = _seriesScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {
@@ -59,11 +78,12 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SeriesFilterBySeasonScreenData(),
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),
+        new SeriesFilterByGenreScreenData(),
+        new SeriesFilterByCertificationScreenData(),
         new SeriesEpisodeFilterByActorScreenData(),
         new SeriesEpisodeFilterByCharacterScreenData(),
         new SeriesFilterByCompanyScreenData(),
         new SeriesFilterByTvNetworkScreenData(),
-        new SeriesFilterByGenreScreenData(),
         new SeriesSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
       };
       _defaultSorting = new SeriesSortByEpisode();
@@ -71,6 +91,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       {
         _defaultSorting,
         new SeriesSortByDVDEpisode(),
+        new VideoSortByFirstGenre(),
+        new SeriesSortByCertification(),
         new SeriesSortByFirstActor(),
         new SeriesSortByFirstCharacter(),
         new VideoSortByFirstActor(),
@@ -94,6 +116,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         //_defaultGrouping,
         new SeriesSortByEpisode(),
         new SeriesSortByDVDEpisode(),
+        new VideoSortByFirstGenre(),
+        new SeriesSortByCertification(),
         new SeriesSortByFirstActor(),
         new SeriesSortByFirstCharacter(),
         new VideoSortByFirstActor(),

@@ -239,6 +239,8 @@ namespace MediaPortal.Common
 
       miatr.RegisterLocallyKnownMediaItemAspectType(ExternalIdentifierAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(RelationshipAspect.Metadata);
+
+      miatr.RegisterLocallyKnownMediaItemAspectType(StubAspect.Metadata);
     }
 
     public static void DisposeCoreServices()

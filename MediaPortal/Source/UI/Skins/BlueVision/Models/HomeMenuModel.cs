@@ -676,12 +676,6 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       if (!IsHome)
         return;
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      LatestMediaModel lmm = workflowManager.GetModel(LatestMediaModel.LATEST_MEDIA_MODEL_ID) as LatestMediaModel;
-      if (lmm != null)
-      {
-        lmm.UpdateItems();
-      }
     }
 
     private bool NavigateToHome()

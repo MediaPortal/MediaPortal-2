@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -35,6 +36,14 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class SeriesFilterItem : PlayableContainerMediaItem
   {
+    public SeriesFilterItem()
+    {}
+
+    public SeriesFilterItem(MediaItem mediaItem)
+    {
+      Update(mediaItem);
+    }
+
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
@@ -62,7 +71,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_NUM_SEASONS, out count))
           TotalSeasons = count.Value.ToString();
 
-        if (ShowVirtualSetting.ShowVirtualSeriesMedia)
+        if (VirtualMediaHelper.ShowVirtualSeriesMedia)
           Seasons = TotalSeasons;
         else
           Seasons = AvailableSeasons;
@@ -73,7 +82,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_NUM_EPISODES, out count))
           TotalEpisodes = count.Value.ToString();
 
-        if (ShowVirtualSetting.ShowVirtualSeriesMedia)
+        if (VirtualMediaHelper.ShowVirtualSeriesMedia)
           Episodes = TotalEpisodes;
         else
           Episodes = AvailableEpisodes;

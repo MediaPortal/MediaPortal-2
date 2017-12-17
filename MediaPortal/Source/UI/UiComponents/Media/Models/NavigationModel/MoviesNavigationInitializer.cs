@@ -27,6 +27,8 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -49,18 +51,31 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     {
       base.Prepare();
 
+      //Update filter by adding the user filter to the already loaded filters
+      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+      if (userFilter != null)
+      {
+        _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, userFilter,
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters));
+      }
+      else
+      {
+         _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters);
+      }
+
       _defaultScreen = new MovieFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
           new MoviesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new MovieFilterByCollectionScreenData(),
           new VideosFilterByPlayCountScreenData(),
+          _defaultScreen,
+          new MovieFilterByCertificationScreenData(),
           new MovieFilterByActorScreenData(),
           new MovieFilterByCharacterScreenData(),
           new MovieFilterByDirectorScreenData(),
           new MovieFilterByWriterScreenData(),
           new MovieFilterByCompanyScreenData(),
-          _defaultScreen,
           new VideosFilterByYearScreenData(),
           new VideosFilterBySystemScreenData(),
           new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
@@ -74,6 +89,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new SortByName(),
           new SortByYear(),
           new VideoSortByFirstGenre(),
+          new MovieSortByCertification(),
           new VideoSortByDuration(),
           new VideoSortByFirstActor(),
           new VideoSortByFirstDirector(),
@@ -93,6 +109,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new SortByName(),
           new SortByYear(),
           new VideoSortByFirstGenre(),
+          new MovieSortByCertification(),
           new VideoSortByDuration(),
           new VideoSortByFirstActor(),
           new VideoSortByFirstDirector(),

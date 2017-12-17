@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
 
@@ -38,8 +39,12 @@ namespace MediaPortal.Common.UserProfileDataManagement
     bool GetProfile(Guid profileId, out UserProfile userProfile);
     bool GetProfileByName(string profileName, out UserProfile userProfile);
     Guid CreateProfile(string profileName);
+    Guid CreateProfile(string profileName, int profileType, string profilePassword);
+    bool UpdateProfile(Guid profileId, string profileName, int profileType, string profilePassword);
+    bool SetProfileImage(Guid profileId, byte[] profileImage);
     bool RenameProfile(Guid profileId, string newName);
     bool DeleteProfile(Guid profileId);
+    bool LoginProfile(Guid profileId);
 
     #endregion
 
@@ -62,14 +67,18 @@ namespace MediaPortal.Common.UserProfileDataManagement
     #region User additional data
 
     // Other global user data 
-    bool GetUserAdditionalData(Guid profileId, string key, out string data);
-    bool SetUserAdditionalData(Guid profileId, string key, string data);
+    bool SetUserAdditionalData(Guid profileId, string key, string data, int dataNo = 0);
+    bool GetUserAdditionalData(Guid profileId, string key, out string data, int dataNo = 0);
+    bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint ? limit = null);
+    bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null);
 
     #endregion
 
     #region Cleanup user data
 
     bool ClearAllUserData(Guid profileId);
+    bool ClearUserMediaItemDataKey(Guid profileId, string key);
+    bool ClearUserAdditionalDataKey(Guid profileId, string key);
 
     #endregion
   }

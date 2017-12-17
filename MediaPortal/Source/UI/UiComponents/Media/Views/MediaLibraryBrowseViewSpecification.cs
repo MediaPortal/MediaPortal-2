@@ -37,6 +37,7 @@ using MediaPortal.Utilities.DB;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -137,9 +138,12 @@ namespace MediaPortal.UiComponents.Media.Views
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
 
-      return cd.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
+      return cd.Search(query, false, userProfile, showVirtual);
       //return cd.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
     }
 
@@ -154,11 +158,13 @@ namespace MediaPortal.UiComponents.Media.Views
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
 
       try
       {
-        bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds);
+        bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
         mediaItems = new List<MediaItem>(cd.Browse(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, showVirtual));
         ICollection<MediaItem> childDirectories = cd.Browse(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, showVirtual);
         subViewSpecifications = new List<ViewSpecification>(childDirectories.Count);

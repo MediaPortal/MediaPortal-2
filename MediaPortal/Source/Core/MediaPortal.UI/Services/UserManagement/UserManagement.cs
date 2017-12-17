@@ -33,18 +33,19 @@ namespace MediaPortal.UI.Services.UserManagement
 {
   public class UserManagement : IUserManagement
   {
-    public static UserProfile UNKNWON_USER = new UserProfile(Guid.Empty, "Unkwown");
+    public static UserProfile UNKNOWN_USER = new UserProfile(Guid.Empty, "Unknown");
 
     private UserProfile _currentUser = null;
+    private bool _applyRestrictions = false;
 
     public bool IsValidUser
     {
-      get { return CurrentUser != UNKNWON_USER; }
+      get { return CurrentUser != UNKNOWN_USER; }
     }
 
     public UserProfile CurrentUser
     {
-      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser() ?? UNKNWON_USER); }
+      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser() ?? UNKNOWN_USER); }
       set { _currentUser = value; }
     }
 
@@ -55,6 +56,12 @@ namespace MediaPortal.UI.Services.UserManagement
         UPnPClientControlPoint controlPoint = ServiceRegistration.Get<IServerConnectionManager>().ControlPoint;
         return controlPoint != null ? controlPoint.UserProfileDataManagementService : null;
       }
+    }
+
+    public bool ApplyUserRestriction
+    {
+      get { return _applyRestrictions; }
+      set { _applyRestrictions = value; }
     }
 
     public UserProfile GetOrCreateDefaultUser()

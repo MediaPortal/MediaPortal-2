@@ -79,15 +79,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       List<Guid> necessaryMias = new List<Guid>(NECESSARY_MIAS);
       MediaItemQuery mediaQuery = new MediaItemQuery(necessaryMias, filter);
       mediaQuery.Limit = 1;
-      items = mediaLibrary.Search(mediaQuery, false, null, false);
+      items = mediaLibrary.Search(mediaQuery, false, null, true);
       if (items == null || items.Count == 0)
         return false;
 
       MediaItem mediaItem = items.First();
-      var mediaIteamLocator = mediaItem.GetResourceLocator();
       // Virtual resources won't have any local fanart
-      if (mediaIteamLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+      if (mediaItem.IsVirtual)
         return false;
+      var mediaIteamLocator = mediaItem.GetResourceLocator();
       var fanArtPaths = new List<ResourcePath>();
       var files = new List<IResourceLocator>();
 

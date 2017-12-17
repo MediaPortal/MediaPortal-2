@@ -274,7 +274,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               new RequestedAttribute(mainJoinTableQuery, MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME),
               new RequestedAttribute(collAttrTableQuery, MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME)));
           valueAttribute = new RequestedAttribute(collAttrTableQuery, MIA_Management.COLL_ATTR_VALUE_COL_NAME);
-          orderAttribute = new RequestedAttribute(collAttrTableQuery, MIA_Management.COLL_ATTR_VALUE_ORDER_COL_NAME);
+          orderAttribute = new RequestedAttribute(mainJoinTableQuery, MIA_Management.COLL_ATTR_VALUE_ORDER_COL_NAME);
           break;
         default:
           throw new IllegalCallException("Media item aspect attributes of cardinality '{0}' cannot be requested via the {1}",

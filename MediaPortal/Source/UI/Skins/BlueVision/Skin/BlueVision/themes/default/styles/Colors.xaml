@@ -13,6 +13,9 @@
   <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor1" Resource="#D9fbfbfb"/>
   <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor2" Resource="#D9a3a3a3"/>
 
+  <ResourceWrapper x:Key="LogoutButtonColor" Resource="#99000000"/>
+
+  <!-- Button background and effects-->
   <!-- PopupWindow Buttons-->
   <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#000F3369"/>
   <ResourceWrapper x:Key="ButtonGradient2Color" Resource="#00050F20"/>

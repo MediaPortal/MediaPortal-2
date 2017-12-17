@@ -67,11 +67,23 @@ namespace MediaPortal.UI.Services.ServerCommunication
       #region IMediaBrowsing implementation
 
       public MediaItem LoadLocalItem(ResourcePath path,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
       {
         try
         {
           return _contentDirectory.LoadItem(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public MediaItem LoadLocalItem(Guid mediaItemId, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
+      {
+        try
+        {
+          return _contentDirectory.LoadItem(_localSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
         }
         catch (Exception)
         {
@@ -132,6 +144,18 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
+      {
+        try
+        {
+          return _contentDirectory.AddOrUpdateMediaItem(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
       public void DeleteMediaItem(ResourcePath path)
       {
         try
@@ -156,9 +180,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      public void MarkUpdatableMediaItems()
       {
-        return null;
       }
 
       #endregion

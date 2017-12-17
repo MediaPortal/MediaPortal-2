@@ -166,7 +166,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         {
           MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
 
           if (!(mediaItemAccessor is IFileSystemResourceAccessor))
             return false;
@@ -299,6 +299,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("ImageMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
+      return false;
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
       return false;
     }
 

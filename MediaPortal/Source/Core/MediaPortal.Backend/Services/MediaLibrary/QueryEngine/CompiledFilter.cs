@@ -33,6 +33,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Backend.Services.UserProfileDataManagement;
+using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {

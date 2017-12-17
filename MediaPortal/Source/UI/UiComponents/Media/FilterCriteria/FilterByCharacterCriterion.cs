@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     public FilterByCharacterCriterion(Guid role, Guid linkedRole) :
       base(role, linkedRole, Consts.NECESSARY_CHARACTER_MIAS, Consts.OPTIONAL_CHARACTER_MIAS,
-        new SortInformation(CharacterAspect.ATTR_CHARACTER_NAME, SortDirection.Ascending))
+        new AttributeSortInformation(CharacterAspect.ATTR_CHARACTER_NAME, SortDirection.Ascending))
     {
     }
   }

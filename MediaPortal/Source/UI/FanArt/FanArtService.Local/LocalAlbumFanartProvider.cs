@@ -96,10 +96,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         return false;
 
       MediaItem mediaItem = items.First();
-      var mediaIteamLocator = mediaItem.GetResourceLocator();
       // Virtual resources won't have any local fanart
-      if (mediaIteamLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+      if (mediaItem.IsVirtual)
         return false;
+      var mediaIteamLocator = mediaItem.GetResourceLocator();
       var fanArtPaths = new List<ResourcePath>();
       var files = new List<IResourceLocator>();
       // File based access
@@ -136,6 +136,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
                 where potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc"
+                select potentialFanArtFile);
+
+            if (fanArtType == FanArtTypes.DiscArt)
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "cdart"
                 select potentialFanArtFile);
 
             if (fanArtType == FanArtTypes.FanArt)

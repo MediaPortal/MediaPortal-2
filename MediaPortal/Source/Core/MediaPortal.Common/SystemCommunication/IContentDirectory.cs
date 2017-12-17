@@ -146,6 +146,29 @@ namespace MediaPortal.Common.SystemCommunication
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile);
 
     /// <summary>
+    /// Loads the media item at the given <paramref name="systemId"/> and <paramref name="mediItemId"/>.
+    /// </summary>
+    /// <param name="systemId">System id of the item to load.</param>
+    /// <param name="mediItemId">Id of the item to load.</param>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
+    /// If the media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
+    /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <returns></returns>
+    MediaItem LoadItem(string systemId, Guid mediItemId,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile);
+
+    /// <summary>
+    /// Refreshes the meta-data of the media item with the given <paramref name="mediaItemId"/>.
+    /// If <paramref name="clearMetadata"/> is set to <c>true</c>, the media item meta-data will be deleted too.
+    /// This makes it possible to completely recreate the meta-data by doing a new import.
+    /// </summary>
+    /// <param name="systemId">Id of the system where the given media item <paramref name="mediaItemId"/> is located.</param>
+    /// <param name="mediaItemId">Id of the item to refresh.</param>
+    /// <param name="clearMetadata">If set to <c>true</c>, the media item meta-data will be deleted before the refresh.</param>
+    void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata);
+
+    /// <summary>
     /// Lists all media items with the given parent directory.
     /// </summary>
     /// <param name="parentDirectoryId">Media item id of the parent directory item to browse.</param>
@@ -333,6 +356,18 @@ namespace MediaPortal.Common.SystemCommunication
         IEnumerable<MediaItemAspect> mediaItemAspects);
 
     /// <summary>
+    /// Adds the media item with the given path or updates it if it already exists.
+    /// </summary>
+    /// <param name="parentDirectoryId">Id of the parent directory media item.</param>
+    /// <param name="systemId">Id of the system where the given <paramref name="path"/> is located.</param>
+    /// <param name="path">Path of the media item to be added or updated.</param>
+    /// <param name="mediaItemId">Id of the media item to be added or updated.</param>
+    /// <param name="mediaItemAspects">Enumeration of media item aspects to be assigned to the media item.</param>
+    /// <returns>Id of the added or updated media item.</returns>
+    Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
+        Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects);
+
+    /// <summary>
     /// Deletes all media items in the content directory whose resource path starts with the given <paramref name="path"/>.
     /// If <paramref name="inclusive"/> is set to <c>true</c>, the media item with exactly the given path will be deleted too.
     /// The complicated contract is necessary because we also have media items for directories which are tracked too.
@@ -366,6 +401,7 @@ namespace MediaPortal.Common.SystemCommunication
     #region Playback
 
     void NotifyPlayback(Guid mediaItemId, bool watched);
+    void NotifyUserPlayback(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate);
 
     #endregion
   }

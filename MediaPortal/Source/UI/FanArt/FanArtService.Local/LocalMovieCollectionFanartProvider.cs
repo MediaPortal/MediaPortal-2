@@ -76,17 +76,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
       IFilter filter = new RelationshipFilter(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, mediaItemId);
       MediaItemQuery movieQuery = new MediaItemQuery(NECESSARY_MIAS, filter);
-      IList<MediaItem> items = mediaLibrary.Search(movieQuery, false, null, false);
+      IList<MediaItem> items = mediaLibrary.Search(movieQuery, false, null, true);
       if (items == null || items.Count == 0)
         return false;
 
       var files = new List<IResourceLocator>();
       foreach (MediaItem mediaItem in items)
       {
-        var mediaIteamLocator = mediaItem.GetResourceLocator();
         // Virtual resources won't have any local fanart
-        if (mediaIteamLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        if (mediaItem.IsVirtual)
           continue;
+        var mediaIteamLocator = mediaItem.GetResourceLocator();
         var fanArtPaths = new List<ResourcePath>();
         
         // File based access

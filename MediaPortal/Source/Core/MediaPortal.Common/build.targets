@@ -10,8 +10,13 @@
     <References Include="$(TargetDir)System.Threading.Tasks.Dataflow.dll"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <LanguageFiles Include="$(ProjectDir)Genres\Language\*.*" />
+  </ItemGroup>
+
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(References)" DestinationFolder="$(AppDestination)" />
+    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(AppDestination)Genres\" />
   </Target>
 
 </Project>

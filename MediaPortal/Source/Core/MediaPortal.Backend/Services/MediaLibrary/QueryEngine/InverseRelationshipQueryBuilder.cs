@@ -33,11 +33,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public class InverseRelationshipQueryBuilder : MainQueryBuilder
     {
         public InverseRelationshipQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
-            Guid[] linkedIds)
+            Guid[] linkedIds, Guid? userProfileId = null)
           : base(miaManagement, simpleSelectAttributes,
           null,
           new List<MediaItemAspectMetadata> { RelationshipAspect.Metadata }, new List<MediaItemAspectMetadata> { },
-          new MediaItemIdFilter(linkedIds), null, null)
+          new MediaItemIdFilter(linkedIds), null, null, userProfileId)
         {
         }
 

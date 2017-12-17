@@ -113,6 +113,7 @@
   <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Whether to show a notification when a recording has ended.</string>
 
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
+  <string name="SlimTvClient.ChannelsMenuItem">Channels</string>
   <string name="SlimTvClient.Recordings.Help">Here you can find a list of your recorded programs for playback.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV recordings</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filter by channel</string>

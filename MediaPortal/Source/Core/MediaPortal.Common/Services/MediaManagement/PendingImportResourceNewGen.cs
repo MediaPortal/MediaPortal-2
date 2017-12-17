@@ -74,6 +74,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private String _parentDirectoryResourcePathString;
     private Guid? _parentDirectoryId;
     private bool _isSingleResource = true;
+    private bool _isStubResource = false;
     private String _currentBlock;
     private DateTime _dateOfLastImport; // only valid for refresh imports
 
@@ -81,7 +82,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Constructor
 
-    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, String currentBlock, ImportJobController parentImportJobController, Guid? parentDirectoryId = null, Guid? mediaItemId = null)
+    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, String currentBlock, ImportJobController parentImportJobController, Guid? parentDirectoryId = null, Guid? mediaItemId = null, bool isStubResource = false)
     {
       _parentDirectoryId = parentDirectoryId;
       _mediaItemId = mediaItemId;
@@ -90,6 +91,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       _currentBlock = currentBlock;
       _parentImportJobController = parentImportJobController;
       _pendingImportResourceNumber = _parentImportJobController.GetNumberOfNextPendingImportResource();
+      _isStubResource = isStubResource;
 
       _isValid = (_resourceAccessor != null);
 
@@ -158,6 +160,13 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get { return _isSingleResource; }
       set { _isSingleResource = value; }
+    }
+
+    [XmlIgnore]
+    public bool IsStubResource
+    {
+      get { return _isStubResource; }
+      set { _isStubResource = value; }
     }
 
     [XmlIgnore]
@@ -352,6 +361,16 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get { return _isSingleResource; }
       set { _isSingleResource = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("IsStubResource")]
+    public bool XmlIsStubResource
+    {
+      get { return _isStubResource; }
+      set { _isStubResource = value; }
     }
 
     /// <summary>

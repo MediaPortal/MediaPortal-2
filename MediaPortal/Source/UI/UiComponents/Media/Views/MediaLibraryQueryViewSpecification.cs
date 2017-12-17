@@ -35,7 +35,7 @@ using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Views
@@ -49,6 +49,7 @@ namespace MediaPortal.UiComponents.Media.Views
 
     protected IFilterTree _filterTree;
     protected FilterTreePath _filterPath;
+    protected IDictionary<Guid, IFilter> _linkedAspectfilters;
     protected MediaItemQuery _query;
     protected bool _onlyOnline;
     protected int? _maxNumItems;
@@ -137,7 +138,11 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      return await cd.SearchAsync(_query, _onlyOnline, userProfile, ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs));
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
+
+      IList<MediaItem> mediaItems = await cd.SearchAsync(_query, _onlyOnline, userProfile, showVirtual);
+      CertificationHelper.ConvertCertifications(mediaItems);
+      return mediaItems;
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -155,11 +160,13 @@ namespace MediaPortal.UiComponents.Media.Views
       if (cd == null)
         return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(null, null);
 
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
 
       try
       {
@@ -190,6 +197,7 @@ namespace MediaPortal.UiComponents.Media.Views
         }
         // Else: No grouping
         mediaItems = await cd.SearchAsync(_query, _onlyOnline, userProfile, showVirtual);
+        CertificationHelper.ConvertCertifications(mediaItems);
         subViewSpecifications = new List<ViewSpecification>(0);
         return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(mediaItems, subViewSpecifications);
       }

@@ -180,9 +180,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"/>
-
         <Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,30,50,0">
           <Grid.Resources>
             <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
@@ -214,11 +211,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Grid x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="30,10,0,10">
       <Grid.Resources>
         <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
+        <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
+        <Model x:Key="LoginModel" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
       </Grid.Resources>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="90"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="450"/>
+      </Grid.ColumnDefinitions>
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" VerticalAlignment="Center">
+          <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
+                     HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        </StackPanel>
+        <Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
+                Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
-                        DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
-                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+                    DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
+                    IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
           <Label FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,0,0"
                      Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
             <Label.IsVisible>
@@ -233,8 +244,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
-                        DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
-                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+                    DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                    IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
           <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}"/>
         </StackPanel>
         <mp_special_controls:PlayerControl Style="{ThemeResource CPPlayerControlStyle}" VerticalAlignment="Center"

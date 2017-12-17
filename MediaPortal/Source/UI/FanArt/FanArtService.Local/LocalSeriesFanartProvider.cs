@@ -90,10 +90,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         return false;
 
       MediaItem mediaItem = items.First();
-      var mediaIteamLocator = mediaItem.GetResourceLocator();
       // Virtual resources won't have any local fanart
-      if (mediaIteamLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+      if (mediaItem.IsVirtual)
         return false;
+      var mediaIteamLocator = mediaItem.GetResourceLocator();
       var fanArtPaths = new List<ResourcePath>();
       var files = new List<IResourceLocator>();
       // File based access

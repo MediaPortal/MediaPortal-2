@@ -29,10 +29,10 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.OnlineLibraries;
 using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {

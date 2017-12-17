@@ -106,6 +106,7 @@
     </None>
     <None Include="Designs\Modern-StreamedMP 16x9-max.logotheme" />
     <None Include="Designs\Flat-default.logotheme" />
+    <None Include="Designs\Original-3x1.logotheme" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

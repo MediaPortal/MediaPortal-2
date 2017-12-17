@@ -42,7 +42,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
       {
-        WatchPercentage = mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE];
+        WatchPercentage = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE]).ToString();
       }
 
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))

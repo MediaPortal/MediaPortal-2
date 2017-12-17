@@ -43,6 +43,10 @@ using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotat
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Players.Image
 {
@@ -396,6 +400,19 @@ namespace MediaPortal.UI.Players.Image
         ImageAspect.OrientationToFlip(orientationInfo, out flipX, out flipY);
       }
       SetMediaItemData(locator, title, rotation, flipX, flipY);
+
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement.IsValidUser)
+      {
+        if (cd != null)
+          cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 100, true);
+      }
+      else if (cd != null)
+      {
+        cd.NotifyPlayback(mediaItem.MediaItemId, true);
+      }
       return true;
     }
 

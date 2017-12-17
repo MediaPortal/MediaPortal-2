@@ -222,12 +222,17 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerStateService.Client", "Backend\BackendComponents\ServerStateService\ServerStateService.Client\ServerStateService.Client.csproj", "{FDC93BA2-C254-4339-B892-E974E26AEB37}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakeOnLan.Client", "..\Incubator\WakeOnLan\WakeOnLan.Client\WakeOnLan.Client.csproj", "{BBBCAEF5-63CC-4CA2-99B8-CDF09A804533}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A} = {9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WakeOnLan", "WakeOnLan", "{B9CFC9D5-27AF-4A57-B8CC-2B6221B77C61}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakeOnLan.Common", "..\Incubator\WakeOnLan\WakeOnLan.Common\WakeOnLan.Common.csproj", "{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Media", "..\Tests\Tests.Media\Tests.Media.csproj", "{61D4920F-81AA-4215-A34B-F9BD06B85B71}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubMetadataExtractors", "Extensions\MetadataExtractors\StubMetadataExtractors\StubMetadataExtractors.csproj", "{B7D9598A-9744-489D-BDED-88BA73AD5DC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -418,7 +423,9 @@ Global
 		{D82A9606-6770-4C15-87E0-27F330AA1EA9}.Release|x86.ActiveCfg = Release|x86
 		{D82A9606-6770-4C15-87E0-27F330AA1EA9}.Release|x86.Build.0 = Release|x86
 		{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}.Debug|x86.ActiveCfg = Debug|x86
+		{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}.Debug|x86.Build.0 = Debug|x86
 		{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}.Release|x86.ActiveCfg = Release|x86
+		{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}.Release|x86.Build.0 = Release|x86
 		{0CCF3B1A-64B1-4824-B01A-25CEFE9F5DAB}.Debug|x86.ActiveCfg = Debug|x86
 		{0CCF3B1A-64B1-4824-B01A-25CEFE9F5DAB}.Debug|x86.Build.0 = Debug|x86
 		{0CCF3B1A-64B1-4824-B01A-25CEFE9F5DAB}.Release|x86.ActiveCfg = Release|x86
@@ -575,6 +582,10 @@ Global
 		{61D4920F-81AA-4215-A34B-F9BD06B85B71}.Debug|x86.Build.0 = Debug|x86
 		{61D4920F-81AA-4215-A34B-F9BD06B85B71}.Release|x86.ActiveCfg = Release|x86
 		{61D4920F-81AA-4215-A34B-F9BD06B85B71}.Release|x86.Build.0 = Release|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Debug|x86.ActiveCfg = Debug|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Debug|x86.Build.0 = Debug|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.ActiveCfg = Release|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -685,5 +696,6 @@ Global
 		{B9CFC9D5-27AF-4A57-B8CC-2B6221B77C61} = {D7E79601-A62E-4193-892F-033F8E7C90BD}
 		{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A} = {B9CFC9D5-27AF-4A57-B8CC-2B6221B77C61}
 		{61D4920F-81AA-4215-A34B-F9BD06B85B71} = {6383E739-61E6-46EE-9B06-8940E50A13D3}
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 	EndGlobalSection
 EndGlobal

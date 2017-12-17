@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.MediaManagement.TransientAspects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -288,19 +289,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public static void UpdatePersons(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<PersonInfo> infoPersons, bool forAlbum)
     {
-      if (aspects.ContainsKey(TempPersonAspect.ASPECT_ID))
+      if (aspects.ContainsKey(TempArtistAspect.ASPECT_ID))
       {
         IList<MultipleMediaItemAspect> persons;
-        if (MediaItemAspect.TryGetAspects(aspects, TempPersonAspect.Metadata, out persons))
+        if (MediaItemAspect.TryGetAspects(aspects, TempArtistAspect.Metadata, out persons))
         {
           foreach (MultipleMediaItemAspect person in persons)
           {
-            if (person.GetAttributeValue<bool>(TempPersonAspect.ATTR_FROMALBUM) == forAlbum)
+            if (person.GetAttributeValue<bool>(TempArtistAspect.ATTR_FROMALBUM) == forAlbum)
             {
-              PersonInfo info = infoPersons.Find(p => p.Name.Equals(person.GetAttributeValue<string>(TempPersonAspect.ATTR_NAME), StringComparison.InvariantCultureIgnoreCase) &&
-                  p.Occupation == person.GetAttributeValue<string>(TempPersonAspect.ATTR_OCCUPATION));
+              PersonInfo info = infoPersons.Find(p => p.Name.Equals(person.GetAttributeValue<string>(TempArtistAspect.ATTR_NAME), StringComparison.InvariantCultureIgnoreCase) &&
+                  p.Occupation == person.GetAttributeValue<string>(TempArtistAspect.ATTR_OCCUPATION));
               if (info != null && string.IsNullOrEmpty(info.MusicBrainzId))
-                info.MusicBrainzId = person.GetAttributeValue<string>(TempPersonAspect.ATTR_MBID);
+                info.MusicBrainzId = person.GetAttributeValue<string>(TempArtistAspect.ATTR_MBID);
             }
           }
         }
@@ -311,11 +312,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       foreach (PersonInfo person in infoPersons)
       {
-        MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(aspects, TempPersonAspect.Metadata);
-        personAspect.SetAttribute(TempPersonAspect.ATTR_MBID, person.MusicBrainzId);
-        personAspect.SetAttribute(TempPersonAspect.ATTR_NAME, person.Name);
-        personAspect.SetAttribute(TempPersonAspect.ATTR_OCCUPATION, person.Occupation);
-        personAspect.SetAttribute(TempPersonAspect.ATTR_FROMALBUM, forAlbum);
+        MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(aspects, TempArtistAspect.Metadata);
+        personAspect.SetAttribute(TempArtistAspect.ATTR_MBID, person.MusicBrainzId);
+        personAspect.SetAttribute(TempArtistAspect.ATTR_NAME, person.Name);
+        personAspect.SetAttribute(TempArtistAspect.ATTR_OCCUPATION, person.Occupation);
+        personAspect.SetAttribute(TempArtistAspect.ATTR_FROMALBUM, forAlbum);
       }
     }
 

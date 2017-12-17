@@ -32,7 +32,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -56,7 +56,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         return new List<FilterValue>();
 
-      HomogenousMap valueGroups = cd.GetValueGroups(ProviderResourceAspect.ATTR_SYSTEM_ID, null, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
+
+      HomogenousMap valueGroups = cd.GetValueGroups(ProviderResourceAspect.ATTR_SYSTEM_ID, null, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)

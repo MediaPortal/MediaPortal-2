@@ -304,7 +304,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
-    protected async Task<ICollection<MediaItem>> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMiaTypeIds, IEnumerable<Guid> optionalRequestedMiaTypeIds)
+    protected async Task<MediaItem> LoadLocalItem(Guid mediaItemId, IEnumerable<Guid> necessaryRequestedMiaTypeIds, IEnumerable<Guid> optionalRequestedMiaTypeIds)
     {
       while (true)
       {
@@ -312,7 +312,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _mediaBrowsingCallback.Browse(parentDirectoryId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds, null, false);
+          return _mediaBrowsingCallback.LoadLocalItem(mediaItemId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
@@ -323,7 +323,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
-    protected async Task<ICollection<MediaItem>> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMiaTypeIds, IEnumerable<Guid> optionalRequestedMiaTypeIds)
+    protected async Task<ICollection<MediaItem>> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMiaTypeIds, IEnumerable<Guid> optionalRequestedMiaTypeIds)
     {
       while (true)
       {
@@ -331,7 +331,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _mediaBrowsingCallback.GetUpdatableMediaItems(necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
+          return _mediaBrowsingCallback.Browse(parentDirectoryId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds, null, false);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
@@ -395,6 +395,25 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
+    protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, ImportJobInformation jobInfo, bool isRefresh, CancellationToken cancelToken)
+    {
+      while (true)
+      {
+        try
+        {
+          await Activated.WaitAsync();
+          // ReSharper disable PossibleMultipleEnumeration
+          return _importResultHandler.UpdateMediaItem(parentDirectoryId, path, mediaItemId, updatedAspects, isRefresh, jobInfo.BasePath, cancelToken);
+          // ReSharper restore PossibleMultipleEnumeration
+        }
+        catch (DisconnectedException)
+        {
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
+          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+        }
+      }
+    }
+
     protected async Task DeleteMediaItem(ResourcePath path)
     {
       while (true)
@@ -444,9 +463,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         if (resourcePath.TryCreateLocalResourceAccessor(out ra))
           using (ra)
           {
-            ILocalFsResourceAccessor lfsra = ra as ILocalFsResourceAccessor;
-            if (lfsra != null)
-              return await IsSingleResource(lfsra);
+            IFileSystemResourceAccessor fssra = ra as IFileSystemResourceAccessor;
+            if (fssra != null)
+              return await IsSingleResource(fssra);
           }
       }
       catch { }
@@ -454,14 +473,23 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     }
 
     /// <summary>
-    /// Checks if the gived <paramref name="mediaItemAccessor"/> points to a directory and if it is considered a "single item" media source (like DVD or BD folders on hard drive).
+    /// Checks if the given <paramref name="mediaItemAccessor"/> points to a directory and if it is considered a "single item" media source (like DVD or BD folders on hard drive).
     /// </summary>
     /// <param name="mediaItemAccessor">Local FS accessor</param>
     /// <returns><c>true</c> if it is a single item.</returns>
-    protected async Task<bool> IsSingleResource(IFileSystemResourceAccessor mediaItemAccessor)
+    protected Task<bool> IsSingleResource(IFileSystemResourceAccessor mediaItemAccessor)
     {
-      //ToDo: Replace this with a call to IsSingleResource once this method is implemented in the MetadataExtractors
-      return mediaItemAccessor.IsFile || await ExtractMetadata(mediaItemAccessor, null, true, true) != null;
+      return Task.FromResult(mediaItemAccessor.IsFile || ServiceRegistration.Get<IMediaAccessor>().IsDirectorySingleResource(mediaItemAccessor));
+    }
+
+    /// <summary>
+    /// Checks if the given <paramref name="mediaItemAccessor"/> points to a stub item.
+    /// </summary>
+    /// <param name="mediaItemAccessor">Local FS accessor</param>
+    /// <returns><c>true</c> if it is a stub item.</returns>
+    protected Task<bool> IsStubResource(IFileSystemResourceAccessor mediaItemAccessor)
+    {
+      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().IsStubResource(mediaItemAccessor));
     }
 
     protected Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, 
@@ -469,6 +497,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       // ToDo: This is a workaround. MetadataExtractors should have an async ExtractMetadata method that returns a Task.
       return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().ExtractMetadata(mediaItemAccessor, ImportJobInformation.MetadataExtractorIds, existingAspects, importOnly, forceQuickMode));
+    }
+
+    protected Task<IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>>> ExtractStubItems(IResourceAccessor mediaItemAccessor)
+    {
+      // ToDo: This is a workaround. MetadataExtractors should have an async ExtractMetadata method that returns a Task.
+      return Task.FromResult(ServiceRegistration.Get<IMediaAccessor>().ExtractStubItems(mediaItemAccessor, ImportJobInformation.MetadataExtractorIds));
     }
 
     #endregion

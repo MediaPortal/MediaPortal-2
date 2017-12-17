@@ -32,6 +32,8 @@ using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using MediaPortal.Backend.MediaLibrary;
+using System.Linq;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -79,6 +81,31 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           };
       AddStateVariable(A_ARG_TYPE_String);
 
+      // Used for several parameters
+      // ReSharper disable once InconsistentNaming - Following UPnP 1.0 standards variable naming convention.
+      DvStateVariable A_ARG_TYPE_Integer = new DvStateVariable("A_ARG_TYPE_Integer", new DvStandardDataType(UPnPStandardDataType.I4))
+      {
+        SendEvents = false
+      };
+      AddStateVariable(A_ARG_TYPE_Integer);
+
+      // Used for several parameters
+      // ReSharper disable once InconsistentNaming - Following UPnP 1.0 standards variable naming convention.
+      DvStateVariable A_ARG_TYPE_Index = new DvStateVariable("A_ARG_TYPE_Index", new DvStandardDataType(UPnPStandardDataType.Ui4))
+      {
+        SendEvents = false
+      }; // Is int sufficent here?
+      AddStateVariable(A_ARG_TYPE_Index);
+
+      // Used for several parameters and result values
+      // Warning: UPnPStandardDataType.Int used before, changed to follow UPnP standard.
+      // ReSharper disable once InconsistentNaming - Following UPnP 1.0 standards variable naming convention.
+      DvStateVariable A_ARG_TYPE_Count = new DvStateVariable("A_ARG_TYPE_Count", new DvStandardDataType(UPnPStandardDataType.Ui4))
+      {
+        SendEvents = false
+      }; // Is int sufficient here?
+      AddStateVariable(A_ARG_TYPE_Count);
+
       // More state variables go here
 
 
@@ -118,6 +145,39 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           });
       AddAction(createProfileAction);
 
+      DvAction createUserProfileAction = new DvAction("CreateUserProfile", OnCreateUserProfile,
+          new DvArgument[] {
+            new DvArgument("ProfileName", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("ProfileType", A_ARG_TYPE_Integer, ArgumentDirection.In),
+            new DvArgument("ProfilePassword", A_ARG_TYPE_String, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.Out, true)
+          });
+      AddAction(createUserProfileAction);
+
+      DvAction updateUserProfileAction = new DvAction("UpdateUserProfile", OnUpdateUserProfile,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("ProfileName", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("ProfileType", A_ARG_TYPE_Integer, ArgumentDirection.In),
+            new DvArgument("ProfilePassword", A_ARG_TYPE_String, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(updateUserProfileAction);
+
+      DvAction updateUserProfileImageAction = new DvAction("SetProfileImage", OnUpdateUserProfileImage,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("ProfileImage", A_ARG_TYPE_String, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(updateUserProfileImageAction);
+
       DvAction renameProfileAction = new DvAction("RenameProfile", OnRenameProfile,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
@@ -136,6 +196,15 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(deleteProfileAction);
+
+      DvAction loginProfileAction = new DvAction("LoginProfile", OnLoginProfile,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In)
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(loginProfileAction);
 
       // User playlist data
       DvAction getUserPlaylistDataAction = new DvAction("GetUserPlaylistData", OnGetUserPlaylistData,
@@ -191,24 +260,56 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       DvAction getUserAdditionalDataAction = new DvAction("GetUserAdditionalData", OnGetUserAdditionalData,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In)
+            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("DataNo", A_ARG_TYPE_Integer, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(getUserAdditionalDataAction);
-
+  
       DvAction setUserAdditionalDataAction = new DvAction("SetUserAdditionalData", OnSetUserAdditionalData,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("DataNo", A_ARG_TYPE_Integer, ArgumentDirection.In),
             new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.In)
           },
           new DvArgument[] {
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(setUserAdditionalDataAction);
+
+      DvAction getUserAdditionalDataListAction = new DvAction("GetUserAdditionalDataList", OnGetUserAdditionalDataList,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("SortByKey", A_ARG_TYPE_Bool, ArgumentDirection.In),
+            new DvArgument("SortOrder", A_ARG_TYPE_Integer, ArgumentDirection.In),
+            new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In),
+            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(getUserAdditionalDataListAction);
+
+      DvAction getUserSelectedAdditionalDataListAction = new DvAction("GetUserSelectedAdditionalDataList", OnGetUserSelectedAdditionalDataList,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("Keys", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("SortByKey", A_ARG_TYPE_Bool, ArgumentDirection.In),
+            new DvArgument("SortOrder", A_ARG_TYPE_Integer, ArgumentDirection.In),
+            new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In),
+            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("Data", A_ARG_TYPE_String, ArgumentDirection.Out),
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(getUserSelectedAdditionalDataListAction);
 
       // Cleanup user data
       DvAction clearAllUserDataAction = new DvAction("ClearAllUserData", OnClearAllUserData,
@@ -219,6 +320,26 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(clearAllUserDataAction);
+
+      DvAction clearUserMediaItemDataKeyAction = new DvAction("ClearUserMediaItemDataKey", OnClearUserMediaItemDataKey,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In)
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(clearUserMediaItemDataKeyAction);
+
+      DvAction clearUserAdditionalDataKeyAction = new DvAction("ClearUserAdditionalDataKey", OnClearUserAdditionalDataKey,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("Key", A_ARG_TYPE_String, ArgumentDirection.In)
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(clearUserAdditionalDataKeyAction);
 
       // More actions go here
     }
@@ -264,6 +385,42 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return null;
     }
 
+    static UPnPError OnCreateUserProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      string profileName = (string)inParams[0];
+      int profileType = (int)inParams[1];
+      string profilePassword = (string)inParams[2];
+      Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfile(profileName, profileType, profilePassword);
+      outParams = new List<object> { profileId };
+      return null;
+    }
+
+    static UPnPError OnUpdateUserProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string profileName = (string)inParams[1];
+      int profileType = (int)inParams[2];
+      string profilePassword = (string)inParams[3];
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().UpdateProfile(profileId, profileName, profileType, profilePassword);
+      outParams = new List<object> { success };
+      return null;
+    }
+
+    static UPnPError OnUpdateUserProfileImage(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string profileImage = (string)inParams[1];
+      byte[] image = null;
+      if (!string.IsNullOrEmpty(profileImage))
+        image = Convert.FromBase64String(profileImage);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetProfileImage(profileId, image);
+      outParams = new List<object> { success };
+      return null;
+    }
+
     static UPnPError OnRenameProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
@@ -280,6 +437,15 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       bool success = ServiceRegistration.Get<IUserProfileDataManagement>().DeleteProfile(profileId);
       outParams = new List<object> {success};
+      return null;
+    }
+
+    static UPnPError OnLoginProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().LoginProfile(profileId);
+      outParams = new List<object> { success };
       return null;
     }
 
@@ -346,13 +512,14 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     static UPnPError OnGetUserAdditionalData(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      string key = (string) inParams[1];
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string key = (string)inParams[1];
+      int dataNo = (int)inParams[2];
       string data;
       bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalData(profileId, key, out data)))
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalData(profileId, key, out data, dataNo)))
         data = null;
-      outParams = new List<object> {data, success};
+      outParams = new List<object> { data, success };
       return null;
     }
 
@@ -361,9 +528,52 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       string key = (string) inParams[1];
-      string data = (string) inParams[2];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserAdditionalData(profileId, key, data);
+      int dataNo = (int)inParams[2];
+      string data = (string) inParams[3];
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserAdditionalData(profileId, key, data, dataNo);
       outParams = new List<object> {success};
+      return null;
+    }
+
+    static UPnPError OnGetUserAdditionalDataList(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string key = (string)inParams[1];
+      bool sortByKey = (bool)inParams[2];
+      SortDirection sortOrder = (SortDirection)(int)inParams[3];
+      uint? offset = (uint?)inParams[4];
+      uint? limit = (uint?)inParams[5];
+
+      string data;
+      IEnumerable<Tuple<int, string>> list; 
+      bool success;
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataList(profileId, key, out list, sortByKey, sortOrder, offset, limit)))
+        data = null;
+      else
+        data = MarshallingHelper.SerializeTuple2EnumerationToCsv(list.Select(t => new Tuple<string, string>(t.Item1.ToString(), t.Item2)));
+      outParams = new List<object> { data, success };
+      return null;
+    }
+
+    static UPnPError OnGetUserSelectedAdditionalDataList(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string[] keys = MarshallingHelper.ParseCsvStringCollection((string)inParams[1]).ToArray();
+      bool sortByKey = (bool)inParams[2];
+      SortDirection sortOrder = (SortDirection)(int)inParams[3];
+      uint? offset = (uint?)inParams[4];
+      uint? limit = (uint?)inParams[5];
+
+      string data;
+      IEnumerable<Tuple<string, int, string>> list; 
+      bool success;
+      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataList(profileId, keys, out list, sortByKey, sortOrder, offset, limit)))
+        data = null;
+      else
+        data = MarshallingHelper.SerializeTuple3EnumerationToCsv(list.Select(t => new Tuple<string, string, string>(t.Item1, t.Item2.ToString(), t.Item3)));
+      outParams = new List<object> { data, success };
       return null;
     }
 
@@ -375,6 +585,26 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ClearAllUserData(profileId);
       outParams = new List<object> {success};
+      return null;
+    }
+
+    static UPnPError OnClearUserMediaItemDataKey(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string key = (string)inParams[1];
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ClearUserMediaItemDataKey(profileId, key);
+      outParams = new List<object> { success };
+      return null;
+    }
+
+    static UPnPError OnClearUserAdditionalDataKey(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string key = (string)inParams[1];
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ClearUserAdditionalDataKey(profileId, key);
+      outParams = new List<object> { success };
       return null;
     }
   }

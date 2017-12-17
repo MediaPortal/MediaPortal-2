@@ -134,11 +134,6 @@ namespace MediaPortal.Common.MediaManagement
     IList<IRelationshipRoleExtractor> RoleExtractors { get; }
 
     /// <summary>
-    /// Returns a list of relationship role hierarchies.
-    /// </summary>
-    IList<RelationshipHierarchy> Hierarchies { get; }
-
-    /// <summary>
     /// Returns a list filters to use to find media items which can be updated 
     /// because new metadata is available. Each filter also has a limit to the 
     /// number of items to find.
