@@ -918,7 +918,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
           {
             Programs = new ItemsList { GetNoProgramPlaceholder(channel.ChannelId), GetNoProgramPlaceholder(channel.ChannelId) },
-            Command = new AsyncMethodDelegateCommand(async() => Tune(currentChannel)),
+            Command = new AsyncMethodDelegateCommand(() => Tune(currentChannel)),
             Selected = isCurrentSelected
           };
           item.AdditionalProperties["CHANNEL"] = channel;
