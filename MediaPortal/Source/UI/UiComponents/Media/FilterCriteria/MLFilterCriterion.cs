@@ -24,8 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -45,7 +46,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// <returns>Collection of filter value objects which hold a title for the particular filter value and which can
     /// create the actual filter to be used in a media item query.</returns>
     /// <exception cref="NotConnectedException">If the media library is currently not connected.</exception>
-    public abstract ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds,
+    public abstract Task<ICollection<FilterValue>> GetAvailableValuesAsync(IEnumerable<Guid> necessaryMIATypeIds,
         IFilter selectAttributeFilter, IFilter filter);
 
     /// <summary>
@@ -59,9 +60,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// <returns>Collection of filter value objects which hold a title for the particular filter value group and which can
     /// create the actual filter to be used in a media item query. If <c>null</c> is returned, this filter doesn't provide
     /// value groups. In that case, the caller can fall back to request all filter values via
-    /// <see cref="GetAvailableValues"/>.</returns>
+    /// <see cref="GetAvailableValuesAsync"/>.</returns>
     /// <exception cref="NotConnectedException">If the media library is currently not connected.</exception>
-    public abstract ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter,
+    public abstract Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter,
         IFilter filter);
   }
 }

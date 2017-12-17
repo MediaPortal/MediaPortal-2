@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Localization;
@@ -172,7 +173,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Updates the GUI data for a filter values selection screen which reflects the available filter values for
     /// the current base view specification of our <see cref="AbstractScreenData._navigationData"/>.
     /// </summary>
-    protected void ReloadFilterValuesList(bool createNewList)
+    protected async Task ReloadFilterValuesList(bool createNewList)
     {
       MediaLibraryQueryViewSpecification currentVS = _navigationData.BaseViewSpecification as MediaLibraryQueryViewSpecification;
       if (currentVS == null)
@@ -211,11 +212,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           IFilter filter = currentVS.FilterTree.BuildFilter(_filterPath);
           ICollection<Guid> necessaryMIAs = _necessaryFilteredMIATypeIds ?? currentVS.NecessaryMIATypeIds;
           ICollection<FilterValue> fv = _clusterFilter == null ?
-              _filterCriterion.GroupValues(necessaryMIAs, _clusterFilter, filter) : null;
-          
+              await _filterCriterion.GroupValuesAsync(necessaryMIAs, _clusterFilter, filter) : null;
+
           if (fv == null || fv.Count <= Consts.MAX_NUM_ITEMS_VISIBLE)
           {
-            fv = _filterCriterion.GetAvailableValues(necessaryMIAs, _clusterFilter, filter);
+            fv = await _filterCriterion.GetAvailableValuesAsync(necessaryMIAs, _clusterFilter, filter);
             grouping = false;
           }
           if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
@@ -254,7 +255,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 SimpleTitle = filterTitle,
                 NumItems = filterValue.NumItems,
                 Id = filterValue.Id,
-                Command = new MethodDelegateCommand(()=>
+                Command = new MethodDelegateCommand(() =>
                 {
                   MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle,
                     FilterTreePath.Combine(_filterPath, filterValue.RelativeFilterPath), filterValue.Filter, filterValue.LinkedId);

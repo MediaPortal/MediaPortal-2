@@ -36,6 +36,8 @@ using MediaPortal.UiComponents.Media.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common.TaskScheduler;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -49,7 +51,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override async Task<ICollection<FilterValue>> GetAvailableValuesAsync(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -59,7 +61,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
       if (string.IsNullOrEmpty(CertificationHelper.DisplaySeriesCertificationCountry))
       {
-        HomogenousMap valueGroups = cd.GetValueGroups(SeriesAspect.ATTR_CERTIFICATION, null, ProjectionFunction.None,
+        HomogenousMap valueGroups = await cd.GetValueGroupsAsync(SeriesAspect.ATTR_CERTIFICATION, null, ProjectionFunction.None,
             necessaryMIATypeIds, filter, true, showVirtual);
         IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
         int numEmptyEntries = 0;
@@ -86,7 +88,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       {
         IList<FilterValue> result = new List<FilterValue>();
         IFilter emptyFilter = new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION);
-        int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, emptyFilter), true, showVirtual);
+        int numEmptyItems = await cd.CountMediaItemsAsync(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, emptyFilter), true, showVirtual);
         if (numEmptyItems > 0)
           result.Add(new FilterValue("UR", Consts.RES_VALUE_UNRATED_TITLE, emptyFilter, null, numEmptyItems, this));
         List<string> usedFilters = new List<string>();
@@ -98,7 +100,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
             List<string> certList = new List<string>(certs.Select(c => c.CertificationId).Except(usedFilters));
             usedFilters.AddRange(certList);
             IFilter certFilter = new InFilter(SeriesAspect.ATTR_CERTIFICATION, certList);
-            int numItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, certFilter), true, showVirtual);
+            int numItems = await cd.CountMediaItemsAsync(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, certFilter), true, showVirtual);
             result.Add(new FilterValue(cert.CertificationId, cert.Name, certFilter, null, numItems, this));
           }
         }
@@ -106,7 +108,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       }
     }
 
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override async Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       return null;
     }
