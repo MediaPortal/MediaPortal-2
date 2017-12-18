@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
@@ -47,12 +48,12 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _rootRole = MovieAspect.ROLE_MOVIE;
     }
 
-    protected override void Prepare()
+    protected override async Task PrepareAsync()
     {
-      base.Prepare();
+      await base.PrepareAsync();
 
       //Update filter by adding the user filter to the already loaded filters
-      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
       if (userFilter != null)
       {
         _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, userFilter,

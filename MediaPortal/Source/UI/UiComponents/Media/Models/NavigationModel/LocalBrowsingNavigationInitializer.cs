@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
@@ -41,9 +42,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _necessaryMias = Consts.NECESSARY_BROWSING_MIAS;
     }
 
-    protected override void Prepare()
+    protected override async Task PrepareAsync()
     {
-      base.Prepare();
+      await base.PrepareAsync();
 
       _defaultScreen = new LocalMediaNavigationScreenData(_genericPlayableItemCreatorDelegate);
 

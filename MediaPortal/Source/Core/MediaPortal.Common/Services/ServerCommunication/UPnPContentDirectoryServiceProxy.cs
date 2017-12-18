@@ -128,21 +128,21 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     #region Shares management
 
-    public void RegisterShare(Share share)
+    public async Task RegisterShareAsync(Share share)
     {
       CpAction action = GetAction("X_MediaPortal_RegisterShare");
       IList<object> inParameters = new List<object> {share};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void RemoveShare(Guid shareId)
+    public async Task RemoveShareAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_RemoveShare");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
+    public async Task<int> UpdateShareAsync(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       CpAction action = GetAction("X_MediaPortal_UpdateShare");
@@ -170,11 +170,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
           throw new NotImplementedException(string.Format("RelocationMode '{0}' is not implemented", relocationMode));
       }
       inParameters.Add(relocationModeStr);
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (int)(uint) outParameters[0];
     }
 
-    public ICollection<Share> GetShares(string systemId, SharesFilter sharesFilter)
+    public async Task<ICollection<Share>> GetSharesAsync(string systemId, SharesFilter sharesFilter)
     {
       CpAction action = GetAction("X_MediaPortal_GetShares");
       IList<object> inParameters = new List<object> {systemId};
@@ -191,29 +191,29 @@ namespace MediaPortal.Common.Services.ServerCommunication
           throw new NotImplementedException(string.Format("SharesFilter '{0}' is not implemented", sharesFilter));
       }
       inParameters.Add(onlineStateStr);
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return new List<Share>((IEnumerable<Share>) outParameters[0]);
     }
 
-    public Share GetShare(Guid shareId)
+    public async Task<Share> GetShareAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_GetShare");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (Share) outParameters[0];
     }
 
-    public void ReImportShare(Guid shareId)
+    public async Task ReImportShareAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_ReImportShare");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void SetupDefaultServerShares()
+    public async Task SetupDefaultServerSharesAsync()
     {
       CpAction action = GetAction("X_MediaPortal_SetupDefaultServerShares");
-      action.InvokeAction(null);
+      await action.InvokeAsync(null);
     }
 
     #endregion
@@ -587,7 +587,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.ParseCsvGuidCollection((string) outParameters[0]);
     }
 
-    public void NotifyPlayback(Guid mediaItemId, bool watched)
+    public async Task NotifyPlaybackAsync(Guid mediaItemId, bool watched)
     {
       CpAction action = GetAction("X_MediaPortal_NotifyPlayback");
       IList<object> inParameters = new List<object>
@@ -595,10 +595,10 @@ namespace MediaPortal.Common.Services.ServerCommunication
         MarshallingHelper.SerializeGuid(mediaItemId),
         watched
       };
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void NotifyUserPlayback(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate = true)
+    public async Task NotifyUserPlaybackAsync(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate = true)
     {
       CpAction action = GetAction("X_MediaPortal_NotifyUserPlayback");
       IList<object> inParameters = new List<object>
@@ -608,7 +608,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         percentage,
         updatePlayDate
       };
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
     #endregion

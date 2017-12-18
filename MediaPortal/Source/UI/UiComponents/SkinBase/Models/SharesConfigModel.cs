@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Exceptions;
@@ -673,7 +674,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _systemsList.Add(localSystemItem);
     }
 
-    protected internal void UpdateSharesLists_NoLock(bool create)
+    protected internal async Task UpdateSharesLists_NoLock(bool create)
     {
       lock (_syncObj)
       {
@@ -689,7 +690,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         List<Share> localShareDescriptors = new List<Share>(LocalShares.GetShares());
         List<Share> serverShareDescriptors = IsHomeServerConnected ?
-            new List<Share>(ServerShares.GetShares()) : new List<Share>(0);
+            new List<Share>(await ServerShares.GetSharesAsync()) : new List<Share>(0);
         int numShares = localShareDescriptors.Count + serverShareDescriptors.Count;
         UpdateSharesList_NoLock(_localSharesList, localShareDescriptors, ShareOrigin.Local, numShares == 1);
         try

@@ -106,7 +106,7 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      foreach (Share share in cd.GetShares(_systemId, SharesFilter.All))
+      foreach (Share share in cd.GetSharesAsync(_systemId, SharesFilter.All).Result)
       {
         // Check if we want to filter only for given MediaCategories
         if (_restrictedMediaCategories != null && !share.MediaCategories.Intersect(_restrictedMediaCategories).Any())

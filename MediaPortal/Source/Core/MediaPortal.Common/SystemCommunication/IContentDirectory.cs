@@ -67,13 +67,13 @@ namespace MediaPortal.Common.SystemCommunication
     /// Adds an existing share to the media librarie's collection of registered shares.
     /// </summary>
     /// <param name="share">Share to be added.</param>
-    void RegisterShare(Share share);
+    Task RegisterShareAsync(Share share);
 
     /// <summary>
     /// Removes the share with the specified id.
     /// </summary>
     /// <param name="shareId">Id of the share to be removed.</param>
-    void RemoveShare(Guid shareId);
+    Task RemoveShareAsync(Guid shareId);
 
     /// <summary>
     /// Reconfigures the share with the specified <paramref name="shareId"/>.
@@ -92,11 +92,11 @@ namespace MediaPortal.Common.SystemCommunication
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library.</param>
     /// <returns>Number of relocated or removed media items.</returns>
-    int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
+    Task<int> UpdateShareAsync(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
 
 
-    ICollection<Share> GetShares(string systemId, SharesFilter sharesFilter);
+    Task<ICollection<Share>> GetSharesAsync(string systemId, SharesFilter sharesFilter);
 
     /// <summary>
     /// Returns the share descriptor for the share with the specified <paramref name="shareId"/>.
@@ -104,15 +104,15 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="shareId">Id of the share to return.</param>
     /// <returns>Descriptor of the share with the specified <paramref name="shareId"/>. If the specified
     /// share doesn't exist, the method returns <c>null</c>.</returns>
-    Share GetShare(Guid shareId);
+    Task<Share> GetShareAsync(Guid shareId);
 
-    void ReImportShare(Guid guid);
+    Task ReImportShareAsync(Guid guid);
 
     /// <summary>
     /// Tries to create default shares for the local system. Typically, this are the shares for the system's
     /// MyMusic, MyVideos and MyPictures directories.
     /// </summary>
-    void SetupDefaultServerShares();
+    Task SetupDefaultServerSharesAsync();
 
     #endregion
 
@@ -487,8 +487,8 @@ namespace MediaPortal.Common.SystemCommunication
 
     #region Playback
 
-    void NotifyPlayback(Guid mediaItemId, bool watched);
-    void NotifyUserPlayback(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate);
+    Task NotifyPlaybackAsync(Guid mediaItemId, bool watched);
+    Task NotifyUserPlaybackAsync(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate);
 
     #endregion
   }

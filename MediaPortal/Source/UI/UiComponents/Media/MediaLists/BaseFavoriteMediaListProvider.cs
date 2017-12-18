@@ -26,17 +26,18 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseFavoriteMediaListProvider : BaseMediaListProvider
   {
-    protected override MediaItemQuery CreateQuery()
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       return new MediaItemQuery(_necessaryMias, null)
       {
-        Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)),
+        Filter = userProfile.HasValue ? await AppendUserFilterAsync(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)),
             _necessaryMias) : null,
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
       };

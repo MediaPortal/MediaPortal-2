@@ -131,7 +131,7 @@ namespace MediaPortal.UiComponents.Media.Views
         };
       foreach (KeyValuePair<string, string> kvp in BuildSystemsDictNames2Ids(systems))
       {
-        var clientShares = cd.GetShares(kvp.Value, SharesFilter.All);
+        var clientShares = cd.GetSharesAsync(kvp.Value, SharesFilter.All).Result;
         if (clientShares.Count == 0)
           continue;
       

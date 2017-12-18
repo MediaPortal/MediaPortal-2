@@ -27,12 +27,13 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseUnwatchedMediaListProvider : BaseMediaListProvider
   {
-    protected override MediaItemQuery CreateQuery()
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       return new MediaItemQuery(_necessaryMias, null)

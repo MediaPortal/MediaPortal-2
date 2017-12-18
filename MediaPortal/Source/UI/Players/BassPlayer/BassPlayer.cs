@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -216,7 +217,7 @@ namespace MediaPortal.UI.Players.BassPlayer
         dlgt(this);
     }
 
-    protected void NotifyPlayback()
+    protected async Task NotifyPlayback()
     {
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
@@ -226,19 +227,18 @@ namespace MediaPortal.UI.Players.BassPlayer
       if (played)
         playPercentage = 100;
 
-      if (_mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      if (_mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty && cd != null)
       {
-        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-        IContentDirectory cd = scm.ContentDirectory;
         if (userProfileDataManagement.IsValidUser)
         {
           bool updateLastPlayed = (played || playPercentage >= PLAY_THRESHOLD_PERCENT || CurrentTime.TotalSeconds >= PLAY_THRESHOLD_SEC);
-          if (cd != null)
-            cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, _mediaItemId.Value, playPercentage, updateLastPlayed);
+          await cd.NotifyUserPlaybackAsync(userProfileDataManagement.CurrentUser.ProfileId, _mediaItemId.Value, playPercentage, updateLastPlayed);
         }
-        else if (cd != null)
+        else
         {
-          cd.NotifyPlayback(_mediaItemId.Value, played);
+          await  cd.NotifyPlaybackAsync(_mediaItemId.Value, played);
         }
       }
     }

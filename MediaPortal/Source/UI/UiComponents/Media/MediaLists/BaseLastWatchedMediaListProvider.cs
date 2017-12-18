@@ -26,17 +26,18 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseLastWatchedMediaListProvider : BaseMediaListProvider
   {
-    protected override MediaItemQuery CreateQuery()
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       return new MediaItemQuery(_necessaryMias, null)
       {
-        Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+        Filter = userProfile.HasValue ? await AppendUserFilterAsync(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
           _necessaryMias) : null,
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
       };
@@ -54,12 +55,12 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected Guid _linkedRole;
     protected IEnumerable<Guid> _necessaryLinkedMias;
 
-    protected override MediaItemQuery CreateQuery()
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       return new MediaItemQuery(_necessaryMias, null)
       {
-        Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, AppendUserFilter(
+        Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(
           new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
           _necessaryLinkedMias)) : null,
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }

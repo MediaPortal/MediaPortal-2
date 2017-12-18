@@ -43,6 +43,7 @@ using MediaPortal.UI.Shares;
 using UPnP.Infrastructure.CP;
 using RelocationMode = MediaPortal.Common.MediaManagement.RelocationMode;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Common.Services.MediaManagement;
 
 namespace MediaPortal.UI.Services.ServerCommunication
@@ -227,14 +228,14 @@ namespace MediaPortal.UI.Services.ServerCommunication
           case SharesMessaging.MessageType.ShareAdded:
             share = (Share) message.MessageData[SharesMessaging.SHARE];
             if (cd != null)
-              cd.RegisterShare(share);
+              cd.RegisterShareAsync(share);
             importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
             break;
           case SharesMessaging.MessageType.ShareRemoved:
             share = (Share) message.MessageData[SharesMessaging.SHARE];
             importerWorker.CancelJobsForPath(share.BaseResourcePath);
             if (cd != null)
-              cd.RemoveShare(share.ShareId);
+              cd.RemoveShareAsync(share.ShareId);
             break;
           case SharesMessaging.MessageType.ShareChanged:
             RelocationMode relocationMode = (RelocationMode) message.MessageData[SharesMessaging.RELOCATION_MODE];
@@ -253,7 +254,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
             }
             else
             {
-              cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.UseShareWatcher, share.MediaCategories, relocationMode);
+              cd.UpdateShareAsync(share.ShareId, share.BaseResourcePath, share.Name, share.UseShareWatcher, share.MediaCategories, relocationMode);
               switch (relocationMode)
               {
                 case RelocationMode.ClearAndReImport:
@@ -337,7 +338,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
 
       ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
-      ServiceRegistration.Get<IThreadPool>().Add(CompleteServerConnection);
+      //ServiceRegistration.Get<IThreadPool>().Add(CompleteServerConnection);
+      CompleteServerConnectionAsync();
     }
 
     void OnBackendServerDisconnected(DeviceConnection connection)
@@ -404,7 +406,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     /// <summary>
     /// Synchronously synchronizes all local shares and media item aspect types with the MediaPortal server.
     /// </summary>
-    protected void CompleteServerConnection()
+    protected async Task CompleteServerConnectionAsync()
     {
       UPnPServerControllerServiceProxy sc = ServerControllerServiceProxy;
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
@@ -438,24 +440,24 @@ namespace MediaPortal.UI.Services.ServerCommunication
           ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
           ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Synchronizing shares with home server");
           IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
-          foreach (Share share in cd.GetShares(systemResolver.LocalSystemId, SharesFilter.All))
+          foreach (Share share in await cd.GetSharesAsync(systemResolver.LocalSystemId, SharesFilter.All))
             serverShares.Add(share.ShareId, share);
           IDictionary<Guid, Share> localShares = ServiceRegistration.Get<ILocalSharesManagement>().Shares;
           // First remove shares - if the client lost its configuration and re-registers an already present share, the server's method will throw an exception
           foreach (Guid serverShareId in serverShares.Keys)
             if (!localShares.ContainsKey(serverShareId))
-              cd.RemoveShare(serverShareId);
+              await cd.RemoveShareAsync(serverShareId);
           foreach (Share localShare in localShares.Values)
           {
             RelocationMode relocationMode;
             if (!serverShares.ContainsKey(localShare.ShareId))
             {
-              cd.RegisterShare(localShare);
+              await cd.RegisterShareAsync(localShare);
               newShares.Add(localShare);
             }
             else if (settings.CachedSharesUpdates.TryGetValue(localShare.ShareId, out relocationMode))
             {
-              cd.UpdateShare(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.UseShareWatcher, localShare.MediaCategories,
+              await cd.UpdateShareAsync(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.UseShareWatcher, localShare.MediaCategories,
                   relocationMode);
               switch (relocationMode)
               {

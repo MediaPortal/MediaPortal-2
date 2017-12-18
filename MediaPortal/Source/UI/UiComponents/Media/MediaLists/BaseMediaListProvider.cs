@@ -66,7 +66,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       return updateReason.HasFlag(UpdateReason.Forced);
     }
 
-    protected abstract MediaItemQuery CreateQuery();
+    protected abstract Task<MediaItemQuery> CreateQueryAsync();
 
     public UserProfile CurrentUserProfile
     {
@@ -81,9 +81,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       }
     }
 
-    public IFilter AppendUserFilter(IFilter filter, IEnumerable<Guid> filterMias)
+    public async Task<IFilter> AppendUserFilterAsync(IFilter filter, IEnumerable<Guid> filterMias)
     {
-      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(filterMias);
+      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(filterMias);
       if (userFilter != null)
       {
         return filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : userFilter;
@@ -103,7 +103,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       if (contentDirectory == null)
         return false;
 
-      MediaItemQuery query = CreateQuery();
+      MediaItemQuery query = await CreateQueryAsync();
       if (query == null)
         return false;
       query.Limit = (uint)maxItems;

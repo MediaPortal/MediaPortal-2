@@ -115,7 +115,7 @@ namespace MediaPortal.UiComponents.Media.Views
       bool isLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
       IContentDirectory cd = serverConnectionManager.ContentDirectory;
       ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      localServerShares = (isLocalHomeServer && cd != null) ? cd.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All) : new List<Share>();
+      localServerShares = (isLocalHomeServer && cd != null) ? cd.GetSharesAsync(serverConnectionManager.HomeServerSystemId, SharesFilter.All).Result : new List<Share>();
       localClientShares = localSharesManagement.Shares.Values;
     }
 

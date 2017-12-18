@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -188,7 +189,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IServerController sc = scm.ServerController;
       if (cd == null || sc == null)
         return;
-      sc.ScheduleImports(cd.GetShares(null, SharesFilter.All).Select(share => share.ShareId), ImportJobType.Refresh);
+      sc.ScheduleImports(cd.GetSharesAsync(null, SharesFilter.All).Result.Select(share => share.ShareId), ImportJobType.Refresh);
     }
 
     public void ReImportShare(Share share)
@@ -204,7 +205,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     #region Protected methods
 
-    protected void UpdateSharesList_NoLock(bool create)
+    protected async Task UpdateSharesList_NoLock(bool create)
     {
       lock (_syncObj)
         if (create)
@@ -219,7 +220,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (cd == null || sc == null)
           return;
         IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-        ICollection<Share> allShares = cd.GetShares(null, SharesFilter.All);
+        ICollection<Share> allShares = await cd.GetSharesAsync(null, SharesFilter.All);
         IDictionary<string, ICollection<Share>> systems2Shares = new Dictionary<string, ICollection<Share>>();
         foreach (Share share in allShares)
         {

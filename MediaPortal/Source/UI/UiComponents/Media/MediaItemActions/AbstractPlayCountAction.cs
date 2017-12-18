@@ -73,18 +73,17 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
       if (userProfile.HasValue)
       {
-        if (cd != null)
-          cd.NotifyUserPlayback(userProfile.Value, mediaItem.MediaItemId, playCount > 0 ? playPercentage : -1, playCount > 0);
+        await cd.NotifyUserPlaybackAsync(userProfile.Value, mediaItem.MediaItemId, playCount > 0 ? playPercentage : -1, playCount > 0);
       }
-      else if (cd != null)
+      else
       {
-        cd.NotifyPlayback(mediaItem.MediaItemId, playCount > 0);
+        await cd.NotifyPlaybackAsync(mediaItem.MediaItemId, playCount > 0);
       }
 
       //Also update media item locally so changes are reflected in GUI without reloading
       MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, playCount);
       mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = UserDataKeysKnown.GetSortablePlayCountString(playCount);
-      if(mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
+      if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
         mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = UserDataKeysKnown.GetSortablePlayPercentageString(playPercentage);
       if (playCount <= 0)
         mediaItem.UserData.Remove(UserDataKeysKnown.KEY_PLAY_DATE);

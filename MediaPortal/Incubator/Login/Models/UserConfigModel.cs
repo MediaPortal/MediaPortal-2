@@ -732,7 +732,7 @@ namespace MediaPortal.UiComponents.Login.Models
       ProfileTypeName = _profileTypes.FirstOrDefault(i => i.Key == UserProxy.ProfileType).Value;
     }
 
-    protected internal void UpdateShareLists_NoLock(bool create)
+    protected internal async Task UpdateShareLists_NoLock(bool create)
     {
       lock (_syncObj)
       {
@@ -766,7 +766,7 @@ namespace MediaPortal.UiComponents.Login.Models
           return;
 
         // add users to expose them
-        shares = scm.ContentDirectory.GetShares(scm.HomeServerSystemId, SharesFilter.All);
+        shares = await scm.ContentDirectory.GetSharesAsync(scm.HomeServerSystemId, SharesFilter.All);
         _serverSharesList.Clear();
         foreach (Share share in shares)
         {
