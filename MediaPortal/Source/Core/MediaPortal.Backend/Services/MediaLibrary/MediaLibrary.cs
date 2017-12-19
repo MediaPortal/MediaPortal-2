@@ -72,12 +72,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public async Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
+      public Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
         {
-          return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
+          return Task.FromResult(_parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId));
         }
         catch (Exception)
         {
@@ -85,12 +85,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public async Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId,
+      public Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
         {
-          return _parent.LoadItem(_parent.LocalSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
+          return Task.FromResult(_parent.LoadItem(_parent.LocalSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId));
         }
         catch (Exception)
         {
@@ -98,13 +98,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public async Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
+      public Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId,
           bool includeVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit);
+          return Task.FromResult(_parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit));
         }
         catch (Exception)
         {
@@ -112,12 +112,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public async Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
+      public Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
       {
         try
         {
           // TODO: make underlying IMediaLibrary async
-          return _parent.GetManagedMediaItemAspectCreationDates();
+          return Task.FromResult(_parent.GetManagedMediaItemAspectCreationDates());
         }
         catch (Exception)
         {
@@ -125,11 +125,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public async Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
+      public Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
       {
         try
         {
-          return _parent.GetManagedMediaItemAspectMetadata().Keys;
+          return Task.FromResult(_parent.GetManagedMediaItemAspectMetadata().Keys);
         }
         catch (Exception)
         {

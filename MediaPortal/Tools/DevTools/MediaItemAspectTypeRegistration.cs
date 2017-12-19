@@ -51,16 +51,17 @@ namespace MediaPortal.DevTools
       await Task.WhenAll(miaTypes.Select(RegisterLocallyKnownMediaItemAspectTypeAsync));
     }
 
-    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
+    public Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
     {
       if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
-        return;
+        return Task.CompletedTask;
       _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = serverConnectionManager == null ? null :
           serverConnectionManager.ContentDirectory;
       if (cd != null)
         cd.AddMediaItemAspectStorageAsync(miaType).Wait();
+      return Task.CompletedTask;
     }
 
     public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)

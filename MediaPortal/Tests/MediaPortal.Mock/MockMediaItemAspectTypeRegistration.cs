@@ -45,12 +45,12 @@ namespace MediaPortal.Mock
       await Task.WhenAll(miaTypes.Select(RegisterLocallyKnownMediaItemAspectTypeAsync));
     }
 
-    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
+    public Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
     {
       Console.WriteLine("Registering " + miaType.Name);
-      if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
-        return;
-      _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
+      if (!_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
+        _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
+      return Task.CompletedTask;
     }
 
     public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)

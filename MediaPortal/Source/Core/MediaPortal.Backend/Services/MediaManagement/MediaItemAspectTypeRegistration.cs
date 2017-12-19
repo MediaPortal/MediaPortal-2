@@ -52,10 +52,11 @@ namespace MediaPortal.Backend.Services.MediaManagement
       await Task.WhenAll(miaTypes.Select(RegisterLocallyKnownMediaItemAspectTypeAsync));
     }
 
-    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miam)
+    public Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miam)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       mediaLibrary.AddMediaItemAspectStorage(miam);
+      return Task.CompletedTask;
     }
   }
 }

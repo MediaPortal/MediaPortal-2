@@ -338,13 +338,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
         .FirstOrDefault(u => u.Name == userName);
     }
 
-    public override async Task<bool> StopTimeshiftAsync(string userName, int slotIndex)
+    public override Task<bool> StopTimeshiftAsync(string userName, int slotIndex)
     {
       IUser user;
       user = GetUserByUserName(GetUserName(userName, slotIndex));
       if (user == null)
-        return false;
-      return _tvControl.StopTimeShifting(ref user);
+        return Task.FromResult(false);
+      return Task.FromResult(_tvControl.StopTimeShifting(ref user));
     }
 
     public override async Task<MediaItem> CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
@@ -355,13 +355,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return await CreateMediaItem(slotIndex, streamUrl, channel, isTv, fullChannel.ToChannel());
     }
 
-    public override async Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
+    public override Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
     {
       var tvChannel = TvDatabase.Channel.Retrieve(channel.ChannelId);
       var programNow = tvChannel.CurrentProgram.ToProgram();
       var programNext = tvChannel.NextProgram.ToProgram();
       var success = programNow != null || programNext != null;
-      return new AsyncResult<IProgram[]>(success, new[] { programNow, programNext });
+      return Task.FromResult(new AsyncResult<IProgram[]>(success, new[] { programNow, programNext }));
     }
 
     //public override async Task<AsyncResult<IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup)
@@ -381,27 +381,27 @@ namespace MediaPortal.Plugins.SlimTv.Service
     //  return true;
     //}
 
-    public override async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to)
+    public override Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to)
     {
       var programs = _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.ChannelId), from, to)
         .Select(tvProgram => tvProgram.ToProgram(true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
-      return new AsyncResult<IList<IProgram>>(success, programs);
+      return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
 
-    public override async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to)
+    public override Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to)
     {
       var programs = _tvBusiness.SearchPrograms(title).Where(p => p.StartTime >= from && p.StartTime <= to || p.EndTime >= from && p.EndTime <= to)
         .Select(tvProgram => tvProgram.ToProgram(true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
-      return new AsyncResult<IList<IProgram>>(success, programs);
+      return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
 
-    public override async Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to)
+    public override Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to)
     {
       var programs = new List<IProgram>();
       if (channelGroup.ChannelGroupId < 0)
@@ -415,25 +415,25 @@ namespace MediaPortal.Plugins.SlimTv.Service
           CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => p.ToProgram()));
       }
       var success = programs.Count > 0;
-      return new AsyncResult<IList<IProgram>>(success, programs);
+      return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
 
-    public override async Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
+    public override Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
     {
       var programs = new List<IProgram>();
       var tvSchedule = TvDatabase.Schedule.Retrieve(schedule.ScheduleId);
       if (tvSchedule == null)
-        return new AsyncResult<IList<IProgram>>(false, null);
+        return Task.FromResult(new AsyncResult<IList<IProgram>>(false, null));
 
       programs = TvDatabase.Schedule.GetProgramsForSchedule(tvSchedule).Select(p => p.ToProgram()).ToList();
       var success = programs.Count > 0;
-      return new AsyncResult<IList<IProgram>>(success, programs);
+      return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
 
-    public override async Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program)
+    public override Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program)
     {
       var channel = TvDatabase.Channel.Retrieve(program.ChannelId).ToChannel();
-      return new AsyncResult<IChannel>(true, channel);
+      return Task.FromResult(new AsyncResult<IChannel>(true, channel));
     }
 
     public override bool GetProgram(int programId, out IProgram program)
@@ -442,7 +442,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return program != null;
     }
 
-    public override async Task<AsyncResult<IList<IChannelGroup>>> GetChannelGroupsAsync()
+    public override Task<AsyncResult<IList<IChannelGroup>>> GetChannelGroupsAsync()
     {
       var groups = TvDatabase.ChannelGroup.ListAll()
         .OrderBy(tvGroup => tvGroup.SortOrder)
@@ -453,17 +453,17 @@ namespace MediaPortal.Plugins.SlimTv.Service
           .Select(radioGroup => radioGroup.ToChannelGroup())
         )
         .ToList();
-      return new AsyncResult<IList<IChannelGroup>>(true, groups);
+      return Task.FromResult(new AsyncResult<IList<IChannelGroup>>(true, groups));
     }
 
-    public override async Task<AsyncResult<IChannel>> GetChannelAsync(int channelId)
+    public override Task<AsyncResult<IChannel>> GetChannelAsync(int channelId)
     {
       var channel = TvDatabase.Channel.Retrieve(channelId).ToChannel();
       var success = channel != null;
-      return new AsyncResult<IChannel>(success, channel);
+      return Task.FromResult(new AsyncResult<IChannel>(success, channel));
     }
 
-    public override async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
+    public override Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
     {
       List<IChannel> channels;
       if (group.ChannelGroupId < 0)
@@ -486,29 +486,29 @@ namespace MediaPortal.Plugins.SlimTv.Service
           .Where(c => c != null)
           .ToList();
       }
-      return new AsyncResult<IList<IChannel>>(true, channels);
+      return Task.FromResult(new AsyncResult<IList<IChannel>>(true, channels));
     }
 
-    public override async Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
+    public override Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
     {
       var schedules = TvDatabase.Schedule.ListAll().Select(s => s.ToSchedule()).ToList();
-      return new AsyncResult<IList<ISchedule>>(true, schedules);
+      return Task.FromResult(new AsyncResult<IList<ISchedule>>(true, schedules));
     }
 
-    public override async Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
+    public override Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       var tvProgram = TvDatabase.Program.Retrieve(program.ProgramId);
       ISchedule schedule;
       if (tvProgram == null)
       {
-        return new AsyncResult<ISchedule>(false, null);
+        return Task.FromResult(new AsyncResult<ISchedule>(false, null));
       }
       if (CreateProgram(tvProgram, (int)recordingType, out schedule))
       {
         _tvControl.OnNewSchedule();
       }
       var success = schedule != null;
-      return new AsyncResult<ISchedule>(success, schedule);
+      return Task.FromResult(new AsyncResult<ISchedule>(success, schedule));
     }
 
     public static bool CreateProgram(TvDatabase.Program program, int scheduleType, out ISchedule currentSchedule)
@@ -593,7 +593,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return false;
     }
 
-    public override async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
+    public override Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
       TvDatabase.Schedule tvSchedule = new TvDatabase.Schedule(channel.ChannelId, "Manual", from, to);
       tvSchedule.ScheduleType = (int)recordingType;
@@ -602,14 +602,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
       tvSchedule.Persist();
       _tvControl.OnNewSchedule();
       var schedule = tvSchedule.ToSchedule();
-      return new AsyncResult<ISchedule>(true, schedule);
+      return Task.FromResult(new AsyncResult<ISchedule>(true, schedule));
     }
 
-    public override async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
+    public override Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       var canceledProgram = TvDatabase.Program.Retrieve(program.ProgramId);
       if (canceledProgram == null)
-        return false;
+        return Task.FromResult(false);
       foreach (TvDatabase.Schedule schedule in TvDatabase.Schedule.ListAll().Where(schedule => schedule.IsRecordingProgram(canceledProgram, true)))
       {
         switch (schedule.ScheduleType)
@@ -625,15 +625,15 @@ namespace MediaPortal.Plugins.SlimTv.Service
             break;
         }
       }
-      return true;
+      return Task.FromResult(true);
     }
 
-    public override async Task<bool> RemoveScheduleAsync(ISchedule schedule)
+    public override Task<bool> RemoveScheduleAsync(ISchedule schedule)
     {
       TvDatabase.Schedule tvSchedule = TvDatabase.Schedule.Retrieve(schedule.ScheduleId);
       // Already deleted somewhere else?
       if (tvSchedule == null)
-        return true;
+        return Task.FromResult(true);
       _tvControl.StopRecordingSchedule(tvSchedule.IdSchedule);
       // delete canceled schedules first
       foreach (var cs in CanceledSchedule.ListAll().Where(x => x.IdSchedule == tvSchedule.IdSchedule))
@@ -645,33 +645,33 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
       catch { }
       _tvControl.OnNewSchedule(); // I don't think this is needed, but doesn't hurt either
-      return true;
+      return Task.FromResult(true);
     }
 
-    public override async Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
+    public override Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
       var tvProgram = (IProgramRecordingStatus)TvDatabase.Program.Retrieve(program.ProgramId).ToProgram(true);
       var recordingStatus = tvProgram.RecordingStatus;
-      return new AsyncResult<RecordingStatus>(true, recordingStatus);
+      return Task.FromResult(new AsyncResult<RecordingStatus>(true, recordingStatus));
     }
 
-    public override async Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)
+    public override Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)
     {
       Recording recording;
       if (!GetRecording(program, out recording))
-        return new AsyncResult<string>(false, null);
+        return Task.FromResult(new AsyncResult<string>(false, null));
 
-      return new AsyncResult<string>(true, recording.FileName);
+      return Task.FromResult(new AsyncResult<string>(true, recording.FileName));
     }
 
-    public override async Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
+    public override Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
     {
       Recording recording;
       if (!GetRecording(fileName, out recording) || recording.Idschedule <= 0)
-        return new AsyncResult<ISchedule>(false, null);
+        return Task.FromResult(new AsyncResult<ISchedule>(false, null));
 
       var schedule = TvDatabase.Schedule.ListAll().FirstOrDefault(s => s.IdSchedule == recording.Idschedule).ToSchedule();
-      return new AsyncResult<ISchedule>(schedule != null, schedule);
+      return Task.FromResult(new AsyncResult<ISchedule>(schedule != null, schedule));
     }
 
     private static bool GetRecording(IProgram program, out Recording recording)
