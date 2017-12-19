@@ -105,11 +105,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates()
+      public async Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
       {
         try
         {
-          return _contentDirectory.GetAllManagedMediaItemAspectCreationDates();
+          return await _contentDirectory.GetAllManagedMediaItemAspectCreationDatesAsync();
         }
         catch (Exception)
         {
@@ -117,11 +117,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
+      public async Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
       {
         try
         {
-          return _contentDirectory.GetAllManagedMediaItemAspectTypes();
+          return await _contentDirectory.GetAllManagedMediaItemAspectTypesAsync();
         }
         catch (Exception)
         {
@@ -483,13 +483,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
         {
           IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
           ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Checking for unregistered media item aspect types at home server");
-          ICollection<Guid> serverMIATypes = cd.GetAllManagedMediaItemAspectTypes();
+          ICollection<Guid> serverMIATypes = await cd.GetAllManagedMediaItemAspectTypesAsync();
           foreach (KeyValuePair<Guid, MediaItemAspectMetadata> localMiaType in miatr.LocallyKnownMediaItemAspectTypes)
             if (!serverMIATypes.Contains(localMiaType.Key))
             {
               ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Adding unregistered media item aspect type '{0}' (ID '{1}') at home server",
                   localMiaType.Value.Name, localMiaType.Key);
-              cd.AddMediaItemAspectStorage(localMiaType.Value);
+              await cd.AddMediaItemAspectStorageAsync(localMiaType.Value);
             }
         }
         catch (Exception e)

@@ -118,15 +118,15 @@ namespace MediaPortal.Common.SystemCommunication
 
     #region Media item aspect storage management
 
-    void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
+    Task AddMediaItemAspectStorageAsync(MediaItemAspectMetadata miam);
 
-    void RemoveMediaItemAspectStorage(Guid aspectId);
+    Task RemoveMediaItemAspectStorageAsync(Guid aspectId);
 
-    IDictionary<Guid, DateTime> GetAllManagedMediaItemAspectCreationDates();
+    Task<IDictionary<Guid, DateTime>> GetAllManagedMediaItemAspectCreationDatesAsync();
 
-    ICollection<Guid> GetAllManagedMediaItemAspectTypes();
+    Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync();
 
-    MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId);
+    Task<MediaItemAspectMetadata> GetMediaItemAspectMetadataAsync(Guid miamId);
 
     #endregion
 

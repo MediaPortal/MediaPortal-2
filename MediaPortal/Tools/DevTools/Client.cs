@@ -127,7 +127,7 @@ namespace MediaPortal.DevTools
           {
             MediaItemAspectMetadata metadata = GetMediaItemAspectMetadata(type);
             logger.Info("Registering media item {0}...", metadata.Name);
-            ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().RegisterLocallyKnownMediaItemAspectType(metadata);
+            ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().RegisterLocallyKnownMediaItemAspectTypeAsync(metadata).Wait();
           }
         }
 
@@ -176,12 +176,12 @@ namespace MediaPortal.DevTools
 
     public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
     {
-      return GetContentDirectory().GetAllManagedMediaItemAspectTypes();
+      return GetContentDirectory().GetAllManagedMediaItemAspectTypesAsync().Result;
     }
 
     public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid type)
     {
-      return GetContentDirectory().GetMediaItemAspectMetadata(type);
+      return GetContentDirectory().GetMediaItemAspectMetadataAsync(type).Result;
     }
 
     public int GetVideoCount()

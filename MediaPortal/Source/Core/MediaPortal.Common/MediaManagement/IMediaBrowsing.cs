@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.MediaManagement
@@ -80,12 +81,12 @@ namespace MediaPortal.Common.MediaManagement
     /// Loads the creation dates of all managed MIAs in the MediaLibrary
     /// </summary>
     /// <returns>Dictionary with MIA IDs as keys and the respective creation dates as values</returns>
-    IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates();
+    Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync();
 
     /// <summary>
     /// Loads all managed MIA types from the MediaLibrary
     /// </summary>
     /// <returns>Collection with MIA IDs</returns>
-    ICollection<Guid> GetAllManagedMediaItemAspectTypes();
+    Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync();
   }
 }

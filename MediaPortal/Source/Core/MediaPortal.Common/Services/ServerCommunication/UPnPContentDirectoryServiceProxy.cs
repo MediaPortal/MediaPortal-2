@@ -220,42 +220,42 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     #region Media item aspect storage management
 
-    public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
+    public async Task AddMediaItemAspectStorageAsync(MediaItemAspectMetadata miam)
     {
       CpAction action = GetAction("X_MediaPortal_AddMediaItemAspectStorage");
       IList<object> inParameters = new List<object> {miam};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void RemoveMediaItemAspectStorage(Guid aspectId)
+    public async Task RemoveMediaItemAspectStorageAsync(Guid aspectId)
     {
       CpAction action = GetAction("X_MediaPortal_RemoveMediaItemAspectStorage");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(aspectId)};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
+    public async Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
     {
       CpAction action = GetAction("X_MediaPortal_GetAllManagedMediaItemAspectTypes");
       IList<object> inParameters = new List<object>();
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       string miaTypeIDs = (string) outParameters[0];
       return miaTypeIDs.Split(',').Select(MarshallingHelper.DeserializeGuid).ToList();
     }
 
-    public IDictionary<Guid, DateTime> GetAllManagedMediaItemAspectCreationDates()
+    public async Task<IDictionary<Guid, DateTime>> GetAllManagedMediaItemAspectCreationDatesAsync()
     {
       CpAction action = GetAction("GetAllManagedMediaItemAspectCreationDates");
       IList<object> inParameters = new List<object>();
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IDictionary<Guid, DateTime>) outParameters[0];
     }
 
-    public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId)
+    public async Task<MediaItemAspectMetadata> GetMediaItemAspectMetadataAsync(Guid miamId)
     {
       CpAction action = GetAction("X_MediaPortal_GetMediaItemAspectMetadata");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(miamId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (MediaItemAspectMetadata) outParameters[0];
     }
 

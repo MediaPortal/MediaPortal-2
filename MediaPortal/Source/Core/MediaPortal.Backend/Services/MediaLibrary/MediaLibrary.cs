@@ -112,10 +112,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates()
+      public async Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
       {
         try
         {
+          // TODO: make underlying IMediaLibrary async
           return _parent.GetManagedMediaItemAspectCreationDates();
         }
         catch (Exception)
@@ -124,7 +125,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
+      public async Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
       {
         try
         {

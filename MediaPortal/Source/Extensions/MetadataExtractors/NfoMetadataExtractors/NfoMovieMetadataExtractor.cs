@@ -126,7 +126,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      miatr.RegisterLocallyKnownMediaItemAspectType(TempActorAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(TempActorAspect.Metadata);
     }
 
     /// <summary>

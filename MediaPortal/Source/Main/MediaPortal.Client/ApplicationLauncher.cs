@@ -222,7 +222,7 @@ namespace MediaPortal.Client
           skinEngine.Startup(); // 4)
           UiExtension.Startup(); // 5)
 
-          ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after UI services are running
+          ApplicationCore.RegisterDefaultMediaItemAspectTypes().Wait(); // To be done after UI services are running
 
           _ipcServer = new IpcServer("Client");
           _ipcServer.CustomShutdownCallback = () =>

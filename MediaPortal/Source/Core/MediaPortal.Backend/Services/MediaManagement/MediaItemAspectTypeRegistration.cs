@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Backend.MediaLibrary;
@@ -45,7 +47,12 @@ namespace MediaPortal.Backend.Services.MediaManagement
       }
     }
 
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miam)
+    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(IEnumerable<MediaItemAspectMetadata> miaTypes)
+    {
+      await Task.WhenAll(miaTypes.Select(RegisterLocallyKnownMediaItemAspectTypeAsync));
+    }
+
+    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miam)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       mediaLibrary.AddMediaItemAspectStorage(miam);

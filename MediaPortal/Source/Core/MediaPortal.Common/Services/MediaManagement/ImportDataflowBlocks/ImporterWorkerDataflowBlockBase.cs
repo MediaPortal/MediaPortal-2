@@ -349,7 +349,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         try
         {
           await Activated.WaitAsync();
-          return _mediaBrowsingCallback.GetManagedMediaItemAspectCreationDates();
+          return await _mediaBrowsingCallback.GetManagedMediaItemAspectCreationDatesAsync();
         }
         catch (DisconnectedException)
         {
@@ -366,7 +366,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         try
         {
           await Activated.WaitAsync();
-          return _mediaBrowsingCallback.GetAllManagedMediaItemAspectTypes();
+          return await _mediaBrowsingCallback.GetAllManagedMediaItemAspectTypesAsync();
         }
         catch (DisconnectedException)
         {
