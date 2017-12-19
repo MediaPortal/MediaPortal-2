@@ -116,9 +116,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       return string.Format("{0}", groupKey).Trim();
     }
 
-    public override async Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
-      return null;
+      return Task.FromResult((ICollection<FilterValue>)null);
     }
 
     #endregion

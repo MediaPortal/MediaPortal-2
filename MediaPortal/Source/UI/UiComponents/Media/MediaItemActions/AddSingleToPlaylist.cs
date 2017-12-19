@@ -33,16 +33,18 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
   public class AddSingleToPlaylist : AbstractMediaItemAction
   {
-    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
+    public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
       // We only add all items to playlist for Image and Audio. Other media types are using single item only.
-      return mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID);
+      var result = mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID);
+      return Task.FromResult(result);
     }
 
-    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
+    public override Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
       PlayItemsModel.PlayOrEnqueueItem(mediaItem, false, PlayerContextConcurrencyMode.None);
-      return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
+      AsyncResult<ContentDirectoryMessaging.MediaItemChangeType> result = new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
+      return Task.FromResult(result);
     }
   }
 }

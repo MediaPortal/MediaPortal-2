@@ -38,6 +38,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.TaskScheduler;
 using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -108,9 +109,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       }
     }
 
-    public override async Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
-      return null;
+      return Task.FromResult((ICollection<FilterValue>)null);
     }
 
     #endregion

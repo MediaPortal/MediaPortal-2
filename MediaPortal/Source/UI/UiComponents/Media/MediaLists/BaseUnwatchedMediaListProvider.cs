@@ -33,16 +33,17 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseUnwatchedMediaListProvider : BaseMediaListProvider
   {
-    protected override async Task<MediaItemQuery> CreateQueryAsync()
+    protected override Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      return new MediaItemQuery(_necessaryMias, null)
+      var result = new MediaItemQuery(_necessaryMias, null)
       {
         Filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
           new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
           new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayCountString(0))) : null,
         SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
+      return Task.FromResult(result);
     }
 
     protected override bool ShouldUpdate(UpdateReason updateReason)

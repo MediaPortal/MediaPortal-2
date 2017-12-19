@@ -104,12 +104,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// <summary>
     /// Prepares custom views or initializes specific data, which are not available at construction time (i.e. <see cref="MediaNavigationModel.GetMediaSkinOptionalMIATypes(string)"/>).
     /// </summary>
-    protected virtual async Task PrepareAsync()
+    protected virtual Task PrepareAsync()
     {
       // Read filters from plugin.xml and apply the matching ones
       BuildFilters();
 
       _customRootViewSpecification = null;
+      return Task.CompletedTask;
     }
 
     public virtual void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)

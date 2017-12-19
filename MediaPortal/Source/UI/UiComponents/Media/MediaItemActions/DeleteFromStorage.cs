@@ -66,9 +66,10 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     // TODO: Add to Settings
     protected List<DeleteRule> _defaultRules = new List<DeleteRule>();
 
-    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
+    public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
-      return !IsRecordingItem(mediaItem) && IsResourceDeletor(mediaItem);
+      var result = !IsRecordingItem(mediaItem) && IsResourceDeletor(mediaItem);
+      return Task.FromResult(result);
     }
 
     protected static bool IsResourceDeletor(MediaItem mediaItem)

@@ -36,20 +36,20 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
   {
     protected bool _clearMetadata = false;
 
-    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
+    public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
       try
       {
         if (mediaItem.PrimaryResources.Count > 0 || mediaItem.IsStub)
         {
           var rl = mediaItem.GetResourceLocator();
-          return rl != null;
+          return Task.FromResult(rl != null);
         }
-        return false;
+        return Task.FromResult(false);
       }
       catch (Exception)
       {
-        return false;
+        return Task.FromResult(false);
       }
     }
 
@@ -63,7 +63,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
           return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
 
         var rl = mediaItem.GetResourceLocator();
-        cd.RefreshMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, _clearMetadata);
+        await cd.RefreshMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, _clearMetadata);
         return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
       }
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);

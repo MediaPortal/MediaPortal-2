@@ -35,16 +35,17 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
   {
     public static Guid ACTION_ID_ADD_ALL_TO_PLAYLIST = new Guid("09243059-EE44-460d-8412-2E994CCB5A98");
 
-    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
+    public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
-      return ServiceRegistration.Get<IWorkflowManager>().MenuStateActions.ContainsKey(ACTION_ID_ADD_ALL_TO_PLAYLIST);
+      var result = ServiceRegistration.Get<IWorkflowManager>().MenuStateActions.ContainsKey(ACTION_ID_ADD_ALL_TO_PLAYLIST);
+      return Task.FromResult(result);
     }
 
-    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
+    public override Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
       var result = new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
       result.Success = ServiceRegistration.Get<IWorkflowManager>().TryExecuteAction(ACTION_ID_ADD_ALL_TO_PLAYLIST);
-      return result;
+      return Task.FromResult(result);
     }
   }
 }

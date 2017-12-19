@@ -45,12 +45,13 @@ namespace Test.Common
       await Task.WhenAll(miaTypes.Select(RegisterLocallyKnownMediaItemAspectTypeAsync));
     }
 
-    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
+    public Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
     {
       Console.WriteLine("Registering " + miaType.Name);
       if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
-        return;
+        return Task.CompletedTask;
       _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
+      return Task.CompletedTask;
     }
 
     public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)

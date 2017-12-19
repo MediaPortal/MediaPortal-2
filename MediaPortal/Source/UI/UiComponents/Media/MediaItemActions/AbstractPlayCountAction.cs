@@ -41,15 +41,17 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     protected abstract bool AppliesForPlayCount(int playCount);
     protected abstract int GetNewPlayCount();
 
-    public override async Task<bool> IsAvailableAsync(MediaItem mediaItem)
+    public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
       int playCount = 0;
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
         playCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
       if (!IsManagedByMediaLibrary(mediaItem) || !AppliesForPlayCount(playCount))
-        return false;
+        return Task.FromResult(false);
+
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      return cd != null;
+      var result = cd != null;
+      return Task.FromResult(result);
     }
 
     public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)

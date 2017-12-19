@@ -71,9 +71,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       }
     }
 
-    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
+    public override Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
-      return _mediaItems;
+      IEnumerable<MediaItem> result = _mediaItems;
+      return Task.FromResult(result);
     }
 
     protected override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

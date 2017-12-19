@@ -113,9 +113,10 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return _viewPath.IsValidLocalPath; }
     }
 
-    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
+    public override Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
-      return GetItemsRecursive(BuildView());
+      var result = GetItemsRecursive(BuildView());
+      return Task.FromResult(result);
     }
 
     protected IEnumerable<MediaItem> GetItemsRecursive(View view)

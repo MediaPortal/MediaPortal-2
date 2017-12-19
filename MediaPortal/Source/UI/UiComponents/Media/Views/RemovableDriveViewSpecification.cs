@@ -110,9 +110,10 @@ namespace MediaPortal.UiComponents.Media.Views
       return new RemovableDriveChangeNotificator(_driveInfo.Name);
     }
 
-    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
+    public override Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
-      return _removableDriveHandler.GetAllMediaItems();
+      var result = _removableDriveHandler.GetAllMediaItems();
+      return Task.FromResult(result);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

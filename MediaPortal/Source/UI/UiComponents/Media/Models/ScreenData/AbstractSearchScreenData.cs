@@ -95,9 +95,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       DoSearch();
     }
 
-    protected override async Task<IEnumerable<MediaItem>> GetAllMediaItemsOverride()
+    protected override Task<IEnumerable<MediaItem>> GetAllMediaItemsOverride()
     {
-      return BuildAllItemsView().MediaItems;
+      IEnumerable<MediaItem> result = BuildAllItemsView().MediaItems;
+      return Task.FromResult(result);
     }
 
     void OnSimpleSearchTextChanged(AbstractProperty prop, object oldValue)
