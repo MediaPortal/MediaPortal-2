@@ -338,7 +338,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
       //ServiceRegistration.Get<IThreadPool>().Add(CompleteServerConnection);
-      CompleteServerConnectionAsync();
+      _ = CompleteServerConnectionAsync();
     }
 
     void OnBackendServerDisconnected(DeviceConnection connection)

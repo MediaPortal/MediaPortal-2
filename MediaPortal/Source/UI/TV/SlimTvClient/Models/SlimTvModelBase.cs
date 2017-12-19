@@ -170,13 +170,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
-    public static void TuneChannel(IChannel channel)
+    public static async Task TuneChannel(IChannel channel)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
       if (model != null)
       {
-        model.Tune(channel);
+        await model.Tune(channel);
         // Always switch to fullscreen
         workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
       }

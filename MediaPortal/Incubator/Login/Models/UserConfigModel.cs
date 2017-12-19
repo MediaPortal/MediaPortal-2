@@ -183,12 +183,12 @@ namespace MediaPortal.UiComponents.Login.Models
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
-            UpdateUserLists_NoLock(false);
-            UpdateShareLists_NoLock(false);
+            _ = UpdateUserLists_NoLock(false);
+            _ = UpdateShareLists_NoLock(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-            UpdateUserLists_NoLock(false);
-            UpdateShareLists_NoLock(false);
+            _ = UpdateUserLists_NoLock(false);
+            _ = UpdateShareLists_NoLock(false);
             break;
         }
       }
@@ -198,7 +198,7 @@ namespace MediaPortal.UiComponents.Login.Models
         switch (messageType)
         {
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
-            UpdateShareLists_NoLock(false);
+            _ = UpdateShareLists_NoLock(false);
             break;
         }
       }
@@ -209,7 +209,7 @@ namespace MediaPortal.UiComponents.Login.Models
         {
           case SharesMessaging.MessageType.ShareAdded:
           case SharesMessaging.MessageType.ShareRemoved:
-            UpdateShareLists_NoLock(false);
+            _ = UpdateShareLists_NoLock(false);
             break;
         }
       }
@@ -833,8 +833,8 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       SubscribeToMessages();
       ClearData();
-      UpdateShareLists_NoLock(true);
-      UpdateUserLists_NoLock(true);
+      _ = UpdateShareLists_NoLock(true);
+      _ = UpdateUserLists_NoLock(true);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

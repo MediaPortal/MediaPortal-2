@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
     {
       ChannelProgramListItem item = new ChannelProgramListItem(channel, null)
       {
-        Command = new MethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
+        Command = new AsyncMethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
       };
       item.AdditionalProperties["CHANNEL"] = channel;
       return item;

@@ -801,7 +801,7 @@ namespace MediaPortal.UiComponents.Media.Models
       else if (workflowStateId == Consts.WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM)
       {
         MediaItem item = (MediaItem) context.GetContextVariable(KEY_MEDIA_ITEM, false);
-        CheckResumeMenuInternal(item);
+        _ = CheckResumeMenuInternal(item);
       }
       else if (workflowStateId == Consts.WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM)
       {

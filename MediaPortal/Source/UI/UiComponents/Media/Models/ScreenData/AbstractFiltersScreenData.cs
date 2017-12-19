@@ -148,7 +148,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override void Reload()
     {
       lock (_syncObj)
-        ReloadFilterValuesList(false);
+        _ = ReloadFilterValuesList(false);
     }
 
     public override void UpdateItems()
@@ -159,7 +159,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override void CreateScreenData(NavigationData navigationData)
     {
       base.CreateScreenData(navigationData);
-      ReloadFilterValuesList(true);
+      _ = ReloadFilterValuesList(true);
       SubscribeToMessages();
     }
 
@@ -345,7 +345,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       {
         lock (_syncObj)
           _buildingList = false;
-        ReloadFilterValuesList(createNewList);
+        _ = ReloadFilterValuesList(createNewList);
       }
       else
       {

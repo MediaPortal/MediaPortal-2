@@ -442,11 +442,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
-    public bool TuneByIndex(int channelIndex)
+    public async Task<bool> TuneByIndex(int channelIndex)
     {
       if (channelIndex >= ChannelContext.Instance.Channels.Count)
         return false;
-      Tune(ChannelContext.Instance.Channels[channelIndex]);
+      await Tune(ChannelContext.Instance.Channels[channelIndex]);
       return true;
     }
 
@@ -478,7 +478,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _zapChannelIndex = 0;
 
       // Update watch info
-      UpdateWatchDuration(_lastTunedChannel);
+      _ = UpdateWatchDuration(_lastTunedChannel);
 
       BeginZap();
       if (await _tvHandler.StartTimeshiftAsync(SlotIndex, channel))
@@ -661,7 +661,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!ChannelContext.IsSameChannel(ChannelContext.Instance.Channels[_zapChannelIndex], _lastTunedChannel))
       {
         ChannelContext.Instance.Channels.SetIndex(_zapChannelIndex);
-        Tune(ChannelContext.Instance.Channels[_zapChannelIndex]);
+        _ = Tune(ChannelContext.Instance.Channels[_zapChannelIndex]);
       }
       // When not zapped the previous channel information is restored during the next Update() call
     }
@@ -796,7 +796,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                 if (playerContext != null && playerContext.CurrentMediaItem is LiveTvMediaItem ltvi)
                 {
                   if (ltvi.AdditionalProperties.ContainsKey(LiveTvMediaItem.CHANNEL))
-                    UpdateWatchDuration((IChannel)ltvi.AdditionalProperties[LiveTvMediaItem.CHANNEL]);
+                    _ = UpdateWatchDuration((IChannel)ltvi.AdditionalProperties[LiveTvMediaItem.CHANNEL]);
                   playerContext.Stop();
                   _tvWasActive = true;
                 }
@@ -825,7 +825,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           case PlayerManagerMessaging.MessageType.PlayerEnded:
             if (_lastTunedChannel != null)
             {
-                UpdateWatchDuration(_lastTunedChannel);
+              _ = UpdateWatchDuration(_lastTunedChannel);
             }
             break;
         }
@@ -837,7 +837,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       var shouldAutoTune = _tvWasActive && ShouldAutoTune();
       ServiceRegistration.Get<ILogger>().Info("SlimTvClientModel: System resuming, autotune: {0}", shouldAutoTune);
       if (shouldAutoTune)
-        AutoTuneLastChannel();
+        _ = AutoTuneLastChannel();
 
       _tvWasActive = false;
     }
@@ -1087,24 +1087,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void OnCurrentGroupChanged(int oldindex, int newindex)
     {
       base.OnCurrentGroupChanged(oldindex, newindex);
-      UpdateChannels();
+      _ = UpdateChannels();
     }
 
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       base.EnterModelContext(oldContext, newContext);
-      UpdateChannels();
+      UpdateChannels().Wait();
 
       if (!ShouldAutoTune())
         return;
 
-      AutoTuneLastChannel();
+      _ = AutoTuneLastChannel();
     }
 
     public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       base.Reactivate(oldContext, newContext);
-      UpdateChannels();
+      _ = UpdateChannels();
     }
 
     #endregion

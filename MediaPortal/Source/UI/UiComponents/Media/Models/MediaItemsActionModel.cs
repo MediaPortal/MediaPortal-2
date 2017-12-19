@@ -104,7 +104,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (confirmation != null)
         ShowConfirmation(confirmation, mediaItem);
       else
-        InvokeAction(action, mediaItem);
+        _ = InvokeAction(action, mediaItem);
     }
 
     protected void ShowConfirmation(IMediaItemActionConfirmation confirmation, MediaItem mediaItem)

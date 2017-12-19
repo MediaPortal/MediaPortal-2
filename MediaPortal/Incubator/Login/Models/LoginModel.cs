@@ -198,12 +198,12 @@ namespace MediaPortal.UiComponents.Login.Models
         ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
           (string name, Guid id) =>
           {
-            LoginUser(_passwordUser, UserPassword);
+            _ = LoginUser(_passwordUser, UserPassword);
           });
       }
       else
       {
-        LoginUser(_passwordUser, UserPassword);
+        _ = LoginUser(_passwordUser, UserPassword);
       }
     }
 
@@ -230,12 +230,12 @@ namespace MediaPortal.UiComponents.Login.Models
         ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogEnterPassword",
           (string name, Guid id) =>
           {
-            SetAutoLoginUser(_passwordUser, UserPassword);
+            _ = SetAutoLoginUser(_passwordUser, UserPassword);
           });
       }
       else
       {
-        SetAutoLoginUser(_passwordUser, UserPassword);
+        _ = SetAutoLoginUser(_passwordUser, UserPassword);
       }
     }
 
@@ -265,7 +265,7 @@ namespace MediaPortal.UiComponents.Login.Models
       //Logout user and return to home screen
       if (IsUserLoggedIn)
       {
-        SetCurrentUser(null);
+        SetCurrentUser(null).Wait();
         ShowHomeScreen(true); //Force home screen and clear history
         if (UserSettingStorage.UserLoginScreenEnabled)
           ShowLoginScreen();
@@ -291,7 +291,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
       // Client login retry
       if (CurrentUser == UserManagement.UNKNOWN_USER)
-        SetCurrentUser();
+        SetCurrentUser().Wait();
 
       // Update user
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
@@ -375,9 +375,9 @@ namespace MediaPortal.UiComponents.Login.Models
         switch (messageType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
-            SetCurrentUser();
+            _ = SetCurrentUser();
 
-            RefreshUserList();
+            _ = RefreshUserList();
             break;
         }
       }
@@ -558,7 +558,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      RefreshUserList();
+      _ = RefreshUserList();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

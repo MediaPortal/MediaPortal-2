@@ -69,7 +69,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       ChannelGroups = new NavigationList<IChannelGroup>();
       Channels = new NavigationList<IChannel>();
       ChannelGroups.OnCurrentChanged += ReloadChannels;
-      InitChannelGroups();
+      InitChannelGroups().Wait();
     }
 
     public async Task InitChannelGroups()

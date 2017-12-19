@@ -165,7 +165,7 @@ namespace MediaPortal.UI.Services.Players
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             IResumeState resumeState = (IResumeState) message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
             MediaItem mediaItem = (MediaItem) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM];
-            HandleResumeInfo(psc, mediaItem, resumeState);
+            HandleResumeInfo(psc, mediaItem, resumeState).Wait();
             break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:

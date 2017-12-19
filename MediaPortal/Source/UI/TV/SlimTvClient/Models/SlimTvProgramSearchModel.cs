@@ -121,7 +121,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public void RecordSingleProgram(IProgram program)
     {
-      CreateOrDeleteSchedule(program);
+      _ = CreateOrDeleteSchedule(program);
     }
 
     public void RecordSeries(IProgram program)
@@ -161,7 +161,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ProgramSearchTextChanged(AbstractProperty property, object oldvalue)
     {
-      UpdatePrograms();
+      _ = UpdatePrograms();
     }
 
     private void InitSeriesTypeList(IProgram program)

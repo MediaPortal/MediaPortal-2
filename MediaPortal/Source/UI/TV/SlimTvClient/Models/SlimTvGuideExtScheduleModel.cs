@@ -137,7 +137,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public void RecordSingleProgram()
     {
-      CreateOrDeleteSchedule(_selectedProgram);
+      _ = CreateOrDeleteSchedule(_selectedProgram);
     }
 
     public void RecordSeries()
@@ -427,7 +427,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_SCHEDULE, out scheduleObject))
         {
           _selectedSchedule = (ISchedule)scheduleObject;
-          UpdateProgramsForSchedule();
+          _ = UpdateProgramsForSchedule();
         }
       }
     }

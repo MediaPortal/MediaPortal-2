@@ -151,7 +151,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
             UpdateProperties_NoLock();
-            UpdateSharesLists_NoLock(false);
+            _ = UpdateSharesLists_NoLock(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
             if (_shareProxy is ServerShares)
@@ -160,7 +160,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             else
             {
               UpdateProperties_NoLock();
-              UpdateSharesLists_NoLock(false);
+              _ = UpdateSharesLists_NoLock(false);
             }
             break;
         }
@@ -172,7 +172,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
             UpdateProperties_NoLock();
-            UpdateSharesLists_NoLock(false);
+            _ = UpdateSharesLists_NoLock(false);
             break;
         }
       }
@@ -184,7 +184,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           case SharesMessaging.MessageType.ShareAdded:
           case SharesMessaging.MessageType.ShareRemoved:
             UpdateProperties_NoLock();
-            UpdateSharesLists_NoLock(false);
+            _ = UpdateSharesLists_NoLock(false);
             break;
         }
       }
@@ -839,7 +839,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         if (workflowState == Consts.WF_STATE_ID_SHARES_OVERVIEW)
         {
-          UpdateSharesLists_NoLock(true);
+          _ = UpdateSharesLists_NoLock(true);
         }
         else if (!push)
         {
@@ -849,7 +849,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
         if (workflowState == Consts.WF_STATE_ID_SHARES_REMOVE)
         {
-          UpdateSharesLists_NoLock(push);
+          _ = UpdateSharesLists_NoLock(push);
         }
         else if (workflowState == Consts.WF_STATE_ID_SHARE_INFO)
         {

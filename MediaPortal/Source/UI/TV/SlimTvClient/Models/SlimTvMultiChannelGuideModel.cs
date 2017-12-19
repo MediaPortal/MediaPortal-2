@@ -167,7 +167,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void Scroll(TimeSpan difference)
     {
       GuideStartTime = GuideStartTime + difference;
-      UpdatePrograms();
+      _ = UpdatePrograms();
     }
 
     #endregion
@@ -295,7 +295,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
 
       if (settings.ZapFromGuide && isRunning)
-        TuneChannelByProgram(program);
+        _ = TuneChannelByProgram(program);
       else
         base.ShowProgramActions(program);
     }
@@ -445,7 +445,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.OnCurrentGroupChanged(oldindex, newindex);
       UpdateChannels();
-      UpdatePrograms();
+      _ = UpdatePrograms();
       // Notify listeners about group change
       SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
     }
@@ -476,7 +476,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (timeChanged || _bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex)
       {
         UpdateChannels();
-        UpdatePrograms();
+        _ = UpdatePrograms();
       }
     }
 
@@ -486,7 +486,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // Init viewport to start with current time.
       SetCurrentViewTime();
       UpdateChannels();
-      UpdatePrograms();
+      _ = UpdatePrograms();
     }
 
     #endregion

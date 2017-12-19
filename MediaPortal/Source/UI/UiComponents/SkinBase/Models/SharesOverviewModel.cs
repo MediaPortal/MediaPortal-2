@@ -117,7 +117,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
           case ServerConnectionMessaging.MessageType.ClientsOnlineStateChanged:
             UpdateProperties_NoLock();
-            UpdateSharesList_NoLock(false);
+            _ = UpdateSharesList_NoLock(false);
             break;
         }
       }
@@ -127,7 +127,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         switch (messageType)
         {
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
-            UpdateSharesList_NoLock(false);
+            _ = UpdateSharesList_NoLock(false);
             break;
           case ContentDirectoryMessaging.MessageType.ShareImportStarted:
           case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
@@ -352,7 +352,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (workflowState == Consts.WF_STATE_ID_IMPORT_OVERVIEW)
       {
         UpdateProperties_NoLock();
-        UpdateSharesList_NoLock(true);
+        _ = UpdateSharesList_NoLock(true);
       }
     }
 

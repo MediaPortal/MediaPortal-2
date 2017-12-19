@@ -384,7 +384,7 @@ namespace MediaPortal.UiComponents.Utilities.Models
         return;
       }
       IList<string> mediaFiles = M3U.ExtractFileNamesFromPlaylist(importFile);
-      RunImportOperationAsync(cd, mediaFiles);
+      _ = RunImportOperationAsync(cd, mediaFiles);
     }
 
     #endregion

@@ -178,7 +178,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void OnChannelGroupChanged(AbstractProperty property, object oldValue)
     {
-      InitChannels(ChannelGroup);
+      InitChannels(ChannelGroup).Wait();
       UpdateIsScheduleValid();
     }
 

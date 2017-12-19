@@ -155,7 +155,7 @@ namespace MediaPortal.UI.Players.BassPlayer
       lock (_syncObj)
         if (_externalState != PlayerState.Active)
           return;
-      NotifyPlayback();
+      _ = NotifyPlayback();
       // Just make MP come up with the next item on its playlist
       FireNextItemRequest();
     }
@@ -319,7 +319,7 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public void Stop()
     {
-      NotifyPlayback();
+      _ = NotifyPlayback();
       lock (_syncObj)
       {
         if (_externalState != PlayerState.Active)

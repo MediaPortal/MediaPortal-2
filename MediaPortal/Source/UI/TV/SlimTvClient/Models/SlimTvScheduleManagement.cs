@@ -257,7 +257,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ToggleSeriesMode(AbstractProperty property, object oldvalue)
     {
-      LoadSchedules();
+      _ = LoadSchedules();
     }
 
     protected async Task LoadSchedules()
@@ -490,13 +490,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       base.Reactivate(oldContext, newContext);
-      LoadSchedules();
+      _ = LoadSchedules();
     }
 
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       base.EnterModelContext(oldContext, newContext);
-      LoadSchedules();
+      _ = LoadSchedules();
     }
 
     public override Guid ModelId

@@ -316,7 +316,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
             TraktLogger.Info("Marking movie as unwatched in local database, movie is not watched on trakt.tv. Title = '{0}', Year = '{1}', IMDb ID = '{2}', TMDb ID = '{3}'",
               movie.Title, movie.Year.HasValue ? movie.Year.ToString() : "<empty>", movie.Ids.Imdb ?? "<empty>", movie.Ids.Tmdb.HasValue ? movie.Ids.Tmdb.ToString() : "<empty>");
 
-            MarkAsUnWatched(localMovie);
+            MarkAsUnWatched(localMovie).Wait();
           }
           // update watched set
           watchedMovies = collectedMovies.Where(IsWatched).ToList();
@@ -339,7 +339,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
             TraktLogger.Info("Updating local movie watched state / play count to match trakt.tv. Plays = '{0}', Title = '{1}', Year = '{2}', IMDb ID = '{3}', TMDb ID = '{4}'",
                               twm.Plays, twm.Movie.Title, twm.Movie.Year.HasValue ? twm.Movie.Year.ToString() : "<empty>", twm.Movie.Ids.Imdb ?? "<empty>", twm.Movie.Ids.Tmdb.HasValue ? twm.Movie.Ids.Tmdb.ToString() : "<empty>");
 
-            MarkAsWatched(localMovie);
+            MarkAsWatched(localMovie).Wait();
           }
         }
 
@@ -668,7 +668,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                 TraktLogger.Info("Marking episode as unwatched in local database, episode is not watched on trakt.tv. Title = '{0}', Year = '{1}', Season = '{2}', Episode = '{3}', Show TVDb ID = '{4}', Show IMDb ID = '{5}'",
                   episode.ShowTitle, episode.ShowYear.HasValue ? episode.ShowYear.ToString() : "<empty>", episode.Season, episode.Number, episode.ShowTvdbId.HasValue ? episode.ShowTvdbId.ToString() : "<empty>", episode.ShowImdbId ?? "<empty>");
 
-                MarkAsUnWatched(watchedEpisode);
+                MarkAsUnWatched(watchedEpisode).Wait();
 
                 // update watched episodes
                 localWatchedEpisodes.Remove(watchedEpisode);
@@ -696,7 +696,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                 TraktLogger.Info("Marking episode as watched in local database, episode is watched on trakt.tv. Plays = '{0}', Title = '{1}', Year = '{2}', Season = '{3}', Episode = '{4}', Show TVDb ID = '{5}', Show IMDb ID = '{6}', Last Watched = '{7}'",
                     traktEpisode.Plays, traktEpisode.ShowTitle, traktEpisode.ShowYear.HasValue ? traktEpisode.ShowYear.ToString() : "<empty>", traktEpisode.Season, traktEpisode.Number, traktEpisode.ShowTvdbId.HasValue ? traktEpisode.ShowTvdbId.ToString() : "<empty>", traktEpisode.ShowImdbId ?? "<empty>", traktEpisode.WatchedAt);
 
-                MarkAsWatched(episode);
+                MarkAsWatched(episode).Wait();
               }
             }
           }

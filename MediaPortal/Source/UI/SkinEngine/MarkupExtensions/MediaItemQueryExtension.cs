@@ -123,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected void OnPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (_active)
-        UpdateAsync();
+        _ = UpdateAsync();
     }
 
     #endregion
@@ -227,7 +227,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         return;
       base.Activate();
       //State may already be valid so try a query now
-      UpdateAsync();
+      _ = UpdateAsync();
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
