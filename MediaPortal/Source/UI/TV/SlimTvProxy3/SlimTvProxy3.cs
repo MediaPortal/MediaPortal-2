@@ -728,6 +728,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return recording != null;
     }
 
+    private static bool GetRecording(string filename, out Recording recording)
+    {
+      recording = Recording.ListAll().FirstOrDefault(r => r.IsRecording && string.Equals(r.FileName, filename, StringComparison.OrdinalIgnoreCase));
+      return recording != null;
+    }
+
     protected override string SwitchTVServerToChannel(string userName, int channelId)
     {
       if (String.IsNullOrEmpty(userName))
@@ -775,6 +781,17 @@ namespace MediaPortal.Plugins.SlimTv.Service
         _tvUsers.Add(userName, new User(userName, false));
 
       return _tvUsers[userName];
+    }
+
+    public override bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
+    {
+      Recording recording;
+      schedule = null;
+      if (!GetRecording(fileName, out recording) || recording.Idschedule <= 0)
+        return false;
+
+      schedule = TvDatabase.Schedule.ListAll().FirstOrDefault(s => s.IdSchedule == recording.Idschedule).ToSchedule();
+      return schedule != null;
     }
 
     #endregion
