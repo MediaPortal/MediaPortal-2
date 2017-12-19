@@ -33,6 +33,7 @@
   <string name="SlimTvClient.DeleteSchedule">Delete schedule</string>
   <string name="SlimTvClient.CreateSchedule">Schedule recording</string>
   <string name="SlimTvClient.CreateManualSchedule">Schedule recording manually</string>
+  <string name="SlimTvClient.DeleteRecording.Confirmation">Are you sure that you want to cancel and delete the recording? This cannot be undone.</string>
 
   <string name="SlimTvClient.ProgramSearch">Search programs</string>
   <string name="SlimTvClient.ProgramSearch.Help">Search for program titles in the EPG and find your desired shows</string>

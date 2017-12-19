@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">Nyheter</string>
+  <string name="News.Title.Help">Les dine favoritt nyhetssider.</string>
   <string name="News.FeedsStateDisplayLabel">Nyheter</string>
   <string name="News.Published">Publisert</string>
   <string name="News.ConfiguredFeeds">Konfigurer strømmen</string>
