@@ -302,20 +302,20 @@ namespace MediaPortal.Common.SystemCommunication
     /// Returns the ids and names of all playlists that are stored at the server.
     /// </summary>
     /// <returns>Collection of playlist data.</returns>
-    ICollection<PlaylistInformationData> GetPlaylists();
+    Task<ICollection<PlaylistInformationData>> GetPlaylistsAsync();
 
     /// <summary>
     /// Saves a playlist at the server.
     /// </summary>
     /// <param name="playlistData">Raw data of the playlist to store.</param>
-    void SavePlaylist(PlaylistRawData playlistData);
+    Task SavePlaylistAsync(PlaylistRawData playlistData);
 
     /// <summary>
     /// Deletes a playlist at the server.
     /// </summary>
     /// <param name="playlistId">Id of the playlist to delete.</param>
     /// <returns><c>true</c>, if the playlist could successfully be deleted, else <c>false</c>.</returns>
-    bool DeletePlaylist(Guid playlistId);
+    Task<bool> DeletePlaylistAsync(Guid playlistId);
 
     /// <summary>
     /// Loads the raw data of a server-side playlist.
@@ -323,7 +323,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="playlistId">Id of the playlist to load.</param>
     /// <returns>Raw playlist data of the requested playlist or <c>null</c>, if there is no playlist with the
     /// given <paramref name="playlistId"/>.</returns>
-    PlaylistRawData ExportPlaylist(Guid playlistId);
+    Task<PlaylistRawData> ExportPlaylistAsync(Guid playlistId);
 
     /// <summary>
     /// Loads a client-side playlist.
@@ -334,7 +334,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of media items matching the given <paramref name="mediaItemIds"/> and <paramref name="necessaryMIATypes"/>.</returns>
-    IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
+    Task<IList<MediaItem>> LoadCustomPlaylistAsync(IList<Guid> mediaItemIds,
         ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes, uint? offset = null, uint? limit = null);
 
     #endregion
@@ -351,7 +351,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="path">Path of the media item to be added or updated.</param>
     /// <param name="mediaItemAspects">Enumeration of media item aspects to be assigned to the media item.</param>
     /// <returns>Id of the added or updated media item.</returns>
-    Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
+    Task<Guid> AddOrUpdateMediaItemAsync(Guid parentDirectoryId, string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects);
 
     /// <summary>
@@ -363,7 +363,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="mediaItemId">Id of the media item to be added or updated.</param>
     /// <param name="mediaItemAspects">Enumeration of media item aspects to be assigned to the media item.</param>
     /// <returns>Id of the added or updated media item.</returns>
-    Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
+    Task<Guid> AddOrUpdateMediaItemAsync(Guid parentDirectoryId, string systemId, ResourcePath path,
         Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects);
 
     /// <summary>
@@ -375,25 +375,25 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="path">Path to be deleted. All items whose path starts with this path are deleted.</param>
     /// <param name="inclusive">If set to <c>true</c>, the media item with the given <paramref name="path"/> is deleted too, else,
     /// only the children of the <paramref name="path"/> are deleted.</param>
-    void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive);
+    Task DeleteMediaItemOrPathAsync(string systemId, ResourcePath path, bool inclusive);
 
     /// <summary>
     /// Notifies the content directory about a start of a share import which is done by an MP2 client.
     /// </summary>
     /// <param name="shareId">Id of the share which is being imported.</param>
-    void ClientStartedShareImport(Guid shareId);
+    Task ClientStartedShareImportAsync(Guid shareId);
 
     /// <summary>
     /// Notifies the content directory about the completion of a share import which was done by an MP2 client.
     /// </summary>
     /// <param name="shareId">Id of the share which has been imported.</param>
-    void ClientCompletedShareImport(Guid shareId);
+    Task ClientCompletedShareImportAsync(Guid shareId);
 
     /// <summary>
     /// Returns all shares which are marked as currently being imported.
     /// </summary>
     /// <returns>Collection of share ids.</returns>
-    ICollection<Guid> GetCurrentlyImportingShares();
+    Task<ICollection<Guid>> GetCurrentlyImportingSharesAsync();
 
     #endregion
 

@@ -230,7 +230,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           else
             systems2Shares[share.SystemId] = new List<Share> { share };
         }
-        ICollection<Guid> importingShares = cd.GetCurrentlyImportingShares() ?? new List<Guid>();
+        ICollection<Guid> importingShares = await cd.GetCurrentlyImportingSharesAsync() ?? new List<Guid>();
         ICollection<string> onlineSystems = sc.GetConnectedClients();
         onlineSystems = onlineSystems == null ? new List<string> { scm.HomeServerSystemId } : new List<string>(onlineSystems) { scm.HomeServerSystemId };
         foreach (KeyValuePair<string, ICollection<Share>> system2Shares in systems2Shares)

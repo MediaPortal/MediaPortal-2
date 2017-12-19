@@ -136,7 +136,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       {
         try
         {
-          return _contentDirectory.AddOrUpdateMediaItem(parentDirectoryId, _localSystemId, path, updatedAspects);
+          return _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, updatedAspects).Result;
         }
         catch (Exception)
         {
@@ -148,7 +148,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       {
         try
         {
-          return _contentDirectory.AddOrUpdateMediaItem(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects);
+          return _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects).Result;
         }
         catch (Exception)
         {
@@ -160,7 +160,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       {
         try
         {
-          _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, true);
+          _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, true);
         }
         catch (Exception)
         {
@@ -172,7 +172,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       {
         try
         {
-          _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, false);
+          _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, false);
         }
         catch (Exception)
         {
@@ -288,9 +288,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
             if (share == null)
               break;
             if (messageType == ImporterWorkerMessaging.MessageType.ImportStarted)
-              cd.ClientStartedShareImport(share.ShareId);
+              cd.ClientStartedShareImportAsync(share.ShareId);
             else
-              cd.ClientCompletedShareImport(share.ShareId);
+              cd.ClientCompletedShareImportAsync(share.ShareId);
             break;
         }
       }

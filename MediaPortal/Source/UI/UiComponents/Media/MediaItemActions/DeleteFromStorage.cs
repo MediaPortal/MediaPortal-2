@@ -121,8 +121,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
           // If the MediaItem was loaded from ML, remove it there as well.
           if (removeFromML)
           {
-            // TODO: make async
-            cd.DeleteMediaItemOrPath(rl.NativeSystemId, rl.NativeResourcePath, true);
+            await cd.DeleteMediaItemOrPathAsync(rl.NativeSystemId, rl.NativeResourcePath, true);
           }
         }
       }
