@@ -293,7 +293,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _mediaBrowsingCallback.LoadLocalItem(path, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
+          return await _mediaBrowsingCallback.LoadLocalItemAsync(path, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
@@ -312,7 +312,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _mediaBrowsingCallback.LoadLocalItem(mediaItemId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
+          return await _mediaBrowsingCallback.LoadLocalItemAsync(mediaItemId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
@@ -331,7 +331,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _mediaBrowsingCallback.Browse(parentDirectoryId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds, null, false);
+          return await _mediaBrowsingCallback.BrowseAsync(parentDirectoryId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds, null, false);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)

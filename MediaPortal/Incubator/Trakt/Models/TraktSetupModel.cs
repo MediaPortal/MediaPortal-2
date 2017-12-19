@@ -291,7 +291,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
         #region Get local database info
 
-        var collectedMovies = contentDirectory.Search(new MediaItemQuery(types, null, null), true, userProfile, false);
+        var collectedMovies = contentDirectory.SearchAsync(new MediaItemQuery(types, null, null), true, userProfile, false).Result;
 
         TraktLogger.Info("Found {0} movies available to sync in local database", collectedMovies.Count);
 
@@ -637,7 +637,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
           #region Get data from local database
 
-          var localEpisodes = contentDirectory.Search(new MediaItemQuery(types, null, null), true, userProfile, false);
+          var localEpisodes = contentDirectory.SearchAsync(new MediaItemQuery(types, null, null), true, userProfile, false).Result;
           int episodeCount = localEpisodes.Count;
 
           TraktLogger.Info("Found {0} total episodes in local database", episodeCount);

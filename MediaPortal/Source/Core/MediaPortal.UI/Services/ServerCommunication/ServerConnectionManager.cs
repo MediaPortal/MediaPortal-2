@@ -36,7 +36,6 @@ using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
-using MediaPortal.Common.Threading;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.ServerCommunication.Settings;
 using MediaPortal.UI.Shares;
@@ -67,12 +66,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       #region IMediaBrowsing implementation
 
-      public MediaItem LoadLocalItem(ResourcePath path,
+      public async Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
       {
         try
         {
-          return _contentDirectory.LoadItem(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
+          return await _contentDirectory.LoadItemAsync(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
         }
         catch (Exception)
         {
@@ -80,11 +79,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public MediaItem LoadLocalItem(Guid mediaItemId, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
+      public async Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
       {
         try
         {
-          return _contentDirectory.LoadItem(_localSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
+          return await _contentDirectory.LoadItemAsync(_localSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
         }
         catch (Exception)
         {
@@ -92,12 +91,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public IList<MediaItem> Browse(Guid parentDirectoryId,
+      public async Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _contentDirectory.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile, includVirtual, offset, limit);
+          return await _contentDirectory.BrowseAsync(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile, includVirtual, offset, limit);
         }
         catch (Exception)
         {

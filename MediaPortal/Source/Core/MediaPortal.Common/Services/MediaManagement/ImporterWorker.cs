@@ -419,7 +419,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         IMediaBrowsing mediaBrowsing, IImportResultHandler resultHandler)
     {
       ResourcePath directoryPath = directoryAccessor.CanonicalLocalResourcePath;
-      MediaItem directoryItem = mediaBrowsing.LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
+      MediaItem directoryItem = mediaBrowsing.LoadLocalItemAsync(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION).Result;
       if (directoryItem != null)
       {
         SingleMediaItemAspect da;
@@ -481,8 +481,8 @@ namespace MediaPortal.Common.Services.MediaManagement
         IDictionary<string, MediaItem> path2Item = new Dictionary<string, MediaItem>();
         if (importJob.JobType == ImportJobType.Refresh)
         {
-          foreach (MediaItem mediaItem in mediaBrowsing.Browse(directoryId,
-              IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION, null, false))
+          foreach (MediaItem mediaItem in mediaBrowsing.BrowseAsync(directoryId,
+              IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION, null, false).Result)
           {
             IList<MultipleMediaItemAspect> providerResourceAspects;
             if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspects))

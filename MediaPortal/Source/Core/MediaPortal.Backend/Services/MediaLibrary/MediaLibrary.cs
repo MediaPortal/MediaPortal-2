@@ -72,7 +72,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public MediaItem LoadLocalItem(ResourcePath path,
+      public async Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
@@ -85,7 +85,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public MediaItem LoadLocalItem(Guid mediaItemId,
+      public async Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
@@ -98,7 +98,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public IList<MediaItem> Browse(Guid parentDirectoryId,
+      public async Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId,
           bool includeVirtual, uint? offset = null, uint? limit = null)
       {

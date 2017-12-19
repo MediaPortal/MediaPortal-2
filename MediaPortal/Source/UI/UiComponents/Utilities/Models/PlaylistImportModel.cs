@@ -184,8 +184,8 @@ namespace MediaPortal.UiComponents.Utilities.Models
             if (IsCancelled)
               return null;
             CheckUpdateScreenData();
-            MediaItem item = cd.LoadItem(systemId, LocalFsResourceProviderBase.ToResourcePath(localMediaFile), 
-              necessaryAudioAspectIds, optionalAudioAspectIds, userProfile);
+            MediaItem item = cd.LoadItemAsync(systemId, LocalFsResourceProviderBase.ToResourcePath(localMediaFile), 
+              necessaryAudioAspectIds, optionalAudioAspectIds, userProfile).Result;
             NumProcessed++;
             if (item == null)
             {

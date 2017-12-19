@@ -63,7 +63,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
           return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
 
         var rl = mediaItem.GetResourceLocator();
-        cd.RefreshMediaItemMetadata(rl.NativeSystemId, mediaItem.MediaItemId, _clearMetadata);
+        cd.RefreshMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, _clearMetadata);
         return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
       }
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);

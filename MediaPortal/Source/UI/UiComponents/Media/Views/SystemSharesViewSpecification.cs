@@ -111,7 +111,7 @@ namespace MediaPortal.UiComponents.Media.Views
         // Check if we want to filter only for given MediaCategories
         if (_restrictedMediaCategories != null && !share.MediaCategories.Intersect(_restrictedMediaCategories).Any())
           continue;
-        MediaItem parentDirectory = cd.LoadItem(share.SystemId, share.BaseResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile);
+        MediaItem parentDirectory = cd.LoadItemAsync(share.SystemId, share.BaseResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile).Result;
         if (parentDirectory == null)
           continue;
         IList<MultipleMediaItemAspect> pras = null;

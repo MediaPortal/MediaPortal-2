@@ -103,7 +103,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
           filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
               new RelationalFilter(StubAspect.ATTR_DISC_NAME, RelationalOperator.EQ, driveInfo.VolumeLabel),
               new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true));
-          existingItems = cd.Search(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, false);
+          existingItems = cd.SearchAsync(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, false).Result;
           foreach (var mediaItem in mediaItems.Where(mi => mi.MediaItemId == Guid.Empty))
           {
             MediaItem match = null;
@@ -194,7 +194,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
                 List<Guid> necessaryAspects = Consts.NECESSARY_BROWSING_MIAS.Union(mergeHandler.MergeableAspects).ToList();
                 if (!necessaryAspects.Contains(ExternalIdentifierAspect.ASPECT_ID))
                   necessaryAspects.Add(ExternalIdentifierAspect.ASPECT_ID);
-                existingItems = cd.Search(new MediaItemQuery(necessaryAspects, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, false);
+                existingItems = cd.SearchAsync(new MediaItemQuery(necessaryAspects, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, false).Result;
                 bool merged = false;
                 if (existingItems.Count == 1)
                 {
@@ -239,7 +239,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
               filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
               new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, album),
               new RelationalFilter(MediaAspect.ATTR_ISSTUB, RelationalOperator.EQ, true));
-              existingItems = cd.Search(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, false);
+              existingItems = cd.SearchAsync(new MediaItemQuery(Consts.NECESSARY_BROWSING_MIAS, Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS, filter), false, userProfile, false).Result;
               foreach (var existingItem in existingItems)
               {
                 int miNo = 0;

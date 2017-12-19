@@ -263,7 +263,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     #region Media query
 
-    public MediaItem LoadItem(string systemId, ResourcePath path,
+    public async Task<MediaItem> LoadItemAsync(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile)
     {
       CpAction action = GetAction("X_MediaPortal_LoadItem");
@@ -271,11 +271,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
           MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
           MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
           userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (MediaItem) outParameters[0];
     }
 
-    public MediaItem LoadItem(string systemId, Guid mediaItemId,
+    public async Task<MediaItem> LoadItemAsync(string systemId, Guid mediaItemId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile)
     {
       CpAction action = GetAction("X_MediaPortal_LoadItemId");
@@ -283,18 +283,18 @@ namespace MediaPortal.Common.Services.ServerCommunication
           MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
           MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
           userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (MediaItem)outParameters[0];
     }
 
-    public void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata)
+    public async Task RefreshMediaItemMetadataAsync(string systemId, Guid mediaItemId, bool clearMetadata)
     {
       CpAction action = GetAction("X_MediaPortal_RefreshMediaItem");
       IList<object> inParameters = new List<object> { systemId, MarshallingHelper.SerializeGuid(mediaItemId), clearMetadata };
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public IList<MediaItem> Browse(Guid parentDirectoryId,
+    public async Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
@@ -309,14 +309,8 @@ namespace MediaPortal.Common.Services.ServerCommunication
         offset,
         limit,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MediaItem>)outParameters[0];
-    }
-
-    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual,
-      uint? offset = null, uint? limit = null)
-    {
-      return SearchAsync(query, onlyOnline, userProfile, includeVirtual, offset, limit).Result;
     }
 
     public async Task<IList<MediaItem>> SearchAsync(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual,  uint? offset = null, uint? limit = null)
@@ -336,7 +330,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (IList<MediaItem>) outParameters[0];
     }
 
-    public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+    public async Task<IList<MediaItem>> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
       IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
       Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
@@ -358,14 +352,8 @@ namespace MediaPortal.Common.Services.ServerCommunication
         offset,
         limit,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MediaItem>)outParameters[0];
-    }
-
-    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
-      ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
-    {
-      return GetValueGroupsAsync(attributeType, selectAttributeFilter, projectionFunction, necessaryMIATypes, filter, onlyOnline, includeVirtual).Result;
     }
 
     public async Task<HomogenousMap> GetValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
@@ -389,12 +377,6 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (HomogenousMap) outParameters[0];
     }
 
-    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
-      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
-    {
-      return GetKeyValueGroupsAsync(keyAttributeType, valueAttributeType, selectAttributeFilter, projectionFunction, necessaryMIATypes, filter, onlyOnline, includeVirtual).Result;
-    }
-
     public async Task<Tuple<HomogenousMap, HomogenousMap>> GetKeyValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
       IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
     {
@@ -416,13 +398,6 @@ namespace MediaPortal.Common.Services.ServerCommunication
       };
       IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
       return new Tuple<HomogenousMap, HomogenousMap>((HomogenousMap)outParameters[0], (HomogenousMap)outParameters[1]);
-    }
-
-    public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
-        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual)
-    {
-      return GroupValueGroupsAsync(attributeType, selectAttributeFilter, projectionFunction, necessaryMIATypes, filter, onlyOnline, groupingFunction, includeVirtual).Result;
     }
 
     public async Task<IList<MLQueryResultGroup>> GroupValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType,
@@ -454,11 +429,6 @@ namespace MediaPortal.Common.Services.ServerCommunication
       };
       IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
       return (IList<MLQueryResultGroup>) outParameters[0];
-    }
-
-    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
-    {
-      return CountMediaItemsAsync(necessaryMIATypes, filter, onlyOnline, includeVirtual).Result;
     }
 
     public async Task<int> CountMediaItemsAsync(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)

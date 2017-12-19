@@ -164,8 +164,8 @@ namespace MediaPortal.UiComponents.Media.Views
       try
       {
         bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
-        mediaItems = new List<MediaItem>(cd.Browse(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, showVirtual));
-        ICollection<MediaItem> childDirectories = cd.Browse(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, showVirtual);
+        mediaItems = new List<MediaItem>(cd.BrowseAsync(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, showVirtual).Result);
+        ICollection<MediaItem> childDirectories = cd.BrowseAsync(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, showVirtual).Result;
         subViewSpecifications = new List<ViewSpecification>(childDirectories.Count);
         foreach (MediaItem childDirectory in childDirectories)
         {
