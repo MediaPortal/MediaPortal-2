@@ -676,13 +676,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     private static bool GetRecording(IProgram program, out Recording recording)
     {
-      recording = Recording.ListAll().FirstOrDefault(r => r.IsRecording && r.IdChannel == program.ChannelId && r.Title == program.Title);
+      recording = Recording.ListAllActive().FirstOrDefault(r => r.IsRecording && r.IdChannel == program.ChannelId && r.Title == program.Title);
       return recording != null;
     }
 
     private static bool GetRecording(string filename, out Recording recording)
     {
-      recording = Recording.ListAll().FirstOrDefault(r => r.IsRecording && string.Equals(r.FileName, filename, StringComparison.OrdinalIgnoreCase));
+      recording = Recording.ListAllActive().FirstOrDefault(r => r.IsRecording && string.Equals(r.FileName, filename, StringComparison.OrdinalIgnoreCase));
       return recording != null;
     }
 
