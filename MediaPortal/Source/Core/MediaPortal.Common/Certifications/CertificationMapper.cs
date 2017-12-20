@@ -63,7 +63,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("GB_12", "GB", "12", 12, 12, "12", "Rated 12"),
         new CertificationMapping("GB_15", "GB", "15", 15, 15, "15", "Rated 15"),
         new CertificationMapping("GB_18", "GB", "18", 18, 18, "18", "Rated 18"),
-        new CertificationMapping("GB_R18", "GB", "R18", 18, 18, "R18", "Rated R18"),
+        new CertificationMapping("GB_R18", "GB", "R18", 18, 18, "R18", "Rated R18", "X"),
 
         //RU
         new CertificationMapping("RU_Y", "RU", "Y", 0, 0, "Y", "0+" ),
@@ -98,9 +98,9 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("IN_S", "IN", "S", 18, 18, "S" ),
 
         //GR
-        new CertificationMapping("GR_13", "GR", "13", 13, 13, "13", "13" ),
-        new CertificationMapping("GR_17", "GR", "17", 17, 17, "17", "17" ),
-        new CertificationMapping("GR_18", "GR", "18", 18, 18, "18", "18" ),
+        new CertificationMapping("GR_13", "GR", "13", 13, 13, "13", "K-13" ),
+        new CertificationMapping("GR_17", "GR", "17", 17, 17, "17", "K-17" ),
+        new CertificationMapping("GR_18", "GR", "18", 18, 18, "18", "K-18" ),
 
         //FR
         new CertificationMapping("FR_U", "FR", "U", 0, 0, "U" ),
@@ -125,9 +125,9 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("AU_PG", "AU", "PG", 15, 0, "PG" ),
         new CertificationMapping("AU_E", "AU", "E", 15, 12, "E" ),
         new CertificationMapping("AU_M", "AU", "M", 15, 12, "M" ),
-        new CertificationMapping("AU_MA15", "AU", "MA15+", 15, 15, "MA15+" ),
-        new CertificationMapping("AU_R18", "AU", "R18+", 18, 18, "R18+" ),
-        new CertificationMapping("AU_X18", "AU", "X18+", 18, 18, "X18+" ),
+        new CertificationMapping("AU_MA15", "AU", "MA15+", 15, 15, "MA15+", "MA" ),
+        new CertificationMapping("AU_R18", "AU", "R18+", 18, 18, "R18+", "R" ),
+        new CertificationMapping("AU_X18", "AU", "X18+", 18, 18, "X18+", "X" ),
         new CertificationMapping("AU_RC", "AU", "RC", 18, 18, "RC" ),
 
         //CZ
@@ -381,10 +381,10 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("AU_G", "AU", "G", 0, 0, "G" ),
         new CertificationMapping("AU_PG", "AU", "PG", 15, 0, "PG" ),
         new CertificationMapping("AU_M", "AU", "M", 15, 15, "M" ),
-        new CertificationMapping("AU_MA15", "AU", "MA15+", 15, 15, "MA15+" ),
-        new CertificationMapping("AU_AV15", "AU", "AV15+", 15, 15, "AV15+" ),
-        new CertificationMapping("AU_R18", "AU", "R18+", 18, 18, "R18+" ),
-        new CertificationMapping("AU_X18", "AU", "X18+", 18, 18, "X18+" ),
+        new CertificationMapping("AU_MA15", "AU", "MA15+", 15, 15, "MA15+", "MA" ),
+        new CertificationMapping("AU_AV15", "AU", "AV15+", 15, 15, "AV15+", "AV" ),
+        new CertificationMapping("AU_R18", "AU", "R18+", 18, 18, "R18+", "R" ),
+        new CertificationMapping("AU_X18", "AU", "X18+", 18, 18, "X18+", "X" ),
         new CertificationMapping("AU_RC", "AU", "RC", 18, 18, "RC" ),
 
         //BR
@@ -468,9 +468,9 @@ namespace MediaPortal.Common.Certifications
           (c.CertificationId.Equals(cert, System.StringComparison.InvariantCultureIgnoreCase) ||
           c.Notations.Where(n => cert.StartsWith(n, System.StringComparison.InvariantCultureIgnoreCase) ||
           cert.StartsWith(c.CountryCode + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
-          cert.StartsWith(new RegionInfo(c.CountryCode).EnglishName + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.StartsWith(GetCountryNotation(c.CountryCode) + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
           cert.StartsWith(c.CountryCode + ": " + n, System.StringComparison.InvariantCultureIgnoreCase) ||
-          cert.StartsWith(new RegionInfo(c.CountryCode).EnglishName + ": " + n, System.StringComparison.InvariantCultureIgnoreCase)).Any())).FirstOrDefault();
+          cert.StartsWith(GetCountryNotation(c.CountryCode) + ": " + n, System.StringComparison.InvariantCultureIgnoreCase)).Any())).FirstOrDefault();
       }
       else if (cert.Length > 0)
       {
@@ -478,11 +478,20 @@ namespace MediaPortal.Common.Certifications
           (c.CertificationId.Equals(cert, System.StringComparison.InvariantCultureIgnoreCase) ||
           c.Notations.Where(n => cert.Equals(n, System.StringComparison.InvariantCultureIgnoreCase) ||
           cert.Equals(c.CountryCode + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
-          cert.Equals(new RegionInfo(c.CountryCode).EnglishName + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
+          cert.Equals(GetCountryNotation(c.CountryCode) + ":" + n, System.StringComparison.InvariantCultureIgnoreCase) ||
           cert.Equals(c.CountryCode + ": " + n, System.StringComparison.InvariantCultureIgnoreCase) ||
-          cert.Equals(new RegionInfo(c.CountryCode).EnglishName + ": " + n, System.StringComparison.InvariantCultureIgnoreCase)).Any())).FirstOrDefault();
+          cert.Equals(GetCountryNotation(c.CountryCode) + ": " + n, System.StringComparison.InvariantCultureIgnoreCase)).Any())).FirstOrDefault();
       }
       return certification != null;
+    }
+
+    private static string GetCountryNotation(string country)
+    {
+      if (country == "US")
+        return "USA";
+      if (country == "GB")
+        return "UK";
+      return new RegionInfo(country).EnglishName;
     }
 
     public static bool TryFindMovieCertification(string cert, out CertificationMapping certification)
