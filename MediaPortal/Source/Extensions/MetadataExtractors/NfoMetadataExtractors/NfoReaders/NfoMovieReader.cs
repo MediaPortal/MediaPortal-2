@@ -193,6 +193,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("tmdbId", new TryReadElementDelegate(TryReadTmdbId)); // Tiny Media Manager (v2.6.5) uses <tmdbId> instead of <tmdbid>
       _supportedElements.Add("tmdbColId", new TryReadElementDelegate(TryReadTmdbCollection));
       _supportedElements.Add("thmdb", new TryReadElementDelegate(TryReadThmdb));
+      _supportedElements.Add("tmdb", new TryReadElementDelegate(TryReadThmdb));
       _supportedElements.Add("ids", new TryReadElementDelegate(TryReadIds)); // Used by Tiny MediaManager (as of v2.6.0)
       _supportedElements.Add("allocine", new TryReadElementDelegate(TryReadAllocine));
       _supportedElements.Add("cinepassion", new TryReadElementDelegate(TryReadCinepassion));
@@ -583,6 +584,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         value.Name = ParseSimpleString(element.Element("setname"));
         value.Description = ParseSimpleString(element.Element("setdescription"));
         value.Rule = ParseSimpleString(element.Element("setrule"));
+        value.TmdbId = ParseSimpleInt(element.Element("tmdbid"));
+        if (!value.TmdbId.HasValue)
+          value.TmdbId = ParseSimpleInt(element.Element("tmdbId"));
+        if (!value.TmdbId.HasValue)
+          value.TmdbId = ParseSimpleInt(element.Element("thmdb"));
+        if (!value.TmdbId.HasValue)
+          value.TmdbId = ParseSimpleInt(element.Element("tmdb"));
         //ToDo: Reenable parsing <setimage> child elements once we can store them in the MediaLibrary
         value.Image = await Task.FromResult<byte[]>(null); // ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
       }
@@ -1572,6 +1580,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_stubs[0].TmdbCollectionId.HasValue)
       {
         MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, _stubs[0].TmdbCollectionId.Value.ToString());
+        return true;
+      }
+      if (_stubs[0].Sets != null && _stubs[0].Sets.Any())
+      {
+        SetStub setStub = _stubs[0].Sets.OrderBy(set => set.Order).First();
+        if(setStub.TmdbId.HasValue)
+          MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, setStub.TmdbId.Value.ToString());
         return true;
       }
       return false;

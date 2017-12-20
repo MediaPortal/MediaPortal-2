@@ -314,6 +314,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         value.Name = ParseSimpleString(element.Element("setname"));
         value.Description = ParseSimpleString(element.Element("setdescription"));
         value.Rule = ParseSimpleString(element.Element("setrule"));
+        value.TmdbId = ParseSimpleInt(element.Element("tmdbid"));
+        if (!value.TmdbId.HasValue)
+          value.TmdbId = ParseSimpleInt(element.Element("tmdbId"));
+        if (!value.TmdbId.HasValue)
+          value.TmdbId = ParseSimpleInt(element.Element("thmdb"));
+        if (!value.TmdbId.HasValue)
+          value.TmdbId = ParseSimpleInt(element.Element("tmdb"));
         //ToDo: Reenable parsing <setimage> child elements once we can store them in the MediaLibrary
         value.Image = await Task.FromResult<byte[]>(null); // ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
       }
