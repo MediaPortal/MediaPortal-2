@@ -400,7 +400,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, IsDVD);
 
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _title);
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(_title));
         }
 
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
@@ -685,7 +684,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (!string.IsNullOrEmpty(title))
         {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
         }
 
         // Read release date
@@ -830,7 +828,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           if (!string.IsNullOrEmpty(subFormat))
           {
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
 

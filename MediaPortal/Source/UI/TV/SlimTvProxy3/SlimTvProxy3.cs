@@ -724,7 +724,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     private static bool GetRecording(IProgram program, out Recording recording)
     {
-      recording = Recording.ListAll().FirstOrDefault(r => r.IsRecording && r.IdChannel == program.ChannelId && r.Title == program.Title);
+      recording = Recording.ListAllActive().FirstOrDefault(r => r.IsRecording && r.IdChannel == program.ChannelId && r.Title == program.Title);
+      return recording != null;
+    }
+
+    private static bool GetRecording(string filename, out Recording recording)
+    {
+      recording = Recording.ListAllActive().FirstOrDefault(r => r.IsRecording && string.Equals(r.FileName, filename, StringComparison.OrdinalIgnoreCase));
       return recording != null;
     }
 
@@ -775,6 +781,17 @@ namespace MediaPortal.Plugins.SlimTv.Service
         _tvUsers.Add(userName, new User(userName, false));
 
       return _tvUsers[userName];
+    }
+
+    public override bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
+    {
+      Recording recording;
+      schedule = null;
+      if (!GetRecording(fileName, out recording) || recording.Idschedule <= 0)
+        return false;
+
+      schedule = TvDatabase.Schedule.ListAll().FirstOrDefault(s => s.IdSchedule == recording.Idschedule).ToSchedule();
+      return schedule != null;
     }
 
     #endregion

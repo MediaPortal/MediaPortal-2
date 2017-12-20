@@ -341,6 +341,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
       movieInfo.AssignNameId();
 
+      if (movieInfo.MovieNameSort.IsEmpty)
+      {
+        if (!movieInfo.CollectionName.IsEmpty && movieInfo.ReleaseDate.HasValue)
+          movieInfo.MovieNameSort = $"{movieInfo.CollectionName.Text} {movieInfo.ReleaseDate.Value.Year}-{movieInfo.ReleaseDate.Value.Month.ToString("00")}";
+        else if (!movieInfo.MovieName.IsEmpty)
+          movieInfo.MovieNameSort = BaseInfo.GetSortTitle(movieInfo.MovieName.Text);
+        else
+          movieInfo.MovieNameSort = BaseInfo.GetSortTitle(title);
+      }
+
       if (refresh)
       {
         if ((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_ACTOR) && movieInfo.Actors.Count > 0) ||
