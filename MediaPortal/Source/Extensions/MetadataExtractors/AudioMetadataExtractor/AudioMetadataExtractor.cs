@@ -473,7 +473,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
               fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
               string title;
-              string sortTitle;
               string artist;
               uint? trackNo;
               GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
@@ -484,10 +483,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
               if (!string.IsNullOrEmpty(tag.Tag.Title))
                 title = tag.Tag.Title.Trim();
-
-              sortTitle = BaseInfo.GetSortTitle(title);
-              if (!string.IsNullOrEmpty(tag.Tag.TitleSort))
-                sortTitle = tag.Tag.TitleSort.Trim();
 
               IEnumerable<string> artists;
               if (tag.Tag.Performers.Length > 0)
@@ -514,14 +509,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                   providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
 
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-                MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, sortTitle);
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
               }
 
               trackInfo.TrackName = title;
-              trackInfo.TrackNameSort = sortTitle;
+              if (!string.IsNullOrEmpty(tag.Tag.TitleSort))
+                trackInfo.TrackNameSort = tag.Tag.TitleSort.Trim();
               if (tag.Properties.Codecs.Count() > 0)
                 trackInfo.Encoding = tag.Properties.Codecs.First().Description;
               if (tag.Properties.Duration.TotalSeconds != 0)
@@ -729,6 +724,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               trackInfo.Compilation = true;
             }
           }
+        }
+
+        if (string.IsNullOrEmpty(trackInfo.TrackNameSort))
+        {
+          if (!string.IsNullOrEmpty(trackInfo.Album) && trackInfo.ReleaseDate.HasValue && trackInfo.DiscNum > 0 && trackInfo.TrackNum > 0)
+            trackInfo.TrackNameSort = $"{trackInfo.Album} {trackInfo.ReleaseDate.Value.Year}  D{trackInfo.DiscNum.ToString("00")}T{trackInfo.TrackNum.ToString("00")}";
+          else if (!string.IsNullOrEmpty(trackInfo.Album) && trackInfo.DiscNum > 0 && trackInfo.TrackNum > 0)
+            trackInfo.TrackNameSort = $"{trackInfo.Album}  D{trackInfo.DiscNum.ToString("00")}T{trackInfo.TrackNum.ToString("00")}";
+          else if (!string.IsNullOrEmpty(trackInfo.Album) && trackInfo.TrackNum > 0)
+            trackInfo.TrackNameSort = $"{trackInfo.Album}  D00T{trackInfo.TrackNum.ToString("00")}";
+          else
+            trackInfo.TrackNameSort = BaseInfo.GetSortTitle(trackInfo.TrackName);
         }
 
         if (!refresh)
