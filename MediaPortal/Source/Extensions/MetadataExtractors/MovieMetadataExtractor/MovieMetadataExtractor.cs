@@ -22,22 +22,23 @@
 
 #endregion
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
-using MediaPortal.Extensions.OnlineLibraries;
-using System.IO;
-using MediaPortal.Common.Services.Settings;
-using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
+using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -170,7 +171,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     #region Private methods
 
-    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private async Task<bool> ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
@@ -288,13 +289,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         MovieInfo tempInfo = movieInfo.Clone();
-        OnlineMatcherService.Instance.FindAndUpdateMovie(tempInfo, false);
-        movieInfo.CopyIdsFrom(tempInfo);
-        movieInfo.HasChanged = tempInfo.HasChanged;
+        if (await OnlineMatcherService.Instance.FindAndUpdateMovie(tempInfo, false).ConfigureAwait(false))
+        {
+          movieInfo.CopyIdsFrom(tempInfo);
+          movieInfo.HasChanged = tempInfo.HasChanged;
+        }
       }
       else if (!SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.FindAndUpdateMovie(movieInfo, false);
+        await OnlineMatcherService.Instance.FindAndUpdateMovie(movieInfo, false).ConfigureAwait(false);
       }
 
       //Send it to the videos section
@@ -412,7 +415,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData);
+          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData).Result;
       }
       catch (Exception e)
       {

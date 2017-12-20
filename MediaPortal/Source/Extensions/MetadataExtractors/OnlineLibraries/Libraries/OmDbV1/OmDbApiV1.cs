@@ -22,14 +22,14 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using Newtonsoft.Json;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
 {
@@ -59,7 +59,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
 
     private readonly string _cachePath;
     private readonly Downloader _downloader;
-    private object _movieSync = new object();
     private object _seriesSync = new object();
     private object _seasonSync = new object();
     private object _episodeSync = new object();
@@ -86,10 +85,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// </summary>
     /// <param name="title">Full or partly name of movie</param>
     /// <returns>List of possible matches</returns>
-    public List<OmDbSearchItem> SearchMovie(string title, int year)
+    public async Task<List<OmDbSearchItem>> SearchMovieAsync(string title, int year)
     {
       string url = GetUrl(URL_QUERYMOVIE, year, false, false, HttpUtility.UrlEncode(title));
-      OmDbSearchResult results = _downloader.Download<OmDbSearchResult>(url);
+      OmDbSearchResult results = await _downloader.DownloadAsync<OmDbSearchResult>(url).ConfigureAwait(false);
       if (results.ResponseValid == false) return null;
       foreach (OmDbSearchItem item in results.SearchResults) item.AssignProperties();
       return results.SearchResults;
@@ -115,27 +114,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// </summary>
     /// <param name="id">IMDB id of movie</param>
     /// <returns>Movie information</returns>
-    public OmDbMovie GetMovie(string id, bool cacheOnly)
+    public async Task<OmDbMovie> GetMovie(string id, bool cacheOnly)
     {
-      lock (_movieSync)
+      string cache = CreateAndGetCacheName(id, "Movie");
+      OmDbMovie returnValue = null;
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string cache = CreateAndGetCacheName(id, "Movie");
-        OmDbMovie returnValue = null;
-        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-        {
-          returnValue = _downloader.ReadCache<OmDbMovie>(cache);
-        }
-        else
-        {
-          if (cacheOnly) return null;
-          string url = GetUrl(URL_GETIMDBIDMOVIE, 0, true, true, id);
-          returnValue = _downloader.Download<OmDbMovie>(url, cache);
-        }
-        if (returnValue == null) return null;
-        if (returnValue.ResponseValid == false) return null;
-        if (returnValue != null) returnValue.AssignProperties();
-        return returnValue;
+        returnValue = await _downloader.ReadCacheAsync<OmDbMovie>(cache).ConfigureAwait(false);
       }
+      else
+      {
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_GETIMDBIDMOVIE, 0, true, true, id);
+        returnValue = await _downloader.DownloadAsync<OmDbMovie>(url, cache).ConfigureAwait(false);
+      }
+      if (returnValue == null) return null;
+      if (returnValue.ResponseValid == false) return null;
+      if (returnValue != null) returnValue.AssignProperties();
+      return returnValue;
     }
 
     /// <summary>

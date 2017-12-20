@@ -22,26 +22,26 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Genres;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.OnlineLibraries.Libraries;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
+using MediaPortal.Extensions.OnlineLibraries.Matches;
+using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using MediaPortal.Common;
-using MediaPortal.Common.FanArt;
-using MediaPortal.Common.Localization;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Threading;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
-using MediaPortal.Extensions.OnlineLibraries.Matches;
-using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using System.Linq;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Genres;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -245,7 +245,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     /// </summary>
     /// <param name="movieInfo">Movie to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public virtual bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
+    public virtual async Task<bool> FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
     {
       try
       {
@@ -285,7 +285,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             if (SetMovieId(movieMatch, match.Id))
             {
               //If Id was found in cache the online movie info is probably also in the cache
-              if (_wrapper.UpdateFromOnlineMovie(movieMatch, language, true))
+              if (await _wrapper.UpdateFromOnlineMovie(movieMatch, language, true).ConfigureAwait(false))
               {
                 Logger.Debug(_id + ": Found movie {0} in cache", movieInfo.ToString());
                 matchFound = true;
@@ -304,13 +304,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Logger.Debug(_id + ": Search for movie {0} online", movieInfo.ToString());
 
             //Try to update movie information from online source if online Ids are present
-            if (!_wrapper.UpdateFromOnlineMovie(movieMatch, language, false))
+            if (!await _wrapper.UpdateFromOnlineMovie(movieMatch, language, false).ConfigureAwait(false))
             {
               //Search for the movie online and update the Ids if a match is found
-              if (_wrapper.SearchMovieUniqueAndUpdate(movieMatch, language))
+              if (await _wrapper.SearchMovieUniqueAndUpdate(movieMatch, language).ConfigureAwait(false))
               {
                 //Ids were updated now try to update movie information from online source
-                if (_wrapper.UpdateFromOnlineMovie(movieMatch, language, false))
+                if (await _wrapper.UpdateFromOnlineMovie(movieMatch, language, false).ConfigureAwait(false))
                   matchFound = true;
               }
             }

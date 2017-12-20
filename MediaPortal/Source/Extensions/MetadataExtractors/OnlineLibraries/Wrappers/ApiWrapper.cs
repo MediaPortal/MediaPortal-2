@@ -22,15 +22,15 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Utilities;
 using MediaPortal.Common.MediaManagement.Helpers;
-using System.Text.RegularExpressions;
+using MediaPortal.Utilities;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -267,12 +267,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// </summary>
     /// <param name="movieSearch">Movie search parameters</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="movies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Movie was found.</returns>
-    public virtual bool SearchMovie(MovieInfo movieSearch, TLang language, out List<MovieInfo> movies)
+    /// <returns>A list of matches..</returns>
+    public virtual Task<IList<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, TLang language)
     {
-      movies = null;
-      return false;
+      return Task.FromResult<IList<MovieInfo>>(null);
     }
 
     /// <summary>
@@ -284,12 +282,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="movieSearch">Movie search parameters</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if at exactly one Movie was found.</returns>
-    public bool SearchMovieUniqueAndUpdate(MovieInfo movieSearch, TLang language)
+    public async Task<bool> SearchMovieUniqueAndUpdate(MovieInfo movieSearch, TLang language)
     {
-      List<MovieInfo> movies;
       language = language != null ? language : PreferredLanguage;
-
-      if (!SearchMovie(movieSearch, language, out movies))
+      IList<MovieInfo> movies = await SearchMovieAsync(movieSearch, language).ConfigureAwait(false);
+      if (movies == null)
         return false;
       if (TestMovieMatch(movieSearch, ref movies))
       {
@@ -299,7 +296,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (movies.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchMovie(movieSearch, _defaultLanguage, out movies))
+        movies = await SearchMovieAsync(movieSearch, _defaultLanguage).ConfigureAwait(false);
+        if (movies == null)
           return false;
 
         // If also no match in default language is found, we will look for combined movies names:
@@ -309,7 +307,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SimpleTitle originalName = movieSearch.MovieName;
           string namePart = movieSearch.MovieName.Text.Split(new[] { '-' })[0].Trim();
           movieSearch.MovieName = new SimpleTitle(namePart);
-          if (SearchMovieUniqueAndUpdate(movieSearch, language))
+          if (await SearchMovieUniqueAndUpdate(movieSearch, language).ConfigureAwait(false))
             return true;
           movieSearch.MovieName = originalName;
           return false;
@@ -329,7 +327,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="movieSearch">Movie search parameters</param>
     /// <param name="movies">Potential online matches. The collection will be modified inside this method.</param>
     /// <returns><c>true</c> if unique match</returns>
-    protected virtual bool TestMovieMatch(MovieInfo movieSearch, ref List<MovieInfo> movies)
+    protected virtual bool TestMovieMatch(MovieInfo movieSearch, ref IList<MovieInfo> movies)
     {
       // Exact match in preferred language
       ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Test Match for \"{0}\"", movieSearch);
@@ -359,7 +357,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         // Try to match the year, if available
         if (movieSearch.ReleaseDate.HasValue)
         {
-          var yearFiltered = movies.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == movieSearch.ReleaseDate.Value.Year);
+          var yearFiltered = movies.Where(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == movieSearch.ReleaseDate.Value.Year).ToList();
           if (yearFiltered.Count == 1)
           {
             ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
@@ -372,8 +370,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
         }
 
-        var exactMatches = movies.FindAll(s => !s.MovieName.IsEmpty && 
-          (s.MovieName.IsEmpty && s.MovieName.Text == movieSearch.MovieName.Text || s.OriginalName == movieSearch.MovieName.Text || GetLevenshteinDistance(s, movieSearch) == 0));
+        var exactMatches = movies.Where(s => !s.MovieName.IsEmpty && 
+          (s.MovieName.IsEmpty && s.MovieName.Text == movieSearch.MovieName.Text || s.OriginalName == movieSearch.MovieName.Text || GetLevenshteinDistance(s, movieSearch) == 0)).ToList();
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
@@ -381,7 +379,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return true;
         }
 
-        exactMatches = movies.FindAll(s => NamesAreMostlyEqual(s, movieSearch));
+        exactMatches = movies.Where(s => NamesAreMostlyEqual(s, movieSearch)).ToList();
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
@@ -403,9 +401,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMovie(MovieInfo movie, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMovie(MovieInfo movie, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     public virtual bool IsCacheChangedForOnlineMovie(MovieInfo movie, TLang language)

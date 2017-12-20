@@ -22,13 +22,14 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1
 {
@@ -50,7 +51,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1
 
     private readonly string _cachePath;
     private readonly Downloader _downloader;
-    private object _movieSync = new object();
     private object _personSync = new object();
     private readonly bool _useHttps;
 
@@ -75,10 +75,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1
     /// </summary>
     /// <param name="title">Full or partly name of movie</param>
     /// <returns>List of possible matches</returns>
-    public List<SimApiMovieSearchItem> SearchMovie(string title, int year)
+    public async Task<List<SimApiMovieSearchItem>> SearchMovieAsync(string title, int year)
     {
       string url = GetUrl(URL_QUERYMOVIE, HttpUtility.UrlEncode(title), year > 0 ? year.ToString() : "");
-      SimApiMovieSearchResult results = _downloader.Download<SimApiMovieSearchResult>(url);
+      SimApiMovieSearchResult results = await _downloader.DownloadAsync<SimApiMovieSearchResult>(url).ConfigureAwait(false);
       return results.SearchResults;
     }
 
@@ -100,25 +100,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1
     /// </summary>
     /// <param name="id">IMDB id of movie</param>
     /// <returns>Movie information</returns>
-    public SimApiMovie GetMovie(string id, bool cacheOnly)
+    public async Task<SimApiMovie> GetMovie(string id, bool cacheOnly)
     {
-      lock (_movieSync)
+      string cache = CreateAndGetCacheName(id, "Movie");
+      SimApiMovie returnValue = null;
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string cache = CreateAndGetCacheName(id, "Movie");
-        SimApiMovie returnValue = null;
-        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-        {
-          returnValue = _downloader.ReadCache<SimApiMovie>(cache);
-        }
-        else
-        {
-          if (cacheOnly) return null;
-          string url = GetUrl(URL_GETIMDBIDMOVIE, id.StartsWith("tt", System.StringComparison.InvariantCultureIgnoreCase) ? id.Substring(2) : id);
-          returnValue = _downloader.Download<SimApiMovie>(url, cache);
-        }
-        if (returnValue == null) return null;
-        return returnValue;
+        returnValue = await _downloader.ReadCacheAsync<SimApiMovie>(cache).ConfigureAwait(false);
       }
+      else
+      {
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_GETIMDBIDMOVIE, id.StartsWith("tt", System.StringComparison.InvariantCultureIgnoreCase) ? id.Substring(2) : id);
+        returnValue = await _downloader.DownloadAsync<SimApiMovie>(url, cache).ConfigureAwait(false);
+      }
+      if (returnValue == null) return null;
+      return returnValue;
     }
 
     /// <summary>

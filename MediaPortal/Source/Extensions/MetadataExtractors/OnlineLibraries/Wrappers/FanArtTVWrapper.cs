@@ -22,14 +22,15 @@
 
 #endregion
 
-using System;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -51,11 +52,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override bool UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
     {
-      if (movie.MovieDbId > 0 || !string.IsNullOrEmpty(movie.ImdbId))
-        return true;
-      return false;
+      return Task.FromResult(movie.MovieDbId > 0 || !string.IsNullOrEmpty(movie.ImdbId));
     }
 
     public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)

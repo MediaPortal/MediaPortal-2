@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 {
@@ -74,7 +75,37 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
             return cached;
         }
 
-        string json = DownloadJSON(url);
+        string json = DownloadJSON(url).Result;
+        if (string.IsNullOrEmpty(json))
+          return default(TE);
+        //Console.WriteLine("JSON: {0}", json);
+        if (!string.IsNullOrEmpty(saveCacheFile))
+          WriteCache(saveCacheFile, json);
+        return JsonConvert.DeserializeObject<TE>(json);
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously downloads the requested information from the JSON api and deserializes the response to the requested <typeparam name="TE">Type</typeparam>.
+    /// This method can save the response to local cache, if a valid path is passed in <paramref name="saveCacheFile"/>.
+    /// </summary>
+    /// <typeparam name="TE">Target type</typeparam>
+    /// <param name="url">Url to download</param>
+    /// <param name="saveCacheFile">Optional name for saving response to cache</param>
+    /// <returns>Downloaded object</returns>
+    public async Task<TE> DownloadAsync<TE>(string url, string saveCacheFile = null, bool allowCached = true)
+    {
+      var writeLock = !string.IsNullOrEmpty(saveCacheFile) ? await _jsonLock.WriterLockAsync(saveCacheFile).ConfigureAwait(false) : null;
+      using (writeLock)
+      {
+        if (allowCached)
+        {
+          TE cached = ReadCacheInternal<TE>(saveCacheFile);
+          if (cached != null)
+            return cached;
+        }
+
+        string json = await DownloadJSON(url).ConfigureAwait(false);
         if (string.IsNullOrEmpty(json))
           return default(TE);
         //Console.WriteLine("JSON: {0}", json);
@@ -89,9 +120,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// </summary>
     /// <param name="url">Url to download</param>
     /// <returns>JSON result</returns>
-    protected virtual string DownloadJSON(string url)
+    protected virtual async Task<string> DownloadJSON(string url)
     {
-      return DownloadString(url);
+      return await DownloadStringAsync(url).ConfigureAwait(false);
     }
 
     public string DownloadString(string url)
@@ -102,6 +133,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           webClient.Headers[headerEntry.Key] = headerEntry.Value;
 
         return webClient.DownloadString(url);
+      }
+    }
+
+    public async Task<string> DownloadStringAsync(string url)
+    {
+      using (CompressionWebClient webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 })
+      {
+        foreach (KeyValuePair<string, string> headerEntry in Headers)
+          webClient.Headers[headerEntry.Key] = headerEntry.Value;
+
+        return await webClient.DownloadStringTaskAsync(url).ConfigureAwait(false);
       }
     }
 
@@ -168,6 +210,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
         return default(TE);
 
       using (_jsonLock.ReaderLock(cacheFile))
+        return ReadCacheInternal<TE>(cacheFile);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the requested information from the cached JSON file and deserializes the response to the requested <typeparam name="TE">Type</typeparam>.
+    /// </summary>
+    /// <typeparam name="TE">Target type</typeparam>
+    /// <param name="cacheFile">Name for the cached response</param>
+    /// <returns>Cached object</returns>
+    public async Task<TE> ReadCacheAsync<TE>(string cacheFile)
+    {
+      if (string.IsNullOrEmpty(cacheFile))
+        return default(TE);
+
+      using (await _jsonLock.ReaderLockAsync(cacheFile).ConfigureAwait(false))
         return ReadCacheInternal<TE>(cacheFile);
     }
 

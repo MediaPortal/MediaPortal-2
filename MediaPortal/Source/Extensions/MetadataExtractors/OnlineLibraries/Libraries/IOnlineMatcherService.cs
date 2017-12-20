@@ -25,7 +25,7 @@
 using MediaPortal.Common.MediaManagement.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Device.Location;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedMovies();
     List<MovieCollectionInfo> GetLastChangedMovieCollections();
     void ResetLastChangedMovieCollections();
-    bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly);
+    Task<bool> FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly);
     bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly);
     bool UpdateCharacters(MovieInfo movieInfo, bool importOnly);
     bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly);

@@ -33,6 +33,7 @@ using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -353,12 +354,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
+    public async Task<bool> FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.FindAndUpdateMovie(movieInfo, matcher.Primary ? false : importOnly);
+        success |= await matcher.FindAndUpdateMovie(movieInfo, matcher.Primary ? false : importOnly).ConfigureAwait(false);
       }
       return success;
     }

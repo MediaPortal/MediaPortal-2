@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Utilities;
 using MediaPortal.Common.Certifications;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -59,32 +60,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override bool SearchMovie(MovieInfo movieSearch, string language, out List<MovieInfo> movies)
+    public override async Task<IList<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
     {
-      movies = null;
-      List<MovieSearchResult> foundMovies = _movieDbHandler.SearchMovie(movieSearch.MovieName.Text, language);
-      if (foundMovies == null) return false;
-      movies = foundMovies.Select(m => new MovieInfo()
+      List<MovieSearchResult> foundMovies = await _movieDbHandler.SearchMovie(movieSearch.MovieName.Text, language).ConfigureAwait(false);
+      if (foundMovies == null) return null;
+      if (foundMovies.Count == 0 && !string.IsNullOrEmpty(movieSearch.OriginalName))
+      {
+        foundMovies = await _movieDbHandler.SearchMovie(movieSearch.OriginalName, language).ConfigureAwait(false);
+        if (foundMovies == null) return null;
+      }
+      return foundMovies.Count > 0 ? foundMovies.Select(m => new MovieInfo()
       {
         MovieDbId = m.Id,
         MovieName = new SimpleTitle(m.Title, false),
         OriginalName = m.OriginalTitle,
         ReleaseDate = m.ReleaseDate,
-      }).ToList();
-
-      if (movies.Count == 0 && !string.IsNullOrEmpty(movieSearch.OriginalName))
-      {
-        foundMovies = _movieDbHandler.SearchMovie(movieSearch.OriginalName, language);
-        if (foundMovies == null) return false;
-        movies = foundMovies.Select(m => new MovieInfo()
-        {
-          MovieDbId = m.Id,
-          MovieName = new SimpleTitle(m.Title, false),
-          OriginalName = m.OriginalTitle,
-          ReleaseDate = m.ReleaseDate,
-        }).ToList();
-      }
-      return movies.Count > 0;
+      }).ToList() : null;
     }
 
     public override bool SearchSeriesEpisode(EpisodeInfo episodeSearch, string language, out List<EpisodeInfo> episodes)
@@ -103,7 +94,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (episodeSearch.SeriesMovieDbId > 0 && episodeSearch.SeasonNumber.HasValue)
       {
-        Season season = _movieDbHandler.GetSeriesSeason(episodeSearch.SeriesMovieDbId, episodeSearch.SeasonNumber.Value, language, false);
+        Season season = _movieDbHandler.GetSeriesSeason(episodeSearch.SeriesMovieDbId, episodeSearch.SeasonNumber.Value, language, false).Result;
         if (season != null && season.Episodes != null)
         {
           foreach (SeasonEpisode episode in season.Episodes)
@@ -150,11 +141,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       series = null;
-      List<SeriesSearchResult> foundSeries = _movieDbHandler.SearchSeries(seriesSearch.SeriesName.Text, language);
+      List<SeriesSearchResult> foundSeries = _movieDbHandler.SearchSeries(seriesSearch.SeriesName.Text, language).Result;
       if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.OriginalName))
-        foundSeries = _movieDbHandler.SearchSeries(seriesSearch.OriginalName, language);
+        foundSeries = _movieDbHandler.SearchSeries(seriesSearch.OriginalName, language).Result;
       if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
-        foundSeries = _movieDbHandler.SearchSeries(seriesSearch.AlternateName, language);
+        foundSeries = _movieDbHandler.SearchSeries(seriesSearch.AlternateName, language).Result;
       if (foundSeries == null) return false;
       series = foundSeries.Select(s => new SeriesInfo()
       {
@@ -171,7 +162,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       persons = null;
-      List<PersonSearchResult> foundPersons = _movieDbHandler.SearchPerson(personSearch.Name, language);
+      List<PersonSearchResult> foundPersons = _movieDbHandler.SearchPerson(personSearch.Name, language).Result;
       if (foundPersons == null) return false;
       persons = foundPersons.Select(p => new PersonInfo()
       {
@@ -186,7 +177,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       companies = null;
-      List<CompanySearchResult> foundCompanies = _movieDbHandler.SearchCompany(companySearch.Name, language);
+      List<CompanySearchResult> foundCompanies = _movieDbHandler.SearchCompany(companySearch.Name, language).Result;
       if (foundCompanies == null) return false;
       companies = foundCompanies.Select(p => new CompanyInfo()
       {
@@ -200,7 +191,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override bool UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
     {
       try
       {
@@ -209,16 +200,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         Movie movieDetail = null;
         if (movie.MovieDbId > 0)
-          movieDetail = _movieDbHandler.GetMovie(movie.MovieDbId, language, cacheOnly);
+          movieDetail = await _movieDbHandler.GetMovie(movie.MovieDbId, language, cacheOnly).ConfigureAwait(false);
         if (movieDetail == null && !string.IsNullOrEmpty(movie.ImdbId))
-          movieDetail = _movieDbHandler.GetMovie(movie.ImdbId, language, cacheOnly);
+          movieDetail = await _movieDbHandler.GetMovie(movie.ImdbId, language, cacheOnly).ConfigureAwait(false);
         if (movieDetail == null && cacheOnly == false)
         {
           if (!string.IsNullOrEmpty(movie.ImdbId))
           {
-            List<IdResult> ids = _movieDbHandler.FindMovieByImdbId(movie.ImdbId, language);
+            List<IdResult> ids = await _movieDbHandler.FindMovieByImdbId(movie.ImdbId, language).ConfigureAwait(false);
             if (ids != null && ids.Count > 0)
-              movieDetail = _movieDbHandler.GetMovie(ids[0].Id, language, false);
+              movieDetail = await _movieDbHandler.GetMovie(ids[0].Id, language, false).ConfigureAwait(false);
           }
         }
         if (movieDetail == null) return false;
@@ -240,7 +231,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         movie.Tagline = movieDetail.Tagline;
         movie.Runtime = movieDetail.Runtime ?? 0;
 
-        MovieCasts movieCasts = _movieDbHandler.GetMovieCastCrew(movieDetail.Id, language, cacheOnly);
+        MovieCasts movieCasts = await _movieDbHandler.GetMovieCastCrew(movieDetail.Id, language, cacheOnly).ConfigureAwait(false);
         if (cacheOnly && movieCasts == null)
           cacheIncomplete = true;
         if (movieCasts != null)
@@ -268,7 +259,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         MovieCollection collectionDetail = null;
         if (collection.MovieDbId > 0)
-          collectionDetail = _movieDbHandler.GetCollection(collection.MovieDbId, language, cacheOnly);
+          collectionDetail = _movieDbHandler.GetCollection(collection.MovieDbId, language, cacheOnly).Result;
         if (collectionDetail == null) return false;
 
         collection.MovieDbId = collectionDetail.Id;
@@ -293,18 +284,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         Person personDetail = null;
         if (person.MovieDbId > 0)
-          personDetail = _movieDbHandler.GetPerson(person.MovieDbId, language, cacheOnly);
+          personDetail = _movieDbHandler.GetPerson(person.MovieDbId, language, cacheOnly).Result;
         if (personDetail == null && cacheOnly == false)
         {
           List<IdResult> ids = null;
 
           if (!string.IsNullOrEmpty(person.ImdbId))
-            ids = _movieDbHandler.FindPersonByImdbId(person.ImdbId, language);
+            ids = _movieDbHandler.FindPersonByImdbId(person.ImdbId, language).Result;
           if (personDetail == null && person.TvRageId > 0)
-            ids = _movieDbHandler.FindPersonByTvRageId(person.TvRageId, language);
+            ids = _movieDbHandler.FindPersonByTvRageId(person.TvRageId, language).Result;
 
           if (ids != null && ids.Count > 0)
-            personDetail = _movieDbHandler.GetPerson(ids[0].Id, language, false);
+            personDetail = _movieDbHandler.GetPerson(ids[0].Id, language, false).Result;
         }
         if (personDetail == null) return false;
 
@@ -336,7 +327,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (movieInfo.MovieDbId <= 0)
           return false;
 
-        MovieCasts movieCasts = _movieDbHandler.GetMovieCastCrew(movieInfo.MovieDbId, language, cacheOnly);
+        MovieCasts movieCasts = _movieDbHandler.GetMovieCastCrew(movieInfo.MovieDbId, language, cacheOnly).Result;
         if (cacheOnly && movieCasts == null)
           cacheIncomplete = true;
         if (movieCasts != null)
@@ -373,7 +364,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return false;
         Company companyDetail = null;
         if (company.MovieDbId > 0)
-          companyDetail = _movieDbHandler.GetCompany(company.MovieDbId, language, cacheOnly);
+          companyDetail = _movieDbHandler.GetCompany(company.MovieDbId, language, cacheOnly).Result;
         if (companyDetail == null) return false;
 
         company.MovieDbId = companyDetail.Id;
@@ -398,20 +389,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         Series seriesDetail = null;
         if (series.MovieDbId > 0)
-          seriesDetail = _movieDbHandler.GetSeries(series.MovieDbId, language, cacheOnly);
+          seriesDetail = _movieDbHandler.GetSeries(series.MovieDbId, language, cacheOnly).Result;
         if (seriesDetail == null && cacheOnly == false)
         {
           List<IdResult> ids = null;
 
           if (!string.IsNullOrEmpty(series.ImdbId))
-            ids = _movieDbHandler.FindSeriesByImdbId(series.ImdbId, language);
+            ids = _movieDbHandler.FindSeriesByImdbId(series.ImdbId, language).Result;
           if (ids == null && series.TvdbId > 0)
-            ids = _movieDbHandler.FindSeriesByTvDbId(series.TvdbId, language);
+            ids = _movieDbHandler.FindSeriesByTvDbId(series.TvdbId, language).Result;
           if (ids == null && series.TvRageId > 0)
-            ids = _movieDbHandler.FindSeriesByTvRageId(series.TvRageId, language);
+            ids = _movieDbHandler.FindSeriesByTvRageId(series.TvRageId, language).Result;
 
           if (ids != null && ids.Count > 0)
-            seriesDetail = _movieDbHandler.GetSeries(ids[0].Id, language, false);
+            seriesDetail = _movieDbHandler.GetSeries(ids[0].Id, language, false).Result;
         }
         if (seriesDetail == null) return false;
 
@@ -458,7 +449,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
         }
 
-        MovieCasts seriesCast = _movieDbHandler.GetSeriesCastCrew(seriesDetail.Id, language, cacheOnly);
+        MovieCasts seriesCast = _movieDbHandler.GetSeriesCastCrew(seriesDetail.Id, language, cacheOnly).Result;
         if (cacheOnly && seriesCast == null)
           cacheIncomplete = true;
         if (seriesCast != null)
@@ -470,7 +461,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         SeasonEpisode nextEpisode = null;
         foreach (SeriesSeason season in seriesDetail.Seasons)
         {
-          Season currentSeason = _movieDbHandler.GetSeriesSeason(seriesDetail.Id, season.SeasonNumber, language, cacheOnly);
+          Season currentSeason = _movieDbHandler.GetSeriesSeason(seriesDetail.Id, season.SeasonNumber, language, cacheOnly).Result;
           if (cacheOnly && currentSeason == null)
             cacheIncomplete = true;
           if (currentSeason != null)
@@ -562,10 +553,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         Series seriesDetail = null;
         Season seasonDetail = null;
         if (season.SeriesMovieDbId > 0)
-          seriesDetail = _movieDbHandler.GetSeries(season.SeriesMovieDbId, language, cacheOnly);
+          seriesDetail = _movieDbHandler.GetSeries(season.SeriesMovieDbId, language, cacheOnly).Result;
         if (seriesDetail == null) return false;
         if (season.SeriesMovieDbId > 0 && season.SeasonNumber.HasValue)
-          seasonDetail = _movieDbHandler.GetSeriesSeason(season.SeriesMovieDbId, season.SeasonNumber.Value, language, cacheOnly);
+          seasonDetail = _movieDbHandler.GetSeriesSeason(season.SeriesMovieDbId, season.SeasonNumber.Value, language, cacheOnly).Result;
         if (seasonDetail == null) return false;
 
         season.MovieDbId = seasonDetail.SeasonId;
@@ -607,15 +598,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (episode.SeriesMovieDbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
         {
-          seriesDetail = _movieDbHandler.GetSeries(episode.SeriesMovieDbId, language, cacheOnly);
+          seriesDetail = _movieDbHandler.GetSeries(episode.SeriesMovieDbId, language, cacheOnly).Result;
           if (seriesDetail == null) return false;
-          seriesCast = _movieDbHandler.GetSeriesCastCrew(episode.SeriesMovieDbId, language, cacheOnly);
+          seriesCast = _movieDbHandler.GetSeriesCastCrew(episode.SeriesMovieDbId, language, cacheOnly).Result;
           if (cacheOnly && seriesCast == null)
             cacheIncomplete = true;
 
           foreach (int episodeNumber in episode.EpisodeNumbers)
           {
-            episodeDetail = _movieDbHandler.GetSeriesEpisode(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episodeNumber, language, cacheOnly);
+            episodeDetail = _movieDbHandler.GetSeriesEpisode(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episodeNumber, language, cacheOnly).Result;
             if (episodeDetail == null) continue;
 
             EpisodeInfo info = new EpisodeInfo()
@@ -699,7 +690,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           Network companyDetail = null;
           if (company.MovieDbId > 0)
-            companyDetail = _movieDbHandler.GetNetwork(company.MovieDbId, language, cacheOnly);
+            companyDetail = _movieDbHandler.GetNetwork(company.MovieDbId, language, cacheOnly).Result;
           if (companyDetail == null) return false;
 
           company.MovieDbId = companyDetail.Id;
@@ -726,7 +717,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (seriesInfo.MovieDbId <= 0)
           return false;
 
-        MovieCasts seriesCast = _movieDbHandler.GetSeriesCastCrew(seriesInfo.MovieDbId, language, cacheOnly);
+        MovieCasts seriesCast = _movieDbHandler.GetSeriesCastCrew(seriesInfo.MovieDbId, language, cacheOnly).Result;
         if (cacheOnly && seriesCast == null)
           cacheIncomplete = true;
         if (seriesCast != null)
@@ -983,7 +974,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (collection != null && collection.MovieDbId > 0)
         {
           // Download all image information, filter later!
-          imgs = _movieDbHandler.GetMovieCollectionImages(collection.MovieDbId, null);
+          imgs = _movieDbHandler.GetMovieCollectionImages(collection.MovieDbId, null).Result;
         }
       }
       else if (fanartMediaType == FanArtMediaTypes.Movie)
@@ -992,7 +983,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (movie != null && movie.MovieDbId > 0)
         {
           // Download all image information, filter later!
-          imgs = _movieDbHandler.GetMovieImages(movie.MovieDbId, null);
+          imgs = _movieDbHandler.GetMovieImages(movie.MovieDbId, null).Result;
         }
       }
       else if (fanartMediaType == FanArtMediaTypes.Series)
@@ -1011,7 +1002,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (series != null && series.MovieDbId > 0)
         {
           // Download all image information, filter later!
-          imgs = _movieDbHandler.GetSeriesImages(series.MovieDbId, null);
+          imgs = _movieDbHandler.GetSeriesImages(series.MovieDbId, null).Result;
         }
       }
       else if (fanartMediaType == FanArtMediaTypes.SeriesSeason)
@@ -1025,7 +1016,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (season != null && season.SeriesMovieDbId > 0 && season.SeasonNumber.HasValue)
         {
           // Download all image information, filter later!
-          imgs = _movieDbHandler.GetSeriesSeasonImages(season.SeriesMovieDbId, season.SeasonNumber.Value, null);
+          imgs = _movieDbHandler.GetSeriesSeasonImages(season.SeriesMovieDbId, season.SeasonNumber.Value, null).Result;
         }
       }
       else if (fanartMediaType == FanArtMediaTypes.Episode)
@@ -1034,7 +1025,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (episode != null && episode.SeriesMovieDbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
         {
           // Download all image information, filter later!
-          imgs = _movieDbHandler.GetSeriesEpisodeImages(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, null);
+          imgs = _movieDbHandler.GetSeriesEpisodeImages(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, null).Result;
         }
       }
       else if (fanartMediaType == FanArtMediaTypes.Actor || fanartMediaType == FanArtMediaTypes.Director || fanartMediaType == FanArtMediaTypes.Writer)
@@ -1043,7 +1034,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (person != null && person.MovieDbId > 0)
         {
           // Download all image information, filter later!
-          imgs = _movieDbHandler.GetPersonImages(person.MovieDbId, null);
+          imgs = _movieDbHandler.GetPersonImages(person.MovieDbId, null).Result;
         }
       }
       else

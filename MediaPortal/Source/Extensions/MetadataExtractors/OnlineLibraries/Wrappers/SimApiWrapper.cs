@@ -22,19 +22,19 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Certifications;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Utilities;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1.Data;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Certifications;
-using MediaPortal.Common.FanArt;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -54,20 +54,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override bool SearchMovie(MovieInfo movieSearch, string language, out List<MovieInfo> movies)
+    public override async Task<IList<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
     {
-      movies = null;
-      List<SimApiMovieSearchItem> foundMovies = _simApiHandler.SearchMovie(movieSearch.MovieName.Text, 
-        movieSearch.ReleaseDate.HasValue ? movieSearch.ReleaseDate.Value.Year : 0);
-      if (foundMovies == null) return false;
-      movies = foundMovies.Select(m => new MovieInfo()
+      List<SimApiMovieSearchItem> foundMovies = await _simApiHandler.SearchMovieAsync(movieSearch.MovieName.Text, 
+        movieSearch.ReleaseDate.HasValue ? movieSearch.ReleaseDate.Value.Year : 0).ConfigureAwait(false);
+      if (foundMovies == null || foundMovies.Count == 0) return null;
+      return foundMovies.Select(m => new MovieInfo()
       {
         ImdbId = m.ImdbID,
         MovieName = new SimpleTitle(m.Title, true),
         ReleaseDate = m.Year.HasValue ? new DateTime(m.Year.Value, 1, 1) : default(DateTime?),
       }).ToList();
-
-      return movies.Count > 0;
     }
 
     public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
@@ -89,13 +86,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override bool UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
     {
       try
       {
         SimApiMovie movieDetail = null;
         if (!string.IsNullOrEmpty(movie.ImdbId))
-          movieDetail = _simApiHandler.GetMovie(movie.ImdbId, cacheOnly);
+          movieDetail = await _simApiHandler.GetMovie(movie.ImdbId, cacheOnly).ConfigureAwait(false);
         if (movieDetail == null) return false;
 
         movie.ImdbId = movieDetail.ImdbID;
@@ -191,7 +188,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         MovieInfo movie = infoObject as MovieInfo;
         if (movie != null && !string.IsNullOrEmpty(movie.ImdbId))
         {
-          SimApiMovie movieDetail = _simApiHandler.GetMovie(movie.ImdbId, false);
+          SimApiMovie movieDetail = _simApiHandler.GetMovie(movie.ImdbId, false).Result;
           if(!string.IsNullOrEmpty(movieDetail.PosterUrl))
           {
             images.Posters.Add(movieDetail.PosterUrl);
