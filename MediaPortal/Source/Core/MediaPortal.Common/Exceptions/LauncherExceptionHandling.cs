@@ -24,13 +24,14 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Common.Exceptions
 {
   /// <summary>
-  /// Handling methods for uncatched exceptions - can be registered in application launcher classes.
+  /// Handling methods for uncaught exceptions - can be registered in application launcher classes.
   /// </summary>
   public class LauncherExceptionHandling
   {
@@ -49,6 +50,16 @@ namespace MediaPortal.Common.Exceptions
       Exception exc = (Exception) e.ExceptionObject;
       ILogger logger = ServiceRegistration.Get<ILogger>(false);
       if (logger ==  null)
+        MessageBox.Show("Unhandled exception in application: " + exc.Message, "Unhandled Exception");
+      else
+        logger.Error("ApplicationLauncher: Unhandled exception in application", exc);
+    }
+
+    public static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+    {
+      var exc = e.Exception;
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger == null)
         MessageBox.Show("Unhandled exception in application: " + exc.Message, "Unhandled Exception");
       else
         logger.Error("ApplicationLauncher: Unhandled exception in application", exc);
