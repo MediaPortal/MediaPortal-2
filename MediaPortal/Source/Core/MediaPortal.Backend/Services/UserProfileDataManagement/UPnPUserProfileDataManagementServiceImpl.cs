@@ -455,7 +455,6 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       Guid playlistId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
       string key = (string)inParams[2];
-      bool success;
       var result = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserPlaylistDataAsync(profileId, playlistId, key).Result;
       string data = result.Success ? result.Result : null;
       outParams = new List<object> { data, result.Success };

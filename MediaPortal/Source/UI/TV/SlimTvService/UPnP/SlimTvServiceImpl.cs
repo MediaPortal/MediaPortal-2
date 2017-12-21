@@ -478,7 +478,6 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DateTime timeFrom = (DateTime)inParams[1];
       DateTime timeTo = (DateTime)inParams[2];
 
-      IList<IProgram> programs;
       AsyncResult<IList<IProgram>> result = programInfo.GetProgramsAsync(title, timeFrom, timeTo).Result;
       outParams = new List<object> { result.Success, result.Result };
       return null;

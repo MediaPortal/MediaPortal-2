@@ -115,7 +115,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Extension
 
     //  return windowsTimezone;
     //}
-    private static Dictionary<string, string> _timezoneMappings = null;
+    //private static Dictionary<string, string> _timezoneMappings = null;
 
     public static string ToLocalisedDayOfWeek(this DateTime date)
     {

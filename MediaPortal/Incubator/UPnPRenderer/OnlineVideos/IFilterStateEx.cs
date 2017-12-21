@@ -39,11 +39,11 @@ namespace OnlineVideos.MPUrlSourceFilter
   {
     [MethodImpl(MethodImplOptions.PreserveSig)]
     [return: MarshalAs(UnmanagedType.I4)]
-    int IsFilterReadyToConnectPins([MarshalAs(UnmanagedType.Bool)] out bool ready);
+    new int IsFilterReadyToConnectPins([MarshalAs(UnmanagedType.Bool)] out bool ready);
 
     [MethodImpl(MethodImplOptions.PreserveSig)]
     [return: MarshalAs(UnmanagedType.I4)]
-    int GetCacheFileName([MarshalAs(UnmanagedType.LPWStr)] out string cacheFileName);
+    new int GetCacheFileName([MarshalAs(UnmanagedType.LPWStr)] out string cacheFileName);
 
     [MethodImpl(MethodImplOptions.PreserveSig)]
     [return: MarshalAs(UnmanagedType.I4)]

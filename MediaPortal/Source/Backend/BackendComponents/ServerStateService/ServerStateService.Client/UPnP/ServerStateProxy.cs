@@ -106,7 +106,7 @@ namespace MediaPortal.Plugins.ServerStateService.Client.UPnP
         }
         ServerStateMessaging.SendStatesChangedMessage(updatedStates);
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         throw;
       }
