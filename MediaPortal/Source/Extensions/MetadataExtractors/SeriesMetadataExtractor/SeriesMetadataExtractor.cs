@@ -299,9 +299,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (episodeInfo.EpisodeNameSort.IsEmpty)
       {
         if (!episodeInfo.SeriesName.IsEmpty && episodeInfo.SeasonNumber.HasValue && episodeInfo.DvdEpisodeNumbers.Any())
-          episodeInfo.EpisodeNameSort = $"{episodeInfo.SeriesName.Text} S{episodeInfo.SeasonNumber.Value.ToString("00")}E{episodeInfo.DvdEpisodeNumbers.First().ToString("0.0")}";
+          episodeInfo.EpisodeNameSort = $"{episodeInfo.SeriesName.Text} S{episodeInfo.SeasonNumber.Value.ToString("00")}E{episodeInfo.DvdEpisodeNumbers.First().ToString("000.000")}";
         if (!episodeInfo.SeriesName.IsEmpty && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Any())
-          episodeInfo.EpisodeNameSort = $"{episodeInfo.SeriesName.Text} S{episodeInfo.SeasonNumber.Value.ToString("00")}E{episodeInfo.EpisodeNumbers.First().ToString("00")}";
+          episodeInfo.EpisodeNameSort = $"{episodeInfo.SeriesName.Text} S{episodeInfo.SeasonNumber.Value.ToString("00")}E{episodeInfo.EpisodeNumbers.First().ToString("000")}";
         else if (!episodeInfo.EpisodeName.IsEmpty)
           episodeInfo.EpisodeNameSort = BaseInfo.GetSortTitle(episodeInfo.EpisodeName.Text);
       }
