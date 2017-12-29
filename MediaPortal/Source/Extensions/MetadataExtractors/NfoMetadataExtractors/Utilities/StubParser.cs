@@ -147,7 +147,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilit
             if (!string.IsNullOrEmpty(stereoscopic))
               suffixes.Add(stereoscopic);
             if (video.Height.HasValue && video.Width.HasValue)
-              suffixes.Add(string.Format("{0}x{1}", video.Width.Value, video.Height.Value));
+              suffixes.Add($"{video.Width.Value}x{video.Height.Value}");
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, title + (suffixes.Count > 0 ? " (" + string.Join(", ", suffixes) + ")" : ""));
           }
         }

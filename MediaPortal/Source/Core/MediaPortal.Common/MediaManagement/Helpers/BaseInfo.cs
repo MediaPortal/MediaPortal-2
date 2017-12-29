@@ -186,7 +186,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public static string CleanupWhiteSpaces(string str)
     {
-      return str == null ? null : Regex.Replace(str, CLEAN_WHITESPACE_REGEX, " $1").Trim(' ', '-');
+      return str == null ? null : Regex.Replace(str, CLEAN_WHITESPACE_REGEX, " $1").Trim(' ', '-').Replace("  ", " ");
     }
 
     public static bool IsVirtualResource(IDictionary<Guid, IList<MediaItemAspect>> aspectData)

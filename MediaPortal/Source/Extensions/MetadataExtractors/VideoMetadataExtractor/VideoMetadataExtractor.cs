@@ -259,7 +259,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
       public static VideoResult CreateFileInfo(string fileName, MediaInfoWrapper fileInfo)
       {
-        return new VideoResult(fileName, fileInfo);
+        return new VideoResult(CleanupTitle(fileName), fileInfo);
+      }
+
+      protected static string CleanupTitle(string title)
+      {
+        foreach (Regex regex in REGEXP_CLEANUPS)
+          title = regex.Replace(title, "");
+        while(title.Contains(".."))
+          title = title.Replace("..", "."); //Remove leftover periods
+        return BaseInfo.CleanupWhiteSpaces(title);
       }
 
       public void AddMediaInfo(MediaInfoWrapper mediaInfo)
@@ -1230,21 +1239,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
           title = ProviderPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName);
 
-        foreach (Regex regex in REGEXP_CLEANUPS)
-          title = regex.Replace(title, "");
-        title = BaseInfo.CleanupWhiteSpaces(title);
-
         string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
         int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
         int? width = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_WIDTH);
 
         List<string> suffixes = new List<string>();
         if (partNum > 0)
-          suffixes.Add("Multi-part");
+          suffixes.Add("#");
         if (!string.IsNullOrEmpty(stereoType))
           suffixes.Add(stereoType);
         if (height.HasValue && width.HasValue)
-          suffixes.Add(string.Format("{0}x{1}", width.Value, height.Value));
+          suffixes.Add($"{width.Value}x{height.Value}");
 
         videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, title + (suffixes.Count > 0 ? " (" + string.Join(", ", suffixes) + ")" : ""));
       }
