@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 
     public AlbumFilterItem(MediaItem mediaItem)
     {
-      Update(mediaItem);
+      MediaItem = mediaItem;
     }
 
     public override void Update(MediaItem mediaItem)
