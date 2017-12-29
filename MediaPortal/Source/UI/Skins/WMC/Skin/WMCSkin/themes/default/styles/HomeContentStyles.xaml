@@ -6,8 +6,11 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
+    xmlns:wmcc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Converters;assembly=WMCSkin"
     DependsOnStyleResources="Colors,Consts,OtherControlsOverrides,OtherControls,MediaStyles"
     >
+
+  <wmcc:MediaListVisibilityConverter x:Key="MediaListVisibilityConverter"/>
 
   <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
   <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
@@ -244,14 +247,10 @@
       <Setter.Value>
         <ControlTemplate>
           <StackPanel>
-            <StackPanel.IsVisible>
-              <Binding Source="{Binding AllItems}" Path="Count" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0"/>
-            </StackPanel.IsVisible>
-
             <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,10,0,-6"
                    Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
 
-            <ListView x:Name="MediaList" HorizontalAlignment="Stretch" Margin="10"
+            <ListView x:Name="MediaList" Margin="10"
                       Style="{Binding Source={DynamicResource List_Style},Path=Resource}"
                       ItemsSource="{Binding Path=AllItems}"/>
 
@@ -261,49 +260,110 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MultipleMediaListTemplateStyle" TargetType="{x:Type Control}">
-    <Setter Property="Template">
+  <!--+++++++++++++++++++++++++++++++++++++++-->
+  <!--++++ HOME CONTENT LIST ITEM STYLES ++++-->
+  <!--+++++++++++++++++++++++++++++++++++++++-->
+
+  <Style x:Key="LatestAddedListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
       <Setter.Value>
-        <ControlTemplate>
-          <ListView Style="{ThemeResource MainMediaListListViewStyle}">
-            <ListViewItem>
-              <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 DataContext="{Binding Source={DynamicResource Latest_Added_List}, Path=Resource}">
-                <Control.Resources>
-                  <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestAdded]"/>
-                  <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
-                </Control.Resources>
-              </Control>
-            </ListViewItem>
-            <ListViewItem>
-              <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 DataContext="{Binding Source={DynamicResource Latest_Play_List}, Path=Resource}">
-                <Control.Resources>
-                  <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestPlayed]"/>
-                  <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
-                </Control.Resources>
-              </Control>
-            </ListViewItem>
-            <ListViewItem>
-              <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 DataContext="{Binding Source={DynamicResource Favorite_List}, Path=Resource}">
-                <Control.Resources>
-                  <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Favorites]"/>
-                  <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
-                </Control.Resources>
-              </Control>
-            </ListViewItem>
-            <ListViewItem>
-              <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 DataContext="{Binding Source={DynamicResource Unplayed_List}, Path=Resource}">
-                <Control.Resources>
-                  <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Unplayed]"/>
-                  <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
-                </Control.Resources>
-              </Control>
-            </ListViewItem>
-          </ListView>
-        </ControlTemplate>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestAdded]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="LatestPlayedListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestPlayed]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="FavoriteListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Favorites]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="UnplayedListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Unplayed]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="LatestPlayedChannelListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestPlayed]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="FavoriteChannelListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Favorites]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CurrentProgramListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.CurrentPrograms]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenCurrentProgramsListViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CurrentScheduleListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.CurrentSchedules]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenCurrentSchedulesListViewStyle}"/>
+          </Control.Resources>
+        </Control>
       </Setter.Value>
     </Setter>
   </Style>
@@ -315,174 +375,170 @@
   <!--++++++++++ Movies +++++++++++-->
 
   <ControlTemplate x:Key="80d2e2cc-baaa-4750-807b-f37714153751">
-    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Control.Resources>
-        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestMovies]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayMovies]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedMovies]}"
-                         EnableBindings="True"/>
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListView.Resources>
         <DataTemplate DataType="{x:Type navitems:MovieItem}">
           <Control Template="{StaticResource GridViewMovieItemSmallTemplate}"/>
         </DataTemplate>
-      </Control.Resources>
-    </Control>
+      </ListView.Resources>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestMovies]}"
+                    Style="{ThemeResource LatestAddedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>      
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayMovies]}"
+                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
+                    Style="{ThemeResource FavoriteListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedMovies]}"
+                    Style="{ThemeResource UnplayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+    </ListView>
   </ControlTemplate>
 
   <!--++++++++++ Audio +++++++++++-->
 
   <ControlTemplate x:Key="30715d73-4205-417f-80aa-e82f0834171f">
-    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Control.Resources>
-        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayAudio]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAudio]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAudio]}"
-                         EnableBindings="True"/>
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListView.Resources>
         <DataTemplate DataType="{x:Type navitems:AudioItem}">
           <Control Template="{StaticResource GridViewAudioItemSmallTemplate}"/>
         </DataTemplate>
-      </Control.Resources>
-    </Control>
+      </ListView.Resources>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
+                    Style="{ThemeResource LatestAddedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayAudio]}"
+                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAudio]}"
+                    Style="{ThemeResource FavoriteListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAudio]}"
+                    Style="{ThemeResource UnplayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+    </ListView>
   </ControlTemplate>
 
   <!--++++++++++ Episodes +++++++++++-->
-  
+
   <ControlTemplate x:Key="30f57cba-459c-4202-a587-09fff5098251">
-    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Control.Resources>
-        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayEpisodes]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteEpisodes]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedSeries]}"
-                         EnableBindings="True"/>
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListView.Resources>
         <DataTemplate DataType="{x:Type navitems:EpisodeItem}">
           <Control Template="{StaticResource GridViewEpisodeItemSmallTemplate}"/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type navitems:SeriesFilterItem}">
           <Control Template="{StaticResource GridViewSeriesFilterItemSmallTemplate}"/>
         </DataTemplate>
-      </Control.Resources>
-    </Control>
+      </ListView.Resources>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
+                    Style="{ThemeResource LatestAddedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayEpisodes]}"
+                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteEpisodes]}"
+                    Style="{ThemeResource FavoriteListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedSeries]}"
+                    Style="{ThemeResource UnplayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+    </ListView>
   </ControlTemplate>
 
   <!--++++++++++ Recordings +++++++++++-->
 
   <ControlTemplate x:Key="7f52d0a1-b7f8-46a1-a56b-1110bbfb7d51">
-    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Control.Resources>
-        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestRecordings]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayRecordings]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteRecordings]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedRecordings]}"
-                         EnableBindings="True"/>
-      </Control.Resources>
-    </Control>
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestRecordings]}"
+                    Style="{ThemeResource LatestAddedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayRecordings]}"
+                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteRecordings]}"
+                    Style="{ThemeResource FavoriteListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedRecordings]}"
+                    Style="{ThemeResource UnplayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+    </ListView>
   </ControlTemplate>
 
   <!--++++++++++ Images +++++++++++-->
 
   <ControlTemplate x:Key="55556593-9fe9-436c-a3b6-a971e10c9d44">
-    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Control.Resources>
-        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestImages]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayImages]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteImages]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedImages]}"
-                         EnableBindings="True"/>
-      </Control.Resources>
-    </Control>
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestImages]}"
+                    Style="{ThemeResource LatestAddedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayImages]}"
+                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteImages]}"
+                    Style="{ThemeResource FavoriteListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedImages]}"
+                    Style="{ThemeResource UnplayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+    </ListView>
   </ControlTemplate>
 
   <!--++++++++++ Video +++++++++++-->
 
   <ControlTemplate x:Key="a4df2df6-8d66-479a-9930-d7106525eb07">
-    <Control Style="{ThemeResource MultipleMediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Control.Resources>
-        <ResourceWrapper x:Key="Latest_Added_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestVideo]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Latest_Play_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayVideo]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Favorite_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteVideo]}"
-                         EnableBindings="True"/>
-        <ResourceWrapper x:Key="Unplayed_List" Resource="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedVideo]}"
-                         EnableBindings="True"/>
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListView.Resources>
         <DataTemplate DataType="{x:Type navitems:VideoItem}">
           <Control Template="{StaticResource GridViewVideoItemSmallTemplate}"/>
         </DataTemplate>
-      </Control.Resources>
-    </Control>
+      </ListView.Resources>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestVideo]}"
+                    Style="{ThemeResource LatestAddedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayVideo]}"
+                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteVideo]}"
+                    Style="{ThemeResource FavoriteListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedVideo]}"
+                    Style="{ThemeResource UnplayedListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+    </ListView>
   </ControlTemplate>
 
   <!--++++++++++ TV +++++++++++-->
 
   <ControlTemplate x:Key="b4a9199f-6dd4-4bda-a077-de9c081f7703">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <ListViewItem>
-        <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}">
-          <Control.Resources>
-            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestPlayed]"/>
-            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
-          </Control.Resources>
-        </Control>
-      </ListViewItem>
-      <ListViewItem>
-        <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteTV]}">
-          <Control.Resources>
-            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Favorites]"/>
-            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
-          </Control.Resources>
-        </Control>
-      </ListViewItem>
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}"
+                    Style="{ThemeResource LatestPlayedChannelListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteTV]}"
+                    Style="{ThemeResource FavoriteChannelListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
     </ListView>
   </ControlTemplate>
 
   <!--++++++++++ TV Guide +++++++++++-->
 
   <ControlTemplate x:Key="a298dfbe-9da8-4c16-a3ea-a9b354f3910c">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <ListViewItem>
-        <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentPrograms]}">
-          <Control.Resources>
-            <ResourceWrapper x:Key="List_Label" Resource="[Media.CurrentPrograms]"/>
-            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenCurrentProgramsListViewStyle}"/>
-          </Control.Resources>
-        </Control>
-      </ListViewItem>
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentPrograms]}"
+                    Style="{ThemeResource CurrentProgramListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
     </ListView>
   </ControlTemplate>
 
   <!--++++++++++ Schedules +++++++++++-->
 
   <ControlTemplate x:Key="87355e05-a15b-452a-85b8-98d4fc80034e">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <ListViewItem>
-        <Control Style="{ThemeResource MediaListTemplateStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentSchedules]}">
-          <Control.Resources>
-            <ResourceWrapper x:Key="List_Label" Resource="[Media.CurrentSchedules]"/>
-            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenCurrentSchedulesListViewStyle}"/>
-          </Control.Resources>
-        </Control>
-      </ListViewItem>
+    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentSchedules]}"
+                    Style="{ThemeResource CurrentScheduleListViewItemStyle}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
     </ListView>
   </ControlTemplate>
 
