@@ -232,6 +232,21 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
+    /// </summary>
+    /// <param name="item">The item which should be played.</param>
+    public static void CheckEdition(MediaItem item)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_CHECK_EDITION, new NavigationContextConfig
+        {
+            AdditionalContextVariables = new Dictionary<string, object>
+              {
+                  {KEY_MEDIA_ITEM, item},
+              }
+        });
+    }
+
+    /// <summary>
     /// Discards any current player and plays the specified media <paramref name="item"/>.
     /// </summary>
     /// <param name="item">Media item to be played.</param>
@@ -378,6 +393,12 @@ namespace MediaPortal.UiComponents.Media.Models
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM, true);
     }
 
+    protected void LeaveCheckEditionsState()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToState(Consts.WF_STATE_ID_CHECK_EDITION, true);
+    }
+
     protected void LeaveCheckQueryPlayActionSingleItemState()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
@@ -499,8 +520,12 @@ namespace MediaPortal.UiComponents.Media.Models
       screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) => LeaveCheckQueryPlayActionMultipleItemsState());
     }
 
-    protected async Task CheckResumeMenuInternal(MediaItem item)
+    protected async Task CheckResumeMenuInternal(MediaItem item, int edition)
     {
+      // First make sure the correct edition is selected
+      if (edition <= item.MaximumEditionIndex)
+        item.ActiveEditionIndex = edition;
+
       IResumeState resumeState = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
@@ -509,6 +534,11 @@ namespace MediaPortal.UiComponents.Media.Models
         if (userResult.Success)
           resumeState = ResumeStateBase.Deserialize(userResult.Result);
       }
+
+      // Check if resume state matches the current edition, if not start from beginning
+      IResumeStateEdition rse = resumeState as IResumeStateEdition;
+      if (rse != null && rse.ActiveEditionIndex != edition)
+        resumeState = null;
 
       if (resumeState == null)
       {
@@ -550,6 +580,35 @@ namespace MediaPortal.UiComponents.Media.Models
       screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) => LeaveCheckResumePlaybackSingleItemState());
     }
 
+    protected async Task CheckEditionMenuInternal(MediaItem item)
+    {
+      bool hasEditions = item.Editions.Count > 1;
+      if (!hasEditions)
+      {
+        // Asynchronously leave the current workflow state because we're called from a workflow model method
+        await CheckResumeMenuInternal(item, 0);
+        return;
+      }
+
+      _playMenuItems = new ItemsList();
+      foreach (var editionAspects in item.Editions)
+      {
+        var edition = editionAspects.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX);
+        var label = editionAspects.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME);
+        ListItem editionItem = new ListItem
+        {
+          Command = new AsyncMethodDelegateCommand(() =>
+          {
+            return CheckResumeMenuInternal(item, edition);
+          })
+        };
+        editionItem.SetLabel(Consts.KEY_NAME, label);
+        _playMenuItems.Add(editionItem);
+      }
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) => LeaveCheckEditionsState());
+    }
+
     protected void CheckPlayMenuInternal(MediaItem item)
     {
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
@@ -561,7 +620,8 @@ namespace MediaPortal.UiComponents.Media.Models
         threadPool.Add(() =>
           {
             LeaveCheckQueryPlayActionSingleItemState();
-            CheckResumeAction(item);
+            CheckEdition(item);
+            //CheckResumeAction(item);
           });
         return;
       }
@@ -578,7 +638,8 @@ namespace MediaPortal.UiComponents.Media.Models
                   Command = new MethodDelegateCommand(() =>
                     {
                       LeaveCheckQueryPlayActionSingleItemState();
-                      CheckResumeAction(item);
+                      CheckEdition(item);
+                      //CheckResumeAction(item);
                     })
               };
             _playMenuItems.Add(playItem);
@@ -615,7 +676,8 @@ namespace MediaPortal.UiComponents.Media.Models
                   Command = new MethodDelegateCommand(() =>
                     {
                       LeaveCheckQueryPlayActionSingleItemState();
-                      CheckResumeAction(item);
+                      CheckEdition(item);
+                      //CheckResumeAction(item);
                     })
               };
             _playMenuItems.Add(playItem);
@@ -789,10 +851,15 @@ namespace MediaPortal.UiComponents.Media.Models
         PlayerContextConcurrencyMode concurrencyMode = (PlayerContextConcurrencyMode) context.GetContextVariable(KEY_CONCURRENCY_MODE, false);
         _ = PlayOrEnqueueItemsInternal(getMediaItemsFunction, avType, doPlay, concurrencyMode);
       }
+      else if (workflowStateId == Consts.WF_STATE_ID_CHECK_EDITION)
+      {
+        MediaItem item = (MediaItem) context.GetContextVariable(KEY_MEDIA_ITEM, false);
+        _ = CheckEditionMenuInternal(item);
+      }
       else if (workflowStateId == Consts.WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM)
       {
         MediaItem item = (MediaItem) context.GetContextVariable(KEY_MEDIA_ITEM, false);
-        _ = CheckResumeMenuInternal(item);
+        _ = CheckResumeMenuInternal(item, 0);
       }
       else if (workflowStateId == Consts.WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM)
       {
