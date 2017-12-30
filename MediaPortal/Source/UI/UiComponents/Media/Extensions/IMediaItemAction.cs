@@ -62,4 +62,11 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// </summary>
     string ConfirmationMessage { get; }
   }
+
+  /// <summary>
+  /// Marker interface for actions that need a deferred execution in the former NavigationContext.
+  /// </summary>
+  public interface IDeferredMediaItemAction : IMediaItemAction
+  {
+  }
 }

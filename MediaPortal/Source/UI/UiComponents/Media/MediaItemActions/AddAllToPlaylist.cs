@@ -27,11 +27,12 @@ using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
-  public class AddAllToPlaylist : AbstractMediaItemAction
+  public class AddAllToPlaylist : AbstractMediaItemAction, IDeferredMediaItemAction
   {
     public static Guid ACTION_ID_ADD_ALL_TO_PLAYLIST = new Guid("09243059-EE44-460d-8412-2E994CCB5A98");
 

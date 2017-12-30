@@ -60,6 +60,8 @@ namespace MediaPortal.UiComponents.Media.Models
     private readonly List<MediaItemActionExtension> _actions = new List<MediaItemActionExtension>();
     private IPluginItemStateTracker _mediaActionPluginItemStateTracker; // Lazy initialized
     private DialogCloseWatcher _dialogCloseWatcher;
+    private IDeferredMediaItemAction _deferredAction;
+    private MediaItem _deferredMediaItem;
 
     #endregion
 
@@ -125,6 +127,25 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     protected async Task InvokeAction(IMediaItemAction action, MediaItem mediaItem)
+    {
+      IDeferredMediaItemAction dmi = action as IDeferredMediaItemAction;
+      if (dmi != null)
+      {
+        // Will be called when context is left
+        _deferredAction = dmi;
+        _deferredMediaItem = mediaItem;
+        return;
+      }
+      await InvokeInternal(action, mediaItem);
+    }
+
+    private async Task InvokeDeferred()
+    {
+      if (_deferredAction != null && _deferredMediaItem != null)
+        await InvokeInternal(_deferredAction, _deferredMediaItem);
+    }
+
+    private async Task InvokeInternal(IMediaItemAction action, MediaItem mediaItem)
     {
       try
       {
@@ -226,13 +247,16 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      _deferredAction = null;
+      _deferredMediaItem = null;
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(Consts.DIALOG_MEDIAITEM_ACTION_MENU, (dialogName, dialogInstanceId) => LeaveMediaItemActionState());
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do
+      // Check for pending actions that need to be invoked in former context
+      _ = InvokeDeferred();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
