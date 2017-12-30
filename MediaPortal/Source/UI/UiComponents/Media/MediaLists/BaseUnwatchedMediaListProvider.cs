@@ -35,11 +35,17 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected override MediaItemQuery CreateQuery()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
+      IFilter filter;
+      if (userProfile.HasValue)
+        filter = AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+          new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
+          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayCountString(0))), _necessaryMias);
+      else
+        filter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
+
       return new MediaItemQuery(_necessaryMias, null)
       {
-        Filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-          new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
-          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayCountString(0))) : null,
+        Filter = filter,
         SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
     }
