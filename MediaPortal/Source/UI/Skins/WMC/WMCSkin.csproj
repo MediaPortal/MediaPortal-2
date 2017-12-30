@@ -69,6 +69,7 @@
     <Compile Include="Controls\ItemsListFilter.cs" />
     <Compile Include="Controls\SubItemsContentPresenter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
+    <Compile Include="Converters\MediaListVisibilityConverter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
     <Compile Include="MarkupExtensions\DynamicResourceBindingExtension.cs" />
     <Compile Include="Models\HomeContentModel.cs" />

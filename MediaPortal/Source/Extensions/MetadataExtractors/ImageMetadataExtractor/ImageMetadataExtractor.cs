@@ -154,6 +154,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       string fileName = mediaItemAccessor.ResourceName;
       if (!HasImageExtension(fileName))
         return false;
+      if (DosPathHelper.GetFileNameWithoutExtension(fileName).ToLowerInvariant() == "folder")
+        return false; //Ignore folder images
 
       bool refresh = false;
       if (extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID))

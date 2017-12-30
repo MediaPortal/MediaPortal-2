@@ -441,6 +441,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         // Morpheus 2017-04-27: setting the media item for containers lead to unintended layout in views
         // MediaItem = containerItem.FirstMediaItem;
         MediaItem = null;
+        if (Guid.TryParse(containerItem.Id, out Guid dirId))
+          MediaItem = new MediaItem(dirId);
         SimpleTitle = containerItem.SimpleTitle;
         ItemDescription = string.Empty;
         NumItems = containerItem.NumItems;

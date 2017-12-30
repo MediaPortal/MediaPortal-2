@@ -38,9 +38,9 @@ using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
-  public class LocalMovieActorFanartProvider : IFanArtProvider
+  public class LocalContainerFanartProvider : IFanArtProvider
   {
-    private readonly static Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, VideoAspect.ASPECT_ID, RelationshipAspect.ASPECT_ID };
+    private readonly static Guid[] NECESSARY_MIAS = { DirectoryAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
 
     public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
 
@@ -61,10 +61,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       result = null;
       Guid mediaItemId;
 
-      if (mediaType != FanArtMediaTypes.Actor || (fanArtType != FanArtTypes.Undefined && fanArtType != FanArtTypes.Thumbnail))
+      if (mediaType != FanArtMediaTypes.Undefined)
         return false;
 
-      // Don't try to load "fanart" for images
       if (!Guid.TryParse(name, out mediaItemId))
         return false;
 
@@ -72,9 +71,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaLibrary == null)
         return false;
 
-      IFilter filter = new RelationshipFilter(MovieAspect.ROLE_MOVIE, PersonAspect.ROLE_ACTOR, mediaItemId);
+      IFilter filter = new MediaItemIdFilter(mediaItemId);
       IList<MediaItem> items = null;
       List<Guid> necessaryMias = new List<Guid>(NECESSARY_MIAS);
+
       MediaItemQuery mediaQuery = new MediaItemQuery(necessaryMias, filter);
       mediaQuery.Limit = 1;
       items = mediaLibrary.Search(mediaQuery, false, null, false);
@@ -88,65 +88,45 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       var mediaIteamLocator = mediaItem.GetResourceLocator();
       var fanArtPaths = new List<ResourcePath>();
       var files = new List<IResourceLocator>();
-
-      string actorName = null;
-      SingleMediaItemAspect videoAspect;
-      List<string> actors = new List<string>();
-      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
-      {
-        IEnumerable<object> actorObjects = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
-        if (actorObjects != null)
-          actors.AddRange(actorObjects.Cast<string>());
-      }
-
-      IList<MultipleMediaItemAspect> relationAspects;
-      if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
-      {
-        foreach (MultipleMediaItemAspect relation in relationAspects)
-        {
-          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ACTOR && (Guid?)relation[RelationshipAspect.ATTR_LINKED_ID] == mediaItemId)
-          {
-            int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
-            if (index.HasValue && actors.Count > index.Value && index.Value >= 0)
-              actorName = actors[index.Value];
-          }
-        }
-      }
-      
       // File based access
       try
       {
-        var mediaItemPath = mediaIteamLocator.NativeResourcePath;
-        var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
-
-        if (!string.IsNullOrEmpty(actorName))
+        var mediaItemDirectoryPath = mediaIteamLocator.NativeResourcePath;
+        using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
         {
-          using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
+          var directoryFsra = directoryRa as IFileSystemResourceAccessor;
+          if (directoryFsra != null)
           {
-            var directoryFsra = directoryRa as IFileSystemResourceAccessor;
-            if (directoryFsra != null)
-            {
-              //Get Artists thumbs
-              IFileSystemResourceAccessor actorMediaItemDirectory = directoryFsra.GetResource(".actors");
-              if (actorMediaItemDirectory != null)
-              {
-                  var potentialArtistFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(actorMediaItemDirectory);
+            var potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryFsra);
 
-                  foreach (ResourcePath thumbPath in
-                      from potentialFanArtFile in potentialArtistFanArtFiles
-                      let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                      where potentialFanArtFileNameWithoutExtension.StartsWith(actorName.Replace(" ", "_"), StringComparison.InvariantCultureIgnoreCase)
-                      select potentialFanArtFile)
-                  files.Add(new ResourceLocator(mediaIteamLocator.NativeSystemId, thumbPath));
-              }
+            if (fanArtType == FanArtTypes.Thumbnail)
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "folder"
+                select potentialFanArtFile);
+
+            if (fanArtType == FanArtTypes.FanArt)
+            {
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart"
+                select potentialFanArtFile);
+
+              if (directoryFsra.ResourceExists("ExtraFanArt/"))
+                using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
+                  fanArtPaths.AddRange(LocalFanartHelper.GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
             }
+
+            files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
           }
         }
       }
       catch (Exception ex)
       {
 #if DEBUG
-        ServiceRegistration.Get<ILogger>().Warn("LocalMovieActorFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
+        ServiceRegistration.Get<ILogger>().Warn("LocalContainerFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
 #endif
       }
       result = files;

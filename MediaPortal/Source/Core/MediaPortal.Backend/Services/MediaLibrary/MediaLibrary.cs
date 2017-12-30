@@ -1340,7 +1340,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private void LoadUserDataForMediaItem(Guid? userProfileId, MediaItem mediaItem)
     {
-      LoadUserDataForMediaItems(null, null, userProfileId, new[] { mediaItem });
+      if (mediaItem != null)
+        LoadUserDataForMediaItems(null, null, userProfileId, new[] { mediaItem });
     }
 
     private void LoadUserDataForMediaItems(ISQLDatabase database, ITransaction transaction, Guid? userProfileId, IList<MediaItem> mediaItems)

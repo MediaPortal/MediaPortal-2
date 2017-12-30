@@ -81,6 +81,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     private bool _readFileDetails;
 
+    private NfoMovieMetadataExtractorSettings _movieSettings;
+
     #endregion
 
     #region Ctor
@@ -98,6 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     public NfoMovieReader(ILogger debugLogger, long miNumber, bool videoOnly, bool importOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
       : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
     {
+      _movieSettings = settings;
       _readFileDetails = readFileDetails;
       InitializeSupportedElements(videoOnly);
       InitializeSupportedAttributes(videoOnly);
@@ -1693,6 +1696,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // priority 1:
       if (_stubs[0].Certification != null && _stubs[0].Certification.Any())
       {
+        if (!string.IsNullOrEmpty(_movieSettings.PreferredCertificationCountry))
+        {
+          foreach (string certification in _stubs[0].Certification)
+          {
+            if (CertificationMapper.TryFindMovieCertification(_movieSettings.PreferredCertificationCountry, certification, out cert))
+            {
+              MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_CERTIFICATION, cert.CertificationId);
+              return true;
+            }
+          }
+        }
+        //Fallback
         foreach (string certification in _stubs[0].Certification)
         {
           if (CertificationMapper.TryFindMovieCertification(certification, out cert))
