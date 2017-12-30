@@ -40,11 +40,11 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       return Task.FromResult(result);
     }
 
-    public override Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
+    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
-      PlayItemsModel.PlayOrEnqueueItem(mediaItem, false, PlayerContextConcurrencyMode.None);
+      await PlayItemsModel.PlayOrEnqueueItem(mediaItem, false, PlayerContextConcurrencyMode.None);
       AsyncResult<ContentDirectoryMessaging.MediaItemChangeType> result = new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
-      return Task.FromResult(result);
+      return result;
     }
   }
 }

@@ -223,7 +223,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         {
           AddOrUpdateTimeshiftContext(timeshiftMediaItem as LiveTvMediaItem, channel);
           PlayerContextConcurrencyMode playMode = GetMatchingPlayMode();
-          PlayItemsModel.PlayOrEnqueueItem(timeshiftMediaItem, true, playMode);
+          await PlayItemsModel.PlayOrEnqueueItem(timeshiftMediaItem, true, playMode);
         }
         else
         {
