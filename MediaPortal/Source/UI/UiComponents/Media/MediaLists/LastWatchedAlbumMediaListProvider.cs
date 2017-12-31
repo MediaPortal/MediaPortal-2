@@ -25,6 +25,7 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.UiComponents.Media.Models.NavigationModel;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -37,6 +38,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
       _necessaryLinkedMias = Consts.NECESSARY_AUDIO_MIAS;
       _playableContainerConverterAction = item => new AlbumFilterItem(item);
+      _navigationInitializerType = typeof(AudioNavigationInitializer);
     }
   }
 }

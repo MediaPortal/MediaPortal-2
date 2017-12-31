@@ -34,12 +34,17 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected override MediaItemQuery CreateQuery()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      return new MediaItemQuery(_necessaryMias, null)
-      {
-        Filter = userProfile.HasValue ? AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+      IFilter filter = userProfile.HasValue ? AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
             new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
             new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, UserDataKeysKnown.GetSortablePlayPercentageString(100))),
-            _necessaryMias) : null,
+            _necessaryMias) : null;
+
+      IFilter navigationFilter = GetNavigationFilter(_navigationInitializerType);
+      if (navigationFilter != null)
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, navigationFilter);
+
+      return new MediaItemQuery(_necessaryMias, filter)
+      {
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
       };
     }
@@ -66,6 +71,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
           new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
           new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.NEQ, UserDataKeysKnown.GetSortablePlayPercentageString(100))),
           _necessaryLinkedMias)) : null,
+        SubqueryFilter = GetNavigationFilter(_navigationInitializerType),
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
       };
     }

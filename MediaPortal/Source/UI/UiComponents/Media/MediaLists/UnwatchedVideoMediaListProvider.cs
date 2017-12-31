@@ -24,6 +24,7 @@
 
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.UiComponents.Media.Models.NavigationModel;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -33,6 +34,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     {
       _necessaryMias = Consts.NECESSARY_VIDEO_MIAS;
       _playableConverterAction = item => new VideoItem(item);
+      _navigationInitializerType = typeof(VideosNavigationInitializer);
     }
   }
 }

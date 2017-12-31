@@ -32,9 +32,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     protected override MediaItemQuery CreateQuery()
     {
-      return new MediaItemQuery(_necessaryMias, null)
+      IFilter filter = AppendUserFilter(GetNavigationFilter(_navigationInitializerType), _necessaryMias);
+      return new MediaItemQuery(_necessaryMias, filter)
       {
-        Filter = AppendUserFilter(null, _necessaryMias),
         SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
     }

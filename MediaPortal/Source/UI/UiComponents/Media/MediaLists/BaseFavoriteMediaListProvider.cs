@@ -34,10 +34,15 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected override MediaItemQuery CreateQuery()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      return new MediaItemQuery(_necessaryMias, null)
+      IFilter filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)),
+            _necessaryMias) : null;
+
+      IFilter navigationFilter = GetNavigationFilter(_navigationInitializerType);
+      if (navigationFilter != null)
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, navigationFilter);
+
+      return new MediaItemQuery(_necessaryMias, filter)
       {
-        Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)),
-            _necessaryMias) : null,
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
       };
     }

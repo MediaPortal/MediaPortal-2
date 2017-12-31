@@ -43,9 +43,12 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       else
         filter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
 
-      return new MediaItemQuery(_necessaryMias, null)
+      IFilter navigationFilter = GetNavigationFilter(_navigationInitializerType);
+      if (navigationFilter != null)
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, navigationFilter);
+
+      return new MediaItemQuery(_necessaryMias, filter)
       {
-        Filter = filter,
         SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
     }

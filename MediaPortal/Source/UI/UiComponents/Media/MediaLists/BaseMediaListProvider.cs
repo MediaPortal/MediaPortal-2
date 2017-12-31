@@ -24,19 +24,23 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
-using System;
-using System.Linq;
-using MediaPortal.Common.UserProfileDataManagement;
-using System.Collections.Generic;
 using MediaPortal.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -45,10 +49,15 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public delegate PlayableMediaItem PlayableMediaItemToListItemAction(MediaItem mediaItem);
     public delegate PlayableContainerMediaItem PlayableContainerMediaItemToListItemAction(MediaItem mediaItem);
 
-    ItemsList _allItems;
+    protected ItemsList _allItems;
     protected IEnumerable<Guid> _necessaryMias;
     protected PlayableMediaItemToListItemAction _playableConverterAction;
     protected PlayableContainerMediaItemToListItemAction _playableContainerConverterAction;
+
+    protected object _navigationFilterSync = new object();
+    protected FixedItemStateTracker _tracker;
+    protected IDictionary<string, IList<IFilter>> _navigationFilters;
+    protected Type _navigationInitializerType;
 
     public BaseMediaListProvider()
     {
@@ -137,6 +146,59 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
       _allItems.FireChange();
       return true;
+    }
+
+    /// <summary>
+    /// Gets a <see cref="BooleanCombinationFilter"/> of all filters provided by plugins that are applied to media view initialized
+    /// by the specified <paramref name="navigationInitializerType"/>.
+    /// </summary>
+    /// <param name="navigationInitializerType">The type of the derived <see cref="MediaPortal.UiComponents.Media.Models.NavigationModel.IMediaNavigationInitializer"/></param>
+    /// <returns></returns>
+    protected IFilter GetNavigationFilter(Type navigationInitializerType)
+    {
+      if (navigationInitializerType != null)
+        lock (_navigationFilterSync)
+        {
+          InitNavigationFilters();
+          if (_navigationFilters.TryGetValue(navigationInitializerType.Name, out IList<IFilter> filters) && filters.Count > 0)
+            return filters.Count == 1 ? filters[0] : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filters);
+        }
+      return null;
+    }
+
+    private void InitNavigationFilters()
+    {
+      if (_tracker != null)
+        return;
+      
+      _tracker = new FixedItemStateTracker("MediaListProvider - Media navigation filter registration");
+      _navigationFilters = new Dictionary<string, IList<IFilter>>();
+
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+      foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(MediaNavigationFilterBuilder.MEDIA_FILTERS_PATH))
+      {
+        try
+        {
+          MediaNavigationFilter navigationFilter = pluginManager.RequestPluginItem<MediaNavigationFilter>(
+              MediaNavigationFilterBuilder.MEDIA_FILTERS_PATH, itemMetadata.Id, _tracker);
+          if (navigationFilter == null)
+            ServiceRegistration.Get<ILogger>().Warn("MediaListProvider: Could not instantiate Media navigation filter with id '{0}'", itemMetadata.Id);
+          else
+          {
+            string extensionClass = navigationFilter.ClassName;
+            if (extensionClass == null)
+              throw new PluginInvalidStateException("MediaListProvider: Could not find class type for Media navigation filter  {0}", navigationFilter.ClassName);
+            IList<IFilter> filters;
+            if (!_navigationFilters.TryGetValue(extensionClass, out filters))
+              _navigationFilters[extensionClass] = filters = new List<IFilter>();
+            filters.Add(navigationFilter.Filter);
+          }
+        }
+        catch (PluginInvalidStateException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("MediaListProvider: Cannot add Media navigation filter with id '{0}'", e, itemMetadata.Id);
+        }
+      }
     }
   }
 }
