@@ -93,7 +93,7 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
         if (!Directory.Exists(logoFolder))
           Directory.CreateDirectory(logoFolder);
 
-        if (File.Exists(logoFileName) && CacheValid(logoFileName))
+        if (File.Exists(logoFileName) && CacheValid(theme, logoFileName))
         {
           result = new List<IResourceLocator> { new ResourceLocator(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, logoFileName)) };
           return true;
@@ -123,14 +123,16 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
     }
 
     /// <summary>
-    /// Checks if the cached logo is still valid, if it is too old it will deleted to allow re-download.
+    /// Checks if the cached logo is still valid, if it is too old it will deleted to allow re-download. Logo themes
+    /// can prevent this behavior by setting the <see cref="Theme.SkipOnlineUpdate"/> to <c>true</c>.
     /// </summary>
+    /// <param name="theme">Current logo theme</param>
     /// <param name="logoFileName">Cached logo name</param>
     /// <returns></returns>
-    private bool CacheValid(string logoFileName)
+    private bool CacheValid(Theme theme, string logoFileName)
     {
       FileInfo fi = new FileInfo(logoFileName);
-      if (DateTime.Now - fi.CreationTime > MAX_CACHE_DURATION)
+      if (!theme.SkipOnlineUpdate && DateTime.Now - fi.CreationTime > MAX_CACHE_DURATION)
       {
         fi.Delete();
         return false;
