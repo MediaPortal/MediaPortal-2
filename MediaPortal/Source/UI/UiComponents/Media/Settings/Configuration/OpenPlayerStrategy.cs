@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Players;
@@ -67,11 +68,11 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
       return strategyType.FullName;
     }
 
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
+      await base.Load();
       Clear();
-      PlayerContextManagerSettings settings = SettingsManager.Load<PlayerContextManagerSettings>();
+      PlayerContextManagerSettings settings = await SettingsManager.LoadAsync<PlayerContextManagerSettings>();
       string settingTypeName = settings.OpenPlayerStrategyTypeName;
       int currentIndex = 0;
       foreach (Type openPlayerStrategyType in OPEN_PLAYER_STRATEGY_TYPES)
@@ -82,16 +83,16 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
       }
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      PlayerContextManagerSettings settings = SettingsManager.Load<PlayerContextManagerSettings>();
+      await base.Save();
+      PlayerContextManagerSettings settings = await SettingsManager.LoadAsync<PlayerContextManagerSettings>();
       int selected = Selected;
       IResourceString selectedItem = selected == -1 ? null : _items[selected];
       if (selectedItem != null)
       {
         settings.OpenPlayerStrategyTypeName = _piPOpenStrategyTypes[selectedItem].FullName;
-        SettingsManager.Save(settings);
+        await SettingsManager.SaveAsync(settings);
       }
     }
   }

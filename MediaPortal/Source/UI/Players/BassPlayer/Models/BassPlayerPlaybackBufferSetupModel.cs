@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
@@ -88,7 +89,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
 
     public bool IsWasapiBufferSizeUpEnabled
     {
-       get { return _wasapiBufferSizeController.IsUpEnabled; }
+      get { return _wasapiBufferSizeController.IsUpEnabled; }
     }
 
     public bool IsDirectSoundBufferSizeDownEnabled
@@ -118,7 +119,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
 
     public void WasapiBufferSizeDown()
     {
-     _wasapiBufferSizeController.Down();
+      _wasapiBufferSizeController.Down();
     }
 
     public string DsErrorText
@@ -163,30 +164,30 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
       _isWasapiValidProperty = new WProperty(typeof(bool), true);
     }
 
-    public void SaveSettings()
+    public async Task SaveSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      BassPlayerSettings settings = settingsManager.Load<BassPlayerSettings>();
+      BassPlayerSettings settings = await settingsManager.LoadAsync<BassPlayerSettings>();
 
       settings.DirectSoundBufferSizeMilliSecs = DirectSoundBufferSize;
       settings.PlaybackBufferSizeMilliSecs = WasapiBufferSize;
-      settingsManager.Save(settings);
+      await settingsManager.SaveAsync(settings);
     }
 
-    private void InitModel()
+    private async Task InitModel()
     {
       BassPlayerSettings settings = Controller.GetSettings();
 
       DirectSoundBuffer directSoundBuffer = new DirectSoundBuffer();
-      directSoundBuffer.Load();
+      await directSoundBuffer.Load();
       _directSoundBufferSizeController = new NumberSelectController();
       _directSoundBufferSizeController.Initialize(directSoundBuffer);
 
       PlaybackBufferSize wasapiBuffer = new PlaybackBufferSize();
-      wasapiBuffer.Load();
+      await wasapiBuffer.Load();
       _wasapiBufferSizeController = new NumberSelectController();
       _wasapiBufferSizeController.Initialize(wasapiBuffer);
-      
+
       DirectSoundBufferSize = settings.DirectSoundBufferSizeMilliSecs;
       WasapiBufferSize = settings.PlaybackBufferSizeMilliSecs;
     }
@@ -204,7 +205,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      InitModel();
+      _ = InitModel();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

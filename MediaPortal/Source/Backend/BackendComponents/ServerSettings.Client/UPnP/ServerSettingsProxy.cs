@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
@@ -38,15 +40,15 @@ namespace MediaPortal.Plugins.ServerSettings.UPnP
       ServiceRegistration.Set<IServerSettingsClient>(this);
     }
 
-    public object Load(string settingsTypeName)
+    public async Task<object> LoadAsync(string settingsTypeName)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_LOAD);
         IList<object> inParameters = new List<object> { settingsTypeName };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
 
-        return SettingsSerializer.Deserialize(settingsTypeName, (string) outParameters[0]);
+        return SettingsSerializer.Deserialize(settingsTypeName, (string)outParameters[0]);
       }
       catch (Exception)
       {
@@ -54,13 +56,13 @@ namespace MediaPortal.Plugins.ServerSettings.UPnP
       }
     }
 
-    public void Save(string settingsTypeName, string settings)
+    public Task SaveAsync(string settingsTypeName, string settings)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_SAVE);
         IList<object> inParameters = new List<object> { settingsTypeName, settings };
-        action.InvokeAction(inParameters);
+        return action.InvokeAsync(inParameters);
       }
       catch (Exception)
       {
@@ -68,14 +70,14 @@ namespace MediaPortal.Plugins.ServerSettings.UPnP
       }
     }
 
-    public SettingsType Load<SettingsType> () where SettingsType : class
+    public async Task<TSettingsType> LoadAsync<TSettingsType>() where TSettingsType : class
     {
-      return (SettingsType) Load(typeof (SettingsType).AssemblyQualifiedName);
+      return (TSettingsType)await LoadAsync(typeof(TSettingsType).AssemblyQualifiedName);
     }
 
-    public void Save (object settingsObject)
+    public Task SaveAsync(object settingsObject)
     {
-      Save(settingsObject.GetType().AssemblyQualifiedName, SettingsSerializer.Serialize(settingsObject));
+      return SaveAsync(settingsObject.GetType().AssemblyQualifiedName, SettingsSerializer.Serialize(settingsObject));
     }
   }
 }

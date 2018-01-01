@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common;
 
@@ -33,20 +34,20 @@ namespace MediaPortal.UiComponents.News.Settings.Configuration
 
   public class RefreshInterval : LimitedNumberSelect
   {
-    public override void Load()
+    public override async Task Load()
     {
       _type = NumberType.Integer;
       _step = 1;
       _lowerLimit = 1;
       _upperLimit = 600;
-      _value = SettingsManager.Load<NewsSettings>().RefreshInterval;
+      _value = (await SettingsManager.LoadAsync<NewsSettings>()).RefreshInterval;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      NewsSettings settings = SettingsManager.Load<NewsSettings>();
+      NewsSettings settings = await SettingsManager.LoadAsync<NewsSettings>();
       settings.RefreshInterval = (int)_value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
       INewsCollector newsCollector = ServiceRegistration.Get<INewsCollector>(false);
       if (newsCollector != null)
       {

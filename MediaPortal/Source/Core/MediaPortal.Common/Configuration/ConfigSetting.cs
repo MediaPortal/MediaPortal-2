@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 
@@ -101,12 +102,12 @@ namespace MediaPortal.Common.Configuration
     /// Loads the setting from the underlaying setting. The setting can be loaded from the
     /// <see cref="ISettingsManager"/> service, for example.
     /// </summary>
-    public virtual void Load() { }
+    public virtual Task Load() { return Task.CompletedTask; }
 
     /// <summary>
     /// Applies and saves the setting in the application.
     /// </summary>
-    public virtual void Save() { }
+    public virtual Task Save() { return Task.CompletedTask; }
 
     /// <summary>
     /// Registers this instance to the <see cref="Changed"/> of the <paramref name="other"/>

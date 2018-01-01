@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Common.Settings
 {
@@ -46,6 +47,21 @@ namespace MediaPortal.Common.Settings
     }
 
     public void Save(object settingsObject) { }
+
+    public Task<TSettingsType> LoadAsync<TSettingsType>() where TSettingsType : class
+    {
+      return Task.FromResult(Load<TSettingsType>());
+    }
+
+    public Task<object> LoadAsync(Type settingsType)
+    {
+      return Task.FromResult(Load(settingsType));
+    }
+
+    public Task SaveAsync(object settingsObject)
+    {
+      return Task.CompletedTask;
+    }
 
     public void StartBatchUpdate() { }
 

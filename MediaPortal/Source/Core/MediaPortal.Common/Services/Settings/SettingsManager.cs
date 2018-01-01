@@ -25,6 +25,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
@@ -218,6 +219,21 @@ namespace MediaPortal.Common.Services.Settings
           return;
         SaveSettingsObject(settingsObject);
       }
+    }
+
+    public Task<TSettingsType> LoadAsync<TSettingsType>() where TSettingsType : class
+    {
+      return Task.FromResult(Load<TSettingsType>());
+    }
+
+    public Task<object> LoadAsync(Type settingsType)
+    {
+      return Task.FromResult(Load(settingsType));
+    }
+
+    public Task SaveAsync(object settingsObject)
+    {
+      return Task.CompletedTask;
     }
 
     public void StartBatchUpdate()

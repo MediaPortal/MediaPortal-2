@@ -161,7 +161,7 @@ namespace WakeOnLan.Client
     protected async Task WakeServerAsync()
     {
       var sm = ServiceRegistration.Get<ISettingsManager>();
-      var settings = sm.Load<WakeOnLanSettings>();
+      var settings = await sm.LoadAsync<WakeOnLanSettings>();
       if (!settings.EnableWakeOnLan)
         return;
 
@@ -317,7 +317,7 @@ namespace WakeOnLan.Client
       var sm = ServiceRegistration.Get<ISettingsManager>();
       var settings = sm.Load<WakeOnLanSettings>();
       settings.ServerWakeOnLanAddress = wolAddress;
-      sm.Save(settings);
+      sm.SaveAsync(settings);
     }
 
     #endregion

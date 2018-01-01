@@ -26,12 +26,13 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Settings;
 using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Login.Settings.Configuration
 {
   public class AutoLogoutTimeoutSetting : LimitedNumberSelect
   {
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
@@ -41,21 +42,21 @@ namespace MediaPortal.UiComponents.Login.Settings.Configuration
       MaxNumDigits = 0;
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
-      UserSettings settings = localSettings.Load<UserSettings>();
+      UserSettings settings = await localSettings.LoadAsync<UserSettings>();
       Value = settings.AutoLogoutIdleTimeoutInMin;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
-      UserSettings settings = localSettings.Load<UserSettings>();
+      UserSettings settings = await localSettings.LoadAsync<UserSettings>();
       settings.AutoLogoutIdleTimeoutInMin = Convert.ToInt32(Value);
-      localSettings.Save(settings);
+      await localSettings.SaveAsync(settings);
       UserSettingStorage.AutoLogoutIdleTimeoutInMin = settings.AutoLogoutIdleTimeoutInMin;
     }
   }

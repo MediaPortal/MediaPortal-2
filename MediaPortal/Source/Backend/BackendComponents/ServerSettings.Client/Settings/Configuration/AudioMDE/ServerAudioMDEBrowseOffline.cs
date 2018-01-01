@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
@@ -41,32 +42,32 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOfflineLocal]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
+      AudioMetadataExtractorSettings settings = await serverSettings.LoadAsync<AudioMetadataExtractorSettings>();
       if (settings.CacheOfflineFanArt)
         _selected.Add(0);
       if (settings.CacheLocalFanArt)
         _selected.Add(1);
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
+      AudioMetadataExtractorSettings settings = await serverSettings.LoadAsync<AudioMetadataExtractorSettings>();
       settings.CacheOfflineFanArt = _selected.Contains(0);
       settings.CacheLocalFanArt = _selected.Contains(1);
-      serverSettings.Save(settings);
-      localSettings.Save(settings);      
+      await serverSettings.SaveAsync(settings);
+      await localSettings.SaveAsync(settings);
     }
 
     public void Dispose()

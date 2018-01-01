@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.ServerSettings
 {
@@ -34,7 +35,7 @@ namespace MediaPortal.Plugins.ServerSettings
     /// <param name="settingsTypeName">Assembly qualified name of Type of settings to load.</param>
     /// <returns>Loaded Application settings of the specified <paramref name="settingsTypeName"/>, if
     /// present. Else, returns an empty instance of that type.</returns>
-    object Load(string settingsTypeName);
+    Task<object> LoadAsync(string settingsTypeName);
 
     /// <summary>
     /// Stores an object's public properties in the application's settings store.
@@ -43,19 +44,19 @@ namespace MediaPortal.Plugins.ServerSettings
     /// <exception cref="ArgumentNullException">If the specified <paramref name="settings"/>
     /// is null.</exception>
     /// <param name="settings">Settings object's instance to be saved.</param>
-    void Save(string settingsTypeName, string settings);
+    Task SaveAsync(string settingsTypeName, string settings);
   }
 
   public interface IServerSettingsClient : IServerSettings
   {
     /// <summary>
     /// Retrieves an object's public properties from the application's settings store.
-    /// This is a convenience method for <see cref="Load(Type)"/>.
+    /// This is a convenience method for <see cref="LoadAsync{SettingsType}"/>.
     /// </summary>
-    /// <typeparam name="SettingsType">Type of the settings object to load.</typeparam>
-    /// <returns>Loaded Application settings of the specified <typeparamref name="SettingsType"/>, if
+    /// <typeparam name="TSettingsType">Type of the settings object to load.</typeparam>
+    /// <returns>Loaded Application settings of the specified <typeparamref name="TSettingsType"/>, if
     /// present. Else, returns an empty instance of that type.</returns>
-    SettingsType Load<SettingsType>() where SettingsType : class;
+    Task<TSettingsType> LoadAsync<TSettingsType>() where TSettingsType : class;
 
     /// <summary>
     /// Stores an object's public properties in the application's settings store.
@@ -63,6 +64,6 @@ namespace MediaPortal.Plugins.ServerSettings
     /// <exception cref="ArgumentNullException">If the specified <paramref name="settingsObject"/>
     /// is null.</exception>
     /// <param name="settingsObject">Settings object's instance to be saved.</param>
-    void Save(object settingsObject);
+    Task SaveAsync(object settingsObject);
   }
 }

@@ -22,22 +22,23 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace WakeOnLan.Client.Settings.Configuration
 {
   public class EnableWakeOnLan : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      _yes = SettingsManager.Load<WakeOnLanSettings>().EnableWakeOnLan;
+      _yes = (await SettingsManager.LoadAsync<WakeOnLanSettings>()).EnableWakeOnLan;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      WakeOnLanSettings settings = SettingsManager.Load<WakeOnLanSettings>();
+      WakeOnLanSettings settings = await SettingsManager.LoadAsync<WakeOnLanSettings>();
       settings.EnableWakeOnLan = _yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

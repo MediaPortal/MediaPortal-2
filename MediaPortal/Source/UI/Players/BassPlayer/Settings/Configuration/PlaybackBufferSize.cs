@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
@@ -30,13 +31,13 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
   {
     #region Base overrides
 
-    public override void Load()
+    public override async Task Load()
     {
       _type = NumberType.Integer;
       _step = 1;
       _lowerLimit = 0;
       _upperLimit = 300;
-      _value = SettingsManager.Load<BassPlayerSettings>().PlaybackBufferSizeMilliSecs;
+      _value = (await SettingsManager.LoadAsync<BassPlayerSettings>()).PlaybackBufferSizeMilliSecs;
     }
     #endregion
   }

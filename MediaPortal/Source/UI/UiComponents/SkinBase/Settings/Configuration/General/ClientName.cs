@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.UI.FrontendServer;
@@ -33,16 +34,16 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
   {
     #region Base overrides
 
-    public override void Load()
+    public override async Task Load()
     {
-      _value = SettingsManager.Load<FrontendServerSettings>().UPnPServerDeviceFriendlyName;
+      _value = (await SettingsManager.LoadAsync<FrontendServerSettings>()).UPnPServerDeviceFriendlyName;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      FrontendServerSettings settings = SettingsManager.Load<FrontendServerSettings>();
+      FrontendServerSettings settings = await SettingsManager.LoadAsync<FrontendServerSettings>();
       settings.UPnPServerDeviceFriendlyName = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
       ServiceRegistration.Get<IFrontendServer>().UpdateUPnPConfiguration();
     }
 

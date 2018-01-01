@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Settings;
@@ -42,27 +43,27 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _maxNumDigits = 0;
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      _value = serverSettings.Load<FanArtSettings>().MaxPosterFanArt;
+      _value = (await serverSettings.LoadAsync<FanArtSettings>()).MaxPosterFanArt;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      FanArtSettings settings = serverSettings.Load<FanArtSettings>();
+      FanArtSettings settings = await serverSettings.LoadAsync<FanArtSettings>();
       settings.MaxPosterFanArt = Convert.ToInt32(_value);
-      serverSettings.Save(settings);
-      localSettings.Save(settings);      
+      await serverSettings.SaveAsync(settings);
+      await localSettings.SaveAsync(settings);
     }
 
     public void Dispose()

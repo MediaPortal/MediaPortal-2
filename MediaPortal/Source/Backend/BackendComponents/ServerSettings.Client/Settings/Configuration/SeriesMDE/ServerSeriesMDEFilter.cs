@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
@@ -46,12 +47,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.TvNetwork]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      SeriesMetadataExtractorSettings settings = serverSettings.Load<SeriesMetadataExtractorSettings>();
+      SeriesMetadataExtractorSettings settings = await serverSettings.LoadAsync<SeriesMetadataExtractorSettings>();
       if (settings.IncludeActorDetails)
         _selected.Add(0);
       if (settings.IncludeCharacterDetails)
@@ -66,31 +67,31 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
         _selected.Add(5);
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
 
-      SeriesMetadataExtractorSettings mainSettings = serverSettings.Load<SeriesMetadataExtractorSettings>();
+      SeriesMetadataExtractorSettings mainSettings = await serverSettings.LoadAsync<SeriesMetadataExtractorSettings>();
       mainSettings.IncludeActorDetails = _selected.Contains(0);
       mainSettings.IncludeCharacterDetails = _selected.Contains(1);
       mainSettings.IncludeDirectorDetails = _selected.Contains(2);
       mainSettings.IncludeWriterDetails = _selected.Contains(3);
       mainSettings.IncludeProductionCompanyDetails = _selected.Contains(4);
       mainSettings.IncludeTVNetworkDetails = _selected.Contains(5);
-      serverSettings.Save(mainSettings);
-      localSettings.Save(mainSettings);
+      await serverSettings.SaveAsync(mainSettings);
+      await localSettings.SaveAsync(mainSettings);
 
-      NfoSeriesMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoSeriesMetadataExtractorSettings>();
+      NfoSeriesMetadataExtractorSettings nfoSettings = await serverSettings.LoadAsync<NfoSeriesMetadataExtractorSettings>();
       nfoSettings.IncludeActorDetails = mainSettings.IncludeActorDetails;
       nfoSettings.IncludeCharacterDetails = mainSettings.IncludeCharacterDetails;
-      serverSettings.Save(nfoSettings);
-      localSettings.Save(nfoSettings);
+      await serverSettings.SaveAsync(nfoSettings);
+      await localSettings.SaveAsync(nfoSettings);
     }
 
     public void Dispose()

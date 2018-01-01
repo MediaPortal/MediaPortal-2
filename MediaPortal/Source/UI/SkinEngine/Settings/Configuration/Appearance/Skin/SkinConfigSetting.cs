@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Screens;
@@ -56,13 +57,13 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
 
     #region Public Methods
 
-    public override void Load()
+    public override async Task Load()
     {
       _skins.Clear();
       SkinManager skinManager = ServiceRegistration.Get<ISkinResourceManager>() as SkinManager;
       if (skinManager == null)
         return;
-      SkinSettings settings = SettingsManager.Load<SkinSettings>();
+      SkinSettings settings = await SettingsManager.LoadAsync<SkinSettings>();
       _currentSkinName = settings.Skin;
       foreach (SkinManagement.Skin skin in skinManager.Skins.Values)
       {
@@ -72,12 +73,11 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
       }
     }
 
-    public override void Save()
+    public override Task Save()
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      if (screenManager == null)
-        return;
-      screenManager.SwitchSkinAndTheme(_currentSkinName, null);
+      screenManager?.SwitchSkinAndTheme(_currentSkinName, null);
+      return Task.CompletedTask;
     }
 
     #endregion

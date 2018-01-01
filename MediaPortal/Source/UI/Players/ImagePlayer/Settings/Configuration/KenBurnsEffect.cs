@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.Image.Settings.Configuration
@@ -30,16 +31,16 @@ namespace MediaPortal.UI.Players.Image.Settings.Configuration
   {
     #region Public methods
 
-    public override void Load()
+    public override async Task Load()
     {
-      _yes = SettingsManager.Load<ImagePlayerSettings>().UseKenBurns;
+      _yes = (await SettingsManager.LoadAsync<ImagePlayerSettings>()).UseKenBurns;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      ImagePlayerSettings settings = SettingsManager.Load<ImagePlayerSettings>();
+      ImagePlayerSettings settings = await SettingsManager.LoadAsync<ImagePlayerSettings>();
       settings.UseKenBurns = _yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     #endregion

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
@@ -36,23 +37,23 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
   {
     #region Base overrides
 
-    public override void Load()
+    public override async Task Load()
     {
       _type = NumberType.Integer;
       _step = 1;
       _lowerLimit = 0;
       _upperLimit = 65535;
-      _value = SettingsManager.Load<ServerSettings>().HttpServerPort;
+      _value = (await SettingsManager.LoadAsync<ServerSettings>()).HttpServerPort;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      var settings = SettingsManager.Load<ServerSettings>();
+      var settings = await SettingsManager.LoadAsync<ServerSettings>();
       var value = (int)_value;
       if (value != settings.HttpServerPort)
       {
         settings.HttpServerPort = value;
-        SettingsManager.Save(settings);
+        await SettingsManager.SaveAsync(settings);
         //TODO: make notification texts localizable or handle rester notification differently
         ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired, 
           "Restart required", 

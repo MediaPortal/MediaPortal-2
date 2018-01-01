@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
@@ -87,9 +88,9 @@ namespace MediaPortal.Plugins.ServerSettings.Models
     /// <summary>
     /// Saves the current state to the settings file.
     /// </summary>
-    public void SaveSettings ()
+    public async Task SaveSettings ()
     {
-      var settings = ServiceRegistration.Get<IServerSettingsClient>().Load<NetworkNeighborhoodResourceProviderSettings>();
+      var settings = await ServiceRegistration.Get<IServerSettingsClient>().LoadAsync<NetworkNeighborhoodResourceProviderSettings>();
       settings.NetworkCredentials.Clear();
       if (UseCredentials)
       {
@@ -106,13 +107,13 @@ namespace MediaPortal.Plugins.ServerSettings.Models
       }
       // We currently store the settings on the server and locally on the client.
       // ToDo: Make these settings SystemSettings, once they are implemented.
-      ServiceRegistration.Get<IServerSettingsClient>().Save(settings);
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      await ServiceRegistration.Get<IServerSettingsClient>().SaveAsync(settings);
+      await ServiceRegistration.Get<ISettingsManager>().SaveAsync(settings);
     }
 
-    private void InitModel ()
+    private async Task InitModel()
     {
-      var settings = ServiceRegistration.Get<IServerSettingsClient>().Load<NetworkNeighborhoodResourceProviderSettings>();
+      var settings = await ServiceRegistration.Get<IServerSettingsClient>().LoadAsync<NetworkNeighborhoodResourceProviderSettings>();
       if (settings.NetworkCredentials.Any())
       {
         UseCredentials = true;
@@ -145,7 +146,7 @@ namespace MediaPortal.Plugins.ServerSettings.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      InitModel();
+      _ = InitModel();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

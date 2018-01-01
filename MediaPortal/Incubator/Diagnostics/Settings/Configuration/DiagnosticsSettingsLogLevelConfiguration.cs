@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Logging;
 using MediaPortal.UiComponents.Diagnostics.Service;
@@ -33,13 +34,13 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 
     #region Public Methods
 
-    public override void Load()
+    public override async Task Load()
     {
       LogLevel activeLevel = DiagnosticsHandler.GetLogLevel();
       _yes = activeLevel == LogLevel.All;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       LogLevel desired = _yes ? LogLevel.All : LogLevel.Information;
       DiagnosticsHandler.SetLogLevel(desired);

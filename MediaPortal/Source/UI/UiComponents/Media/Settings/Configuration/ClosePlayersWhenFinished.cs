@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.UI.Presentation.Players;
@@ -30,17 +31,17 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
 {
   public class ClosePlayersWhenFinished : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      _yes = SettingsManager.Load<MediaModelSettings>().ClosePlayerWhenFinished;
+      _yes = (await SettingsManager.LoadAsync<MediaModelSettings>()).ClosePlayerWhenFinished;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      MediaModelSettings settings = SettingsManager.Load<MediaModelSettings>();
+      await base.Save();
+      MediaModelSettings settings = await SettingsManager.LoadAsync<MediaModelSettings>();
       settings.ClosePlayerWhenFinished = _yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
       UpdatePlayerContexts();
     }
 

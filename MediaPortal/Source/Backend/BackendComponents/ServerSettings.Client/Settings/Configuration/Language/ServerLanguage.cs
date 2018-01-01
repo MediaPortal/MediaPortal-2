@@ -28,6 +28,7 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 using System.Globalization;
 using MediaPortal.Common.Localization;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -54,12 +55,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       return string.Compare(culture1.DisplayName, culture2.DisplayName);
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      RegionSettings settings = serverSettings.Load<RegionSettings>();
+      RegionSettings settings = await serverSettings.LoadAsync<RegionSettings>();
       if (string.IsNullOrEmpty(settings.Culture))
         settings.Culture = "en-US";
       CultureInfo current = new CultureInfo(settings.Culture);
@@ -73,17 +74,17 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       }
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      RegionSettings settings = serverSettings.Load<RegionSettings>();
+      RegionSettings settings = await serverSettings.LoadAsync<RegionSettings>();
       settings.Culture = _cultures[Selected].Name;
-      serverSettings.Save(settings);    
+      await serverSettings.SaveAsync(settings);    
     }
 
     public void Dispose()

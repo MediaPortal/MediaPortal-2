@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
@@ -110,10 +111,10 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     /// <summary>
     /// Saves the current state to the settings file.
     /// </summary>
-    public void SaveSettings()
+    public async Task SaveSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<MenuSettings>();
+      var settings = await settingsManager.LoadAsync<MenuSettings>();
       settings.DisableHomeTab = DisableHomeTab;
       settings.DisableAutoSelection = DisableAutoSelection;
       settings.UseAlternativeSplashscreen = UseAlternativeSplashscreen;
@@ -123,10 +124,10 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         settings.MenuItems.Clear();
 
       // Save
-      settingsManager.Save(settings);
+      await settingsManager.SaveAsync(settings);
 
-      var skinSettings = ServiceRegistration.Get<ISettingsManager>().Load<UI.SkinEngine.Settings.SkinSettings>();
-      var startupSettings = ServiceRegistration.Get<ISettingsManager>().Load<StartupSettings>();
+      var skinSettings = await settingsManager.LoadAsync<UI.SkinEngine.Settings.SkinSettings>();
+      var startupSettings = await  settingsManager.LoadAsync<StartupSettings>();
       List<string> paths = new List<string>
       {
         string.Format("Plugins\\BlueVision\\Skin\\BlueVision\\Themes\\{0}\\Images\\{1}", skinSettings.Theme, SPLASH_SCREEN_NAME),
@@ -147,7 +148,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
           }
         }
       }
-      settingsManager.Save(startupSettings);
+      await settingsManager.SaveAsync(startupSettings);
     }
 
     #endregion

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.UI.Settings;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
@@ -61,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 
     #region Base overrides
 
-    public override void Load()
+    public override async Task Load()
     {
       _screens = new List<Screen>(Screen.AllScreens);
 
@@ -79,21 +80,22 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
         options.Add(string.Format("{0} ({1}x{2})", monitorname, screen.Bounds.Width, screen.Bounds.Height));
       }
 
-      int startupScreenNum = SettingsManager.Load<StartupSettings>().StartupScreenNum;
+      var settings = await SettingsManager.LoadAsync<StartupSettings>();
+      int startupScreenNum = settings.StartupScreenNum;
 
       if (startupScreenNum < Screen.AllScreens.Length)
-        Selected = SettingsManager.Load<StartupSettings>().StartupScreenNum + 1;
+        Selected = settings.StartupScreenNum + 1;
       else
         Selected = 0;
 
       _items = options.Select(LocalizationHelper.CreateResourceString).ToList();
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      StartupSettings settings = SettingsManager.Load<StartupSettings>();
+      StartupSettings settings = await SettingsManager.LoadAsync<StartupSettings>();
       settings.StartupScreenNum = Selected - 1;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     #endregion

@@ -105,7 +105,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       if (settings.LocationsList.Count == 0)
         settings.LocationCode = string.Empty;
 
-      settingsManager.Save(settings);
+      settingsManager.SaveAsync(settings);
     }
 
     /// <summary>

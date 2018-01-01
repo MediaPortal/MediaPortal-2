@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.ResourceAccess;
@@ -80,13 +81,13 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
     /// <summary>
     /// Saves the current state to the settings file.
     /// </summary>
-    public void SaveSettings()
+    public async Task SaveSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      BackgroundManagerSettings settings = settingsManager.Load<BackgroundManagerSettings>();
+      BackgroundManagerSettings settings = await settingsManager.LoadAsync<BackgroundManagerSettings>();
       settings.VideoBackgroundFileName = BackgroundVideoFilename;
       settings.EnableVideoBackground = IsEnabled;
-      settingsManager.Save(settings);
+      await settingsManager.SaveAsync(settings);
     }
 
     public void ChooseBackgroundVideo()
@@ -114,10 +115,10 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
           null);
     }
 
-    private void InitModel()
+    private async Task InitModel()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      BackgroundManagerSettings settings = settingsManager.Load<BackgroundManagerSettings>();
+      BackgroundManagerSettings settings = await settingsManager.LoadAsync<BackgroundManagerSettings>();
       BackgroundVideoFilename = settings.VideoBackgroundFileName;
       IsEnabled = settings.EnableVideoBackground;
     }
@@ -136,7 +137,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      InitModel();
+      _ = InitModel();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

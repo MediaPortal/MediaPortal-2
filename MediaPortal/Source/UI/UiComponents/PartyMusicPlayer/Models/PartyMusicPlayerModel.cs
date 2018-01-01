@@ -271,10 +271,10 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 
     #region Protected members
 
-    protected void LoadSettings()
+    protected async Task LoadSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      PartyMusicPlayerSettings settings = settingsManager.Load<PartyMusicPlayerSettings>();
+      PartyMusicPlayerSettings settings = await settingsManager.LoadAsync<PartyMusicPlayerSettings>();
       UseEscapePassword = settings.UseEscapePassword;
       EscapePassword = settings.EscapePassword;
       DisableScreenSaver = settings.DisableScreenSaver;
@@ -283,34 +283,34 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
       // Don't load the play- and repeat mode here, it's loaded separately
     }
 
-    protected void SaveSettings()
+    protected async Task SaveSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      PartyMusicPlayerSettings settings = settingsManager.Load<PartyMusicPlayerSettings>();
+      PartyMusicPlayerSettings settings = await settingsManager.LoadAsync<PartyMusicPlayerSettings>();
       settings.UseEscapePassword = UseEscapePassword;
       settings.EscapePassword = EscapePassword;
       settings.DisableScreenSaver = DisableScreenSaver;
       settings.PlaylistName = PlaylistName;
       settings.PlaylistId = _playlistId;
       // Don't save the play- and repeat mode here, it's saved separately
-      settingsManager.Save(settings);
+      await settingsManager.SaveAsync(settings);
     }
 
-    protected void LoadPlayRepeatMode()
+    protected async Task LoadPlayRepeatMode()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      PartyMusicPlayerSettings settings = settingsManager.Load<PartyMusicPlayerSettings>();
+      PartyMusicPlayerSettings settings = await settingsManager.LoadAsync<PartyMusicPlayerSettings>();
       PlayMode = settings.PlayMode;
       RepeatMode = settings.RepeatMode;
     }
 
-    protected void SavePlayRepeatMode()
+    protected async Task SavePlayRepeatMode()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      PartyMusicPlayerSettings settings = settingsManager.Load<PartyMusicPlayerSettings>();
+      PartyMusicPlayerSettings settings = await settingsManager.LoadAsync<PartyMusicPlayerSettings>();
       settings.PlayMode = PlayMode;
       settings.RepeatMode = RepeatMode;
-      settingsManager.Save(settings);
+      await settingsManager.SaveAsync(settings);
     }
 
     protected async Task<bool> UpdatePlaylists()

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
 
@@ -36,10 +37,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[SlimTvClient.EpgVisibleChannelInfo.ChannelLogo]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
-      var settings = SettingsManager.Load<SlimTvClientSettings>();
+      await base.Load();
+      var settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       if (settings.EpgShowChannelNames)
         _selected.Add(0);
       if (settings.EpgShowChannelNumbers)
@@ -48,14 +49,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
         _selected.Add(2);
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      var settings = SettingsManager.Load<SlimTvClientSettings>();
+      await base.Save();
+      var settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       settings.EpgShowChannelNames = _selected.Contains(0);
       settings.EpgShowChannelNumbers = _selected.Contains(1);
       settings.EpgShowChannelLogos = _selected.Contains(2);
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

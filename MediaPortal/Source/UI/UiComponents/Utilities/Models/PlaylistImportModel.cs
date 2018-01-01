@@ -457,7 +457,7 @@ namespace MediaPortal.UiComponents.Utilities.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       PlaylistImportSettings settings = settingsManager.Load<PlaylistImportSettings>();
       settings.LastImportFile = ImportFile;
-      settingsManager.Save(settings);
+      settingsManager.SaveAsync(settings);
       settings.ShareLocation = GetShareLocation();
     }
 

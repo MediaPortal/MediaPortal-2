@@ -24,6 +24,7 @@
 
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using Microsoft.Win32;
 
@@ -34,12 +35,12 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 
     #region Public Methods
 
-    public override void Load()
+    public override async Task Load()
     {
       _yes = false;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!_yes) return;
 

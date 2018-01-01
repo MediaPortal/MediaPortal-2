@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 
@@ -29,17 +30,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
   public class HideAllChannelsGroupSetting : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      Yes = SettingsManager.Load<SlimTvClientSettings>().HideAllChannelsGroup;
+      Yes = (await SettingsManager.LoadAsync<SlimTvClientSettings>()).HideAllChannelsGroup;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      SlimTvClientSettings settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       settings.HideAllChannelsGroup = Yes;
-      SettingsManager.Save(settings);
-      _ = ChannelContext.Instance.InitChannelGroups();
+      await SettingsManager.SaveAsync(settings);
+      await ChannelContext.Instance.InitChannelGroups();
     }
   }
 }

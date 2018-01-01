@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
@@ -45,12 +46,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.None]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
+      MovieMetadataExtractorSettings settings = await serverSettings.LoadAsync<MovieMetadataExtractorSettings>();
       if (!settings.SkipOnlineSearches && !settings.SkipFanArtDownload)
         Selected = 0;
       else if (!settings.SkipOnlineSearches)
@@ -61,17 +62,17 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
         Selected = 3;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
 
-      MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
+      MovieMetadataExtractorSettings settings = await serverSettings.LoadAsync<MovieMetadataExtractorSettings>();
       if (Selected == 0)
       {
         settings.SkipOnlineSearches = false;
@@ -92,13 +93,13 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
         settings.SkipOnlineSearches = true;
         settings.SkipFanArtDownload = true;
       }
-      serverSettings.Save(settings);
-      localSettings.Save(settings);
+      await serverSettings.SaveAsync(settings);
+      await localSettings.SaveAsync(settings);
 
-      NfoMovieMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoMovieMetadataExtractorSettings>();
+      NfoMovieMetadataExtractorSettings nfoSettings = await serverSettings.LoadAsync<NfoMovieMetadataExtractorSettings>();
       nfoSettings.SkipFanArtDownload = settings.SkipFanArtDownload;
-      serverSettings.Save(nfoSettings);
-      localSettings.Save(nfoSettings);
+      await serverSettings.SaveAsync(nfoSettings);
+      await localSettings.SaveAsync(nfoSettings);
     }
 
     public void Dispose()

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.News.Settings;
@@ -121,12 +122,12 @@ namespace MediaPortal.UiComponents.News.Models
     /// <summary>
     /// Saves the current state to the settings file.
     /// </summary>
-    public void SaveSettings()
+    public async Task SaveSettings()
     {
       if (HasChanges)
       {
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        NewsSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NewsSettings>();
+        NewsSettings settings = await ServiceRegistration.Get<ISettingsManager>().LoadAsync<NewsSettings>();
         // Apply new feeds list
         lock (settings.FeedsList)
         {
@@ -134,7 +135,7 @@ namespace MediaPortal.UiComponents.News.Models
           foreach (FeedBookmarkItem item in Feeds) settings.FeedsList.Add(new FeedBookmark { Name = item.Name, Url = item.Url });
         }
         // Save
-        settingsManager.Save(settings);
+        await settingsManager.SaveAsync(settings);
       }
     }
 

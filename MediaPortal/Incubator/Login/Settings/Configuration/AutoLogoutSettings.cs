@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Settings;
@@ -30,26 +31,26 @@ namespace MediaPortal.UiComponents.Login.Settings.Configuration
 {
   public class AutoLogoutSettings : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
-      UserSettings settings = localSettings.Load<UserSettings>();
+      UserSettings settings = await localSettings.LoadAsync<UserSettings>();
       Yes = settings.AutoLogoutEnabled;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
-      UserSettings settings = localSettings.Load<UserSettings>();
+      UserSettings settings = await localSettings.LoadAsync<UserSettings>();
       settings.AutoLogoutEnabled = Yes;
-      localSettings.Save(settings);
+      await localSettings.SaveAsync(settings);
       UserSettingStorage.AutoLogoutEnabled = Yes;
     }
   }

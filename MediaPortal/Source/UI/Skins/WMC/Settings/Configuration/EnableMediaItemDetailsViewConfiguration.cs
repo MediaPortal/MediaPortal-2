@@ -39,18 +39,18 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
       SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
     }
 
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
-      _yes = SettingsManager.Load<WMCSkinSettings>().EnableMediaItemDetailsView;
+      await base.Load();
+      _yes = (await SettingsManager.LoadAsync<WMCSkinSettings>()).EnableMediaItemDetailsView;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      await base.Save();
+      var settings = await SettingsManager.LoadAsync<WMCSkinSettings>();
       settings.EnableMediaItemDetailsView = _yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     public void Dispose()

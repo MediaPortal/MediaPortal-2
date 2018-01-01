@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.General;
@@ -38,12 +39,12 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
   {
     #region Public Methods
 
-    public override void Load()
+    public override async Task Load()
     {
       _yes = DiagnosticsHandler.LogViewerInstance.Visible;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (_yes)
       {

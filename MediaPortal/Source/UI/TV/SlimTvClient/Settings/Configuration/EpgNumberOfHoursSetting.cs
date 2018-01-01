@@ -22,26 +22,27 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
   public class EpgNumberOfHoursSetting : LimitedNumberSelect
   {
-    public override void Load()
+    public override async Task Load()
     {
       _type = NumberType.FloatingPoint;
       _step = 0.5;
       _lowerLimit = 1.0;
       _upperLimit = 4.0;
-      _value = SettingsManager.Load<SlimTvClientSettings>().EpgVisibleHours;
+      _value = (await SettingsManager.LoadAsync<SlimTvClientSettings>()).EpgVisibleHours;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      SlimTvClientSettings settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       settings.EpgVisibleHours = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

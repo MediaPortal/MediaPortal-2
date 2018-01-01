@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
@@ -40,29 +41,29 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOfflineLocal]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
+      MovieMetadataExtractorSettings settings = await serverSettings.LoadAsync<MovieMetadataExtractorSettings>();
       if (settings.CacheOfflineFanArt)
         _selected.Add(0);
       if (settings.CacheLocalFanArt)
         _selected.Add(1);
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
+      MovieMetadataExtractorSettings settings = await serverSettings.LoadAsync<MovieMetadataExtractorSettings>();
       settings.CacheOfflineFanArt = _selected.Contains(0);
       settings.CacheLocalFanArt = _selected.Contains(1);
-      serverSettings.Save(settings);
+      await serverSettings.SaveAsync(settings);
     }
 
     public void Dispose()

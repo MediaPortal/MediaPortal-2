@@ -22,26 +22,27 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
   public class ZapTimeoutSetting : LimitedNumberSelect
   {
-    public override void Load()
+    public override async Task Load()
     {
       _type = NumberType.FloatingPoint;
       _step = 0.2;
       _lowerLimit = 0.4;
       _upperLimit = 5.0;
-      _value = SettingsManager.Load<SlimTvClientSettings>().ZapTimeout;
+      _value = (await SettingsManager.LoadAsync<SlimTvClientSettings>()).ZapTimeout;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      SlimTvClientSettings settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       settings.ZapTimeout = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

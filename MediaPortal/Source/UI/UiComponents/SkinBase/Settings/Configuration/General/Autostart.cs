@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
@@ -66,14 +66,16 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
 
     #region Base overrides
 
-    public override void Load()
+    public override Task Load()
     {
       _yes = IsAutostart;
+      return Task.CompletedTask;
     }
 
-    public override void Save()
+    public override Task Save()
     {
       IsAutostart = _yes;
+      return Task.CompletedTask;
     }
 
     #endregion

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Logging;
 using MediaPortal.UiComponents.Diagnostics.Service;
@@ -33,12 +34,12 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 
     #region Public Methods
 
-    public override void Load()
+    public override async Task Load()
     {
       _yes = DiagnosticsHandler.FocusStealingInstance.IsMonitoring;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (_yes)
       {

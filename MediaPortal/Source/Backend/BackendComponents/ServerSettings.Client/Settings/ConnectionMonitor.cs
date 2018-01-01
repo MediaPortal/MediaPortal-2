@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.Logging;
@@ -62,7 +63,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings
         {
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
             Enable(true);
-            RefreshNetworkNeighborhoodResourceProviderSettings();
+            _ = RefreshNetworkNeighborhoodResourceProviderSettings();
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
             Enable(false);
@@ -110,10 +111,10 @@ namespace MediaPortal.Plugins.ServerSettings.Settings
     /// by another MP2-Client locally available at least after a restart of this MP2-Client or the MP2-Server.
     /// ToDo: Remove this once we have SystemSettings that are automatically updated.
     /// </remarks>
-    private void RefreshNetworkNeighborhoodResourceProviderSettings()
+    private async Task RefreshNetworkNeighborhoodResourceProviderSettings()
     {
-      var settings = ServiceRegistration.Get<IServerSettingsClient>().Load<NetworkNeighborhoodResourceProviderSettings>();
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      var settings = await ServiceRegistration.Get<IServerSettingsClient>().LoadAsync<NetworkNeighborhoodResourceProviderSettings>();
+      await ServiceRegistration.Get<ISettingsManager>().SaveAsync(settings);
       ServiceRegistration.Get<ILogger>().Debug("ConnectionMonitor: Server connected, NetworkNeighborhoodResourceProviderSettings refreshed.");
     }
 

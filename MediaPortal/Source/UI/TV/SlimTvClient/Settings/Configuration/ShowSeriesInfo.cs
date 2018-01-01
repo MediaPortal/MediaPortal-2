@@ -22,22 +22,23 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
   public class ShowSeriesInfoSetting : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      Yes = SettingsManager.Load<SlimTvClientSettings>().ShowSeriesInfo;
+      Yes = (await SettingsManager.LoadAsync<SlimTvClientSettings>()).ShowSeriesInfo;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      SlimTvClientSettings settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       settings.ShowSeriesInfo = Yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

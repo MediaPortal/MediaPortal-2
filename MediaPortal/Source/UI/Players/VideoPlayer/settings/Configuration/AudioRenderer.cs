@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.UI.Players.Video.Tools;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
@@ -39,22 +40,22 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
       _codecList = CodecHandler.GetAudioRenderers();
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       // Load settings
-      VideoSettings settings = SettingsManager.Load<VideoSettings>();
+      VideoSettings settings = await SettingsManager.LoadAsync<VideoSettings>();
       if (settings != null && settings.AudioRenderer != null)
         _currentSelectionName = settings.AudioRenderer.Name;
 
-      base.Load();
+      await base.Load();
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       // Load settings
-      VideoSettings settings = SettingsManager.Load<VideoSettings>();
+      VideoSettings settings = await SettingsManager.LoadAsync<VideoSettings>();
       settings.AudioRenderer = _codecList[Selected];
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

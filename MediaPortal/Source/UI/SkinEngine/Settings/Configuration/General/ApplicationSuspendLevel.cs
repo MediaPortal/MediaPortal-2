@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
@@ -41,10 +42,10 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.General
 
     #region Base overrides
 
-    public override void Load()
+    public override async Task Load()
     {
       _suspendLevels = Enum.GetValues(typeof(SuspendLevel)).Cast<SuspendLevel>().ToList();
-      SuspendLevel selectedSuspendLevel = SettingsManager.Load<AppSettings>().SuspendLevel;
+      SuspendLevel selectedSuspendLevel = (await SettingsManager.LoadAsync<AppSettings>()).SuspendLevel;
       Selected = _suspendLevels.IndexOf(selectedSuspendLevel);
 
       // Fill items
@@ -52,11 +53,12 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.General
           '[' + RES_SUSPEND_LEVEL_PREFIX + '.' + level.ToString() + ']')).ToList();
     }
 
-    public override void Save()
+    public override Task Save()
     {
       IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
       int selected = Selected;
       sc.ApplicationSuspendLevel = selected > -1 && selected < _suspendLevels.Count ? _suspendLevels[selected] : SuspendLevel.None;
+      return Task.CompletedTask;
     }
 
     #endregion

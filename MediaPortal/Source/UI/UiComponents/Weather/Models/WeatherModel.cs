@@ -190,7 +190,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       // also save the last selected city to settings
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       settings.LocationCode = city.Id;
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().SaveAsync(settings);
     }
 
     /// <summary>
@@ -210,7 +210,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       // Create the configuration file so we won't trigger the setup again.
       settings = new WeatherSettings();
       settings.LocationsList = new List<CitySetupInfo>();
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().SaveAsync(settings);
 
       // Prompt to setup the weather plugin.
       ServiceRegistration.Get<IWorkflowManager>().NavigatePushAsync(new Guid("F1CE62B4-32CA-46e8-BCFB-250FE07911B2"));
@@ -241,7 +241,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     protected void SetLastUpdateTime(DateTime? updateTime)
     {
       _settings.Settings.LastUpdate = updateTime;
-      ServiceRegistration.Get<ISettingsManager>().Save(_settings.Settings);
+      ServiceRegistration.Get<ISettingsManager>().SaveAsync(_settings.Settings);
 
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
       CultureInfo culture = localization.CurrentCulture;

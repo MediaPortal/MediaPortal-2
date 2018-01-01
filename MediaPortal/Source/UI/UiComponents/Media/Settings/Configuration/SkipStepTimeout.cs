@@ -22,28 +22,29 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.Media.Settings.Configuration
 {
   public class SkipStepTimeout : LimitedNumberSelect
   {
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
+      await base.Load();
       _lowerLimit = 0;
       _upperLimit = 5;
       _type = NumberType.FloatingPoint;
       _step = 0.5;
-      _value = SettingsManager.Load<MediaModelSettings>().SkipStepTimeout;
+      _value = (await SettingsManager.LoadAsync<MediaModelSettings>()).SkipStepTimeout;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      MediaModelSettings settings = SettingsManager.Load<MediaModelSettings>();
+      await base.Save();
+      MediaModelSettings settings = await SettingsManager.LoadAsync<MediaModelSettings>();
       settings.SkipStepTimeout = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
   }

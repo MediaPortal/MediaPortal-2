@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.Image.Settings.Configuration
@@ -30,20 +31,20 @@ namespace MediaPortal.UI.Players.Image.Settings.Configuration
   {
     #region Public methods
 
-    public override void Load()
+    public override async Task Load()
     {
       _lowerLimit = 0;
       _upperLimit = 60;
       _type = NumberType.FloatingPoint;
       _step = 0.5;
-      _value = SettingsManager.Load<ImagePlayerSettings>().SlideShowImageDuration;
+      _value = (await SettingsManager.LoadAsync<ImagePlayerSettings>()).SlideShowImageDuration;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      ImagePlayerSettings settings = SettingsManager.Load<ImagePlayerSettings>();
+      ImagePlayerSettings settings = await SettingsManager.LoadAsync<ImagePlayerSettings>();
       settings.SlideShowImageDuration = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     #endregion

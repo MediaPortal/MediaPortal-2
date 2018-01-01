@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.Common.Localization;
@@ -40,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Players
 
     #region Base overrides
 
-    public override void Load()
+    public override Task Load()
     {
       IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
       _geometries = new List<IGeometry>(geometryManager.AvailableGeometries.Values);
@@ -54,11 +55,13 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Players
         if (geometry == current)
           Selected = i;
       }
+      return Task.CompletedTask;
     }
 
-    public override void Save()
+    public override Task Save()
     {
       ServiceRegistration.Get<IGeometryManager>().DefaultVideoGeometry = _geometries[Selected];
+      return Task.CompletedTask;
     }
 
     #endregion

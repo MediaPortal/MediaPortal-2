@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Services.MediaManagement;
@@ -70,19 +71,19 @@ namespace MediaPortal.Plugins.ServerSettings.Models
     /// <summary>
     /// Saves the current state to the settings file.
     /// </summary>
-    public void SaveSettings()
+    public async Task SaveSettings()
     {
       IServerSettingsClient settingsManager = ServiceRegistration.Get<IServerSettingsClient>();
-      ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
+      ImporterWorkerSettings settings = await settingsManager.LoadAsync<ImporterWorkerSettings>();
       settings.EnableAutoRefresh = EnableAutoRefresh;
       settings.ImporterStartTime = RunAtHour;
-      settingsManager.Save(settings);
+      await settingsManager.SaveAsync(settings);
     }
 
-    private void InitModel()
+    private async Task InitModel()
     {
       IServerSettingsClient settingsManager = ServiceRegistration.Get<IServerSettingsClient>();
-      ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
+      ImporterWorkerSettings settings = await settingsManager.LoadAsync<ImporterWorkerSettings>();
       EnableAutoRefresh = settings.EnableAutoRefresh;
       RunAtHour = settings.ImporterStartTime;
     }
@@ -101,7 +102,7 @@ namespace MediaPortal.Plugins.ServerSettings.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      InitModel();
+      _ = InitModel();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

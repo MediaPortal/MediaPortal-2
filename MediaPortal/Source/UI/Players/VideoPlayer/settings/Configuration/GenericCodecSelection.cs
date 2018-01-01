@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using System;
+using System.Threading.Tasks;
 using DirectShow;
 using MediaPortal.UI.Players.Video.Tools;
 
@@ -51,7 +52,7 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
       _codecList = CodecHandler.GetFilters(_inputMediaTypes, _outputMediaTypes);
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       // Fill items
       GetAvailableFilters();

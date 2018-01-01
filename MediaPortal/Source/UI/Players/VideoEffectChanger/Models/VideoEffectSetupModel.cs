@@ -148,7 +148,7 @@ namespace MediaPortal.UiComponents.VideoEffectChanger.Models
       settings.LowerResolutionEffect = _lowerEffectFile;
       settings.HigherResolutionEffect = _higherEffectFile;
       settings.ResolutionLimit = ResolutionLimit;
-      settingsManager.Save(settings);
+      settingsManager.SaveAsync(settings);
     }
 
     public void SelectLowerEffect()

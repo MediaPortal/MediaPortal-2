@@ -213,7 +213,7 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
     private void SetGroup(string groupName)
     {
       _menuSettings.DefaultIndex = _menuSettings.MainMenuGroupNames.IndexOf(groupName);
-      ServiceRegistration.Get<ISettingsManager>().Save(_menuSettings);
+      ServiceRegistration.Get<ISettingsManager>().SaveAsync(_menuSettings);
       NavigateToHome();
       CreatePositionedItems();
       UpdateSelectedGroup();
@@ -284,13 +284,13 @@ namespace MediaPortal.UiComponents.ApolloOne.Models
         positions[new Guid("F6255762-C52A-4231-9E67-14C28735216E")] = new GridPosition { Column = 2 * MenuSettings.DEFAULT_COLSPAN_NORMAL, ColumnSpan = MenuSettings.DEFAULT_COLSPAN_LARGE, Row = 0, RowSpan = MenuSettings.DEFAULT_ROWSPAN_LARGE }; // Configuration
         menuSettings.MenuItems[MenuSettings.MENU_NAME_SETTINGS] = positions;
 
-        ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
+        ServiceRegistration.Get<ISettingsManager>().SaveAsync(menuSettings);
       }
       _menuSettings = menuSettings;
       if (!_menuSettings.MainMenuGroupNames.Contains(MenuSettings.MENU_NAME_OTHERS))
       {
         _menuSettings.MainMenuGroupNames.Add(MenuSettings.MENU_NAME_OTHERS);
-        ServiceRegistration.Get<ISettingsManager>().Save(menuSettings);
+        ServiceRegistration.Get<ISettingsManager>().SaveAsync(menuSettings);
       }
     }
   }

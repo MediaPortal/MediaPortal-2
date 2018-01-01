@@ -23,6 +23,7 @@
 #endregion
 
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
@@ -33,26 +34,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
   public class ChannelLogoStyleSetting : SingleSelectionList
   {
-    public override void Load()
+    public override async Task Load()
     {
       _items.Clear();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
       if (serverSettings == null)
         return;
-      SlimTvLogoSettings settings = serverSettings.Load<SlimTvLogoSettings>();
+      SlimTvLogoSettings settings = await serverSettings.LoadAsync<SlimTvLogoSettings>();
       foreach (var themes in settings.LogoThemes.Distinct())
         _items.Add(LocalizationHelper.CreateStaticString(themes));
       Selected = _items.IndexOf(LocalizationHelper.CreateStaticString(settings.LogoTheme));
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
       if (serverSettings == null)
         return;
-      SlimTvLogoSettings settings = serverSettings.Load<SlimTvLogoSettings>();
+      SlimTvLogoSettings settings = await serverSettings.LoadAsync<SlimTvLogoSettings>();
       settings.LogoTheme = _items[Selected].Evaluate();
-      serverSettings.Save(settings);
+      await serverSettings.SaveAsync(settings);
     }
   }
 }

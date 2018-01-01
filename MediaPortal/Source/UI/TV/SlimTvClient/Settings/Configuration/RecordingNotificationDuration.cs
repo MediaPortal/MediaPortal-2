@@ -22,26 +22,27 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
   public class RecordingNotificationDuration : LimitedNumberSelect
   {
-    public override void Load()
+    public override async Task Load()
     {
       _type = NumberType.Integer;
       _step = 1;
       _lowerLimit = 1;
       _upperLimit = 300;
-      _value = SettingsManager.Load<SlimTvClientSettings>().RecordingNotificationDuration;
+      _value = (await SettingsManager.LoadAsync<SlimTvClientSettings>()).RecordingNotificationDuration;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      SlimTvClientSettings settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       settings.RecordingNotificationDuration = (int)_value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

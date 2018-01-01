@@ -34,22 +34,22 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
 {
   public class WatchedPlayPercentage : LimitedNumberSelect
   {
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
+      await base.Load();
       _lowerLimit = 0;
       _upperLimit = 100;
       _type = NumberType.Integer;
       _step = 1;
-      _value = SettingsManager.Load<PlayerManagerSettings>().WatchedPlayPercentage;
+      _value = (await SettingsManager.LoadAsync<PlayerManagerSettings>()).WatchedPlayPercentage;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      PlayerManagerSettings settings = SettingsManager.Load<PlayerManagerSettings>();
+      await base.Save();
+      PlayerManagerSettings settings = await SettingsManager.LoadAsync<PlayerManagerSettings>();
       settings.WatchedPlayPercentage = (int)_value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Settings;
@@ -38,27 +39,27 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       ConnectionMonitor.Instance.RegisterConfiguration(this);
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      _yes = serverSettings.Load<ImageMetadataExtractorSettings>().IncludeGeoLocationDetails;
+      _yes = (await serverSettings.LoadAsync<ImageMetadataExtractorSettings>()).IncludeGeoLocationDetails;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      ImageMetadataExtractorSettings settings = serverSettings.Load<ImageMetadataExtractorSettings>();
+      ImageMetadataExtractorSettings settings = await serverSettings.LoadAsync<ImageMetadataExtractorSettings>();
       settings.IncludeGeoLocationDetails = _yes;
-      serverSettings.Save(settings);
-      localSettings.Save(settings);      
+      await serverSettings.SaveAsync(settings);
+      await localSettings.SaveAsync(settings);
     }
 
     public void Dispose()

@@ -157,7 +157,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       TestStatus = "[Trakt.LoggedIn]";
       settings.EnableTrakt = IsEnabled;
       settings.Username = Username;
-      settingsManager.Save(settings);
+      settingsManager.SaveAsync(settings);
     }
 
     public void SyncMediaToTrakt()
@@ -1213,7 +1213,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
               Comments = new TraktLastSyncActivities.CommentActivities { LikedAt = string.Empty },
               Lists = new TraktLastSyncActivities.ListActivities { Comment = string.Empty, LikedAt = string.Empty, UpdatedAt = string.Empty }
           };
-        settingsManager.Save(settings);
+        settingsManager.SaveAsync(settings);
       }
     }
 
@@ -1222,7 +1222,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       TraktSettings settings = settingsManager.Load<TraktSettings>();
       settings.EnableTrakt = IsEnabled;
-      settingsManager.Save(settings);
+      settingsManager.SaveAsync(settings);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

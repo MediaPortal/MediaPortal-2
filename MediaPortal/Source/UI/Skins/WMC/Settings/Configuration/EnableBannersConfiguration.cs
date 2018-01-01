@@ -43,10 +43,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[WMC.Configuration.EnableBanners.Seasons]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      await base.Load();
+      var settings = await SettingsManager.LoadAsync<WMCSkinSettings>();
       if (settings.EnableMovieGridBanners)
         _selected.Add(0);
       if (settings.EnableSeriesGridBanners)
@@ -55,14 +55,14 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
         _selected.Add(2);
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      await base.Save();
+      var settings = await SettingsManager.LoadAsync<WMCSkinSettings>();
       settings.EnableMovieGridBanners = _selected.Contains(0);
       settings.EnableSeriesGridBanners = _selected.Contains(1);
       settings.EnableSeasonGridBanners = _selected.Contains(2);
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     public void Dispose()

@@ -824,7 +824,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       lock (_syncObj)
       {
         _noSettingsRefresh = true;
-        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+        ServiceRegistration.Get<ISettingsManager>().SaveAsync(settings);
         _noSettingsRefresh = false;
       }
     }

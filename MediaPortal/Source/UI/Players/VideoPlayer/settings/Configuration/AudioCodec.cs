@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using DirectShow;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
@@ -36,21 +37,21 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
       )
     { }
 
-    public override void Load()
+    public override async Task Load()
     {
       // Load settings
-      VideoSettings settings = SettingsManager.Load<VideoSettings>();
+      VideoSettings settings = await SettingsManager.LoadAsync<VideoSettings>();
       if (settings != null && settings.AudioCodec != null)
         _currentSelection = settings.AudioCodec.GetCLSID();
-      base.Load();
+      await base.Load();
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       // Load settings
-      VideoSettings settings = SettingsManager.Load<VideoSettings>();
+      VideoSettings settings = await SettingsManager.LoadAsync<VideoSettings>();
       settings.AudioCodec = _codecList[Selected];
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

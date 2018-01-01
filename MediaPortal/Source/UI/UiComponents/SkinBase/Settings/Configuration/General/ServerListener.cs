@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common;
 using MediaPortal.Common.Settings;
@@ -32,19 +33,19 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
   {
     #region Base overrides
 
-    public override void Load()
+    public override async Task Load()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
+      SkinBaseSettings settings = await settingsManager.LoadAsync<SkinBaseSettings>();
       _yes = settings.EnableServerListener;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
+      SkinBaseSettings settings = await settingsManager.LoadAsync<SkinBaseSettings>();
       settings.EnableServerListener = _yes;
-      settingsManager.Save(settings);
+      await settingsManager.SaveAsync(settings);
     }
 
     #endregion

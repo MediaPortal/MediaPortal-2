@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.UI.Players.Video.Settings.Configuration;
 using MediaPortal.UI.Players.Video.Tools;
 
@@ -74,21 +75,21 @@ namespace MediaPortal.Plugins.BDHandler.Settings.Configuration
           _codecList.Add(codecInfo);
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       // Load settings from the SettingsManager
-      BDPlayerSettings settings = SettingsManager.Load<BDPlayerSettings>();
+      BDPlayerSettings settings = await SettingsManager.LoadAsync<BDPlayerSettings>();
       if (settings != null && settings.BDSourceFilter != null)
         _currentSelection = settings.BDSourceFilter.GetCLSID();
-      base.Load();
+      await base.Load();
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       // Save settings via the SettingsManager
-      BDPlayerSettings settings = SettingsManager.Load<BDPlayerSettings>();
+      BDPlayerSettings settings = await SettingsManager.LoadAsync<BDPlayerSettings>();
       settings.BDSourceFilter = _codecList[Selected];
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 

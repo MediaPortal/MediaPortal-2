@@ -39,22 +39,22 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
       SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
     }
 
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
+      await base.Load();
       _lowerLimit = 0.7;
       _upperLimit = 1.1;
       _step = 0.1;
       _type = NumberType.FloatingPoint;
-      _value = SettingsManager.Load<WMCSkinSettings>().FanartOverlayOpacity;
+      _value = (await SettingsManager.LoadAsync<WMCSkinSettings>()).FanartOverlayOpacity;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      await base.Save();
+      var settings = await SettingsManager.LoadAsync<WMCSkinSettings>();
       settings.FanartOverlayOpacity = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     public void Dispose()

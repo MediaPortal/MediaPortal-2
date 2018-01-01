@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
@@ -43,12 +44,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.MusicLabels]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
+      AudioMetadataExtractorSettings settings = await serverSettings.LoadAsync<AudioMetadataExtractorSettings>();
       if (settings.IncludeArtistDetails)
         _selected.Add(0);
       if (settings.IncludeComposerDetails)
@@ -57,27 +58,27 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
         _selected.Add(2);
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
 
-      AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
+      AudioMetadataExtractorSettings settings = await serverSettings.LoadAsync<AudioMetadataExtractorSettings>();
       settings.IncludeArtistDetails = _selected.Contains(0);
       settings.IncludeComposerDetails = _selected.Contains(1);
       settings.IncludeMusicLabelDetails = _selected.Contains(2);
-      serverSettings.Save(settings);
-      localSettings.Save(settings);
+      await serverSettings.SaveAsync(settings);
+      await localSettings.SaveAsync(settings);
 
-      NfoAudioMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoAudioMetadataExtractorSettings>();
+      NfoAudioMetadataExtractorSettings nfoSettings = await serverSettings.LoadAsync<NfoAudioMetadataExtractorSettings>();
       nfoSettings.IncludeArtistDetails = settings.IncludeArtistDetails;
-      serverSettings.Save(nfoSettings);
-      localSettings.Save(nfoSettings);
+      await serverSettings.SaveAsync(nfoSettings);
+      await localSettings.SaveAsync(nfoSettings);
     }
 
     public void Dispose()

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
@@ -40,29 +41,29 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOfflineLocal]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      SeriesMetadataExtractorSettings settings = serverSettings.Load<SeriesMetadataExtractorSettings>();
+      SeriesMetadataExtractorSettings settings = await serverSettings.LoadAsync<SeriesMetadataExtractorSettings>();
       if (settings.CacheOfflineFanArt)
         _selected.Add(0);
       if (settings.CacheLocalFanArt)
         _selected.Add(1);
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      SeriesMetadataExtractorSettings settings = serverSettings.Load<SeriesMetadataExtractorSettings>();
+      SeriesMetadataExtractorSettings settings = await serverSettings.LoadAsync<SeriesMetadataExtractorSettings>();
       settings.CacheOfflineFanArt = _selected.Contains(0);
       settings.CacheLocalFanArt = _selected.Contains(1);
-      serverSettings.Save(settings);
+      await serverSettings.SaveAsync(settings);
     }
 
     public void Dispose()

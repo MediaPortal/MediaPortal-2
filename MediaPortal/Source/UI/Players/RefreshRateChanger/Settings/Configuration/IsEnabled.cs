@@ -22,23 +22,24 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration
 {
   public class IsEnabled : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      _yes = SettingsManager.Load<RefreshRateChangerSettings>().IsEnabled;
+      _yes = (await SettingsManager.LoadAsync<RefreshRateChangerSettings>()).IsEnabled;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      RefreshRateChangerSettings settings = SettingsManager.Load<RefreshRateChangerSettings>();
+      await base.Save();
+      RefreshRateChangerSettings settings = await SettingsManager.LoadAsync<RefreshRateChangerSettings>();
       settings.IsEnabled = _yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

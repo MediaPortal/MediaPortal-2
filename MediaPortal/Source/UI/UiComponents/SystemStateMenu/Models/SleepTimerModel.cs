@@ -251,7 +251,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       SystemStateDialogSettings settings = settingsManager.Load<SystemStateDialogSettings>();
       settings.LastSleepTimerAction = action;
-      settingsManager.Save(settings);
+      settingsManager.SaveAsync(settings);
     }
 
     private void GetShutdownActionsFromSettings()

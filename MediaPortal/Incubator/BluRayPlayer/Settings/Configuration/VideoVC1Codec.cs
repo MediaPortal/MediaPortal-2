@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using DirectShow;
 using MediaPortal.UI.Players.Video.Tools;
 
@@ -36,21 +37,21 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
         new Guid[] { MediaType.Video, Guid.Empty } // requires any video output, but exclude streams (as produced my Muxers)
       ) { }
 
-    public override void Load()
+    public override async Task Load()
     {
       // Load settings
-      BluRayPlayerSettings settings = SettingsManager.Load<BluRayPlayerSettings>();
+      BluRayPlayerSettings settings = await SettingsManager.LoadAsync<BluRayPlayerSettings>();
       if (settings != null && settings.VC1Codec != null)
         _currentSelection = settings.VC1Codec.GetCLSID();
-      base.Load();
+      await base.Load();
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       // Load settings
-      BluRayPlayerSettings settings = SettingsManager.Load<BluRayPlayerSettings>();
+      BluRayPlayerSettings settings = await SettingsManager.LoadAsync<BluRayPlayerSettings>();
       settings.VC1Codec = _codecList[Selected];
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
@@ -45,7 +46,7 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Regional
 
     #region Base overrides
 
-    public override void Load()
+    public override Task Load()
     {
       List<CultureInfo> cultures = new List<CultureInfo>(CultureInfo.GetCultures(CultureTypes.SpecificCultures));
       cultures.Sort(CompareByName);
@@ -60,11 +61,13 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Regional
         if (ci.LCID == current.LCID)
           Selected = i;
       }
+      return Task.CompletedTask;
     }
 
-    public override void Save()
+    public override Task Save()
     {
       ServiceRegistration.Get<ILocalization>().ChangeLanguage(_cultures[Selected]);
+      return Task.CompletedTask;
     }
 
     #endregion

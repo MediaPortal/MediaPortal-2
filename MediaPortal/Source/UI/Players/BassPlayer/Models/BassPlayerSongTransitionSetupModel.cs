@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
@@ -144,10 +145,10 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
       _isValidValueProperty = new WProperty(typeof(bool), true);
     }
 
-    public void SaveSettings()
+    public async Task SaveSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      BassPlayerSettings settings = settingsManager.Load<BassPlayerSettings>();
+      BassPlayerSettings settings = await settingsManager.LoadAsync<BassPlayerSettings>();
     
       if (IsNormalMode)
       {
@@ -163,10 +164,10 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
       }
 
       settings.CrossFadeDurationSecs = CrossFadeDuration;
-      settingsManager.Save(settings);
+      await settingsManager.SaveAsync(settings);
     }
 
-    private void InitModel()
+    private async Task InitModel()
     {
       BassPlayerSettings settings = Controller.GetSettings();
       IsNormalMode = settings.SongTransitionMode == PlaybackMode.Normal;
@@ -174,7 +175,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
       IsCrossFadingMode = settings.SongTransitionMode == PlaybackMode.CrossFading;
 
       CrossFadeDuration crossFadeDuration = new CrossFadeDuration();
-      crossFadeDuration.Load();
+      await crossFadeDuration.Load();
       _numberSelectController = new NumberSelectController();
       _numberSelectController.Initialize(crossFadeDuration);
       CrossFadeDuration = settings.CrossFadeDurationSecs;
@@ -193,7 +194,7 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      InitModel();
+      _ = InitModel();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

@@ -23,12 +23,12 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.ServerSettings;
-using ILogger = MediaPortal.Common.Logging.ILogger;
 
 namespace MediaPortal.UiComponents.Diagnostics.Service
 {
@@ -92,25 +92,24 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
     internal static LogLevel GetLogLevel()
     {
       ILoggerConfig config = ServiceRegistration.Get<ILoggerConfig>();
-      return config != null ? config.GetLogLevel() : LogLevel.Information;
+      return config?.GetLogLevel() ?? LogLevel.Information;
     }
 
     /// <summary>
     /// Set Log Level
     /// </summary>
     /// <param name="level">desired log level</param>
-    internal static void SetLogLevel(LogLevel level)
+    internal static async Task SetLogLevel(LogLevel level)
     {
       ILoggerConfig config = ServiceRegistration.Get<ILoggerConfig>();
-      if (config != null)
-        config.SetLogLevel(level);
+      config?.SetLogLevel(level);
 
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
       if (serverSettings != null)
       {
         // Forward the local settings to server
-        LogSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<LogSettings>();
-        serverSettings.Save(settings);
+        LogSettings settings = await ServiceRegistration.Get<ISettingsManager>().LoadAsync<LogSettings>();
+        await serverSettings.SaveAsync(settings);
       }
     }
 

@@ -22,24 +22,25 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.Media.Settings.Configuration
 {
   public class SkipStepList : Entry
   {
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
-      _value = SettingsManager.Load<MediaModelSettings>().SkipStepList;
+      await base.Load();
+      _value = (await SettingsManager.LoadAsync<MediaModelSettings>()).SkipStepList;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      MediaModelSettings settings = SettingsManager.Load<MediaModelSettings>();
+      await base.Save();
+      MediaModelSettings settings = await SettingsManager.LoadAsync<MediaModelSettings>();
       settings.SkipStepList = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     public override int DisplayLength

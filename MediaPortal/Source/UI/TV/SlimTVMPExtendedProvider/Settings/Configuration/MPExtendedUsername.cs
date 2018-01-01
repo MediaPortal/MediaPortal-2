@@ -22,23 +22,24 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration
 {
   public class MPExtendedUsername : Entry
   {
-    public override void Load()
+    public override async Task Load()
     {
-      _value = SettingsManager.Load<MPExtendedProviderSettings>().Username;
+      _value = (await SettingsManager.LoadAsync<MPExtendedProviderSettings>()).Username;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      MPExtendedProviderSettings settings = SettingsManager.Load<MPExtendedProviderSettings>();
+      await base.Save();
+      MPExtendedProviderSettings settings = await SettingsManager.LoadAsync<MPExtendedProviderSettings>();
       settings.Username = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     public override int DisplayLength

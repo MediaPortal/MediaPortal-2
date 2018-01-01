@@ -511,9 +511,9 @@ namespace MediaPortal.UiComponents.Login.Models
       if (userProfile != null)
       {
         ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
-        UserSettings settings = localSettings.Load<UserSettings>();
+        UserSettings settings = await localSettings.LoadAsync<UserSettings>();
         settings.AutoLoginUser = userProfile.ProfileId;
-        localSettings.Save(settings);
+        await localSettings.SaveAsync(settings);
         UserSettingStorage.AutoLoginUser = userProfile.ProfileId;
 
         listUser = (UserProxy)_autoLoginUserList.FirstOrDefault(u => ((UserProxy)u).Id == userProfile.ProfileId);

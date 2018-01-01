@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
@@ -31,17 +32,17 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
   /// </summary>
   public class CellPhoneInputStyle : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      _yes = SettingsManager.Load<AppSettings>().CellPhoneInputStyle;
+      _yes = (await SettingsManager.LoadAsync<AppSettings>()).CellPhoneInputStyle;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      AppSettings settings = SettingsManager.Load<AppSettings>();
+      await base.Save();
+      AppSettings settings = await SettingsManager.LoadAsync<AppSettings>();
       settings.CellPhoneInputStyle = _yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

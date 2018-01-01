@@ -22,22 +22,23 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
   public class AutoStartTvSetting : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      Yes = SettingsManager.Load<SlimTvClientSettings>().AutoStartTV;
+      Yes = (await SettingsManager.LoadAsync<SlimTvClientSettings>()).AutoStartTV;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      SlimTvClientSettings settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       settings.AutoStartTV = Yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

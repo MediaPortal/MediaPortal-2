@@ -22,22 +22,23 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
   public class ZapByChannelIndexSetting : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      Yes = SettingsManager.Load<SlimTvClientSettings>().ZapByChannelIndex;
+      Yes = (await SettingsManager.LoadAsync<SlimTvClientSettings>()).ZapByChannelIndex;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      SlimTvClientSettings settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       settings.ZapByChannelIndex = Yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

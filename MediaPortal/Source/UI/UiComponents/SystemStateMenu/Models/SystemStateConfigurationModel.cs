@@ -225,7 +225,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
           settings.MaxSleepTimeout = _maxMinutes;
       }
 
-      settingsManager.Save(settings);
+      settingsManager.SaveAsync(settings);
     }
 
     /// <summary>

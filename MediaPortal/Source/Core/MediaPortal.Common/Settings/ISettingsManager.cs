@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Common.Settings
 {
@@ -76,6 +77,31 @@ namespace MediaPortal.Common.Settings
     /// is null.</exception>
     /// <param name="settingsObject">Settings object's instance to be saved.</param>
     void Save(object settingsObject);
+
+    /// <summary>
+    /// Retrieves an object's public properties from the application's settings store.
+    /// This is a convenience method for <see cref="LoadAsync"/>.
+    /// </summary>
+    /// <typeparam name="TSettingsType">Type of the settings object to load.</typeparam>
+    /// <returns>Loaded Application settings of the specified <typeparamref name="TSettingsType"/>, if
+    /// present. Else, returns an empty instance of that type.</returns>
+    Task<TSettingsType> LoadAsync<TSettingsType>() where TSettingsType : class;
+
+    /// <summary>
+    /// Retrieves an object's public properties from the application's settings store.
+    /// </summary>
+    /// <param name="settingsType">Type of settings to load.</param>
+    /// <returns>Loaded Application settings of the specified <paramref name="settingsType"/>, if
+    /// present. Else, returns an empty instance of that type.</returns>
+    Task<object> LoadAsync(Type settingsType);
+
+    /// <summary>
+    /// Stores an object's public properties in the application's settings store.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">If the specified <paramref name="settingsObject"/>
+    /// is null.</exception>
+    /// <param name="settingsObject">Settings object's instance to be saved.</param>
+    Task SaveAsync(object settingsObject);
 
     /// <summary>
     /// Switches on the batch update mode. In batch update mode, the settings manager neither won't dispose

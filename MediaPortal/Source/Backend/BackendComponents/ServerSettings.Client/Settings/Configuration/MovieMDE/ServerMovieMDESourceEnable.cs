@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.OnlineLibraries;
@@ -39,14 +40,14 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       ConnectionMonitor.Instance.RegisterConfiguration(this);
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
 
       _items.Clear();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
+      OnlineLibrarySettings settings = await serverSettings.LoadAsync<OnlineLibrarySettings>();
       foreach(MatcherSetting setting in settings.MovieMatchers)
       {
         if (setting.Id.Equals("MovieOmDbMatcher", StringComparison.InvariantCultureIgnoreCase))
@@ -76,16 +77,16 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       }
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
+      OnlineLibrarySettings settings = await serverSettings.LoadAsync<OnlineLibrarySettings>();
       int selectedNo = 0;
       foreach (MatcherSetting setting in settings.MovieMatchers)
       {
@@ -110,8 +111,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
           selectedNo++;
         }
       }
-      serverSettings.Save(settings);
-      localSettings.Save(settings);
+      await serverSettings.SaveAsync(settings);
+      await localSettings.SaveAsync(settings);
     }
 
     public void Dispose()

@@ -21,6 +21,7 @@
 */
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
@@ -29,20 +30,20 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
   {
     #region Base overrides
 
-    public override void Load()
+    public override async Task Load()
     {
       _type = NumberType.Integer;
       _step = 1;
       _lowerLimit = 0;
       _upperLimit = 20;
-      _value = SettingsManager.Load<BassPlayerSettings>().SeekIncrementSeconds;
+      _value = (await SettingsManager.LoadAsync<BassPlayerSettings>()).SeekIncrementSeconds;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      BassPlayerSettings settings = SettingsManager.Load<BassPlayerSettings>();
+      BassPlayerSettings settings = await SettingsManager.LoadAsync<BassPlayerSettings>();
       settings.SeekIncrementSeconds = (int)_value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     #endregion

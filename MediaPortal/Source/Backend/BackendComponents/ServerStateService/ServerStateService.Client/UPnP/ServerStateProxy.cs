@@ -30,6 +30,8 @@ using MediaPortal.Plugins.ServerStateService.Interfaces.UPnP;
 using MediaPortal.UI.ServerCommunication;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using MediaPortal.Common.Services.ServerCommunication;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Plugins.ServerStateService.Client.UPnP
@@ -70,10 +72,10 @@ namespace MediaPortal.Plugins.ServerStateService.Client.UPnP
       if (stateVariable.Name == Consts.STATE_PENDING_SERVER_STATES)
         //Calling GetStates on the callback thread seems to cause a timeout/possible deadlock
         //during startup in some cases so call on a different thread.
-        ServiceRegistration.Get<IThreadPool>().Add(GetStates);
+        _ = GetStatesAsync();
     }
 
-    protected void GetStates()
+    protected async Task GetStatesAsync()
     {
       try
       {
@@ -83,7 +85,7 @@ namespace MediaPortal.Plugins.ServerStateService.Client.UPnP
 
         CpAction action = GetAction(Consts.ACTION_GET_STATES);
         IList<object> inParameters = new List<object> { cacheKey };
-        IList<object> outParameters = action.InvokeAction(inParameters);
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
         var states = ServerStateSerializer.Deserialize<List<ServerState>>((string)outParameters[0]);
         if (states == null || states.Count == 0)
           return;

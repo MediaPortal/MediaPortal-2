@@ -28,6 +28,7 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 using System.Globalization;
 using MediaPortal.Common.Localization;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
@@ -55,12 +56,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       return string.Compare(culture1.DisplayName, culture2.DisplayName);
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
+      OnlineLibrarySettings settings = await serverSettings.LoadAsync<OnlineLibrarySettings>();
       if (string.IsNullOrEmpty(settings.SeriesLanguageCulture))
         settings.SeriesLanguageCulture = "en-US";
       CultureInfo current = new CultureInfo(settings.SeriesLanguageCulture);
@@ -74,17 +75,17 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       }
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
+      OnlineLibrarySettings settings = await serverSettings.LoadAsync<OnlineLibrarySettings>();
       settings.SeriesLanguageCulture = _cultures[Selected].Name;
-      serverSettings.Save(settings);    
+      await serverSettings.SaveAsync(settings);    
     }
 
     public void Dispose()

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
@@ -30,13 +31,13 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
   {
     #region Public Methods
 
-    public override void Load()
+    public override async Task Load()
     {
       _type = NumberType.FloatingPoint;
       _step = 0.5;
       _lowerLimit = 0.5;
       _upperLimit = 10;
-      _value = SettingsManager.Load<BassPlayerSettings>().CrossFadeDurationSecs;
+      _value = (await SettingsManager.LoadAsync<BassPlayerSettings>()).CrossFadeDurationSecs;
     }
 
     #endregion

@@ -21,6 +21,8 @@
 */
 
 #endregion
+
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
@@ -35,18 +37,18 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
   {
     #region Public Methods
 
-    public override void Load()
+    public override async Task Load()
     {
-      _yes = SettingsManager.Load<ServerSettings>().UseIPv6;
+      _yes = (await SettingsManager.LoadAsync<ServerSettings>()).UseIPv6;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      var settings = SettingsManager.Load<ServerSettings>();
+      var settings = await SettingsManager.LoadAsync<ServerSettings>();
       if (_yes != settings.UseIPv6)
       {
         settings.UseIPv6 = _yes;
-        SettingsManager.Save(settings);
+        await SettingsManager.SaveAsync(settings);
         //TODO: make notification texts localizable or handle rester notification differently
         ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired,
           "Restart required",

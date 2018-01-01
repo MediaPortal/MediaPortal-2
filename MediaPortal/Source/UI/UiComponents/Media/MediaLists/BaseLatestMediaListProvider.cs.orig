@@ -22,40 +22,31 @@
 
 #endregion
 
-using MediaPortal.Common.Configuration.ConfigurationClasses;
-using SkinSettings;
-using System;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
+namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public class EnableFanartConfiguration : YesNo, IDisposable
+  public abstract class BaseLatestMediaListProvider : BaseMediaListProvider
   {
-    public EnableFanartConfiguration()
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
-      SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      IFilter filter = AppendUserFilter(GetNavigationFilter(_navigationInitializerType), _necessaryMias);
+      return new MediaItemQuery(_necessaryMias, filter)
+      {
+<<<<<<< HEAD
+=======
+        Filter = await AppendUserFilterAsync(null, _necessaryMias),
+>>>>>>> WIP_2.2_Editions
+        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+      };
     }
 
-    public override async Task Load()
+    protected override bool ShouldUpdate(UpdateReason updateReason)
     {
-      await base.Load();
-      _yes = (await SettingsManager.LoadAsync<WMCSkinSettings>()).EnableFanart;
-    }
-
-    public override async Task Save()
-    {
-      await base.Save();
-      var settings = await SettingsManager.LoadAsync<WMCSkinSettings>();
-      settings.EnableFanart = _yes;
-      await SettingsManager.SaveAsync(settings);
-    }
-
-    public void Dispose()
-    {
-      SkinChangeMonitor.Instance.UnregisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      return updateReason.HasFlag(UpdateReason.ImportComplete) || base.ShouldUpdate(updateReason);
     }
   }
 }

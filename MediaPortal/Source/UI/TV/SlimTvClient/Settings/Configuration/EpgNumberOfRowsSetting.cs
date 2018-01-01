@@ -22,26 +22,27 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
   public class EpgNumberOfRowsSetting : LimitedNumberSelect
   {
-    public override void Load()
+    public override async Task Load()
     {
       _type = NumberType.Integer;
       _step = 1;
       _lowerLimit = 2;
       _upperLimit = 15;
-      _value = SettingsManager.Load<SlimTvClientSettings>().EpgNumberOfRows;
+      _value = (await SettingsManager.LoadAsync<SlimTvClientSettings>()).EpgNumberOfRows;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      SlimTvClientSettings settings = await SettingsManager.LoadAsync<SlimTvClientSettings>();
       settings.EpgNumberOfRows = (int)_value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

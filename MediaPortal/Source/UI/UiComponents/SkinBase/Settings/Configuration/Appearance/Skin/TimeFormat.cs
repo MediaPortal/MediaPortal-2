@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
@@ -30,16 +31,16 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Appearance.Sk
   {
     #region Base overrides
 
-    public override void Load()
+    public override async Task Load()
     {
-      _value = SettingsManager.Load<SkinBaseSettings>().TimeFormat;
+      _value = (await SettingsManager.LoadAsync<SkinBaseSettings>()).TimeFormat;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      SkinBaseSettings settings = SettingsManager.Load<SkinBaseSettings>();
+      SkinBaseSettings settings = await SettingsManager.LoadAsync<SkinBaseSettings>();
       settings.TimeFormat = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
       SkinMessaging.SendSkinMessage(SkinMessaging.MessageType.DateTimeFormatChanged);
     }
 

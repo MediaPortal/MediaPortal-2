@@ -29,6 +29,7 @@ using MediaPortal.UiComponents.Media.Helpers;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Settings.Configuration
 {
@@ -54,11 +55,11 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
       return string.Compare(region1.DisplayName, region2.DisplayName);
     }
 
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
+      await base.Load();
 
-      MediaCertificationSettings settings = SettingsManager.Load<MediaCertificationSettings>();
+      MediaCertificationSettings settings = await SettingsManager.LoadAsync<MediaCertificationSettings>();
 
       int selected = 0;
       _items = new List<IResourceString>(_regions.Count + 1);
@@ -73,17 +74,17 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
       Selected = selected;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
+      await base.Save();
 
-      MediaCertificationSettings settings = SettingsManager.Load<MediaCertificationSettings>();
+      MediaCertificationSettings settings = await SettingsManager.LoadAsync<MediaCertificationSettings>();
       settings.DisplayMovieCertificationCountry = "";
       if (Selected > 0)
       {
         settings.DisplayMovieCertificationCountry = _regions[Selected - 1].Name;
       }
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
       CertificationHelper.DisplayMovieCertificationCountry = settings.DisplayMovieCertificationCountry;
     }
   }

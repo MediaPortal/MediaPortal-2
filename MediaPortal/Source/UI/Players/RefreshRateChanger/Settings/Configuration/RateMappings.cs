@@ -25,25 +25,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration
 {
   public class RateMappings : Entry
   {
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
-      var dict = SettingsManager.Load<RefreshRateChangerSettings>().RateMappings;
+      await base.Load();
+      var dict = (await SettingsManager.LoadAsync<RefreshRateChangerSettings>()).RateMappings;
       List<string> rates = dict.Keys.Select(key => string.Format("{0}:{1}", key, dict[key])).ToList();
       _value = string.Join("; ", rates.ToArray());
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
+      await base.Save();
 
-      RefreshRateChangerSettings settings = SettingsManager.Load<RefreshRateChangerSettings>();
+      RefreshRateChangerSettings settings = await SettingsManager.LoadAsync<RefreshRateChangerSettings>();
       settings.RateMappings.Clear();
 
       var parts = _value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
@@ -59,7 +60,7 @@ namespace MediaPortal.Plugins.RefreshRateChanger.Settings.Configuration
         }
       }
 
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
 
     public override int DisplayLength

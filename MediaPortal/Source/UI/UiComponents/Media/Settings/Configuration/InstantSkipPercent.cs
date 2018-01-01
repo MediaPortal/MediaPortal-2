@@ -22,28 +22,29 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.Media.Settings.Configuration
 {
   public class InstantSkipPercent : LimitedNumberSelect
   {
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
+      await base.Load();
       _lowerLimit = 0;
       _upperLimit = 50;
       _type = NumberType.Integer;
       _step = 5;
-      _value = SettingsManager.Load<MediaModelSettings>().InstantSkipPercent;
+      _value = (await SettingsManager.LoadAsync<MediaModelSettings>()).InstantSkipPercent;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      MediaModelSettings settings = SettingsManager.Load<MediaModelSettings>();
+      await base.Save();
+      MediaModelSettings settings = await SettingsManager.LoadAsync<MediaModelSettings>();
       settings.InstantSkipPercent = _value;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

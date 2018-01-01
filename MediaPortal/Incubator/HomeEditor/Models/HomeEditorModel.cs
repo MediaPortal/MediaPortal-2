@@ -25,8 +25,6 @@
 using MediaPortal.UI.Presentation.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -142,24 +140,24 @@ namespace HomeEditor.Models
       _itemsList.FireChange();
     }
 
-    protected void LoadGroups()
+    protected async Task LoadGroups()
     {
       _items.Clear();
-      HomeEditorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<HomeEditorSettings>();
+      HomeEditorSettings settings = await ServiceRegistration.Get<ISettingsManager>().LoadAsync<HomeEditorSettings>();
       if (settings.Groups != null && settings.Groups.Count > 0)
         _items.AddRange(settings.Groups);
       else
         _items.AddRange(DefaultGroups.Create());
     }
 
-    protected void SaveGroups()
+    protected async Task SaveGroups()
     {
       if (!_needsUpdate)
         return;
       var sm = ServiceRegistration.Get<ISettingsManager>();
-      HomeEditorSettings settings = sm.Load<HomeEditorSettings>();
+      HomeEditorSettings settings = await sm.LoadAsync<HomeEditorSettings>();
       settings.Groups = new List<HomeMenuGroup>(_items);
-      sm.Save(settings);
+      await sm.SaveAsync(settings);
       _needsUpdate = false;
     }
 
@@ -229,13 +227,13 @@ namespace HomeEditor.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      LoadGroups();
+      _ = LoadGroups();
       Update(oldContext, newContext, true);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      SaveGroups();
+      _ = SaveGroups();
     }
 
     public void Reactivate(NavigationContext oldContext, NavigationContext newContext)

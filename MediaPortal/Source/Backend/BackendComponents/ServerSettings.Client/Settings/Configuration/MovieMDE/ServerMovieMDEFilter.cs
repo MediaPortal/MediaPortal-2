@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
@@ -45,12 +46,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEFilter.ProductionStudios]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
+      MovieMetadataExtractorSettings settings = await serverSettings.LoadAsync<MovieMetadataExtractorSettings>();
       if (settings.IncludeActorDetails)
         _selected.Add(0);
       if (settings.IncludeCharacterDetails)
@@ -63,31 +64,31 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
         _selected.Add(4);
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       if (!Enabled)
         return;
 
-      base.Save();
+      await base.Save();
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
 
-      MovieMetadataExtractorSettings mainSettings = serverSettings.Load<MovieMetadataExtractorSettings>();
+      MovieMetadataExtractorSettings mainSettings = await serverSettings.LoadAsync<MovieMetadataExtractorSettings>();
       mainSettings.IncludeActorDetails = _selected.Contains(0);
       mainSettings.IncludeCharacterDetails = _selected.Contains(1);
       mainSettings.IncludeDirectorDetails = _selected.Contains(2);
       mainSettings.IncludeWriterDetails = _selected.Contains(3);
       mainSettings.IncludeProductionCompanyDetails = _selected.Contains(4);
-      serverSettings.Save(mainSettings);
-      localSettings.Save(mainSettings);
+      await serverSettings.SaveAsync(mainSettings);
+      await localSettings.SaveAsync(mainSettings);
 
-      NfoMovieMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoMovieMetadataExtractorSettings>();
+      NfoMovieMetadataExtractorSettings nfoSettings = await serverSettings.LoadAsync<NfoMovieMetadataExtractorSettings>();
       nfoSettings.IncludeActorDetails = mainSettings.IncludeActorDetails;
       nfoSettings.IncludeCharacterDetails = mainSettings.IncludeCharacterDetails;
       nfoSettings.IncludeDirectorDetails = mainSettings.IncludeDirectorDetails;
-      serverSettings.Save(nfoSettings);
-      localSettings.Save(nfoSettings);
+      await serverSettings.SaveAsync(nfoSettings);
+      await localSettings.SaveAsync(nfoSettings);
     }
 
     public void Dispose()

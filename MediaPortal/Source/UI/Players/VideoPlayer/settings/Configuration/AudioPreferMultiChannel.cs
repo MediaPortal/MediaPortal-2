@@ -22,23 +22,24 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
   public class AudioPreferMultiChannel : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      _yes = SettingsManager.Load<VideoSettings>().PreferMultiChannelAudio;
+      _yes = (await SettingsManager.LoadAsync<VideoSettings>()).PreferMultiChannelAudio;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      VideoSettings settings = SettingsManager.Load<VideoSettings>();
+      await base.Save();
+      VideoSettings settings = await SettingsManager.LoadAsync<VideoSettings>();
       settings.PreferMultiChannelAudio = _yes;
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
     }
   }
 }

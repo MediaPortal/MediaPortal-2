@@ -221,7 +221,7 @@ namespace MediaPortal.UI.Players.BassPlayer
     {
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
+      PlayerManagerSettings settings = await settingsManager.LoadAsync<PlayerManagerSettings>();
       int playPercentage = GetCurrentPlayPercentage();
       bool played = playPercentage >= settings.WatchedPlayPercentage;
       if (played)

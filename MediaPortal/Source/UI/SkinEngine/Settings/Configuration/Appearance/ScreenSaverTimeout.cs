@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.UI.Presentation.Screens;
@@ -33,7 +34,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
   /// </summary>
   public class ScreenSaverTimeout : LimitedNumberSelect
   {
-    public override void Load()
+    public override Task Load()
     {
       _type = NumberType.FloatingPoint;
       _step = 0.5;
@@ -41,11 +42,12 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
       _upperLimit = 120;
       IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
       _value = screenControl.ScreenSaverTimeoutMin;
+      return Task.CompletedTask;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
+      await base.Save();
       IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
       screenControl.ConfigureScreenSaver(screenControl.IsScreenSaverEnabled, _value);
       // The setting will be written by the screen control class

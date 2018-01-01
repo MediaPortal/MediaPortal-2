@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -137,15 +138,15 @@ namespace MediaPortal.UI.Players.BassPlayer.Models
     /// <summary>
     /// Saves the current state to the settings file.
     /// </summary>
-    public void SaveSettings()
+    public async Task SaveSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      BassPlayerSettings settings = settingsManager.Load<BassPlayerSettings>();
+      BassPlayerSettings settings = await settingsManager.LoadAsync<BassPlayerSettings>();
       settings.OutputMode = UseDirectSound ? OutputMode.DirectSound : OutputMode.WASAPI;
       settings.WASAPIExclusiveMode = EnableWASAPIExclusive;
       settings.WASAPIDevice = WASAPIDevice;
       settings.DirectSoundDevice = DirectSoundDevice;
-      settingsManager.Save(settings);
+      await settingsManager.SaveAsync(settings);
     }
 
     private void InitModel()

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Screens;
@@ -33,16 +34,17 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
   /// </summary>
   public class Fullscreen : YesNo
   {
-    public override void Load()
+    public override async Task Load()
     {
-      _yes = SettingsManager.Load<AppSettings>().ScreenMode == ScreenMode.FullScreen;
+      _yes = (await SettingsManager.LoadAsync<AppSettings>()).ScreenMode == ScreenMode.FullScreen;
     }
 
-    public override void Save()
+    public override Task Save()
     {
       IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
       // The called methods will change the entry in the setting
       sc.SwitchMode(_yes ? ScreenMode.FullScreen : ScreenMode.NormalWindowed);
+      return Task.CompletedTask;
     }
   }
 }

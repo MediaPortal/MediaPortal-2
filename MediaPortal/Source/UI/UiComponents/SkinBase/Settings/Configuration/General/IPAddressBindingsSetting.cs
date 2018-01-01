@@ -24,6 +24,7 @@
 using System;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
@@ -49,12 +50,12 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
       get { return 10; }
     }
 
-    public override void Load()
+    public override async Task Load()
     {
-      _lines = SettingsManager.Load<ServerSettings>().IPAddressBindingsList;
+      _lines = (await SettingsManager.LoadAsync<ServerSettings>()).IPAddressBindingsList;
     }
 
-    public override void Save()
+    public override async Task Save()
     {
       string newValue = null;
       if (_lines != null && _lines.Count > 0)
@@ -81,11 +82,11 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
         newValue = sb.ToString();
       }
 
-      var settings = SettingsManager.Load<ServerSettings>();
+      var settings = await SettingsManager.LoadAsync<ServerSettings>();
       if (!String.Equals(newValue, settings.IPAddressBindings))
       {
         settings.IPAddressBindings = newValue;
-        SettingsManager.Save(settings);
+        await SettingsManager.SaveAsync(settings);
         //TODO: make notification texts localizable or handle rester notification differently
         ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired,
           "Restart required",

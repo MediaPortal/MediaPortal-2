@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
 using MediaPortal.UiComponents.Media.Helpers;
@@ -37,10 +38,10 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.Media.ShowVirtual.Series]"));
     }
 
-    public override void Load()
+    public override async Task Load()
     {
-      base.Load();
-      ViewSettings settings = SettingsManager.Load<ViewSettings>();
+      await base.Load();
+      ViewSettings settings = await SettingsManager.LoadAsync<ViewSettings>();
       if (settings.ShowVirtualAudioMedia)
         _selected.Add(0);
       if (settings.ShowVirtualMovieMedia)
@@ -49,14 +50,14 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
         _selected.Add(2);
     }
 
-    public override void Save()
+    public override async Task Save()
     {
-      base.Save();
-      ViewSettings settings = SettingsManager.Load<ViewSettings>();
+      await base.Save();
+      ViewSettings settings = await SettingsManager.LoadAsync<ViewSettings>();
       settings.ShowVirtualAudioMedia = _selected.Contains(0);
       settings.ShowVirtualMovieMedia = _selected.Contains(1);
       settings.ShowVirtualSeriesMedia = _selected.Contains(2);
-      SettingsManager.Save(settings);
+      await SettingsManager.SaveAsync(settings);
       VirtualMediaHelper.ShowVirtualAudioMedia = settings.ShowVirtualAudioMedia;
       VirtualMediaHelper.ShowVirtualMovieMedia = settings.ShowVirtualMovieMedia;
       VirtualMediaHelper.ShowVirtualSeriesMedia = settings.ShowVirtualSeriesMedia;
