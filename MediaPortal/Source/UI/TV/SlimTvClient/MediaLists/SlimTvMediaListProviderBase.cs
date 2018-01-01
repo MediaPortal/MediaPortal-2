@@ -25,7 +25,6 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -36,6 +35,7 @@ using MediaPortal.UiComponents.Media.MediaLists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -55,13 +55,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       get { return _allItems; }
     }
 
-    public abstract bool UpdateItems(int maxItems, UpdateReason updateReason);
+    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason);
     
     protected ListItem CreateChannelItem(IChannel channel)
     {
       ChannelProgramListItem item = new ChannelProgramListItem(channel, null)
       {
-        Command = new MethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
+        Command = new AsyncMethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
       };
       item.AdditionalProperties["CHANNEL"] = channel;
       return item;
@@ -82,7 +82,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       return true;
     }
 
-    protected IList<IChannel> GetUserChannelList(int maxItems, string userDataKey)
+    protected async Task<IList<IChannel>> GetUserChannelList(int maxItems, string userDataKey)
     {
       IList<IChannel> userChannels = new List<IChannel>();
 
@@ -94,16 +94,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
         return userChannels;
 
       Guid userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-      IEnumerable<Tuple<int, string>> channelList;
-      if (!userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataList(userProfile, userDataKey,
-        out channelList, true, SortDirection.Descending))
+      var userResult = await userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataListAsync(userProfile, userDataKey, true, SortDirection.Descending);
+      if (!userResult.Success)
         return userChannels;
+
+      IEnumerable<Tuple<int, string>> channelList = userResult.Result;
 
       foreach (int channelId in channelList.Select(c => c.Item1))
       {
-        IChannel channel;
-        if (_tvHandler.ChannelAndGroupInfo.GetChannel(channelId, out channel) && channel.MediaType == _mediaType)
-          userChannels.Add(channel);
+        var result = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
+        if (result.Success && result.Result.MediaType == _mediaType)
+          userChannels.Add(result.Result);
         if (userChannels.Count >= maxItems)
           break;
       }

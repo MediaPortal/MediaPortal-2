@@ -378,7 +378,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected void UpdateAsync(IMediaListProvider provider, UpdateReason updateReason)
     {
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(() => provider.UpdateItems(Limit, updateReason));
+      threadPool.Add(() => provider.UpdateItemsAsync(Limit, updateReason));
     }
   }
 }

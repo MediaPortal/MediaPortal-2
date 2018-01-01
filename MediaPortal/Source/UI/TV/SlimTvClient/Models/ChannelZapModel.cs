@@ -154,11 +154,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         // Channel index starts by 0, user enters 1 based numbers
         number--;
-        model.TuneByIndex(number);
+        _ = model.TuneByIndex(number);
       }
       else
       {
-        model.TuneByChannelNumber(number);
+        _ = model.TuneByChannelNumber(number);
       }
 
       ClearZapTimer();

@@ -25,6 +25,8 @@
 using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Common.UserProfileDataManagement
 {
@@ -35,50 +37,50 @@ namespace MediaPortal.Common.UserProfileDataManagement
   {
     #region User profiles management
 
-    ICollection<UserProfile> GetProfiles();
-    bool GetProfile(Guid profileId, out UserProfile userProfile);
-    bool GetProfileByName(string profileName, out UserProfile userProfile);
-    Guid CreateProfile(string profileName);
-    Guid CreateProfile(string profileName, int profileType, string profilePassword);
-    bool UpdateProfile(Guid profileId, string profileName, int profileType, string profilePassword);
-    bool SetProfileImage(Guid profileId, byte[] profileImage);
-    bool RenameProfile(Guid profileId, string newName);
-    bool DeleteProfile(Guid profileId);
-    bool LoginProfile(Guid profileId);
+    Task<ICollection<UserProfile>> GetProfilesAsync();
+    Task<AsyncResult<UserProfile>> GetProfileAsync(Guid profileId);
+    Task<AsyncResult<UserProfile>> GetProfileByNameAsync(string profileName);
+    Task<Guid> CreateProfileAsync(string profileName);
+    Task<Guid> CreateProfileAsync(string profileName, int profileType, string profilePassword);
+    Task<bool> UpdateProfileAsync(Guid profileId, string profileName, int profileType, string profilePassword);
+    Task<bool> SetProfileImageAsync(Guid profileId, byte[] profileImage);
+    Task<bool> RenameProfileAsync(Guid profileId, string newName);
+    Task<bool> DeleteProfileAsync(Guid profileId);
+    Task<bool> LoginProfileAsync(Guid profileId);
 
     #endregion
 
     #region User playlist data
 
     // For example: Last played item position, playlist configuration etc. per user
-    bool GetUserPlaylistData(Guid profileId, Guid playlistId, string key, out string data);
-    bool SetUserPlaylistData(Guid profileId, Guid playlistId, string key, string data);
+    Task<AsyncResult<string>> GetUserPlaylistDataAsync(Guid profileId, Guid playlistId, string key);
+    Task<bool> SetUserPlaylistDataAsync(Guid profileId, Guid playlistId, string key, string data);
 
     #endregion
 
     #region User media item data
 
     // For example: Last video play position
-    bool GetUserMediaItemData(Guid profileId, Guid mediaItemId, string key, out string data);
-    bool SetUserMediaItemData(Guid profileId, Guid mediaItemId, string key, string data);
+    Task<AsyncResult<string>> GetUserMediaItemDataAsync(Guid profileId, Guid mediaItemId, string key);
+    Task<bool> SetUserMediaItemDataAsync(Guid profileId, Guid mediaItemId, string key, string data);
 
     #endregion
 
     #region User additional data
 
     // Other global user data 
-    bool SetUserAdditionalData(Guid profileId, string key, string data, int dataNo = 0);
-    bool GetUserAdditionalData(Guid profileId, string key, out string data, int dataNo = 0);
-    bool GetUserAdditionalDataList(Guid profileId, string key, out IEnumerable<Tuple<int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint ? limit = null);
-    bool GetUserSelectedAdditionalDataList(Guid profileId, string[] keys, out IEnumerable<Tuple<string, int, string>> data, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null);
+    Task<bool> SetUserAdditionalDataAsync(Guid profileId, string key, string data, int dataNo = 0);
+    Task<AsyncResult<string>> GetUserAdditionalDataAsync(Guid profileId, string key, int dataNo = 0);
+    Task<AsyncResult<IEnumerable<Tuple<int, string>>>> GetUserAdditionalDataListAsync(Guid profileId, string key, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint ? limit = null);
+    Task<AsyncResult<IEnumerable<Tuple<string, int, string>>>> GetUserSelectedAdditionalDataListAsync(Guid profileId, string[] keys, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null);
 
     #endregion
 
     #region Cleanup user data
 
-    bool ClearAllUserData(Guid profileId);
-    bool ClearUserMediaItemDataKey(Guid profileId, string key);
-    bool ClearUserAdditionalDataKey(Guid profileId, string key);
+    Task<bool> ClearAllUserDataAsync(Guid profileId);
+    Task<bool> ClearUserMediaItemDataKeyAsync(Guid profileId, string key);
+    Task<bool> ClearUserAdditionalDataKeyAsync(Guid profileId, string key);
 
     #endregion
   }

@@ -36,6 +36,7 @@ using MediaPortal.UiComponents.Media.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
@@ -62,7 +63,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override async Task<ICollection<FilterValue>> GetAvailableValuesAsync(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -84,7 +85,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (_sortInformation != null)
         query.SortInformation = new List<ISortInformation> { _sortInformation };
       
-      IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual);
+      IList<MediaItem> items = await cd.SearchAsync(query, true, userProfile, showVirtual);
       CertificationHelper.ConvertCertifications(items);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)
@@ -115,9 +116,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       return string.Format("{0}", groupKey).Trim();
     }
 
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
-      return null;
+      return Task.FromResult((ICollection<FilterValue>)null);
     }
 
     #endregion

@@ -41,6 +41,7 @@ using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -74,7 +75,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       return updateReason.HasFlag(UpdateReason.Forced);
     }
 
-    protected abstract MediaItemQuery CreateQuery();
+    protected abstract Task<MediaItemQuery> CreateQueryAsync();
 
     public UserProfile CurrentUserProfile
     {
@@ -89,9 +90,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       }
     }
 
-    public IFilter AppendUserFilter(IFilter filter, IEnumerable<Guid> filterMias)
+    public async Task<IFilter> AppendUserFilterAsync(IFilter filter, IEnumerable<Guid> filterMias)
     {
-      IFilter userFilter = CertificationHelper.GetUserCertificateFilter(filterMias);
+      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(filterMias);
       if (userFilter != null)
       {
         return filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : userFilter;
@@ -99,7 +100,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       return filter;
     }
 
-    public virtual bool UpdateItems(int maxItems, UpdateReason updateReason)
+    public virtual async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
     {
       if (!ShouldUpdate(updateReason))
         return false;
@@ -111,7 +112,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       if (contentDirectory == null)
         return false;
 
-      MediaItemQuery query = CreateQuery();
+      MediaItemQuery query = await CreateQueryAsync();
       if (query == null)
         return false;
       query.Limit = (uint)maxItems;
@@ -119,7 +120,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMias);
 
-      var items = contentDirectory.Search(query, false, userProfile, showVirtual);
+      var items = await contentDirectory.SearchAsync(query, false, userProfile, showVirtual);
       lock (_allItems.SyncRoot)
       {
         if (_allItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))

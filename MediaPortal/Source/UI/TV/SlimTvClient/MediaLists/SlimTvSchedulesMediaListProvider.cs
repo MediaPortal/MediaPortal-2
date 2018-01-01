@@ -33,6 +33,8 @@ using MediaPortal.UiComponents.Media.MediaLists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -40,16 +42,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   {
     ICollection<Tuple<ISchedule, IChannel>> _currentSchedules = new List<Tuple<ISchedule, IChannel>>();
 
-    private ListItem CreateScheduleItem(ISchedule schedule, IChannel channel)
+    private async Task<ListItem> CreateScheduleItem(ISchedule schedule, IChannel channel)
     {
       ListItem item = null;
       if (channel != null)
       {
-        IList<IProgram> programs;
-        if (_tvHandler.ProgramInfo.GetPrograms(channel, schedule.StartTime, schedule.EndTime, out programs))
+        var programResult = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, schedule.StartTime, schedule.EndTime);
+        if (programResult.Success)
         {
           ProgramProperties programProperties = new ProgramProperties();
-          programProperties.SetProgram(programs.First(), channel);
+          programProperties.SetProgram(programResult.Result.First(), channel);
           item = new ProgramListItem(programProperties)
           {
             Command = new MethodDelegateCommand(() => ShowSchedules()),
@@ -107,7 +109,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       workflowManager.NavigatePush(WF_STATE_ID_SCHEDULE_LIST);
     }
 
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
+    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
     {
       if (!TryInitTvHandler() || _tvHandler.ScheduleControl == null)
         return false;
@@ -115,30 +117,32 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
         return true;
 
-      IList<ISchedule> schedules;
-      if (!_tvHandler.ScheduleControl.GetSchedules(out schedules))
+      var scheduleResult = await _tvHandler.ScheduleControl.GetSchedulesAsync();
+      if (!scheduleResult.Success)
         return false;
 
+      var schedules = scheduleResult.Result;
       var scheduleSortList = new List<Tuple<ISchedule, IChannel>>();
       foreach (ISchedule schedule in schedules.Take(maxItems))
       {
-        IChannel channel;
-        if (!_tvHandler.ChannelAndGroupInfo.GetChannel(schedule.ChannelId, out channel))
-          channel = null;
+        var channelResult = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(schedule.ChannelId);
+        var channel = channelResult.Success ? channelResult.Result : null;
         scheduleSortList.Add(new Tuple<ISchedule, IChannel>(schedule, channel));
       }
       scheduleSortList.Sort(ChannelAndProgramStartTimeComparison);
 
       var scheduleList = new List<Tuple<ISchedule, IChannel>>(scheduleSortList.Take(maxItems));
 
+      if (_currentSchedules.Select(s => s.Item1.ScheduleId).SequenceEqual(scheduleList.Select(s => s.Item1.ScheduleId)))
+        return true;
+
+      // Async calls need to be outside of locks
+      ListItem[]  items = await Task.WhenAll(scheduleList.Select(s => CreateScheduleItem(s.Item1, s.Item2)));
       lock (_allItems.SyncRoot)
       {
-        if (_currentSchedules.Select(s => s.Item1.ScheduleId).SequenceEqual(scheduleList.Select(s => s.Item1.ScheduleId)))
-          return true;
         _currentSchedules = scheduleList;
         _allItems.Clear();
-        foreach (var schedule in scheduleList)
-          _allItems.Add(CreateScheduleItem(schedule.Item1, schedule.Item2));
+        CollectionUtils.AddAll(_allItems, items);
       }
       _allItems.FireChange();
       return true;

@@ -34,6 +34,7 @@ using MediaPortal.UiComponents.Media.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -47,7 +48,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override async Task<ICollection<FilterValue>> GetAvailableValuesAsync(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -58,20 +59,23 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IFilter emptyFilter = new EmptyFilter(AudioAlbumAspect.ATTR_COMPILATION);
       IFilter compiledFilter = new RelationalFilter(AudioAlbumAspect.ATTR_COMPILATION, RelationalOperator.EQ, true);
       IFilter uncompiledFilter = new RelationalFilter(AudioAlbumAspect.ATTR_COMPILATION, RelationalOperator.EQ, false);
-      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true, showVirtual);
-      int numCompiledItems = cd.CountMediaItems(necessaryMIATypeIds, compiledFilter, true, showVirtual);
-      int numUncompiledItems = cd.CountMediaItems(necessaryMIATypeIds, uncompiledFilter, true, showVirtual);
+      var taskEmpty = cd.CountMediaItemsAsync(necessaryMIATypeIds, emptyFilter, true, showVirtual);
+      var taskCompiled = cd.CountMediaItemsAsync(necessaryMIATypeIds, compiledFilter, true, showVirtual);
+      var taskUncompiled = cd.CountMediaItemsAsync(necessaryMIATypeIds, uncompiledFilter, true, showVirtual);
+
+      var counts = await Task.WhenAll(taskEmpty, taskCompiled, taskUncompiled);
+
       return new List<FilterValue>(new FilterValue[]
         {
-            new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),
-            new FilterValue(Consts.RES_COMPILATION_FILTER_COMPILED, compiledFilter, null, numCompiledItems, this),
-            new FilterValue(Consts.RES_COMPILATION_FILTER_UNCOMPILED, uncompiledFilter, null, numUncompiledItems, this),
+            new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, counts[0], this),
+            new FilterValue(Consts.RES_COMPILATION_FILTER_COMPILED, compiledFilter, null, counts[1], this),
+            new FilterValue(Consts.RES_COMPILATION_FILTER_UNCOMPILED, uncompiledFilter, null, counts[2], this),
         }.Where(fv => !fv.NumItems.HasValue || fv.NumItems.Value > 0));
     }
 
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
-      return null;
+      return Task.FromResult((ICollection<FilterValue>)null);
     }
 
     #endregion

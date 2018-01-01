@@ -240,9 +240,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           ChannelName = channel.Name;
         else if (program != null)
         {
-          IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
-          if (channelAndGroupInfo != null && channelAndGroupInfo.GetChannel(program.ChannelId, out channel))
-            ChannelName = channel.Name;
+          IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
+          if (channelAndGroupInfo != null)
+          {
+            var result = channelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
+            if (result.Success)
+            {
+              channel = result.Result;
+              ChannelName = channel.Name;
+            }
+          }
         }
         ChannelLogoType = channel.GetFanArtMediaType();
         _settingProgram = true;

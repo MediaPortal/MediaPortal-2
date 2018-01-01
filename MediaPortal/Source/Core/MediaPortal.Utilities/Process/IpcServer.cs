@@ -228,7 +228,7 @@ namespace MediaPortal.Utilities.Process
           }
         }
       }
-      catch (Exception ex)
+      catch (Exception)
       {
 
       }

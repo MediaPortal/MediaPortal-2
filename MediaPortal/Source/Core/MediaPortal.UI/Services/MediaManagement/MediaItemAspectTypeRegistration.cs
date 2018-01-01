@@ -23,7 +23,10 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.SystemCommunication;
@@ -38,23 +41,27 @@ namespace MediaPortal.UI.Services.MediaManagement
   public class MediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
   {
     protected IDictionary<Guid, MediaItemAspectMetadata> _locallyKnownMediaItemAspectTypes =
-        new Dictionary<Guid, MediaItemAspectMetadata>();
+        new ConcurrentDictionary<Guid, MediaItemAspectMetadata>();
 
     public IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes
     {
       get { return _locallyKnownMediaItemAspectTypes; }
     }
 
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType)
+    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(IEnumerable<MediaItemAspectMetadata> miaTypes)
+    {
+      await Task.WhenAll(miaTypes.Select(RegisterLocallyKnownMediaItemAspectTypeAsync));
+    }
+
+    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
     {
       if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
         return;
       _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-      IContentDirectory cd = serverConnectionManager == null ? null :
-          serverConnectionManager.ContentDirectory;
+      IContentDirectory cd = serverConnectionManager?.ContentDirectory;
       if (cd != null)
-        cd.AddMediaItemAspectStorage(miaType);
+        await cd.AddMediaItemAspectStorageAsync(miaType);
     }
   }
 }

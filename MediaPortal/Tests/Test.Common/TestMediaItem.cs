@@ -42,10 +42,10 @@ namespace Test.Common
       IMediaItemAspectTypeRegistration miatr = new TestMediaItemAspectTypeRegistration();
       ServiceRegistration.Set(miatr);
 
-      miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(RelationshipAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(MediaAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(AudioAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(ProviderResourceAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(RelationshipAspect.Metadata);
     }
 
       [Test]

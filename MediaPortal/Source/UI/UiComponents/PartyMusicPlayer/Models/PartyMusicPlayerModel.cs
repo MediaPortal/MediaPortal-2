@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -67,7 +68,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
     protected AbstractProperty _repeatModeProperty;
 
     protected ItemsList _playlists;
-    protected IList<MediaItem>  _mediaItems = null;
+    protected IList<MediaItem> _mediaItems = null;
     protected Guid _playlistId = Guid.Empty;
 
     protected ScreenSaverController _screenSaverController = null;
@@ -103,7 +104,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 
     public bool UseEscapePassword
     {
-      get { return (bool) _useEscapePasswordProperty.GetValue(); }
+      get { return (bool)_useEscapePasswordProperty.GetValue(); }
       set { _useEscapePasswordProperty.SetValue(value); }
     }
 
@@ -114,7 +115,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 
     public string EscapePassword
     {
-      get { return (string) _escapePasswordProperty.GetValue(); }
+      get { return (string)_escapePasswordProperty.GetValue(); }
       set { _escapePasswordProperty.SetValue(value); }
     }
 
@@ -125,7 +126,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 
     public bool DisableScreenSaver
     {
-      get { return (bool) _disableScreenSaverProperty.GetValue(); }
+      get { return (bool)_disableScreenSaverProperty.GetValue(); }
       set { _disableScreenSaverProperty.SetValue(value); }
     }
 
@@ -136,7 +137,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 
     public string PlaylistName
     {
-      get { return (string) _playlistNameProperty.GetValue(); }
+      get { return (string)_playlistNameProperty.GetValue(); }
       set { _playlistNameProperty.SetValue(value); }
     }
 
@@ -147,7 +148,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 
     public PlayMode PlayMode
     {
-      get { return (PlayMode) _playModeProperty.GetValue(); }
+      get { return (PlayMode)_playModeProperty.GetValue(); }
       set { _playModeProperty.SetValue(value); }
     }
 
@@ -158,27 +159,27 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 
     public RepeatMode RepeatMode
     {
-      get { return (RepeatMode) _repeatModeProperty.GetValue(); }
+      get { return (RepeatMode)_repeatModeProperty.GetValue(); }
       set { _repeatModeProperty.SetValue(value); }
     }
 
-    public void ChoosePlaylist()
+    public async Task ChoosePlaylist()
     {
-      if (!UpdatePlaylists())
+      if (!await UpdatePlaylists())
         return;
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(Consts.DIALOG_CHOOSE_PLAYLIST);
     }
 
-    public void StartPartyMode()
+    public async Task StartPartyMode()
     {
       ServiceRegistration.Get<ILogger>().Info("PartyMusicPlayerModel: Starting party mode");
       SaveSettings();
-      if (!LoadPlaylist())
+      if (!await LoadPlaylist())
         return;
 
       LoadPlayRepeatMode();
-      
+
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext audioPlayerContext = pcm.OpenAudioPlayerContext(Consts.MODULE_ID_PARTY_MUSIC_PLAYER, Consts.RES_PLAYER_CONTEXT_NAME, false,
           Consts.WF_STATE_ID_PARTY_MUSIC_PLAYER, Consts.WF_STATE_ID_PARTY_MUSIC_PLAYER);
@@ -239,7 +240,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
       }
     }
 
-    public bool LoadPlaylist()
+    public async Task<bool> LoadPlaylist()
     {
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
@@ -248,8 +249,8 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
         ShowServerNotConnectedDialog();
         return false;
       }
-      PlaylistRawData playlistData = cd.ExportPlaylist(_playlistId);
-      _mediaItems = cd.LoadCustomPlaylist(playlistData.MediaItemIds, Consts.NECESSARY_AUDIO_MIAS, Consts.EMPTY_GUID_ENUMERATION);
+      PlaylistRawData playlistData = await cd.ExportPlaylistAsync(_playlistId);
+      _mediaItems = await cd.LoadCustomPlaylistAsync(playlistData.MediaItemIds, Consts.NECESSARY_AUDIO_MIAS, Consts.EMPTY_GUID_ENUMERATION);
       return true;
     }
 
@@ -312,7 +313,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
       settingsManager.Save(settings);
     }
 
-    protected bool UpdatePlaylists()
+    protected async Task<bool> UpdatePlaylists()
     {
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
@@ -321,7 +322,7 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
         ShowServerNotConnectedDialog();
         return false;
       }
-      UpdatePlaylists(cd);
+      await UpdatePlaylists(cd);
       return true;
     }
 
@@ -331,18 +332,18 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
       dialogManager.ShowDialog(Consts.RES_SERVER_NOT_CONNECTED_DIALOG_HEADER, Consts.RES_SERVER_NOT_CONNECTED_DIALOG_TEXT, DialogType.OkDialog, false, null);
     }
 
-    protected void UpdatePlaylists(IContentDirectory cd)
+    protected async Task UpdatePlaylists(IContentDirectory cd)
     {
       _playlists.Clear();
-      ICollection<PlaylistInformationData> playlists = cd.GetPlaylists();
+      ICollection<PlaylistInformationData> playlists = await cd.GetPlaylistsAsync();
       foreach (PlaylistInformationData playlist in playlists)
       {
         Guid playlistId = playlist.PlaylistId;
         string playlistName = playlist.Name;
         ListItem playlistItem = new ListItem(Consts.KEY_NAME, playlistName)
-          {
-              Command = new MethodDelegateCommand(() => SetPlaylist(playlistId, playlistName))
-          };
+        {
+          Command = new MethodDelegateCommand(() => SetPlaylist(playlistId, playlistName))
+        };
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_ID] = playlistId;
         _playlists.Add(playlistItem);
       }

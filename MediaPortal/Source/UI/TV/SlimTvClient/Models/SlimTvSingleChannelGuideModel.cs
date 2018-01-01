@@ -133,35 +133,38 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _channel = CurrentChannel;
     }
 
-    protected void UpdatePrograms()
+    protected async void UpdatePrograms()
     {
       UpdateGuiProperties();
       _programsList.Clear();
       IChannel channel = CurrentChannel;
-      if (channel != null)
+      if (channel == null)
       {
-        if (_tvHandler.ProgramInfo.GetPrograms(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddDays(8), out _programs))
-        {
-          foreach (IProgram program in _programs)
-          {
-            // Use local variable, otherwise delegate argument is not fixed
-            ProgramProperties programProperties = new ProgramProperties();
-            IProgram currentProgram = program;
-            programProperties.SetProgram(currentProgram, channel);
-
-            ProgramListItem item = new ProgramListItem(programProperties)
-            {
-              Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
-            };
-            item.AdditionalProperties["PROGRAM"] = currentProgram;
-
-            _programsList.Add(item);
-          }
-        }
-        ProgramsList.FireChange();
-      }
-      else
         _programs = null;
+        return;
+      }
+
+      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24));
+      if (result.Success)
+      {
+        _programs = result.Result;
+        foreach (IProgram program in _programs)
+        {
+          // Use local variable, otherwise delegate argument is not fixed
+          ProgramProperties programProperties = new ProgramProperties();
+          IProgram currentProgram = program;
+          programProperties.SetProgram(currentProgram, channel);
+
+          ProgramListItem item = new ProgramListItem(programProperties)
+          {
+            Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
+          };
+          item.AdditionalProperties["PROGRAM"] = currentProgram;
+
+          _programsList.Add(item);
+        }
+      }
+      ProgramsList.FireChange();
     }
 
     protected override bool UpdateRecordingStatus(IProgram program, RecordingStatus newStatus)

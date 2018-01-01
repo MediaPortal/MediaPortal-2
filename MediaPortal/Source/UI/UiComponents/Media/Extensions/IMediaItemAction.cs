@@ -22,7 +22,9 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.Extensions
 {
@@ -37,15 +39,17 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// </summary>
     /// <param name="mediaItem">MediaItem</param>
     /// <returns><c>true</c> if available</returns>
-    bool IsAvailable(MediaItem mediaItem);
+    Task<bool> IsAvailableAsync(MediaItem mediaItem);
 
     /// <summary>
     /// Executes the action for the given MediaItem.
     /// </summary>
     /// <param name="mediaItem">MediaItem</param>
-    /// <param name="changeType">Outputs what kind of changed was done on MediaItem.</param>
-    /// <returns><c>true</c> if successful</returns>
-    bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType);
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if successful.
+    /// <see cref="AsyncResult{T}.Result"/> returns what kind of changes was done on MediaItem.
+    /// </returns>
+    Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem);
   }
 
   /// <summary>
@@ -57,5 +61,12 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// Gets the confirmation message.
     /// </summary>
     string ConfirmationMessage { get; }
+  }
+
+  /// <summary>
+  /// Marker interface for actions that need a deferred execution in the former NavigationContext.
+  /// </summary>
+  public interface IDeferredMediaItemAction : IMediaItemAction
+  {
   }
 }

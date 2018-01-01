@@ -109,7 +109,7 @@ namespace MediaPortal.UiComponents.Media.Views
         {
           Limit = Consts.MAX_NUM_ITEMS_VISIBLE
         };
-        mediaItems = cd.Search(query, true, userProfile, showVirtual);
+        mediaItems = cd.SearchAsync(query, true, userProfile, showVirtual).Result;
       }
       catch (UPnPRemoteException e)
       {

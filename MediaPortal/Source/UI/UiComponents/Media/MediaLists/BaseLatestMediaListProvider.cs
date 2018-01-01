@@ -25,14 +25,15 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseLatestMediaListProvider : BaseMediaListProvider
   {
-    protected override MediaItemQuery CreateQuery()
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
-      IFilter filter = AppendUserFilter(GetNavigationFilter(_navigationInitializerType), _necessaryMias);
+      IFilter filter = await AppendUserFilterAsync(GetNavigationFilter(_navigationInitializerType), _necessaryMias);
       return new MediaItemQuery(_necessaryMias, filter)
       {
         SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }

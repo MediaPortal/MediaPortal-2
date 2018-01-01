@@ -29,6 +29,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 
@@ -39,27 +41,29 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     protected abstract bool AppliesForPlayCount(int playCount);
     protected abstract int GetNewPlayCount();
 
-    public override bool IsAvailable(MediaItem mediaItem)
+    public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
       int playCount = 0;
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
         playCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
       if (!IsManagedByMediaLibrary(mediaItem) || !AppliesForPlayCount(playCount))
-        return false;
+        return Task.FromResult(false);
+
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      return cd != null;
+      var result = cd != null;
+      return Task.FromResult(result);
     }
 
-    public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
+    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
+      var falseResult = new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        return false;
-      
+        return falseResult;
+
       IList<MultipleMediaItemAspect> pras;
       if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
-        return false;
+        return falseResult;
 
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
@@ -71,23 +75,21 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
       if (userProfile.HasValue)
       {
-        if (cd != null)
-          cd.NotifyUserPlayback(userProfile.Value, mediaItem.MediaItemId, playCount > 0 ? playPercentage : -1, playCount > 0);
+        await cd.NotifyUserPlaybackAsync(userProfile.Value, mediaItem.MediaItemId, playCount > 0 ? playPercentage : -1, playCount > 0);
       }
-      else if (cd != null)
+      else
       {
-        cd.NotifyPlayback(mediaItem.MediaItemId, playCount > 0);
+        await cd.NotifyPlaybackAsync(mediaItem.MediaItemId, playCount > 0);
       }
 
       //Also update media item locally so changes are reflected in GUI without reloading
       MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, playCount);
       mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = UserDataKeysKnown.GetSortablePlayCountString(playCount);
-      if(mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
+      if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
         mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = UserDataKeysKnown.GetSortablePlayPercentageString(playPercentage);
       if (playCount <= 0)
         mediaItem.UserData.Remove(UserDataKeysKnown.KEY_PLAY_DATE);
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
-      return true;
+      return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
     }
   }
 }

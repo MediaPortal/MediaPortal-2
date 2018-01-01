@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
+    <Compile Include="Commands\AsyncMethodDelegateCommand.cs" />
     <Compile Include="Certifications\CertificationMapper.cs" />
     <Compile Include="Certifications\CetificationMapping.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
@@ -181,6 +182,7 @@
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
     <Compile Include="Services\Runtime\PowerEventHandler.cs" />
+    <Compile Include="Services\ServerCommunication\AsyncExtensions.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
     <Compile Include="Services\Settings\SettingsManagerMessaging.cs" />

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -231,14 +232,29 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
+    /// </summary>
+    /// <param name="item">The item which should be played.</param>
+    public static void CheckEdition(MediaItem item)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_CHECK_EDITION, new NavigationContextConfig
+        {
+            AdditionalContextVariables = new Dictionary<string, object>
+              {
+                  {KEY_MEDIA_ITEM, item},
+              }
+        });
+    }
+
+    /// <summary>
     /// Discards any current player and plays the specified media <paramref name="item"/>.
     /// </summary>
     /// <param name="item">Media item to be played.</param>
     /// <param name="resumeState">Contains optional information for players to resume playback.</param>
-    public static void PlayItem(MediaItem item, IResumeState resumeState = null)
+    public static async Task PlayItem(MediaItem item, IResumeState resumeState = null)
     {
       CloseSecondaryPlayerContext();
-      PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.None, resumeState);
+      await PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.None, resumeState);
     }
 
     /// <summary>
@@ -248,7 +264,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="play">If <c>true</c>, plays the specified <paramref name="item"/>, else enqueues it.</param>
     /// <param name="concurrencyMode">Determines if the media item will be played or enqueued in concurrency mode.</param>
     /// <param name="resumeState">Contains optional information for players to resume playback.</param>
-    public static void PlayOrEnqueueItem(MediaItem item, bool play, PlayerContextConcurrencyMode concurrencyMode, IResumeState resumeState = null)
+    public static async Task PlayOrEnqueueItem(MediaItem item, bool play, PlayerContextConcurrencyMode concurrencyMode, IResumeState resumeState = null)
     {
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       AVType avType = pcm.GetTypeOfMediaItem(item);
@@ -259,7 +275,7 @@ namespace MediaPortal.UiComponents.Media.Models
       // Always add items to playlist. This allows audio playlists as well as video/image playlists.
       pc.Playlist.Add(item);
 
-      ServiceRegistration.Get<IThreadPool>().Add(() => CompletePlayOrEnqueue(pc, play, resumeState));
+      await CompletePlayOrEnqueue(pc, play, resumeState);
     }
 
     /// <summary>
@@ -268,10 +284,10 @@ namespace MediaPortal.UiComponents.Media.Models
     /// </summary>
     /// <param name="getMediaItemsFunction">Function returning the media items to be played.</param>
     /// <param name="avType">AV type of media items returned.</param>
-    public static void PlayItems(GetMediaItemsDlgt getMediaItemsFunction, AVType avType)
+    public static async Task PlayItems(GetMediaItemsDlgt getMediaItemsFunction, AVType avType)
     {
       CloseSecondaryPlayerContext();
-      PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.None);
+      await PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.None);
     }
 
     /// <summary>
@@ -283,7 +299,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="avType">AV type of media items to be played.</param>
     /// <param name="play">If <c>true</c>, plays the specified items, else enqueues it.</param>
     /// <param name="concurrencyMode">Determines if the media item will be played or enqueued in concurrency mode.</param>
-    public static void PlayOrEnqueueItems(GetMediaItemsDlgt getMediaItemsFunction, AVType avType,
+    public static Task PlayOrEnqueueItems(GetMediaItemsDlgt getMediaItemsFunction, AVType avType,
         bool play, PlayerContextConcurrencyMode concurrencyMode)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
@@ -297,6 +313,7 @@ namespace MediaPortal.UiComponents.Media.Models
                   {KEY_CONCURRENCY_MODE, concurrencyMode},
               }
         });
+      return Task.CompletedTask;
     }
 
     #endregion
@@ -311,7 +328,7 @@ namespace MediaPortal.UiComponents.Media.Models
         pcSecondary.Close();
     }
 
-    protected static void CompletePlayOrEnqueue(IPlayerContext pc, bool play, IResumeState resumeState = null)
+    protected static Task CompletePlayOrEnqueue(IPlayerContext pc, bool play, IResumeState resumeState = null)
     {
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
@@ -324,6 +341,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (pc.AVType == AVType.Video || pc.AVType == AVType.Audio)
           pcm.ShowFullscreenContent(true);
       }
+      return Task.CompletedTask;
     }
 
     protected static IPlayerContext PreparePlayerContext(AVType avType, bool play, PlayerContextConcurrencyMode concurrencyMode)
@@ -375,25 +393,27 @@ namespace MediaPortal.UiComponents.Media.Models
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM, true);
     }
 
+    protected void LeaveCheckEditionsState()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToState(Consts.WF_STATE_ID_CHECK_EDITION, true);
+    }
+
     protected void LeaveCheckQueryPlayActionSingleItemState()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM, true);
     }
 
-    protected void CheckPlayMenuInternal(GetMediaItemsDlgt getMediaItemsFunction, AVType avType)
+    protected async Task CheckPlayMenuInternal(GetMediaItemsDlgt getMediaItemsFunction, AVType avType)
     {
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       int numOpen = pcm.NumActivePlayerContexts;
       if (numOpen == 0)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
-        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-        threadPool.Add(() =>
-          {
-            LeaveCheckQueryPlayActionMultipleItemsState();
-            PlayItems(getMediaItemsFunction, avType);
-          });
+        LeaveCheckQueryPlayActionMultipleItemsState();
+        await PlayItems(getMediaItemsFunction, avType);
         return;
       }
       _playMenuItems = new ItemsList();
@@ -405,10 +425,10 @@ namespace MediaPortal.UiComponents.Media.Models
           {
             ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_AUDIO_ITEMS)
               {
-                  Command = new MethodDelegateCommand(() =>
+                  Command = new AsyncMethodDelegateCommand(() =>
                     {
                       LeaveCheckQueryPlayActionMultipleItemsState();
-                      PlayItems(getMediaItemsFunction, avType);
+                      return PlayItems(getMediaItemsFunction, avType);
                     })
               };
             _playMenuItems.Add(playItem);
@@ -416,10 +436,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_AUDIO_ITEMS)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionMultipleItemsState();
-                        PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None);
+                        return PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None);
                       })
                 };
               _playMenuItems.Add(enqueueItem);
@@ -428,10 +448,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem playItemConcurrently = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_VIDEO_PLAY_AUDIO_ITEMS)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionMultipleItemsState();
-                        PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo);
+                        return PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo);
                       })
                 };
               _playMenuItems.Add(playItemConcurrently);
@@ -442,10 +462,10 @@ namespace MediaPortal.UiComponents.Media.Models
           {
             ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEMS)
               {
-                  Command = new MethodDelegateCommand(() =>
+                  Command = new AsyncMethodDelegateCommand(() =>
                     {
                       LeaveCheckQueryPlayActionMultipleItemsState();
-                      PlayItems(getMediaItemsFunction, avType);
+                      return PlayItems(getMediaItemsFunction, avType);
                     })
               };
             _playMenuItems.Add(playItem);
@@ -453,10 +473,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_IMAGE_ITEMS)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionMultipleItemsState();
-                        PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None);
+                        return PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None);
                       })
                 };
               _playMenuItems.Add(enqueueItem);
@@ -465,10 +485,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEMS_MUTED_CONCURRENT_AUDIO)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionMultipleItemsState();
-                        PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentAudio);
+                        return PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentAudio);
                       })
                 };
               _playMenuItems.Add(playItem_A);
@@ -477,10 +497,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEMS_PIP)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionMultipleItemsState();
-                        PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo);
+                        return PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo);
                       })
                 };
               _playMenuItems.Add(playItem_V);
@@ -497,39 +517,43 @@ namespace MediaPortal.UiComponents.Media.Models
           break;
       }
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) =>
-          LeaveCheckQueryPlayActionMultipleItemsState());
+      screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) => LeaveCheckQueryPlayActionMultipleItemsState());
     }
 
-    protected void CheckResumeMenuInternal(MediaItem item)
+    protected async Task CheckResumeMenuInternal(MediaItem item, int edition)
     {
+      // First make sure the correct edition is selected
+      if (edition <= item.MaximumEditionIndex)
+        item.ActiveEditionIndex = edition;
+
       IResumeState resumeState = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
       {
-        string resumeStateString;
-        if (userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, item.MediaItemId, PlayerContext.KEY_RESUME_STATE, out resumeStateString))
-          resumeState = ResumeStateBase.Deserialize(resumeStateString);
+        var userResult = await userProfileDataManagement.UserProfileDataManagement.GetUserMediaItemDataAsync(userProfileDataManagement.CurrentUser.ProfileId, item.MediaItemId, PlayerContext.KEY_RESUME_STATE);
+        if (userResult.Success)
+          resumeState = ResumeStateBase.Deserialize(userResult.Result);
       }
+
+      // Check if resume state matches the current edition, if not start from beginning
+      IResumeStateEdition rse = resumeState as IResumeStateEdition;
+      if (rse != null && rse.ActiveEditionIndex != edition)
+        resumeState = null;
 
       if (resumeState == null)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
-        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-        threadPool.Add(() =>
-        {
-          LeaveCheckResumePlaybackSingleItemState();
-          PlayItem(item);
-        });
+        LeaveCheckResumePlaybackSingleItemState();
+        await PlayItem(item);
         return;
       }
       _playMenuItems = new ItemsList();
       ListItem resumeItem = new ListItem
       {
-        Command = new MethodDelegateCommand(() =>
+        Command = new AsyncMethodDelegateCommand(() =>
         {
           LeaveCheckResumePlaybackSingleItemState();
-          PlayItem(item, resumeState);
+          return PlayItem(item, resumeState);
         })
       };
       PositionResumeState positionResume = resumeState as PositionResumeState;
@@ -545,15 +569,44 @@ namespace MediaPortal.UiComponents.Media.Models
       _playMenuItems.Add(resumeItem);
       ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAYBACK_FROMSTART)
       {
-        Command = new MethodDelegateCommand(() =>
+        Command = new AsyncMethodDelegateCommand(() =>
         {
           LeaveCheckResumePlaybackSingleItemState();
-          PlayItem(item);
+          return PlayItem(item);
         })
       };
       _playMenuItems.Add(playItem);
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) => LeaveCheckResumePlaybackSingleItemState());
+    }
+
+    protected async Task CheckEditionMenuInternal(MediaItem item)
+    {
+      bool hasEditions = item.Editions.Count > 1;
+      if (!hasEditions)
+      {
+        // Asynchronously leave the current workflow state because we're called from a workflow model method
+        await CheckResumeMenuInternal(item, 0);
+        return;
+      }
+
+      _playMenuItems = new ItemsList();
+      foreach (var editionAspects in item.Editions)
+      {
+        var edition = editionAspects.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX);
+        var label = editionAspects.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME);
+        ListItem editionItem = new ListItem
+        {
+          Command = new AsyncMethodDelegateCommand(() =>
+          {
+            return CheckResumeMenuInternal(item, edition);
+          })
+        };
+        editionItem.SetLabel(Consts.KEY_NAME, label);
+        _playMenuItems.Add(editionItem);
+      }
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) => LeaveCheckEditionsState());
     }
 
     protected void CheckPlayMenuInternal(MediaItem item)
@@ -567,7 +620,8 @@ namespace MediaPortal.UiComponents.Media.Models
         threadPool.Add(() =>
           {
             LeaveCheckQueryPlayActionSingleItemState();
-            CheckResumeAction(item);
+            CheckEdition(item);
+            //CheckResumeAction(item);
           });
         return;
       }
@@ -584,7 +638,8 @@ namespace MediaPortal.UiComponents.Media.Models
                   Command = new MethodDelegateCommand(() =>
                     {
                       LeaveCheckQueryPlayActionSingleItemState();
-                      CheckResumeAction(item);
+                      CheckEdition(item);
+                      //CheckResumeAction(item);
                     })
               };
             _playMenuItems.Add(playItem);
@@ -592,10 +647,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_AUDIO_ITEM)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionSingleItemState();
-                        PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None);
+                        return PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None);
                       })
                 };
               _playMenuItems.Add(enqueueItem);
@@ -604,10 +659,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem playItemConcurrently = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_VIDEO_PLAY_AUDIO_ITEM)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionSingleItemState();
-                        PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo);
+                        return PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo);
                       })
                 };
               _playMenuItems.Add(playItemConcurrently);
@@ -621,7 +676,8 @@ namespace MediaPortal.UiComponents.Media.Models
                   Command = new MethodDelegateCommand(() =>
                     {
                       LeaveCheckQueryPlayActionSingleItemState();
-                      CheckResumeAction(item);
+                      CheckEdition(item);
+                      //CheckResumeAction(item);
                     })
               };
             _playMenuItems.Add(playItem);
@@ -629,10 +685,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_IMAGE_ITEM)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionSingleItemState();
-                        PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None);
+                        return PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None);
                       })
                 };
               _playMenuItems.Add(enqueueItem);
@@ -641,10 +697,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEM_MUTED_CONCURRENT_AUDIO)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionSingleItemState();
-                        PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentAudio);
+                        return PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentAudio);
                       })
                 };
               _playMenuItems.Add(playItem_A);
@@ -653,10 +709,10 @@ namespace MediaPortal.UiComponents.Media.Models
             {
               ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_IMAGE_ITEM_PIP)
                 {
-                    Command = new MethodDelegateCommand(() =>
+                    Command = new AsyncMethodDelegateCommand(() =>
                       {
                         LeaveCheckQueryPlayActionSingleItemState();
-                        PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo);
+                        return PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo);
                       })
                 };
               _playMenuItems.Add(playItem_V);
@@ -673,8 +729,7 @@ namespace MediaPortal.UiComponents.Media.Models
           break;
       }
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) =>
-          LeaveCheckQueryPlayActionSingleItemState());
+      screenManager.ShowDialog(Consts.DIALOG_PLAY_MENU, (dialogName, dialogInstanceId) => LeaveCheckQueryPlayActionSingleItemState());
     }
 
     protected static bool GetPlayerContextNameForMediaType(AVType avType, out string contextName)
@@ -700,7 +755,7 @@ namespace MediaPortal.UiComponents.Media.Models
         NumItemsAddedToPlaylistText = LocalizationHelper.Translate(Consts.RES_N_ITEMS_ADDED, numItems);
     }
 
-    protected void AsyncAddToPlaylist(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction, bool play)
+    protected async Task AsyncAddToPlaylist(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction, bool play)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       Guid? dialogInstanceId = screenManager.ShowDialog(Consts.DIALOG_ADD_TO_PLAYLIST_PROGRESS,
@@ -728,10 +783,10 @@ namespace MediaPortal.UiComponents.Media.Models
         workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAY_OR_ENQUEUE_ITEMS, true);
       }
       // Must be done after the dialog is closed
-      CompletePlayOrEnqueue(pc, play);
+      await CompletePlayOrEnqueue(pc, play);
     }
 
-    protected void PlayOrEnqueueItemsInternal(GetMediaItemsDlgt getMediaItemsFunction, AVType avType,
+    protected async Task PlayOrEnqueueItemsInternal(GetMediaItemsDlgt getMediaItemsFunction, AVType avType,
         bool play, PlayerContextConcurrencyMode concurrencyMode)
     {
       IPlayerContext pc = PreparePlayerContext(avType, play, concurrencyMode);
@@ -740,12 +795,10 @@ namespace MediaPortal.UiComponents.Media.Models
 
       // Adding items to playlist must be executed asynchronously - we will show a progress dialog where we aren't allowed
       // to block the input thread.
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(() => AsyncAddToPlaylist(pc, getMediaItemsFunction, play));
+      await AsyncAddToPlaylist(pc, getMediaItemsFunction, play);
     }
 
-    protected IEnumerable<MediaItem> FilterMediaItems(GetMediaItemsDlgt getMediaItemsFunction,
-        ICollection<Guid> consideredMediaItemAspectTypes)
+    protected IEnumerable<MediaItem> FilterMediaItems(GetMediaItemsDlgt getMediaItemsFunction, ICollection<Guid> consideredMediaItemAspectTypes)
     {
       return getMediaItemsFunction().Where(mediaItem => consideredMediaItemAspectTypes.Any(aspectType => mediaItem.Aspects.ContainsKey(aspectType)));
     }
@@ -757,7 +810,7 @@ namespace MediaPortal.UiComponents.Media.Models
       CheckQueryPlayAction(() => FilterMediaItems(getMediaItemsFunction, consideredMediaItemAspectTypes), avType);
     }
 
-    protected void CheckQueryPlayAction_ShowMediaTypeChoice(GetMediaItemsDlgt getMediaItemsFunction)
+    protected Task CheckQueryPlayAction_ShowMediaTypeChoice(GetMediaItemsDlgt getMediaItemsFunction)
     {
       _mediaTypeChoiceMenuItems = new ItemsList
         {
@@ -784,6 +837,7 @@ namespace MediaPortal.UiComponents.Media.Models
         };
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(Consts.DIALOG_CHOOSE_AV_TYPE, (dialogName, dialogInstanceId) => LeaveQueryAVTypeState());
+      return Task.CompletedTask;
     }
 
     protected void PrepareState(NavigationContext context)
@@ -795,12 +849,17 @@ namespace MediaPortal.UiComponents.Media.Models
         GetMediaItemsDlgt getMediaItemsFunction = (GetMediaItemsDlgt) context.GetContextVariable(KEY_GET_MEDIA_ITEMS_FUNCTION, false);
         bool doPlay = (bool) context.GetContextVariable(KEY_DO_PLAY, false);
         PlayerContextConcurrencyMode concurrencyMode = (PlayerContextConcurrencyMode) context.GetContextVariable(KEY_CONCURRENCY_MODE, false);
-        PlayOrEnqueueItemsInternal(getMediaItemsFunction, avType, doPlay, concurrencyMode);
+        _ = PlayOrEnqueueItemsInternal(getMediaItemsFunction, avType, doPlay, concurrencyMode);
+      }
+      else if (workflowStateId == Consts.WF_STATE_ID_CHECK_EDITION)
+      {
+        MediaItem item = (MediaItem) context.GetContextVariable(KEY_MEDIA_ITEM, false);
+        _ = CheckEditionMenuInternal(item);
       }
       else if (workflowStateId == Consts.WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM)
       {
         MediaItem item = (MediaItem) context.GetContextVariable(KEY_MEDIA_ITEM, false);
-        CheckResumeMenuInternal(item);
+        _ = CheckResumeMenuInternal(item, 0);
       }
       else if (workflowStateId == Consts.WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM)
       {
@@ -811,7 +870,7 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         GetMediaItemsDlgt getMediaItemsFunction = (GetMediaItemsDlgt) context.GetContextVariable(KEY_GET_MEDIA_ITEMS_FUNCTION, false);
         AVType avType = (AVType) context.GetContextVariable(KEY_AV_TYPE, false);
-        CheckPlayMenuInternal(getMediaItemsFunction, avType);
+        _ = CheckPlayMenuInternal(getMediaItemsFunction, avType);
       }
       else if (workflowStateId == Consts.WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS)
       {

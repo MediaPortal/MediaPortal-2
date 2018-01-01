@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
@@ -43,9 +44,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
-    protected override void Prepare()
+    protected override async Task PrepareAsync()
     {
-      base.Prepare();
+      await base.PrepareAsync();
 
       _defaultScreen = new ImagesFilterByYearScreenData();
       _availableScreens = new List<AbstractScreenData>

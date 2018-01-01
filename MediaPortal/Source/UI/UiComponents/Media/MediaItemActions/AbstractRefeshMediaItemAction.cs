@@ -27,6 +27,8 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using System;
+using System.Threading.Tasks;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
@@ -34,42 +36,37 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
   {
     protected bool _clearMetadata = false;
 
-    public override bool IsAvailable(MediaItem mediaItem)
+    public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
       try
       {
         if (mediaItem.PrimaryResources.Count > 0 || mediaItem.IsStub)
         {
           var rl = mediaItem.GetResourceLocator();
-          return rl != null;
+          return Task.FromResult(rl != null);
         }
-        return false;
+        return Task.FromResult(false);
       }
       catch (Exception)
       {
-        return false;
+        return Task.FromResult(false);
       }
     }
 
-    public override bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType)
+    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.None;
-
       // If the MediaItem was loaded from ML, remove it there as well.
       if (IsManagedByMediaLibrary(mediaItem))
       {
         IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
         if (cd == null)
-          return true;
+          return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
 
         var rl = mediaItem.GetResourceLocator();
-        cd.RefreshMediaItemMetadata(rl.NativeSystemId, mediaItem.MediaItemId, _clearMetadata);
-
-        changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
-
-        return true;
+        await cd.RefreshMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, _clearMetadata);
+        return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
       }
-      return false;
+      return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
     }
   }
 }

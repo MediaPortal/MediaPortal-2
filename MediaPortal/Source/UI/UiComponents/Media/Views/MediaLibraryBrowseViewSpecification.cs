@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -118,7 +119,7 @@ namespace MediaPortal.UiComponents.Media.Views
       return new ServerConnectionChangeNotificator();
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -142,7 +143,7 @@ namespace MediaPortal.UiComponents.Media.Views
       }
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
 
-      return cd.Search(query, false, userProfile, showVirtual);
+      return await cd.SearchAsync(query, false, userProfile, showVirtual);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -163,8 +164,8 @@ namespace MediaPortal.UiComponents.Media.Views
       try
       {
         bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
-        mediaItems = new List<MediaItem>(cd.Browse(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, showVirtual));
-        ICollection<MediaItem> childDirectories = cd.Browse(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, showVirtual);
+        mediaItems = new List<MediaItem>(cd.BrowseAsync(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, showVirtual).Result);
+        ICollection<MediaItem> childDirectories = cd.BrowseAsync(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, showVirtual).Result;
         subViewSpecifications = new List<ViewSpecification>(childDirectories.Count);
         foreach (MediaItem childDirectory in childDirectories)
         {

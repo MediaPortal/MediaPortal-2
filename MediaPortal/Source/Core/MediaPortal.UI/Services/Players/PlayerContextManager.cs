@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -164,7 +165,7 @@ namespace MediaPortal.UI.Services.Players
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             IResumeState resumeState = (IResumeState) message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
             MediaItem mediaItem = (MediaItem) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM];
-            HandleResumeInfo(psc, mediaItem, resumeState);
+            HandleResumeInfo(psc, mediaItem, resumeState).Wait();
             break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
@@ -236,7 +237,7 @@ namespace MediaPortal.UI.Services.Players
           _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.FullscreenContent, stateId));
     }
 
-    protected void HandleResumeInfo(IPlayerSlotController psc, MediaItem mediaItem, IResumeState resumeState)
+    protected async Task HandleResumeInfo(IPlayerSlotController psc, MediaItem mediaItem, IResumeState resumeState)
     {
       // We can only handle resume info for valid MediaItemIds that are coming from MediaLibrary
       if (mediaItem == null)
@@ -252,7 +253,7 @@ namespace MediaPortal.UI.Services.Players
 
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
+        await userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemDataAsync(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
 
       if (!mediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
         mediaItem.UserData.Add(PlayerContext.KEY_RESUME_STATE, "");
@@ -261,7 +262,7 @@ namespace MediaPortal.UI.Services.Players
       int playPercentage = 0;
       double playDuration = 0;
       if(TryGetPlayDuration(mediaItem, resumeState, out playPercentage, out playDuration))
-        NotifyPlayback(mediaItem, playPercentage, playDuration);
+        await NotifyPlayback(mediaItem, playPercentage, playDuration);
     }
 
     protected static bool TryGetPlayDuration(MediaItem mediaItem, IResumeState resumeState, out int playPercentage, out double playDuration)
@@ -316,7 +317,7 @@ namespace MediaPortal.UI.Services.Players
       return true;
     }
 
-    protected static void NotifyPlayback(MediaItem mediaItem, int playPercentage, double playDuration)
+    protected static async Task NotifyPlayback(MediaItem mediaItem, int playPercentage, double playDuration)
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
@@ -326,16 +327,18 @@ namespace MediaPortal.UI.Services.Players
 
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement.IsValidUser)
+      if (cd != null)
       {
-        bool updatePlayDate = (watched || playDuration >= MINIMUM_WATCHED_SEC || playPercentage >= MINIMUM_WATCHED_PERCENT);
-        if (cd != null)
-          cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, playPercentage, updatePlayDate);
-      }
-      else if (cd != null)
-      {
-        cd.NotifyPlayback(mediaItem.MediaItemId, watched);
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement.IsValidUser)
+        {
+          bool updatePlayDate = (watched || playDuration >= MINIMUM_WATCHED_SEC || playPercentage >= MINIMUM_WATCHED_PERCENT);
+          await cd.NotifyUserPlaybackAsync(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, playPercentage, updatePlayDate);
+        }
+        else
+        {
+          await cd.NotifyPlaybackAsync(mediaItem.MediaItemId, watched);
+        }
       }
 
       // Update loaded item also, so changes will be visible in GUI without reloading

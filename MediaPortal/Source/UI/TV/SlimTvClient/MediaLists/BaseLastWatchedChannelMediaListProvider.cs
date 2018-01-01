@@ -27,6 +27,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UiComponents.Media.MediaLists;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -34,12 +35,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   {
     protected ICollection<IChannel> _currentChannels = new List<IChannel>();
 
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
+    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
     {
       if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PlaybackComplete))
         return true;
       
-      IList<IChannel> channels = GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_DATE);
+      IList<IChannel> channels = await GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_DATE);
       lock (_allItems.SyncRoot)
       {
         if (_currentChannels.Select(c => c.ChannelId).SequenceEqual(channels.Select(c => c.ChannelId)))

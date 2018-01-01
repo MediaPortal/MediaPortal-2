@@ -22,24 +22,39 @@
 
 #endregion
 
-using MediaPortal.Common.Configuration.ConfigurationClasses;
-using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using System;
+using System.Threading.Tasks;
+using MediaPortal.Common.Logging;
 
-namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
+namespace MediaPortal.Common.Commands
 {
-  public class HideAllChannelsGroupSetting : YesNo
+  public class AsyncMethodDelegateCommand : ICommand
   {
-    public override void Load()
+    #region Protected fields
+
+    protected Func<Task> _methodDelegate;
+
+    #endregion
+
+    public AsyncMethodDelegateCommand(Func<Task> methodDelegate)
     {
-      Yes = SettingsManager.Load<SlimTvClientSettings>().HideAllChannelsGroup;
+      _methodDelegate = methodDelegate;
     }
 
-    public override void Save()
+    #region ICommand implementation
+
+    public async void Execute()
     {
-      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
-      settings.HideAllChannelsGroup = Yes;
-      SettingsManager.Save(settings);
-      _ = ChannelContext.Instance.InitChannelGroups();
+      try
+      {
+        await _methodDelegate();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("AsyncMethodDelegateCommand: Error executing method delegate", ex);
+      }
     }
+
+    #endregion
   }
 }

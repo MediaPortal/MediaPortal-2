@@ -27,17 +27,18 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseUnwatchedMediaListProvider : BaseMediaListProvider
   {
-    protected override MediaItemQuery CreateQuery()
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       IFilter filter;
       if (userProfile.HasValue)
-        filter = AppendUserFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+        filter = await AppendUserFilterAsync(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
           new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
           new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayCountString(0))), _necessaryMias);
       else

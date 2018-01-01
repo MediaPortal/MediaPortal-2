@@ -146,7 +146,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
               }
               return mime;
             }
-            catch (Exception e)
+            catch (Exception)
             {
               return "unknown/unknown";
             }
