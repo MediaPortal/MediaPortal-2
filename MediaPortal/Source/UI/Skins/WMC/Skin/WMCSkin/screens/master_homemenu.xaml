@@ -200,24 +200,22 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <!-- HomeContent Storyboard -->
             <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1000"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="300"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0"/>
               </DoubleAnimationUsingKeyFrames>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
             <Storyboard x:Key="SlideOutStoryboard" FillBehavior="Stop">
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="-1000"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="-300"/>
               </DoubleAnimationUsingKeyFrames>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
                 <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </Grid.Resources>
@@ -243,7 +241,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <BeginStoryboard x:Name="Content0BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                 </DataTrigger.EnterActions>
                 <DataTrigger.ExitActions>
-                  <BeginStoryboard x:Name="Content0BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                  <!--BeginStoryboard x:Name="Content0BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/-->
                   <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
                 </DataTrigger.ExitActions>
               </DataTrigger>
@@ -273,7 +271,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <BeginStoryboard x:Name="Content1BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                 </DataTrigger.EnterActions>
                 <DataTrigger.ExitActions>
-                  <BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                  <!--BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/-->
                   <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
                 </DataTrigger.ExitActions>
               </DataTrigger>

@@ -290,6 +290,19 @@
     </Setter>
   </Style>
 
+  <Style x:Key="ContinuePlayedListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.ContinuePlayed]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="FavoriteListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Content">
       <Setter.Value>
@@ -384,8 +397,8 @@
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestMovies]}"
                     Style="{ThemeResource LatestAddedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>      
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayMovies]}"
-                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayMovies]}"
+                    Style="{ThemeResource ContinuePlayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
                     Style="{ThemeResource FavoriteListViewItemStyle}"
@@ -435,10 +448,10 @@
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
                     Style="{ThemeResource LatestAddedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayEpisodes]}"
-                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayEpisodes]}"
+                    Style="{ThemeResource ContinuePlayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteEpisodes]}"
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteSeries]}"
                     Style="{ThemeResource FavoriteListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedSeries]}"
