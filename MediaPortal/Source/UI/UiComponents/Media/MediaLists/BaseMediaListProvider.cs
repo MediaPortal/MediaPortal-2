@@ -123,7 +123,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       var items = await contentDirectory.SearchAsync(query, false, userProfile, showVirtual);
       lock (_allItems.SyncRoot)
       {
-        if (_allItems.Select(pmi => ((PlayableMediaItem)pmi).MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
+        if (_allItems.OfType<PlayableMediaItem>().Select(pmi => pmi.MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
           return false;
 
         IEnumerable<ListItem> listItems;

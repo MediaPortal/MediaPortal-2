@@ -128,7 +128,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
       {
-        PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
+        int playCount;
+        if (int.TryParse(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT], out playCount))
+          PlayCount = playCount;
       }
 
       FireChange();
