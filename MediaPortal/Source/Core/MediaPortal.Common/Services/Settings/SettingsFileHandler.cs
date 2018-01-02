@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -217,6 +218,16 @@ namespace MediaPortal.Common.Services.Settings
           _document.Load(reader);
     }
 
+    /// <summary>
+    /// Loads the settings file async.
+    /// </summary>
+    public Task LoadAsync()
+    {
+      var task = Task.Run(() => Load());
+      task.ConfigureAwait(false);
+      return task;
+    }
+
     public void Clear()
     {
       _document = new XmlDocument();
@@ -246,9 +257,24 @@ namespace MediaPortal.Common.Services.Settings
       _modified = false;
     }
 
+    /// <summary>
+    /// Saves any changes async.
+    /// </summary>
+    public Task FlushAsync()
+    {
+      var task = Task.Run(() => Flush());
+      task.ConfigureAwait(false);
+      return task;
+    }
+
     public void Close()
     {
       Flush();
+    }
+
+    public Task CloseAsync()
+    {
+      return FlushAsync();
     }
 
     #endregion

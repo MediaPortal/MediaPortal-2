@@ -25,6 +25,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
@@ -125,32 +126,47 @@ namespace MediaPortal.Common.Services.Settings
       }
       try
       {
-        object result = Activator.CreateInstance(settingsType);
-        foreach (PropertyInfo property in result.GetType().GetProperties())
-        {
-          SettingAttribute att = GetSettingAttribute(property);
-          if (att == null) continue;
-          SettingsFileHandler s = (att.SettingScope == SettingScope.Global ? globalHandler : userHandler);
-          try
-          {
-            object value = s.GetValue(property.Name, property.PropertyType);
-            if (value == null)
-              if (att.HasDefault)
-                value = att.DefaultValue;
-              else
-                continue;
-            property.SetValue(result, value, null);
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error setting property '{0}' in settings of type '{1}'" +
-                (att.HasDefault ? ", using default value" : string.Empty), e, property.Name, settingsType.Name);
-            if (att.HasDefault)
-              property.SetValue(result, att.DefaultValue, null);
-          }
-        }
+        var result = GetValueInternal(settingsType, globalHandler, userHandler);
         if (!globalHandler.SettingsFileExists && !userHandler.SettingsFileExists)
           SaveSettingsObject(result);
+        return result;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading settings of type '{0}'", e, settingsType.Name);
+        return null;
+      }
+    }
+
+    protected async Task<object> LoadSettingsObjectAsync(Type settingsType)
+    {
+      SettingsFileHandler globalHandler = new SettingsFileHandler(GetGlobalFilePath(settingsType));
+      SettingsFileHandler userHandler = new SettingsFileHandler(GetUserFilePath(settingsType));
+      try
+      {
+        await globalHandler.LoadAsync();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading global settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
+        globalHandler.Clear();
+        RemoveSettingsData(settingsType, false, true);
+      }
+      try
+      {
+        await userHandler.LoadAsync();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading user settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
+        userHandler.Clear();
+        RemoveSettingsData(settingsType, true, false);
+      }
+      try
+      {
+        var result = GetValueInternal(settingsType, globalHandler, userHandler);
+        if (!globalHandler.SettingsFileExists && !userHandler.SettingsFileExists)
+          await SaveSettingsObjectAsync(result);
         return result;
       }
       catch (Exception e)
@@ -167,14 +183,7 @@ namespace MediaPortal.Common.Services.Settings
         Type t = settingsObject.GetType();
         SettingsFileHandler globalSerializer = new SettingsFileHandler(GetGlobalFilePath(t));
         SettingsFileHandler userSerializer = new SettingsFileHandler(GetUserFilePath(t));
-        foreach (PropertyInfo property in t.GetProperties())
-        {
-          SettingAttribute att = GetSettingAttribute(property);
-          if (att == null) continue;
-          SettingsFileHandler s = (att.SettingScope == SettingScope.Global ? globalSerializer : userSerializer);
-          object value = property.GetValue(settingsObject, null);
-          s.SetValue(property.Name, value);
-        }
+        SetValuesInternal(settingsObject, t, globalSerializer, userSerializer);
         globalSerializer.Close();
         userSerializer.Close();
         
@@ -186,6 +195,69 @@ namespace MediaPortal.Common.Services.Settings
         ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error writing settings of type '{0}'... Will clear settings files for this setting", e, settingsObject.GetType().Name);
         RemoveSettingsData(settingsObject.GetType(), true, true);
       }
+    }
+
+    protected async Task SaveSettingsObjectAsync(object settingsObject)
+    {
+      try
+      {
+        Type t = settingsObject.GetType();
+        SettingsFileHandler globalSerializer = new SettingsFileHandler(GetGlobalFilePath(t));
+        SettingsFileHandler userSerializer = new SettingsFileHandler(GetUserFilePath(t));
+        SetValuesInternal(settingsObject, t, globalSerializer, userSerializer);
+        await globalSerializer.CloseAsync();
+        await userSerializer.CloseAsync();
+        
+        // Send a message that the setting has been changed.
+        SettingsManagerMessaging.SendSettingsChangeMessage(t);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error writing settings of type '{0}'... Will clear settings files for this setting", e, settingsObject.GetType().Name);
+        RemoveSettingsData(settingsObject.GetType(), true, true);
+      }
+    }
+
+    private static void SetValuesInternal(object settingsObject, Type t, SettingsFileHandler globalSerializer, SettingsFileHandler userSerializer)
+    {
+      foreach (PropertyInfo property in t.GetProperties())
+      {
+        SettingAttribute att = GetSettingAttribute(property);
+        if (att == null) continue;
+        SettingsFileHandler s = (att.SettingScope == SettingScope.Global ? globalSerializer : userSerializer);
+        object value = property.GetValue(settingsObject, null);
+        s.SetValue(property.Name, value);
+      }
+    }
+
+    private static object GetValueInternal(Type settingsType, SettingsFileHandler globalHandler, SettingsFileHandler userHandler)
+    {
+      object result = Activator.CreateInstance(settingsType);
+      foreach (PropertyInfo property in result.GetType().GetProperties())
+      {
+        SettingAttribute att = GetSettingAttribute(property);
+        if (att == null) continue;
+        SettingsFileHandler s = (att.SettingScope == SettingScope.Global ? globalHandler : userHandler);
+        try
+        {
+          object value = s.GetValue(property.Name, property.PropertyType);
+          if (value == null)
+            if (att.HasDefault)
+              value = att.DefaultValue;
+            else
+              continue;
+          property.SetValue(result, value, null);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>()
+            .Error("SettingsManager: Error setting property '{0}' in settings of type '{1}'" +
+                   (att.HasDefault ? ", using default value" : string.Empty), e, property.Name, settingsType.Name);
+          if (att.HasDefault)
+            property.SetValue(result, att.DefaultValue, null);
+        }
+      }
+      return result;
     }
 
     #region ISettingsManager implementation
@@ -221,19 +293,45 @@ namespace MediaPortal.Common.Services.Settings
       }
     }
 
-    public Task<TSettingsType> LoadAsync<TSettingsType>() where TSettingsType : class
+    public async Task<TSettingsType> LoadAsync<TSettingsType>() where TSettingsType : class
     {
-      return Task.FromResult(Load<TSettingsType>());
+      return (TSettingsType)await LoadAsync(typeof(TSettingsType));
     }
 
-    public Task<object> LoadAsync(Type settingsType)
+    public async Task<object> LoadAsync(Type settingsType)
     {
-      return Task.FromResult(Load(settingsType));
+      object result;
+      await _cache.Mutex.WaitAsync();
+      try
+      {
+        if ((result = _cache.Get(settingsType)) != null)
+          return result;
+        result = await LoadSettingsObjectAsync(settingsType);
+        _cache.Set(result);
+      }
+      finally
+      {
+        _cache.Mutex.Release();
+      }
+      return result;
     }
 
-    public Task SaveAsync(object settingsObject)
+    public async Task SaveAsync(object settingsObject)
     {
-      return Task.CompletedTask;
+      if (settingsObject == null)
+        throw new ArgumentNullException("settingsObject");
+      await _cache.Mutex.WaitAsync();
+      try
+      {
+        _cache.Set(settingsObject);
+        if (_batchUpdate)
+          return;
+        await SaveSettingsObjectAsync(settingsObject);
+      }
+      finally
+      {
+        _cache.Mutex.Release();
+      }
     }
 
     public void StartBatchUpdate()

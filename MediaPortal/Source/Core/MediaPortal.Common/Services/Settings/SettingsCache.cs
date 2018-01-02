@@ -25,8 +25,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Timers;
 using MediaPortal.Utilities.Exceptions;
+using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Common.Services.Settings
 {
@@ -92,6 +94,7 @@ namespace MediaPortal.Common.Services.Settings
         new Dictionary<Type, SettingsObjectWrapper>();
     protected Timer _timer;
     protected object _syncObj = new object();
+    protected SemaphoreSlim _sync = new SemaphoreSlim(1, 1);
 
     #endregion
 
@@ -109,12 +112,19 @@ namespace MediaPortal.Common.Services.Settings
         _timer.Stop();
         _timer.Dispose();
         _timer = null;
+        _sync.Dispose();
+        _sync = null;
       }
     }
 
     public object SyncObj
     {
       get { return _syncObj; }
+    }
+
+    public SemaphoreSlim Mutex
+    {
+      get { return _sync; }
     }
 
     /// <summary>
