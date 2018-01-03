@@ -19,7 +19,7 @@
     <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
 
-  <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.ColumnSpan="2">
+  <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
     <media:AudioAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"

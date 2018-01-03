@@ -24,6 +24,8 @@
   <string name="WMC.Home.LatestAdded">Latest Added</string>
   <string name="WMC.Home.LatestPlayed">Latest Played</string>
   <string name="WMC.Home.ContinuePlayed">Continue Playing</string>
+  <string name="WMC.Home.CurrentPrograms">Current Programs</string>
+  <string name="WMC.Home.CurrentSchedules">Current Schedules</string>
   <string name="WMC.Home.Favorites">Favorites</string>
   <string name="WMC.Home.Unplayed">Unplayed</string>
 
