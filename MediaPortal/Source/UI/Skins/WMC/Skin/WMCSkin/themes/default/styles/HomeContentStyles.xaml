@@ -417,6 +417,9 @@
         <DataTemplate DataType="{x:Type navitems:AudioItem}">
           <Control Template="{StaticResource GridViewAudioItemSmallTemplate}"/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type navitems:AlbumFilterItem}">
+          <Control Template="{StaticResource GridViewAlbumItemSmallTemplate}"/>
+        </DataTemplate>
       </ListView.Resources>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
                     Style="{ThemeResource LatestAddedListViewItemStyle}"
@@ -424,10 +427,10 @@
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayAudio]}"
                     Style="{ThemeResource LatestPlayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAudio]}"
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAlbum]}"
                     Style="{ThemeResource FavoriteListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAudio]}"
+      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAlbum]}"
                     Style="{ThemeResource UnplayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
     </ListView>

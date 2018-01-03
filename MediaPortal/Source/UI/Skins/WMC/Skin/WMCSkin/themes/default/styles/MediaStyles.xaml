@@ -1873,13 +1873,13 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewEpisodeContentTemplate">
-    <Grid>
+  <ControlTemplate x:Key="GridViewEpisodeItemTemplate">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
       <Image x:Name="thumb" Stretch="UniformToFill" Margin="1" Source="{Binding MediaItem}">
         <Image.OpacityMask>
@@ -1908,18 +1908,6 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewEpisodeItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Control Template="{StaticResource GridViewEpisodeContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-    </Grid>
-  </ControlTemplate>
-
   <ControlTemplate x:Key="GridViewEpisodeItemSmallTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -1928,7 +1916,25 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
       </Grid.RowDefinitions>
-      <Control Template="{StaticResource GridViewEpisodeContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Image x:Name="thumb" Stretch="UniformToFill" Margin="1" Source="{Binding MediaItem}">
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2394,12 +2400,8 @@
         </Border>
         <Image Width="{StaticResource POSTER_GRID_WIDTH_S}" Height="{StaticResource POSTER_GRID_HEIGHT_S}"
              Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
-        <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
       </Grid>
+      
     </Grid>
   </ControlTemplate>
 
@@ -2520,13 +2522,13 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewVideoContentTemplate">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <ControlTemplate x:Key="GridViewVideoItemTemplate">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
       <Grid.OpacityMask>
         <VisualBrush>
@@ -2554,23 +2556,11 @@
         </Border.Background>
       </Border>
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
-      
+
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
-    </Grid>
-  </ControlTemplate>
-
-  <ControlTemplate x:Key="GridViewVideoItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Control Template="{StaticResource GridViewVideoContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Grid>
   </ControlTemplate>
 
@@ -2582,7 +2572,32 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
       </Grid.RowDefinitions>
-      <Control Template="{StaticResource GridViewVideoContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Grid.OpacityMask>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Grid.OpacityMask>
+      <Image x:Name="thumb" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Source="{Binding MediaItem}">
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask2" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="6" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2744,13 +2759,13 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewAudioContentTemplate">
-    <Grid>
+   <ControlTemplate x:Key="GridViewAudioItemTemplate">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
       <Image x:Name="thumb" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
              Source="{Binding MediaItem}">
@@ -2778,18 +2793,6 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewAudioItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Control Template="{StaticResource GridViewAudioContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-    </Grid>
-  </ControlTemplate>
-
   <ControlTemplate x:Key="GridViewAudioItemSmallTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -2798,7 +2801,27 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT_S}"/>
       </Grid.RowDefinitions>
-      <Control Template="{StaticResource GridViewAudioContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Image x:Name="thumb" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+             Source="{Binding MediaItem}">
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
+              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+             Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2937,12 +2960,12 @@
   <ControlTemplate x:Key="GridViewAlbumItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Image x:Name="thumb" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}" Stretch="Fill">
+      <Image x:Name="thumb" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -2956,7 +2979,6 @@
         </Image.OpacityMask>
       </Image>
       <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
-              Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}"
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
@@ -2965,8 +2987,41 @@
           </LinearGradientBrush>
         </Border.Background>
       </Border>
-      <Image Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}"
-             Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Image Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GridViewAlbumItemSmallTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH_S}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT_S}"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="thumb" Stretch="Fill">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
+              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Image Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
     </Grid>
   </ControlTemplate>
 
@@ -3096,13 +3151,13 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewImageContentTemplate">
-    <Grid>
+  <ControlTemplate x:Key="GridViewImageItemTemplate">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
       <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" >
         <Border.Background>
@@ -3116,18 +3171,6 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewImageItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Control Template="{StaticResource GridViewImageContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-    </Grid>
-  </ControlTemplate>
-
   <ControlTemplate x:Key="GridViewImageItemSmallTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -3136,7 +3179,15 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT_S}"/>
       </Grid.RowDefinitions>
-      <Control Template="{StaticResource GridViewImageContentTemplate}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" >
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
+            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="1"/>
+      </Border>
     </Grid>
   </ControlTemplate>
 
