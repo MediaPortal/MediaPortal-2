@@ -586,6 +586,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (!hasEditions)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
+        LeaveCheckEditionsState();
         await CheckResumeMenuInternal(item, 0);
         return;
       }
