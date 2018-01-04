@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UPnP.Infrastructure.CP.DeviceTree;
 
@@ -54,9 +55,13 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
   public static class AsyncExtensions
   {
-    public static async Task<IList<object>> InvokeAsync(this CpAction action, IList<object> inParameters)
+    public static async Task<IList<object>> InvokeAsyncTask(this CpAction action, IList<object> inParameters)
     {
       return await Task.Factory.FromAsync((callback, stateObject) => action.BeginInvokeAction(inParameters, callback, stateObject), action.EndInvokeAction, null).ConfigureAwait(false);
+    }
+    public static ConfiguredTaskAwaitable<IList<object>> InvokeAsync(this CpAction action, IList<object> inParameters)
+    {
+      return Task.Factory.FromAsync((callback, stateObject) => action.BeginInvokeAction(inParameters, callback, stateObject), action.EndInvokeAction, null).ConfigureAwait(false);
     }
   }
 }
