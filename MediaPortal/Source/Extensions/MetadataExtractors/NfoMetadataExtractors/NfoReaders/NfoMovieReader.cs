@@ -343,6 +343,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (videoOnly)
       {
         _supportedAttributes.Add(TryWriteMediaAspectTitle);
+        _supportedAttributes.Add(TryWriteMediaAspectSortTitle);
         _supportedAttributes.Add(TryWriteMediaAspectRecordingTime);
         _supportedAttributes.Add(TryWriteVideoAspectStoryPlot);
         _supportedAttributes.Add(TryWriteMediaAspectPlayCount);
@@ -1312,6 +1313,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       {
         string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].Title);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_SORT_TITLE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectSortTitle(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].SortTitle != null)
+      {
+        string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].SortTitle);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, title);
         return true;
       }
       return false;

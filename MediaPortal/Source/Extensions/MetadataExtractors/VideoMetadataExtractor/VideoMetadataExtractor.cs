@@ -822,17 +822,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           IList<MultipleMediaItemAspect> providerResourceAspects;
           if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
           {
+            //Check if already exists
             foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects)
             {
               string accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
               ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
               if (resourcePath.Equals(lfsra.CanonicalLocalResourcePath))
               {
+                //Already exists
                 return false;
               }
             }
           }
 
+          //Create new resource that will be merged later
           string subFormat = GetSubtitleFormat(lfsra.LocalFileSystemPath);
           if (!string.IsNullOrEmpty(subFormat))
           {
@@ -1349,7 +1352,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             if (IsSampleFile(fsra))
               return false;
 
-            int multipart = -1;
+            int multipart = 0;
             int multipartSet = 0;
             Match match = REGEXP_MULTIFILE.Match(filePath);
             if (match.Groups[GROUP_DISC].Length > 0)
