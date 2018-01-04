@@ -174,7 +174,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </ObjectAnimationUsingKeyFrames>
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-550"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="-348"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="-475"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="-522"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="-540"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="-546"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="-549"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="-549.5"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="-550"/>
                 </DoubleAnimationUsingKeyFrames>
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00.01" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="Opacity">
                   <SplineDoubleKeyFrame KeyTime="00:00:00.01" Value="0"/>
@@ -184,7 +191,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-550"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="-549.5"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="-549"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="-546"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="-540"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="-522"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="-475"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="-348"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="0"/>
                 </DoubleAnimationUsingKeyFrames>
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="Opacity">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.5"/>
