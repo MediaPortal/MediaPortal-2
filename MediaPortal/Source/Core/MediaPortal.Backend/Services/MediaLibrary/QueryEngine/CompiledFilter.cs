@@ -307,6 +307,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
         resultParts.Add(" IS NOT NULL ");
         resultParts.Add(" AND ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
+        resultParts.Add(" <> '' ");
+        resultParts.Add(" AND ");
         resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
         resultParts.Add("=");
         resultParts.Add(outerMIIDJoinVariable);

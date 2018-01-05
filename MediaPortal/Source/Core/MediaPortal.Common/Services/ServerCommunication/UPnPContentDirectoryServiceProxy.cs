@@ -326,7 +326,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         offset,
         limit,
       };
-      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
 
@@ -373,7 +373,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         onlineStateStr,
         includeVirtual,
       };
-      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (HomogenousMap) outParameters[0];
     }
 
@@ -396,7 +396,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         onlineStateStr,
         includeVirtual,
       };
-      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return new Tuple<HomogenousMap, HomogenousMap>((HomogenousMap)outParameters[0], (HomogenousMap)outParameters[1]);
     }
 
@@ -427,7 +427,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         groupingFunctionStr,
         includeVirtual,
       };
-      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MLQueryResultGroup>) outParameters[0];
     }
 
@@ -442,7 +442,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         onlineStateStr,
         includeVirtual,
       };
-      IList<object> outParameters = await action.InvokeAsync(inParameters).ConfigureAwait(false);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (int)(uint) outParameters[0];
     }
 
@@ -457,11 +457,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (ICollection<PlaylistInformationData>) outParameters[0];
     }
 
-    public Task SavePlaylistAsync(PlaylistRawData playlistData)
+    public async Task SavePlaylistAsync(PlaylistRawData playlistData)
     {
       CpAction action = GetAction("X_MediaPortal_SavePlaylist");
       IList<object> inParameters = new List<object> {playlistData};
-      return action.InvokeAsync(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
     public async Task<bool> DeletePlaylistAsync(Guid playlistId)
@@ -529,25 +529,25 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
-    public Task DeleteMediaItemOrPathAsync(string systemId, ResourcePath path, bool inclusive)
+    public async Task DeleteMediaItemOrPathAsync(string systemId, ResourcePath path, bool inclusive)
     {
       CpAction action = GetAction("X_MediaPortal_DeleteMediaItemOrPath");
       IList<object> inParameters = new List<object> {systemId, path.Serialize(), inclusive};
-      return action.InvokeAsync(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public Task ClientStartedShareImportAsync(Guid shareId)
+    public async Task ClientStartedShareImportAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_ClientStartedShareImport");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      return action.InvokeAsync(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public Task ClientCompletedShareImportAsync(Guid shareId)
+    public async Task ClientCompletedShareImportAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_ClientCompletedShareImport");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      return action.InvokeAsync(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
     public async Task<ICollection<Guid>> GetCurrentlyImportingSharesAsync()
