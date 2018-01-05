@@ -4441,6 +4441,20 @@
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
                                            FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                          <!--DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" 
+                                                         Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier">
+                            <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="0.03"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.60" Value="0.1"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.90" Value="0.19"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.120" Value="0.35"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.150" Value="0.5"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.180" Value="0.65"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.210" Value="0.81"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.240" Value="0.9"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.270" Value="0.97"/>
+                            <SplineDoubleKeyFrame KeyTime="00:00:00.300" Value="1"/>
+                          </-->
                         </Storyboard>
                       </AnimatedWrapPanel.Resources>
                       <AnimatedWrapPanel.Triggers>
