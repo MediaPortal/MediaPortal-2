@@ -1004,12 +1004,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           //Set media item as changed
           MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId, ImporterAspect.ASPECT_ID);
-          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
-          importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED).AddDays(-1));
+          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, true);
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, importerAspect, false);
 
           //Find share
-          var shares = GetShares(systemId);
+          var shares = GetShares(transaction, systemId);
           var resources = items[0].PrimaryResources;
           if (resources.Count > 0)
           {
@@ -1034,6 +1033,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Logger.Error("MediaLibrary: Error refreshing media item {0}", e, mediaItemId);
         throw;
+      }
+      finally
+      {
+        transaction.Commit();
       }
     }
 
@@ -3066,10 +3069,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public IDictionary<Guid, Share> GetShares(string systemId)
     {
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      return GetShares(null, systemId);
+    }
+
+    private IDictionary<Guid, Share> GetShares(ITransaction transaction, string systemId)
+    {
+      ITransaction shareTransaction = transaction;
+      ISQLDatabase database = null;
       try
       {
+        if(shareTransaction == null)
+        {
+          database = ServiceRegistration.Get<ISQLDatabase>();
+          shareTransaction = database.BeginTransaction();
+        }
+        database = shareTransaction.Database;
+
         int shareIdIndex;
         int systemIdIndex;
         int pathIndex;
@@ -3078,12 +3093,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IDbCommand command;
         if (string.IsNullOrEmpty(systemId))
         {
-          command = MediaLibrary_SubSchema.SelectSharesCommand(transaction, out shareIdIndex,
+          command = MediaLibrary_SubSchema.SelectSharesCommand(shareTransaction, out shareIdIndex,
             out systemIdIndex, out pathIndex, out shareNameIndex, out shareWatcherIndex);
         }
         else
-          command = MediaLibrary_SubSchema.SelectSharesBySystemCommand(transaction, systemId, out shareIdIndex,
+        {
+          command = MediaLibrary_SubSchema.SelectSharesBySystemCommand(shareTransaction, systemId, out shareIdIndex,
               out systemIdIndex, out pathIndex, out shareNameIndex, out shareWatcherIndex);
+        }
         IDictionary<Guid, Share> result = new Dictionary<Guid, Share>();
         try
         {
@@ -3101,7 +3118,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           // Init share categories later to avoid opening new result sets inside reader loop (issue with MySQL)
           foreach (var share in result)
           {
-            ICollection<string> mediaCategories = GetShareMediaCategories(transaction, share.Key);
+            ICollection<string> mediaCategories = GetShareMediaCategories(shareTransaction, share.Key);
             CollectionUtils.AddAll(share.Value.MediaCategories, mediaCategories);
           }
           return result;
@@ -3113,7 +3130,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       finally
       {
-        transaction.Dispose();
+        if(transaction == null)
+          shareTransaction.Dispose();
       }
     }
 
