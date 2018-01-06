@@ -44,7 +44,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
       return new MediaItemQuery(_necessaryMias, filter)
       {
-        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending) }
+        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending), new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
       };
     }
 
