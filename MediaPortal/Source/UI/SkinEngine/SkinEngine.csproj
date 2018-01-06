@@ -615,8 +615,11 @@
     <PackageReference Include="FreeImageNET">
       <Version>3.15.1</Version>
     </PackageReference>
-    <PackageReference Include="SharpDX">
-      <Version>2.6.3</Version>
+    <PackageReference Include="SharpDX.Direct3D9">
+      <Version>4.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="SharpDX.Mathematics">
+      <Version>4.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

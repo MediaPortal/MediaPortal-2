@@ -161,7 +161,7 @@
       <Version>4.2.2.39</Version>
     </PackageReference>
     <PackageReference Include="SharpDX">
-      <Version>2.6.3</Version>
+      <Version>4.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
