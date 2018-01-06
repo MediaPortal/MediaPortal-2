@@ -856,14 +856,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, -1); //External subtitle
             subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subFormat);
             subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_INTERNAL, false);
-            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_DEFAULT, false);
-            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_FORCED, false);
-            if (IsImageBasedSubtitle(subFormat) == false)
-            {
-              string language = GetSubtitleLanguage(lfsra.LocalFileSystemPath);
-              string encoding = GetSubtitleEncoding(lfsra.LocalFileSystemPath, language);
+            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_DEFAULT, lfsra.LocalFileSystemPath.ToLowerInvariant().Contains(".default."));
+            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_FORCED, lfsra.LocalFileSystemPath.ToLowerInvariant().Contains(".forced."));
 
-              if (language != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, language);
+            bool imageBased = IsImageBasedSubtitle(subFormat);
+            string language = GetSubtitleLanguage(lfsra.LocalFileSystemPath, imageBased);
+            if (language != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, language);
+            if (imageBased == false)
+            {
+              string encoding = GetSubtitleEncoding(lfsra.LocalFileSystemPath, language);
               if (encoding != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, encoding);
             }
             else
@@ -904,13 +905,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         if (File.Exists(Path.Combine(Path.GetDirectoryName(subtitleSource), Path.GetFileNameWithoutExtension(subtitleSource) + ".idx")) == true)
         {
-          return SubtitleAspect.FORMAT_VOBSUB;
+          //Only the idx file should be imported
+          return null;
         }
         else
         {
           string subContent = File.ReadAllText(subtitleSource);
           if (subContent.Contains("[INFORMATION]")) return SubtitleAspect.FORMAT_SUBVIEW;
           else if (subContent.Contains("}{")) return SubtitleAspect.FORMAT_MICRODVD;
+        }
+      }
+      else if (string.Compare(Path.GetExtension(subtitleSource), ".idx", true, CultureInfo.InvariantCulture) == 0)
+      {
+        if (File.Exists(Path.Combine(Path.GetDirectoryName(subtitleSource), Path.GetFileNameWithoutExtension(subtitleSource) + ".sub")) == true)
+        {
+          return SubtitleAspect.FORMAT_VOBSUB;
         }
       }
       else if (string.Compare(Path.GetExtension(subtitleSource), ".vtt", true, CultureInfo.InvariantCulture) == 0)
@@ -969,7 +978,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return Encoding.Default.BodyName.ToUpperInvariant();
     }
 
-    protected string GetSubtitleLanguage(string subtitleSource)
+    protected string GetSubtitleLanguage(string subtitleSource, bool imageBased)
     {
       if (string.IsNullOrEmpty(subtitleSource))
       {
@@ -979,9 +988,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
 
       //Language from file name
-      string[] tags = subtitleSource.Split('.');
+      string[] tags = subtitleSource.ToUpperInvariant().Split('.');
       if (tags.Length > 2)
       {
+        tags = tags.Where((t, index) => index > 0 && index < tags.Length - 1).ToArray(); //Ignore first element (title) and last element (extension)
         foreach (CultureInfo culture in cultures)
         {
           string languageName = culture.EnglishName;
@@ -989,95 +999,99 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           {
             languageName = culture.Parent.EnglishName;
           }
-          if (languageName.ToUpperInvariant() == tags[tags.Length - 2].ToUpperInvariant() ||
-            culture.ThreeLetterISOLanguageName.ToUpperInvariant() == tags[tags.Length - 2].ToUpperInvariant() ||
-            culture.ThreeLetterWindowsLanguageName.ToUpperInvariant() == tags[tags.Length - 2].ToUpperInvariant() ||
-            culture.TwoLetterISOLanguageName.ToUpperInvariant() == tags[tags.Length - 2].ToUpperInvariant())
+          System.Diagnostics.Debug.WriteLine($"{languageName} {culture.ThreeLetterISOLanguageName} {culture.ThreeLetterWindowsLanguageName} {culture.TwoLetterISOLanguageName}");
+          if (tags.Contains(languageName.ToUpperInvariant()) ||
+            tags.Contains(culture.ThreeLetterISOLanguageName.ToUpperInvariant()) ||
+            tags.Contains(culture.ThreeLetterWindowsLanguageName.ToUpperInvariant()) ||
+            tags.Contains(culture.TwoLetterISOLanguageName.ToUpperInvariant()))
           {
-            return culture.TwoLetterISOLanguageName.ToUpperInvariant();
+            return culture.TwoLetterISOLanguageName;
           }
         }
       }
 
       //Language from file encoding
-      string encoding = GetSubtitleEncoding(subtitleSource, null);
-      if (encoding != null)
+      if (!imageBased)
       {
-        switch (encoding.ToUpperInvariant())
+        string encoding = GetSubtitleEncoding(subtitleSource, null);
+        if (encoding != null)
         {
-          case "US-ASCII":
-            return "EN";
+          switch (encoding.ToUpperInvariant())
+          {
+            case "US-ASCII":
+              return "EN";
 
-          case "WINDOWS-1253":
-            return "EL";
-          case "ISO-8859-7":
-            return "EL";
+            case "WINDOWS-1253":
+              return "EL";
+            case "ISO-8859-7":
+              return "EL";
 
-          case "WINDOWS-1254":
-            return "TR";
+            case "WINDOWS-1254":
+              return "TR";
 
-          case "WINDOWS-1255":
-            return "HE";
-          case "ISO-8859-8":
-            return "HE";
+            case "WINDOWS-1255":
+              return "HE";
+            case "ISO-8859-8":
+              return "HE";
 
-          case "WINDOWS-1256":
-            return "AR";
-          case "ISO-8859-6":
-            return "AR";
+            case "WINDOWS-1256":
+              return "AR";
+            case "ISO-8859-6":
+              return "AR";
 
-          case "WINDOWS-1258":
-            return "VI";
-          case "VISCII":
-            return "VI";
+            case "WINDOWS-1258":
+              return "VI";
+            case "VISCII":
+              return "VI";
 
-          case "WINDOWS-31J":
-            return "JA";
-          case "EUC-JP":
-            return "JA";
-          case "Shift_JIS":
-            return "JA";
-          case "ISO-2022-JP":
-            return "JA";
+            case "WINDOWS-31J":
+              return "JA";
+            case "EUC-JP":
+              return "JA";
+            case "Shift_JIS":
+              return "JA";
+            case "ISO-2022-JP":
+              return "JA";
 
-          case "X-MSWIN-936":
-            return "ZH";
-          case "GB18030":
-            return "ZH";
-          case "X-EUC-CN":
-            return "ZH";
-          case "GBK":
-            return "ZH";
-          case "GB2312":
-            return "ZH";
-          case "X-WINDOWS-950":
-            return "ZH";
-          case "X-MS950-HKSCS":
-            return "ZH";
-          case "X-EUC-TW":
-            return "ZH";
-          case "BIG5":
-            return "ZH";
-          case "BIG5-HKSCS":
-            return "ZH";
+            case "X-MSWIN-936":
+              return "ZH";
+            case "GB18030":
+              return "ZH";
+            case "X-EUC-CN":
+              return "ZH";
+            case "GBK":
+              return "ZH";
+            case "GB2312":
+              return "ZH";
+            case "X-WINDOWS-950":
+              return "ZH";
+            case "X-MS950-HKSCS":
+              return "ZH";
+            case "X-EUC-TW":
+              return "ZH";
+            case "BIG5":
+              return "ZH";
+            case "BIG5-HKSCS":
+              return "ZH";
 
-          case "EUC-KR":
-            return "KO";
-          case "ISO-2022-KR":
-            return "KO";
+            case "EUC-KR":
+              return "KO";
+            case "ISO-2022-KR":
+              return "KO";
 
-          case "TIS-620":
-            return "TH";
-          case "ISO-8859-11":
-            return "TH";
+            case "TIS-620":
+              return "TH";
+            case "ISO-8859-11":
+              return "TH";
 
-          case "KOI8-R":
-            return "RU";
-          case "KOI7":
-            return "RU";
+            case "KOI8-R":
+              return "RU";
+            case "KOI7":
+              return "RU";
 
-          case "KOI8-U":
-            return "UK";
+            case "KOI8-U":
+              return "UK";
+          }
         }
       }
 
@@ -1189,14 +1203,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, -1); //External subtitle
                 subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subFormat);
                 subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_INTERNAL, false);
-                subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_DEFAULT, false);
-                subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_FORCED, false);
-                if (IsImageBasedSubtitle(subFormat) == false)
-                {
-                  string language = GetSubtitleLanguage(subFile);
-                  string encoding = GetSubtitleEncoding(subFile, language);
+                subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_DEFAULT, subFile.ToLowerInvariant().Contains(".default."));
+                subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_FORCED, subFile.ToLowerInvariant().Contains(".forced."));
 
-                  if (language != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, language);
+                bool imageBased = IsImageBasedSubtitle(subFormat);
+                string language = GetSubtitleLanguage(subFile, imageBased);
+                if (language != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, language);
+                if (imageBased == false)
+                {
+                  string encoding = GetSubtitleEncoding(subFile, language);
                   if (encoding != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, encoding);
                 }
                 else
