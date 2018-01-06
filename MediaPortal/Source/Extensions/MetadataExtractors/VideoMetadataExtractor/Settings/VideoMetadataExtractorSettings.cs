@@ -64,6 +64,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
         ".ssa",
         ".sub",
         ".vtt",
+        ".idx",
       };
 
     protected readonly static List<string> DEFAULT_SUBTITLE_FOLDERS = new List<string>
