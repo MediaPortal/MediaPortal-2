@@ -39,8 +39,8 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       IFilter filter;
       if (userProfile.HasValue)
         filter = await AppendUserFilterAsync(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-          new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
-          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayCountString(0))), _necessaryMias);
+          new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE),
+          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0))), _necessaryMias);
       else
         filter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
 

@@ -154,7 +154,7 @@
     <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />
     <Compile Include="MediaItemActions\AddAllToPlaylist.cs" />
     <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
-    <Compile Include="MediaItemActions\AbstractPlayCountAction.cs" />
+    <Compile Include="MediaItemActions\AbstractWatchedAction.cs" />
     <Compile Include="MediaItemActions\AbstractRefeshMediaItemAction.cs" />
     <Compile Include="MediaItemActions\ReimportMediaItem.cs" />
     <Compile Include="MediaItemActions\RefreshMediaItem.cs" />

@@ -53,10 +53,10 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         return new List<FilterValue>();
 
       IFilter unwatchedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-        new EmptyUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT),
-        new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayCountString(0)));
+        new EmptyUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE),
+        new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0)));
 
-      IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayCountString(0));
+      IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayPercentageString(0));
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
       var taskUnwatched = cd.CountMediaItemsAsync(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, unwatchedFilter), true, showVirtual);
       var taskWatched = cd.CountMediaItemsAsync(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, watchedFilter), true, showVirtual);

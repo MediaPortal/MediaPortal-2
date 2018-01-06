@@ -36,17 +36,17 @@ using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
-  public abstract class AbstractPlayCountAction : AbstractMediaItemAction
+  public abstract class AbstractWatchedAction : AbstractMediaItemAction
   {
-    protected abstract bool AppliesForPlayCount(int playCount);
-    protected abstract int GetNewPlayCount();
+    protected abstract bool AppliesForWatchedState(bool watched);
+    protected abstract bool GetNewWatchedState();
 
     public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
-      int playCount = 0;
-      if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
-        playCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
-      if (!IsManagedByMediaLibrary(mediaItem) || !AppliesForPlayCount(playCount))
+      bool watched = false;
+      if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
+        watched = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE]) >= 100;
+      if (!IsManagedByMediaLibrary(mediaItem) || !AppliesForWatchedState(watched))
         return Task.FromResult(false);
 
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
@@ -70,24 +70,20 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      int playCount = GetNewPlayCount();
-      int playPercentage = playCount > 0 ? 100 : 0;
+      bool watched = GetNewWatchedState();
+      int playPercentage = watched ? 100 : 0;
 
       if (userProfile.HasValue)
       {
-        await cd.NotifyUserPlaybackAsync(userProfile.Value, mediaItem.MediaItemId, playCount > 0 ? playPercentage : -1, playCount > 0);
+        await cd.NotifyUserPlaybackAsync(userProfile.Value, mediaItem.MediaItemId, playPercentage, watched);
       }
       else
       {
-        await cd.NotifyPlaybackAsync(mediaItem.MediaItemId, playCount > 0);
+        await cd.NotifyPlaybackAsync(mediaItem.MediaItemId, watched);
       }
 
       //Also update media item locally so changes are reflected in GUI without reloading
-      MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, playCount);
-      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = UserDataKeysKnown.GetSortablePlayCountString(playCount);
       mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = UserDataKeysKnown.GetSortablePlayPercentageString(playPercentage);
-      if (playCount <= 0)
-        mediaItem.UserData.Remove(UserDataKeysKnown.KEY_PLAY_DATE);
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
     }
   }
