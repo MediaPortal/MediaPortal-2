@@ -123,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Height(this RawRectangleF rect)
     {
-      return rect.Top - rect.Bottom;
+      return rect.Bottom - rect.Top;
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RectangleF ToRectangleF(this RawRectangleF rect)
