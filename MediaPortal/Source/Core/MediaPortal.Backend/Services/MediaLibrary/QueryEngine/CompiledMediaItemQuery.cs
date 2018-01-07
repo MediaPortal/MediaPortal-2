@@ -54,9 +54,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
     protected readonly IFilter _filter;
     protected readonly IFilter _subqueryFilter;
+    protected readonly Guid? _userProfileId;
     protected uint? _offset;
     protected uint? _limit;
-    protected Guid? _userProfileId;
 
     protected readonly IList<ISortInformation> _sortInformation;
 
@@ -121,6 +121,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public uint? Limit
     {
       get { return _limit; }
+    }
+
+    public Guid? UserProfileId
+    {
+      get { return _userProfileId; }
     }
 
     public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query, Guid? userProfileId = null)

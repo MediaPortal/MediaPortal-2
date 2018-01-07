@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
 using System;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -122,6 +123,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _limit = limit;
       _offset = offset;
       _userProfileId = userProfileId;
+    }
+
+    private bool IsDistinct()
+    {
+      //The provider resource aspect is almost always added but it will cause more rows to be selected because media items have multiple resources
+      //If the additional rows provided are not needed they can be ignored by only returning the distinct rows
+      if (!_necessaryRequestedMIAs.Contains(ProviderResourceAspect.Metadata) && !(_optionalRequestedMIAs?.Contains(ProviderResourceAspect.Metadata) ?? false))
+        return false;
+
+      foreach(var att in _selectAttributes)
+      {
+        if (ProviderResourceAspect.Metadata.AttributeSpecifications.Values.Contains(att.Attr))
+          return false;
+      }
+
+      return true;
     }
 
     protected void GenerateSqlStatement(bool groupByValues,
@@ -246,7 +263,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             miaTypeTableQueries, miaIdAttribute, out ra);
       }
       // Build table query data for each sort attribute
-      bool userMediaItemSortAdded = false;
       if (_sortInformation != null)
       {
         compiledSortInformation = new List<CompiledSortInformation>();
@@ -269,26 +285,23 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           }
 
           DataSortInformation dataSort = sortInformation as DataSortInformation;
-          if (dataSort != null && _userProfileId.HasValue && !userMediaItemSortAdded)
+          if (dataSort != null && _userProfileId.HasValue)
           {
             BindVar userVar = new BindVar("UID", _userProfileId.Value, typeof(Guid));
-            BindVar keyVar = new BindVar("UDK", dataSort.UserDataKey, typeof(string));
             TableQueryData tqd = new TableQueryData(UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
             RequestedAttribute ra = new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
             compiledSortInformation.Add(new CompiledSortInformation(ra, dataSort.Direction));
-            TableJoin join = new TableJoin("INNER JOIN", tqd, new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME), "@" + userVar.Name);
+            TableJoin join = new TableJoin("LEFT OUTER JOIN", tqd, new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME), "@" + userVar.Name);
             join.AddCondition(new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute);
-            join.AddCondition(new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME), "@" + keyVar.Name);
+            join.AddCondition(new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME), $"'{dataSort.UserDataKey}'");
             tableJoins.Add(join);
             sqlVars.Add(userVar);
-            sqlVars.Add(keyVar);
-
-            //Only one user data key order by is possible because of the join required
-            userMediaItemSortAdded = true;
           }
         }
       }
       StringBuilder result = new StringBuilder("SELECT ");
+      if (IsDistinct())
+        result.Append("DISTINCT ");
 
       string groupClause = StringUtils.Join(", ", qualifiedGroupByAliases.Select(alias => "V." + alias));
       if (groupByValues)
