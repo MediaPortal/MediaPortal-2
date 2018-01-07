@@ -266,6 +266,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (_sortInformation != null)
       {
         compiledSortInformation = new List<CompiledSortInformation>();
+        BindVar userVar = null;
         foreach (ISortInformation sortInformation in _sortInformation)
         {
           AttributeSortInformation attributeSort = sortInformation as AttributeSortInformation;
@@ -287,15 +288,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           DataSortInformation dataSort = sortInformation as DataSortInformation;
           if (dataSort != null && _userProfileId.HasValue)
           {
-            BindVar userVar = new BindVar("UID", _userProfileId.Value, typeof(Guid));
             TableQueryData tqd = new TableQueryData(UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
             RequestedAttribute ra = new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
             compiledSortInformation.Add(new CompiledSortInformation(ra, dataSort.Direction));
+
+            if (userVar == null)
+            {
+              userVar = new BindVar("UID", _userProfileId.Value, typeof(Guid));
+              sqlVars.Add(userVar);
+            }
             TableJoin join = new TableJoin("LEFT OUTER JOIN", tqd, new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME), "@" + userVar.Name);
             join.AddCondition(new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute);
             join.AddCondition(new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME), $"'{dataSort.UserDataKey}'");
             tableJoins.Add(join);
-            sqlVars.Add(userVar);
           }
         }
       }
