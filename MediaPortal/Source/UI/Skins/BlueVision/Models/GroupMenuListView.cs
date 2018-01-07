@@ -27,6 +27,7 @@ using System.Linq;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Xaml;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -40,7 +41,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     /// </summary>
     public HomeMenuModel HomeMenuModel { get; set; }
 
-    public override void AddPotentialFocusableElements(RectangleF? startingRect, ICollection<FrameworkElement> elements)
+    public override void AddPotentialFocusableElements(RawRectangleF? startingRect, ICollection<FrameworkElement> elements)
     {
       // if the focus comes from outside the ListView, then we add only the lastSelectedItem to the PotentialFocusableElements
       // if the focus is inside the ListViewAlreay, then act as normal

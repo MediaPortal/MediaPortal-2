@@ -33,15 +33,11 @@ using System;
 using System.Runtime.InteropServices;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -74,8 +70,8 @@ namespace MediaPortal.UI.Players.Video
     #region Variables
 
     private readonly object _lock = new object();
-    private Size _originalVideoSize;
-    private SizeF _aspectRatio;
+    private Size2 _originalVideoSize;
+    private Size2F _aspectRatio;
     protected IBitmapAsset2D _bitmapAsset2D;
 
     private readonly RenderDlgt _renderDlgt;
@@ -119,7 +115,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets the size of the original video frame as it came from the EVR presenter.
     /// </summary>
-    public Size OriginalVideoSize
+    public Size2 OriginalVideoSize
     {
       get { return _originalVideoSize; }
     }
@@ -127,7 +123,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets the aspect ratio.
     /// </summary>
-    public SizeF AspectRatio
+    public Size2F AspectRatio
     {
       get { return _aspectRatio; }
     }
@@ -156,7 +152,7 @@ namespace MediaPortal.UI.Players.Video
           if (sharedHandle != IntPtr.Zero && cx != 0 && cy != 0)
           {
             if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
-              _originalVideoSize = new Size(cx, cy);
+              _originalVideoSize = new Size2(cx, cy);
 
             _aspectRatio.Width = arx;
             _aspectRatio.Height = ary;

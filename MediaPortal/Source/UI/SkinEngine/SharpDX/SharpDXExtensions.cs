@@ -91,6 +91,11 @@ namespace MediaPortal.UI.SkinEngine
       return new Rectangle((int)location.X, (int)location.Y, size.Width, size.Height);
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static RectangleF CreateRectangleF(Vector2 location, Size2 size)
+    {
+      return new RectangleF(location.X, location.Y, size.Width, size.Height);
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RectangleF CreateRectangleF(Vector2 location, Size2F size)
     {
       return new RectangleF(location.X, location.Y, size.Width, size.Height);
@@ -105,6 +110,7 @@ namespace MediaPortal.UI.SkinEngine
     {
       return rect.Top;
     }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Size2F Size(this RawRectangleF rect)
     {
       return new Size2F(rect.Width(), rect.Height());

@@ -624,7 +624,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       {
         // Check the target texture dimensions and adjust scaling and translation
         var desc = targetSurface.Bitmap.Size;
-        Matrix transform = Matrix.Identity;
+        Matrix3x2 transform = Matrix.Identity;
 
           // Position subtitle and scale it to match video frame size, if required
         transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);

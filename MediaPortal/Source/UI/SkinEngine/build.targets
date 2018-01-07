@@ -27,6 +27,7 @@
       <References Include="$(TargetDir)SharpDX.Direct3D11.dll" />
       <References Include="$(TargetDir)SharpDX.Direct2D1.dll" />
       <References Include="$(TargetDir)SharpDX.DXGI.dll" />
+      <References Include="$(TargetDir)SharpDX.Mathematics.dll" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />

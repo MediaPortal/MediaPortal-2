@@ -29,6 +29,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UiComponents.WMCSkin.Models;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UiComponents.WMCSkin.Controls
 {
@@ -66,7 +67,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
       set { _currentIndexProperty.SetValue(value); }
     }
 
-    public override void BringIntoView(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RawRectangleF elementBounds)
     {
       //disable auto centering if using mouse, prevents items from scrolling
       if (AutoCentering != ScrollAutoCenteringEnum.None && IsMouseOverElement(element) && !ShouldBringIntoView(element))

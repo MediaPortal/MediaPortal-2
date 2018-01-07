@@ -40,9 +40,7 @@ using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using SharpDX.Mathematics.Interop;
 using SwapChain = SharpDX.DXGI.SwapChain;
 
 namespace MediaPortal.Plugins.StatisticsRenderer
@@ -284,20 +282,20 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       int left = _tearingPos;
       int width = _device.Context2D1.PixelSize.Width;
       int height = _device.Context2D1.PixelSize.Height;
-      Size size = new Size(4, height);
+      Size2 size = new Size2(4, height);
       Point topLeft = new Point(left, 0);
       if (topLeft.X + size.Width >= width)
         topLeft.X = 0;
 
-      Rectangle rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
+      RectangleF rcTearing = SharpDXExtensions.CreateRectangleF(topLeft, size);
 
       _device.Context2D1.DrawRectangle(rcTearing, _whiteBrush);
 
-      topLeft = new Point((rcTearing.Right + 15) % width, 0);
+      topLeft = new Point(((int)rcTearing.Right + 15) % width, 0);
       if (topLeft.X + size.Width >= width)
         topLeft.X = 0;
 
-      rcTearing = SharpDXExtensions.CreateRectangle(topLeft, size);
+      rcTearing = SharpDXExtensions.CreateRectangleF(topLeft, size);
       _device.Context2D1.DrawRectangle(rcTearing, _grayBrush);
 
       _tearingPos = (_tearingPos + 7) % width;
@@ -309,19 +307,19 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       using (var layout = new TextLayout(_device.FactoryDW, text, _textFormat, SkinContext.BackBufferWidth, SkinContext.BackBufferHeight))
       {
 
-        Rectangle rcTextField = new Rectangle(RENDER_OFFSET_LEFT, 0, SkinContext.BackBufferWidth - RENDER_OFFSET_LEFT, (int)Math.Ceiling(layout.Metrics.Height));
+        RectangleF rcTextField = new RectangleF(RENDER_OFFSET_LEFT, 0, SkinContext.BackBufferWidth - RENDER_OFFSET_LEFT, (int)Math.Ceiling(layout.Metrics.Height));
         _device.Context2D1.DrawText(text, _textFormat, rcTextField, _redBrush);
       }
     }
 
     private void DrawLines()
     {
-      Vector2[] pointsFps = new Vector2[2];
-      Vector2[] pointsRenderTime = new Vector2[2];
-      Vector2[] pointsTimeToPresent = new Vector2[2];
-      Vector2[] pointsGlitches = new Vector2[2];
-      Vector2[] renderBaseLine = new Vector2[2];
-      Vector2[] presentBaseLine = new Vector2[2];
+      RawVector2[] pointsFps = new RawVector2[2];
+      RawVector2[] pointsRenderTime = new RawVector2[2];
+      RawVector2[] pointsTimeToPresent = new RawVector2[2];
+      RawVector2[] pointsGlitches = new RawVector2[2];
+      RawVector2[] renderBaseLine = new RawVector2[2];
+      RawVector2[] presentBaseLine = new RawVector2[2];
       renderBaseLine[0].X = presentBaseLine[0].X = RENDER_OFFSET_LEFT;
       renderBaseLine[1].X = presentBaseLine[1].X = RENDER_OFFSET_LEFT + MAX_STAT_VALUES;
       renderBaseLine[0].Y = renderBaseLine[1].Y = RENDER_OFFSET_TOP + 30;

@@ -40,9 +40,6 @@ using MediaPortal.Utilities;
 using SharpDX;
 using SharpDX.Direct2D1;
 using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotation;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.SystemCommunication;
@@ -73,7 +70,7 @@ namespace MediaPortal.UI.Players.Image
 
     protected IResourceLocator _currentLocator = null;
     protected BitmapAsset _texture = null;
-    protected SizeF _textureMaxUV = new SizeF(1, 1);
+    protected Size2F _textureMaxUV = new Size2F(1, 1);
     protected TimeSpan _slideShowImageDuration = TimeSpan.FromSeconds(10);
     protected Timer _slideShowTimer = null;
     protected bool _slideShowEnabled = false;
@@ -271,7 +268,7 @@ namespace MediaPortal.UI.Players.Image
         _flipX = flipX;
         _flipY = flipY;
         var desc = _texture.Bitmap.PixelSize;
-        _textureMaxUV = new SizeF(_texture.Width / (float)desc.Width, _texture.Height / (float)desc.Height);
+        _textureMaxUV = new Size2F(_texture.Width / (float)desc.Width, _texture.Height / (float)desc.Height);
 
         // Reset animation
         _animator.Initialize();
@@ -484,7 +481,7 @@ namespace MediaPortal.UI.Players.Image
       }
     }
 
-    public RectangleF GetTextureClip(Size outputSize)
+    public RectangleF GetTextureClip(Size2 outputSize)
     {
       // TODO: Execute animation in own timer
       lock (_syncObj)

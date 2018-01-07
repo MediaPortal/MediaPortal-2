@@ -294,6 +294,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="build.targets" />
     <None Include="packages.config" />
     <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\Titan.desc" />
