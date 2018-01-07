@@ -412,6 +412,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (numOpen == 0)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
+        await Task.Yield();
         LeaveCheckQueryPlayActionMultipleItemsState();
         await PlayItems(getMediaItemsFunction, avType);
         return;
@@ -543,6 +544,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (resumeState == null)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
+        await Task.Yield();
         LeaveCheckResumePlaybackSingleItemState();
         await PlayItem(item);
         return;
@@ -586,6 +588,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (!hasEditions)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
+        await Task.Yield();
         LeaveCheckEditionsState();
         await CheckResumeMenuInternal(item, 0);
         return;
@@ -796,6 +799,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
       // Adding items to playlist must be executed asynchronously - we will show a progress dialog where we aren't allowed
       // to block the input thread.
+      await Task.Yield();
       await AsyncAddToPlaylist(pc, getMediaItemsFunction, play);
     }
 
