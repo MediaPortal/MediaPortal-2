@@ -31,9 +31,6 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -247,11 +244,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _verticalContentAlignmentProperty.SetValue(value); }
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       FrameworkElement templateControl = _templateControl;
       if (templateControl == null)
-        return new SizeF();
+        return new Size2F();
       // Measure the child
       templateControl.Measure(ref totalSize);
       return totalSize;
@@ -268,8 +265,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement templateControl = _templateControl;
       if (templateControl == null)
         return;
-      PointF position = new PointF(_innerRect.Left, _innerRect.Top);
-      SizeF availableSize = new SizeF(_innerRect.Width(), _innerRect.Height());
+      Vector2 position = new Vector2(_innerRect.Left, _innerRect.Top);
+      Size2F availableSize = new Size2F(_innerRect.Width(), _innerRect.Height());
       ArrangeChild(templateControl, HorizontalContentAlignment, VerticalContentAlignment,
           ref position, ref availableSize);
       RectangleF childRect = SharpDXExtensions.CreateRectangleF(position, availableSize);

@@ -28,9 +28,6 @@ using System.Linq;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SharpDX;
 using SharpDX.Direct3D9;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {

@@ -34,9 +34,6 @@ using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -47,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _visualProperty;
     protected AbstractProperty _autoLayoutContentProperty;
     protected Screen _screen = null;
-    protected SizeF _visualSize = new SizeF();
+    protected Size2F _visualSize = new Size2F();
     protected FrameworkElement _preparedVisual = null;
     protected String _renderTargetKey;
     protected static int _visualBrushId = 0;
@@ -132,7 +129,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           visual.SetElementState(ElementState.Running);
         // Here is _screen != null, which means we are allocated
         visual.Allocate();
-        SizeF size = _vertsBounds.Size;
+        Size2F size = _vertsBounds.Size;
         visual.Measure(ref size);
         visual.Arrange(new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height));
       }

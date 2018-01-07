@@ -23,8 +23,8 @@
 #endregion
 
 using MediaPortal.UI.SkinEngine.DirectX11;
+using SharpDX;
 using SharpDX.Direct2D1;
-using Size = SharpDX.Size2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
@@ -35,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     #region Protected fields
 
     protected Bitmap1 _bitmap = null;
-    protected Size _size = new Size();
+    protected Size2 _size = new Size2();
     protected PixelFormat _format = new PixelFormat(SharpDX.DXGI.Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied);
 
     #endregion
@@ -59,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       get { return _size.Height; }
     }
 
-    public Size Size
+    public Size2 Size2
     {
       get { return _size; }
     }
@@ -83,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         var bitmapProperties = new BitmapProperties1(_format, 96, 96, options);
 
         // Create the render target
-        _bitmap = new Bitmap1(GraphicsDevice11.Instance.Context2D1, new Size(width, height), bitmapProperties);
+        _bitmap = new Bitmap1(GraphicsDevice11.Instance.Context2D1, new Size2(width, height), bitmapProperties);
       }
       AllocationChanged(AllocationSize);
       KeepAlive();
@@ -108,7 +108,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       AllocationChanged(-AllocationSize);
       _bitmap.Dispose();
       _bitmap = null;
-      _size = new Size();
+      _size = new Size2();
     }
 
     #endregion

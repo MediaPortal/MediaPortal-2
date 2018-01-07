@@ -31,9 +31,6 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -328,7 +325,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       base.CalculateInnerDesiredSize(totalSize); // Needs to be called in each sub class of Control, see comment in Control.CalculateInnerDesiredSize()
       // Measure the text
@@ -337,7 +334,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         totalWidth = (float)Width;
       if (float.IsNaN(totalWidth))
         totalWidth = 4096;
-      SizeF size = new SizeF { Width = 0 };
+      Size2F size = new Size2F { Width = 0 };
 
       ReAllocFont(); // Make sure to recreate asset to match current font metrics
       if (_asset == null)

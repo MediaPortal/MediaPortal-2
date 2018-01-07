@@ -30,9 +30,6 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Mathematics.Interop;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -209,9 +206,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       else
       {
-        SizeF desiredSize = _templateControl.DesiredSize;
-        PointF position;
-        SizeF availableSize;
+        Size2F desiredSize = _templateControl.DesiredSize;
+        Vector2 position;
+        Size2F availableSize;
         RectangleF innerRect = _innerRect.ToRectangleF();
         if (_doScroll || AutoCentering != ScrollAutoCenteringEnum.None)
         {
@@ -233,13 +230,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           }
           else if (!IsVertCentering)
             _scrollOffsetY = 0;
-          position = new PointF(innerRect.X + _scrollOffsetX, innerRect.Y + _scrollOffsetY);
+          position = new Vector2(innerRect.X + _scrollOffsetX, innerRect.Y + _scrollOffsetY);
         }
         else
         {
           _scrollOffsetX = 0;
           _scrollOffsetY = 0;
-          position = new PointF(innerRect.X, innerRect.Y);
+          position = new Vector2(innerRect.X, innerRect.Y);
           availableSize = innerRect.Size;
         }
 

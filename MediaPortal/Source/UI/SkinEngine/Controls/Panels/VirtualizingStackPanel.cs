@@ -25,24 +25,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.UI.SkinEngine.MarkupExtensions;
-using MediaPortal.UI.SkinEngine.Xaml;
-using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
-using MediaPortal.UI.SkinEngine.Xaml.XamlNamespace;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Mathematics.Interop;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -173,9 +163,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     }
 
     // It's actually "GetVisibleChildren", but that member already exists in Panel
-    protected IList<FrameworkElement> GetMeasuredViewableChildren(SizeF totalSize, out SizeF resultSize)
+    protected IList<FrameworkElement> GetMeasuredViewableChildren(Size2F totalSize, out Size2F resultSize)
     {
-      resultSize = new SizeF();
+      resultSize = new Size2F();
       IList<FrameworkElement> result = new List<FrameworkElement>(20);
       IItemProvider itemProvider = ItemProvider;
       if (itemProvider == null)
@@ -245,8 +235,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         result.Insert(0, item);
         start--;
       }
-      resultSize = Orientation == Orientation.Vertical ? new SizeF(maxExtendsInNonOrientationDirection, sumExtendsInOrientationDirection) :
-          new SizeF(sumExtendsInOrientationDirection, maxExtendsInNonOrientationDirection);
+      resultSize = Orientation == Orientation.Vertical ? new Size2F(maxExtendsInNonOrientationDirection, sumExtendsInOrientationDirection) :
+          new Size2F(sumExtendsInOrientationDirection, maxExtendsInNonOrientationDirection);
       return result;
     }
 
@@ -263,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return true;
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       FrameworkElementCollection children = Children;
       lock (children.SyncRoot)
@@ -284,9 +274,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           return base.CalculateInnerDesiredSize(totalSize);
         int numItems = itemProvider.NumItems;
         if (numItems == 0)
-          return new SizeF();
+          return new Size2F();
 
-        SizeF resultSize;
+        Size2F resultSize;
         // Get all viewable children (= visible children inside our range)
         IList<FrameworkElement> exemplaryChildren = GetMeasuredViewableChildren(totalSize, out resultSize);
         if (exemplaryChildren.Count == 0)
@@ -300,10 +290,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
         }
         if (exemplaryChildren.Count == 0)
-          return new SizeF();
+          return new Size2F();
         _averageItemSize = GetExtendsInOrientationDirection(Orientation, resultSize) / exemplaryChildren.Count;
-        return Orientation == Orientation.Vertical ? new SizeF(resultSize.Width, resultSize.Height * numItems / exemplaryChildren.Count) :
-            new SizeF(resultSize.Width * numItems / exemplaryChildren.Count, resultSize.Height);
+        return Orientation == Orientation.Vertical ? new Size2F(resultSize.Width, resultSize.Height * numItems / exemplaryChildren.Count) :
+            new Size2F(resultSize.Width * numItems / exemplaryChildren.Count, resultSize.Height);
       }
     }
 
@@ -332,8 +322,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         if (newlyCreated || forceMeasure)
         {
-          SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float)ActualWidth, float.NaN) :
-              new SizeF(float.NaN, (float)ActualHeight);
+          Size2F childSize = Orientation == Orientation.Vertical ? new Size2F((float)ActualWidth, float.NaN) :
+              new Size2F(float.NaN, (float)ActualHeight);
           item.Measure(ref childSize);
         }
         return item;
@@ -368,8 +358,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         if (newlyCreated || forceMeasure)
         {
-          SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float)ActualWidth, float.NaN) :
-              new SizeF(float.NaN, (float)ActualHeight);
+          Size2F childSize = Orientation == Orientation.Vertical ? new Size2F((float)ActualWidth, float.NaN) :
+              new Size2F(float.NaN, (float)ActualHeight);
           headerItem.Measure(ref childSize);
         }
         return headerItem;
@@ -396,8 +386,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int numItems = itemProvider.NumItems;
         if (numItems > 0)
         {
-          PointF actualPosition = ActualPosition;
-          SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
+          Vector2 actualPosition = ActualPosition;
+          Size2F actualSize = new Size2F((float)ActualWidth, (float)ActualHeight);
 
           // For Orientation == vertical, this is ActualHeight, for horizontal it is ActualWidth
           float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
@@ -702,7 +692,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           int numInvisible = numItems - _arrangedItems.Count; // Items which have not been arranged above, i.e. item extends have not been added to _totalHeight / _totalWidth
           float invisibleRequiredSize = numInvisible * _averageItemSize;
           if (_doScroll)
-            invisibleRequiredSize += actualExtendsInOrientationDirection % _averageItemSize; // Size gap from the last item to the end of the actual extends
+            invisibleRequiredSize += actualExtendsInOrientationDirection % _averageItemSize; // Size2 gap from the last item to the end of the actual extends
           if (Orientation == Orientation.Vertical)
             _totalHeight += invisibleRequiredSize;
           else
@@ -726,7 +716,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       bool arrangeBefore, float actualExtendsInNonOrientationDirection,
       IList<FrameworkElement> previousArrangedChilds)
     {
-      SizeF childSize = item.DesiredSize;
+      Size2F childSize = item.DesiredSize;
       // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
       float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, childSize);
       if (arrangeBefore)
@@ -735,7 +725,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       if (Orientation == Orientation.Vertical)
       {
-        PointF position = new PointF(actualPosition.X, actualPosition.Y + startOffset);
+        Vector2 position = new Vector2(actualPosition.X, actualPosition.Y + startOffset);
 
         childSize.Width = actualExtendsInNonOrientationDirection;
 
@@ -747,7 +737,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       else
       {
-        PointF position = new PointF(actualPosition.X + startOffset, actualPosition.Y);
+        Vector2 position = new Vector2(actualPosition.X + startOffset, actualPosition.Y);
 
         childSize.Height = actualExtendsInNonOrientationDirection;
 

@@ -37,9 +37,9 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
 using SharpDX;
 using SharpDX.Mathematics.Interop;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using Size2 = SharpDX.Size2;
+using Size2F = SharpDX.Size2F;
+using Vector2 = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -792,7 +792,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (_settings == null)
           return;
       RawRectangleF? elementArrangeBounds = _settings.ElementArrangeBounds;
-      SizeF keyboardSize = templateControl.DesiredSize;
+      Size2F keyboardSize = templateControl.DesiredSize;
       RectangleF actualBounds = ActualBounds.ToRectangleF();
       if (actualBounds.Size.Width < keyboardSize.Width)
         keyboardSize.Width = actualBounds.Size.Width;
@@ -801,7 +801,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RectangleF keyboardRect;
       if (elementArrangeBounds.HasValue)
         // Arrange above or below elementArrangeBounds, horizontally centered in elementArrangeBounds
-        keyboardRect = SharpDXExtensions.CreateRectangleF(new PointF(
+        keyboardRect = SharpDXExtensions.CreateRectangleF(new Vector2(
             elementArrangeBounds.Value.Left + elementArrangeBounds.Value.Width() / 2 - keyboardSize.Width / 2,
             elementArrangeBounds.Value.Bottom + keyboardSize.Height > actualBounds.Bottom ?
             elementArrangeBounds.Value.Top - keyboardSize.Height : elementArrangeBounds.Value.Bottom),

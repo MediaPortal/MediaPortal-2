@@ -30,9 +30,6 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using SharpDX.Mathematics.Interop;
@@ -221,15 +218,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       InvalidateLayout(false, true);
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       float totalDesiredHeight = 0;
       float totalDesiredWidth = 0;
-      SizeF childSize;
+      Size2F childSize;
       if (Orientation == Orientation.Vertical)
         foreach (FrameworkElement child in GetVisibleChildren())
         {
-          childSize = new SizeF(totalSize.Width, float.NaN);
+          childSize = new Size2F(totalSize.Width, float.NaN);
           child.Measure(ref childSize);
           totalDesiredHeight += childSize.Height;
           if (childSize.Width > totalDesiredWidth)
@@ -238,13 +235,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       else
         foreach (FrameworkElement child in GetVisibleChildren())
         {
-          childSize = new SizeF(float.NaN, totalSize.Height);
+          childSize = new Size2F(float.NaN, totalSize.Height);
           child.Measure(ref childSize);
           totalDesiredWidth += childSize.Width;
           if (childSize.Height > totalDesiredHeight)
             totalDesiredHeight = childSize.Height;
         }
-      return new SizeF(totalDesiredWidth, totalDesiredHeight);
+      return new Size2F(totalDesiredWidth, totalDesiredHeight);
     }
 
     protected override void ArrangeOverride()
@@ -262,8 +259,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       int numVisibleChildren = visibleChildren.Count;
       if (numVisibleChildren > 0)
       {
-        PointF actualPosition = ActualPosition;
-        SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
+        Vector2 actualPosition = ActualPosition;
+        Size2F actualSize = new Size2F((float) ActualWidth, (float) ActualHeight);
 
         // For Orientation == vertical, this is ActualHeight, for horizontal it is ActualWidth
         float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
@@ -420,12 +417,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           _totalHeight = actualExtendsInNonOrientationDirection;
         foreach (FrameworkElement child in visibleChildren)
         {
-          SizeF childSize = child.DesiredSize;
+          Size2F childSize = child.DesiredSize;
           // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
           float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, childSize);
           if (Orientation == Orientation.Vertical)
           {
-            PointF position = new PointF(actualPosition.X, actualPosition.Y + startPosition);
+            Vector2 position = new Vector2(actualPosition.X, actualPosition.Y + startPosition);
 
             childSize.Width = actualExtendsInNonOrientationDirection;
 
@@ -437,7 +434,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
           else
           {
-            PointF position = new PointF(actualPosition.X + startPosition, actualPosition.Y);
+            Vector2 position = new Vector2(actualPosition.X + startPosition, actualPosition.Y);
 
             childSize.Height = actualExtendsInNonOrientationDirection;
 
@@ -959,7 +956,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public bool Scroll(float deltaX, float deltaY)
     {
-      SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
+      Size2F actualSize = new Size2F((float)ActualWidth, (float)ActualHeight);
 
       // For Orientation == vertical, this is ActualHeight, for horizontal it is ActualWidth
       float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);

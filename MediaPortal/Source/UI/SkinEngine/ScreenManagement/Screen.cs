@@ -49,9 +49,9 @@ using SharpDX;
 using SharpDX.Mathematics.Interop;
 using INameScope = MediaPortal.UI.SkinEngine.Xaml.Interfaces.INameScope;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using Size2 = SharpDX.Size2;
+using Size2F = SharpDX.Size2F;
+using Vector2 = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
@@ -413,7 +413,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             HandleRoutedInputEvent(pre.Item1, pre.Item2);
           }
           if (_root.IsMeasureInvalid || _root.IsArrangeInvalid)
-            _root.UpdateLayoutRoot(new SizeF(SkinWidth, SkinHeight));
+            _root.UpdateLayoutRoot(new Size2F(SkinWidth, SkinHeight));
           HandleScheduledFocus();
           CheckPendingScreenEvent();
         }
@@ -473,7 +473,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _root.InvalidateLayout(true, true);
         // Prepare run. In the prepare run, the screen uses some shortcuts to set values.
         ScreenState = State.Preparing;
-        SizeF skinSize = new SizeF(SkinWidth, SkinHeight);
+        Size2F skinSize = new Size2F(SkinWidth, SkinHeight);
         _root.UpdateLayoutRoot(skinSize);
         // Switch to "Running" state which builds the final screen structure
         ScreenState = State.Running;
@@ -699,12 +699,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
                 case CaptureMode.SubTree:
                   // the hovered element inside the captured element gets the event; fall back is the captured element
-                  element = _mouseCaptured.InputHitTest(new PointF(pt.X, pt.Y)) ?? _mouseCaptured;
+                  element = _mouseCaptured.InputHitTest(new Vector2(pt.X, pt.Y)) ?? _mouseCaptured;
                   break;
 
                 default:
                   // mouse events go to where mouse hovers over
-                  element = _root.InputHitTest(new PointF(pt.X, pt.Y));
+                  element = _root.InputHitTest(new Vector2(pt.X, pt.Y));
                   break;
               }
             }

@@ -26,7 +26,7 @@ using MediaPortal.UI.Presentation.Players;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
-using Size = SharpDX.Size2;
+using Size2 = SharpDX.Size2;
 
 namespace MediaPortal.UI.SkinEngine.Players
 {
@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// <summary>
     /// Returns the clipping region which should be taken fron the texture. Values go from 0 to 1.
     /// </summary>
-    /// <param name="outputSize">Size of the output region.</param>
-    RectangleF GetTextureClip(Size outputSize);
+    /// <param name="outputSize">Size2 of the output region.</param>
+    RectangleF GetTextureClip(Size2 outputSize);
   }
 }

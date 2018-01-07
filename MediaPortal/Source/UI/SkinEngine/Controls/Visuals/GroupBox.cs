@@ -23,18 +23,13 @@
 #endregion
 
 using System;
-using System.Drawing.Drawing2D;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
-using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -159,11 +154,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return result;
     }
 
-    protected override void MeasureBorder(SizeF totalSize)
+    protected override void MeasureBorder(Size2F totalSize)
     {
       const float realHeaderInset = HEADER_INSET_LINE + HEADER_INSET_SPACE;
       float borderInsetX = GetBorderCornerInsetX();
-      SizeF headerSize = new SizeF(totalSize.Width - (borderInsetX + realHeaderInset) * 2, totalSize.Height);
+      Size2F headerSize = new Size2F(totalSize.Width - (borderInsetX + realHeaderInset) * 2, totalSize.Height);
       _headerLabel.Measure(ref headerSize);
       base.MeasureBorder(totalSize);
     }
@@ -193,7 +188,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override SharpDX.Direct2D1.Geometry CreateBorderRectPath(RectangleF innerBorderRect)
     {
-      SizeF headerLabelSize = _headerLabel.DesiredSize;
+      Size2F headerLabelSize = _headerLabel.DesiredSize;
       return GraphicsPathHelper.CreateRoundedRectWithTitleRegionPath(innerBorderRect,
           (float) CornerRadius, (float) CornerRadius, true, HEADER_INSET_LINE,
           headerLabelSize.Width + HEADER_INSET_SPACE * 2);

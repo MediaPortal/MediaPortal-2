@@ -24,8 +24,6 @@
 
 using System;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
@@ -42,10 +40,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
     /// <summary>
     /// Returns the zoom view rectangle for the current animation state for the given <see cref="outputSize"/>.
     /// </summary>
-    /// <param name="imageSize">Size of image.</param>
-    /// <param name="outputSize">Size of the output region.</param>
+    /// <param name="imageSize">Size2 of image.</param>
+    /// <param name="outputSize">Size2 of the output region.</param>
     /// <param name="displayTime">Display time which is usually <see cref="DateTime.Now"/>.</param>
     /// <returns>Rectangle which contains fractions of the image size; X and Y coords go from 0 to 1.</returns>
-    RectangleF GetZoomRect(Size imageSize, Size outputSize, DateTime displayTime);
+    RectangleF GetZoomRect(Size2 imageSize, Size2 outputSize, DateTime displayTime);
   }
 }

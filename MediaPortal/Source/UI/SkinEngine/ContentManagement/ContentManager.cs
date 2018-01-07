@@ -34,9 +34,6 @@ using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {

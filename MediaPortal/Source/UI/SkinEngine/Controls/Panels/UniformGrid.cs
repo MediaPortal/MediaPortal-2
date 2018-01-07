@@ -31,9 +31,6 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Mathematics.Interop;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -168,17 +165,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         columns = (numChildren + rows - 1) / rows; 
     }
 
-    protected SizeF CalculateDesiredSize(SizeF totalSize, bool measureChildren,
+    protected Size2F CalculateDesiredSize(Size2F totalSize, bool measureChildren,
         out float desiredColumnWidth, out float desiredRowHeight)
     {
       desiredColumnWidth = _actualColumns == 0 ? float.NaN : (int)totalSize.Width / _actualColumns; // Can be float.NaN
       desiredRowHeight = _actualRows == 0 ? float.NaN : (int)totalSize.Height / _actualRows; // Can be float.NaN
-      SizeF childSize;
+      Size2F childSize;
       foreach (FrameworkElement child in GetVisibleChildren())
       {
         if (measureChildren)
         {
-          childSize = new SizeF(totalSize.Width / _actualColumns, totalSize.Height / _actualRows);
+          childSize = new Size2F(totalSize.Width / _actualColumns, totalSize.Height / _actualRows);
           child.Measure(ref childSize);
         }
         else
@@ -188,10 +185,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (float.IsNaN(desiredRowHeight) || childSize.Height > desiredRowHeight)
           desiredRowHeight = childSize.Height;
       }
-      return new SizeF(desiredColumnWidth * _actualColumns, desiredRowHeight * _actualRows);
+      return new Size2F(desiredColumnWidth * _actualColumns, desiredRowHeight * _actualRows);
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       _actualColumns = Columns;
@@ -211,7 +208,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       int visibleChildrenCount = visibleChildren.Count;
 
       if (_doScroll)
-        CalculateDesiredSize(new SizeF((float) ActualWidth, (float) ActualHeight), false, out _actualColumnWidth, out _actualRowHeight);
+        CalculateDesiredSize(new Size2F((float) ActualWidth, (float) ActualHeight), false, out _actualColumnWidth, out _actualRowHeight);
       else
       {
         _actualColumnWidth = (float) (ActualWidth/_actualColumns);
@@ -242,8 +239,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       for (int i = 0; i < visibleChildrenCount; i++)
       {
         FrameworkElement child = visibleChildren[i];
-        SizeF childSize = new SizeF(_actualColumnWidth, _actualRowHeight);
-        PointF position = new PointF(
+        Size2F childSize = new Size2F(_actualColumnWidth, _actualRowHeight);
+        Vector2 position = new Vector2(
             ActualPosition.X + (i % _actualColumns - _scrollIndexX)*_actualColumnWidth,
             ActualPosition.Y + (i / _actualColumns - _scrollIndexY)*_actualRowHeight);
 

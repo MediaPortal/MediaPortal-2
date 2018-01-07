@@ -112,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    protected static Vector2 ToVector2(PointF point)
+    protected static Vector2 ToVector2(Vector2 point)
     {
       return new Vector2(point.X, point.Y);
     }
@@ -122,7 +122,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       PathGeometry result = new PathGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory);
       using (var sink = result.Open())
       {
-        PointF lastPoint = new PointF();
+        Vector2 lastPoint = new Vector2();
         Regex regex = new Regex(@"[a-zA-Z][-0-9\.,-0-9\. ]*");
         MatchCollection matches = regex.Matches(Data);
 
@@ -131,20 +131,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         foreach (Match match in matches)
         {
           char cmd = match.Value[0];
-          PointF[] points;
+          Vector2[] points;
           string pointsStr = match.Value.Substring(1).Trim();
           if (pointsStr.Length > 0)
           {
             string[] txtpoints = pointsStr.Split(new char[] { ',', ' ' });
             if (txtpoints.Length == 1)
             {
-              points = new PointF[1];
+              points = new Vector2[1];
               points[0].X = (float)TypeConverter.Convert(txtpoints[0], typeof(float));
             }
             else
             {
               int c = txtpoints.Length / 2;
-              points = new PointF[c];
+              points = new Vector2[c];
               for (int i = 0; i < c; i++)
               {
                 points[i].X = (float)TypeConverter.Convert(txtpoints[i * 2], typeof(float));
@@ -154,15 +154,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
             }
           }
           else
-            points = new PointF[] { };
+            points = new Vector2[] { };
 
           switch (cmd)
           {
             case 'm':
               {
                 //Relative origin
-                PointF point = points[0];
-                lastPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
+                Vector2 point = points[0];
+                lastPoint = new Vector2(lastPoint.X + point.X, lastPoint.Y + point.Y);
                 if (hasOpenFigure)
                   sink.EndFigure(FigureEnd.Open);
                 sink.BeginFigure(ToVector2(lastPoint), FigureBegin.Filled);
@@ -181,7 +181,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
               break;
             case 'L':
               //Absolute Line
-              foreach (PointF t in points)
+              foreach (Vector2 t in points)
               {
                 sink.AddLine(ToVector2(t));
                 //result.AddLine(lastPoint, t);
@@ -202,33 +202,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
             case 'H':
               {
                 //Horizontal line to absolute X 
-                PointF point1 = new PointF(points[0].X, lastPoint.Y);
+                Vector2 point1 = new Vector2(points[0].X, lastPoint.Y);
                 sink.AddLine(ToVector2(point1));
-                lastPoint = new PointF(point1.X, point1.Y);
+                lastPoint = new Vector2(point1.X, point1.Y);
               }
               break;
             case 'h':
               {
                 //Horizontal line to relative X
-                PointF point1 = new PointF(lastPoint.X + points[0].X, lastPoint.Y);
+                Vector2 point1 = new Vector2(lastPoint.X + points[0].X, lastPoint.Y);
                 sink.AddLine(ToVector2(point1));
-                lastPoint = new PointF(point1.X, point1.Y);
+                lastPoint = new Vector2(point1.X, point1.Y);
               }
               break;
             case 'V':
               {
                 //Vertical line to absolute y 
-                PointF point1 = new PointF(lastPoint.X, points[0].X);
+                Vector2 point1 = new Vector2(lastPoint.X, points[0].X);
                 sink.AddLine(ToVector2(point1));
-                lastPoint = new PointF(point1.X, point1.Y);
+                lastPoint = new Vector2(point1.X, point1.Y);
               }
               break;
             case 'v':
               {
                 //Vertical line to relative y
-                PointF point1 = new PointF(lastPoint.X, lastPoint.Y + points[0].X);
+                Vector2 point1 = new Vector2(lastPoint.X, lastPoint.Y + points[0].X);
                 sink.AddLine(ToVector2(point1));
-                lastPoint = new PointF(point1.X, point1.Y);
+                lastPoint = new Vector2(point1.X, point1.Y);
               }
               break;
             case 'C':

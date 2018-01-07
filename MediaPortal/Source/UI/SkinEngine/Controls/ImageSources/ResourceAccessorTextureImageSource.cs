@@ -28,9 +28,6 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -81,9 +78,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _texture == null ? null : _texture.Bitmap; }
     }
 
-    protected override SizeF RawSourceSize
+    protected override Size2F RawSourceSize
     {
-      get { return (_texture != null && _texture.IsAllocated) ? new SizeF(_texture.Width, _texture.Height) : new SizeF(); }
+      get { return (_texture != null && _texture.IsAllocated) ? new Size2F(_texture.Width, _texture.Height) : new Size2F(); }
     }
 
     protected override RectangleF TextureClip

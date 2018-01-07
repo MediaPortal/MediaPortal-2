@@ -24,8 +24,6 @@
 
 using System;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
@@ -52,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
       set { _animationDuration = TimeSpan.FromSeconds(value); }
     }
 
-    public RectangleF GetZoomRect(Size imageSize, Size outputSize, DateTime displayTime)
+    public RectangleF GetZoomRect(Size2 imageSize, Size2 outputSize, DateTime displayTime)
     {
       TimeSpan timeProgress = displayTime - _startTime;
       float animationProgress = (float) timeProgress.TotalMilliseconds / (float) _animationDuration.TotalMilliseconds;

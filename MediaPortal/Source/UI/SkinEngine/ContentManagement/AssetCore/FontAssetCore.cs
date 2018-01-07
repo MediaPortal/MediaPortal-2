@@ -29,15 +29,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.Services.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using SharpDX;
 using SharpDX.Direct3D9;
 using Tao.FreeType;
 using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
@@ -67,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// Creates a new font set.
     /// </summary>
     /// <param name="family">The font family.</param>
-    /// <param name="size">Size in pixels.</param>
+    /// <param name="size">Size2 in pixels.</param>
     /// <param name="resolution">Resolution in dpi.</param>
     public FontAssetCore(FontFamily family, int size, uint resolution)
     {
@@ -100,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// <summary>
     /// Get the size of the font used by this <see cref="FontAssetCore"/> in pixels.
     /// </summary>
-    public float Size
+    public float Size2
     {
       get { return _charSet.RenderedSize; }
     }
@@ -420,7 +416,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// <param name="textSize">Output size of the created text.</param>
     /// <param name="lineIndex">Output indices of the first vertex for of each line of text.</param>
     /// <returns>An array of vertices representing a triangle list.</returns>
-    public PositionColoredTextured[] CreateText(string[] text, float size, bool kerning, out SizeF textSize, out int[] lineIndex)
+    public PositionColoredTextured[] CreateText(string[] text, float size, bool kerning, out Size2F textSize, out int[] lineIndex)
     {
       if (!IsAllocated)
         Allocate();
@@ -443,7 +439,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         liney += _charSet.RenderedSize;
       }
 
-      textSize = new SizeF(0.0f, verts[verts.Count - 1].Y);
+      textSize = new Size2F(0.0f, verts[verts.Count - 1].Y);
 
       // Stores the line widths as the Z coordinate of the verices. This means alignment
       // can be performed by a vertex shader during rendering

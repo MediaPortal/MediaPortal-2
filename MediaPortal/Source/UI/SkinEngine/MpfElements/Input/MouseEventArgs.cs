@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using PointF = SharpDX.Vector2;
+using Vector2 = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Input
 {
@@ -121,16 +121,16 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Input
     /// </summary>
     /// <param name="relativeTo"></param>
     /// <returns></returns>
-    public PointF GetPosition(Visual relativeTo)
+    public Vector2 GetPosition(Visual relativeTo)
     {
       var inputManager = ServiceRegistration.Get<IInputManager>();
       var pt = inputManager.MousePosition;
       var uiElement = relativeTo as UIElement;
       if (uiElement != null)
       {
-        return uiElement.TransformScreenPoint(new PointF(pt.X, pt.Y));
+        return uiElement.TransformScreenPoint(new Vector2(pt.X, pt.Y));
       }
-      return new PointF(pt.X, pt.Y);
+      return new Vector2(pt.X, pt.Y);
     }
 
     #endregion

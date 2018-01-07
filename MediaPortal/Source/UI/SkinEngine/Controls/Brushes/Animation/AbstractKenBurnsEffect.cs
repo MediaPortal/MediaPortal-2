@@ -24,9 +24,6 @@
 
 using System;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
@@ -45,10 +42,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
     /// in relation to the given <paramref name="outputSize"/>. A landscape image has borders at its top and bottom while
     /// a portrait image has borders at its left and right sides.
     /// </summary>
-    /// <param name="imageSize">Size or aspect ratio of the image.</param>
-    /// <param name="outputSize">Size or aspect ratio of the available output region to show the image.</param>
+    /// <param name="imageSize">Size2 or aspect ratio of the image.</param>
+    /// <param name="outputSize">Size2 or aspect ratio of the available output region to show the image.</param>
     /// <returns><c>true</c>, if the image has landscape orientation, else <c>false</c>.</returns>
-    protected bool IsLandscape(SizeF imageSize, SizeF outputSize)
+    protected bool IsLandscape(Size2F imageSize, Size2F outputSize)
     {
       return imageSize.Width / outputSize.Width > imageSize.Height / outputSize.Height;
     }
@@ -57,9 +54,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
     /// Returns the zoom view rectangle for the current animation state for the given <see cref="outputSize"/>.
     /// </summary>
     /// <param name="animationProgress">Progress of the animation, value between 0 (= start) and 1 (=end).</param>
-    /// <param name="imageSize">Size of the image to animate.</param>
-    /// <param name="outputSize">Size of the output region.</param>
+    /// <param name="imageSize">Size2 of the image to animate.</param>
+    /// <param name="outputSize">Size2 of the output region.</param>
     /// <returns>Rectangle which contains fractions of the image size; X and Y coords go from 0 to 1.</returns>
-    public abstract RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize);
+    public abstract RectangleF GetZoomRect(float animationProgress, Size2 imageSize, Size2 outputSize);
   }
 }

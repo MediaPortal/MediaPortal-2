@@ -22,11 +22,10 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.UI.SkinEngine.DirectX;
+using SharpDX;
 using SharpDX.Direct3D9;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
@@ -38,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected Texture _texture = null;
     protected Surface _surface0 = null;
-    protected Size _size = new Size();
+    protected Size2 _size = new Size2();
     protected Usage _usage = Usage.RenderTarget;
     protected Format _format = Format.A8B8G8R8;
     protected float _maxU = 1.0f;
@@ -74,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       get { return _size.Height; }
     }
 
-    public Size Size
+    public Size2 Size2
     {
       get { return _size; }
     }
@@ -143,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         _texture = null;
         _surface0 = null;
       }
-      _size = new Size();
+      _size = new Size2();
     }
 
     #endregion

@@ -32,8 +32,6 @@ using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
 using Stretch = MediaPortal.UI.SkinEngine.Controls.Visuals.Stretch;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -400,8 +398,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (animator == null || !AnimationEnabled)
         return CROP_FULLSIZE;
 
-      Size size = new Size((int)BrushDimensions.X, (int)BrushDimensions.Y);
-      Size outputSize = new Size((int)_vertsBounds.Width, (int)_vertsBounds.Height);
+      Size2 size = new Size2((int)BrushDimensions.X, (int)BrushDimensions.Y);
+      Size2 outputSize = new Size2((int)_vertsBounds.Width, (int)_vertsBounds.Height);
       RectangleF textureClip = animator.GetZoomRect(size, outputSize, DateTime.Now);
 
       return textureClip;

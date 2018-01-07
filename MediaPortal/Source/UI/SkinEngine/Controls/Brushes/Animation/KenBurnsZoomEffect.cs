@@ -23,9 +23,6 @@
 #endregion
 
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
@@ -67,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
       _endZoomFactor = endZoomFactor;
     }
 
-    public override RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize)
+    public override RectangleF GetZoomRect(float animationProgress, Size2 imageSize, Size2 outputSize)
     {
       bool isLandscape = IsLandscape(imageSize.ToSize2F(), outputSize.ToSize2F());
       int zoomCenterPoint = 0;

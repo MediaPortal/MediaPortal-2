@@ -38,9 +38,6 @@ using SharpDX.Direct2D1;
 using SharpDX.WIC;
 using BitmapInterpolationMode = SharpDX.WIC.BitmapInterpolationMode;
 using PixelFormat = SharpDX.WIC.PixelFormat;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 // TODO: Add support for web thumbnails? Requires changing IThumbnailGenerator
 

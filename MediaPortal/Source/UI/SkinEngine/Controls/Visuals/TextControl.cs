@@ -40,7 +40,7 @@ using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.Mathematics.Interop;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
-using SizeF = SharpDX.Size2F;
+using Size2F = SharpDX.Size2F;
 using SolidColorBrush = MediaPortal.UI.SkinEngine.Controls.Brushes.SolidColorBrush;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -497,7 +497,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       base.CalculateInnerDesiredSize(totalSize); // Needs to be called in each sub class of Control, see comment in Control.CalculateInnerDesiredSize()
       AllocFont();
@@ -508,7 +508,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         totalWidth = (float)Width;
       if (float.IsNaN(totalWidth))
         totalWidth = 4096;
-      SizeF size = new SizeF();
+      Size2F size = new Size2F();
       size.Width = 0;
       string line = VisibleText ?? string.Empty;
       float textWidthW = 0;
@@ -528,7 +528,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       size.Width += 1;
       size.Height += 1;
 
-      SizeF childSize = size;
+      Size2F childSize = size;
 
       if (PreferredTextLength.HasValue)
         // We use the "W" character as the character which needs the most space in X-direction

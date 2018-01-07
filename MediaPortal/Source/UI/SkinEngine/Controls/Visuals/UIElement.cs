@@ -53,9 +53,9 @@ using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
 using KeyEventHandler = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventHandler;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using MouseEventHandler = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventHandler;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using Size2 = SharpDX.Size2;
+using Size2F = SharpDX.Size2F;
+using Vector2 = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -296,7 +296,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _nameProperty = new SProperty(typeof(string), string.Empty);
-      _actualPositionProperty = new SProperty(typeof(PointF), new PointF(0, 0));
+      _actualPositionProperty = new SProperty(typeof(Vector2), new Vector2(0, 0));
       _marginProperty = new SProperty(typeof(Thickness), new Thickness(0, 0, 0, 0));
       _resources = new ResourceDictionary();
       _triggerProperty = new SProperty(typeof(TriggerCollection), new TriggerCollection());
@@ -524,9 +524,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _actualPositionProperty; }
     }
 
-    public PointF ActualPosition
+    public Vector2 ActualPosition
     {
-      get { return (PointF) _actualPositionProperty.GetValue(); }
+      get { return (Vector2) _actualPositionProperty.GetValue(); }
       set { _actualPositionProperty.SetValue(value); }
     }
 
@@ -674,9 +674,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <see cref="float.NaN"/> values will be preserved, i.e. if a <paramref name="size"/> coordinate
     /// is <see cref="float.NaN"/>, it won't be changed.
     /// </remarks>
-    /// <param name="size">Size parameter where the margin will be added.</param>
+    /// <param name="size">Size2 parameter where the margin will be added.</param>
     /// <param name="margin">Margin to be added.</param>
-    public static void AddMargin(ref SizeF size, Thickness margin)
+    public static void AddMargin(ref Size2F size, Thickness margin)
     {
       if (!float.IsNaN(size.Width))
         size.Width += margin.Left + margin.Right;
@@ -705,9 +705,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <see cref="float.NaN"/> values will be preserved, i.e. if a <paramref name="size"/> coordinate
     /// is <see cref="float.NaN"/>, it won't be changed.
     /// </remarks>
-    /// <param name="size">Size parameter where the margin will be removed.</param>
+    /// <param name="size">Size2 parameter where the margin will be removed.</param>
     /// <param name="margin">Margin to be removed.</param>
-    public static void RemoveMargin(ref SizeF size, Thickness margin)
+    public static void RemoveMargin(ref Size2F size, Thickness margin)
     {
       if (!float.IsNaN(size.Width))
         size.Width -= margin.Left + margin.Right;
@@ -845,11 +845,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="point">Screen point</param>
     /// <returns>Returns the transformed point in element coordinates.</returns>
-    public virtual PointF TransformScreenPoint(PointF point)
+    public virtual Vector2 TransformScreenPoint(Vector2 point)
     {
       // overridden in FrameworkElement to apply transformation
       var actualPosition = ActualPosition;
-      return new PointF(point.X - actualPosition.X, point.Y - actualPosition.Y);
+      return new Vector2(point.X - actualPosition.X, point.Y - actualPosition.Y);
     }
 
     #endregion
@@ -1935,7 +1935,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="point">Point to check.</param>
     /// <returns><see cref="UIElement"/> that was hit or <c>null</c>.</returns>
-    public virtual UIElement InputHitTest(PointF point)
+    public virtual UIElement InputHitTest(Vector2 point)
     {
       if (!IsVisible)
         return null;

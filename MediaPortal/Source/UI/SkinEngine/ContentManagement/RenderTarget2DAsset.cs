@@ -24,8 +24,8 @@
 
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using SharpDX;
 using SharpDX.Direct2D1;
-using Size = SharpDX.Size2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
@@ -60,9 +60,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Gets the size of the underlaying surface.
     /// </summary>
-    public Size Size
+    public Size2 Size2
     {
-      get { return _assetCore.Size; }
+      get { return _assetCore.Size2; }
     }
 
     /// <summary>

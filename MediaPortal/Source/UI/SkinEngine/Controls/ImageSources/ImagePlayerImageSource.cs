@@ -33,22 +33,19 @@ using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
 using RightAngledRotation = MediaPortal.UI.SkinEngine.Rendering.RightAngledRotation;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
   public class ImagePlayerImageSource : MultiImageSourceBase
   {
     protected Bitmap1 _lastTexture = null;
-    protected SizeF _lastRawSourceSize;
+    protected Size2F _lastRawSourceSize;
     protected RawRectangleF _lastTextureClip;
 
     protected Bitmap1 _currentTexture = null;
-    protected SizeF _currentTextureSize; // Size of the texture, can be bigger than the actual image in the texture because of DX. _currentTextureClip is based on this size.
+    protected Size2F _currentTextureSize; // Size2 of the texture, can be bigger than the actual image in the texture because of DX. _currentTextureClip is based on this size.
     protected RectangleF _currentTextureClip; // Clipping rectangle to be used from the _currentTexture. Values go from 0 to 1.
-    protected SizeF _currentClippedSize; // Size of the raw image part in the texture to be shown.
+    protected Size2F _currentClippedSize; // Size2 of the raw image part in the texture to be shown.
 
     protected Bitmap1 _lastCopiedTexture = null;
 
@@ -132,7 +129,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         Bitmap1 texture = player.CurrentImage;
         // It's a bit stupid because the Image calls Allocate() before Setup() and thus, at the first call of this method,
         // _frameSize is empty and so we cannot calculate a proper size for this image source...
-        RectangleF textureClip = player.GetTextureClip(new Size((int) _frameSize.Width, (int) _frameSize.Height));
+        RectangleF textureClip = player.GetTextureClip(new Size2((int) _frameSize.Width, (int) _frameSize.Height));
         // TODO: Interface between DX/D2D
         if (texture != null)
         {
@@ -158,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _lastTexture; }
     }
 
-    protected override SizeF LastRawSourceSize
+    protected override Size2F LastRawSourceSize
     {
       get { return _lastRawSourceSize; }
     }
@@ -173,7 +170,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentTexture; }
     }
 
-    protected override SizeF CurrentRawSourceSize
+    protected override Size2F CurrentRawSourceSize
     {
       get { return _currentClippedSize; }
     }
@@ -204,7 +201,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _lastImageContext = _imageContext;
 
       // Next -> Current
-      SizeF textureSize;
+      Size2F textureSize;
       _currentTexture = CreateTextureCopy(nextTexture, out textureSize);
       _currentTextureSize = textureSize;
       UpdateTextureClip(textureClip);
@@ -224,15 +221,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected void UpdateTextureClip(RectangleF textureClip)
     {
-      _currentClippedSize = new SizeF(_currentTextureSize.Width * textureClip.Width, _currentTextureSize.Height * textureClip.Height);
+      _currentClippedSize = new Size2F(_currentTextureSize.Width * textureClip.Width, _currentTextureSize.Height * textureClip.Height);
       _currentTextureClip = textureClip;
     }
 
-    protected static Bitmap1 CreateTextureCopy(Bitmap1 sourceTexture, out SizeF textureSize)
+    protected static Bitmap1 CreateTextureCopy(Bitmap1 sourceTexture, out Size2F textureSize)
     {
       if (sourceTexture == null)
       {
-        textureSize = new SizeF();
+        textureSize = new Size2F();
         return null;
       }
 

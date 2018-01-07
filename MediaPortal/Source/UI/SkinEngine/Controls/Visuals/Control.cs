@@ -34,9 +34,6 @@ using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -283,7 +280,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Brush background = Background;
       if (background != null)
       {
-        SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
+        Size2F actualSize = new Size2F((float)ActualWidth, (float)ActualHeight);
 
         RawRectangleF rect = new RectangleF(ActualPosition.X /*- 0.5f*/, ActualPosition.Y /*- 0.5f*/,
             actualSize.Width /*+ 0.5f*/, actualSize.Height /*+ 0.5f*/);
@@ -305,18 +302,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     // Be careful to always call this method from subclasses. This is necessary to satisfy the Measure/Arrange contract for our
     // TemplateControl (if only ArrangeOverride() is called but not CalculateInnerDesiredSize(), the TemplateControl could be
     // arranged without having been measured - which is illegal).
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
-        return new SizeF();
+        return new Size2F();
       templateControl.Measure(ref totalSize);
       return totalSize;
     }
 
     protected override void ArrangeOverride()
     {
-      PointF oldPosition = ActualPosition;
+      Vector2 oldPosition = ActualPosition;
       double oldWidth = ActualWidth;
       double oldHeight = ActualHeight;
       base.ArrangeOverride();

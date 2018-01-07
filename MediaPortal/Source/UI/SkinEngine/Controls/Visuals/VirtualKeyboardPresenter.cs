@@ -25,9 +25,9 @@
 using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using Size2 = SharpDX.Size2;
+using Size2F = SharpDX.Size2F;
+using Vector2 = SharpDX.Vector2;
 
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -75,11 +75,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       keyboardControl.Render(localRenderContext);
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       FrameworkElement keyboardControl = _keyboardLayoutControl;
       if (keyboardControl == null)
-        return new SizeF();
+        return new Size2F();
       keyboardControl.Measure(ref totalSize);
       return totalSize;
     }

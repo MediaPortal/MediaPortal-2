@@ -74,7 +74,7 @@ namespace MediaPortal.UI.SkinEngine
     ///// </summary>
     ///// <param name="matrix">Transformation matrix.</param>
     ///// <param name="p">Point to transform.</param>
-    //public static void Transform(this Matrix matrix, ref PointF p)
+    //public static void Transform(this Matrix matrix, ref Vector2 p)
     //{
     //  Vector2 v = new Vector2(p.X, p.Y);
     //  matrix.Transform(ref v);
@@ -139,7 +139,7 @@ namespace MediaPortal.UI.SkinEngine
     /// by this matrix and returns the size of the transformed rectangle.
     /// </summary>
     /// <param name="matrix">Transformation matrix.</param>
-    /// <param name="size">Size of the rectangle to transform. Will contain the size of the transformed rectangle after
+    /// <param name="size">Size2 of the rectangle to transform. Will contain the size of the transformed rectangle after
     /// this method returns.</param>
     public static void TransformIncludingRectangleSize(this Matrix matrix, ref Size2F size)
     {
@@ -178,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine
     ///// </summary>
     ///// <param name="matrix">Transformation matrix.</param>
     ///// <param name="p">Point to transform. Will contain the transformed point after this method returns.</param>
-    //public static void Invert(this Matrix matrix, ref PointF  p)
+    //public static void Invert(this Matrix matrix, ref Vector2  p)
     //{
     //  Matrix inverse = Matrix.Invert(matrix);
     //  inverse.Transform(ref p);

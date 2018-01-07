@@ -31,9 +31,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.DeepCopy;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -98,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected readonly ImageSourceState _fallbackSourceState = new ImageSourceState();
     protected bool _loadImageSource = false;
     protected bool _fallbackSourceInUse = false;
-    protected SizeF _lastImageSourceSize = new SizeF();
+    protected Size2F _lastImageSourceSize = new Size2F();
     protected string _formerWarnURI = null;
 
     #endregion
@@ -412,16 +410,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return null;
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       ImageSourceState allocatedSource = GetLoadedSource(false);
       if (allocatedSource == null)
       {
-        _lastImageSourceSize = new SizeF();
-        return new SizeF(10, 10);
+        _lastImageSourceSize = new Size2F();
+        return new Size2F(10, 10);
       }
 
-      SizeF imageSize = allocatedSource.ImageSource.SourceSize;
+      Size2F imageSize = allocatedSource.ImageSource.SourceSize;
       float sourceFrameRatio = imageSize.Width / imageSize.Height;
       // Adaptions when available size is not specified in any direction(s)
       if (double.IsNaN(totalSize.Width) && double.IsNaN(totalSize.Height))

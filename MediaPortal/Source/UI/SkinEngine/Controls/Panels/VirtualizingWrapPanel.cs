@@ -32,10 +32,7 @@ using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Mathematics.Interop;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
-using RectangleF = SharpDX.RectangleF;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -161,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// A copy of the <see cref="WrapPanel.CalculateLine"/> method, but using the <see cref="ItemProvider"/>
     /// for item retrieval.
     /// </summary>
-    protected LineMeasurement CalculateLine(int startIndex, SizeF? measureSize, bool invertLayoutDirection)
+    protected LineMeasurement CalculateLine(int startIndex, Size2F? measureSize, bool invertLayoutDirection)
     {
       LineMeasurement result = LineMeasurement.Create();
       if (invertLayoutDirection)
@@ -177,7 +174,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       for (; invertLayoutDirection ? (currentIndex >= 0) : (currentIndex < numChildren); currentIndex += directionOffset)
       {
         FrameworkElement child = GetElement(currentIndex);
-        SizeF desiredChildSize;
+        Size2F desiredChildSize;
         if (measureSize.HasValue)
         {
           desiredChildSize = measureSize.Value;
@@ -211,27 +208,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// A copy of the <see cref="WrapPanel.LayoutLine"/> method, but using the <see cref="ItemProvider"/>
     /// via the <see cref="GetItem"/> method for item retrieval.
     /// </summary>
-    protected void LayoutLine(PointF pos, LineMeasurement line)
+    protected void LayoutLine(Vector2 pos, LineMeasurement line)
     {
       float offset = 0;
       for (int i = line.StartIndex; i <= line.EndIndex; i++)
       {
         FrameworkElement layoutChild = GetItem(i, ItemProvider, true);
-        SizeF desiredChildSize = layoutChild.DesiredSize;
-        SizeF size;
-        PointF location;
+        Size2F desiredChildSize = layoutChild.DesiredSize;
+        Size2F size;
+        Vector2 location;
 
         if (Orientation == Orientation.Horizontal)
         {
-          size = new SizeF(desiredChildSize.Width, line.TotalExtendsInNonOrientationDirection);
-          location = new PointF(pos.X + offset, pos.Y);
+          size = new Size2F(desiredChildSize.Width, line.TotalExtendsInNonOrientationDirection);
+          location = new Vector2(pos.X + offset, pos.Y);
           ArrangeChildVertical(layoutChild, layoutChild.VerticalAlignment, ref location, ref size);
           offset += desiredChildSize.Width;
         }
         else
         {
-          size = new SizeF(line.TotalExtendsInNonOrientationDirection, desiredChildSize.Height);
-          location = new PointF(pos.X, pos.Y + offset);
+          size = new Size2F(line.TotalExtendsInNonOrientationDirection, desiredChildSize.Height);
+          location = new Vector2(pos.X, pos.Y + offset);
           ArrangeChildHorizontal(layoutChild, layoutChild.HorizontalAlignment, ref location, ref size);
           offset += desiredChildSize.Height;
         }
@@ -242,7 +239,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       FrameworkElementCollection children = Children;
       lock (Children.SyncRoot)
@@ -263,7 +260,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           return base.CalculateInnerDesiredSize(totalSize);
         int numItems = itemProvider.NumItems;
         if (numItems == 0)
-          return new SizeF();
+          return new Size2F();
 
         // CalculateInnerDesiredSize is called before ArrangeChildren!
         // under the precondition that all items use the same template and are equally sized 
@@ -290,8 +287,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         {
           estimatedExtendsInNonOrientationDirection = (float)Math.Ceiling((float)numItems / itemsPerLine) * _assumedLineExtendsInNonOrientationDirection;
         }
-        return Orientation == Orientation.Horizontal ? new SizeF(exemplaryLine.TotalExtendsInOrientationDirection, estimatedExtendsInNonOrientationDirection) :
-            new SizeF(estimatedExtendsInNonOrientationDirection, exemplaryLine.TotalExtendsInOrientationDirection);
+        return Orientation == Orientation.Horizontal ? new Size2F(exemplaryLine.TotalExtendsInOrientationDirection, estimatedExtendsInNonOrientationDirection) :
+            new Size2F(estimatedExtendsInNonOrientationDirection, exemplaryLine.TotalExtendsInOrientationDirection);
       }
     }
 
@@ -320,8 +317,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         if (newlyCreated || forceMeasure)
         {
-          SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float)ActualWidth, float.NaN) :
-              new SizeF(float.NaN, (float)ActualHeight);
+          Size2F childSize = Orientation == Orientation.Vertical ? new Size2F((float)ActualWidth, float.NaN) :
+              new Size2F(float.NaN, (float)ActualHeight);
           item.Measure(ref childSize);
         }
         return item;
@@ -356,8 +353,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         if (newlyCreated || forceMeasure)
         {
-          SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float)ActualWidth, float.NaN) :
-              new SizeF(float.NaN, (float)ActualHeight);
+          Size2F childSize = Orientation == Orientation.Vertical ? new Size2F((float)ActualWidth, float.NaN) :
+              new Size2F(float.NaN, (float)ActualHeight);
           headerItem.Measure(ref childSize);
         }
         return headerItem;
@@ -385,8 +382,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int numItems = ItemProvider.NumItems;
         if (numItems > 0)
         {
-          PointF actualPosition = ActualPosition;
-          SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
+          Vector2 actualPosition = ActualPosition;
+          Size2F actualSize = new Size2F((float)ActualWidth, (float)ActualHeight);
           
           //Get the scroll margins in scroll direction
           float scrollMarginBefore;
@@ -565,18 +562,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             _totalHeight = actualExtendsInOrientationDirection;
           else
             _totalWidth = actualExtendsInOrientationDirection;
-          PointF position = Orientation == Orientation.Vertical ?
-            new PointF(actualPosition.X + startPosition, actualPosition.Y) :
-            new PointF(actualPosition.X, actualPosition.Y + startPosition);
+          Vector2 position = Orientation == Orientation.Vertical ?
+            new Vector2(actualPosition.X + startPosition, actualPosition.Y) :
+            new Vector2(actualPosition.X, actualPosition.Y + startPosition);
           foreach (LineMeasurement line in _arrangedLines.Skip(_firstArrangedLineIndex).Take(_lastArrangedLineIndex - _firstArrangedLineIndex + 1))
           {
             LayoutLine(position, line);
 
             startPosition += line.TotalExtendsInNonOrientationDirection;
             if (Orientation == Orientation.Vertical)
-              position = new PointF(actualPosition.X + startPosition, actualPosition.Y);
+              position = new Vector2(actualPosition.X + startPosition, actualPosition.Y);
             else
-              position = new PointF(actualPosition.X, actualPosition.Y + startPosition);
+              position = new Vector2(actualPosition.X, actualPosition.Y + startPosition);
           }
 
           // estimate the desired size

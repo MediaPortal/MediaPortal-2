@@ -30,10 +30,6 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
-
 
 namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 {
@@ -131,14 +127,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       return result;
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       // Return the biggest available child extents
-      SizeF childSize;
-      SizeF maxChildSize = new SizeF(float.NaN, float.NaN);
+      Size2F childSize;
+      Size2F maxChildSize = new Size2F(float.NaN, float.NaN);
       foreach (FrameworkElement child in GetVisibleChildren())
       {
-        childSize = new SizeF(totalSize.Width, totalSize.Height);
+        childSize = new Size2F(totalSize.Width, totalSize.Height);
         child.Measure(ref childSize);
         if (float.IsNaN(maxChildSize.Width) || childSize.Width > maxChildSize.Width)
           maxChildSize.Width = childSize.Width;
@@ -147,7 +143,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       }
       if (_ellipsisControl == null)
         _ellipsisControl = CreateEllipsisControl();
-      childSize = new SizeF(totalSize.Width, totalSize.Height);
+      childSize = new Size2F(totalSize.Width, totalSize.Height);
       _ellipsisControl.Measure(ref childSize);
       if (float.IsNaN(maxChildSize.Width) || childSize.Width > maxChildSize.Width)
         maxChildSize.Width = childSize.Width;
@@ -169,8 +165,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         // First check how many children we must leave out
         float availableSize = Orientation == Orientation.Vertical ? actualHeight : actualWidth;
         FrameworkElement firstChild = visibleChildren[0];
-        SizeF firstChildDesiredSize = firstChild.DesiredSize;
-        SizeF desiredEllipsisSize = _ellipsisControl == null ? new SizeF() : _ellipsisControl.DesiredSize;
+        Size2F firstChildDesiredSize = firstChild.DesiredSize;
+        Size2F desiredEllipsisSize = _ellipsisControl == null ? new Size2F() : _ellipsisControl.DesiredSize;
         // The first element is always shown
         availableSize -= Orientation == Orientation.Vertical ? firstChildDesiredSize.Height : firstChildDesiredSize.Width;
         List<FrameworkElement> reversedChildren = new List<FrameworkElement>(visibleChildren);
@@ -180,7 +176,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         float ellipsisSize = Orientation == Orientation.Vertical ? desiredEllipsisSize.Height : desiredEllipsisSize.Width;
         foreach (FrameworkElement child in reversedChildren)
         {
-          SizeF desiredChildSize = child.DesiredSize;
+          Size2F desiredChildSize = child.DesiredSize;
           float size = Orientation == Orientation.Vertical ? desiredChildSize.Height : desiredChildSize.Width;
           if (availableSize >= size + ellipsisSize ||
               (availableSize >= size && numShownChildrenAfterEllipsis == visibleChildren.Count - 2))
@@ -197,8 +193,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         if (numShownChildrenAfterEllipsis < visibleChildren.Count - 1)
         { // Ellipsis necessary
           // Lay out first (home) element
-          SizeF childSize = firstChild.DesiredSize;
-          PointF position = new PointF(ActualPosition.X + startPositionX, ActualPosition.Y + startPositionY);
+          Size2F childSize = firstChild.DesiredSize;
+          Vector2 position = new Vector2(ActualPosition.X + startPositionX, ActualPosition.Y + startPositionY);
 
           if (Orientation == Orientation.Vertical)
           {
@@ -219,7 +215,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           if (_ellipsisControl != null)
           {
             childSize = desiredEllipsisSize;
-            position = new PointF(ActualPosition.X + startPositionX, ActualPosition.Y + startPositionY);
+            position = new Vector2(ActualPosition.X + startPositionX, ActualPosition.Y + startPositionY);
 
             if (Orientation == Orientation.Vertical)
             {
@@ -249,8 +245,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         // Lay out all other elements after ellipsis
         foreach (FrameworkElement child in childrenAfterEllipsis)
         {
-          SizeF childSize = child.DesiredSize;
-          PointF position = new PointF(ActualPosition.X + startPositionX, ActualPosition.Y + startPositionY);
+          Size2F childSize = child.DesiredSize;
+          Vector2 position = new Vector2(ActualPosition.X + startPositionX, ActualPosition.Y + startPositionY);
 
           if (Orientation == Orientation.Vertical)
           {

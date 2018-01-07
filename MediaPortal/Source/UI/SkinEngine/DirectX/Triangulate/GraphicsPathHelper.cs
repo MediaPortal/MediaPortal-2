@@ -28,8 +28,8 @@ using System.Linq;
 using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
 using SharpDX.Direct2D1;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
+using Size2 = SharpDX.Size2;
+using Size2F = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {

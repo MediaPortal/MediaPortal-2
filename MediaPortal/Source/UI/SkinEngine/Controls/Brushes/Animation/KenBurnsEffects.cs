@@ -24,9 +24,6 @@
 
 using System;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
@@ -94,27 +91,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 
     protected static readonly Random _randomizer = new Random(DateTime.Now.Millisecond);
 
-    public static RectangleF GetKenBurnsZoomRectangle(float zoomFactor, int zoomCenterPoint, SizeF imageSize, SizeF outputSize)
+    public static RectangleF GetKenBurnsZoomRectangle(float zoomFactor, int zoomCenterPoint, Size2F imageSize, Size2F outputSize)
     {
       float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.Uniform);
       
       float scaledOutputWidth = outputSize.Width * normalizationFactor / zoomFactor;
       float scaledOutputHeight = outputSize.Height * normalizationFactor / zoomFactor;
 
-      return CalculateZoomRect(imageSize, new SizeF(scaledOutputWidth, scaledOutputHeight), zoomCenterPoint);
+      return CalculateZoomRect(imageSize, new Size2F(scaledOutputWidth, scaledOutputHeight), zoomCenterPoint);
     }
 
-    public static RectangleF GetKenBurnsPanRectangle(float zoomFactor, float panX, float panY, SizeF imageSize, SizeF outputSize)
+    public static RectangleF GetKenBurnsPanRectangle(float zoomFactor, float panX, float panY, Size2F imageSize, Size2F outputSize)
     {
       float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.Uniform);
       
       float scaledOutputWidth = outputSize.Width * normalizationFactor / zoomFactor;
       float scaledOutputHeight = outputSize.Height * normalizationFactor / zoomFactor;
 
-      return CalculatePanRect(imageSize, new SizeF(scaledOutputWidth, scaledOutputHeight), panX, panY);
+      return CalculatePanRect(imageSize, new Size2F(scaledOutputWidth, scaledOutputHeight), panX, panY);
     }
 
-    protected static float NormalizeOutputSizeToImageSize(SizeF imageSize, SizeF outputSize, Stretch stretch)
+    protected static float NormalizeOutputSizeToImageSize(Size2F imageSize, Size2F outputSize, Stretch stretch)
     {
       // Calculate zoom for best fit (largest image length (X/Y) fits completely in output area)
       float zoomFactorX = imageSize.Width / outputSize.Width;
@@ -123,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
       return zoomFactorX > zoomFactorY == (stretch == Stretch.Uniform) ? zoomFactorX : zoomFactorY;
     }
 
-    protected static RectangleF CalculateZoomRect(SizeF outerSize, SizeF innerSize, int zoomType)
+    protected static RectangleF CalculateZoomRect(Size2F outerSize, Size2F innerSize, int zoomType)
     {
       float left;
       float top;
@@ -174,7 +171,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
       return new RectangleF(left / outerSize.Width, top / outerSize.Height, innerSize.Width / outerSize.Width, innerSize.Height / outerSize.Height);
     }
 
-    protected static RectangleF CalculatePanRect(SizeF outerSize, SizeF innerSize, float panX, float panY)
+    protected static RectangleF CalculatePanRect(Size2F outerSize, Size2F innerSize, float panX, float panY)
     {
       float panFactorX = (panX + 1) * 0.5f;
       float panFactorY = (panY + 1) * 0.5f;

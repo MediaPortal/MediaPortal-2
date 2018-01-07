@@ -26,11 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
-using SharpDX.Direct3D9;
 using EffectContext = MediaPortal.UI.SkinEngine.Rendering.EffectContext;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
 {
@@ -55,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
       }
 
       RectangleF rect = renderContext.OccupiedTransformedBounds.ToRectangleF();
-      SizeF frameSize = new SizeF(rect.Width, rect.Height);
+      Size2F frameSize = new Size2F(rect.Width, rect.Height);
       //_effectContext.ExtraParameters = GetShaderParameters();
       _effectContext.ShaderEffect = _shaderEffectName;
 

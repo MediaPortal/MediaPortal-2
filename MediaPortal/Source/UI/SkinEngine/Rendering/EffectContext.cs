@@ -28,7 +28,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
-using SizeF = SharpDX.Size2F;
+using Size2F = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
@@ -74,7 +74,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Public methods
 
-    public void Update(SizeF targetImageSize, Bitmap1 texture, RawRectangleF textureClip)
+    public void Update(Size2F targetImageSize, Bitmap1 texture, RawRectangleF textureClip)
     {
       RefreshParameters(targetImageSize, texture, textureClip);
     }
@@ -90,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="borderColor">The color to use outside the image's boundaries.</param>
     /// <param name="frameData">Additional data to be used by the shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
-    public bool StartRender(RenderContext renderContext, SizeF targetImageSize, Bitmap1 texture, RawRectangleF textureClip,
+    public bool StartRender(RenderContext renderContext, Size2F targetImageSize, Bitmap1 texture, RawRectangleF textureClip,
         RawColor4 borderColor, RawVector4 frameData)
     {
       RefreshParameters(targetImageSize, texture, textureClip);

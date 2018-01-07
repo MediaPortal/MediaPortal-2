@@ -28,9 +28,7 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -74,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _lastChildFillProperty.SetValue(value); }
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       return CalculateDesiredSize(GetVisibleChildren().GetEnumerator(), totalSize);
     }
@@ -86,11 +84,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       float offsetLeft = 0.0f;
       float offsetRight = 0.0f;
       float offsetBottom = 0.0f;
-      SizeF availableSize = new SizeF(_innerRect.Width(), _innerRect.Height());
+      Size2F availableSize = new Size2F(_innerRect.Width(), _innerRect.Height());
 
       int count = 0;
       // Area allocated to child
-      SizeF childArea;
+      Size2F childArea;
 
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       foreach (FrameworkElement child in visibleChildren)
@@ -98,22 +96,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         count++;
         //Trace.WriteLine(String.Format("DockPanel:arrange {0} {1}", count, child.Name));
 
-        // Size of the child
-        SizeF childSize = child.DesiredSize;
+        // Size2 of the child
+        Size2F childSize = child.DesiredSize;
 
         switch (GetDock(child))
         {
           case Dock.Top:
             {
-              PointF location = new PointF(offsetLeft, offsetTop);
+              Vector2 location = new Vector2(offsetLeft, offsetTop);
               location.X += ActualPosition.X;
               location.Y += ActualPosition.Y;
 
               // Allocate area to child
               if (count == visibleChildren.Count && LastChildFill)
-                childArea = new SizeF(availableSize.Width, availableSize.Height);
+                childArea = new Size2F(availableSize.Width, availableSize.Height);
               else
-                childArea = new SizeF(availableSize.Width, childSize.Height);
+                childArea = new Size2F(availableSize.Width, childSize.Height);
 
               // Position the child within the child area
               ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
@@ -125,20 +123,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             break;
           case Dock.Bottom:
             {
-              PointF location;
+              Vector2 location;
               if (count == visibleChildren.Count && LastChildFill)
-                location = new PointF(offsetLeft, _innerRect.Height() - (offsetBottom + availableSize.Height));
+                location = new Vector2(offsetLeft, _innerRect.Height() - (offsetBottom + availableSize.Height));
               else
-                location = new PointF(offsetLeft, _innerRect.Height() - (offsetBottom + childSize.Height));
+                location = new Vector2(offsetLeft, _innerRect.Height() - (offsetBottom + childSize.Height));
 
               location.X += ActualPosition.X;
               location.Y += ActualPosition.Y;
 
               // Allocate area to child
               if (count == visibleChildren.Count && LastChildFill)
-                childArea = new SizeF(availableSize.Width, availableSize.Height);
+                childArea = new Size2F(availableSize.Width, availableSize.Height);
               else
-                childArea = new SizeF(availableSize.Width, childSize.Height);
+                childArea = new Size2F(availableSize.Width, childSize.Height);
 
               // Position the child within the child area
               ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
@@ -150,15 +148,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             break;
           case Dock.Left:
             {
-              PointF location = new PointF(offsetLeft, offsetTop);
+              Vector2 location = new Vector2(offsetLeft, offsetTop);
               location.X += ActualPosition.X;
               location.Y += ActualPosition.Y;
 
               // Allocate area to child
               if (count == visibleChildren.Count && LastChildFill)
-                childArea = new SizeF(availableSize.Width, availableSize.Height);
+                childArea = new Size2F(availableSize.Width, availableSize.Height);
               else
-                childArea = new SizeF(childSize.Width, availableSize.Height);
+                childArea = new Size2F(childSize.Width, availableSize.Height);
 
               // Position the child within the child area
               ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
@@ -170,19 +168,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             break;
           case Dock.Right:
             {
-              PointF location;
+              Vector2 location;
               if (count == visibleChildren.Count && LastChildFill)
-                location = new PointF(_innerRect.Width() - (offsetRight + availableSize.Width), offsetTop);
+                location = new Vector2(_innerRect.Width() - (offsetRight + availableSize.Width), offsetTop);
               else
-                location = new PointF(_innerRect.Width() - (offsetRight + childSize.Width), offsetTop);
+                location = new Vector2(_innerRect.Width() - (offsetRight + childSize.Width), offsetTop);
               location.X += ActualPosition.X;
               location.Y += ActualPosition.Y;
 
               // Allocate area to child
               if (count == visibleChildren.Count && LastChildFill)
-                childArea = new SizeF(availableSize.Width,availableSize.Height);
+                childArea = new Size2F(availableSize.Width,availableSize.Height);
               else
-                childArea = new SizeF(childSize.Width,availableSize.Height);
+                childArea = new Size2F(childSize.Width,availableSize.Height);
 
               // Position the child within the child area
               ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
@@ -194,10 +192,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             break;
           default: // Dock.Center
             {
-              PointF location = new PointF(offsetLeft, offsetTop);
+              Vector2 location = new Vector2(offsetLeft, offsetTop);
               location.X += ActualPosition.X;
               location.Y += ActualPosition.Y;
-              childSize = new SizeF(availableSize.Width, availableSize.Height);
+              childSize = new Size2F(availableSize.Width, availableSize.Height);
               if (count == visibleChildren.Count && LastChildFill)
                 child.Arrange(SharpDXExtensions.CreateRectangleF(location, childSize));
               else
@@ -214,18 +212,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
-    protected static SizeF CalculateDesiredSize(IEnumerator<FrameworkElement> currentVisibleChildEnumerator,
-        SizeF currentAvailableSize)
+    protected static Size2F CalculateDesiredSize(IEnumerator<FrameworkElement> currentVisibleChildEnumerator,
+        Size2F currentAvailableSize)
     {
       if (!currentVisibleChildEnumerator.MoveNext())
-        return new SizeF(0, 0);
+        return new Size2F(0, 0);
 
       FrameworkElement child = currentVisibleChildEnumerator.Current;
       if (child == null) // Not necessary to check this, only to avoid warning
-        return new SizeF();
+        return new Size2F();
 
-      SizeF childSize = new SizeF(currentAvailableSize.Width, currentAvailableSize.Height);
-      SizeF nextChildrenDesiredSize;
+      Size2F childSize = new Size2F(currentAvailableSize.Width, currentAvailableSize.Height);
+      Size2F nextChildrenDesiredSize;
 
       Dock childDock = GetDock(child);
       if (childDock == Dock.Top || childDock == Dock.Bottom)
@@ -233,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         child.Measure(ref childSize);
         currentAvailableSize.Height -= childSize.Height;
         nextChildrenDesiredSize = CalculateDesiredSize(currentVisibleChildEnumerator, currentAvailableSize);
-        return new SizeF(Math.Max(childSize.Width, nextChildrenDesiredSize.Width),
+        return new Size2F(Math.Max(childSize.Width, nextChildrenDesiredSize.Width),
             childSize.Height + nextChildrenDesiredSize.Height);
       }
       if (childDock == Dock.Left || childDock == Dock.Right)
@@ -241,13 +239,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         child.Measure(ref childSize);
         currentAvailableSize.Width -= childSize.Width;
         nextChildrenDesiredSize = CalculateDesiredSize(currentVisibleChildEnumerator, currentAvailableSize);
-        return new SizeF(childSize.Width + nextChildrenDesiredSize.Width,
+        return new Size2F(childSize.Width + nextChildrenDesiredSize.Width,
             Math.Max(childSize.Height, nextChildrenDesiredSize.Height));
       }
       // Else assume center
       child.Measure(ref childSize);
       nextChildrenDesiredSize = CalculateDesiredSize(currentVisibleChildEnumerator, currentAvailableSize);
-      return new SizeF(Math.Max(childSize.Width, nextChildrenDesiredSize.Width),
+      return new Size2F(Math.Max(childSize.Width, nextChildrenDesiredSize.Width),
           Math.Max(childSize.Height, nextChildrenDesiredSize.Height));
     }
 

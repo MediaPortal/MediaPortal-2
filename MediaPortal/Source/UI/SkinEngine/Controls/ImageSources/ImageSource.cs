@@ -28,9 +28,6 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using SharpDX;
 using SharpDX.Mathematics.Interop;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -80,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <summary>
     /// Gets the original size (before stretching but after rotation) of the content represented by this source.
     /// </summary>
-    public abstract SizeF SourceSize { get; }
+    public abstract Size2F SourceSize { get; }
 
     /// <summary>
     /// Gets a value indicating whether this source has loaded it's resources.
@@ -106,7 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <param name="stretchMode">The <see cref="Stretch"/> mode that determines which stretching technique to use.</param>
     /// <param name="direction">The <see cref="StretchDirection"/> that determines when to perform scaling.</param>
     /// <returns>The scaled source size, which may be larger than the <paramref name="target"/> size.</returns>
-    public SizeF StretchSource(SizeF target, SizeF source, Stretch stretchMode, StretchDirection direction)
+    public Size2F StretchSource(Size2F target, Size2F source, Stretch stretchMode, StretchDirection direction)
     {
       if (direction == StretchDirection.DownOnly && source.Width <= target.Width && source.Height <= target.Height)
         return source;

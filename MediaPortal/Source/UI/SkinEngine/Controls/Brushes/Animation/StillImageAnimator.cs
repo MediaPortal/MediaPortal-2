@@ -24,8 +24,6 @@
 
 using System;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
@@ -42,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
     {
     }
 
-    public RectangleF GetZoomRect(Size imageSize, Size outputSize, DateTime displayTime)
+    public RectangleF GetZoomRect(Size2 imageSize, Size2 outputSize, DateTime displayTime)
     {
       return _zoomRect;
     }

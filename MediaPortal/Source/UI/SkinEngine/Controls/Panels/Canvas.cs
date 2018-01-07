@@ -27,9 +27,6 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -107,22 +104,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return result;
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       RectangleF rect = new RectangleF(0, 0, 0, 0);
       UnregisterAllChildCanvasPositionProperties();
       foreach (FrameworkElement child in GetVisibleChildren())
       {
-        SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
+        Size2F childSize = new Size2F(totalSize.Width, totalSize.Height);
         child.Measure(ref childSize);
 
         float left = GetLeft(child, true);
         float top = GetTop(child, true);
 
-        rect = RectangleF.Union(rect, SharpDXExtensions.CreateRectangleF(new PointF(left, top), new SizeF(childSize.Width, childSize.Height)));
+        rect = RectangleF.Union(rect, SharpDXExtensions.CreateRectangleF(new Vector2(left, top), new Size2F(childSize.Width, childSize.Height)));
       }
 
-      return new SizeF(rect.Right, rect.Bottom);
+      return new Size2F(rect.Right, rect.Bottom);
     }
 
     protected override void ArrangeOverride()
@@ -134,10 +131,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       foreach (FrameworkElement child in GetVisibleChildren())
       {
         // Get the coordinates relative to the canvas area.
-        PointF location = new PointF(GetLeft(child, false) + x, GetTop(child, false) + y);
+        Vector2 location = new Vector2(GetLeft(child, false) + x, GetTop(child, false) + y);
 
         // Get the child size
-        SizeF childSize = child.DesiredSize;
+        Size2F childSize = child.DesiredSize;
 
         // Arrange the child
         child.Arrange(SharpDXExtensions.CreateRectangleF(location, childSize));

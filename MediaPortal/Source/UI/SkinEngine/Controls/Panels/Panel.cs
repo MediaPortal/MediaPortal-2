@@ -31,16 +31,13 @@ using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities;
-using SharpDX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -220,12 +217,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     }
 
 
-    protected static float GetExtendsInOrientationDirection(Orientation orientation, SizeF size)
+    protected static float GetExtendsInOrientationDirection(Orientation orientation, Size2F size)
     {
       return orientation == Orientation.Vertical ? size.Height : size.Width;
     }
 
-    protected static float GetExtendsInNonOrientationDirection(Orientation orientation, SizeF size)
+    protected static float GetExtendsInNonOrientationDirection(Orientation orientation, Size2F size)
     {
       return orientation == Orientation.Vertical ? size.Width : size.Height;
     }
@@ -263,7 +260,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override void ArrangeOverride()
     {
-      PointF oldPosition = ActualPosition;
+      Vector2 oldPosition = ActualPosition;
       double oldWidth = ActualWidth;
       double oldHeight = ActualHeight;
       base.ArrangeOverride();
@@ -304,7 +301,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Brush background = Background;
       if (background != null)
       {
-        SizeF actualSize = new SizeF((float)ActualWidth, (float)ActualHeight);
+        Size2F actualSize = new Size2F((float)ActualWidth, (float)ActualHeight);
 
         RawRectangleF rect = new RawRectangleF(ActualPosition.X /*- 0.5f*/, ActualPosition.Y /*- 0.5f*/,
             actualSize.Width /*+ 0.5f*/, actualSize.Height /*+ 0.5f*/);

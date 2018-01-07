@@ -32,7 +32,6 @@ using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
-using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -131,12 +130,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #region ImageSource implementation
 
-    public override SizeF SourceSize
+    public override Size2F SourceSize
     {
       get
       {
-        SizeF currentRotatedSourceSize = _imageContext.GetRotatedSize(CurrentRawSourceSize);
-        SizeF lastRotatedSourceSize = _lastImageContext.GetRotatedSize(LastRawSourceSize);
+        Size2F currentRotatedSourceSize = _imageContext.GetRotatedSize(CurrentRawSourceSize);
+        Size2F lastRotatedSourceSize = _lastImageContext.GetRotatedSize(LastRawSourceSize);
         return (_transitionActive && !lastRotatedSourceSize.IsEmpty()) ?
             MaxSizeF(lastRotatedSourceSize, currentRotatedSourceSize) : currentRotatedSourceSize;
       }
@@ -154,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       Allocate();
 
       var currentTexture = CurrentTexture;
-      SizeF currentRawSourceSize = CurrentRawSourceSize;
+      Size2F currentRawSourceSize = CurrentRawSourceSize;
       RawRectangleF currentTextureClip = CurrentTextureClip;
       Vector4 frameData = new Vector4(currentRawSourceSize.Width, currentRawSourceSize.Height, (float)EffectTimer, 0);
 
@@ -166,7 +165,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         else
         {
           var lastTexture = LastTexture;
-          SizeF lastRawSourceSize = LastRawSourceSize;
+          Size2F lastRawSourceSize = LastRawSourceSize;
           RawRectangleF lastTextureClip = LastTextureClip;
           Vector4 lastFrameData = new Vector4(lastRawSourceSize.Width, lastRawSourceSize.Height, (float)EffectTimer, 0);
 
@@ -176,8 +175,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
           if (start != end)
           {
-            SizeF startSize = StretchSource(_lastImageContext.RotatedFrameSize, lastRawSourceSize, stretchMode, stretchDirection);
-            SizeF endSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
+            Size2F startSize = StretchSource(_lastImageContext.RotatedFrameSize, lastRawSourceSize, stretchMode, stretchDirection);
+            Size2F endSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
 
             // Render transition from last texture to current texture
             _lastImageContext.Update(startSize, start, lastTextureClip);
@@ -195,7 +194,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       if (IsAllocated)
       {
-        SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
+        Size2F sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
         var target = new RectangleF(
         _targetRect.Left + (_targetRect.Width() - sourceSize.Width) / 2,
         _targetRect.Top + (_targetRect.Height() - sourceSize.Height) / 2,
@@ -219,7 +218,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <summary>
     /// Returns the size of the last image before any transformation but after the <see cref="LastTextureClip"/> was applied.
     /// </summary>
-    protected abstract SizeF LastRawSourceSize { get; }
+    protected abstract Size2F LastRawSourceSize { get; }
 
     /// <summary>
     /// Returns the clipping region which should be taken fron the last texture.
@@ -234,7 +233,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <summary>
     /// Returns the size of the current image before any transformation but after the <see cref="LastTextureClip"/> was applied.
     /// </summary>
-    protected abstract SizeF CurrentRawSourceSize { get; }
+    protected abstract Size2F CurrentRawSourceSize { get; }
 
     /// <summary>
     /// Returns the clipping region which should be taken fron the last texture.
@@ -263,9 +262,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return null; }
     }
 
-    protected override SizeF RawSourceSize
+    protected override Size2F RawSourceSize
     {
-      get { return new SizeF(); }
+      get { return new Size2F(); }
     }
 
     protected override RectangleF TextureClip
@@ -334,9 +333,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _lastImageContext.Clear();
     }
 
-    protected SizeF MaxSizeF(SizeF a, SizeF b)
+    protected Size2F MaxSizeF(Size2F a, Size2F b)
     {
-      return new SizeF(Math.Max(a.Width, b.Width), Math.Max(a.Height, b.Height));
+      return new Size2F(Math.Max(a.Width, b.Width), Math.Max(a.Height, b.Height));
     }
 
     #endregion

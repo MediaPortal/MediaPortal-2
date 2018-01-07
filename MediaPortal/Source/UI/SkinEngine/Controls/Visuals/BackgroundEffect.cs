@@ -23,13 +23,7 @@
 #endregion
 
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.SkinManagement;
-using SharpDX;
 using SharpDX.Direct3D9;
-using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.Effect;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {

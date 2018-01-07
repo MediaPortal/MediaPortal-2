@@ -28,7 +28,6 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UiComponents.WMCSkin.Models;
 using MediaPortal.Utilities.DeepCopy;
-using SharpDX;
 using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UiComponents.WMCSkin.Controls

@@ -25,9 +25,7 @@
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using SharpDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
@@ -51,9 +49,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Get the size of this <see cref="FontAsset"/> in pixels.
     /// </summary>
-    public float Size
+    public float Size2
     {
-      get { return _assetCore.Size; }
+      get { return _assetCore.Size2; }
     }
 
     /// <summary>
@@ -152,7 +150,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="textSize">Output size of the created text.</param>
     /// <param name="lineIndex">Output indices of the first vertex for of each line of text.</param>
     /// <returns>An array of vertices representing a triangle list.</returns>
-    public PositionColoredTextured[] CreateText(string[] text, float size, bool kerning, out SizeF textSize, out int[] lineIndex)
+    public PositionColoredTextured[] CreateText(string[] text, float size, bool kerning, out Size2F textSize, out int[] lineIndex)
     {
       return _assetCore.CreateText(text, size, kerning, out textSize, out lineIndex);
     }

@@ -31,9 +31,9 @@
 //using SharpDX;
 //using SharpDX.Direct2D1;
 //using SharpDX.Direct3D9;
-//using Size = SharpDX.Size2;
-//using SizeF = SharpDX.Size2F;
-//using PointF = SharpDX.Vector2;
+//using Size2 = SharpDX.Size2;
+//using Size2F = SharpDX.Size2F;
+//using Vector2 = SharpDX.Vector2;
 
 //namespace MediaPortal.UI.SkinEngine.Rendering
 //{
@@ -50,10 +50,10 @@
 //    #region Protected fields
 
 //    protected EffectAsset _effectTransition;
-//    protected SizeF _frameSize;
-//    protected SizeF _rotatedFrameSize;
+//    protected Size2F _frameSize;
+//    protected Size2F _rotatedFrameSize;
 //    protected Vector4 _imageTransform;
-//    protected SizeF _lastImageSize;
+//    protected Size2F _lastImageSize;
 
 //    protected string _shaderBaseName = null;
 //    protected string _shaderTransitionBaseName = null;
@@ -77,7 +77,7 @@
 //    /// <remarks>
 //    /// This property is needed to center the image to be rendered into the given frame.
 //    /// </remarks>
-//    public SizeF FrameSize
+//    public Size2F FrameSize
 //    {
 //      get { return _frameSize; }
 //      set
@@ -93,7 +93,7 @@
 //    /// adjustments must be done against this property. If no rotation is used, this property returns the same value as
 //    /// <see cref="FrameSize"/>, so image size adjustments should always be done using this property.
 //    /// </summary>
-//    public SizeF RotatedFrameSize
+//    public Size2F RotatedFrameSize
 //    {
 //      get { return _rotatedFrameSize; }
 //    }
@@ -221,7 +221,7 @@
 //    ///// <param name="endFrameData">Additional data to be used by the ending image shaders.</param>
 //    ///// <returns><c>true</c> if the rendering operation was started.</returns>
 //    //public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext,
-//    //    SizeF targetEndImageSize, Texture endTexture, RectangleF endTextureClip, Color borderColor, Vector4 startFrameData, Vector4 endFrameData)
+//    //    Size2F targetEndImageSize, Texture endTexture, RectangleF endTextureClip, Color borderColor, Vector4 startFrameData, Vector4 endFrameData)
 //    //{
 //    //  RefreshParameters(targetEndImageSize, endTexture, endTextureClip);
 //    //  if (_effectTransition == null)
@@ -265,7 +265,7 @@
 //    /// </summary>
 //    /// <param name="frameSize">The skin relative size.</param>
 //    /// <returns>The passed size pre-scaled to compensate for any Skin-to-GraphicsDevice transformations.</returns>
-//    public static SizeF AdjustForSkinAR(SizeF frameSize)
+//    public static Size2F AdjustForSkinAR(Size2F frameSize)
 //    {
 //      // Adjust target size to match final Skin scaling
 //      frameSize.Width *= GraphicsDevice.Width / (float)SkinContext.SkinResources.SkinWidth;
@@ -273,9 +273,9 @@
 //      return frameSize;
 //    }
 
-//    public SizeF GetRotatedSize(SizeF size)
+//    public Size2F GetRotatedSize(Size2F size)
 //    {
-//      return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
+//      return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new Size2F(size.Height, size.Width) : size;
 //    }
 
 //    public override void Clear()
@@ -316,7 +316,7 @@
 //      return true;
 //    }
 
-//    protected override void RefreshParameters(SizeF targetImageSize, Texture texture, RectangleF textureClip)
+//    protected override void RefreshParameters(Size2F targetImageSize, Texture texture, RectangleF textureClip)
 //    {
 //      // If necessary update our image transformation to best fit the frame
 //      if (_refresh || texture != _lastTexture ||

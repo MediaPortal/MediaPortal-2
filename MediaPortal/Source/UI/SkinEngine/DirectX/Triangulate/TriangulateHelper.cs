@@ -52,10 +52,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="cy">Y coordinate of an interior point of the <paramref name="points"/>.</param>
     /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="verts">Returns a list of vertices describing a triangle list.</param>
-    public static void FillPolygon_TriangleList(PointF[] points, float cx, float cy, float zCoord, out PositionColoredTextured[] verts)
+    public static void FillPolygon_TriangleList(Vector2[] points, float cx, float cy, float zCoord, out PositionColoredTextured[] verts)
     {
       verts = null;
-      PointF[] pathPoints = AdjustPoints(points);
+      Vector2[] pathPoints = AdjustPoints(points);
       int pointCount = pathPoints.Length;
       if (pointCount <= 2) return;
       if (pointCount == 3)
@@ -98,10 +98,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="cy">Y coordinate of an interior point of the <paramref name="points"/>.</param>
     /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="verts">Returns a list of vertices describing a triangle fan.</param>
-    public static void FillPolygon_TriangleFan(PointF[] points, float cx, float cy, float zCoord, out PositionColoredTextured[] verts)
+    public static void FillPolygon_TriangleFan(Vector2[] points, float cx, float cy, float zCoord, out PositionColoredTextured[] verts)
     {
       verts = null;
-      PointF[] pathPoints = AdjustPoints(points);
+      Vector2[] pathPoints = AdjustPoints(points);
       int pointCount = pathPoints.Length;
       if (pointCount <= 2) return;
       if (pointCount == 3)
@@ -127,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         verts[verticeCount - 1].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, zCoord);
     }
 
-    static PointF GetNextPoint(PointF[] points, int i, int max)
+    static Vector2 GetNextPoint(Vector2[] points, int i, int max)
     {
       i++;
       while (i >= max) i -= max;
@@ -139,10 +139,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// </summary>
     /// <param name="points">All points of the path.</param>
     /// <param name="line">Point array of length 2 which represents the two points of the last line.</param>
-    static void GetLastLine(PointF[] points, out PointF[] line)
+    static void GetLastLine(Vector2[] points, out Vector2[] line)
     {
       int maxIdx = points.Length;
-      line = new PointF[2];
+      line = new Vector2[2];
       line[0] = points[maxIdx - 1];
       line[1] = points[0];
     }
@@ -155,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="moveDistance">The distance to be moved.</param>
     /// <param name="point1Moved">Returns moved point 1.</param>
     /// <param name="point2Moved">Returns moved point 2.</param>
-    static void MoveVector(PointF point1, PointF point2, double moveDistance, ref PointF point1Moved, ref PointF point2Moved)
+    static void MoveVector(Vector2 point1, Vector2 point2, double moveDistance, ref Vector2 point1Moved, ref Vector2 point2Moved)
     {
       Vector3 normalVector = new Vector3(-(point1.Y - point2.Y), point1.X - point2.X, 0);
       normalVector.Normalize();
@@ -167,7 +167,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     }
 
     /// <summary>
-    /// Calculates the intersection of two lines. If they are parallel the result is PointF.Empty.
+    /// Calculates the intersection of two lines. If they are parallel the result is Vector2.Empty.
     /// This method currently does only calculate 2D intersections.
     /// </summary>
     /// <param name="a1">Line A point 1</param>
@@ -176,7 +176,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="b2">Line B point 2</param>
     /// <param name="intersection">Returns the intersection</param>
     /// <returns>True if intersection was possible</returns>
-    static bool LineIntersect(PointF a1, PointF a2, PointF b1, PointF b2, out PointF intersection)
+    static bool LineIntersect(Vector2 a1, Vector2 a2, Vector2 b1, Vector2 b2, out Vector2 intersection)
     {
       float dx = a2.X - a1.X;
       float dy = a2.Y - a1.Y;
@@ -186,12 +186,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       if (Math.Abs(da * dy - db * dx) < DELTA_DOUBLE)
       {
         // The segments are parallel.
-        intersection = PointF.Empty;
+        intersection = Vector2.Zero;
         return false;
       }
 
       float t = (da * (a1.Y - b1.Y) + db * (b1.X - a1.X)) / (db * dx - da * dy);
-      intersection = new PointF(a1.X + t * dx, a1.Y + t * dy);
+      intersection = new Vector2(a1.X + t * dx, a1.Y + t * dy);
       return true;
     }
 
@@ -204,10 +204,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     ///// <param name="zCoord">Z coordinate of the returned vertices.</param>
     ///// <param name="lineJoin">The PenLineJoin to use.</param>
     ///// <param name="verts">The generated verts.</param>
-    //public static void TriangulateStroke_TriangleList(PointF[] points, float thickness, bool close, float zCoord, PenLineJoin lineJoin, out PositionColoredTextured[] verts)
+    //public static void TriangulateStroke_TriangleList(Vector2[] points, float thickness, bool close, float zCoord, PenLineJoin lineJoin, out PositionColoredTextured[] verts)
     //{
     //  verts = null;
-    //  PointF[] pathPoints = AdjustPoints(points);
+    //  Vector2[] pathPoints = AdjustPoints(points);
 
     //  if (pathPoints.Length <= 0)
     //    return;
@@ -221,25 +221,25 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     //  int pointsLength = pathPoints.Length;
     //  List<PositionColoredTextured> vertList = new List<PositionColoredTextured>();
 
-    //  PointF[] lastLine = new PointF[] { PointF.Empty, PointF.Empty };
+    //  Vector2[] lastLine = new Vector2[] { Vector2.Empty, Vector2.Empty };
     //  if (close)
     //    GetLastLine(pathPoints, out lastLine);
 
     //  for (int i = 0; i < pointCount; i++)
     //  {
-    //    PointF currentPoint = pathPoints[i];
-    //    PointF nextPoint = GetNextPoint(pathPoints, i, pointsLength);
+    //    Vector2 currentPoint = pathPoints[i];
+    //    Vector2 nextPoint = GetNextPoint(pathPoints, i, pointsLength);
 
-    //    PointF movedCurrent = PointF.Empty;
-    //    PointF movedNext = PointF.Empty;
+    //    Vector2 movedCurrent = Vector2.Empty;
+    //    Vector2 movedNext = Vector2.Empty;
 
     //    MoveVector(currentPoint, nextPoint, thickness, ref movedCurrent, ref movedNext);
 
-    //    if (lastLine[0] != PointF.Empty && lastLine[1] != PointF.Empty)
+    //    if (lastLine[0] != Vector2.Empty && lastLine[1] != Vector2.Empty)
     //    {
     //      // We move the original line by the needed thickness.
-    //      PointF movedLast0 = PointF.Empty;
-    //      PointF movedLast1 = PointF.Empty;
+    //      Vector2 movedLast0 = Vector2.Empty;
+    //      Vector2 movedLast1 = Vector2.Empty;
     //      MoveVector(lastLine[0], lastLine[1], thickness, ref movedLast0, ref movedLast1);
 
     //      // StrokeLineJoin implementation
@@ -249,7 +249,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     //        // We fallback to the Miter because we don't support the Round line join yet.
     //        case PenLineJoin.Miter:
     //          // We need to calculate the intersection of the 2 moved lines (Line A: movedCurrent/movedNext and Line B: movedLast0/movedLast1)
-    //          PointF intersection;
+    //          Vector2 intersection;
     //          if (LineIntersect(movedCurrent, movedNext, movedLast0, movedLast1, out intersection))
     //          {
     //            vertList.Add(new PositionColoredTextured { Position = new Vector3(currentPoint.X, currentPoint.Y, zCoord) });
@@ -278,7 +278,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     //    vertList.Add(new PositionColoredTextured { Position = new Vector3(movedNext.X, movedNext.Y, zCoord) });
     //    vertList.Add(new PositionColoredTextured { Position = new Vector3(movedCurrent.X, movedCurrent.Y, zCoord) });
 
-    //    lastLine = new PointF[] { currentPoint, nextPoint };
+    //    lastLine = new Vector2[] { currentPoint, nextPoint };
     //  }
     //  verts = vertList.ToArray();
     //}
@@ -290,9 +290,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="points">Points describing the border of a simple polygon.</param>
     /// <param name="zCoord">Z coordinate of the created vertices.</param>
     /// <param name="verts">Returns a <see cref="PrimitiveType.TriangleList"/> of vertices.</param>
-    public static void Triangulate(PointF[] points, float zCoord, out PositionColoredTextured[] verts)
+    public static void Triangulate(Vector2[] points, float zCoord, out PositionColoredTextured[] verts)
     {
-      PointF[] pathPoints = AdjustPoints(points);
+      Vector2[] pathPoints = AdjustPoints(points);
       if (pathPoints.Length < 3)
       {
         verts = null;
@@ -367,10 +367,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="widthMode">How to place the weight of the line relative to it</param>
     /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="verts">Generated vertices.</param>
-    public static void CalculateLinePoints(PointF[] points, float thickness, bool close, WidthMode widthMode, float zCoord,
+    public static void CalculateLinePoints(Vector2[] points, float thickness, bool close, WidthMode widthMode, float zCoord,
         out PositionColoredTextured[] verts)
     {
-      PointF[] pathPoints = AdjustPoints(points);
+      Vector2[] pathPoints = AdjustPoints(points);
       verts = null;
       if (pathPoints.Length < 3)
       {
@@ -455,14 +455,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         verts[i].Position = new Vector3(outPoints[i].X, outPoints[i].Y, zCoord);
     }
 
-    protected static void ZCross(ref PointF left, ref PointF right, out double result)
+    protected static void ZCross(ref Vector2 left, ref Vector2 right, out double result)
     {
       result = left.X * right.Y - left.Y * right.X;
     }
 
-    public static void CalcCentroid(PointF[] points, out float cx, out float cy)
+    public static void CalcCentroid(Vector2[] points, out float cx, out float cy)
     {
-      PointF[] pathPoints = AdjustPoints(points);
+      Vector2[] pathPoints = AdjustPoints(points);
       int pointCount = pathPoints.Length;
       if (pointCount == 0)
       {
@@ -473,8 +473,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       Vector2 centroid = new Vector2();
       double temp;
       double area = 0;
-      PointF v1 = pathPoints[pointCount - 1];
-      PointF v2;
+      Vector2 v1 = pathPoints[pointCount - 1];
+      Vector2 v2;
       for (int index = 0; index < pointCount; ++index, v1 = v2)
       {
         v2 = pathPoints[index];
@@ -496,11 +496,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// </summary>
     /// <param name="points">Array of points to adjust.</param>
     /// <returns>Adjusted point array. May be smaller than the input <paramref name="points"/> array.</returns>
-    public static PointF[] AdjustPoints(PointF[] points)
+    public static Vector2[] AdjustPoints(Vector2[] points)
     {
-      List<PointF> result = new List<PointF>(points.Length);
-      PointF? last = null;
-      foreach (PointF point in points)
+      List<Vector2> result = new List<Vector2>(points.Length);
+      Vector2? last = null;
+      foreach (Vector2 point in points)
       {
         if (last.HasValue && SamePoints(last.Value, point))
           continue;
@@ -513,7 +513,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       return result.ToArray();
     }
 
-    public static bool SamePoints(PointF point1, PointF point2)
+    public static bool SamePoints(Vector2 point1, Vector2 point2)
     {
       return Math.Abs(point1.X - point2.X) < DELTA_DOUBLE && Math.Abs(point1.Y - point2.Y) < DELTA_DOUBLE;
     }

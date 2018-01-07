@@ -27,9 +27,6 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -106,7 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Measure & Arrange
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       if (ColumnDefinitions.Count == 0)
         ColumnDefinitions.Add(new ColumnDefinition());
@@ -127,14 +124,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
 
-        SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
+        Size2F childSize = new Size2F(totalSize.Width, totalSize.Height);
         // FIXME Albert: Would be better to use the size which is really available for the child here,
         // but this is not so easy to calculate (depends on col/row definition(s), colspan/rowspan)
         child.Measure(ref childSize);
         ColumnDefinitions.SetDesiredLength(col, GetColumnSpan(child), childSize.Width);
         RowDefinitions.SetDesiredLength(row, GetRowSpan(child), childSize.Height);
       }
-      return new SizeF((float) ColumnDefinitions.TotalDesiredLength, (float) RowDefinitions.TotalDesiredLength);
+      return new Size2F((float) ColumnDefinitions.TotalDesiredLength, (float) RowDefinitions.TotalDesiredLength);
     }
 
     protected override void ArrangeOverride()
@@ -153,11 +150,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (row < 0) row = 0;
 
         RectangleF rect = _innerRect.ToRectangleF();
-        PointF position = new PointF(
+        Vector2 position = new Vector2(
             (float) ColumnDefinitions.GetOffset(col) + rect.Location.X, 
             (float) RowDefinitions.GetOffset(row) + rect.Location.Y);
 
-        SizeF childSize = new SizeF(
+        Size2F childSize = new Size2F(
             (float) ColumnDefinitions.GetLength(col, GetColumnSpan(child)),
             (float) RowDefinitions.GetLength(row, GetRowSpan(child)));
 

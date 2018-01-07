@@ -36,8 +36,6 @@ using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -265,7 +263,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Measure & Arrange
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       MeasureBorder(totalSize);
 
@@ -276,7 +274,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (content != null && content.IsVisible)
         content.Measure(ref totalSize);
       else
-        totalSize = new SizeF();
+        totalSize = new Size2F();
 
       AddMargin(ref totalSize, enclosingMargin);
 
@@ -294,7 +292,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RectangleF layoutRect = _innerRect.ToRectangleF();
       RemoveMargin(ref layoutRect, GetTotalEnclosingMargin());
       Vector2 location = new Vector2(layoutRect.Location.X, layoutRect.Location.Y);
-      SizeF size = layoutRect.Size;
+      Size2F size = layoutRect.Size;
       ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref location, ref size);
       content.Arrange(new RectangleF(location.X, location.Y, size.Width, size.Height));
     }
@@ -310,7 +308,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return new Thickness(borderInsetX, borderInsetY, borderInsetX, borderInsetY);
     }
 
-    protected virtual void MeasureBorder(SizeF totalSize)
+    protected virtual void MeasureBorder(Size2F totalSize)
     {
       // Used in subclasses to measure border elements
     }

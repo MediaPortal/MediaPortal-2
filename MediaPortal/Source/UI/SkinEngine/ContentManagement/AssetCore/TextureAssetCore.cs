@@ -42,9 +42,6 @@ using SharpDX.Direct3D9;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Utilities.Graphics;
 using Color = SharpDX.Color;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 // TODO: Add support for web thumbnails? Requires changing IThumbnailGenerator
 

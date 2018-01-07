@@ -34,9 +34,9 @@ using MediaPortal.Utilities.DeepCopy;
 using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using Size2 = SharpDX.Size2;
+using Size2F = SharpDX.Size2F;
+using Vector2 = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -259,7 +259,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UpdateScrollBars();
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       ConfigureContentScrollFacility();
       return base.CalculateInnerDesiredSize(totalSize);
