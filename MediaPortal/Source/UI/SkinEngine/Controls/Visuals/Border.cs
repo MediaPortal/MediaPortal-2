@@ -34,6 +34,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -52,12 +53,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _cornerRadiusProperty;
     protected AbstractProperty _contentProperty;
     protected bool _performLayout;
-    protected RectangleF _outerBorderRect;
+    protected RawRectangleF _outerBorderRect;
     protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
     protected SharpDX.Direct2D1.Geometry _backgroundGeometry;
     protected SharpDX.Direct2D1.Geometry _borderGeometry;
     protected StrokeStyle _strokeStyle;
-    protected RectangleF _strokeRect;
+    protected RawRectangleF _strokeRect;
 
     #endregion
 
@@ -290,7 +291,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement content = _initializedContent;
       if (content == null)
         return;
-      RectangleF layoutRect = new RectangleF(_innerRect.X, _innerRect.Y, _innerRect.Width, _innerRect.Height);
+      RectangleF layoutRect = _innerRect.ToRectangleF();
       RemoveMargin(ref layoutRect, GetTotalEnclosingMargin());
       Vector2 location = new Vector2(layoutRect.Location.X, layoutRect.Location.Y);
       SizeF size = layoutRect.Size;
@@ -314,9 +315,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Used in subclasses to measure border elements
     }
 
-    protected virtual void ArrangeBorder(RectangleF finalRect)
+    protected virtual void ArrangeBorder(RawRectangleF finalRect)
     {
-      _outerBorderRect = new RectangleF(finalRect.Location.X, finalRect.Location.Y, finalRect.Width, finalRect.Height);
+      _outerBorderRect = finalRect;
     }
 
     protected float GetBorderCornerInsetX()
@@ -340,8 +341,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _performLayout = false;
 
       float borderThickness = (float)BorderThickness;
-      RectangleF innerBorderRect = new RectangleF(_outerBorderRect.X + borderThickness /*-0.5f*/, _outerBorderRect.Y + borderThickness /*-0.5f*/,
-          _outerBorderRect.Size.Width - 2*borderThickness /*+ 0.5f*/, _outerBorderRect.Size.Height - 2*borderThickness /*+ 0.5f*/);
+      RectangleF outerBorderRect = _outerBorderRect.ToRectangleF();
+      RectangleF innerBorderRect = new RectangleF(outerBorderRect.X + borderThickness /*-0.5f*/, outerBorderRect.Y + borderThickness /*-0.5f*/,
+          outerBorderRect.Size.Width - 2*borderThickness /*+ 0.5f*/, outerBorderRect.Size.Height - 2*borderThickness /*+ 0.5f*/);
       PerformLayoutBackground(innerBorderRect, context);
       PerformLayoutBorder(innerBorderRect, context);
 

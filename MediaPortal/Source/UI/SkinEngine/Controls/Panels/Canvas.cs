@@ -128,8 +128,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected override void ArrangeOverride()
     {
       base.ArrangeOverride();
-      float x = _innerRect.Location.X;
-      float y = _innerRect.Location.Y;
+      float x = _innerRect.X();
+      float y = _innerRect.Y();
 
       foreach (FrameworkElement child in GetVisibleChildren())
       {

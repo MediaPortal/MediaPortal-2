@@ -28,6 +28,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -238,16 +239,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public virtual void Scale(ref float u, ref float v, ref Color4 color)
     { }
 
-    public virtual void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
+    public virtual void SetupBrush(FrameworkElement parent, ref RawRectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
       if (!UpdateBounds(ref boundary))
         return;
       SetBrushTransform();
     }
 
-    protected bool UpdateBounds(ref RectangleF verts)
+    protected bool UpdateBounds(ref RawRectangleF verts)
     {
-      if (verts == null)
+      //TODO check
+      if (verts.Equals(new RawRectangleF()))
       {
         _vertsBounds = RectangleF.Empty;
         return false;

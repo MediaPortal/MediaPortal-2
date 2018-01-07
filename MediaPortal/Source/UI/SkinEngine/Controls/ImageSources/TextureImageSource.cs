@@ -29,7 +29,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
-using SizeF = SharpDX.Size2F;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -51,8 +51,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _verticalTextureAlignmentProperty;
 
     protected ImageContext _imageContext = new ImageContext();
-    protected SizeF _frameSize;
-    protected RectangleF _targetRect;
+    protected Size2F _frameSize;
+    protected RawRectangleF _targetRect;
 
     #endregion
 
@@ -187,7 +187,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #region ImageSource implementation
 
-    public override SizeF SourceSize
+    public override Size2F SourceSize
     {
       get { return _imageContext.GetRotatedSize(RawSourceSize); }
     }
@@ -197,7 +197,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       FreeData();
     }
 
-    public override void Setup(RectangleF ownerRect, float zOrder, bool skinNeutralAR)
+    public override void Setup(RawRectangleF ownerRect, float zOrder, bool skinNeutralAR)
     {
       PositionColoredTextured[] verts = new PositionColoredTextured[4];
 
@@ -235,7 +235,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       //PrimitiveBuffer.SetPrimitiveBuffer(ref _primitiveBuffer, ref verts, PrimitiveType.TriangleFan);
 
-      _frameSize = skinNeutralAR ? ImageContext.AdjustForSkinAR(ownerRect.Size) : ownerRect.Size;
+      Size2F ownerRectSize = ownerRect.Size();
+      _frameSize = ownerRectSize;
+      if (skinNeutralAR)
+        _frameSize = ImageContext.AdjustForSkinAR(ownerRectSize);
       _imageContext.FrameSize = _frameSize;
       _targetRect = ownerRect;
     }
@@ -244,8 +247,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       if (!IsAllocated)
         return;
-      SizeF rawSourceSize = RawSourceSize;
-      SizeF modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
+      Size2F rawSourceSize = RawSourceSize;
+      Size2F modifiedSourceSize = StretchSource(_imageContext.RotatedFrameSize, rawSourceSize, stretchMode, stretchDirection);
       Vector4 frameData = new Vector4(rawSourceSize.Width, rawSourceSize.Height, (float)EffectTimer, 0);
       if (_imageContext != null)
         _imageContext.StartRender(renderContext, modifiedSourceSize, Texture, TextureClip, BorderColor, frameData);
@@ -263,7 +266,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <summary>
     /// Returns the size of the last image before any transformation but after the <see cref="TextureClip"/> was applied.
     /// </summary>
-    protected abstract SizeF RawSourceSize { get; }
+    protected abstract Size2F RawSourceSize { get; }
 
     /// <summary>
     /// Returns the clipping region which should be taken fron the last texture.

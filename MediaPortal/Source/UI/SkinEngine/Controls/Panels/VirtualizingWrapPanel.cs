@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -484,7 +485,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               int additionalLinesBefore = 0;
               while (currentLineIndex >= 0 && additionalLinesBefore < NUM_ADD_MORE_FOCUS_LINES + inactiveLinesBefore)
               {
-                LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);
+                LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size(), false);
                 _arrangedLines[currentLineIndex] = line;
 
                 _firstArrangedLineIndex = currentLineIndex;
@@ -503,7 +504,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               int additionalLinesAfterwards = 0;
               while (itemIndex < numItems && additionalLinesAfterwards < NUM_ADD_MORE_FOCUS_LINES + inactiveLinesAfter)
               {
-                LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);
+                LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size(), false);
                 _arrangedLines.Add(line);
                 _lastArrangedLineIndex = _arrangedLines.Count - 1;
                 itemIndex = line.EndIndex + 1;
@@ -521,7 +522,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               int additionalLinesAfterwards = 0;
               while (itemIndex < numItems && additionalLinesAfterwards < NUM_ADD_MORE_FOCUS_LINES + inactiveLinesAfter)
               {
-                LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size, false);
+                LineMeasurement line = CalculateLine(itemIndex, _innerRect.Size(), false);
                 _arrangedLines.Add(line);
 
                 _lastArrangedLineIndex = currentLineIndex;
@@ -623,7 +624,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
-    protected override void MakeChildVisible(UIElement element, ref RectangleF elementBounds)
+    protected override void MakeChildVisible(UIElement element, ref RawRectangleF elementBounds)
     {
       IItemProvider itemProvider = ItemProvider;
       if (itemProvider == null)
@@ -664,9 +665,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               float extendsInOrientationDirection = SumActualLineExtendsInNonOrientationDirection(lines,
                   first ? oldFirstVisibleLine : oldLastVisibleLine, lineIndex);
               if (Orientation == Orientation.Horizontal)
-                elementBounds.X -= extendsInOrientationDirection;
+                elementBounds.Left -= extendsInOrientationDirection;
               else
-                elementBounds.Y -= extendsInOrientationDirection;
+                elementBounds.Top -= extendsInOrientationDirection;
               break;
             }
           }
@@ -719,8 +720,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Focus handling overrides
 
-    public override void AlignedPanelAddPotentialFocusNeighbors(RectangleF? startingRect, ICollection<FrameworkElement> outElements,
-        bool linesBeforeAndAfter)
+    public override void AlignedPanelAddPotentialFocusNeighbors(RawRectangleF? startingRect, ICollection<FrameworkElement> outElements, bool linesBeforeAndAfter)
     {
       if (ItemProvider == null)
       {

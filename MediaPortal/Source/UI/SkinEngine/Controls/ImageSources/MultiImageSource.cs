@@ -30,6 +30,7 @@ using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -253,7 +254,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _lastTexture == null ? new SizeF() : new SizeF(_lastTexture.Width, _lastTexture.Height); }
     }
 
-    protected override RectangleF LastTextureClip
+    protected override RawRectangleF LastTextureClip
     {
       get { return _lastTexture == null ? RectangleF.Empty : new RectangleF(0, 0, _lastTexture.MaxU, _lastTexture.MaxV); }
     }
@@ -268,7 +269,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentTexture == null ? new SizeF() : new SizeF(_currentTexture.Width, _currentTexture.Height); }
     }
 
-    protected override RectangleF CurrentTextureClip
+    protected override RawRectangleF CurrentTextureClip
     {
       get { return _currentTexture == null ? RectangleF.Empty : new RectangleF(0, 0, _currentTexture.MaxU, _currentTexture.MaxV); }
     }

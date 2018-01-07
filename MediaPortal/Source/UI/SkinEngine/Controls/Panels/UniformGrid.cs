@@ -30,6 +30,7 @@ using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -277,7 +278,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       SetScrollIndex(_scrollIndexX, row - (_actualNumVisibleRows - 1));
     }
 
-    public override void BringIntoView(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RawRectangleF elementBounds)
     {
       if (_doScroll)
       {
@@ -308,8 +309,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
-        RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
-        RectangleF bounds = ActualBounds;
+        RawRectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
+        RawRectangleF bounds = ActualBounds;
         if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) return false;
         if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) return false;
         if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) return false;
@@ -324,10 +325,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
-      RectangleF bounds = ActualBounds;
+      RawRectangleF bounds = ActualBounds;
       return Children.Where(element =>
         { // Don't render elements which are not visible, if we can scroll
-          RectangleF elementBounds = element.ActualBounds;
+          RawRectangleF elementBounds = element.ActualBounds;
           if (!element.IsVisible) return false;
           if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) return false;
           if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) return false;

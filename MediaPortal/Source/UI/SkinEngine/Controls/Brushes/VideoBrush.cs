@@ -37,8 +37,7 @@ using SharpDX.Direct3D9;
 using SharpDX;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities.DeepCopy;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
+using SharpDX.Mathematics.Interop;
 using Transform = MediaPortal.UI.SkinEngine.Controls.Transforms.Transform;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
@@ -66,14 +65,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected IGeometry _currentGeometry;
     protected Matrix _inverseRelativeTransformCache;
     protected ImageContext _imageContext;
-    protected SizeF _scaledVideoSize;
+    protected Size2F _scaledVideoSize;
     protected RectangleF _videoTextureClip;
 
     protected IGeometry _lastGeometry;
     protected string _lastEffect;
     protected Rectangle _lastCropVideoRect;
-    protected Size _lastVideoSize;
-    protected SizeF _lastAspectRatio;
+    protected Size2 _lastVideoSize;
+    protected Size2F _lastAspectRatio;
     protected int _lastDeviceWidth;
     protected int _lastDeviceHeight;
     protected Vector4 _lastFrameData;
@@ -173,8 +172,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       ISharpDXVideoPlayer sdvPlayer = player as ISharpDXVideoPlayer;
       if (sdvPlayer == null)
         return false;
-      SizeF aspectRatio = sdvPlayer.VideoAspectRatio.ToSize2F();
-      Size playerSize = sdvPlayer.VideoSize.ToSize2();
+      Size2F aspectRatio = sdvPlayer.VideoAspectRatio.ToSize2F();
+      Size2 playerSize = sdvPlayer.VideoSize.ToSize2();
       Rectangle cropVideoRect = sdvPlayer.CropVideoRect;
       IGeometry geometry = ChooseVideoGeometry(player);
       string effectName = player.EffectOverride;
@@ -194,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           _lastVertsBounds == vertsBounds)
         return true;
 
-      SizeF targetSize = vertsBounds.Size;
+      Size2F targetSize = vertsBounds.Size;
 
       lock (sdvPlayer.SurfaceLock)
       {
@@ -208,7 +207,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _videoTextureClip = new RectangleF(cropVideoRect.X / (float)surface.Width, cropVideoRect.Y / (float)surface.Height,
             cropVideoRect.Width / (float)surface.Width, cropVideoRect.Height / (float)surface.Height);
       }
-      _scaledVideoSize = cropVideoRect.Size.ToSize2F();
+      _scaledVideoSize = cropVideoRect.ToSize2F();
 
       // Correct aspect ratio for anamorphic video
       if (!aspectRatio.IsEmpty() && geometry.RequiresCorrectAspectRatio)
@@ -302,7 +301,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public members
 
-    public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
+    public override void SetupBrush(FrameworkElement parent, ref RawRectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
       if (ServiceRegistration.Get<IPlayerManager>(false) == null)

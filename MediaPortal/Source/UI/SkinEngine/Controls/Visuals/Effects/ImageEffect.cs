@@ -53,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Effects
         _refresh = false;
       }
 
-      RectangleF rect = renderContext.OccupiedTransformedBounds;
+      RectangleF rect = renderContext.OccupiedTransformedBounds.ToRectangleF();
       SizeF frameSize = new SizeF(rect.Width, rect.Height);
       _imageContext.FrameSize = frameSize;
       //_imageContext.ExtraParameters = GetShaderParameters();

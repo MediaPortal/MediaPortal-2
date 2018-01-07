@@ -27,6 +27,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -66,7 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <param name="skinNeutralAR">If set to <c>true</c>, the size calculation will take into account that
     /// the screen might be stretched. The image will still be drawn with its natural aspect ratio. If set to
     /// <c>false</c>, the image will simply be stretched as every other control on the screen.</param>
-    public abstract void Setup(RectangleF ownerRect, float zOrder, bool skinNeutralAR);
+    public abstract void Setup(RawRectangleF ownerRect, float zOrder, bool skinNeutralAR);
 
     /// <summary>
     /// Renders this image source to the client area using the passed <paramref name="renderContext"/>.

@@ -67,7 +67,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
         if (opacityBrush2D is SolidColorBrush)
         {
           // SolidColorBrushes won't work? So only use the Alpha value
-          brush.Opacity *= ((SolidColorBrush)opacityBrush2D).Color.Alpha;
+          brush.Opacity *= ((SolidColorBrush)opacityBrush2D).Color.A;
           GraphicsDevice11.Instance.Context2D1.FillGeometry(geometry, brush);
         }
         else
@@ -138,7 +138,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
       // Note: no Brush transformation here. The Brush has to be initialized to match control boundaries
 
-      GraphicsDevice11.Instance.Context2D1.Transform = renderContext.Transform;
+      GraphicsDevice11.Instance.Context2D1.Transform = renderContext.Transform.ToMatrix3x2();
 
       renderCall();
 

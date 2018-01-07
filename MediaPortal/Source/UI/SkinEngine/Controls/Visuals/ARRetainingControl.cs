@@ -122,8 +122,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement content = Content;
       if (content != null)
       {
-        PointF position = new PointF(_innerRect.X, _innerRect.Y);
-        SizeF availableSize = CalculateInnerDesiredSize(_innerRect.Size);
+        PointF position = new PointF(_innerRect.Left, _innerRect.Top);
+        SizeF availableSize = CalculateInnerDesiredSize(_innerRect.Size());
         ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref position, ref availableSize);
         RectangleF childRect = SharpDXExtensions.CreateRectangleF(position, availableSize);
         content.Arrange(childRect);

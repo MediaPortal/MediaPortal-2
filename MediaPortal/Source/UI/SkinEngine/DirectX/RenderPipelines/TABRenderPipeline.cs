@@ -25,6 +25,7 @@
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
@@ -35,8 +36,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   {
     public TABRenderPipeline()
     {
-      _firstFrameTargetRect = new Rectangle(0, 0, _backbuffer.PixelSize.Width, _backbuffer.PixelSize.Height / 2);
-      _secondFrameTargetRect = new Rectangle(0, _backbuffer.PixelSize.Height / 2, _backbuffer.PixelSize.Width, _backbuffer.PixelSize.Height / 2);
+      _firstFrameTargetRect = new RawRectangleF(0, 0, _backbuffer.PixelSize.Width, (float)_backbuffer.PixelSize.Height / 2);
+      _secondFrameTargetRect = new RawRectangleF(0, (float)_backbuffer.PixelSize.Height / 2, _backbuffer.PixelSize.Width, (float)_backbuffer.PixelSize.Height / 2);
       InitMasks();
     }
 

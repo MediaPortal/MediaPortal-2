@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -167,12 +168,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.MeasureBorder(totalSize);
     }
 
-    protected override void ArrangeBorder(RectangleF finalRect)
+    protected override void ArrangeBorder(RawRectangleF rawFinalRect)
     {
       float headerLabelHeight = _headerLabel.DesiredSize.Height;
       float halfLabelHeight = headerLabelHeight/2;
       float halfThickness = (float) BorderThickness/2;
       float insetY = (float) Math.Max(halfThickness, halfLabelHeight) - halfThickness;
+      RectangleF finalRect = rawFinalRect.ToRectangleF();
       RectangleF borderRect = new RectangleF(finalRect.X, finalRect.Y + insetY,
           finalRect.Width, finalRect.Height - insetY);
       base.ArrangeBorder(borderRect);

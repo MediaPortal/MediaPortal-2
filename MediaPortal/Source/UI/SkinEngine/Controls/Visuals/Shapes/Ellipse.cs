@@ -24,7 +24,9 @@
 
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.Rendering;
+using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -37,7 +39,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       // Setup brushes
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        var ellipse = new SharpDX.Direct2D1.Ellipse { RadiusX = _innerRect.Width / 2, RadiusY = _innerRect.Height / 2, Point = _innerRect.Center };
+        RectangleF innerRect = _innerRect.ToRectangleF();
+        var ellipse = new SharpDX.Direct2D1.Ellipse { RadiusX = innerRect.Width / 2, RadiusY = innerRect.Height / 2, Point = innerRect.Center };
         SetGeometry(new EllipseGeometry(GraphicsDevice11.Instance.RenderTarget2D.Factory, ellipse));
 
         var fill = Fill;

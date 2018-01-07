@@ -38,6 +38,7 @@ using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
+using SharpDX.Mathematics.Interop;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using SizeF = SharpDX.Size2F;
 using SolidColorBrush = MediaPortal.UI.SkinEngine.Controls.Brushes.SolidColorBrush;
@@ -456,7 +457,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       TryDispose(ref _cursorBrush);
     }
 
-    void UpdateCursorShape(RectangleF cursorBounds, float zPos)
+    void UpdateCursorShape(RawRectangleF cursorBounds, float zPos)
     {
       DeallocateCursor();
 
@@ -567,6 +568,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         vertAlign = TextBuffer2D.VerticalTextAlignEnum.Center;
 
       // Update text cursor
+      RectangleF innerRect = _innerRect.ToRectangleF();
       if ((_cursorShapeInvalid || _cursorBrushInvalid) && CursorState == TextCursorState.Visible)
       {
         string textBeforeCaret = VisibleText;
@@ -577,27 +579,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         switch (vertAlign)
         {
           case TextBuffer2D.VerticalTextAlignEnum.Bottom:
-            textInsetY = _innerRect.Height - textHeight;
+            textInsetY = innerRect.Height - textHeight;
             break;
           case TextBuffer2D.VerticalTextAlignEnum.Center:
-            textInsetY = (_innerRect.Height - textHeight) / 2;
+            textInsetY = (innerRect.Height - textHeight) / 2;
             break;
           default: // VerticalTextAlignEnum.Top
             textInsetY = 0;
             break;
         }
         if (_virtualPosition + caretX < 10)
-          _virtualPosition = _innerRect.Width / 3 - caretX;
-        if (_virtualPosition + caretX > _innerRect.Width - 10)
-          _virtualPosition = _innerRect.Width * 2 / 3 - caretX;
+          _virtualPosition = innerRect.Width / 3 - caretX;
+        if (_virtualPosition + caretX > innerRect.Width - 10)
+          _virtualPosition = innerRect.Width * 2 / 3 - caretX;
         Bound(ref _virtualPosition, -caretX, 0);
-        _cursorBounds = new RectangleF(_innerRect.X + _virtualPosition + caretX, _innerRect.Y + textInsetY, CURSOR_THICKNESS, textHeight);
+        _cursorBounds = new RectangleF(innerRect.X + _virtualPosition + caretX, innerRect.Y + textInsetY, CURSOR_THICKNESS, textHeight);
         UpdateCursorShape(_cursorBounds, localRenderContext.ZOrder);
       }
 
       // Render text
       _asset.TextBrush = _textBrush;
-      _asset.Render(_innerRect, _virtualPosition, 0f, localRenderContext);
+      _asset.Render(innerRect, _virtualPosition, 0f, localRenderContext);
 
       // Render text cursor
       if (_cursorBrush != null && CursorState == TextCursorState.Visible && _cursorBrush.RenderBrush(localRenderContext) && _cursorBrush.TryAllocate() && _cursorGeometry != null)

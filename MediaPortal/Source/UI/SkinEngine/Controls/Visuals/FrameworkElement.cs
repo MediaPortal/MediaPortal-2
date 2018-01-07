@@ -52,10 +52,8 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
+using SharpDX.Mathematics.Interop;
 using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.Effect;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 using Transform = MediaPortal.UI.SkinEngine.Controls.Transforms.Transform;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -172,19 +170,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected static Effects.Effect _defaultEffect;
 
     protected bool _updateOpacityMask = false;
-    protected RectangleF _lastOccupiedTransformedBounds = RectangleF.Empty;
+    protected RawRectangleF _lastOccupiedTransformedBounds = RectangleF.Empty;
 
     protected bool _styleSet = false;
 
     protected volatile SetFocusPriority _setFocusPrio = SetFocusPriority.None;
 
-    protected SizeF? _availableSize = null;
+    protected Size2F? _availableSize = null;
     protected RectangleF? _outerRect = null;
     protected RectangleF? _renderedBoundingBox = null;
 
-    protected SizeF _innerDesiredSize; // Desiredd size in local coords
-    protected SizeF _desiredSize; // Desired size in parent coordinate system
-    protected RectangleF _innerRect;
+    protected Size2F _innerDesiredSize; // Desiredd size in local coords
+    protected Size2F _desiredSize; // Desired size in parent coordinate system
+    protected RawRectangleF _innerRect;
     protected volatile bool _isMeasureInvalid = true;
     protected volatile bool _isArrangeInvalid = true;
 
@@ -456,7 +454,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// This value denotes the desired size of this element including its <see cref="UIElement.Margin"/> in the parent's coordinate
     /// system, i.e. with the <see cref="UIElement.RenderTransform"/> and <see cref="UIElement.LayoutTransform"/> applied.
     /// </summary>
-    public SizeF DesiredSize
+    public Size2F DesiredSize
     {
       get { return _desiredSize; }
     }
@@ -553,7 +551,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Gets this element's bounds in this element's coordinate system.
     /// This is a derived property which is calculated by the layout system.
     /// </summary>
-    public RectangleF ActualBounds
+    public RawRectangleF ActualBounds
     {
       get { return _innerRect; }
     }
@@ -587,7 +585,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// This property returns the <see cref="RenderedBoundingBox"/>, if present. Else, it will calculate the final transform which would
     /// be used by this element if it would have been rendered before.
     /// </remarks>
-    public RectangleF BoundingBox
+    public RawRectangleF BoundingBox
     {
       get { return _renderedBoundingBox ?? CalculateBoundingBox(_innerRect, ExtortFinalTransform()); }
     }
@@ -852,7 +850,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region hit testing
 
-    public override UIElement InputHitTest(PointF point)
+    public override UIElement InputHitTest(Vector2 point)
     {
       if (!IsVisible)
         return null;
@@ -940,7 +938,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Screen screen = Screen;
         if (screen == null)
           return false;
-        RectangleF actualBounds = ActualBounds;
+        RawRectangleF actualBounds = ActualBounds;
         BringIntoView(this, actualBounds);
         screen.UpdateFocusRect(actualBounds);
         screen.FrameworkElementGotFocus(this);
@@ -1064,7 +1062,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <returns>Framework element which should get the focus, or <c>null</c>, if this control
     /// tree doesn't contain an appropriate control. The returned control will be
     /// visible, focusable and enabled.</returns>
-    public virtual FrameworkElement PredictFocus(RectangleF? currentFocusRect, MoveFocusDirection dir)
+    public virtual FrameworkElement PredictFocus(RawRectangleF? currentFocusRect, MoveFocusDirection dir)
     {
       if (!IsVisible || !IsEnabled)
         return null;
@@ -1090,7 +1088,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <returns>Next focusable element in the given <paramref name="dir"/> or <c>null</c>, if the given
     /// <paramref name="potentialNextFocusElements"/> don't contain a focusable element in the given direction.</returns>
     protected static FrameworkElement FindNextFocusElement(IEnumerable<FrameworkElement> potentialNextFocusElements,
-        RectangleF? currentFocusRect, MoveFocusDirection dir)
+        RawRectangleF? currentFocusRect, MoveFocusDirection dir)
     {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
@@ -1126,7 +1124,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return bestMatch;
     }
 
-    protected static float BorderDistance(RectangleF r1, RectangleF r2)
+    protected static float BorderDistance(RawRectangleF r1, RawRectangleF r2)
     {
       float distX;
       float distY;
@@ -1145,7 +1143,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return (float)Math.Sqrt(distX * distX + distY * distY);
     }
 
-    protected static float CenterDistance(RectangleF r1, RectangleF r2)
+    protected static float CenterDistance(RawRectangleF r1, RawRectangleF r2)
     {
       float distX = Math.Abs((r1.Left + r1.Right) / 2 - (r2.Left + r2.Right) / 2);
       float distY = Math.Abs((r1.Top + r1.Bottom) / 2 - (r2.Top + r2.Bottom) / 2);
@@ -1158,7 +1156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="r1"></param>
     /// <param name="r2"></param>
     /// <returns>Horizontal distance, negative if there is an overlap.</returns>
-    protected static float HorizontalDistance(RectangleF r1, RectangleF r2)
+    protected static float HorizontalDistance(RawRectangleF r1, RawRectangleF r2)
     {
       if (r1.Right <= r2.Left)
         return r2.Left - r1.Right;
@@ -1168,7 +1166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return r2.Left - r1.Right;
       if (r1.Right > r2.Right && r1.Left > r2.Left)
         return r1.Left - r2.Right;
-      return -r1.Width;
+      return -r1.Width();
     }
 
     /// <summary>
@@ -1177,7 +1175,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="r1"></param>
     /// <param name="r2"></param>
     /// <returns>Vertical distance, negative if there is an overlap.</returns>
-    protected static float VerticalDistance(RectangleF r1, RectangleF r2)
+    protected static float VerticalDistance(RawRectangleF r1, RawRectangleF r2)
     {
       if (r1.Bottom <= r2.Top)
         return r2.Top - r1.Bottom;
@@ -1187,15 +1185,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return r2.Top - r1.Bottom;
       if (r1.Bottom > r2.Bottom && r1.Top > r2.Top)
         return r1.Top - r2.Bottom;
-      return -r1.Height;
+      return -r1.Height();
     }
 
-    protected PointF GetCenterPosition(RectangleF rect)
+    protected Vector2 GetCenterPosition(RectangleF rect)
     {
-      return new PointF((rect.Left + rect.Right) / 2, (rect.Top + rect.Bottom) / 2);
+      return new Vector2((rect.Left + rect.Right) / 2, (rect.Top + rect.Bottom) / 2);
     }
 
-    private static float CalcDirection(PointF start, PointF end)
+    private static float CalcDirection(Vector2 start, Vector2 end)
     {
       if (IsNear(start.X, end.X) && IsNear(start.Y, end.Y))
         return float.NaN;
@@ -1209,61 +1207,61 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return (float)alpha;
     }
 
-    protected static bool AInsideB(RectangleF a, RectangleF b)
+    protected static bool AInsideB(RawRectangleF a, RawRectangleF b)
     {
       return b.Left <= a.Left && b.Right >= a.Right &&
           b.Top <= a.Top && b.Bottom >= a.Bottom;
     }
 
-    protected bool LocatedInside(RectangleF otherRect)
+    protected bool LocatedInside(RawRectangleF otherRect)
     {
       return AInsideB(ActualBounds, otherRect);
     }
 
-    protected bool EnclosesRect(RectangleF otherRect)
+    protected bool EnclosesRect(RawRectangleF otherRect)
     {
       return AInsideB(otherRect, ActualBounds);
     }
 
-    protected bool LocatedBelow(RectangleF otherRect, out float topOrLeftDifference)
+    protected bool LocatedBelow(RawRectangleF otherRect, out float topOrLeftDifference)
     {
-      RectangleF actualBounds = ActualBounds;
+      RawRectangleF actualBounds = ActualBounds;
       bool isNear = IsNear(actualBounds.Top, otherRect.Bottom);
-      PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Top);
-      PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Bottom);
+      Vector2 start = new Vector2((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Top);
+      Vector2 end = new Vector2((otherRect.Right + otherRect.Left) / 2, otherRect.Bottom);
       float alpha = CalcDirection(start, end);
       topOrLeftDifference = HorizontalDistance(actualBounds, otherRect); //Math.Abs(actualBounds.Left - otherRect.Left);
       return isNear || alpha > DELTA_DOUBLE && alpha < Math.PI - DELTA_DOUBLE;
     }
 
-    protected bool LocatedAbove(RectangleF otherRect, out float topOrLeftDifference)
+    protected bool LocatedAbove(RawRectangleF otherRect, out float topOrLeftDifference)
     {
-      RectangleF actualBounds = ActualBounds;
+      RawRectangleF actualBounds = ActualBounds;
       bool isNear = IsNear(actualBounds.Bottom, otherRect.Top);
-      PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Bottom);
-      PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Top);
+      Vector2 start = new Vector2((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Bottom);
+      Vector2 end = new Vector2((otherRect.Right + otherRect.Left) / 2, otherRect.Top);
       float alpha = CalcDirection(start, end);
       topOrLeftDifference = HorizontalDistance(actualBounds, otherRect); //Math.Abs(actualBounds.Left - otherRect.Left);
       return isNear || alpha > Math.PI + DELTA_DOUBLE && alpha < 2 * Math.PI - DELTA_DOUBLE;
     }
 
-    protected bool LocatedLeftOf(RectangleF otherRect, out float topOrLeftDifference)
+    protected bool LocatedLeftOf(RawRectangleF otherRect, out float topOrLeftDifference)
     {
-      RectangleF actualBounds = ActualBounds;
+      RawRectangleF actualBounds = ActualBounds;
       bool isNear = IsNear(actualBounds.Right, otherRect.Left);
-      PointF start = new PointF(actualBounds.Right, (actualBounds.Top + actualBounds.Bottom) / 2);
-      PointF end = new PointF(otherRect.Left, (otherRect.Top + otherRect.Bottom) / 2);
+      Vector2 start = new Vector2(actualBounds.Right, (actualBounds.Top + actualBounds.Bottom) / 2);
+      Vector2 end = new Vector2(otherRect.Left, (otherRect.Top + otherRect.Bottom) / 2);
       float alpha = CalcDirection(start, end);
       topOrLeftDifference = VerticalDistance(actualBounds, otherRect); //Math.Abs(actualBounds.Top - otherRect.Top);
       return isNear || alpha < Math.PI / 2 - DELTA_DOUBLE || alpha > 3 * Math.PI / 2 + DELTA_DOUBLE;
     }
 
-    protected bool LocatedRightOf(RectangleF otherRect, out float topOrLeftDifference)
+    protected bool LocatedRightOf(RawRectangleF otherRect, out float topOrLeftDifference)
     {
-      RectangleF actualBounds = ActualBounds;
+      RawRectangleF actualBounds = ActualBounds;
       bool isNear = IsNear(actualBounds.Left, otherRect.Right);
-      PointF start = new PointF(actualBounds.Left, (actualBounds.Top + actualBounds.Bottom) / 2);
-      PointF end = new PointF(otherRect.Right, (otherRect.Top + otherRect.Bottom) / 2);
+      Vector2 start = new Vector2(actualBounds.Left, (actualBounds.Top + actualBounds.Bottom) / 2);
+      Vector2 end = new Vector2(otherRect.Right, (otherRect.Top + otherRect.Bottom) / 2);
       float alpha = CalcDirection(start, end);
       topOrLeftDifference = VerticalDistance(actualBounds, otherRect); //Math.Abs(actualBounds.Top - otherRect.Top);
       return isNear || alpha > Math.PI / 2 + DELTA_DOUBLE && alpha < 3 * Math.PI / 2 - DELTA_DOUBLE;
@@ -1281,7 +1279,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="startingRect">Rectangle where to start searching. If this parameter is <c>null</c> (i.e. has no value),
     /// all potential focusable elements should be returned.</param>
     /// <param name="elements">Collection to add elements which are able to get the focus.</param>
-    public virtual void AddPotentialFocusableElements(RectangleF? startingRect, ICollection<FrameworkElement> elements)
+    public virtual void AddPotentialFocusableElements(RawRectangleF? startingRect, ICollection<FrameworkElement> elements)
     {
       if (!IsVisible || !IsEnabled)
         return;
@@ -1321,12 +1319,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return float.IsNaN(val1) && float.IsNaN(val2) || val1 == val2;
     }
 
-    public static bool SameSize(SizeF size1, SizeF size2)
+    public static bool SameSize(Size2F size1, Size2F size2)
     {
       return SameValue(size1.Width, size2.Width) && SameValue(size1.Height, size2.Height);
     }
 
-    public static bool SameSize(SizeF? size1, SizeF size2)
+    public static bool SameSize(Size2F? size1, Size2F size2)
     {
       return size1.HasValue && SameSize(size1.Value, size2);
     }
@@ -1336,7 +1334,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return SameValue(rect1.X, rect2.X) && SameValue(rect1.Y, rect2.Y) && SameValue(rect1.Width, rect2.Width) && SameValue(rect1.Height, rect2.Height);
     }
 
+    public static bool SameRect(RawRectangleF rect1, RawRectangleF rect2)
+    {
+      return SameValue(rect1.Left, rect2.Left) && SameValue(rect1.Top, rect2.Top) && SameValue(rect1.Right, rect2.Right) && SameValue(rect1.Bottom, rect2.Bottom);
+    }
+
     public static bool SameRect(RectangleF? rect1, RectangleF rect2)
+    {
+      return rect1.HasValue && SameRect(rect1.Value, rect2);
+    }
+
+    public static bool SameRect(RawRectangleF? rect1, RawRectangleF rect2)
     {
       return rect1.HasValue && SameRect(rect1.Value, rect2);
     }
@@ -1347,7 +1355,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override bool IsInArea(float x, float y)
     {
-      PointF actualPosition = ActualPosition;
+      Vector2 actualPosition = ActualPosition;
       double actualWidth = ActualWidth;
       double actualHeight = ActualHeight;
       float xTrans = x;
@@ -1393,7 +1401,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="localBounds">The bounds in local space where the returned size fits when transformed
     /// via the given <paramref name="transform"/>.</param>
     /// <returns>The dimensions, in local space, of the maximal area rectangle found.</returns>
-    private static SizeF FindMaxTransformedSize(Matrix transform, SizeF localBounds)
+    private static Size2F FindMaxTransformedSize(Matrix transform, Size2F localBounds)
     {
       // X (width) and Y (height) constraints for axis-aligned bounding box in dest. space
       float xConstr = localBounds.Width;
@@ -1401,13 +1409,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       // Avoid doing math on an empty rect
       if (IsNear(xConstr, 0) || IsNear(yConstr, 0))
-        return new SizeF(0, 0);
+        return new Size2F(0, 0);
 
       bool xConstrInfinite = float.IsNaN(xConstr);
       bool yConstrInfinite = float.IsNaN(yConstr);
 
       if (xConstrInfinite && yConstrInfinite)
-        return new SizeF(float.NaN, float.NaN);
+        return new Size2F(float.NaN, float.NaN);
 
       if (xConstrInfinite) // Assume square for one-dimensional constraint 
         xConstr = yConstr;
@@ -1417,7 +1425,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // We only deal with nonsingular matrices here. The nonsingular matrix is the one
       // that has inverse (determinant != 0).
       if (transform.Determinant() == 0)
-        return new SizeF(0, 0);
+        return new Size2F(0, 0);
 
       float a = transform.M11;
       float b = transform.M12;
@@ -1520,7 +1528,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // we are not using up all the available area in transform space.  So scale our shape up 
           // until it does in at least one dimension.
 
-          SizeF childSizeTr = new SizeF(w, h);
+          Size2F childSizeTr = new Size2F(w, h);
           transform.TransformIncludingRectangleSize(ref childSizeTr);
           float expandFactor = Math.Min(xConstr / childSizeTr.Width, yConstr / childSizeTr.Height);
           if (!float.IsNaN(expandFactor) && !float.IsInfinity(expandFactor))
@@ -1530,7 +1538,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           }
         }
       }
-      return new SizeF(w, h);
+      return new Size2F(w, h);
     }
 
     /// <summary>
@@ -1551,7 +1559,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="totalSize">Total size of the element including Margins. As input, this parameter
     /// contains the size available for this child control (size constraint). As output, it must be set
     /// to the <see cref="DesiredSize"/> plus <see cref="UIElement.Margin"/>.</param>
-    public void Measure(ref SizeF totalSize)
+    public void Measure(ref Size2F totalSize)
     {
 #if DEBUG_LAYOUT
 #if DEBUG_MORE_LAYOUT
@@ -1613,7 +1621,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Arranges the UI element and positions it in the given rectangle.
     /// </summary>
     /// <param name="outerRect">The final position and size the parent computed for this child element.</param>
-    public void Arrange(RectangleF outerRect)
+    public void Arrange(RawRectangleF outerRect)
     {
       if (_isMeasureInvalid)
       {
@@ -1653,8 +1661,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _finalTransform = null;
       _inverseFinalTransform = null;
 
-      _outerRect = SharpDXExtensions.CreateRectangleF(outerRect.Location, outerRect.Size);
-      RectangleF rect = SharpDXExtensions.CreateRectangleF(outerRect.Location, outerRect.Size);
+      _outerRect = outerRect.ToRectangleF();
+      RectangleF rect = _outerRect.Value;
       RemoveMargin(ref rect, Margin);
 
       if (LayoutTransform != null)
@@ -1662,8 +1670,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Matrix layoutTransform = LayoutTransform.GetTransform().RemoveTranslation();
         if (!layoutTransform.IsIdentity)
         {
-          SizeF resultInnerSize = _innerDesiredSize;
-          SizeF resultOuterSize = resultInnerSize;
+          Size2F resultInnerSize = _innerDesiredSize;
+          Size2F resultOuterSize = resultInnerSize;
           layoutTransform.TransformIncludingRectangleSize(ref resultOuterSize);
           if (resultOuterSize.Width > rect.Width + DELTA_DOUBLE || resultOuterSize.Height > rect.Height + DELTA_DOUBLE)
             // Transformation of desired size doesn't fit into the available rect
@@ -1686,17 +1694,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void ArrangeOverride()
     {
-      ActualPosition = _innerRect.Location;
-      ActualWidth = _innerRect.Width;
-      ActualHeight = _innerRect.Height;
+      ActualPosition = _innerRect.Location();
+      ActualWidth = _innerRect.Width();
+      ActualHeight = _innerRect.Height();
     }
 
-    protected virtual SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected virtual Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
-      return new SizeF();
+      return new Size2F();
     }
 
-    protected SizeF ClampSize(SizeF size)
+    protected Size2F ClampSize(Size2F size)
     {
       if (!float.IsNaN(size.Width))
         size.Width = (float)Math.Min(Math.Max(size.Width, MinWidth), MaxWidth);
@@ -1717,7 +1725,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// the child should be located.</param>
     /// <param name="childSize">Input: The available area for the <paramref name="child"/>. Output:
     /// The area the child should take.</param>
-    public void ArrangeChild(FrameworkElement child, HorizontalAlignmentEnum horizontalAlignment, VerticalAlignmentEnum verticalAlignment, ref PointF location, ref SizeF childSize)
+    public void ArrangeChild(FrameworkElement child, HorizontalAlignmentEnum horizontalAlignment, VerticalAlignmentEnum verticalAlignment, ref Vector2 location, ref Size2F childSize)
     {
       // Be careful when changing the implementation of those arrangement methods.
       // MPF behaves a bit different from WPF: We don't clip elements at the boundaries of containers,
@@ -1738,10 +1746,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// the child should be located.</param>
     /// <param name="childSize">Input: The available area for the <paramref name="child"/>. Output:
     /// The area the child should take.</param>
-    public void ArrangeChildHorizontal(FrameworkElement child, HorizontalAlignmentEnum alignment, ref PointF location, ref SizeF childSize)
+    public void ArrangeChildHorizontal(FrameworkElement child, HorizontalAlignmentEnum alignment, ref Vector2 location, ref Size2F childSize)
     {
       // See comment in ArrangeChild
-      SizeF desiredSize = child.DesiredSize;
+      Size2F desiredSize = child.DesiredSize;
 
       if (!double.IsNaN(desiredSize.Width) && desiredSize.Width <= childSize.Width)
       {
@@ -1777,10 +1785,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// the child should be located.</param>
     /// <param name="childSize">Input: The available area for the <paramref name="child"/>. Output:
     /// The area the child should take.</param>
-    public void ArrangeChildVertical(FrameworkElement child, VerticalAlignmentEnum alignment, ref PointF location, ref SizeF childSize)
+    public void ArrangeChildVertical(FrameworkElement child, VerticalAlignmentEnum alignment, ref Vector2 location, ref Size2F childSize)
     {
       // See comment in ArrangeChild
-      SizeF desiredSize = child.DesiredSize;
+      Size2F desiredSize = child.DesiredSize;
 
       if (!double.IsNaN(desiredSize.Height) && desiredSize.Height <= childSize.Height)
       {
@@ -1813,7 +1821,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Updates tle layout of this element in the render thread.
-    /// In this method, <see cref="Measure(ref SizeF)"/> and <see cref="Arrange(RectangleF)"/> are called.
+    /// In this method, <see cref="Measure(ref Size2F)"/> and <see cref="Arrange(RectangleF)"/> are called.
     /// </summary>
     /// <remarks>
     /// This method should actually be located in the <see cref="Screen"/> class but I leave it here because all the
@@ -1821,9 +1829,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// This method must be called from the render thread before the call to <see cref="Render"/>.
     /// </remarks>
     /// <param name="skinSize">The size of the skin.</param>
-    public void UpdateLayoutRoot(SizeF skinSize)
+    public void UpdateLayoutRoot(Size2F skinSize)
     {
-      SizeF size = skinSize;
+      Size2F size = skinSize;
 
 #if DEBUG_LAYOUT
 #if DEBUG_MORE_LAYOUT
@@ -1841,7 +1849,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #endif
 #endif
       // Ignore the measured size - arrange with screen size
-      Arrange(SharpDXExtensions.CreateRectangleF(new PointF(0, 0), skinSize));
+      Arrange(SharpDXExtensions.CreateRectangleF(new Vector2(0, 0), skinSize));
     }
 
     /// <summary>
@@ -1849,13 +1857,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="point">Screen point</param>
     /// <returns>Returns the transformed point in element coordinates.</returns>
-    public override PointF TransformScreenPoint(PointF point)
+    public override Vector2 TransformScreenPoint(Vector2 point)
     {
       float x = point.X;
       float y = point.Y;
       if (TransformMouseCoordinates(ref x, ref y))
       {
-        return base.TransformScreenPoint(new PointF(x, y));
+        return base.TransformScreenPoint(new Vector2(x, y));
       }
       return base.TransformScreenPoint(point);
     }
@@ -1950,23 +1958,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    private static RectangleF CalculateBoundingBox(RectangleF rectangle, Matrix transformation)
+    private static RectangleF CalculateBoundingBox(RawRectangleF rectangle, Matrix transformation)
     {
-      PointF tl = rectangle.Location;
-      PointF tr = new PointF(rectangle.Right, rectangle.Top);
-      PointF bl = new PointF(rectangle.Left, rectangle.Bottom);
-      PointF br = new PointF(rectangle.Right, rectangle.Bottom);
+      Vector2 tl = rectangle.TopLeft();
+      Vector2 tr = new Vector2(rectangle.Right, rectangle.Top);
+      Vector2 bl = new Vector2(rectangle.Left, rectangle.Bottom);
+      Vector2 br = new Vector2(rectangle.Right, rectangle.Bottom);
       transformation.Transform(ref tl);
       transformation.Transform(ref tr);
       transformation.Transform(ref bl);
       transformation.Transform(ref br);
-      PointF rtl = new PointF(
+      Vector2 rtl = new Vector2(
           Math.Min(tl.X, Math.Min(tr.X, Math.Min(bl.X, br.X))),
           Math.Min(tl.Y, Math.Min(tr.Y, Math.Min(bl.Y, br.Y))));
-      PointF rbr = new PointF(
+      Vector2 rbr = new Vector2(
           Math.Max(tl.X, Math.Max(tr.X, Math.Max(bl.X, br.X))),
           Math.Max(tl.Y, Math.Max(tr.Y, Math.Max(bl.Y, br.Y))));
-      return SharpDXExtensions.CreateRectangleF(rtl, new SizeF(rbr.X - rtl.X, rbr.Y - rtl.Y));
+      return SharpDXExtensions.CreateRectangleF(rtl, new Size2F(rbr.X - rtl.X, rbr.Y - rtl.Y));
     }
 
     private RenderContext ExtortRenderContext()
@@ -2032,8 +2040,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!IsVisible)
         return;
 
-      RectangleF bounds = ActualBounds;
-      if (bounds.Width <= 0 || bounds.Height <= 0)
+      RawRectangleF bounds = ActualBounds;
+      if (bounds.Width() <= 0 || bounds.Height() <= 0)
         return;
 
       // If there is a effect, call another method to render control and then the effect.
@@ -2065,7 +2073,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Calculates the final render context and updates the internal fields _renderedBoundingBox and _finalTransform.
     /// </summary>
-    private RenderContext UpdateRenderContext(RenderContext parentRenderContext, RectangleF bounds)
+    private RenderContext UpdateRenderContext(RenderContext parentRenderContext, RawRectangleF bounds)
     {
       Matrix? layoutTransformMatrix = LayoutTransform == null ? new Matrix?() : LayoutTransform.GetTransform();
       Matrix? renderTransformMatrix = RenderTransform == null ? new Matrix?() : RenderTransform.GetTransform();
@@ -2094,7 +2102,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       // If the control bounds have changed we need to update our Brush transform to make the 
       // texture coordinates match up
-      if (_updateOpacityMask || _lastOccupiedTransformedBounds != localRenderContext.OccupiedTransformedBounds)
+      if (_updateOpacityMask || !_lastOccupiedTransformedBounds.Equals(localRenderContext.OccupiedTransformedBounds))
       {
         UpdateOpacityMask(localRenderContext.OccupiedTransformedBounds, localRenderContext.ZOrder);
         _lastOccupiedTransformedBounds = localRenderContext.OccupiedTransformedBounds;
@@ -2140,7 +2148,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="rect">Source rect</param>
     /// <param name="clip">Maximum size</param>
     /// <returns>Converted rect</returns>
-    protected Rectangle ToRect(RectangleF rect, Size clip)
+    protected Rectangle ToRect(RectangleF rect, Size2 clip)
     {
       int x = Math.Min(Math.Max(0, (int)Math.Floor(rect.X)), clip.Width); // Limit to 0 .. Width
       int y = Math.Min(Math.Max(0, (int)Math.Floor(rect.Y)), clip.Height); // Limit to 0 .. Height
@@ -2180,7 +2188,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       // If the control bounds have changed we need to update our primitive context to make the 
       // texture coordinates match up
-      if (_updateOpacityMask || _opacityMaskContext == null || _lastOccupiedTransformedBounds != renderContext.OccupiedTransformedBounds)
+      if (_updateOpacityMask || _opacityMaskContext == null || !_lastOccupiedTransformedBounds.Equals(renderContext.OccupiedTransformedBounds))
       {
         UpdateOpacityMask(renderContext.OccupiedTransformedBounds, renderContext.ZOrder);
         _lastOccupiedTransformedBounds = renderContext.OccupiedTransformedBounds;
@@ -2200,7 +2208,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       GraphicsDevice.EnableAlphaTest();
     }
 
-    void UpdateOpacityMask(RectangleF bounds, float zPos)
+    void UpdateOpacityMask(RawRectangleF bounds, float zPos)
     {
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float)Opacity;

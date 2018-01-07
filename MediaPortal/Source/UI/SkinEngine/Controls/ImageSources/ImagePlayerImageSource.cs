@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using RightAngledRotation = MediaPortal.UI.SkinEngine.Rendering.RightAngledRotation;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -42,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   {
     protected Bitmap1 _lastTexture = null;
     protected SizeF _lastRawSourceSize;
-    protected RectangleF _lastTextureClip;
+    protected RawRectangleF _lastTextureClip;
 
     protected Bitmap1 _currentTexture = null;
     protected SizeF _currentTextureSize; // Size of the texture, can be bigger than the actual image in the texture because of DX. _currentTextureClip is based on this size.
@@ -162,7 +163,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _lastRawSourceSize; }
     }
 
-    protected override RectangleF LastTextureClip
+    protected override RawRectangleF LastTextureClip
     {
       get { return _lastTextureClip; }
     }
@@ -177,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       get { return _currentClippedSize; }
     }
 
-    protected override RectangleF CurrentTextureClip
+    protected override RawRectangleF CurrentTextureClip
     {
       get { return _currentTextureClip; }
     }

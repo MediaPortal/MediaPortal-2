@@ -46,6 +46,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 using INameScope = MediaPortal.UI.SkinEngine.Xaml.Interfaces.INameScope;
 using MouseEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEventArgs;
 using Size = SharpDX.Size2;
@@ -192,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// Always contains the currently focused element in this screen.
     /// </summary>
     protected FrameworkElement _focusedElement = null;
-    protected RectangleF? _lastFocusRect = null;
+    protected RawRectangleF? _lastFocusRect = null;
     protected WeakReference _lastFocusedElement = new WeakReference(null);
 
     protected FrameworkElement _root;
@@ -860,7 +861,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// Informs the screen about a change in the location of the focused element.
     /// </summary>
     /// <param name="focusRect">Actual bounds of the element which currently has focus.</param>
-    internal void UpdateFocusRect(RectangleF focusRect)
+    internal void UpdateFocusRect(RawRectangleF focusRect)
     {
       _lastFocusRect = focusRect;
     }
@@ -943,7 +944,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <param name="key">The key to evaluate.</param>
     /// <returns>Framework element which gets focus when the specified <paramref name="key"/> was
     /// pressed, or <c>null</c>, if no focus change should take place.</returns>
-    public FrameworkElement PredictFocus(RectangleF? currentFocusRect, Key key)
+    public FrameworkElement PredictFocus(RawRectangleF currentFocusRect, Key key)
     {
       FrameworkElement element = _root;
       if (element == null)

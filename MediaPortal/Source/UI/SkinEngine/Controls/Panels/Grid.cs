@@ -26,6 +26,7 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -151,9 +152,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
 
+        RectangleF rect = _innerRect.ToRectangleF();
         PointF position = new PointF(
-            (float) ColumnDefinitions.GetOffset(col) + _innerRect.Location.X, 
-            (float) RowDefinitions.GetOffset(row) + _innerRect.Location.Y);
+            (float) ColumnDefinitions.GetOffset(col) + rect.Location.X, 
+            (float) RowDefinitions.GetOffset(row) + rect.Location.Y);
 
         SizeF childSize = new SizeF(
             (float) ColumnDefinitions.GetLength(col, GetColumnSpan(child)),

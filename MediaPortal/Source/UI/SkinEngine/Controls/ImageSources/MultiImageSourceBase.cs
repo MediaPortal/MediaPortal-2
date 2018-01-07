@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using SizeF = SharpDX.Size2F;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
@@ -141,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       }
     }
 
-    public override void Setup(RectangleF ownerRect, float zOrder, bool skinNeutralAR)
+    public override void Setup(RawRectangleF ownerRect, float zOrder, bool skinNeutralAR)
     {
       base.Setup(ownerRect, zOrder, skinNeutralAR);
 
@@ -154,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       var currentTexture = CurrentTexture;
       SizeF currentRawSourceSize = CurrentRawSourceSize;
-      RectangleF currentTextureClip = CurrentTextureClip;
+      RawRectangleF currentTextureClip = CurrentTextureClip;
       Vector4 frameData = new Vector4(currentRawSourceSize.Width, currentRawSourceSize.Height, (float)EffectTimer, 0);
 
       if (_transitionActive)
@@ -166,7 +167,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         {
           var lastTexture = LastTexture;
           SizeF lastRawSourceSize = LastRawSourceSize;
-          RectangleF lastTextureClip = LastTextureClip;
+          RawRectangleF lastTextureClip = LastTextureClip;
           Vector4 lastFrameData = new Vector4(lastRawSourceSize.Width, lastRawSourceSize.Height, (float)EffectTimer, 0);
 
           // TODO: does null texture now work?
@@ -196,8 +197,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       {
         SizeF sourceSize = StretchSource(_imageContext.RotatedFrameSize, currentRawSourceSize, stretchMode, stretchDirection);
         var target = new RectangleF(
-        _targetRect.X + (_targetRect.Width - sourceSize.Width) / 2,
-        _targetRect.Y + (_targetRect.Height - sourceSize.Height) / 2,
+        _targetRect.Left + (_targetRect.Width() - sourceSize.Width) / 2,
+        _targetRect.Top + (_targetRect.Height() - sourceSize.Height) / 2,
         sourceSize.Width, sourceSize.Height);
 
         if (_imageContext.StartRender(renderContext, target.Size, currentTexture, currentTextureClip, BorderColor, frameData))
@@ -223,7 +224,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <summary>
     /// Returns the clipping region which should be taken fron the last texture.
     /// </summary>
-    protected abstract RectangleF LastTextureClip { get; }
+    protected abstract RawRectangleF LastTextureClip { get; }
 
     /// <summary>
     /// Returns the current texture to be rendered. Must be overridden in subclasses.
@@ -238,7 +239,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <summary>
     /// Returns the clipping region which should be taken fron the last texture.
     /// </summary>
-    protected abstract RectangleF CurrentTextureClip { get; }
+    protected abstract RawRectangleF CurrentTextureClip { get; }
 
     /// <summary>
     /// DirectX9 does not define what happens when a NULL texture is accessed in a shader. Because of this the action

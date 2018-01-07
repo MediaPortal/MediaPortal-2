@@ -28,6 +28,7 @@ using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
 using SharpDX.Direct2D1;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -141,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _endPointProperty.SetValue(value); }
     }
 
-    public override void SetupBrush(FrameworkElement parent, ref RectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
+    public override void SetupBrush(FrameworkElement parent, ref RawRectangleF boundary, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref boundary, zOrder, adaptVertsToBrushTexture);
       _refresh = true;

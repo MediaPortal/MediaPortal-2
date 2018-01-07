@@ -23,22 +23,15 @@
 #endregion
 
 using System;
-using System.CodeDom.Compiler;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Reflection;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using Microsoft.CSharp;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
@@ -103,10 +96,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     #region Protected fields
 
     protected EffectAsset<EffectAssetCore<ImageTransitionEffect>> _effectTransition;
-    protected SizeF _frameSize;
-    protected SizeF _rotatedFrameSize;
-    protected Vector4 _imageTransform;
-    protected SizeF _lastImageSize;
+    protected Size2F _frameSize;
+    protected Size2F _rotatedFrameSize;
+    protected RawVector4 _imageTransform;
+    protected Size2F _lastImageSize;
     protected SamplerState _samplerState;
 
     protected string _shaderBaseName = null;
@@ -128,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <remarks>
     /// This property is needed to center the image to be rendered into the given frame.
     /// </remarks>
-    public SizeF FrameSize
+    public Size2F FrameSize
     {
       get { return _frameSize; }
       set
@@ -144,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// adjustments must be done against this property. If no rotation is used, this property returns the same value as
     /// <see cref="FrameSize"/>, so image size adjustments should always be done using this property.
     /// </summary>
-    public SizeF RotatedFrameSize
+    public Size2F RotatedFrameSize
     {
       get { return _rotatedFrameSize; }
     }
@@ -250,7 +243,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="endFrameData">Additional data to be used by the ending image shaders.</param>
     /// <returns><c>true</c> if the rendering operation was started.</returns>
     public bool StartRenderTransition(RenderContext renderContext, float mixValue, ImageContext startContext,
-        SizeF targetEndImageSize, Bitmap1 endTexture, RectangleF endTextureClip, Color borderColor, Vector4 startFrameData, Vector4 endFrameData)
+        Size2F targetEndImageSize, Bitmap1 endTexture, RawRectangleF endTextureClip, RawColor4 borderColor, RawVector4 startFrameData, RawVector4 endFrameData)
     {
       RefreshParameters(targetEndImageSize, endTexture, endTextureClip);
       if (_effectTransition == null)
@@ -261,15 +254,15 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       // Apply effect parameters
       _effectTransition.Effect.SetValue((int)ParamIndexIT.WorldTransform, renderContext.Transform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.Opacity, (float)renderContext.Opacity);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, _inverseRelativeTransformCache);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, (RawMatrix)_inverseRelativeTransformCache);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new Vector4(0, 0, 1, 1));
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, new RawVector4(0, 0, 1, 1));
       _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameData, endFrameData);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.MixAB, mixValue);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, startContext._inverseRelativeTransformCache);
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransformA, (RawMatrix)startContext._inverseRelativeTransformCache);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransformA, startContext._imageTransform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.FrameDataA, startFrameData);
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.BorderColor, borderColor.ToColor4());
+      _effectTransition.Effect.SetValue((int)ParamIndexIT.BorderColor, borderColor);
 
       // Render
       _effectTransition.StartRender(startContext._lastTexture, renderContext, endTexture);
@@ -282,7 +275,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     /// <param name="frameSize">The skin relative size.</param>
     /// <returns>The passed size pre-scaled to compensate for any Skin-to-GraphicsDevice transformations.</returns>
-    public static SizeF AdjustForSkinAR(SizeF frameSize)
+    public static Size2F AdjustForSkinAR(Size2F frameSize)
     {
       // Adjust target size to match final Skin scaling
       frameSize.Width *= GraphicsDevice.Width / (float)SkinContext.SkinResources.SkinWidth;
@@ -290,9 +283,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return frameSize;
     }
 
-    public SizeF GetRotatedSize(SizeF size)
+    public Size2F GetRotatedSize(Size2F size)
     {
-      return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new SizeF(size.Height, size.Width) : size;
+      return _rotation == RightAngledRotation.HalfPi || _rotation == RightAngledRotation.ThreeHalfPi ? new Size2F(size.Height, size.Width) : size;
     }
 
     public override void Clear()
@@ -305,7 +298,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Protected methods
 
-    protected override bool StartRender(RenderContext renderContext, Color borderColor, Vector4 frameData)
+    protected override bool StartRender(RenderContext renderContext, RawColor4 borderColor, RawVector4 frameData)
     {
       if (_effect == null || _lastTexture == null)
         return false;
@@ -319,23 +312,23 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       _effect.Effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
       _effect.Effect.SetValue((int)ParamIndexI.Opacity, (float)renderContext.Opacity);
-      _effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, _inverseRelativeTransformCache);
+      _effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, (RawMatrix)_inverseRelativeTransformCache);
       _effect.Effect.SetValue((int)ParamIndexI.ImageTransform, _imageTransform);
       _effect.Effect.SetValue((int)ParamIndexI.FrameData, frameData);
-      _effect.Effect.SetValue((int)ParamIndexI.BorderColor, (Color4)borderColor);
+      _effect.Effect.SetValue((int)ParamIndexI.BorderColor, borderColor);
 
       // Render
       _effect.StartRender(_lastTexture, renderContext);
       return true;
     }
 
-    protected override void RefreshParameters(SizeF targetImageSize, Bitmap1 texture, RectangleF textureClip)
+    protected override void RefreshParameters(Size2F targetImageSize, Bitmap1 texture, RawRectangleF textureClip)
     {
       // If necessary update our image transformation to best fit the frame
       if (_refresh || texture != _lastTexture ||
           Math.Abs(targetImageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
           Math.Abs(targetImageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT
-          || textureClip != _lastTextureClip)
+          || !textureClip.Equals(_lastTextureClip))
       {
         _lastTexture = texture;
         _lastTextureClip = textureClip;
@@ -353,8 +346,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         //Brownard 30/01/16: Do we need to take into account in the calculations below that we now allow aligning of textures?
          
         // Compensate for texture surface borders
-        textureRect.Z /= textureClip.Width;
-        textureRect.W /= textureClip.Height;
+        textureRect.Z /= textureClip.Width();
+        textureRect.W /= textureClip.Height();
 
         // Determine correct 2D transform for mapping the texture to the correct place
         float repeatx = 1.0f / textureRect.Z;
@@ -368,7 +361,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
         _inverseRelativeTransformCache = TranslateRotation(_rotation);
         _inverseRelativeTransformCache.Invert();
-        _imageTransform = new Vector4(textureRect.X * repeatx - textureClip.X, textureRect.Y * repeaty - textureClip.Y, repeatx, repeaty);
+        _imageTransform = new Vector4(textureRect.X * repeatx - textureClip.Left, textureRect.Y * repeaty - textureClip.Top, repeatx, repeaty);
 
         // Build our effects
         _effect = ContentManager.Instance.GetEffect<ImageEffect>(GetEffectName());

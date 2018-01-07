@@ -46,6 +46,7 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using SharpDX.Mathematics.Interop;
 using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D.Effect;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 using KeyEventArgs = MediaPortal.UI.SkinEngine.MpfElements.Input.KeyEventArgs;
@@ -752,7 +753,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="element">The original element which should be made visible.</param>
     /// <param name="elementBounds">The element's bounds which will be active after the scrolling
     /// update.</param>
-    public virtual void BringIntoView(UIElement element, RectangleF elementBounds)
+    public virtual void BringIntoView(UIElement element, RawRectangleF elementBounds)
     {
       UIElement parent = VisualParent as UIElement;
       if (parent != null)

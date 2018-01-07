@@ -30,11 +30,9 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
-using Size = SharpDX.Size2;
-using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -257,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       InvalidateLayout(false, true);
     }
 
-    protected LineMeasurement CalculateLine(IList<FrameworkElement> children, int startIndex, SizeF? measureSize, bool invertLayoutDirection)
+    protected LineMeasurement CalculateLine(IList<FrameworkElement> children, int startIndex, Size2F? measureSize, bool invertLayoutDirection)
     {
       LineMeasurement result = LineMeasurement.Create();
       if (invertLayoutDirection)
@@ -273,7 +271,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       for (; invertLayoutDirection ? (currentIndex >= 0) : (currentIndex < numChildren); currentIndex += directionOffset)
       {
         FrameworkElement child = children[currentIndex];
-        SizeF desiredChildSize;
+        Size2F desiredChildSize;
         if (measureSize.HasValue)
         {
           desiredChildSize = measureSize.Value;
@@ -303,27 +301,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return result;
     }
 
-    protected void LayoutLine(IList<FrameworkElement> children, PointF pos, LineMeasurement line)
+    protected void LayoutLine(IList<FrameworkElement> children, Vector2 pos, LineMeasurement line)
     {
       float offset = 0;
       for (int i = line.StartIndex; i <= line.EndIndex; i++)
       {
         FrameworkElement layoutChild = children[i];
-        SizeF desiredChildSize = layoutChild.DesiredSize;
-        SizeF size;
-        PointF location;
+        Size2F desiredChildSize = layoutChild.DesiredSize;
+        Size2F size;
+        Vector2 location;
 
         if (Orientation == Orientation.Horizontal)
         {
-          size = new SizeF(desiredChildSize.Width, line.TotalExtendsInNonOrientationDirection);
-          location = new PointF(pos.X + offset, pos.Y);
+          size = new Size2F(desiredChildSize.Width, line.TotalExtendsInNonOrientationDirection);
+          location = new Vector2(pos.X + offset, pos.Y);
           ArrangeChildVertical(layoutChild, layoutChild.VerticalAlignment, ref location, ref size);
           offset += desiredChildSize.Width;
         }
         else
         {
-          size = new SizeF(line.TotalExtendsInNonOrientationDirection, desiredChildSize.Height);
-          location = new PointF(pos.X, pos.Y + offset);
+          size = new Size2F(line.TotalExtendsInNonOrientationDirection, desiredChildSize.Height);
+          location = new Vector2(pos.X, pos.Y + offset);
           ArrangeChildHorizontal(layoutChild, layoutChild.HorizontalAlignment, ref location, ref size);
           offset += desiredChildSize.Height;
         }
@@ -332,12 +330,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
-    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    protected override Size2F CalculateInnerDesiredSize(Size2F totalSize)
     {
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       int numVisibleChildren = visibleChildren.Count;
       if (numVisibleChildren == 0)
-        return new SizeF();
+        return new Size2F();
       float totalDesiredWidth = 0;
       float totalDesiredHeight = 0;
       int index = 0;
@@ -362,7 +360,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         index = line.EndIndex + 1;
       }
-      return new SizeF(totalDesiredWidth, totalDesiredHeight);
+      return new Size2F(totalDesiredWidth, totalDesiredHeight);
     }
 
     protected override void ArrangeOverride()
@@ -381,8 +379,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       int numVisibleChildren = visibleChildren.Count;
       if (numVisibleChildren > 0)
       {
-        PointF actualPosition = ActualPosition;
-        SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
+        Vector2 actualPosition = ActualPosition;
+        Size2F actualSize = new Size2F((float) ActualWidth, (float) ActualHeight);
 
         // For Orientation == vertical, this is ActualHeight, for horizontal it is ActualWidth
         float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
@@ -423,9 +421,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         _arrangedLines = new List<LineMeasurement>();
         int index = 0;
+        Size2F measureSize = _innerRect.Size();
         while (index < numVisibleChildren)
         {
-          LineMeasurement line = CalculateLine(visibleChildren, index, _innerRect.Size, false);
+          LineMeasurement line = CalculateLine(visibleChildren, index, measureSize, false);
           _arrangedLines.Add(line);
           index = line.EndIndex + 1;
         }
@@ -543,9 +542,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           _totalHeight = actualExtendsInOrientationDirection;
         else
           _totalWidth = actualExtendsInOrientationDirection;
-        PointF position = Orientation == Orientation.Vertical ?
-            new PointF(actualPosition.X + startPosition, actualPosition.Y) :
-            new PointF(actualPosition.X, actualPosition.Y + startPosition);
+        Vector2 position = Orientation == Orientation.Vertical ?
+            new Vector2(actualPosition.X + startPosition, actualPosition.Y) :
+            new Vector2(actualPosition.X, actualPosition.Y + startPosition);
         foreach (LineMeasurement line in _arrangedLines)
         {
           LayoutLine(visibleChildren, position, line);
@@ -553,12 +552,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           startPosition += line.TotalExtendsInNonOrientationDirection;
           if (Orientation == Orientation.Vertical)
           {
-            position = new PointF(actualPosition.X + startPosition, actualPosition.Y);
+            position = new Vector2(actualPosition.X + startPosition, actualPosition.Y);
             _totalWidth += line.TotalExtendsInNonOrientationDirection;
           }
           else
           {
-            position = new PointF(actualPosition.X, actualPosition.Y + startPosition);
+            position = new Vector2(actualPosition.X, actualPosition.Y + startPosition);
             _totalHeight += line.TotalExtendsInNonOrientationDirection;
           }
         }
@@ -593,7 +592,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (dlgt != null) dlgt(this);
     }
 
-    public override void BringIntoView(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RawRectangleF elementBounds)
     {
       MakeChildVisible(element, ref elementBounds);
       base.BringIntoView(element, elementBounds);
@@ -626,7 +625,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return invert ? -result : result;
     }
 
-    protected virtual void MakeChildVisible(UIElement element, ref RectangleF elementBounds)
+    protected virtual void MakeChildVisible(UIElement element, ref RawRectangleF elementBounds)
     {
       if (_doScroll)
       {
@@ -655,9 +654,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               float extendsInOrientationDirection = SumActualLineExtendsInNonOrientationDirection(lines,
                   first ? oldFirstVisibleLine : oldLastVisibleLine, lineIndex);
               if (Orientation == Orientation.Horizontal)
-                elementBounds.X -= extendsInOrientationDirection;
+                elementBounds.Left -= extendsInOrientationDirection;
               else
-                elementBounds.Y -= extendsInOrientationDirection;
+                elementBounds.Top -= extendsInOrientationDirection;
               break;
             }
           }
@@ -670,8 +669,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
-        RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
-        RectangleF bounds = ActualBounds;
+        RawRectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
+        RawRectangleF bounds = ActualBounds;
         if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) return false;
         if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) return false;
         if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) return false;
@@ -684,13 +683,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Focus management
 
-    public override void AddPotentialFocusableElements(RectangleF? startingRect, ICollection<FrameworkElement> elements)
+    public override void AddPotentialFocusableElements(RawRectangleF? startingRect, ICollection<FrameworkElement> elements)
     {
       AlignedPanelAddPotentialFocusNeighbors(startingRect, elements, false);
     }
 
-    public virtual void AlignedPanelAddPotentialFocusNeighbors(RectangleF? startingRect, ICollection<FrameworkElement> outElements,
-        bool linesBeforeAndAfter)
+    public virtual void AlignedPanelAddPotentialFocusNeighbors(RawRectangleF? startingRect, ICollection<FrameworkElement> outElements, bool linesBeforeAndAfter)
     {
       if (!IsVisible)
         return;
@@ -702,7 +700,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           numLinesBeforeAndAfter, numLinesBeforeAndAfter, outElements);
     }
 
-    protected void AddFocusedElementRange(IList<FrameworkElement> availableElements, RectangleF? startingRect,
+    protected void AddFocusedElementRange(IList<FrameworkElement> availableElements, RawRectangleF? startingRect,
         int firstLineIndex, int lastLineIndex, int linesBefore, int linesAfter, ICollection<FrameworkElement> outElements)
     {
       IList<LineMeasurement> lines = new List<LineMeasurement>(_arrangedLines);
@@ -769,7 +767,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       FrameworkElement currentElement = GetFocusedElementOrChild();
       if (currentElement == null)
         return false;
-      RectangleF currentFocusRect = currentElement.ActualBounds;
+      RawRectangleF currentFocusRect = currentElement.ActualBounds;
       ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
       AlignedPanelAddPotentialFocusNeighbors(currentFocusRect, focusableChildren, true);
       // Check child controls

@@ -25,6 +25,7 @@
 using MediaPortal.UI.SkinEngine.DirectX11;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
@@ -34,9 +35,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   internal abstract class AbstractMultiPassRenderPipeline : AbstractRenderPipeline
   {
     protected Bitmap1 _backbuffer = null;
-    protected Rectangle _renderRect;
-    protected Rectangle _firstFrameTargetRect;
-    protected Rectangle _secondFrameTargetRect;
+    protected RawRectangle _renderRect;
+    protected RawRectangleF _firstFrameTargetRect;
+    protected RawRectangleF _secondFrameTargetRect;
     protected LayerParameters1 _layerParams1;
     protected LayerParameters1 _layerParams2;
     protected SolidColorBrush _opacityBrush;

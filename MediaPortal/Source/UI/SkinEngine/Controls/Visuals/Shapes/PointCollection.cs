@@ -26,18 +26,19 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   // Need to be a dedicated type because of special type conversion
   [TypeConverter(typeof(MPFConverter<PointCollection>))]
-  public class PointCollection : List<Point>
+  public class PointCollection : List<RawVector2>
   {
     public PointCollection()
     {
     }
 
-    public PointCollection(IEnumerable<Point> points)
+    public PointCollection(IEnumerable<RawVector2> points)
     {
       AddRange(points);
     }

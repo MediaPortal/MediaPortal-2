@@ -25,6 +25,7 @@
 using MediaPortal.UI.SkinEngine.DirectX11;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
 {
@@ -35,8 +36,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
   {
     public SBSRenderPipeline()
     {
-      _firstFrameTargetRect = new Rectangle(0, 0, _backbuffer.PixelSize.Width / 2, _backbuffer.PixelSize.Height);
-      _secondFrameTargetRect = new Rectangle(_backbuffer.PixelSize.Width / 2, 0, _backbuffer.PixelSize.Width / 2, _backbuffer.PixelSize.Height);
+      _firstFrameTargetRect = new RawRectangleF(0, 0, _backbuffer.PixelSize.Width / 2, _backbuffer.PixelSize.Height);
+      _secondFrameTargetRect = new RawRectangleF(_backbuffer.PixelSize.Width / 2, 0, _backbuffer.PixelSize.Width / 2, _backbuffer.PixelSize.Height);
       InitMasks();
     }
 

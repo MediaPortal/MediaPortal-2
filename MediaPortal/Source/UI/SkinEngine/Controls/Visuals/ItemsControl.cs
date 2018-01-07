@@ -40,6 +40,7 @@ using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -559,7 +560,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         UpdateCurrentItem();
     }
 
-    public override void AddPotentialFocusableElements(RectangleF? startingRect, ICollection<FrameworkElement> elements)
+    public override void AddPotentialFocusableElements(RawRectangleF? startingRect, ICollection<FrameworkElement> elements)
     {
       if (RestoreFocus && _restoreFocusElement != null)
       {

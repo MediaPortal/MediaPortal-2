@@ -281,7 +281,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         string[] parts = text.Split(new[] { ',', ' ' });
         for (int i = 0; i < parts.Length; i += 2)
         {
-          Point p = new Point(Int32.Parse(parts[i]), Int32.Parse(parts[i + 1]));
+          Vector2 p = new Vector2(float.Parse(parts[i]), float.Parse(parts[i + 1]));
           coll.Add(p);
         }
         result = coll;

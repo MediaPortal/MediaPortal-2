@@ -23,6 +23,7 @@
 #endregion
 
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
@@ -33,7 +34,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected readonly float _zOrder = 1.0f;
     protected readonly double _opacity = 1.0f;
     protected readonly Matrix _transform;
-    protected RectangleF _transformedRenderBounds = RectangleF.Empty;
+    protected RawRectangleF _transformedRenderBounds = RectangleF.Empty;
 
     #endregion
 
@@ -65,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       SetUntransformedContentsBounds(untransformedBounds);
     }
 
-    protected void SetUntransformedContentsBounds(RectangleF bounds)
+    protected void SetUntransformedContentsBounds(RawRectangleF bounds)
     {
       _transformedRenderBounds = _transform.GetIncludingTransformedRectangle(bounds);
     }
@@ -74,16 +75,17 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Public methods
 
-    public RenderContext Derive(RectangleF bounds, Matrix? localLayoutTransform,
+    public RenderContext Derive(RawRectangleF bounds, Matrix? localLayoutTransform,
         Matrix? localRenderTransform, Vector2? renderTransformOrigin,
         double localOpacity)
     {
       Matrix finalTransform = _transform.Clone();
+      RectangleF rect = bounds.ToRectangleF();
       if (localLayoutTransform.HasValue && localLayoutTransform != Matrix.Identity)
       {
         // Layout transforms don't support translations, so center the transformation matrix at the start point
         // of the control and apply the layout transform without translation
-        Vector2 origin = new Vector2(bounds.X + 0.5f*bounds.Width, bounds.Y + 0.5f*bounds.Height);
+        Vector2 origin = new Vector2(rect.X + 0.5f*rect.Width, rect.Y + 0.5f*rect.Height);
         Matrix transform = Matrix.Translation(new Vector3(-origin.X, -origin.Y, 0));
         transform *= localLayoutTransform.Value.RemoveTranslation();
         transform *= Matrix.Translation(new Vector3(origin.X, origin.Y, 0));
@@ -92,14 +94,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       if (localRenderTransform.HasValue && localRenderTransform != Matrix.Identity)
       {
         Vector2 origin = renderTransformOrigin.HasValue ? new Vector2(
-            bounds.X + bounds.Width * renderTransformOrigin.Value.X,
-            bounds.Y + bounds.Height * renderTransformOrigin.Value.Y) : new Vector2(bounds.X, bounds.Y);
+            rect.X + rect.Width * renderTransformOrigin.Value.X,
+            rect.Y + rect.Height * renderTransformOrigin.Value.Y) : new Vector2(rect.X, rect.Y);
         Matrix transform = Matrix.Translation(new Vector3(-origin.X, -origin.Y, 0));
         transform *= localRenderTransform.Value;
         transform *= Matrix.Translation(new Vector3(origin.X, origin.Y, 0));
         finalTransform = transform * finalTransform;
       }
-      RenderContext result = new RenderContext(finalTransform, _opacity * localOpacity, bounds, _zOrder - 0.001f) { ClearOccupiedAreaOnly = ClearOccupiedAreaOnly };
+      RenderContext result = new RenderContext(finalTransform, _opacity * localOpacity, rect, _zOrder - 0.001f) { ClearOccupiedAreaOnly = ClearOccupiedAreaOnly };
       return result;
     }
 
@@ -117,12 +119,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       get { return _opacity; }
     }
 
-    public Matrix Transform
+    public RawMatrix Transform
     {
       get { return _transform; }
     }
 
-    public RectangleF OccupiedTransformedBounds
+    public RawRectangleF OccupiedTransformedBounds
     {
       get { return _transformedRenderBounds; }
     }
@@ -140,20 +142,20 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #endregion
 
-    public void IncludeUntransformedContentsBounds(RectangleF bounds)
+    public void IncludeUntransformedContentsBounds(RawRectangleF bounds)
     {
-      RectangleF includingTransformedBounds = _transform.GetIncludingTransformedRectangle(bounds);
+      RawRectangleF includingTransformedBounds = _transform.GetIncludingTransformedRectangle(bounds);
       IncludeTransformedContentsBounds(includingTransformedBounds);
     }
 
-    public void SetUntransformedBounds(RectangleF bounds)
+    public void SetUntransformedBounds(RawRectangleF bounds)
     {
       _transformedRenderBounds = _transform.GetIncludingTransformedRectangle(bounds);
     }
 
-    public void IncludeTransformedContentsBounds(RectangleF bounds)
+    public void IncludeTransformedContentsBounds(RawRectangleF bounds)
     {
-      _transformedRenderBounds = RectangleF.Union(_transformedRenderBounds, bounds);
+      _transformedRenderBounds = RectangleF.Union(_transformedRenderBounds.ToRectangleF(), bounds.ToRectangleF());
     }
   }
 }

@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       float offsetLeft = 0.0f;
       float offsetRight = 0.0f;
       float offsetBottom = 0.0f;
-      SizeF availableSize = new SizeF(_innerRect.Width, _innerRect.Height);
+      SizeF availableSize = new SizeF(_innerRect.Width(), _innerRect.Height());
 
       int count = 0;
       // Area allocated to child
@@ -127,9 +127,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             {
               PointF location;
               if (count == visibleChildren.Count && LastChildFill)
-                location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + availableSize.Height));
+                location = new PointF(offsetLeft, _innerRect.Height() - (offsetBottom + availableSize.Height));
               else
-                location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + childSize.Height));
+                location = new PointF(offsetLeft, _innerRect.Height() - (offsetBottom + childSize.Height));
 
               location.X += ActualPosition.X;
               location.Y += ActualPosition.Y;
@@ -172,9 +172,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             {
               PointF location;
               if (count == visibleChildren.Count && LastChildFill)
-                location = new PointF(_innerRect.Width - (offsetRight + availableSize.Width), offsetTop);
+                location = new PointF(_innerRect.Width() - (offsetRight + availableSize.Width), offsetTop);
               else
-                location = new PointF(_innerRect.Width - (offsetRight + childSize.Width), offsetTop);
+                location = new PointF(_innerRect.Width() - (offsetRight + childSize.Width), offsetTop);
               location.X += ActualPosition.X;
               location.Y += ActualPosition.Y;
 

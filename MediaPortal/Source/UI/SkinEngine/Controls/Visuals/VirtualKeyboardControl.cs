@@ -36,6 +36,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -65,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   public class VirtualKeyboardSettings
   {
     protected VirtualKeyboardTextStyle _textStyle = VirtualKeyboardTextStyle.None;
-    protected RectangleF? _elementArrangeBounds = null;
+    protected RawRectangleF? _elementArrangeBounds = null;
 
     /// <summary>
     /// Gets or sets a value indicating how the virtual keyboard shows the edited text.
@@ -80,7 +81,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Gets or sets the bounds of the UI element whose text the virtual keyboard will edit.
     /// The virtual keyboard will arrange around the given rectangle, if possible.
     /// </summary>
-    public RectangleF? ElementArrangeBounds
+    public RawRectangleF? ElementArrangeBounds
     {
       get { return _elementArrangeBounds; }
       set { _elementArrangeBounds = value; }
@@ -790,9 +791,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       lock (_renderLock)
         if (_settings == null)
           return;
-      RectangleF? elementArrangeBounds = _settings.ElementArrangeBounds;
+      RawRectangleF? elementArrangeBounds = _settings.ElementArrangeBounds;
       SizeF keyboardSize = templateControl.DesiredSize;
-      RectangleF actualBounds = ActualBounds;
+      RectangleF actualBounds = ActualBounds.ToRectangleF();
       if (actualBounds.Size.Width < keyboardSize.Width)
         keyboardSize.Width = actualBounds.Size.Width;
       if (actualBounds.Size.Height < keyboardSize.Height)
@@ -801,7 +802,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (elementArrangeBounds.HasValue)
         // Arrange above or below elementArrangeBounds, horizontally centered in elementArrangeBounds
         keyboardRect = SharpDXExtensions.CreateRectangleF(new PointF(
-            elementArrangeBounds.Value.Left + elementArrangeBounds.Value.Width / 2 - keyboardSize.Width / 2,
+            elementArrangeBounds.Value.Left + elementArrangeBounds.Value.Width() / 2 - keyboardSize.Width / 2,
             elementArrangeBounds.Value.Bottom + keyboardSize.Height > actualBounds.Bottom ?
             elementArrangeBounds.Value.Top - keyboardSize.Height : elementArrangeBounds.Value.Bottom),
             keyboardSize);

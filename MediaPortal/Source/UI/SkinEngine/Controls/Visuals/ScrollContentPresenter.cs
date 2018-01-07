@@ -29,6 +29,7 @@ using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SharpDX;
+using SharpDX.Mathematics.Interop;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -149,7 +150,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InvokeScrolled();
     }
 
-    public override void BringIntoView(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RawRectangleF elementBounds)
     {
       if (_doScroll || AutoCentering != ScrollAutoCenteringEnum.None)
       {
@@ -157,18 +158,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         float differenceY = 0;
 
         if (IsHorzCentering)
-          differenceX = CalculateCenteredScrollPos(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
+          differenceX = CalculateCenteredScrollPos(elementBounds.X(), elementBounds.Width(), ActualPosition.X, ActualWidth);
         else if (_doScroll)
-          differenceX = CalculateVisibleScrollDifference(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
+          differenceX = CalculateVisibleScrollDifference(elementBounds.X(), elementBounds.Width(), ActualPosition.X, ActualWidth);
 
         if (IsVertCentering)
-          differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
+          differenceY = CalculateCenteredScrollPos(elementBounds.Y(), elementBounds.Height(), ActualPosition.Y, ActualHeight);
         else if (_doScroll)
-          differenceY = CalculateVisibleScrollDifference(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
+          differenceY = CalculateVisibleScrollDifference(elementBounds.Y(), elementBounds.Height(), ActualPosition.Y, ActualHeight);
 
         // Change rect as if children were already re-arranged
-        elementBounds.X += differenceX;
-        elementBounds.Y += differenceY;
+        elementBounds.Left += differenceX;
+        elementBounds.Top += differenceY;
         SetScrollOffset(_actualScrollOffsetX + differenceX, _actualScrollOffsetY + differenceY);
       }
       base.BringIntoView(element, elementBounds);
@@ -211,40 +212,41 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SizeF desiredSize = _templateControl.DesiredSize;
         PointF position;
         SizeF availableSize;
+        RectangleF innerRect = _innerRect.ToRectangleF();
         if (_doScroll || AutoCentering != ScrollAutoCenteringEnum.None)
         {
-          availableSize = _innerRect.Size;
-          if (desiredSize.Width > _innerRect.Width)
+          availableSize = innerRect.Size;
+          if (desiredSize.Width > innerRect.Width)
           {
             if (!IsHorzCentering)
-              _scrollOffsetX = Math.Max(_scrollOffsetX, _innerRect.Width - desiredSize.Width);
+              _scrollOffsetX = Math.Max(_scrollOffsetX, innerRect.Width - desiredSize.Width);
             availableSize.Width = desiredSize.Width;
           }
           else if (!IsHorzCentering)
             _scrollOffsetX = 0;
 
-          if (desiredSize.Height > _innerRect.Height)
+          if (desiredSize.Height > innerRect.Height)
           {
             if (!IsVertCentering)
-              _scrollOffsetY = Math.Max(_scrollOffsetY, _innerRect.Height - desiredSize.Height);
+              _scrollOffsetY = Math.Max(_scrollOffsetY, innerRect.Height - desiredSize.Height);
             availableSize.Height = desiredSize.Height;
           }
           else if (!IsVertCentering)
             _scrollOffsetY = 0;
-          position = new PointF(_innerRect.X + _scrollOffsetX, _innerRect.Y + _scrollOffsetY);
+          position = new PointF(innerRect.X + _scrollOffsetX, innerRect.Y + _scrollOffsetY);
         }
         else
         {
           _scrollOffsetX = 0;
           _scrollOffsetY = 0;
-          position = new PointF(_innerRect.X, _innerRect.Y);
-          availableSize = _innerRect.Size;
+          position = new PointF(innerRect.X, innerRect.Y);
+          availableSize = innerRect.Size;
         }
 
         if (HorizontalFitToSpace)
-          availableSize.Width = _innerRect.Size.Width;
+          availableSize.Width = innerRect.Size.Width;
         if (VerticalFitToSpace)
-          availableSize.Height = _innerRect.Size.Height;
+          availableSize.Height = innerRect.Size.Height;
 
         ArrangeChild(_templateControl, _templateControl.HorizontalAlignment, _templateControl.VerticalAlignment,
             ref position, ref availableSize);
@@ -406,7 +408,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
       FrameworkElement currentElement = GetFocusedElementOrChild();
-      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
+      AddPotentialFocusableElements(currentElement == null ? new RawRectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
       float limitPosition;
@@ -444,7 +446,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
       FrameworkElement currentElement = GetFocusedElementOrChild();
-      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
+      AddPotentialFocusableElements(currentElement == null ? new RawRectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
       float limitPosition;
@@ -482,7 +484,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
       FrameworkElement currentElement = GetFocusedElementOrChild();
-      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
+      AddPotentialFocusableElements(currentElement == null ? new RawRectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
       float limitPosition;
@@ -520,7 +522,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
       FrameworkElement currentElement = GetFocusedElementOrChild();
-      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
+      AddPotentialFocusableElements(currentElement == null ? new RawRectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
       float limitPosition;

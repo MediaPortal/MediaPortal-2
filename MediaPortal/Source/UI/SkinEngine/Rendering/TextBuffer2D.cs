@@ -29,6 +29,7 @@ using SharpDX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
+using SharpDX.Mathematics.Interop;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
@@ -129,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected string _text;
     protected bool _textChanged;
     protected bool _lastWrap;
-    protected RectangleF _lastTextBox;
+    protected RawRectangleF _lastTextBox;
 
     protected string _fontName;
     protected FontWeight _fontWeight;
@@ -212,8 +213,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       if (_textLayout != null)
         _textLayout.Dispose();
 
-      var totalWidth = _lastTextBox.Width;
-      var totalHeight = _lastTextBox.Height;
+      var totalWidth = _lastTextBox.Width();
+      var totalHeight = _lastTextBox.Height();
 
       if (!_lastWrap)
       {
@@ -352,7 +353,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <summary>
     /// Allocates or re-alocates this resource.
     /// </summary>
-    public void Allocate(RectangleF boxWidth, bool wrap)
+    public void Allocate(RawRectangleF boxWidth, bool wrap)
     {
       if (String.IsNullOrEmpty(_text))
       {
@@ -483,7 +484,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="scrollSpeed">Text scrolling speed in units (pixels at original skin size) per second.</param>
     /// <param name="scrollDelay">Text scrolling delay in seconds.</param>
     /// <param name="localRenderContext">RenderContext to apply transformations.</param>
-    public void Render(RectangleF textBox, bool wrap, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, RenderContext localRenderContext)
+    public void Render(RawRectangleF textBox, bool wrap, TextScrollEnum scrollMode, float scrollSpeed, float scrollDelay, RenderContext localRenderContext)
     {
       // Update scrolling
       var actualScrolling = scrollMode;
@@ -505,17 +506,19 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="offsetX">Text rendering offset in x direction.</param>
     /// <param name="offsetY">Text rendering offset in y direction.</param>
     /// <param name="localRenderContext">RenderContext to apply transformations.</param>
-    public void Render(RectangleF textBox, float offsetX, float offsetY, RenderContext localRenderContext)
+    public void Render(RawRectangleF textBox, float offsetX, float offsetY, RenderContext localRenderContext)
     {
       Render(textBox, false, offsetX, offsetY, TextScrollEnum.None, localRenderContext);
     }
 
-    protected void Render(RectangleF textBox, bool wrap, float offsetX, float offsetY, TextScrollEnum scrollMode, RenderContext localRenderContext)
+    protected void Render(RawRectangleF rawTextBox, bool wrap, float offsetX, float offsetY, TextScrollEnum scrollMode, RenderContext localRenderContext)
     {
       if (_lastWrap != wrap || _textChanged)
       {
-        Allocate(textBox, wrap);
+        Allocate(rawTextBox, wrap);
       }
+
+      RectangleF textBox = rawTextBox.ToRectangleF();
 
       // _textLayout can be null if no Text has been set before.
       var brush = TextBrush;
@@ -527,7 +530,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         bool hasManualOffsets = scrollMode == TextScrollEnum.None && (offsetX != 0f || offsetY != 0f);
         if (textLargerThanTextbox || hasManualOffsets)
         {
-          if (_opacityBrush == null || _lastTextBox != textBox || _lastScrollDirection != scrollMode)
+          if (_opacityBrush == null || !_lastTextBox.Equals(textBox) || _lastScrollDirection != scrollMode)
           {
             _lastTextBox = textBox;
             _lastScrollDirection = scrollMode;
@@ -599,8 +602,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
             // Calculate actual gradient positions from transformed bounds
             var bounds = localRenderContext.OccupiedTransformedBounds;
             Matrix3x2 transform = Matrix.Identity;
-            transform *= Matrix3x2.Scaling(bounds.Width, bounds.Height);
-            transform *= Matrix3x2.Translation(bounds.X, bounds.Y);
+            transform *= Matrix3x2.Scaling(bounds.Width(), bounds.Height());
+            transform *= Matrix3x2.Translation(bounds.X(), bounds.Y());
             _opacityBrush.Transform = transform;
           }
 
@@ -610,7 +613,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
             ContentBounds = localRenderContext.OccupiedTransformedBounds,
             LayerOptions = LayerOptions1.None,
             MaskAntialiasMode = AntialiasMode.PerPrimitive,
-            MaskTransform = localRenderContext.Transform,
+            MaskTransform = localRenderContext.Transform.ToMatrix3x2(),
             Opacity = 1f,
             OpacityBrush = _opacityBrush
           };
@@ -640,10 +643,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Protected methods
 
-    protected TextScrollEnum UpdateScrollPosition(RectangleF textBox, TextScrollEnum mode, float speed, float scrollDelay)
+    protected TextScrollEnum UpdateScrollPosition(RawRectangleF rawTextBox, TextScrollEnum mode, float speed, float scrollDelay)
     {
       float dif = speed * (float)SkinContext.FrameRenderingStartTime.Subtract(_lastTimeUsed).TotalSeconds;
-
+      RectangleF textBox = rawTextBox.ToRectangleF();
       if (mode == TextScrollEnum.Auto)
       {
         if (IsGreater(_textLayout.Metrics.Height, textBox.Height))
