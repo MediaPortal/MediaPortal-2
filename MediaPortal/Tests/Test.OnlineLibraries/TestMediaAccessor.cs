@@ -120,12 +120,12 @@ namespace Test.OnlineLibraries
       throw new NotImplementedException();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds, bool importOnly)
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds, bool importOnly, bool forceQuickMode)
     {
       throw new NotImplementedException();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<IMetadataExtractor> metadataExtractors, bool importOnly)
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<IMetadataExtractor> metadataExtractors, bool importOnly, bool forceQuickMode)
     {
       throw new NotImplementedException();
     }
@@ -135,12 +135,27 @@ namespace Test.OnlineLibraries
       throw new NotImplementedException();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly, bool forceQuickMode)
     {
       throw new NotImplementedException();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly, bool forceQuickMode)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      throw new NotImplementedException();
+    }
+
+    public IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> ExtractStubItems(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
     {
       throw new NotImplementedException();
     }

@@ -125,8 +125,10 @@ namespace MediaPortal.Common.Services.Logging
         int step = 1;
         string className;
         string methodName;
+#if DEBUG
         string filename;
         int line;
+#endif
         do
         {
           StackFrame frame = trace.GetFrame(step++);
@@ -222,7 +224,7 @@ namespace MediaPortal.Common.Services.Logging
         _writer.Flush();
     }
 
-    #region ILogger implementation
+#region ILogger implementation
 
     public void Debug(string format, params object[] args)
     {
@@ -298,6 +300,6 @@ namespace MediaPortal.Common.Services.Logging
       Flush();
     }
 
-    #endregion
+#endregion
   }
 }

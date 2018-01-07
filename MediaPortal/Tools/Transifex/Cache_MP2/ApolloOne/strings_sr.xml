@@ -2,8 +2,11 @@
 <resources>
   <string name="Menu.Audio">Звук</string>
   <string name="Menu.Image">Слике</string>
+  <string name="Menu.MediaHub">Медија</string>
   <string name="Menu.TV">ТВ</string>
   <string name="Menu.News">Новости</string>
   <string name="Menu.Weather">Време</string>
   <string name="Menu.Settings">Подешавања</string>
+  <string name="Menu.Others">Остало</string>
+  <string name="Menu.Main">Главни мени</string>
 </resources>

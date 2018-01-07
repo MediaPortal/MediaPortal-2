@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -57,7 +58,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return PersonAspect.ROLE_ARTIST; }
+      get { return PersonAspect.ROLE_ALBUMARTIST; }
     }
 
     public Guid[] LinkedRoleAspects
@@ -166,7 +167,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
 
       IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(AudioAlbumAspect.ATTR_ARTISTS);
-      List<string> nameList = new List<string>(persons);
+      List<string> nameList = new SafeList<string>(persons);
 
       index = nameList.IndexOf(name);
       return index >= 0;

@@ -15,7 +15,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -145,6 +145,7 @@
     <Compile Include="ServerCommunication\Settings\FrontendServerSettings.cs" />
     <Compile Include="ServerCommunication\Settings\ServerConnectionSettings.cs" />
     <Compile Include="Services\FrontendServer\FrontendServer.cs" />
+    <Compile Include="Services\MediaManagement\RelationshipTypeRegistration.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PCMOpenPlayerStrategy\PreservePiP.cs" />
     <Compile Include="Services\Players\PCMOpenPlayerStrategy\Default.cs" />

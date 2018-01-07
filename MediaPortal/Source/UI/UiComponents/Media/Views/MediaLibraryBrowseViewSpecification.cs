@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -36,6 +37,7 @@ using MediaPortal.Utilities.DB;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -117,7 +119,7 @@ namespace MediaPortal.UiComponents.Media.Views
       return new ServerConnectionChangeNotificator();
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -136,9 +138,12 @@ namespace MediaPortal.UiComponents.Media.Views
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
 
-      return cd.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
+      return await cd.SearchAsync(query, false, userProfile, showVirtual);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -152,13 +157,15 @@ namespace MediaPortal.UiComponents.Media.Views
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
 
       try
       {
-        bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds);
-        mediaItems = new List<MediaItem>(cd.Browse(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, showVirtual));
-        ICollection<MediaItem> childDirectories = cd.Browse(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, showVirtual);
+        bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
+        mediaItems = new List<MediaItem>(cd.BrowseAsync(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, showVirtual).Result);
+        ICollection<MediaItem> childDirectories = cd.BrowseAsync(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, showVirtual).Result;
         subViewSpecifications = new List<ViewSpecification>(childDirectories.Count);
         foreach (MediaItem childDirectory in childDirectories)
         {

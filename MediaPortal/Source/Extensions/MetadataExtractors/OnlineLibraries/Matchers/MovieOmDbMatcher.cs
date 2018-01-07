@@ -55,6 +55,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public MovieOmDbMatcher() : 
       base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
+      //TODO: Disabled for now. Has gone private for the time being.
+      Enabled = false;
     }
 
     public override bool InitWrapper(bool useHttps)
@@ -78,6 +80,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #endregion
 
     #region Metadata updaters
+
+    public override bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
+    {
+      // Don't allow OMDB during first import cycle because it is english only
+      // If it was allowed it would prevent the update of metadata with preffered language
+      // during refresh cycle that also allows searches which might be needed to find metadata 
+      // in the preferred language
+      if (importOnly && !Primary)
+        return false;
+
+      return base.FindAndUpdateMovie(movieInfo, importOnly);
+    }
 
     public override bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
     {

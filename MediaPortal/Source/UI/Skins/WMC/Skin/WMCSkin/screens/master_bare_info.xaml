@@ -33,6 +33,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
+  <Screen.Resources>
+    <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+  </Screen.Resources>
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Hide">
+      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+    </EventTrigger>
+  </Screen.Triggers>
   <Grid x:Name="RootElement">
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
@@ -100,15 +108,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </DockPanel>
 
     <!-- FooterPanel -->
-    <Grid Grid.Row="1" x:Name="FooterPanel" DockPanel.Dock="Bottom" Margin="0,-160,0,0">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
+    <Grid Grid.Row="1" x:Name="FooterPanel" Margin="0,-160,0,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Control x:Name="AlternativeFooterControl" HorizontalAlignment="Stretch" Grid.Column="0" 
-                 Template="{DynamicResource ResourceKey=Alternative_Footer_Template}">
+      <Control x:Name="AlternativeFooterControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+               Template="{DynamicResource ResourceKey=Alternative_Footer_Template}">
       </Control>
     </Grid>
 

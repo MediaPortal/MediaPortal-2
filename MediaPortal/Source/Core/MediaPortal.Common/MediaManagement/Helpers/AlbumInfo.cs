@@ -143,6 +143,71 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return CloneProperties(this);
     }
 
+    public void MergeWith(AlbumInfo other, bool overwriteShorterStrings = false, bool updateTrackList = false)
+    {
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref AudioDbId, other.AudioDbId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref CdDdId, other.CdDdId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzDiscId, other.MusicBrainzDiscId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzGroupId, other.MusicBrainzGroupId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzId, other.MusicBrainzId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref AmazonId, other.AmazonId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref ItunesId, other.ItunesId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref UpcEanId, other.UpcEanId);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Album, other.Album, overwriteShorterStrings);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, other.Description, overwriteShorterStrings);
+
+      if (TotalTracks < other.TotalTracks)
+      {
+        HasChanged = true;
+        TotalTracks = other.TotalTracks;
+      }
+
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Compilation, other.Compilation);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DiscNum, other.DiscNum);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref ReleaseDate, other.ReleaseDate);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Sales, other.Sales);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref TotalDiscs, other.TotalDiscs);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, other.Rating);
+
+      if (Genres.Count == 0)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, other.Genres.Distinct().ToList(), true);
+      }
+      HasChanged |= MetadataUpdater.SetOrUpdateList(Awards, other.Awards.Distinct().ToList(), true);
+
+      //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+      //So changes to these lists will only be stored if something else has changed.
+      MetadataUpdater.SetOrUpdateList(Artists, other.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Artists.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(MusicLabels, other.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), MusicLabels.Count == 0, overwriteShorterStrings);
+
+      if (updateTrackList) //Comparing all tracks can be quite time consuming
+      {
+        MetadataUpdater.SetOrUpdateList(Tracks, other.Tracks.Distinct().ToList(), true, overwriteShorterStrings);
+        List<string> artists = new List<string>();
+        foreach (TrackInfo track in other.Tracks)
+        {
+          if (track.Artists.Count > 0)
+            if (!artists.Contains(track.Artists[0].Name))
+              artists.Add(track.Artists[0].Name);
+        }
+        if (other.Tracks.Count > 5 && (float)artists.Count > (float)other.Tracks.Count * 0.6 && !Compilation)
+        {
+          Compilation = true;
+          HasChanged = true;
+        }
+      }
+
+      if (Artists.Count > 0 && !Compilation &&
+        (Artists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+        Artists[0].Name.Equals("VA", StringComparison.InvariantCultureIgnoreCase)))
+      {
+        Compilation = true;
+        HasChanged = true;
+      }
+    }
+
     #region Members
 
     /// <summary>
@@ -156,10 +221,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      if (!string.IsNullOrEmpty(AlbumSort))
-        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, AlbumSort);
-      else
-        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Album));
+      if (!string.IsNullOrEmpty(AlbumSort)) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, AlbumSort);
       //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadataextractors
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, Album);
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_COMPILATION, Compilation);
@@ -168,6 +230,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (TotalDiscs > 0) MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_NUMDISCS, TotalDiscs);
       if (ReleaseDate.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, ReleaseDate.Value);
       if (TotalTracks > 0) MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_NUMTRACKS, TotalTracks);
+      if (Sales > 0) MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_SALES, Sales);
 
       if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_ALBUM, MusicBrainzId);
       if (!string.IsNullOrEmpty(MusicBrainzGroupId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ_GROUP, ExternalIdentifierAspect.TYPE_ALBUM, MusicBrainzGroupId);
@@ -216,6 +279,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_NUMTRACKS, out TotalTracks);
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_COMPILATION, out Compilation);
         MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, out ReleaseDate);
+        MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_SALES, out Sales);
 
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_DESCRIPTION, out tempString);
@@ -245,7 +309,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         IEnumerable collection;
         Artists.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_ARTISTS, out collection))
-          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST }));
+          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST, ParentMediaName = Album }));
+        foreach (PersonInfo artist in Artists)
+          artist.AssignNameId();
 
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_AWARDS, out collection))
@@ -254,6 +320,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MusicLabels.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, out collection))
           MusicLabels.AddRange(collection.Cast<string>().Select(s => new CompanyInfo { Name = s, Type = CompanyAspect.COMPANY_MUSIC_LABEL }));
+        foreach (CompanyInfo company in MusicLabels)
+          company.AssignNameId();
 
         Genres.Clear();
         IList<MultipleMediaItemAspect> genreAspects;
@@ -297,7 +365,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         IEnumerable collection;
         Artists.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, out collection))
-          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST }));
+          Artists.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ARTIST, ParentMediaName = Album }));
+        foreach (PersonInfo artist in Artists)
+          artist.AssignNameId();
 
         return true;
       }
@@ -434,10 +504,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (AudioDbId > 0 && other.AudioDbId > 0)
         return AudioDbId == other.AudioDbId;
-      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId))
-        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(MusicBrainzGroupId) && !string.IsNullOrEmpty(other.MusicBrainzGroupId))
-        return string.Equals(MusicBrainzGroupId, other.MusicBrainzGroupId, StringComparison.InvariantCultureIgnoreCase);
+      
       if (!string.IsNullOrEmpty(CdDdId) && !string.IsNullOrEmpty(other.CdDdId))
         return string.Equals(CdDdId, other.CdDdId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(UpcEanId) && !string.IsNullOrEmpty(other.UpcEanId))
@@ -446,13 +513,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(AmazonId, other.AmazonId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(ItunesId) && !string.IsNullOrEmpty(other.ItunesId))
         return string.Equals(ItunesId, other.ItunesId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
+
+      //Name id is generated from name and can be unreliable so should only be used if matches
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
+        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId))
+        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(MusicBrainzGroupId) && !string.IsNullOrEmpty(other.MusicBrainzGroupId))
+        return string.Equals(MusicBrainzGroupId, other.MusicBrainzGroupId, StringComparison.InvariantCultureIgnoreCase);
+
       if (ReleaseDate.HasValue && other.ReleaseDate.HasValue &&
         (Artists == null || Artists.Count == 0 || other.Artists == null || other.Artists.Count == 0 || Artists[0].Equals(other.Artists[0])))
-        return ReleaseDate.Value == other.ReleaseDate.Value;
+        return ReleaseDate.Value.Year == other.ReleaseDate.Value.Year;
 
       return AlbumVolumesAreEqual(other);
+    }
+
+    public override bool MatchNames(string name1, string name2)
+    {
+      return CompareNames(name1, name2, 0.8, 3);
     }
 
     public override T CloneBasicInstance<T>()

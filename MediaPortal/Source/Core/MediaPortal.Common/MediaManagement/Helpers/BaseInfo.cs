@@ -43,6 +43,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// </summary>
   public abstract class BaseInfo
   {
+    public const int MAX_LEVENSHTEIN_DIST = 4;
+    public const int LEVENSHTEIN_MATCH_THRESHOLD = 10;
+
     /// <summary>
     /// Maximum cover image width. Larger images will be scaled down to fit this dimension.
     /// </summary>
@@ -101,6 +104,31 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public abstract bool HasExternalId { get; }
 
+    public virtual bool MatchNames(string name1, string name2)
+    {
+      return CompareNames(name1, name2);
+    }
+
+    public virtual bool OnlineMatchNames(string name1, string name2)
+    {
+      return CompareNames(name1, name2);
+    }
+
+    protected bool CompareNames(string name1, string name2, double threshold = 0.62, int distance = 0)
+    {
+      if (string.IsNullOrEmpty(name1) || string.IsNullOrEmpty(name2))
+        return false;
+      if(Math.Max(name1.Length, name2.Length) < LEVENSHTEIN_MATCH_THRESHOLD || distance > 0)
+      {
+        //Dice Coefficients are not good against short strings
+        distance = distance <= 0 ? MAX_LEVENSHTEIN_DIST : distance;
+        double dist = StringUtils.GetLevenshteinDistance(StringUtils.RemoveDiacritics(name1).ToLowerInvariant(), StringUtils.RemoveDiacritics(name2).ToLowerInvariant());
+        return dist < distance;
+      }
+      double dice = StringUtils.RemoveDiacritics(name1).ToLowerInvariant().DiceCoefficient(StringUtils.RemoveDiacritics(name2).ToLowerInvariant());
+      return dice > threshold;
+    }
+
     /// <summary>
     /// Used to replace all "." and "_" that are not followed by a word character.
     /// <example>Replaces <c>"Once.Upon.A.Time.S01E13"</c> to <c>"Once Upon A Time S01E13"</c>, but keeps the <c>"."</c> inside
@@ -109,6 +137,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     private const string CLEAN_WHITESPACE_REGEX = @"[\.|_](\S|$)";
     private const string SORT_REGEX = @"(^The\s+)|(^An?\s+)|(^De[rsmn]\s+)|(^Die\s+)|(^Das\s+)|(^Ein(e[srmn]?)?\s+)";
     private const string CLEAN_REGEX = @"<[^>]+>|&nbsp;";
+    private const string CLEAN_NAME_REGEX = @"[©®™\s'.-]";
 
     #region Members
 
@@ -152,20 +181,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return Regex.Replace(Regex.Replace(value, CLEAN_REGEX, "").Trim(), @"\s{2,}", " ");
     }
 
-    public static bool MatchNames(string name1, string name2, double threshold = 0.62)
-    {
-      double dice = StringUtils.RemoveDiacritics(name1).ToLowerInvariant().DiceCoefficient(StringUtils.RemoveDiacritics(name2).ToLowerInvariant());
-      return dice > threshold;
-
-      //return name1.FuzzyEquals(name2);
-    }
-
     /// <summary>
     /// Cleans up strings by replacing unwanted characters (<c>'.'</c>, <c>'_'</c>) by spaces.
     /// </summary>
     public static string CleanupWhiteSpaces(string str)
     {
-      return str == null ? null : Regex.Replace(str, CLEAN_WHITESPACE_REGEX, " $1").Trim(' ', '-');
+      return str == null ? null : Regex.Replace(str, CLEAN_WHITESPACE_REGEX, " $1").Trim(' ', '-').Replace("  ", " ");
     }
 
     public static bool IsVirtualResource(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
@@ -173,14 +194,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       IList<MultipleMediaItemAspect> providerResourceAspects;
       if (MediaItemAspect.TryGetAspects(aspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
       {
-        string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        if (string.IsNullOrEmpty(accessorPath))
-          return true;
-        ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
-        if (resourcePath.BasePathSegment.ProviderId != VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        foreach(var pra in providerResourceAspects)
         {
-          return false;
+          if (pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_VIRTUAL)
+            return true;
         }
+        return false;
       }
       return true;
     }
@@ -286,13 +305,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!string.IsNullOrEmpty(name))
       {
-        string nameId = name.Trim();
-        nameId = CleanString(nameId);
-        nameId = CleanupWhiteSpaces(nameId);
-        nameId = StringUtils.RemoveDiacritics(nameId);
-        nameId = nameId.Replace("'", "");
-        nameId = nameId.Replace(" ", "").ToLowerInvariant();
-        return nameId;
+        string nameId = CleanString(CleanupWhiteSpaces(name));
+        if (!string.IsNullOrEmpty(nameId))
+          nameId = StringUtils.RemoveDiacritics(nameId);
+        if (!string.IsNullOrEmpty(nameId))
+          nameId = Regex.Replace(nameId, CLEAN_NAME_REGEX, "").ToLowerInvariant();
+        if (!string.IsNullOrEmpty(nameId))
+          return nameId;
       }
       return null;
     }

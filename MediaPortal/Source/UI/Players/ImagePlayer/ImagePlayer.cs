@@ -43,6 +43,10 @@ using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotat
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Players.Image
 {
@@ -267,7 +271,7 @@ namespace MediaPortal.UI.Players.Image
         _flipX = flipX;
         _flipY = flipY;
         var desc = _texture.Bitmap.PixelSize;
-        _textureMaxUV = new SizeF(_texture.Width / (float) desc.Width, _texture.Height / (float) desc.Height);
+        _textureMaxUV = new SizeF(_texture.Width / (float)desc.Width, _texture.Height / (float)desc.Height);
 
         // Reset animation
         _animator.Initialize();
@@ -385,17 +389,32 @@ namespace MediaPortal.UI.Players.Image
       RightAngledRotation rotation = RightAngledRotation.Zero;
       bool flipX = false;
       bool flipY = false;
-     SingleMediaItemAspect imageAspect;
+      SingleMediaItemAspect imageAspect;
       MediaItemAspect.TryGetAspect(mediaItem.Aspects, ImageAspect.Metadata, out imageAspect);
       if (imageAspect != null)
       {
-        int orientationInfo = (int) imageAspect[ImageAspect.ATTR_ORIENTATION];
+        int orientationInfo = (int)imageAspect[ImageAspect.ATTR_ORIENTATION];
         ImageRotation imageRotation;
         ImageAspect.OrientationToRotation(orientationInfo, out imageRotation);
         rotation = PlayerRotationTranslator.TranslateToRightAngledRotation(imageRotation);
         ImageAspect.OrientationToFlip(orientationInfo, out flipX, out flipY);
       }
       SetMediaItemData(locator, title, rotation, flipX, flipY);
+
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      if (cd != null)
+      {
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement.IsValidUser)
+        {
+          cd.NotifyUserPlaybackAsync(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 100, true);
+        }
+        else
+        {
+          cd.NotifyPlaybackAsync(mediaItem.MediaItemId, true);
+        }
+      }
       return true;
     }
 

@@ -31,6 +31,7 @@
 
   <ResourceWrapper x:Key="BiggerFontSize" Resource="44"/>
   <ResourceWrapper x:Key="BigFontSize" Resource="36"/>
+  <ResourceWrapper x:Key="NormalFontSize" Resource="27"/>
   <ResourceWrapper x:Key="SmallFontSize" Resource="24"/>
   <ResourceWrapper x:Key="SmallerFontSize" Resource="22"/>
   <ResourceWrapper x:Key="TinyFontSize" Resource="20"/>
@@ -67,5 +68,11 @@
   <!-- Footer Details -->
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="242"/>
   <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-50,-40,-50,20"/>
+
+  <ResourceWrapper x:Key="ContentGroupBoxCornerRadius" Resource="0"/>
+
+  <!-- OSD / Notifier -->
+  <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="0"/>
+  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="0"/>
 
 </ResourceDictionary>

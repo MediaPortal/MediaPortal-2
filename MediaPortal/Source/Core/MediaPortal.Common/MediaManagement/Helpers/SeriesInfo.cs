@@ -162,6 +162,91 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return CloneProperties(this);
     }
 
+    public void MergeWith(SeriesInfo other, bool overwriteShorterStrings = true, bool updateEpisodeList = false)
+    {
+      //Reset next episode data because it was already aired
+      if (NextEpisodeAirDate.HasValue && NextEpisodeAirDate.Value < DateTime.Now)
+      {
+        NextEpisodeAirDate = null;
+        NextEpisodeNumber = null;
+        NextEpisodeSeasonNumber = null;
+        NextEpisodeName = null;
+        HasChanged = true;
+      }
+
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, other.TvdbId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, other.ImdbId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, other.MovieDbId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, other.TvMazeId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, other.TvRageId);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, other.SeriesName, overwriteShorterStrings);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref OriginalName, other.OriginalName);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, other.Description, overwriteShorterStrings);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Certification, other.Certification);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref NextEpisodeName, other.NextEpisodeName);
+
+      if (TotalSeasons < other.TotalSeasons)
+      {
+        HasChanged = true;
+        TotalSeasons = other.TotalSeasons;
+      }
+
+      if (TotalEpisodes < other.TotalEpisodes)
+      {
+        HasChanged = true;
+        TotalEpisodes = other.TotalEpisodes;
+      }
+
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, other.FirstAired);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Popularity, other.Popularity);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref IsEnded, other.IsEnded);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref NextEpisodeAirDate, other.NextEpisodeAirDate);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref NextEpisodeNumber, other.NextEpisodeNumber);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref NextEpisodeSeasonNumber, other.NextEpisodeSeasonNumber);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Score, other.Score);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, other.Rating);
+      if (Genres.Count == 0)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, other.Genres.Distinct().ToList(), true);
+      }
+      HasChanged |= MetadataUpdater.SetOrUpdateList(Awards, other.Awards.Distinct().ToList(), true);
+
+      //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+      //So changes to these lists will only be stored if something else has changed.
+      MetadataUpdater.SetOrUpdateList(Networks, other.Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), Networks.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(ProductionCompanies, other.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), ProductionCompanies.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(Actors, other.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Actors.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(Characters, other.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Characters.Count == 0, overwriteShorterStrings);
+
+      MetadataUpdater.SetOrUpdateList(Seasons, other.Seasons, true, overwriteShorterStrings);
+
+      if (updateEpisodeList) //Comparing all episodes can be quite time consuming
+      {
+        //Only allow new episodes if empty. Online sources might have different names for same series so season name would look strange.
+        bool allowAdd = Episodes.Count == 0;
+        for (int matchIndex = 0; matchIndex < other.Episodes.Count; matchIndex++)
+        {
+          int existing = Episodes.IndexOf(other.Episodes[matchIndex]);
+          if (existing >= 0)
+          {
+            //Don't merge with existing specials. They seem to be different on various online sources.
+            if ((Episodes[existing].SeasonNumber.HasValue && Episodes[existing].SeasonNumber.Value > 0) &&
+              (other.Episodes[matchIndex].SeasonNumber.HasValue && other.Episodes[matchIndex].SeasonNumber.Value > 0))
+            {
+              Episodes[existing].MergeWith(other.Episodes[matchIndex], overwriteShorterStrings);
+            }
+          }
+          else if (allowAdd)
+          {
+            Episodes.Add(other.Episodes[matchIndex]);
+          }
+        }
+        Episodes.Sort();
+      }
+    }
+
     #region Members
 
     /// <summary>
@@ -175,10 +260,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      if (!SeriesNameSort.IsEmpty)
-        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, SeriesNameSort.Text);
-      else
-        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(SeriesName.Text));
+      if (!SeriesNameSort.IsEmpty) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, SeriesNameSort.Text);
       //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadataextractors
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, SeriesName.Text);
       if (!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_ORIG_SERIES_NAME, OriginalName);
@@ -290,11 +372,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         Actors.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_ACTORS, out collection))
-          Actors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ACTOR }));
+          Actors.AddRange(collection.Cast<string>().Select(s => new PersonInfo { Name = s, Occupation = PersonAspect.OCCUPATION_ACTOR, ParentMediaName = SeriesName.Text }));
+        foreach (PersonInfo actor in Actors)
+          actor.AssignNameId();
 
         Characters.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, out collection))
-          Characters.AddRange(collection.Cast<string>().Select(s => new CharacterInfo { Name = s }));
+          Characters.AddRange(collection.Cast<string>().Select(s => new CharacterInfo { Name = s, ParentMediaName = SeriesName.Text }));
+        foreach (CharacterInfo character in Characters)
+          character.AssignNameId();
 
         Genres.Clear();
         IList<MultipleMediaItemAspect> genreAspects;
@@ -317,10 +403,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         Networks.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, out collection))
           Networks.AddRange(collection.Cast<string>().Select(s => new CompanyInfo { Name = s, Type = CompanyAspect.COMPANY_TV_NETWORK }));
+        foreach (CompanyInfo network in Networks)
+          network.AssignNameId();
 
         ProductionCompanies.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_COMPANIES, out collection))
           ProductionCompanies.AddRange(collection.Cast<string>().Select(s => new CompanyInfo { Name = s, Type = CompanyAspect.COMPANY_PRODUCTION }));
+        foreach (CompanyInfo company in ProductionCompanies)
+          company.AssignNameId();
 
         DateTime dateNextEpisode;
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_AIR_DATE, out dateNextEpisode) && dateNextEpisode > DateTime.Now)
@@ -385,10 +475,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-              if (!string.IsNullOrEmpty(language))
-              {
-                if (Languages.Contains(language))
-                  Languages.Add(language);
+              if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
+              { 
+                Languages.Add(language);
               }
             }
           }
@@ -427,10 +516,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-              if (!string.IsNullOrEmpty(language))
-              {
-                if (Languages.Contains(language))
-                  Languages.Add(language);
+              if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
+              { 
+                Languages.Add(language);
               }
             }
           }
@@ -504,7 +592,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         NameId = seriesEpisode.SeriesNameId;
         SearchSeason = seriesEpisode.SeasonNumber;
         if(seriesEpisode.EpisodeNumbers.Count > 0)
-          SearchEpisode = seriesEpisode.EpisodeNumbers[0];
+          SearchEpisode = seriesEpisode.FirstEpisodeNumber;
         return true;
       }
       return false;
@@ -544,8 +632,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return TvRageId == other.TvRageId;
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
+
+      //Name id is generated from name and can be unreliable so should only be used if matches
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
+        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
 
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty &&
         MatchNames(SeriesName.Text, other.SeriesName.Text) && FirstAired.HasValue && other.FirstAired.HasValue &&

@@ -68,8 +68,8 @@
         Redundant="true"
         Text="[Settings.ServerSettings]"/>
   </Register>
-  
-  <Register Location="/Configuration/Settings/ServerSettings">
+
+  <Register Location="/Configuration/Settings/Shares">
     <CustomConfigSetting
         Id="NetworkCredentials"
         Text="[Settings.ServerSettings.NetworkCredentials]"
@@ -78,12 +78,16 @@
         AdditionalData="WorkflowState=20954924-19B3-45C0-9F79-640EDD9EAE58,ConfAppPanel=..."/>
   </Register>
   
-  <!-- Importer settings --> 
-  <Register Location="/Configuration/Settings/ServerSettings">
+  <!-- Importer settings -->
+  <Register Location="/Configuration/Settings/Media">
     <ConfigSection
         Id="AudioMDESettings"
         Redundant="true"
         Text="[Settings.ServerSettings.AudioMDESettings]"/>
+    <ConfigSection
+        Id="VideoMDESettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.VideoMDESettings]"/>
     <ConfigSection
         Id="MovieMDESettings"
         Redundant="true"
@@ -107,7 +111,7 @@
   </Register>
 
   <!-- Audio importer settings -->
-  <Register Location="/Configuration/Settings/ServerSettings/AudioMDESettings">
+  <Register Location="/Configuration/Settings/Media/AudioMDESettings">
     <ConfigSetting
         Id="ServerAudioMDEOnlineData"
         Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData]"
@@ -135,8 +139,17 @@
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEFilter"/>
   </Register>
 
+  <!-- Video importer settings -->
+  <Register Location="/Configuration/Settings/Media/VideoMDESettings">
+    <ConfigSetting
+        Id="ServerVideoMDEBrowseOffline"
+        Text="[Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline]"
+        HelpText="[Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerVideoMDEBrowseOffline"/>
+  </Register>
+
   <!-- Movie importer settings -->
-  <Register Location="/Configuration/Settings/ServerSettings/MovieMDESettings">
+  <Register Location="/Configuration/Settings/Media/MovieMDESettings">
     <ConfigSetting
         Id="ServerMovieMDEOnlineData"
         Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData]"
@@ -165,7 +178,7 @@
   </Register>
 
   <!-- Series importer settings -->
-  <Register Location="/Configuration/Settings/ServerSettings/SeriesMDESettings">
+  <Register Location="/Configuration/Settings/Media/SeriesMDESettings">
     <ConfigSetting
         Id="ServerSeriesMDEOnlineData"
         Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData]"
@@ -194,7 +207,7 @@
   </Register>
   
   <!-- Image importer settings -->
-  <Register Location="/Configuration/Settings/ServerSettings/ImageMDESettings">
+  <Register Location="/Configuration/Settings/Media/ImageMDESettings">
     <ConfigSetting
         Id="ServerImageMDEGeoLocation"
         Text="[Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation]"
@@ -203,7 +216,7 @@
   </Register>
   
   <!-- FanArt importer settings -->
-  <Register Location="/Configuration/Settings/ServerSettings/FanArtSettings">
+  <Register Location="/Configuration/Settings/Media/FanArtSettings">
     <ConfigSetting
         Id="ServerFanArtMaxBackdrops"
         Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops]"
@@ -242,7 +255,7 @@
   </Register>
 
   <!-- Language settings -->
-  <Register Location="/Configuration/Settings/ServerSettings/LanguageSettings">
+  <Register Location="/Configuration/Settings/Media/LanguageSettings">
     <ConfigSetting
         Id="ServerLanguage"
         Text="[Settings.ServerSettings.LanguageSettings.ServerLanguage]"

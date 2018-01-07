@@ -60,6 +60,7 @@
   <string name="SlimTvClient.EpgNumberOfRows.Help">Določa število vrstič (programov) v prikazu EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours">Število ur v EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Določa število ur (oddaj) v prikazu EPG</string>
+  <string name="SlimTvClient.Notifications">Obvestila</string>
   <string name="SlimTvClient.RecordingsMenuItem">Posnetki</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV posnetki</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Omeji po kanalu</string>

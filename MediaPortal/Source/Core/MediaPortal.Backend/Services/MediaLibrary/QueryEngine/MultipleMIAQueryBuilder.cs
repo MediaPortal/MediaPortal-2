@@ -31,23 +31,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
     public class MultipleMIAQueryBuilder : MainQueryBuilder
     {
-        private MultipleMediaItemAspectMetadata _requestedMIA;
-
-        public MultipleMIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
+      public MultipleMIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
             MultipleMediaItemAspectMetadata requestedMIA,
             Guid[] mediaItemIds)
           : base(miaManagement, simpleSelectAttributes,
           null,
           new List<MediaItemAspectMetadata> { requestedMIA }, new List<MediaItemAspectMetadata> { },
-          new MediaItemIdFilter(mediaItemIds), null)
+          new MediaItemIdFilter(mediaItemIds), null, null)
         {
-          _requestedMIA = requestedMIA;
-        }
-
-        protected override bool Include(MediaItemAspectMetadata miam)
-        {
-            // Make it's only the requested MIA in use
-            return miam == _requestedMIA;
         }
     }
 }

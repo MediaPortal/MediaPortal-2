@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Plugins.SlimTv.Integration</RootNamespace>
     <AssemblyName>SlimTv.Integration.MP2</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
@@ -50,7 +50,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces">
+    <Reference Include="Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Interfaces.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -76,4 +76,3 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
-

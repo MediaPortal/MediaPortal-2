@@ -33,10 +33,12 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   public abstract class AbstractRelationshipFilter : IFilter
   {
     protected Guid _role;
+    protected Guid _linkedRole;
 
-    public AbstractRelationshipFilter(Guid role)
+    public AbstractRelationshipFilter(Guid role, Guid linkedRole)
     {
       _role = role;
+      _linkedRole = linkedRole;
     }
 
     [XmlIgnore]
@@ -44,6 +46,13 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _role; }
       set { _role = value; }
+    }
+
+    [XmlIgnore]
+    public Guid LinkedRole
+    {
+      get { return _linkedRole; }
+      set { _linkedRole = value; }
     }
 
     #region Additional members for the XML serialization
@@ -58,6 +67,16 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _role; }
       set { _role = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("LinkedRole")]
+    public Guid XML_LinkedRole
+    {
+      get { return _linkedRole; }
+      set { _linkedRole = value; }
     }
 
     #endregion

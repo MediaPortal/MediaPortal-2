@@ -241,11 +241,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns></returns>
     internal static List<Color> ParseColors(String text)
     {
+      if (string.IsNullOrEmpty(text))
+        return null;
       List<Color> retList = new List<Color>();
       List<String> colorList = SplitTvdbString(text);
       for (int i = 0; i < colorList.Count; i++)
       {
         String[] color = colorList[i].Split(',');
+        if (color.Length != 3)
+          continue;
+
         int red;
         int green;
         int blue;
@@ -255,6 +260,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           retList.Add(Color.FromArgb(red, green, blue));
         }
       }
+      Log.Warn("Couldn't parse colors: " + text);
       return null;
     }
 
@@ -266,12 +272,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     internal static Point ParseResolution(String text)
     {
       String[] res = text.Split('x');
-      int x;
-      int y;
-      if (Int32.TryParse(res[0], out x) && Int32.TryParse(res[1], out y))
-        return new Point(x, y);
-
-      Log.Warn("Couldn't parse resolution" + text);
+      if (res.Length == 2)
+      {
+        int x;
+        int y;
+        if (Int32.TryParse(res[0], out x) && Int32.TryParse(res[1], out y))
+          return new Point(x, y);
+      }
+      Log.Warn("Couldn't parse resolution: " + text);
       return new Point();
     }
 
@@ -285,7 +293,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       bool value;
       if (Boolean.TryParse(boolean, out value))
         return value;
-      Log.Warn("Couldn't parse bool value of string " + boolean);
+      Log.Warn("Couldn't parse bool value of string: " + boolean);
       return false;
     }
 

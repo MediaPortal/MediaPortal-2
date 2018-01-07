@@ -77,7 +77,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="mediaItemId">Id of the media item in the media library. For local media items, this must be <c>Guid.Empty</c>.</param>
     /// <param name="aspects">Dictionary of media item aspects for the new media item instance.</param>
     /// <param name="userData">Dictionary of user specific data for the new media item instance.</param>
-    public MediaItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<string,string> userData)
+    public MediaItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<string, string> userData)
     {
       _id = mediaItemId;
       _aspects = new Dictionary<Guid, IList<MediaItemAspect>>(aspects);
@@ -124,23 +124,6 @@ namespace MediaPortal.Common.MediaManagement
     public int ActiveResourceLocatorIndex { get; set; }
 
     /// <summary>
-    /// Gets the primary resources of current MediaItem (presents physical parts of multi-file items) that can be used to start playback.
-    /// Secondary resources (like subtitles) are not considered here.
-    /// </summary>
-    public IList<MultipleMediaItemAspect> PrimaryResources
-    {
-      get
-      {
-        IList<MultipleMediaItemAspect> providerAspects;
-        if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
-          return new List<MultipleMediaItemAspect>();
-
-        // Consider only primary resources (physical main parts), but not extra resources (like subtitles)
-        return providerAspects.Where(pra => pra.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY)).ToList();
-      }
-    }
-
-    /// <summary>
     /// Returns the maximum zero-based index of available primary resource locators. For single media this will be always <c>0</c>.
     /// If no <see cref="ProviderResourceAspect"/> is available, the result is <c>-1</c>.
     /// Note: extra resources like subtitles are not considered here.
@@ -154,12 +137,150 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Gets the primary resources of current MediaItem (presents physical parts of multi-file items) that can be used to start playback.
+    /// Secondary resources (like subtitles) are not considered here.
+    /// </summary>
+    public IList<MultipleMediaItemAspect> PrimaryResources
+    {
+      get
+      {
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return new List<MultipleMediaItemAspect>();
+
+        // Consider only primary resources (physical main parts), but not extra resources (like subtitles)
+        return providerAspects.Where(pra =>
+          pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY &&
+          // Multi-part items all start with 0. For different "editions", the resource index is increassed.
+          pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == 0
+        ).ToList();
+      }
+    }
+
+    /// <summary>
+    /// If this <see cref="MediaItem"/> represents a multi-edition item, this index points to the active part for 
+    /// that the <see cref="GetResourceLocator"/> will return the locator.
+    /// </summary>
+    public int ActiveEditionIndex { get; set; }
+
+    /// <summary>
+    /// Returns the maximum zero-based index of available primary resource locators. For single media this will be always <c>0</c>.
+    /// If no <see cref="ProviderResourceAspect"/> is available, the result is <c>-1</c>.
+    /// Note: extra resources like subtitles are not considered here.
+    /// </summary>
+    public int MaximumEditionIndex
+    {
+      get
+      {
+        return Editions.Count - 1;
+      }
+    }
+
+    /// <summary>
+    /// Indicates if this <see cref="MediaItem"/> represents a multi-edition item.
+    /// </summary>
+    public bool HasEditions { get { return Editions.Count > 1; } }
+
+    /// <summary>
+    /// Gets the primary resources of current MediaItem (presents physical parts of multi-file items) that can be used to start playback.
+    /// Secondary resources (like subtitles) are not considered here.
+    /// </summary>
+    public IList<MultipleMediaItemAspect> Editions
+    {
+      get
+      {
+        IList<MultipleMediaItemAspect> videoStreamAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
+          return new List<MultipleMediaItemAspect>();
+
+        return videoStreamAspects.Where(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) > -1).ToList();
+      }
+    }
+
+    /// <summary>
+    /// Assign Id to a media item that has no Id
+    /// </summary>
+    public bool AssignMissingId(Guid mediaItemId)
+    {
+      if (_id == Guid.Empty)
+      {
+        _id = mediaItemId;
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Indicates if the current MediaItem is a stub.
+    /// </summary>
+    public bool IsStub
+    {
+      get
+      {
+        if (PrimaryResources.Count > 0)
+          return false;
+
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return providerAspects.Any(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB);
+
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Indicates if the current MediaItem is virtual.
+    /// </summary>
+    public bool IsVirtual
+    {
+      get
+      {
+        if (PrimaryResources.Count > 0)
+          return false;
+
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return providerAspects.Any(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_VIRTUAL);
+
+        return false;
+      }
+    }
+
+    /// <summary>
     /// Returns a resource locator instance for this item.
     /// </summary>
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
     public virtual IResourceLocator GetResourceLocator()
     {
-      var aspect = PrimaryResources[ActiveResourceLocatorIndex];
+      MultipleMediaItemAspect aspect = null;
+      if (HasEditions)
+      {
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return null;
+
+        if (ActiveEditionIndex <= MaximumEditionIndex)
+        {
+          var currentEdition = Editions[ActiveEditionIndex];
+          var resourceIndex = currentEdition.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX);
+          if (resourceIndex < providerAspects.Count)
+            aspect = providerAspects[resourceIndex];
+        }
+      }
+      else if (IsStub)
+      {
+        // If there are no primary resources then return stub resource if available
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return null;
+        aspect = providerAspects.First(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB);
+      }
+      else
+      {
+        if (PrimaryResources.Count <= ActiveResourceLocatorIndex)
+          return null;
+        aspect = PrimaryResources[ActiveResourceLocatorIndex];
+      }
       string systemId = (string)aspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
       string resourceAccessorPath = (string)aspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
@@ -170,14 +291,14 @@ namespace MediaPortal.Common.MediaManagement
       mimeType = null;
       mediaItemTitle = null;
       SingleMediaItemAspect mediaAspect = null;
-      if(!MediaItemAspect.TryGetAspect(this.Aspects, MediaAspect.Metadata, out mediaAspect))
+      if (!MediaItemAspect.TryGetAspect(this.Aspects, MediaAspect.Metadata, out mediaAspect))
         return false;
       IList<MultipleMediaItemAspect> resourceAspects = null;
       if (!MediaItemAspect.TryGetAspects(this.Aspects, ProviderResourceAspect.Metadata, out resourceAspects))
         return false;
       foreach (MultipleMediaItemAspect pra in resourceAspects)
       {
-        if (pra.GetAttributeValue<bool?>(ProviderResourceAspect.ATTR_PRIMARY) == true)
+        if (pra.GetAttributeValue<int?>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY)
         {
           mimeType = (string)pra[ProviderResourceAspect.ATTR_MIME_TYPE];
           mediaItemTitle = (string)mediaAspect[MediaAspect.ATTR_TITLE];
@@ -231,7 +352,7 @@ namespace MediaPortal.Common.MediaManagement
           if (reader.MoveToAttribute("Data"))
             data = reader.ReadContentAsString();
 
-          if(key != null && data != null)
+          if (key != null && data != null)
             _userData.Add(key, data);
 
           reader.Read();
@@ -248,7 +369,7 @@ namespace MediaPortal.Common.MediaManagement
     {
       writer.WriteAttributeString("Id", _id.ToString("D"));
       foreach (IList<MediaItemAspect> list in _aspects.Values)
-        foreach(MediaItemAspect mia in list)
+        foreach (MediaItemAspect mia in list)
           mia.Serialize(writer);
 
       foreach (string key in _userData.Keys)
@@ -265,14 +386,14 @@ namespace MediaPortal.Common.MediaManagement
     public void Serialize(XmlWriter writer)
     {
       writer.WriteStartElement("MI"); // MediaItem
-      ((IXmlSerializable) this).WriteXml(writer);
+      ((IXmlSerializable)this).WriteXml(writer);
       writer.WriteEndElement(); // MediaItem
     }
 
     public static MediaItem Deserialize(XmlReader reader)
     {
       MediaItem result = new MediaItem();
-      ((IXmlSerializable) result).ReadXml(reader);
+      ((IXmlSerializable)result).ReadXml(reader);
       return result;
     }
 
@@ -291,9 +412,13 @@ namespace MediaPortal.Common.MediaManagement
     {
       if (other == null)
         return false;
-      IList<MediaItemAspect> myProviderAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
-      IList<MediaItemAspect> otherProviderAspect = other._aspects[ProviderResourceAspect.ASPECT_ID];
-	  // TODO: FIX THIS
+      IList<MediaItemAspect> myProviderAspect;
+      if (!_aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out myProviderAspect))
+        return false;
+      IList<MediaItemAspect> otherProviderAspect;
+      if (!other._aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out otherProviderAspect))
+        return false;
+      // TODO: FIX THIS
       return myProviderAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH] ==
           otherProviderAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
     }
@@ -304,8 +429,9 @@ namespace MediaPortal.Common.MediaManagement
 
     public override int GetHashCode()
     {
-      IList<MediaItemAspect> providerAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
-	  // TODO: FIX THIS
+      IList<MediaItemAspect> providerAspect;
+      if (!_aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out providerAspect) || providerAspect.Count == 0)
+        return 0;
       return providerAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH].GetHashCode();
     }
 

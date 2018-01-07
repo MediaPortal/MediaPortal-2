@@ -40,7 +40,8 @@
                             IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAgeCertificationLogos}">
     <media:MovieAspectWrapper.Template>
       <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+              IsVisible="{Binding Path=Certification,Converter={StaticResource ReferenceToBoolConverter}}">
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>

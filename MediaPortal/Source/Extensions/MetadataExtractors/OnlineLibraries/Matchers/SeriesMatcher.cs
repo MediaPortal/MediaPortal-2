@@ -24,7 +24,9 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
@@ -40,6 +42,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -53,6 +56,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
       public List<string> LastUpdatedEpisodes { get; set; }
     }
+
+    protected readonly object _initSyncObj = new object();
+    protected bool _isInit = false;
 
     #region Init
 
@@ -72,8 +78,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _networkMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "NetworkMatches.xml"));
       _seriesNameMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "SeriesNameMatches.xml"));
       _configFile = Path.Combine(cachePath, "SeriesConfig.xml");
-
-      Init();
     }
 
     public override bool Init()
@@ -81,21 +85,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!_enabled)
         return false;
 
-      if (_wrapper != null)
-        return true;
-
-      if (!base.Init())
-        return false;
-
-      LoadConfig();
-
-      if (InitWrapper(UseSecureWebCommunication))
+      lock (_initSyncObj)
       {
-        if (_wrapper != null)
-          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
-        return true;
+        if (_isInit)
+          return true;
+
+        if (!base.Init())
+          return false;
+
+        LoadConfig();
+
+        if (InitWrapper(UseSecureWebCommunication))
+        {
+          if (_wrapper != null)
+            _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+          _isInit = true;
+          return true;
+        }
+        return false;
       }
-      return false;
     }
 
     private void LoadConfig()
@@ -103,7 +111,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _config = Settings.Load<SeriresMatcherSettings>(_configFile);
       if (_config == null)
         _config = new SeriresMatcherSettings();
-      if(_config.LastRefresh != null)
+      if (_config.LastRefresh != null)
         _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
       if (_config.LastUpdatedSeries == null)
         _config.LastUpdatedSeries = new List<string>();
@@ -124,6 +132,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
+    private Regex seriesTitleYearRegex = new Regex(@"(?<title>.*)\((?<year>\d{4})\)", RegexOptions.IgnoreCase);
 
     protected override string MatchesSettingsFile
     {
@@ -280,7 +289,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (seriesId != null && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
         {
-          altEpisodeId = seriesId + "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.EpisodeNumbers[0];
+          altEpisodeId = seriesId + "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.FirstEpisodeNumber;
         }
         if (GetSeriesEpisodeId(episodeInfo, out episodeId))
         {
@@ -357,7 +366,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (matchFound && episodeMatch != null)
         {
-          MergeEpisodes(episodeInfo, episodeMatch);
+          string title;
+          int year;
+          if (!episodeMatch.SeriesName.IsEmpty && TryFixTitle(episodeMatch.SeriesName.Text, out title, out year))
+          {
+            episodeMatch.SeriesName.Text = title;
+            if (!episodeMatch.SeriesFirstAired.HasValue)
+            {
+              episodeMatch.SeriesFirstAired = new DateTime(year, 1, 1);
+            }
+          }
+          episodeInfo.MergeWith(episodeMatch, true);
 
           //Store person matches
           foreach (PersonInfo person in episodeInfo.Actors)
@@ -399,7 +418,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               if (episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
               {
-                seriesId += "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.EpisodeNumbers[0];
+                seriesId += "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.FirstEpisodeNumber;
 
                 _memoryCacheEpisode.TryAdd(seriesId, episodeInfo);
               }
@@ -416,51 +435,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         Logger.Debug(_id + ": Exception while processing episode {0}", ex, episodeInfo.ToString());
         return false;
       }
-    }
-
-    private void MergeEpisodes(EpisodeInfo episodeInfo, EpisodeInfo episodeMatch)
-    {
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.ImdbId, episodeMatch.ImdbId);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.MovieDbId, episodeMatch.MovieDbId);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvdbId, episodeMatch.TvdbId);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvMazeId, episodeMatch.TvMazeId);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvRageId, episodeMatch.TvRageId);
-
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, episodeMatch.SeriesImdbId);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesMovieDbId, episodeMatch.SeriesMovieDbId);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, episodeMatch.SeriesTvdbId);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvMazeId, episodeMatch.SeriesTvMazeId);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvRageId, episodeMatch.SeriesTvRageId);
-
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, episodeMatch.EpisodeName);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, episodeMatch.Summary);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, episodeMatch.SeriesName);
-
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodeMatch.FirstAired);
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episodeMatch.SeasonNumber);
-      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, episodeMatch.SeriesFirstAired);
-
-      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.Rating, episodeMatch.Rating);
-
-      if (episodeInfo.EpisodeNumbers.Count == 0)
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers.Distinct().ToList(), true);
-      if (episodeInfo.DvdEpisodeNumbers.Count == 0)
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers.Distinct().ToList(), true);
-      if (episodeInfo.Genres.Count == 0)
-      {
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres.Distinct().ToList(), true);
-      }
-      if (episodeInfo.Genres.Count > 0)
-      {
-        episodeInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episodeInfo.Genres);
-      }
-
-      //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
-      //So changes to these lists will only be stored if something else has changed.
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), episodeInfo.Actors.Count == 0);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), episodeInfo.Characters.Count == 0);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), episodeInfo.Directors.Count == 0);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), episodeInfo.Writers.Count == 0);
     }
 
     public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
@@ -522,93 +496,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
-          //Reset next episode data because it was already aired
-          if (seriesInfo.NextEpisodeAirDate.HasValue && seriesInfo.NextEpisodeAirDate.Value < DateTime.Now)
-          {
-            seriesInfo.NextEpisodeAirDate = null;
-            seriesInfo.NextEpisodeNumber = null;
-            seriesInfo.NextEpisodeSeasonNumber = null;
-            seriesInfo.NextEpisodeName = null;
-            seriesInfo.HasChanged = true;
-          }
+          seriesInfo.MergeWith(seriesMatch, true, updateEpisodeList);
 
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvdbId, seriesMatch.TvdbId);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.ImdbId, seriesMatch.ImdbId);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.MovieDbId, seriesMatch.MovieDbId);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvMazeId, seriesMatch.TvMazeId);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvRageId, seriesMatch.TvRageId);
-
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.SeriesName, seriesMatch.SeriesName);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.OriginalName, seriesMatch.OriginalName);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.Description, seriesMatch.Description);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.Certification, seriesMatch.Certification);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, seriesMatch.NextEpisodeName);
-
-          if (seriesInfo.TotalSeasons < seriesMatch.TotalSeasons)
-          {
-            seriesInfo.HasChanged = true;
-            seriesInfo.TotalSeasons = seriesMatch.TotalSeasons;
-          }
-
-          if (seriesInfo.TotalEpisodes < seriesMatch.TotalEpisodes)
-          {
-            seriesInfo.HasChanged = true;
-            seriesInfo.TotalEpisodes = seriesMatch.TotalEpisodes;
-          }
-
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.FirstAired, seriesMatch.FirstAired);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Popularity, seriesMatch.Popularity);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.IsEnded, seriesMatch.IsEnded);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeAirDate, seriesMatch.NextEpisodeAirDate);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeNumber, seriesMatch.NextEpisodeNumber);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeSeasonNumber, seriesMatch.NextEpisodeSeasonNumber);
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Score, seriesMatch.Score);
-
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref seriesInfo.Rating, seriesMatch.Rating);
-          if (seriesInfo.Genres.Count == 0)
-          {
-            seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesMatch.Genres.Distinct().ToList(), true);
-          }
           if (seriesInfo.Genres.Count > 0)
           {
-            seriesInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(seriesInfo.Genres);
-          }
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Awards, seriesMatch.Awards.Distinct().ToList(), true);
-
-          //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
-          //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), seriesInfo.Networks.Count == 0);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), seriesInfo.ProductionCompanies.Count == 0);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), seriesInfo.Actors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), seriesInfo.Characters.Count == 0);
-
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Seasons, seriesMatch.Seasons, true);
-
-          if (updateEpisodeList) //Comparing all episodes can be quite time consuming
-          {
-            foreach (EpisodeInfo episode in seriesMatch.Episodes)
-              OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episode.Genres);
-
-            //Only allow new episodes if empty. Online sources might have different names for same series so season name would look strange.
-            bool allowAdd = seriesInfo.Episodes.Count == 0;
-            for (int matchIndex = 0; matchIndex < seriesMatch.Episodes.Count; matchIndex++)
-            {
-              int existing = seriesInfo.Episodes.IndexOf(seriesMatch.Episodes[matchIndex]);
-              if (existing >= 0)
-              {
-                //Don't merge with existing specials. They seem to be different on various online sources.
-                if ((seriesInfo.Episodes[existing].SeasonNumber.HasValue && seriesInfo.Episodes[existing].SeasonNumber.Value > 0) &&
-                  (seriesMatch.Episodes[matchIndex].SeasonNumber.HasValue && seriesMatch.Episodes[matchIndex].SeasonNumber.Value > 0))
-                {
-                  MergeEpisodes(seriesInfo.Episodes[existing], seriesMatch.Episodes[matchIndex]);
-                }
-              }
-              else if(allowAdd)
-              {
-                seriesInfo.Episodes.Add(seriesMatch.Episodes[matchIndex]);
-              }
-            }
-            seriesInfo.Episodes.Sort();
+            seriesInfo.HasChanged |= GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres, language.ToString());
           }
 
           //Store person matches
@@ -688,29 +580,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvdbId, seasonMatch.TvdbId);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.ImdbId, seasonMatch.ImdbId);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.MovieDbId, seasonMatch.MovieDbId);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvMazeId, seasonMatch.TvMazeId);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvRageId, seasonMatch.TvRageId);
-
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesImdbId, seasonMatch.SeriesImdbId);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesMovieDbId, seasonMatch.SeriesMovieDbId);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesTvdbId, seasonMatch.SeriesTvdbId);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesTvMazeId, seasonMatch.SeriesTvMazeId);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesTvRageId, seasonMatch.SeriesTvRageId);
-
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seasonInfo.SeriesName, seasonMatch.SeriesName);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seasonInfo.Description, seasonMatch.Description);
-
-          if (seasonInfo.TotalEpisodes < seasonMatch.TotalEpisodes)
-          {
-            seasonInfo.HasChanged = true;
-            seasonInfo.TotalEpisodes = seasonMatch.TotalEpisodes;
-          }
-
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.FirstAired, seasonMatch.FirstAired);
-          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.SeasonNumber, seasonMatch.SeasonNumber);
+          seasonInfo.MergeWith(seasonMatch, true);
         }
 
         return updated;
@@ -1372,6 +1242,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata update helpers
 
+    private bool TryFixTitle(string seriesTitle, out string title, out int year)
+    {
+      title = null;
+      year = 0;
+
+      Match match = seriesTitleYearRegex.Match(seriesTitle);
+      if (match.Success)
+      {
+        if (int.TryParse(match.Groups["year"].Value, out year) && year > 1900)
+        {
+          title = match.Groups["title"].Value.Trim();
+          return true;
+        }
+      }
+      return false;
+    }
+
     private void StoreSeriesMatch(SeriesInfo seriesSearch, SeriesInfo seriesMatch)
     {
       if (seriesSearch.SeriesName.IsEmpty)
@@ -1410,8 +1297,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         // If there is only one language available, use this one.
         if (mediaLanguages.Count == 1)
           return (TLang)Convert.ChangeType(mediaLanguages[0], typeof(TLang));
+
+        // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
+        // Use the preferred language.
+        return (TLang)Convert.ChangeType(mpLocal.TwoLetterISOLanguageName, typeof(TLang));
       }
-      // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
       // By returning null we allow fallback to the default language of the online source (en).
       return default(TLang);
     }
@@ -1548,7 +1438,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<SeriesInfo> GetLastChangedSeries()
     {
       List<SeriesInfo> series = new List<SeriesInfo>();
-      foreach(string id in _config.LastUpdatedSeries)
+
+      if (!Init())
+        return series;
+
+      foreach (string id in _config.LastUpdatedSeries)
       {
         SeriesInfo s = new SeriesInfo();
         if (SetSeriesId(s, id) && !series.Contains(s))
@@ -1559,6 +1453,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedSeries()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedSeries.Clear();
       SaveConfig();
     }
@@ -1566,6 +1463,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<EpisodeInfo> GetLastChangedEpisodes()
     {
       List<EpisodeInfo> episodes = new List<EpisodeInfo>();
+
+      if (!Init())
+        return episodes;
+
       foreach (string id in _config.LastUpdatedEpisodes)
       {
         EpisodeInfo e = new EpisodeInfo();
@@ -1577,6 +1478,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedEpisodes()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedEpisodes.Clear();
       SaveConfig();
     }
@@ -1608,6 +1512,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
+      if (!Init())
+        return false;
+
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
       if (info is SeriesInfo)
@@ -1678,7 +1585,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           if (episodeInfo.EpisodeNumbers.Count > 0)
           {
-            data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.EpisodeNumbers[0].ToString();
+            data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.FirstEpisodeNumber.ToString();
           }
           if (GetSeriesEpisodeId(episodeInfo, out id))
           {
@@ -1970,7 +1877,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    protected virtual bool VerifyFanArtImage(TImg image)
+    protected virtual bool VerifyFanArtImage(TImg image, TLang language)
     {
       return image != null;
     }
@@ -1989,7 +1896,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;
-            if (!VerifyFanArtImage(img))
+            if (!VerifyFanArtImage(img, language))
               continue;
             if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;

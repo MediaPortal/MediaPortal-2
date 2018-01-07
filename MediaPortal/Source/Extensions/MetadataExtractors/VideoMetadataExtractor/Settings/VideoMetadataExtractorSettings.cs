@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.OnlineLibraries;
 using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings
@@ -49,6 +48,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
           ".mov",
           ".wtv",
           ".dvr-ms",
+          ".divx",
+          ".mpeg",
+          ".m2p",
+          ".qt",
+          ".rm"
       };
 
     // Don't add any others unless support has been added for them
@@ -60,6 +64,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
         ".ssa",
         ".sub",
         ".vtt",
+        ".idx",
       };
 
     protected readonly static List<string> DEFAULT_SUBTITLE_FOLDERS = new List<string>
@@ -77,6 +82,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
       StereoVideoRegex = new SerializableRegex(@"\\.*?[-. _](3d|.*?)?([-. _]?|3d)(?<mode>h[-]?|half[-]?|full[-]?)*(?<stereo>sbs|tab|ou|mvc|anaglyph)[-. _]", RegexOptions.IgnoreCase);
       MaxSampleSize = 150;
       SampleVideoRegex = new SerializableRegex(@"(sample)|(trailer)", RegexOptions.IgnoreCase);
+      CacheOfflineFanArt = true;
+      CacheLocalFanArt = false;
     }
 
     /// <summary>
@@ -120,5 +127,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
     /// </summary>
     [Setting(SettingScope.Global)]
     public SerializableRegex SampleVideoRegex { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of FanArt placed on network drives to allow browsing when they are offline.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool CacheOfflineFanArt { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of FanArt placed on local drives to allow browsing when they are asleep.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool CacheLocalFanArt { get; set; }
   }
 }

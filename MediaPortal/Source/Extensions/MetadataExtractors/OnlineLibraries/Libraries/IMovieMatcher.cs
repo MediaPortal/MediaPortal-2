@@ -28,13 +28,8 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
-  public interface IMovieMatcher
+  public interface IMovieMatcher : IMatcher
   {
-    bool Primary { get; set; }
-    bool Enabled { get; set; }
-    string Id { get; }
-    string PreferredLanguageCulture { get; set; }
-
     List<MovieInfo> GetLastChangedMovies();
     void ResetLastChangedMovies();
     List<MovieCollectionInfo> GetLastChangedMovieCollections();

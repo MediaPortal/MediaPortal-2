@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">Diagnósticos</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Ativar registo de DEBUG</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Aumentar termos do registo</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">Ativar registo de potencial perda de focus</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Ativar registo  de potencial perda de focus</string>
+    <string name="Diagnostics.Settings.Collectlogs">Recolher ficheiros de registo</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Executa o Log Collector que cria um ficheiro zip com todos registos</string>
+    <string name="Diagnostics.Settings.ShowLogs">Mostra registos</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Mostrar registos numa janela separada</string>
+</resources>

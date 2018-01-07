@@ -16,6 +16,7 @@
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientX" Resource="1.17"/>
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.15"/>
   <Model x:Key="ScreenModeModel" Id="0E621AA5-0733-4E88-A0F0-887F8D73A055"/>
+  <Model x:Key="LoginModel" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
@@ -563,26 +564,17 @@
               <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
             </Grid.Resources>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="360"/>
+              <ColumnDefinition Width="310"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="195"/>
               <RowDefinition Height="54"/>
             </Grid.RowDefinitions>
-            <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}"
+            <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}" TextTrimming="CharacterEllipsis" Width="280" HorizontalContentAlignment="Center"
                    HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.4" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54"
+            <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54" Scroll="Auto"
                    HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            <Image x:Name="FocusFrame" Source="Focus.frame.png"
-                   Stretch="Uniform" HorizontalAlignment="Left" Margin="-4,-1,-5,-6">
-              <Image.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                  <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
-                </MultiBinding>
-              </Image.IsVisible>
-            </Image>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -630,6 +622,34 @@
             <DockPanel Name="ButtonControlRectangle" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"
                        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
               <Image Source="TopMenu\Focus_Frame.png" Stretch="Uniform" Opacity="1.1"/>
+            </DockPanel>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="LoginButtonWideStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <DockPanel Name="ButtonControlRectangle" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+              <Image Source="square_focus.PNG" Stretch="Fill" Opacity="1.3"/>
             </DockPanel>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
             <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
@@ -1352,6 +1372,17 @@
             </Grid.RenderTransform>
           </Grid>
           <ControlTemplate.Triggers>
+            <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+              <BeginStoryboard Name="SetSelectedFocusStoryBoard">
+                <BeginStoryboard.Storyboard>
+                  <Storyboard>
+                    <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsChecked">
+                      <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="True" />
+                    </ObjectAnimationUsingKeyFrames>
+                  </Storyboard>
+                </BeginStoryboard.Storyboard>
+              </BeginStoryboard>
+            </EventTrigger>
             <Trigger Property="HasFocus" Value="True">
               <!--Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.2"/-->
               <!--Setter Property="Foreground" Value="White"/-->
@@ -1460,7 +1491,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid DockPanel.Dock="Left" Height="58" Width="58">
+          <Grid Height="58" Width="58">
             <Image x:Name="RecordingIcon" Source="Recording.png" Stretch="Uniform" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
               <Image.Triggers>
                 <Trigger Property="IsEnabled" Value="True">
@@ -1483,7 +1514,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid DockPanel.Dock="Left" Height="58" Width="58">
+          <Grid Height="58" Width="58">
             <Image x:Name="RecordingIcon" Source="Importing.png" Stretch="Uniform" Margin="10"
                    HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.49,0.49">
               <Image.RenderTransform>
@@ -1501,6 +1532,29 @@
               </Image.Triggers>
             </Image>
           </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="UserButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel>
+            <Image x:Name="UserIcon" DockPanel.Dock="Left" Height="80" Width="80" Source="Person.png" Stretch="Uniform"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+            <Label x:Name="UserLabel" DockPanel.Dock="Right" Margin="-12,0,0,0" IsVisible="{Binding Source={StaticResource LoginModel}, Path=IsUserLoggedIn}"
+                   DataContext="{Binding Source={StaticResource LoginModel}, Path=CurrentUser}" Content="{Binding Path=Name}" 
+                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            </Label>
+          </DockPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="UserLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+              <Setter TargetName="UserIcon" Property="Opacity" Value="1.2"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1680,6 +1734,40 @@
               </Image.IsVisible>
             </Image>
           </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SubMenuLeftButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="Left_Menu.PNG" Stretch="Uniform" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="Left_Menu_Focus.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SubMenuRightButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="Right_Menu.PNG" Stretch="Uniform" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="Right_Menu_Focus.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1881,6 +1969,26 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
+            <Image x:Name="image" Source="PlayerControl\Chapter.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="PlayerControl\Chapter.FOCUS.PNG"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="image" Property="Source" Value="PlayerControl\Chapter.DISABLED.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SelectContextMenuButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
             <Image x:Name="image" Source="PlayerControl\GUIDE.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -2066,6 +2174,60 @@
               <Setter TargetName="image" Property="Source" Value="PlayerControl\SEARCH.FOCUS.PNG"/>
             </Trigger>
           </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ScheduleButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Image x:Name="image" Source="PlayerControl\SCHEDULE.NOFOCUS.PNG" Stretch="Uniform" 
+                 VerticalAlignment="Center" Height="45" Width="65"/>
+            <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="PlayerControl\SCHEDULE.FOCUS.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Virtual Keyboard Styles -->
+  <ResourceWrapper x:Key="VKMargin" Resource="4"/>
+
+  <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource WizardButtonStyle}" TargetType="{x:Type Button}">
+    <Setter Property="FontSize" Value="{ThemeResource NormalFontSize}"/>
+    <Setter Property="FontFamily" Value="SegoeUIBold"/>
+  </Style>
+
+  <Style x:Key="VirtualKeyboardControlStyle" TargetType="{x:Type VirtualKeyboardControl}" >
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border BorderThickness="5" CornerRadius="6">
+            <Border.BorderBrush>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+                <GradientStop Color="#D9FFFFFF" Offset="0"/>
+                <GradientStop Color="#59FFFFFF" Offset="0.7"/>
+                <GradientStop Color="#59FFFFFF" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.BorderBrush>
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                <GradientStop Color="#FF447da7" Offset="0"/>
+                <GradientStop Color="#FF124273" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <StackPanel>
+              <Label Content="{Binding RelativeSource={RelativeSource TemplatedParent},Path=VisibleText}"
+                     IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ShowVisibleText}" FontSize="{ThemeResource NormalFontSize}"
+                     Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+              <VirtualKeyboardPresenter/>
+            </StackPanel>
+          </Border>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

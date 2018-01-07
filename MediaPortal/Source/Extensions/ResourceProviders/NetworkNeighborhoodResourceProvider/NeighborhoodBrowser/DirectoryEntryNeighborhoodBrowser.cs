@@ -51,13 +51,9 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     private const String PROVIDER_STRING = "WinNT:";
 
     /// <summary>
-    /// Name of the schema object
+    /// Name of the computer object
     /// </summary>
-    /// <remarks>
-    /// When enumerating the children of a  <see cref="DirectoryEntry"/> object, there is always one object that contains
-    /// schema information. We need to filter this one from our result.
-    /// </remarks>
-    private const String SCHEMA_OBJECT_NAME = "Schema";
+    private const String COMPUTER_OBJECT = "Computer";
 
     #endregion
 
@@ -78,18 +74,22 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         using (var root = new DirectoryEntry(PROVIDER_STRING))
         {
           foreach (DirectoryEntry domain in root.Children)
+          {
             using (domain)
             {
-              if (domain.SchemaClassName == SCHEMA_OBJECT_NAME)
-                continue;
               foreach (DirectoryEntry computer in domain.Children)
+              {
                 using (computer)
                 {
-                  if (computer.SchemaClassName == SCHEMA_OBJECT_NAME)
-                    continue;
-                  hosts[computer.Name] = Dns.GetHostEntryAsync(computer.Name);
+                  if (computer.SchemaClassName == COMPUTER_OBJECT)
+                  {
+                    ServiceRegistration.Get<ILogger>().Info("DirectoryEntryNeighborhoodBrowser: Adding '{0}' to hosts list.", computer.Name);
+                    hosts[computer.Name] = Dns.GetHostEntryAsync(computer.Name);
+                  }
                 }
+              }
             }
+          }
         }
       }
       catch (Exception e)
@@ -102,6 +102,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       {
         await Task.WhenAll(hosts.Values);
       }
+      catch (System.Net.Sockets.SocketException) { }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("DirectoryEntryNeighborhoodBrowser: Error while getting IPHostEntries", e);

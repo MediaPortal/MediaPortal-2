@@ -186,10 +186,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       string title = null;
       string sortTitle = null;
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      if (extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
+      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
         return false; //Subtitles can only be imported not refreshed
 
       bool refresh = false;
@@ -279,14 +279,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
 
       // Allow the online lookup to choose best matching language for metadata
-      IList<MultipleMediaItemAspect> audioAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+      if (movieInfo.Languages.Count == 0)
       {
-        foreach (MultipleMediaItemAspect aspect in audioAspects)
+        IList<MultipleMediaItemAspect> audioAspects;
+        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
         {
-          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-          if (!string.IsNullOrEmpty(language))
-            movieInfo.Languages.Add(language);
+          foreach (MultipleMediaItemAspect aspect in audioAspects)
+          {
+            string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+            if (!string.IsNullOrEmpty(language) && !movieInfo.Languages.Contains(language))
+              movieInfo.Languages.Add(language);
+          }
         }
       }
 
@@ -337,6 +340,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
       movieInfo.AssignNameId();
+
+      if (movieInfo.MovieNameSort.IsEmpty)
+      {
+        if (!movieInfo.CollectionName.IsEmpty && movieInfo.ReleaseDate.HasValue)
+          movieInfo.MovieNameSort = $"{movieInfo.CollectionName.Text} {movieInfo.ReleaseDate.Value.Year}-{movieInfo.ReleaseDate.Value.Month.ToString("00")}";
+        else if (!movieInfo.MovieName.IsEmpty)
+          movieInfo.MovieNameSort = BaseInfo.GetSortTitle(movieInfo.MovieName.Text);
+        else
+          movieInfo.MovieNameSort = BaseInfo.GetSortTitle(title);
+      }
 
       if (refresh)
       {
@@ -429,10 +442,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
+        if (forceQuickMode)
+          return false;
+
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
@@ -444,6 +460,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
+      return false;
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
       return false;
     }
 

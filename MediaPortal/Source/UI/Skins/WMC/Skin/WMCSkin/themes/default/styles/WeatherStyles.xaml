@@ -40,19 +40,33 @@
 
   <!-- Styles for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="10" HorizontalAlignment="Stretch" Background="#0D000000" Height="250">
-      <Border BorderThickness="0" CornerRadius="8" Background="#0D000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>  
-        <StackPanel VerticalAlignment="Center" Margin="10,10,10,10" HorizontalAlignment="Center">
-        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
-            <Image Width="120" Height="120" Stretch="Fill" Source="{Binding BigIconProperty}" Margin="0,0,10,0"/>
-            <StackPanel Orientation="Vertical" Margin="5">
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
+    <Grid Margin="8" HorizontalAlignment="Stretch" Height="310" >
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      
+      <Border Margin="1" BorderThickness="0" CornerRadius="8" Background="#0D000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <StackPanel VerticalAlignment="Center" Margin="10,10,10,10" HorizontalAlignment="Center">
+        <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10" HorizontalAlignment="Stretch">
+          <StackPanel Orientation="Vertical" Margin="5" HorizontalAlignment="Stretch">
+            <Image Stretch="Uniform" Source="{Binding BigIconProperty}" Margin="0,0,0,5" HorizontalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5">
+              <Image Source="temp_measure.png" Stretch="Uniform" Width="42" Margin="0,1,15,-1"/>
+              <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                       Content="{Binding High}" HorizontalAlignment="Center"/>
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                       Content="{Binding Low}" HorizontalAlignment="Center"/>
+              </StackPanel>
             </StackPanel>
           </StackPanel>
         </StackPanel>
-      <Image Source="focus.frame.png" Stretch="Fill" Margin="0,0,0,0"/>
+      </StackPanel>
+      <Image Source="focus.frame.png" Stretch="Fill"/>
     </Grid>
   </DataTemplate>
 
@@ -62,7 +76,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <UniformGrid x:Name="ListItemsHost" IsItemsHost="True" Columns="5" Rows="1" HorizontalAlignment="Stretch"/>
+          <UniformGrid x:Name="ListItemsHost" IsItemsHost="True" Columns="7" Rows="1" HorizontalAlignment="Stretch"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

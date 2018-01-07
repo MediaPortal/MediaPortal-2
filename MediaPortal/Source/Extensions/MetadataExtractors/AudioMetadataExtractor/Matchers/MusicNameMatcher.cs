@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers
 {
@@ -40,10 +40,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
     public const string GROUP_ARTIST = "artist";
     public const string GROUP_ALBUM = "album";
     public const string GROUP_TRACK_NUM = "trackNum";
+    public const string GROUP_DISC_NUM = "discNum";
     public const string GROUP_TRACK = "track";
     public static readonly IList<Regex> REGEXP_TRACK = new List<Regex>
       {
         // For LocalFileSystemPath & CanonicalLocalResourcePath
+        new Regex(@"\\(?<artist>[^\/|^\\]*)\\(?<album>[^\/|^\\]*)\\(?<discNum>[1-9]+)\\(?<trackNum>[\d{1}|\d{2}]*)\s*(?<track>[^\/|^\\]*)\.", RegexOptions.IgnoreCase),
+        new Regex(@"\\(?<artist>[^\/|^\\]*)\\(?<album>[^\/|^\\]*)\\CD.*(?<discNum>[1-9]+)\\(?<trackNum>[\d{1}|\d{2}]*)\s*(?<track>[^\/|^\\]*)\.", RegexOptions.IgnoreCase),
         new Regex(@"\\(?<artist>[^\/|^\\]*)\\(?<album>[^\/|^\\]*)\\(?<trackNum>[\d{1}|\d{2}]*)\s*(?<track>[^\/|^\\]*)\.", RegexOptions.IgnoreCase), 
         // Can be extended
       };
@@ -77,6 +80,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
             {
               Name = match.Groups[GROUP_ARTIST].Value.Trim(new[] { ' ', '-' }),
               Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             }
           };
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Artists, artists, true);
@@ -87,12 +92,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
             {
               Name = match.Groups[GROUP_ARTIST].Value.Trim(new[] { ' ', '-' }),
               Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             }
           };
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, albumArtists, true);
 
           if (match.Groups[GROUP_TRACK_NUM].Length > 0)
             trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, Convert.ToInt32(match.Groups[GROUP_TRACK_NUM].Value));
+
+          if (match.Groups[GROUP_DISC_NUM].Length > 0)
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.DiscNum, Convert.ToInt32(match.Groups[GROUP_DISC_NUM].Value));
           return true;
         }
       }

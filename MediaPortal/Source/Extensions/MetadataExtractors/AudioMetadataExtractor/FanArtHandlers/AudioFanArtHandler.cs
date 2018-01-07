@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     #endregion
 
     protected FanArtHandlerMetadata _metadata;
-    private SynchronizedCollection<Guid> _checkCache = new SynchronizedCollection<Guid>();
+    private readonly SynchronizedCollection<Guid> _checkCache = new SynchronizedCollection<Guid>();
 
     public AudioFanArtHandler()
     {
@@ -94,13 +94,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
+      if (_checkCache.Contains(mediaItemId))
+        return;
+
       Guid? albumMediaItemId = null;
       IDictionary<Guid, string> artistMediaItems = new Dictionary<Guid, string>();
       SingleMediaItemAspect audioAspect;
       List<string> artists = new List<string>();
       if (MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out audioAspect))
       {
-        IEnumerable<string> artistObjects = audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ARTISTS);
+        IEnumerable<string> artistObjects = audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS);
         if (artistObjects != null)
           artists.AddRange(artistObjects);
       }
@@ -114,37 +117,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           {
             albumMediaItemId = (Guid)relation[RelationshipAspect.ATTR_LINKED_ID];
           }
-          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST)
+          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ALBUMARTIST)
           {
             int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
-            if(index.HasValue && artists.Count > index.Value && index.Value >= 0)
-              artistMediaItems.Add((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], artists[index.Value]);
+            if (index.HasValue && artists.Count > index.Value && index.Value >= 0)
+              artistMediaItems[(Guid)relation[RelationshipAspect.ATTR_LINKED_ID]] = artists[index.Value];
           }
         }
       }
 
-      if(albumMediaItemId.HasValue && artistMediaItems.Count > 0)
-      {
-        if (_checkCache.Contains(mediaItemId) && _checkCache.Contains(albumMediaItemId.Value) && _checkCache.Contains(artistMediaItems.Keys.First()))
-          return;
-      }
-      else if (albumMediaItemId.HasValue)
-      {
-        if (_checkCache.Contains(mediaItemId) && _checkCache.Contains(albumMediaItemId.Value))
-          return;
-      }
-      else
-      {
-        if (_checkCache.Contains(mediaItemId))
-          return;
-      }
-
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems));
       _checkCache.Add(mediaItemId);
-      if (albumMediaItemId.HasValue)
-        _checkCache.Add(albumMediaItemId.Value);
-      if (artistMediaItems.Count > 0)
-        _checkCache.Add(artistMediaItems.Keys.First());
+      ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems);
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? albumMediaItemId, IDictionary<Guid, string> artistMediaItems)
@@ -164,9 +147,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         if (albumMediaItemId.HasValue && !_checkCache.Contains(albumMediaItemId.Value))
         {
+          _checkCache.Add(albumMediaItemId.Value);
           if (!AudioMetadataExtractor.SkipFanArtDownload)
             OnlineMatcherService.Instance.DownloadAudioFanArt(albumMediaItemId.Value, albumInfo, forceFanart);
-          _checkCache.Add(albumMediaItemId.Value);
         }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
@@ -216,6 +199,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return;
 
       ExtractFolderImages(mediaItemLocater, albumMediaItemId, artistMediaItems, albumTitle);
+
+      SingleMediaItemAspect mediaAspect;
+      if (MediaItemAspect.TryGetAspect(aspects, MediaAspect.Metadata, out mediaAspect))
+        if (mediaAspect.GetAttributeValue<bool>(MediaAspect.ATTR_ISSTUB) == true)
+          return; //Cannot extract images from stub files
+
       using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
       {
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
@@ -262,8 +251,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 return;
 
               FanArtCache.InitFanArtCache(mediaItemId, albumTitle);
-              string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
-                "File." + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
+              string cacheFile = GetCacheFileName(mediaItemId, fanArtType, "File." + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
               if (!System.IO.File.Exists(cacheFile))
               {
                 using (MemoryStream ms = new MemoryStream(pics[0].Data.Data))
@@ -297,6 +285,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
           var albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
           var artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+          if (AudioMetadataExtractor.IsDiscFolder(albumTitle, albumMediaItemDirectoryPath.FileName))
+          {
+            //Probably a CD folder so try next parent
+            albumMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+            artistMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../../");
+          }
 
           //Album fanart
           var fanArtPaths = new List<ResourcePath>();
@@ -304,6 +298,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           var bannerPaths = new List<ResourcePath>();
           var logoPaths = new List<ResourcePath>();
           var clearArtPaths = new List<ResourcePath>();
+          var discArtPaths = new List<ResourcePath>();
           var thumbPaths = new List<ResourcePath>();
           if (albumMediaItemId.HasValue)
           {
@@ -341,6 +336,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                     potentialFanArtFileNameWithoutExtension == "cover"
                     select potentialFanArtFile);
 
+                discArtPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "cdart" || potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc"
+                    select potentialFanArtFile);
+
                 fanArtPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
@@ -354,6 +355,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             }
             foreach (ResourcePath posterPath in coverPaths)
               SaveFolderFile(mediaItemLocater, posterPath, FanArtTypes.Cover, albumMediaItemId.Value, albumTitle);
+            foreach (ResourcePath discArtPath in discArtPaths)
+              SaveFolderFile(mediaItemLocater, discArtPath, FanArtTypes.DiscArt, albumMediaItemId.Value, albumTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
               SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, albumMediaItemId.Value, albumTitle);
 
@@ -364,6 +367,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             bannerPaths.Clear();
             logoPaths.Clear();
             clearArtPaths.Clear();
+            discArtPaths.Clear();
             thumbPaths.Clear();
             if (artistMediaItems.Count > 0)
             {
@@ -504,7 +508,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public void DeleteFanArt(Guid mediaItemId)
     {
-      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+      FanArtCache.DeleteFanArtFiles(mediaItemId.ToString());
     }
 
     public void ClearCache()

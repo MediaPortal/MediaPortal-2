@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       //This should also improve performance as this search will be cached for other tracks in the same album whereas a track name
       //search won't be
       //TODO: Handle this better in the wrapper.
-      if (trackInfo.AudioDbId == 0 && string.IsNullOrEmpty(trackInfo.MusicBrainzId))
+      if (trackInfo.AudioDbId == 0)
         FindTrackFromAlbum(trackInfo, importOnly);
       return base.FindAndUpdateTrack(trackInfo, importOnly);
     }

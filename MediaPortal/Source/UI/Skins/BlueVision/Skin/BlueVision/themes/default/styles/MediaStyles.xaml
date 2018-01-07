@@ -15,8 +15,6 @@
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
 
-  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
-
   <!-- 
     Media Navigation styles.
     We provide different control styles for thumbnail list and grid views for each navigation item (filter, audio, video,...).
@@ -28,10 +26,7 @@
       <Image x:Name="PartlyWatchedLabel" Height="25" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
                Source="partlywatched.png">
         <Image.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 &amp;&amp; {1} > 1">
-            <Binding Path="PlayCount"/>
-            <Binding Path="WatchPercentage"/>
-          </MultiBinding>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
         </Image.IsVisible>
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -45,7 +40,7 @@
       <Image x:Name="WatchedLabel" Height="25" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
                Source="watched.png">
         <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
         </Image.IsVisible>
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -63,23 +58,18 @@
       <Grid>
         <Image Source="flag.png" Height="71" Stretch="Uniform">
           <Image.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
-              <Binding Path="WatchPercentage"/>
-            </MultiBinding>
+            <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
           </Image.IsVisible>
         </Image>
         <Image x:Name="PartlyWatchedLabel" Height="18" Margin="0,6,6,0" Stretch="Uniform"
                Source="partlywatched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         <Grid.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 &amp;&amp; {1} > 1">
-            <Binding Path="PlayCount"/>
-            <Binding Path="WatchPercentage"/>
-          </MultiBinding>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
         </Grid.IsVisible>
       </Grid>
       <Grid>
         <Grid.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
         </Grid.IsVisible>
         <Image Source="flag.png" Height="71" Stretch="Uniform"/>
         <Image x:Name="WatchedLabel" Height="18" Margin="0,6,6,0" Stretch="Uniform"
@@ -2051,6 +2041,8 @@
                           Command="{Command SeekForward}"/>
       <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
                           Command="{Command Next}"/>
+      <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
       <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
@@ -2075,12 +2067,45 @@
     </StackPanel>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="GenericAudioOSDControlsControl">
+    <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+      <!-- Morpheus_xx: we want to see buttons always, not only when using mouse // IsVisible="{Binding ShowMouseControls}" -->
+      <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
+                          Command="{Command Previous}"/>
+      <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
+                          Command="{Command SeekBackward}"/>
+      <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
+                          Command="{Command Play}"/>
+      <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
+                          Command="{Command Pause}"/>
+      <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
+                          Command="{Command Stop}"/>
+      <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
+                          Command="{Command SeekForward}"/>
+      <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
+                          Command="{Command Next}"/>
+      <!-- No difference between "Mouse" and "No Mouse" case here, always use buttons so they are functional in OSD -->
+      <Grid x:Name="AudioPanel" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4">
+        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+      </Grid>
+    </StackPanel>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GenericImageOSDHeaderControl">
+    <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="-100,-40,20,0">
+      <Label x:Name="ImageName" FontFamily="DefaultBold" FontSize="28"
+             Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
+             HorizontalAlignment="Left" VerticalAlignment="Top"/>
+    </StackPanel>
+  </ControlTemplate>
+  
   <Style x:Key="PrimaryVideoOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-
-          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" 
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
                 <Grid>
@@ -2184,7 +2209,54 @@
     <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
   </Style>
 
+  <Style x:Key="PrimaryImageOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Control.Resources>
 
+              <ControlTemplate x:Key="OSD_Progress_Template">
+                <Control Template="{ThemeResource GenericImageOSDHeaderControl}" />
+              </ControlTemplate>
+              
+              <ControlTemplate x:Key="OSD_Controls_Template">
+                <Control Template="{ThemeResource GenericAudioOSDControlsControl}" />
+              </ControlTemplate>
+
+            </Control.Resources>
+          </Control>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
+  </Style>
+
+  <Style x:Key="PrimaryAudioOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Control Style="{ThemeResource OSDAudioContainer}" Width="{ThemeResource FullScreenContentAudioPrimaryPlayerOSDWidth}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Control.Resources>
+
+              <ControlTemplate x:Key="OSD_Progress_Template">
+                <Control Template="{ThemeResource GenericVideoOSDProgressControl}" />
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Controls_Template">
+                <Control Template="{ThemeResource GenericAudioOSDControlsControl}" />
+              </ControlTemplate>
+
+            </Control.Resources>
+          </Control>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
+  </Style>
+  
   <Storyboard x:Key="PressedPiPOSDButtonStoryboard" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetName="PiPControlBorder" Storyboard.TargetProperty="BorderBrush.Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PipBorderColor}"/>
@@ -2404,7 +2476,7 @@
   </DataTemplate>
 
   <Style x:Key="MediaItemsListListViewStyle2" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
-    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeScreenItemTemplate}"/>
     <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>

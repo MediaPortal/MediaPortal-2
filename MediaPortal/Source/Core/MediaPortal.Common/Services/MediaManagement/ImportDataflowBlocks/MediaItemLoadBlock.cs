@@ -130,8 +130,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           requiredAspects.Add(ProviderResourceAspect.ASPECT_ID);
 
           // ReSharper disable once PossibleInvalidOperationException
-          MediaItem mediaItem = await LoadLocalItem(importResource.PendingResourcePath, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable());
-          if(mediaItem != null)
+          MediaItem mediaItem = null;
+          if(importResource.MediaItemId.HasValue)
+            mediaItem = await LoadLocalItem(importResource.MediaItemId.Value, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable());
+          else if(!importResource.IsStubResource)
+            mediaItem = await LoadLocalItem(importResource.PendingResourcePath, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable());
+          if (mediaItem != null)
           {
             SingleMediaItemAspect directoryAspect;
             if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, DirectoryAspect.Metadata, out directoryAspect))

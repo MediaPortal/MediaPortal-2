@@ -25,6 +25,7 @@
 using System;
 using System.ServiceProcess;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Backend;
 using MediaPortal.Common.Exceptions;
@@ -133,7 +134,7 @@ namespace MediaPortal.Server
           ApplicationCore.StartCoreServices();
           InitIpc();
           BackendExtension.StartupBackendServices();
-          ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after backend services are running
+          _ = ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after backend services are running
 
           mediaAccessor.Initialize();
 
@@ -210,6 +211,7 @@ namespace MediaPortal.Server
     {
       Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
+      TaskScheduler.UnobservedTaskException += LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;
 
       Start();
 
@@ -225,6 +227,7 @@ namespace MediaPortal.Server
       Stop();
       Application.ThreadException -= LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException -= LauncherExceptionHandling.CurrentDomain_UnhandledException;
+      TaskScheduler.UnobservedTaskException -= LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;
     }
 
     private void InitIpc()

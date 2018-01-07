@@ -31,6 +31,7 @@
   <string name="SlimTvClient.EpgNumberOfRows.Help">Určuje počet riadkov (kanálov) zobrazených v EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours">Počet hodín v EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Určuje počet hodín (relácií) zobrazených v EPG</string>
+  <string name="SlimTvClient.Notifications">Oznamy</string>
   <string name="SlimTvClient.RecordingsMenuItem">Nahrávky</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV nahrávky</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrovať podľa kanála</string>

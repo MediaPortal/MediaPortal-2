@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <References Include="$(TargetDir)SlimTv.Interfaces.dll" />
       <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
       <References Include="$(TargetDir)MediaPortal.LogoManager.dll" />
     </ItemGroup>

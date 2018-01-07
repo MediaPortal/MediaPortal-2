@@ -34,6 +34,7 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
   </Register>

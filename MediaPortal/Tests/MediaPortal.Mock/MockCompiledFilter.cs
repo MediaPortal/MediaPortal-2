@@ -33,15 +33,15 @@ namespace MediaPortal.Mock
   public class MockCompiledFilter : CompiledFilter
   {
     public MockCompiledFilter()
-      : base(null, null, null, null, null, null)
+      : base(null, null, null, null, null, null, null)
     {
     }
 
-    public void test(MIA_Management miaManagement, IFilter filter,
+    public void test(MIA_Management miaManagement, IFilter filter, IFilter subqueryFilter,
       ICollection<MediaItemAspectMetadata> requiredMIATypes, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins,
       IList<object> resultParts, IList<BindVar> resultBindVars)
     {
-      CompileStatementParts(miaManagement, filter, null, new BindVarNamespace(),
+      CompileStatementParts(miaManagement, filter, subqueryFilter, null, new BindVarNamespace(),
         requiredMIATypes, outerMIIDJoinVariable, tableJoins,
         resultParts, resultBindVars);
     }

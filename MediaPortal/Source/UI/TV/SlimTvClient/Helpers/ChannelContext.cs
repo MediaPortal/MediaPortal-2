@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
@@ -68,15 +69,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       ChannelGroups = new NavigationList<IChannelGroup>();
       Channels = new NavigationList<IChannel>();
       ChannelGroups.OnCurrentChanged += ReloadChannels;
-      InitChannelGroups();
+      InitChannelGroups().Wait();
     }
 
-    public void InitChannelGroups()
+    public async Task InitChannelGroups()
     {
-      IList<IChannelGroup> channelGroups;
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-      if (tvHandler != null && tvHandler.ChannelAndGroupInfo.GetChannelGroups(out channelGroups))
+      if (tvHandler != null)
       {
+        var result = await tvHandler.ChannelAndGroupInfo.GetChannelGroupsAsync();
+        if (!result.Success)
+          return;
+
+        var channelGroups = result.Result;
+
         ChannelGroups.Clear();
         ChannelGroups.AddRange(FilterGroups(channelGroups));
         ChannelGroups.FireListChanged();
@@ -116,12 +122,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     /// </summary>
     /// <param name="oldindex">Index of previous selected entry</param>
     /// <param name="newindex">Index of current selected entry</param>
-    private void ReloadChannels(int oldindex, int newindex)
+    private async void ReloadChannels(int oldindex, int newindex)
     {
-      IList<IChannel> channels;
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-      if (tvHandler != null && tvHandler.ChannelAndGroupInfo.GetChannels(ChannelGroups.Current, out channels))
+      if (tvHandler != null)
       {
+        var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(ChannelGroups.Current);
+        if (!result.Success)
+          return;
+
+        IList<IChannel> channels = result.Result;
+
         Channels.ClearAndReset();
         Channels.AddRange(channels);
         Channels.FireListChanged();

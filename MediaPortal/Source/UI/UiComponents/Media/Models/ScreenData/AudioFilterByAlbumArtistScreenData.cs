@@ -30,11 +30,11 @@ using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class AudioFilterByAlbumArtistScreenData : AbstractAlbumFilterScreenData<ArtistFilterItem>
+  public class AudioFilterByAlbumArtistScreenData : AbstractFiltersScreenData<ArtistFilterItem>
   {
     public AudioFilterByAlbumArtistScreenData() :
       base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM_ARTIST, Consts.RES_COMMON_BY_ALBUM_ARTIST_MENU_ITEM,
-      Consts.RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL, new FilterByArtistCriterion(AudioAlbumAspect.ROLE_ALBUM))
+      Consts.RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL, new FilterByAlbumArtistCriterion(AudioAspect.ROLE_TRACK))
     {
       _availableMias = Consts.NECESSARY_PERSON_MIAS;
       if (Consts.OPTIONAL_PERSON_MIAS != null)

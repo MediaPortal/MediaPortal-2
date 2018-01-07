@@ -32,6 +32,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -88,6 +89,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!existingAspects.ContainsKey(AudioAspect.ASPECT_ID))
         return false;
 
+      SingleMediaItemAspect extractedMediaAspect;
+      if (!MediaItemAspect.TryGetAspect(extractedAspects, MediaAspect.Metadata, out extractedMediaAspect))
+        return false;
+
+      SingleMediaItemAspect existingMediaAspect;
+      if (!MediaItemAspect.TryGetAspect(existingAspects, MediaAspect.Metadata, out existingMediaAspect))
+        return false;
+
+      //Only merge with a stub
+      if (!extractedMediaAspect.GetAttributeValue<bool>(MediaAspect.ATTR_ISSTUB) && !existingMediaAspect.GetAttributeValue<bool>(MediaAspect.ATTR_ISSTUB))
+        return false;
+
       TrackInfo linkedTrack = new TrackInfo();
       if (!linkedTrack.FromMetadata(extractedAspects))
         return false;
@@ -103,38 +116,69 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       try
       {
+        TrackInfo existing = new TrackInfo();
+        TrackInfo extracted = new TrackInfo();
+
         //Extracted aspects
         IList<MultipleMediaItemAspect> providerResourceAspects;
         if (!MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
-          return false;
-
-        //Don't merge virtual resource
-        string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        ResourcePath resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
-        if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
           return false;
 
         //Existing aspects
         IList<MultipleMediaItemAspect> existingProviderResourceAspects;
         MediaItemAspect.TryGetAspects(existingAspects, ProviderResourceAspect.Metadata, out existingProviderResourceAspects);
 
-        //Replace if existing is a virtual resource
-        accessorPath = (string)existingProviderResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        resourcePath = ResourcePath.Deserialize(accessorPath);
-        if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        //Don't merge virtual resources
+        if (!providerResourceAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_VIRTUAL).Any())
         {
-          existingAspects[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
-          existingAspects.Remove(ProviderResourceAspect.ASPECT_ID);
-          foreach (Guid aspect in extractedAspects.Keys)
+          //Replace if existing is a virtual resource
+          if (existingProviderResourceAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_VIRTUAL).Any())
           {
-            if (!existingAspects.ContainsKey(aspect))
-              existingAspects.Add(aspect, extractedAspects[aspect]);
+            MediaItemAspect.SetAttribute(existingAspects, MediaAspect.ATTR_ISVIRTUAL, false);
+            MediaItemAspect.SetAttribute(existingAspects, MediaAspect.ATTR_ISSTUB, 
+              providerResourceAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB).Any());
+            existingAspects.Remove(ProviderResourceAspect.ASPECT_ID);
+            foreach (Guid aspect in extractedAspects.Keys)
+            {
+              if (!existingAspects.ContainsKey(aspect))
+                existingAspects.Add(aspect, extractedAspects[aspect]);
+            }
           }
-          existingAspects[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
-          return true; 
+          else if (existingProviderResourceAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB).Any() ||
+            providerResourceAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB).Any())
+          {
+            MediaItemAspect.SetAttribute(existingAspects, MediaAspect.ATTR_ISVIRTUAL, false);
+            MediaItemAspect.SetAttribute(existingAspects, MediaAspect.ATTR_ISSTUB, true);
+            foreach (Guid aspect in extractedAspects.Keys)
+            {
+              if (!existingAspects.ContainsKey(aspect))
+                existingAspects.Add(aspect, extractedAspects[aspect]);
+              else if (aspect == ProviderResourceAspect.ASPECT_ID)
+              {
+                int newResIndex = 0;
+                foreach (MediaItemAspect mia in existingAspects[aspect])
+                {
+                  if(newResIndex <= mia.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX))
+                    newResIndex = mia.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) + 1;
+                }
+                foreach (MediaItemAspect mia in extractedAspects[aspect])
+                {
+                  mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, newResIndex);
+                  existingAspects[aspect].Add(mia);
+                  newResIndex++;
+                }
+              }
+            }
+          }
         }
-        
-        return false;
+
+        existing.FromMetadata(existingAspects);
+        extracted.FromMetadata(extractedAspects);
+
+        existing.MergeWith(extracted, false, false);
+        existing.SetMetadata(existingAspects);
+
+        return true;
       }
       catch (Exception e)
       {

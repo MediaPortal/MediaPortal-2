@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Xml.Linq;
 using CustomActions;
@@ -55,16 +56,23 @@ namespace Tests
     {
       // Arrange
       var mockHelper = new Mock<IRunnerHelper>();
+      string majorOnlineversion = "0";
       string minorOnlineVersion = "69";
-      mockHelper.Setup(s => s.LoadXmlDocument(It.IsAny<string>())).Returns(LavFiltersMetadataFile("0", minorOnlineVersion, "0", "0"));
+      string buildOnlineVersion = "0";
+      string privOnlineVersion = "42";
+      mockHelper.Setup(s => s.LoadXmlDocument(It.IsAny<string>())).Returns(LavFiltersMetadataFile(majorOnlineversion, minorOnlineVersion, buildOnlineVersion, privOnlineVersion));
       string splitterKey = @"CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32";
       string fileName = "LavSplitter.ax";
       mockHelper.Setup(s => s.GetPathForRegistryKey(splitterKey)).Returns(fileName);
-      mockHelper.Setup(s => s.GetFileMajorVersion(fileName)).Returns(0);
-      int localMinorVersion = 66;
+
+      int localMajorVersion = 0;
+      int localMinorVersion = 69;
+      int localBuildVersion = 0;
+      int localPrivVersion = 33;
+      mockHelper.Setup(s => s.GetFileMajorVersion(fileName)).Returns(localMajorVersion);
       mockHelper.Setup(s => s.GetFileMinorVersion(fileName)).Returns(localMinorVersion);
-      mockHelper.Setup(s => s.GetFileBuildVersion(fileName)).Returns(0);
-      mockHelper.Setup(s => s.GetFilePrivateVersion(fileName)).Returns(0);
+      mockHelper.Setup(s => s.GetFileBuildVersion(fileName)).Returns(localBuildVersion);
+      mockHelper.Setup(s => s.GetFilePrivateVersion(fileName)).Returns(localPrivVersion);
 
       // Act
       var runner = new CustomActionRunner(mockHelper.Object);

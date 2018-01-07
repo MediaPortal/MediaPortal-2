@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Linq;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -88,6 +89,24 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public MovieCollectionInfo Clone()
     {
       return CloneProperties(this);
+    }
+
+    public void MergeWith(MovieCollectionInfo other, bool overwriteShorterStrings = true, bool updateMovieList = false)
+    {
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, other.MovieDbId);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref CollectionName, other.CollectionName, overwriteShorterStrings);
+
+      if (TotalMovies < other.TotalMovies)
+      {
+        HasChanged = true;
+        TotalMovies = other.TotalMovies;
+      }
+
+      if (updateMovieList) //Comparing all movies can be quite time consuming
+      {
+        MetadataUpdater.SetOrUpdateList(Movies, other.Movies.Distinct().ToList(), true, overwriteShorterStrings);
+      }
     }
 
     #region Members
@@ -174,10 +193,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-              if (!string.IsNullOrEmpty(language))
-              {
-                if (Languages.Contains(language))
-                  Languages.Add(language);
+              if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
+              { 
+                Languages.Add(language);
               }
             }
           }
@@ -218,8 +236,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (MovieDbId > 0 && other.MovieDbId > 0)
         return MovieDbId == other.MovieDbId;
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
-        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
+
+      //Name id is generated from name and can be unreliable so should only be used if matches
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && 
+        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
 
       if (!CollectionName.IsEmpty && !other.CollectionName.IsEmpty && CollectionName.Text == other.CollectionName.Text)
         return true;

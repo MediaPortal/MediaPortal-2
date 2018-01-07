@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -34,7 +35,8 @@ using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -45,25 +47,25 @@ namespace MediaPortal.UiComponents.Media.Views
   {
     #region Protected fields
 
-    protected IFilter _filter;
+    protected IFilterTree _filterTree;
+    protected FilterTreePath _filterPath;
+    protected IDictionary<Guid, IFilter> _linkedAspectfilters;
     protected MediaItemQuery _query;
     protected bool _onlyOnline;
     protected int? _maxNumItems;
     protected int? _absNumItems;
-    protected IEnumerable<Guid> _filteredMias;
 
     #endregion
 
     #region Ctor
 
-    public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilter filter,
-        IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline, IEnumerable<Guid> filteredMias) :
+    public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilterTree filterTree,
+        IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
         base(viewDisplayName, necessaryMIATypeIDs, optionalMIATypeIDs)
     {
-      _filter = filter;
-      _query = new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs, filter);
+      _filterTree = filterTree ?? new SimpleFilterTree();
+      _query = new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs, _filterTree.BuildFilter());
       _onlyOnline = onlyOnline;
-      _filteredMias = filteredMias;
     }
 
     #endregion
@@ -73,9 +75,15 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return _onlyOnline; }
     }
 
-    public IFilter Filter
+    public IFilterTree FilterTree
     {
-      get { return _filter; }
+      get { return _filterTree; }
+    }
+
+    public FilterTreePath FilterPath
+    {
+      get { return _filterPath; }
+      set { _filterPath = value; }
     }
 
     /// <summary>
@@ -104,26 +112,22 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
-    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter, IEnumerable<Guid> filteredMias)
+    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, FilterTreePath filterPath, IFilter filter, Guid? linkedId)
     {
-      IFilter combinedFilter;
-      if (_filter == null || !CanCombineFilters(filteredMias))
-        combinedFilter = filter;
-      else
+      IFilterTree newFilterTree = _filterTree.DeepCopy();
+      if (linkedId.HasValue)
+        newFilterTree.AddLinkedId(linkedId.Value, filterPath);
+      else if (filter != null)
+        newFilterTree.AddFilter(filter, filterPath);
+      
+      return new MediaLibraryQueryViewSpecification(viewDisplayName, newFilterTree, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
       {
-        if (filter is AbstractRelationshipFilter)
-          //TODO: Check why reversing the filter order is necessary for RelationshipFilters
-          combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { filter, _filter });
-        else
-          combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { _filter, filter });
-      }
-      return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline, filteredMias)
-      {
-        MaxNumItems = _maxNumItems
+        MaxNumItems = _maxNumItems,
+        FilterPath = filterPath
       };
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -134,27 +138,35 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      return cd.Search(_query, _onlyOnline, userProfile, ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs));
-    }
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
 
-    public bool CanCombineFilters(IEnumerable<Guid> filteredMias)
-    {
-      return filteredMias == null || _filteredMias == null || filteredMias.Intersect(_filteredMias).Count() > 0;
+      IList<MediaItem> mediaItems = await cd.SearchAsync(_query, _onlyOnline, userProfile, showVirtual);
+      CertificationHelper.ConvertCertifications(mediaItems);
+      return mediaItems;
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
-      mediaItems = null;
-      subViewSpecifications = null;
+      var result = ReLoadItemsAndSubViewSpecificationsAsync().Result;
+      mediaItems = result.Item1;
+      subViewSpecifications = result.Item2;
+    }
+
+    protected internal async Task<Tuple<IList<MediaItem>, IList<ViewSpecification>>> ReLoadItemsAndSubViewSpecificationsAsync()
+    {
+      IList<MediaItem> mediaItems = null;
+      IList<ViewSpecification> subViewSpecifications = null;
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        return;
+        return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(null, null);
 
-      bool showVirtual = ShowVirtualSetting.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_query.NecessaryRequestedMIATypeIDs);
 
       try
       {
@@ -164,7 +176,7 @@ namespace MediaPortal.UiComponents.Media.Views
           // If we have many items, we need groups. If we have few items, we don't need the groups but simply do a search.
           // We request the groups first to make it faster for the many items case. In the case of few items, both groups and items
           // are requested which doesn't take so long because there are only few items.
-          IList<MLQueryResultGroup> groups = cd.GroupValueGroups(MediaAspect.ATTR_TITLE, null, ProjectionFunction.None,
+          IList<MLQueryResultGroup> groups = await cd.GroupValueGroupsAsync(MediaAspect.ATTR_TITLE, null, ProjectionFunction.None,
               _query.NecessaryRequestedMIATypeIDs, _query.Filter, _onlyOnline, GroupingFunction.FirstCharacter, showVirtual);
           long numItems = groups.Aggregate<MLQueryResultGroup, long>(0, (current, group) => current + group.NumItemsInGroup);
           if (numItems > MaxNumItems.Value)
@@ -173,24 +185,26 @@ namespace MediaPortal.UiComponents.Media.Views
             subViewSpecifications = new List<ViewSpecification>(groups.Count);
             foreach (MLQueryResultGroup group in groups)
             {
-              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter, _filteredMias);
+              MediaLibraryQueryViewSpecification subViewSpecification =
+                CreateSubViewSpecification(string.Format("{0}", group.GroupKey), _filterPath, group.AdditionalFilter, null);
               subViewSpecification.MaxNumItems = null;
               subViewSpecification._absNumItems = group.NumItemsInGroup;
               subViewSpecifications.Add(subViewSpecification);
             }
-            return;
+            return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(mediaItems, subViewSpecifications);
           }
           // Else: No grouping
         }
         // Else: No grouping
-        mediaItems = cd.Search(_query, _onlyOnline, userProfile, showVirtual);
+        mediaItems = await cd.SearchAsync(_query, _onlyOnline, userProfile, showVirtual);
+        CertificationHelper.ConvertCertifications(mediaItems);
         subViewSpecifications = new List<ViewSpecification>(0);
+        return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(mediaItems, subViewSpecifications);
       }
       catch (UPnPRemoteException e)
       {
         ServiceRegistration.Get<ILogger>().Error("SimpleTextSearchViewSpecification.ReLoadItemsAndSubViewSpecifications: Error requesting server", e);
-        mediaItems = null;
-        subViewSpecifications = null;
+        return new Tuple<IList<MediaItem>, IList<ViewSpecification>>(null, null);
       }
     }
   }

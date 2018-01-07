@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="IsoResourceProvider.Description">Accesso file e cartelle per immagini ISO</string>
+  <string name="IsoResourceProvider.Name">File ISO</string>
+  <string name="IsoResourceProvider.Description">Accedi a file e cartelle nelle immagini ISO</string>
 </resources>

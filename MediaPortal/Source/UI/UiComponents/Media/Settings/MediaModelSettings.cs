@@ -59,5 +59,7 @@ namespace MediaPortal.UiComponents.Media.Settings
     /// </summary>
     [Setting(SettingScope.Global, DEFAULT_SKIPSTEP_LIST)]
     public string SkipStepList { get; set; }
+    [Setting(SettingScope.Global, true)]
+    public bool OpenPlayerConfigInOsd { get; set; }
   }
 }

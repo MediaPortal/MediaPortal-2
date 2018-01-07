@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Legt fest, ob der Bildschirmschoner verwendet werden soll</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Bildschirmschoner-Wartezeit</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Legt die Zeitspanne in Minuten nach der letzten Benutzereingabe fest, ab der der Bildschirmschoner angezeigt wird</string>
-  <string name="Settings.Appearance.System.Antialiasing">GUI-Kantenglättung</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Kantenglättung verbessert die Anzeigequalität, kann aber die Performance der Videowiedergabe beeinflussen</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skin und Thema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Skin wechseln</string>

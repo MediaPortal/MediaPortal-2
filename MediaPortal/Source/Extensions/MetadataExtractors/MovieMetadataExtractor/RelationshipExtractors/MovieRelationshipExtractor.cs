@@ -22,13 +22,14 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.MediaManagement.Helpers;
+using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -50,12 +51,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     protected RelationshipExtractorMetadata _metadata;
     private IList<IRelationshipRoleExtractor> _extractors;
-    private IList<RelationshipHierarchy> _hierarchies;
 
     public MovieRelationshipExtractor()
     {
       _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Movie relationship extractor");
+      RegisterRelationships();
+      InitExtractors();
+    }
 
+    protected void InitExtractors()
+    {
       _extractors = new List<IRelationshipRoleExtractor>();
 
       _extractors.Add(new MovieCollectionRelationshipExtractor());
@@ -65,9 +70,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       _extractors.Add(new MovieCharacterRelationshipExtractor());
       _extractors.Add(new MovieProductionRelationshipExtractor());
       _extractors.Add(new MovieCollectionMovieRelationshipExtractor());
+    }
 
-      _hierarchies = new List<RelationshipHierarchy>();
-      _hierarchies.Add(new RelationshipHierarchy(MovieAspect.ROLE_MOVIE, MovieAspect.ATTR_MOVIE_NAME, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieCollectionAspect.ATTR_AVAILABLE_MOVIES, true));
+    /// <summary>
+    /// Registers all relationships that are extracted by this relationship extractor.
+    /// </summary>
+    protected void RegisterRelationships()
+    {
+      IRelationshipTypeRegistration relationshipRegistration = ServiceRegistration.Get<IRelationshipTypeRegistration>();
+
+      //Relationships must be registered in order from movies up to all parent relationships
+
+      //Hierarchical relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Collection", true,
+        MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieAspect.ASPECT_ID, MovieCollectionAspect.ASPECT_ID,
+        MovieAspect.ATTR_MOVIE_NAME, MovieCollectionAspect.ATTR_AVAILABLE_MOVIES, true), true);
+
+      //Simple (non hierarchical) relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Actor", MovieAspect.ROLE_MOVIE, PersonAspect.ROLE_ACTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Director", MovieAspect.ROLE_MOVIE, PersonAspect.ROLE_DIRECTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Writer", MovieAspect.ROLE_MOVIE, PersonAspect.ROLE_WRITER), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Character", MovieAspect.ROLE_MOVIE, CharacterAspect.ROLE_CHARACTER), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Production", MovieAspect.ROLE_MOVIE, CompanyAspect.ROLE_COMPANY), true);
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()
@@ -109,7 +133,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
 
         if (collectionChangedFilter != null)
-          filters.Add(new FilteredRelationshipFilter(MovieAspect.ROLE_MOVIE, collectionChangedFilter), 1);
+          filters.Add(new FilteredRelationshipFilter(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, collectionChangedFilter), 1);
       }
 
       //Add filters for changed movies
@@ -171,11 +195,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public IList<IRelationshipRoleExtractor> RoleExtractors
     {
       get { return _extractors; }
-    }
-
-    public IList<RelationshipHierarchy> Hierarchies
-    {
-      get { return _hierarchies; }
     }
   }
 }

@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -33,30 +34,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         public MIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
             SelectProjectionFunction selectProjectionFunction,
             IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-            IFilter filter, IList<SortInformation> sortInformation) : base(miaManagement, simpleSelectAttributes,
+            IFilter filter, IFilter subqueryFilter, IList<ISortInformation> sortInformation, Guid? userProfileId = null) : base(miaManagement, simpleSelectAttributes,
             selectProjectionFunction,
             necessaryRequestedMIAs, optionalRequestedMIAs,
-            filter, sortInformation)
+            filter, subqueryFilter, sortInformation, userProfileId)
         {
         }
 
-        protected override bool Include(MediaItemAspectMetadata miam)
-        {
-            return (miam is SingleMediaItemAspectMetadata || miam is MultipleMediaItemAspectMetadata);
-        }
-
-        /// <summary>
-        /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute
-        /// values and a count column containing the size of each group.
-        /// </summary>
-        /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
-        /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
-        /// <param name="statementStr">SQL statement which was built by this method.</param>
-        /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
-        public void GenerateSqlGroupByStatement(out string groupSizeAlias, out IDictionary<QueryAttribute, string> attributeAliases,
-            out string statementStr, out IList<BindVar> bindVars)
-        {
-            GenerateSqlStatement(true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
-        }
+    /// <summary>
+    /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute
+    /// values and a count column containing the size of each group.
+    /// </summary>
+    /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
+    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
+    /// <param name="statementStr">SQL statement which was built by this method.</param>
+    /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
+    public void GenerateSqlGroupByStatement(out string groupSizeAlias, out IDictionary<QueryAttribute, string> attributeAliases,
+        out string statementStr, out IList<BindVar> bindVars)
+    {
+      GenerateSqlStatement(true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
     }
+  }
 }

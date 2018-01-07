@@ -8,24 +8,12 @@
   <string name="Media.SeriesMenuItem">Séries</string>
   <string name="Media.MoviesMenuItem">Filmes</string>
   <string name="Media.ImagesMenuItem">Imagens</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Filtrar por artista</string>
-  <string name="Media.FilterByAlbumMenuItem">Filtrar por álbum</string>
-  <string name="Media.FilterByAudioGenreMenuItem">Filtrar por gênero</string>
-  <string name="Media.FilterByDecadeMenuItem">Filtrar por década</string>
-  <string name="Media.FilterByActorMenuItem">Filtrar por ator</string>
-  <string name="Media.FilterByVideoGenreMenuItem">Filtrar por gênero</string>
-  <string name="Media.FilterByVideoYearMenuItem">Filtrar por ano</string>
-  <string name="Media.FilterByImageSizeMenuItem">Filtrar por tamanho</string>
-  <string name="Media.FilterByImageYearMenuItem">Filtrar por ano</string>
-  <string name="Media.FilterBySystemMenuItem">Filtrar por sistema</string>
-  <string name="Media.FilterBySeriesNameMenuItem">Filtrar por série</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">Filtrar por temporada</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">Filtrar por episódio</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.TitleMenuItem">Título</string>
+  <string name="Media.ArtistMenuItem">Artista</string>
+  <string name="Media.SeriesNameMenuItem">Séries</string>
   <string name="Media.SimpleSearchFilterMenuItem">Procurar</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Mostrar todos</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Mostrar todos</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Mostrar todos</string>
+  <!--Filter titles-->
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Pequenos</string>
   <string name="Media.ImageFilterMedium">Médios</string>
@@ -175,6 +163,7 @@
   <string name="Media.VideoDurationLabel">Duração:</string>
   <string name="Media.VideoActorsLabel">Ator(es):</string>
   <string name="Media.VideoStoryPlotLabel">Sinopse:</string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Informações da imagem atual</string>
@@ -197,20 +186,6 @@
   <string name="Media.AudioDurationLabel">Duração:</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
-  <string name="Media.SortByAlbumTrack">Ordenar por album e faixa</string>
-  <string name="Media.SortByGenre">Ordenar por gênero</string>
-  <string name="Media.SortByAlbum">Ordenar por album e música</string>
-  <string name="Media.SortByTrack">Ordenar por faixa</string>
-  <string name="Media.SortByArtist">Ordenar por artista</string>
-  <string name="Media.SortByYear">Ordenar por ano</string>
-  <string name="Media.SortBySize">Ordenar por tamanho</string>
-  <string name="Media.SortBySystem">Ordenar por sistema</string>
-  <string name="Media.SortByActor">Ordenar por ator</string>
-  <string name="Media.SortByDirector">Ordenar por diretor</string>
-  <string name="Media.SortByDuration">Ordenar por duração</string>
-  <string name="Media.SortByAspectRatio">Ordenar pelo aspecto</string>
-  <string name="Media.SortByDate">Ordenar pela data de gravação</string>
-  <string name="Media.SortByEpisode">Ordenar por eposódio</string>
   <string name="Settings.Players">Reprodutores</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

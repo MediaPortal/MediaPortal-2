@@ -89,13 +89,30 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
 
-          <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"  Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
-                   IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          <!--Container for content templates to handle common triggers-->
+          <Grid Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.Triggers>
+              <!--Close the hidden menu when the main content gets focus-->
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+              </EventTrigger>
+            </Grid.Triggers>
 
-          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0"
-             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
-             IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}" Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
+                     IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+            <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                     Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
+                     IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          </Grid>
 
           <Grid x:Name="RightPanel" Margin="10,-160,-680,-300" VerticalAlignment="Stretch"
               Width="550" HorizontalAlignment="Right">
@@ -118,22 +135,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </Storyboard>
             </Grid.Resources>
             <Grid.Triggers>
-              <MultiTrigger>
-                <MultiTrigger.Conditions>
-                  <Condition Property="IsMouseOver" Value="False" />
-                  <Condition Binding="{Binding ElementName=MainListMenu, Path=CurrentItem}" Value="{x:Null}" />
-                  <Condition Binding="{Binding ElementName=MenuShowButton, Path=HasFocus}" Value="False" />
-                </MultiTrigger.Conditions>
-                <MultiTrigger.EnterActions>
-                  <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-                </MultiTrigger.EnterActions>
-                <MultiTrigger.ExitActions>
-                  <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
-                </MultiTrigger.ExitActions>
-              </MultiTrigger>
-              <!-- Setting default state of menu to hidden -->
-              <EventTrigger RoutedEvent="Screen.Show">
-                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+              <!--Open the menu when the grid gets focus-->
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
               </EventTrigger>
               <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
               <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
@@ -145,7 +149,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
                 </DataTrigger.ExitActions>
                 <Setter TargetName="MainListMenu" Property="SetFocusPrio" Value="Highest" />
-                <Setter TargetName="MainListMenu" Property="SetFocus" Value="True" />
               </DataTrigger>
             </Grid.Triggers>
             <Grid.ColumnDefinitions>
@@ -171,6 +174,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
+              <ListView.Triggers>
+                <Trigger Property="IsEmpty" Value="True">
+                  <Setter TargetName="RightPanel" Property="Visibility" Value="Hidden" />
+                </Trigger>
+              </ListView.Triggers>
             </ListView>
             <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource MenuButtonWideStyle}"
                     Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="180" Margin="-45,0,0,340"
@@ -201,22 +209,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </Storyboard>
             </Grid.Resources>
             <Grid.Triggers>
-              <MultiTrigger>
-                <MultiTrigger.Conditions>
-                  <Condition Property="IsMouseOver" Value="False" />
-                  <Condition Binding="{Binding ElementName=TopMenu, Path=CurrentItem}" Value="{x:Null}" />
-                  <Condition Binding="{Binding ElementName=MenuShowTopButton, Path=HasFocus}" Value="False" />
-                </MultiTrigger.Conditions>
-                <MultiTrigger.EnterActions>
-                  <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-                </MultiTrigger.EnterActions>
-                <MultiTrigger.ExitActions>
-                  <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
-                </MultiTrigger.ExitActions>
-              </MultiTrigger>
-              <!-- Setting default state of menu to hidden -->
-              <EventTrigger RoutedEvent="Screen.Show">
-                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+              <!--Open the menu when the grid gets focus-->
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
               </EventTrigger>
               <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
               <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
@@ -228,7 +223,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <StopStoryboard BeginStoryboardName="SlideDown_BeginStoryboard"/>
                 </DataTrigger.ExitActions>
                 <Setter TargetName="TopMenu" Property="SetFocusPrio" Value="Highest" />
-                <Setter TargetName="TopMenu" Property="SetFocus" Value="True" />
               </DataTrigger>
             </Grid.Triggers>
             <Grid.ColumnDefinitions>

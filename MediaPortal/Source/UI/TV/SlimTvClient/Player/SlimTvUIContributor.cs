@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.Media.Models;
 
@@ -29,12 +31,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
   public class SlimTvUIContributor : BaseVideoPlayerUIContributor
   {
+    private readonly AbstractProperty _isZappingProperty;
+    private LiveTvPlayer _player;
+
     public const string SCREEN_FULLSCREEN_TV = "FullscreenContentTv";
     public const string SCREEN_CURRENTLY_PLAYING_TV = "CurrentlyPlayingTv";
 
     public override bool BackgroundDisabled
     {
       get { return false; }
+    }
+
+    public AbstractProperty IsZappingProperty
+    {
+      get { return _isZappingProperty; }
+    }
+
+    public bool IsZapping
+    {
+      get { return (bool)_isZappingProperty.GetValue(); }
+      set { _isZappingProperty.SetValue(value); }
     }
 
     public override string Screen
@@ -46,6 +62,42 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         if (_mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent)
           return SCREEN_FULLSCREEN_TV;
         return null;
+      }
+    }
+
+    public SlimTvUIContributor()
+    {
+      _isZappingProperty = new WProperty(typeof(bool), false);
+    }
+
+    public override void Initialize(MediaWorkflowStateType stateType, IPlayer player)
+    {
+      base.Initialize(stateType, player);
+      _player = player as LiveTvPlayer;
+      if (_player != null)
+      {
+        _player.OnBeginZap += OnBeginZap;
+        _player.OnEndZap += OnEndZap;
+      }
+    }
+
+    private void OnBeginZap(object sender, EventArgs e)
+    {
+      IsZapping = true;
+    }
+
+    private void OnEndZap(object sender, EventArgs e)
+    {
+      IsZapping = false;
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      if (_player != null)
+      {
+        _player.OnBeginZap -= OnBeginZap;
+        _player.OnEndZap -= OnEndZap;
       }
     }
   }

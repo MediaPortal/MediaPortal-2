@@ -127,9 +127,6 @@ namespace MediaPortal.UI.Players.Video
         _subtitleRenderer.SetPlayer(this);
       }
 
-      // For supporting CC
-      AddClosedCaptionsFilter();
-
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
         // _resourceAccessor points to an rtsp:// stream or network file
@@ -247,6 +244,7 @@ namespace MediaPortal.UI.Players.Video
 
       EnumerateStreams(true); // Force re-enumerating of audio streams before selecting new stream
       SetPreferredAudio(true);
+      SetPreferredSubtitle();
       return 0;
     }
 
@@ -300,7 +298,7 @@ namespace MediaPortal.UI.Players.Video
           _subtitleRenderer.RenderSubtitles = false;
       }
       else
-        subtitleStream.SetSubtitleStream(streamInfo.StreamIndex);
+        _streamInfoSubtitles.EnableStream(streamInfo.Name);
     }
 
     #endregion

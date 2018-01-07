@@ -41,6 +41,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
 using System.Linq;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
 {
@@ -101,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
       return tags.Split(';', '/');
     }
 
-    public new bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public new bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       // If the base AudioMDE already extracted metadata, don't try here again to avoid conflicts.
       if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
@@ -181,7 +182,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
             trackInfo.Artists.Add(new PersonInfo()
             {
               Name = artistName,
-              Occupation = PersonAspect.OCCUPATION_ARTIST
+              Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             });
           }
 
@@ -193,7 +196,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
             trackInfo.AlbumArtists.Add(new PersonInfo()
             {
               Name = artistName,
-              Occupation = PersonAspect.OCCUPATION_ARTIST
+              Occupation = PersonAspect.OCCUPATION_ARTIST,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             });
           }
 
@@ -205,14 +210,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
             trackInfo.Composers.Add(new PersonInfo()
             {
               Name = composerName,
-              Occupation = PersonAspect.OCCUPATION_COMPOSER
+              Occupation = PersonAspect.OCCUPATION_COMPOSER,
+              ParentMediaName = trackInfo.Album,
+              MediaName = trackInfo.TrackName
             });
           }
 
           IEnumerable<string> genres = SplitTagEnum(tags.genre);
           genres = PatchID3v23Enumeration(genres);
           trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s }).ToList();
-          OnlineMatcherService.Instance.AssignMissingMusicGenreIds(trackInfo.Genres);
+          GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
 
           int year;
           if (int.TryParse(tags.year, out year))
@@ -244,7 +251,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
             else
             {
               // In quick mode only allow thumbs taken from cache.
-              bool cachedOnly = importOnly;
+              bool cachedOnly = importOnly | forceQuickMode;
 
               // Thumbnail extraction
               fileName = mediaItemAccessor.ResourcePathName;
@@ -260,7 +267,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           }
         }
 
-        if(!SkipOnlineSearches)
+        if(!SkipOnlineSearches && !forceQuickMode)
           OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, importOnly);
 
         if (!trackInfo.HasChanged && !importOnly)

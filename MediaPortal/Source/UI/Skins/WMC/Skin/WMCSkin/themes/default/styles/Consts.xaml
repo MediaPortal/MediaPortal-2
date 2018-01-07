@@ -8,12 +8,13 @@
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
   <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-940,0,50,50"/>
 
-  <ResourceWrapper x:Key="HugeFontSize" Resource="72"/>
+  
   <ResourceWrapper x:Key="InfoTabFontSize" Resource="55"/>
   <ResourceWrapper x:Key="HeaderFontSize" Resource="80"/>
   <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
-
   <ResourceWrapper x:Key="DateTimeFontSize" Resource="30"/>
+
+  <ResourceWrapper x:Key="HugeFontSize" Resource="72"/>
   <ResourceWrapper x:Key="NormalFontSize" Resource="45"/>
   <ResourceWrapper x:Key="SmallFontSize" Resource="33"/>
   <ResourceWrapper x:Key="SmallerFontSize" Resource="27"/>
@@ -32,9 +33,10 @@
 
   <ResourceWrapper x:Key="DefaultPlayerControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="4"/>
-  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="1"/>
-  <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="2"/>
+  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="2"/>
+  <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="3"/>
   <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
+
 
   <ResourceWrapper x:Key="FullScreenContentVideoPrimaryPlayerOSDWidth" Resource="850"/>
  

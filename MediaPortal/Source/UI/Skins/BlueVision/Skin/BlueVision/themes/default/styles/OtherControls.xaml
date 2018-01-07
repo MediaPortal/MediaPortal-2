@@ -8,6 +8,8 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     DependsOnStyleResources="Colors,Buttons,Consts,Widgets,MediaConsts"
     >
 
@@ -26,6 +28,9 @@
   <DurationConverter x:Key="DurationConverter"/>
   <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
+  <BoolToFocusPriorityConverter x:Key="BoolToFocusPriorityConverter"/>
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
+  <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
 
   <!-- If a control is defined without a style, the engine will choose a default style for that control.
        To avoid that default behavior, simply set this empty style. -->
@@ -572,6 +577,67 @@
     </Setter>
   </Style>
 
+  <Style x:Key="LoginItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <DockPanel x:Name="ItemGroup" LastChildFill="False">
+            <Button Style="{ThemeResource HomeButtonStyle}" Margin="0,0,16,16" DockPanel.Dock="Top" 
+                    Command="{DynamicResource ResourceKey=Menu_Command}"
+                    IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="LoginItemDataTemplate">
+    <DockPanel LastChildFill="False">
+      <Grid x:Name="ItemControl">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="16" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+
+        <!-- Light blue background fill -->
+        <Rectangle Grid.RowSpan="2"
+            x:Name="HomeFill" Fill="#FF808080" Opacity="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        <!-- Image -->
+        <Image x:Name="Thumb" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+               Source="{Binding Path=Image}"
+               Width="300" Height="300" Stretch="UniformToFill">
+        </Image>
+        <Image x:Name="Fallback" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+               Source="person.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+               Width="300" Height="300" Stretch="Uniform">
+        </Image>
+        <!-- Darkened band -->
+        <Rectangle Grid.Row="1" Fill="#FF000000" Opacity="0.749"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" />
+        <!-- Item label -->
+        <Label Grid.Row="1" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding Name}"
+               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,0,0,0"/>
+      </Grid>
+    </DockPanel>
+  </DataTemplate>
+  
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
@@ -653,7 +719,7 @@
       </Grid>
     </Grid>
   </DataTemplate>
-
+  
   <!-- ***************************** ListView styles ********************************* -->
 
   <!-- Default ListView style. The properties "ItemTemplate", "ItemContainerStyle" and "DataStringProvider" should be exchanged for custom ListView styles. -->
@@ -679,10 +745,6 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
 
-  <!-- Implicit default style for ListView controls -->
-  <Style BasedOn="{ThemeResource DefaultListViewStyle}" TargetType="{x:Type ListView}"/>
-
-
   <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
   <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="Template">
@@ -701,6 +763,48 @@
 
   <!-- ListView style to be used for main menu -->
   <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+  </Style>
+
+  <!-- Implicit default style for ListView controls -->
+  <Style BasedOn="{ThemeResource DefaultListViewStyle}" TargetType="{x:Type ListView}"/>
+
+  <Style x:Key="LoginListViewStyle" BasedOn="{ThemeResource MainMenuListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"
+                              ScrollMargin="1100,1100" Margin="-150,20,-450,0" HorizontalAlignment="Stretch">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource LoginItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource LoginItemContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource GradientCoverScrollViewerStyle}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="LeftMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
@@ -908,34 +1012,141 @@
 
   <!-- Player control styles -->
 
-  <ControlTemplate x:Key="PlayerControlPoster">
-    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}" 
-          Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}">
-      <!--Grid.Width>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}?{1}:{2}">
-          <Binding ElementName="ItemTypeImage" Path="HasImage"/>
-          <Binding Source="{StaticResource MEDIA_POSTER_WIDTH}" />
-          <Binding Source="0"/>
-        </MultiBinding>
-      </Grid.Width-->
+  <ControlTemplate x:Key="PlayerControlPosterPrimary">
+    <mp_special_controls:PlayerControl PlayerContext="PrimaryPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <mp_special_controls:PlayerControl.TemplateControl>
+        <Grid x:Name="CoverGridContainer" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_HEIGHT}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Image.OpacityMask>
+          </Image>
+          <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" FallbackSource="VideoLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+            </Image.Source>
+            <Image.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Image.OpacityMask>
+          </Image>
+          <Image x:Name="OtherPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_THUMB_WIDTH}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}"
+                            ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible}))">
+                <Binding ElementName="AudioPoster" Path="Visibility" />
+                <Binding ElementName="MoviePoster" Path="Visibility" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+            </Image.Source>
+            <Image.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Image.OpacityMask>
+          </Image>
+        </Grid>
+      </mp_special_controls:PlayerControl.TemplateControl>
+    </mp_special_controls:PlayerControl>
+  </ControlTemplate>
 
-      <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_20}" />
-      <!-- SHADOW -->
-
-      <Grid>
-        <Grid.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Grid.OpacityMask>
-        <Image  x:Name="ItemTypeImage" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
-                Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}">
-        </Image>
-      </Grid>
-    </Grid>
+  <ControlTemplate x:Key="PlayerControlPosterSecondary">
+    <mp_special_controls:PlayerControl PlayerContext="SecondaryPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <mp_special_controls:PlayerControl.TemplateControl>
+        <Grid x:Name="CoverGridContainer" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid.Resources>
+            <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
+          </Grid.Resources>
+          <Image x:Name="AudioPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_HEIGHT}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="AudioLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Image.OpacityMask>
+          </Image>
+          <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Fill" FallbackSource="VideoLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+            </Image.Source>
+            <Image.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Image.OpacityMask>
+          </Image>
+          <Image x:Name="OtherPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_THUMB_WIDTH}" 
+             Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}"
+                            ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible}))">
+                <Binding ElementName="AudioPoster" Path="Visibility" />
+                <Binding ElementName="MoviePoster" Path="Visibility" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+            </Image.Source>
+            <Image.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Image.OpacityMask>
+          </Image>
+        </Grid>
+      </mp_special_controls:PlayerControl.TemplateControl>
+    </mp_special_controls:PlayerControl>
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayerControlButtons">
@@ -962,7 +1173,7 @@
 
   </ControlTemplate>
 
-  <ControlTemplate x:Key="PlayerControlVideoPrimary">
+  <!--ControlTemplate x:Key="PlayerControlVideoPrimary">
     <Rectangle x:Name="Video"  Width="300" Height="170" Margin="0,-5,-25,-5"
                RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
       <Rectangle.Triggers>
@@ -974,7 +1185,7 @@
         <VideoBrush Stream="0"/>
       </Rectangle.Fill>
     </Rectangle>
-  </ControlTemplate>
+  </>
 
   <ControlTemplate x:Key="PlayerControlVideoSecondary">
     <Rectangle x:Name="Video"  Width="300" Height="170" Margin="-25,-5,0,-5"
@@ -988,7 +1199,7 @@
         <VideoBrush Stream="1"/>
       </Rectangle.Fill>
     </Rectangle>
-  </ControlTemplate>
+  </ControlTemplate-->
 
   <ControlTemplate x:Key="PlayerControlMediaInfo">
     <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Vertical" VerticalAlignment="Stretch">
@@ -1052,16 +1263,12 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid.RowDefinitions>
-              <!-- Background -->
               <RowDefinition Height="Auto"/>
-              <!-- Playback controls -->
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-              <!-- Optional fanart -->
               <ColumnDefinition Width="Auto"/>
-              <!-- Media thumbnail -->
-              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="30"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -1070,13 +1277,25 @@
                        Fill="{ThemeResource PlayerControlBackgroundColor}"
                        RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
             </Rectangle>
-
-            <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="0"/>
-
-            <Control Template="{ThemeResource PlayerControlVideoSecondary}" Grid.Column="1" Grid.ColumnSpan="1"/>
-
-            <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="2"/>
-
+            <Border Grid.Row="0" Grid.Column="1" BorderThickness="0" Margin="-15,0,15,0">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="1,0.5" EndPoint="0,0.5">
+                  <LinearGradientBrush.GradientStops>
+                    <GradientStop Color="#00000000" Offset="0"  />
+                    <GradientStop Color="#E6000000" Offset="1"  />
+                  </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border>
+            <Control Template="{ThemeResource PlayerControlPosterSecondary}" Grid.Row="0" Grid.Column="0">
+              <Control.Triggers>
+                <EventTrigger RoutedEvent="UIElement.MouseDown">
+                  <TriggerCommand Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
+                </EventTrigger>
+              </Control.Triggers>
+            </Control>
+            <!--Control Template="{ThemeResource PlayerControlVideoSecondary}" Grid.Column="1" Grid.ColumnSpan="1"/-->
+            <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="2" Margin="0,0,10,0"/>
           </Grid>
 
           <ControlTemplate.Triggers>
@@ -1096,30 +1315,38 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid.RowDefinitions>
-              <!-- Background -->
               <RowDefinition Height="Auto"/>
-              <!-- Playback controls -->
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
-              <!-- Media thumbnail -->
-              <ColumnDefinition Width="Auto"/>
-              <!-- Optional fanart -->
+              <ColumnDefinition Width="30"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-
-            <!-- Background of player control panel Fill="{ThemeResource PlayerControlBackgroundColor}"-->
+            
             <Rectangle x:Name="PCBackground" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                        Fill="{ThemeResource PlayerControlBackgroundColor}"
                        RadiusX="{ThemeResource PlayerControlBorderRadius}" RadiusY="{ThemeResource PlayerControlBorderRadius}">
             </Rectangle>
-
-            <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="2"/>
-
-            <Control Template="{ThemeResource PlayerControlVideoPrimary}" Grid.Column="1" Grid.ColumnSpan="1"/>
-
-            <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="0"/>
+            <Border Grid.Row="0" Grid.Column="1" BorderThickness="0" Margin="15,0,-15,0">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                  <LinearGradientBrush.GradientStops>
+                    <GradientStop Color="#00000000" Offset="0"  />
+                    <GradientStop Color="#E6000000" Offset="1"  />
+                  </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border>
+            <Control Template="{ThemeResource PlayerControlPosterPrimary}" Grid.Row="0" Grid.Column="2">
+              <Control.Triggers>
+                <EventTrigger RoutedEvent="UIElement.MouseDown">
+                  <TriggerCommand Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
+                </EventTrigger>
+              </Control.Triggers>
+            </Control>
+            <!--Control Template="{ThemeResource PlayerControlVideoPrimary}" Grid.Column="1" Grid.ColumnSpan="1"/-->
+            <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="0" Margin="10,0,0,0"/>
 
           </Grid>
 
@@ -1227,7 +1454,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True" Margin="-20,20,0,-5"
+          <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True" Margin="-20,0,0,-5"
               Orientation="Horizontal"
               EllipsisControlStyle="{ThemeResource WorkflowNavigationBarEllipsisControlStyle}"
               Background="#60000000"/>

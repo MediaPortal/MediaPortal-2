@@ -28,7 +28,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.ChooseResourceProviderPathForShare]" Color="{ThemeResource TextColor}" Wrap="True"/>
-        <TreeView Grid.Row="1" Style="{ThemeResource SingleMarkableTreeViewStyle}"
+        <TreeView Grid.Row="1" Style="{ThemeResource SingleMarkableTreeViewStyle}" SetFocusPrio="DefaultLow"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             ForceExpander="True"
             ItemsSource="{Binding Path=ShareProxy.ResourceProviderPathsTree,Mode=OneTime}">
@@ -70,6 +70,7 @@
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="ContinueButton" Grid.Column="2" Grid.Row="1" Style="{ThemeResource DialogButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsChoosenPathValid}"
+              SetFocusPrio="{Binding Path=ShareProxy.IsChoosenPathValid, Converter={StaticResource BoolToFocusPriorityConverter}}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
         </Grid>
       </Grid>

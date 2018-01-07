@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Activation de l\'économiseur d\'écran</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Délai avant l\'affichage de l\'économiseur d\'écran</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configurer le délai, en minutes, avant l\'affichage de l\'économiseur d\'écran</string>
-  <string name="Settings.Appearance.System.Antialiasing">Antialiasing de l\'interface graphique</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">L\'antialiasing améliore l\'affichage de l\'interface graphique, mais peut altérer les performances vidéos</string>
   <string name="Settings.Appearance.Skin">Thème</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Thème et variations du thème</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Changer de thème</string>

@@ -8,11 +8,13 @@
 
   <!-- ***************************** Storyboards ******************************** -->
 
+  <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <ResourceWrapper x:Key="GroupMenuZoomCoefficient" Resource="1.2"/>
   <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1.03"/> 
   <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1.04"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1.04"/>
   <ResourceWrapper x:Key="PosterZoomCoefficient" Resource="1.1"/>
+  <Model x:Key="LoginModel" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
 
   <Storyboard x:Key="BlinkStoryboard" RepeatBehavior="Forever">
     <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RecordingIcon" Storyboard.TargetProperty="Opacity" BeginTime="00:00:00" RepeatBehavior="Forever" FillBehavior="HoldEnd">
@@ -24,11 +26,11 @@
 
   <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
     <DoubleAnimation
-                                    Storyboard.TargetProperty="RenderTransform.Angle"
-                                    From="0"
-                                    To="360"
-                                    Duration="0:0:2"
-                                    RepeatBehavior="Forever" />
+         Storyboard.TargetProperty="RenderTransform.Angle"
+         From="0"
+         To="360"
+         Duration="0:0:2"
+         RepeatBehavior="Forever" />
   </Storyboard>
 
   <!-- Base storyboard which shows an animation when a button has focus -->
@@ -254,8 +256,8 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource HomeButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Control Style="{ThemeResource HomeButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -902,6 +904,55 @@
 
   <Style x:Key="BasePlayerControlButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}"/>
 
+  <Style x:Key="UserButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel>
+            <Image x:Name="UserIcon" DockPanel.Dock="Left" Height="30" Width="30" Source="User.png" Stretch="Uniform"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+            <Label x:Name="UserLabel" DockPanel.Dock="Right" Opacity="0.6" IsVisible="{Binding Source={StaticResource LoginModel}, Path=IsUserLoggedIn}"
+                   DataContext="{Binding Source={StaticResource LoginModel}, Path=CurrentUser}" Content="{Binding Path=Name}" 
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <!--Label.IsVisible>
+                <Binding Source="{StaticResource LoginModel}" Path="CurrentUser.ProfileType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0" />
+              </-->
+            </Label>
+          </DockPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="UserLabel" Property="Opacity" Value="1"/>
+              <Setter TargetName="UserIcon" Property="Opacity" Value="1.2"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="LogoutButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel LastChildFill="False">
+            <Rectangle x:Name="ButtonControlRectangle" DockPanel.Dock="Center"
+                       HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"
+                       RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
+                       Fill="{ThemeResource LogoutButtonColor}" StrokeThickness="0">
+            </Rectangle>
+            <Label x:Name="ItemLabel" DockPanel.Dock="Center" Opacity="0.6" Content="[Login.Logout]" HorizontalAlignment="Center"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" VerticalAlignment="Center"/>
+          </DockPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- Dark version of player buttons -->
   <Style x:Key="PlayDarkButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
@@ -1346,6 +1397,96 @@
             <Path Grid.Row="0" x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill" MaxHeight="20" MaxWidth="20" VerticalAlignment="Center" HorizontalAlignment="Center"
                 Margin="9" Data="M0,0 L0,39 39,19.5 z"/>
           </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Virtual Keyboard Styles -->
+  <ResourceWrapper x:Key="VKMargin" Resource="4"/>
+
+  <Style x:Key="KeyboardButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle x:Name="ButtonControlRectangle"
+                     Opacity="0.1"
+                     RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
+                     Margin="0,0,0,0" Fill="White" Stroke="White" StrokeThickness="0">
+          </Rectangle>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="VKButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource KeyboardButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="8,4,8,4" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.4"/>
+              <Trigger.EnterActions>
+                <!--BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/-->
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.7"/>
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
+                                 HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="VirtualKeyboardControlStyle" TargetType="{x:Type VirtualKeyboardControl}" >
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border Background="Black" BorderBrush="{ThemeResource DialogBorderBrush}" 
+                  BorderThickness="{ThemeResource VirtualKeyboardBorderThickness}" CornerRadius="{ThemeResource VirtualKeyboardCornerRadius}">
+            <StackPanel>
+              <Label Content="{Binding RelativeSource={RelativeSource TemplatedParent},Path=VisibleText}"
+                     IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ShowVisibleText}"
+                     Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+              <VirtualKeyboardPresenter/>
+            </StackPanel>
+          </Border>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

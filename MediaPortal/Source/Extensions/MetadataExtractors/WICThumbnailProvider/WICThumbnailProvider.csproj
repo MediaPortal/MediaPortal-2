@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider</RootNamespace>
     <AssemblyName>WICThumbnailProvider</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
@@ -35,13 +35,13 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpDX">
+    <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\Packages\MediaPortal.SharpDX.2.6.3\lib\SharpDX.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Direct2D1">
+    <Reference Include="SharpDX.Direct2D1, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\Packages\MediaPortal.SharpDX.Direct2D1.2.6.3\lib\SharpDX.Direct2D1.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.DXGI">
+    <Reference Include="SharpDX.DXGI, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\Packages\MediaPortal.SharpDX.DXGI.2.6.3\lib\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="System" />

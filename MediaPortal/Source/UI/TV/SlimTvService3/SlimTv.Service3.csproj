@@ -10,10 +10,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Plugins.SlimTv.Service3</RootNamespace>
     <AssemblyName>SlimTv.Service3</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>da41ce4d</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -51,9 +52,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Utils, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\Common.Utils.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Common.Utils, Version=1.18.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\Common.Utils.dll</HintPath>
     </Reference>
     <Reference Include="Gentle.Common">
       <HintPath>References\Gentle.Common.dll</HintPath>
@@ -71,16 +71,13 @@
       <HintPath>References\Gentle.Provider.SQLServer.dll</HintPath>
     </Reference>
     <Reference Include="Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Interfaces.1.0.4\lib\Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="PluginBase, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\PluginBase.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="PluginBase, Version=1.18.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\PluginBase.dll</HintPath>
     </Reference>
-    <Reference Include="SetupControls, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\SetupControls.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SetupControls, Version=1.18.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\SetupControls.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -91,37 +88,29 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TvBusinessLayer, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvBusinessLayer.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="TvBusinessLayer, Version=1.18.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\TvBusinessLayer.dll</HintPath>
     </Reference>
-    <Reference Include="TvControl, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvControl.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="TvControl, Version=1.18.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\TvControl.dll</HintPath>
     </Reference>
-    <Reference Include="TVDatabase, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TVDatabase.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="TVDatabase, Version=1.18.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\TVDatabase.dll</HintPath>
     </Reference>
-    <Reference Include="TVLibrary, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TVLibrary.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="TVLibrary, Version=1.18.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\TVLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="TvLibrary.Interfaces, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvLibrary.Interfaces.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="TvLibrary.Interfaces, Version=1.18.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\TvLibrary.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="TvLibrary.Utils, Version=1.15.100.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvLibrary.Utils.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="TvLibrary.Utils, Version=1.18.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\TvLibrary.Utils.dll</HintPath>
     </Reference>
-    <Reference Include="TvService, Version=1.15.100.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvService.exe</HintPath>
-      <Private>True</Private>
+    <Reference Include="TvService, Version=1.18.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\TvService.exe</HintPath>
     </Reference>
     <Reference Include="TvThumbnails, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.16.0\lib\TvThumbnails.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\..\Packages\MediaPortal.TvEngine.Core3.3.0.18.0\lib\TvThumbnails.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -190,7 +179,7 @@
     <Content Include="References\SetupControls.dll" />
     <Content Include="References\SetupTv.exe" />
     <Content Include="References\StreamingServer.dll" />
-    <Content Include="References\System.Data.SQLite.dll" />
+    <Content Include="References\System.Data.SQLite.DLL" />
     <Content Include="References\System.Data.SQLite.Linq.dll" />
     <Content Include="References\TeVii.dll" />
     <Content Include="References\ttBdaDrvApi_Dll.dll" />
@@ -264,4 +253,10 @@
     <NugetContentRestoreTask SolutionDir="$(SolutionDir)" ProjectDir="$(ProjectDir)" AdditionalFolders="References" />
   </Target>
   <Import Project="..\..\..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets" Condition="Exists('..\..\..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets'))" />
+  </Target>
 </Project>

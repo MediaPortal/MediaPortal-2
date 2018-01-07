@@ -86,6 +86,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISVIRTUAL =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsVirtual", typeof(bool), Cardinality.Inline, true);
 
+    /// <summary>
+    /// Set to <c>true</c> if this media item represents a stub resource.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISSTUB =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsStub", typeof(bool), Cardinality.Inline, true);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
@@ -97,6 +103,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_PLAYCOUNT,
             ATTR_LASTPLAYED,
             ATTR_ISVIRTUAL,
+            ATTR_ISSTUB
         });
   }
 }

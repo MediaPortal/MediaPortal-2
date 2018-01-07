@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
@@ -35,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesFilterBySeasonScreenData() :
       base(Consts.SCREEN_SERIES_FILTER_BY_SEASON, Consts.RES_COMMON_BY_SERIES_SEASON_MENU_ITEM,
-        Consts.RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL, new FilterBySeriesSeasonCriterion())
+        Consts.RES_FILTER_SERIES_SEASON_NAVBAR_DISPLAY_LABEL, new FilterBySeriesSeasonCriterion(EpisodeAspect.ROLE_EPISODE))
     {
       _availableMias = Consts.NECESSARY_SEASON_MIAS;
       if (Consts.OPTIONAL_SEASON_MIAS != null)

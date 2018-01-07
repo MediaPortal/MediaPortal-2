@@ -8,32 +8,25 @@
   <string name="Media.SeriesMenuItem">Serijos</string>
   <string name="Media.MoviesMenuItem">Filmai</string>
   <string name="Media.ImagesMenuItem">Vaizdai</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Filtruoti pagal atlikėją</string>
-  <string name="Media.FilterByAlbumMenuItem">Filtruoti pagal albumą</string>
-  <string name="Media.FilterByAudioGenreMenuItem">Filtruoti pagal žanrą</string>
-  <string name="Media.FilterByDecadeMenuItem">Filtruoti pagal dekadą</string>
-  <string name="Media.FilterByActorMenuItem">Filtruoti pagal aktorių</string>
-  <string name="Media.FilterByDirectorMenuItem">Filtruoti pagal režisierių</string>
-  <string name="Media.FilterByWriterMenuItem">Filtruoti pagal rašytoją</string>
-  <string name="Media.FilterByVideoGenreMenuItem">Filtruoti pagal žanrą</string>
-  <string name="Media.FilterByVideoYearMenuItem">Filtruoti pagal metus</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">Rūšiuoti pagal kalbą</string>
-  <string name="Media.FilterByImageSizeMenuItem">Filtruoti pagal dydį</string>
-  <string name="Media.FilterByImageYearMenuItem">Filtruoti pagal metus</string>
-  <string name="Media.FilterByImageCountryMenuItem">Filtruoti pagal šalį</string>
-  <string name="Media.FilterByImageStateMenuItem">Filtruoti pagal valstiją</string>
-  <string name="Media.FilterByImageCityMenuItem">Filtruoti pagal miestą</string>
-  <string name="Media.FilterBySystemMenuItem">Filtruoti pagal sistemą</string>
-  <string name="Media.FilterByMoviesCollectionMenuItem">Rūšiuoti pagal kolekcijas</string>
-  <string name="Media.FilterBySeriesNameMenuItem">Filtruoti pagal serijas</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">Filtruoti pagal sezoną</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">Filtruoti pagal epizodus</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">Vardas</string>
+  <string name="Media.TitleMenuItem">Pavadinimas</string>
+  <string name="Media.ArtistMenuItem">Atlikėjas</string>
+  <string name="Media.GenreMenuItem">Zanras</string>
+  <string name="Media.YearMenuItem">Metai</string>
+  <string name="Media.SizeMenuItem">Dydis</string>
+  <string name="Media.SystemMenuItem">Sistema</string>
+  <string name="Media.ActorMenuItem">Aktorius</string>
+  <string name="Media.EpisodeMenuItem">Epizodas</string>
+  <string name="Media.AudioLanguageMenuItem">Kalba</string>
+  <string name="Media.ImageCountryMenuItem">Šalis</string>
+  <string name="Media.ImageStateMenuItem">Salis</string>
+  <string name="Media.ImageCityMenuItem">Miestas</string>
+  <string name="Media.SeriesNameMenuItem">Serijos</string>
+  <string name="Media.SeriesSeasonMenuItem">Sezonas</string>
   <string name="Media.SimpleSearchFilterMenuItem">Ieškoti</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Rodyti visus</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Rodyti visus</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Rodyti visus</string>
-  <string name="Media.ShowAllMoviesMenuItem">Rodyti visus</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">Filtras</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Mažas</string>
   <string name="Media.ImageFilterMedium">Vidutinis</string>
@@ -216,6 +209,7 @@
   <string name="Media.VideoDurationLabel">Trukmė: </string>
   <string name="Media.VideoActorsLabel">Aktorius(iai): </string>
   <string name="Media.VideoStoryPlotLabel">Siužetas: </string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">Serijos:</string>
   <string name="Media.SeriesSeasonLabel">Sezonas:</string>
@@ -293,27 +287,8 @@
   <string name="Media.CoverLayout">Viršeliai</string>
   <string name="Media.Watched">Peržiūrėta</string>
   <string name="Media.SwitchSortingMenuItem">Rūšiuojama</string>
-  <string name="Media.SwitchSortingDialogTitle">Rūšiuojama</string>
-  <string name="Media.SortByTitle">Rūšiuoti pagal antraštę</string>
-  <string name="Media.SortByAlbumTrack">Rūšiuoti pagal albumą ir takelį</string>
-  <string name="Media.SortByGenre">Rūšiuoti pagal žanrą</string>
-  <string name="Media.SortByAlbum">Rūšiuoti pagal albumą ir antraštę</string>
-  <string name="Media.SortByTrack">Rūšiuoti pagal takelį</string>
-  <string name="Media.SortByArtist">Rūšiuoti pagal atlikėją</string>
-  <string name="Media.SortByYear">Rūšiuoti pagal metus</string>
-  <string name="Media.SortBySize">Rūšiuoti pagal dydį</string>
-  <string name="Media.SortBySystem">Rūšiuoti pagal sistemą</string>
-  <string name="Media.SortByActor">Rūšiuoti pagal aktorių</string>
-  <string name="Media.SortByDirector">Rūšiuoti pagal režisierių</string>
-  <string name="Media.SortByWriter">Rūšiuoti pagal rašytoją</string>
-  <string name="Media.SortByDuration">Rūšiuoti pagal trukmę</string>
-  <string name="Media.SortByAspectRatio">Rūšiuoti pagal kraštinių santykį</string>
-  <string name="Media.SortByFirstAiredDate">Rūšiuoti pagal išleidimo datą</string>
-  <string name="Media.SortByDate">Rūšiuoti pagal įrašo datą</string>
-  <string name="Media.SortByEpisode">Rūšiuoti pagal epizodą</string>
-  <string name="Media.SortingBrowseDefault">Numatytas rūšiavimas</string>
-  <string name="Media.SwitchFilterMenuItem">Filtras</string>
-  <string name="Media.SwitchFilterDialogTitle">Filtras</string>
+  <string name="Media.SortByDate">Data</string>
+  <string name="Media.GroupingBrowseDefault">Standartinis</string>
   <string name="Settings.Players">Grotuvai</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Baigus uždaryti grotuvus</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Įgalinus MediaPortal automatiškai uždarys pabaigtus grotuvus</string>

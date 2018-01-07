@@ -39,6 +39,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       var meta = pluginRuntime.Metadata;
       Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
+      ServiceRegistration.Set<IFanArtLibraryManager>(new FanArtLibraryManager());
+
       IResourceServer server = ServiceRegistration.Get<IResourceServer>();
       if (server != null)
       {

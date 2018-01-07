@@ -15,7 +15,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -77,15 +77,15 @@
     <Compile Include="Services\MediaLibrary\BindVar.cs" />
     <Compile Include="Services\MediaLibrary\FirstCharGroupingFunction.cs" />
     <Compile Include="Services\MediaLibrary\IGroupingFunctionImpl.cs" />
+    <Compile Include="Services\MediaLibrary\MediaLibraryMessaging.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\BaseQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledGroupedAttributeValueQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledFilter.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledMediaItemQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledCountItemsQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\BindVarNamespace.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\RelationshipCompiledFilter.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\InverseRelationshipCompiledFilter.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\RelationshipQueryBuilder.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\SubQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\InverseRelationshipQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\RequestedAttribute.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\ComplexAttributeQueryBuilder.cs" />
@@ -102,6 +102,8 @@
     <Compile Include="Services\MediaLibrary\MediaLibrary.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary_SubSchema.cs" />
     <Compile Include="Services\MediaLibrary\MIA_Management.cs" />
+    <Compile Include="Services\MediaLibrary\RelationshipManagement.cs" />
+    <Compile Include="Services\MediaManagement\RelationshipTypeRegistration.cs" />
     <Compile Include="Services\MediaManagement\MediaItemAspectTypeRegistration.cs" />
     <Compile Include="Services\Database\DBUtils.cs" />
     <Compile Include="Services\SystemResolver\SystemResolver.cs" />

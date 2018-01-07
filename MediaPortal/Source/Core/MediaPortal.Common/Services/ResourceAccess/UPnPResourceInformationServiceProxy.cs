@@ -35,7 +35,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 namespace MediaPortal.Common.Services.ResourceAccess
 {
   /// <summary>
-  /// Encapsulates the MediaPortal 2 UPnP client's proxy for the ContentDirectory service.
+  /// Encapsulates the MediaPortal 2 UPnP client's proxy for the ResourceInformationService service.
   /// </summary>
   public class UPnPResourceInformationServiceProxy : UPnPServiceProxyBase, IResourceInformationService
   {
@@ -142,6 +142,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
       CpAction action = GetAction("ConcatenatePaths");
       IList<object> inParameters = new List<object> {basePath.Serialize(), relativePath};
       IList<object> outParameters = action.InvokeAction(inParameters);
+      if (outParameters[0] == null)
+        return null;
       return ResourcePath.Deserialize((string) outParameters[0]);
     }
 

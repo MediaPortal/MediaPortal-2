@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="VEC.Enable">Омогући аутоматски одабир видео ефеката</string>
+  <string name="VEC.ConfigGroup">Ефекти</string>
+  <string name="VEC.LowerEffect">Ефект за слабију резолуцију</string>
+  <string name="VEC.HigherEffect">Ефеки за високу резолуцију</string>
+  <string name="VEC.ResolutionLimit">Крајња резолуција</string>
+  <string name="Settings.Players.VideoPlayer.VEC">Мењач видео ефеката</string>
+  <string name="Settings.Plugins.VideoPlayer.VEC.Help">Омогућава дефинисање ефеката осенчавања за видео</string>
+</resources>

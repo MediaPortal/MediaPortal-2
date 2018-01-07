@@ -40,6 +40,8 @@ using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using System.Linq;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -53,6 +55,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
       public List<string> LastUpdatedMovieCollections { get; set; }
     }
+
+    protected readonly object _initSyncObj = new object();
+    protected bool _isInit = false;
 
     #region Init
 
@@ -70,8 +75,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _characterMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CharacterMatches.xml"));
       _companyMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CompanyMatches.xml"));
       _configFile = Path.Combine(cachePath, "MovieConfig.xml");
-
-      Init();
     }
 
     public override bool Init()
@@ -79,21 +82,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!_enabled)
         return false;
 
-      if (_wrapper != null)
-        return true;
-
-      if (!base.Init())
-        return false;
-
-      LoadConfig();
-
-      if (InitWrapper(UseSecureWebCommunication))
+      lock (_initSyncObj)
       {
-        if(_wrapper != null)
-          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
-        return true;
+        if (_isInit)
+          return true;
+
+        if (!base.Init())
+          return false;
+
+        LoadConfig();
+
+        if (InitWrapper(UseSecureWebCommunication))
+        {
+          if (_wrapper != null)
+            _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+          _isInit = true;
+          return true;
+        }
+        return false;
       }
-      return false;
     }
 
     private void LoadConfig()
@@ -122,7 +129,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
-    private const int MAX_PERSONS = 10;
 
     protected override string MatchesSettingsFile
     {
@@ -321,52 +327,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (matchFound)
         {
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.ImdbId, movieMatch.ImdbId);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.MovieDbId, movieMatch.MovieDbId);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.CollectionMovieDbId, movieMatch.CollectionMovieDbId);
+          movieInfo.MergeWith(movieMatch, true);
 
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, movieMatch.MovieName);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.OriginalName, movieMatch.OriginalName);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, movieMatch.Summary);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.Certification, movieMatch.Certification);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.CollectionName, movieMatch.CollectionName);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.Tagline, movieMatch.Tagline);
-
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Budget, movieMatch.Budget);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Revenue, movieMatch.Revenue);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Runtime, movieMatch.Runtime);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, movieMatch.ReleaseDate);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Popularity, movieMatch.Popularity);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Score, movieMatch.Score);
-
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref movieInfo.Rating, movieMatch.Rating);
-          if (movieInfo.Genres.Count == 0)
-          {
-            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres.Distinct().ToList(), true);
-          }
           if (movieInfo.Genres.Count > 0)
           {
-            movieInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMovieGenreIds(movieInfo.Genres);
+            movieInfo.HasChanged |= GenreMapper.AssignMissingMovieGenreIds(movieInfo.Genres, language.ToString());
           }
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards.Distinct().ToList(), true);
-
-          //Limit the number of persons
-          if(movieInfo.Actors.Count == 0 && movieMatch.Actors.Count > MAX_PERSONS)
-            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Actors.Count - MAX_PERSONS);
-          if (movieInfo.Characters.Count == 0 && movieMatch.Characters.Count > MAX_PERSONS)
-            movieMatch.Characters.RemoveRange(MAX_PERSONS, movieMatch.Characters.Count - MAX_PERSONS);
-          if (movieInfo.Directors.Count == 0 && movieMatch.Directors.Count > MAX_PERSONS)
-            movieMatch.Directors.RemoveRange(MAX_PERSONS, movieMatch.Directors.Count - MAX_PERSONS);
-          if (movieInfo.Writers.Count == 0 && movieMatch.Writers.Count > MAX_PERSONS)
-            movieMatch.Writers.RemoveRange(MAX_PERSONS, movieMatch.Writers.Count - MAX_PERSONS);
-
-          //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
-          //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Actors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Characters.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Directors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), movieInfo.ProductionCompanies.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Writers.Count == 0);
 
           //Store person matches
           foreach (PersonInfo person in movieInfo.Actors)
@@ -842,22 +808,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
-          movieCollectionInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieCollectionInfo.MovieDbId, movieCollectionMatch.MovieDbId);
+          movieCollectionInfo.MergeWith(movieCollectionMatch, true, updateMovieList);
 
-          movieCollectionInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieCollectionInfo.CollectionName, movieCollectionMatch.CollectionName);
-
-          if (movieCollectionInfo.TotalMovies < movieCollectionMatch.TotalMovies)
-          {
-            movieCollectionInfo.HasChanged = true;
-            movieCollectionInfo.TotalMovies = movieCollectionMatch.TotalMovies;
-          }
-
-          if (updateMovieList) //Comparing all movies can be quite time consuming
+          if (updateMovieList)
           {
             foreach (MovieInfo movie in movieCollectionMatch.Movies)
-              OnlineMatcherService.Instance.AssignMissingMovieGenreIds(movie.Genres);
-
-            MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies.Distinct().ToList(), true);
+              GenreMapper.AssignMissingMovieGenreIds(movie.Genres, language.ToString());
           }
         }
 
@@ -912,8 +868,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         // If there is only one language available, use this one.
         if (mediaLanguages.Count == 1)
           return (TLang)Convert.ChangeType(mediaLanguages[0], typeof(TLang));
+
+        // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
+        // Use the preferred language.
+        return (TLang)Convert.ChangeType(mpLocal.TwoLetterISOLanguageName, typeof(TLang));
       }
-      // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
       // By returning null we allow fallback to the default language of the online source (en).
       return default(TLang);
     }
@@ -1057,6 +1016,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<MovieInfo> GetLastChangedMovies()
     {
       List<MovieInfo> movies = new List<MovieInfo>();
+
+      if (!Init())
+        return movies;
+
       foreach (string id in _config.LastUpdatedMovies)
       {
         MovieInfo m = new MovieInfo();
@@ -1068,6 +1031,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedMovies()
     {
+      if (!Init())
+        return;
       _config.LastUpdatedMovies.Clear();
       SaveConfig();
     }
@@ -1075,6 +1040,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<MovieCollectionInfo> GetLastChangedMovieCollections()
     {
       List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
+
+      if (!Init())
+        return collections;
+
       foreach (string id in _config.LastUpdatedMovieCollections)
       {
         MovieCollectionInfo c = new MovieCollectionInfo();
@@ -1086,6 +1055,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedMovieCollections()
     {
+      if (!Init())
+        return;
+
       _config.LastUpdatedMovieCollections.Clear();
       SaveConfig();
     }
@@ -1096,6 +1068,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
+      if (!Init())
+        return false;
+
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
       if (info is MovieInfo)
@@ -1307,17 +1282,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             Logger.Debug(_id + " Download: Downloading images for ID {0} [{1}]", Id, name);
 
-            SaveFanArtImages(images.Id, images.Backdrops, data.MediaItemId, data.Name, FanArtTypes.FanArt);
-            SaveFanArtImages(images.Id, images.Posters, data.MediaItemId, data.Name, FanArtTypes.Poster);
-            SaveFanArtImages(images.Id, images.Banners, data.MediaItemId, data.Name, FanArtTypes.Banner);
-            SaveFanArtImages(images.Id, images.Covers, data.MediaItemId, data.Name, FanArtTypes.Cover);
-            SaveFanArtImages(images.Id, images.Thumbnails, data.MediaItemId, data.Name, FanArtTypes.Thumbnail);
+            SaveFanArtImages(images.Id, images.Backdrops, language, data.MediaItemId, data.Name, FanArtTypes.FanArt);
+            SaveFanArtImages(images.Id, images.Posters, language, data.MediaItemId, data.Name, FanArtTypes.Poster);
+            SaveFanArtImages(images.Id, images.Banners, language, data.MediaItemId, data.Name, FanArtTypes.Banner);
+            SaveFanArtImages(images.Id, images.Covers, language, data.MediaItemId, data.Name, FanArtTypes.Cover);
+            SaveFanArtImages(images.Id, images.Thumbnails, language, data.MediaItemId, data.Name, FanArtTypes.Thumbnail);
 
             if (!OnlyBasicFanArt)
             {
-              SaveFanArtImages(images.Id, images.ClearArt, data.MediaItemId, data.Name, FanArtTypes.ClearArt);
-              SaveFanArtImages(images.Id, images.DiscArt, data.MediaItemId, data.Name, FanArtTypes.DiscArt);
-              SaveFanArtImages(images.Id, images.Logos, data.MediaItemId, data.Name, FanArtTypes.Logo);
+              SaveFanArtImages(images.Id, images.ClearArt, language, data.MediaItemId, data.Name, FanArtTypes.ClearArt);
+              SaveFanArtImages(images.Id, images.DiscArt, language, data.MediaItemId, data.Name, FanArtTypes.DiscArt);
+              SaveFanArtImages(images.Id, images.Logos, language, data.MediaItemId, data.Name, FanArtTypes.Logo);
             }
 
             Logger.Debug(_id + " Download: Finished saving images for ID {0} [{1}]", Id, name);
@@ -1335,12 +1310,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    protected virtual bool VerifyFanArtImage(TImg image)
+    protected virtual bool VerifyFanArtImage(TImg image, TLang language)
     {
       return image != null;
     }
 
-    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, string mediaItemId, string name, string fanartType)
+    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, TLang language, string mediaItemId, string name, string fanartType)
     {
       try
       {
@@ -1354,7 +1329,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;
-            if (!VerifyFanArtImage(img))
+            if (!VerifyFanArtImage(img, language))
               continue;
             if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;

@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
@@ -43,14 +44,14 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
-    protected override void Prepare()
+    protected override async Task PrepareAsync()
     {
-      base.Prepare();
+      await base.PrepareAsync();
 
       _defaultScreen = new VideosFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
-        new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
+          new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new VideosFilterByLanguageScreenData(),
           new VideosFilterByActorScreenData(),
           new VideosFilterByCharacterScreenData(),

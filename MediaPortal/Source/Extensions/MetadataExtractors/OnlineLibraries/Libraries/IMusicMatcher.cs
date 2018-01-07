@@ -28,26 +28,22 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
-  public interface IMusicMatcher
+  public interface IMusicMatcher : IMatcher
   {
-    bool Primary { get; set; }
-    bool Enabled { get; set; }
-    string Id { get; }
-    string PreferredLanguageCulture { get; set; }
-
     List<AlbumInfo> GetLastChangedAudioAlbums();
     void ResetLastChangedAudioAlbums();
     List<TrackInfo> GetLastChangedAudio();
     void ResetLastChangedAudio();
 
     bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly);
-    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly);
+    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly);
     bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly);
     bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly);
     bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly);
 
     void StoreArtistMatch(PersonInfo person);
     void StoreComposerMatch(PersonInfo person);
+    void StoreConductorMatch(PersonInfo person);
     void StoreMusicLabelMatch(CompanyInfo company);
 
     bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force);

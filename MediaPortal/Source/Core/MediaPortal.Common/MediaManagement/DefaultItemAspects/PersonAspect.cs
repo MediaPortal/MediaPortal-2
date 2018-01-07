@@ -38,6 +38,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string OCCUPATION_WRITER = "WRITER";
     public static readonly string OCCUPATION_DIRECTOR = "DIRECTOR";
     public static readonly string OCCUPATION_COMPOSER = "COMPOSER";
+    public static readonly string OCCUPATION_CONDUCTOR = "CONDUCTOR";
 
     /// <summary>
     /// Media item aspect id of the person aspect.
@@ -101,6 +102,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly Guid ROLE_DIRECTOR = new Guid("E9CBD8F7-D686-4ABE-88D6-109C67B28663");
     public static readonly Guid ROLE_WRITER = new Guid("FBFFA5E4-745A-43C9-B79A-9C9F58CED55C");
     public static readonly Guid ROLE_ARTIST = new Guid("B79D187F-93D5-4A88-A592-E2F686C69A0A");
+    public static readonly Guid ROLE_ALBUMARTIST = new Guid("{AC13A230-500D-4903-97E2-EF0AEA934B30}");
     public static readonly Guid ROLE_COMPOSER = new Guid("DFB6EEF9-4C57-437D-9984-18ACA0964500");
+    public static readonly Guid ROLE_CONDUCTOR = new Guid("E941A721-CD49-4A27-A5A9-D2CCB3E1009A");
   }
 }

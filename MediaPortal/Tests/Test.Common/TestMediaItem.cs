@@ -42,10 +42,10 @@ namespace Test.Common
       IMediaItemAspectTypeRegistration miatr = new TestMediaItemAspectTypeRegistration();
       ServiceRegistration.Set(miatr);
 
-      miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(RelationshipAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(MediaAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(AudioAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(ProviderResourceAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(RelationshipAspect.Metadata);
     }
 
       [Test]
@@ -134,8 +134,8 @@ namespace Test.Common
       resourceAspect1.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp3");
       MediaItemAspect.AddOrUpdateAspect(aspects1, resourceAspect1);
 
-      MediaItemAspect.AddOrUpdateRelationship(aspects1, trackRelationship, albumRelationship, albumId, 1);
-      MediaItemAspect.AddOrUpdateRelationship(aspects1, trackRelationship, artistRelationship, artistId, 0);
+      MediaItemAspect.AddOrUpdateRelationship(aspects1, trackRelationship, albumRelationship, albumId, true, 1);
+      MediaItemAspect.AddOrUpdateRelationship(aspects1, trackRelationship, artistRelationship, artistId, false, 0);
 
       MediaItem track1 = new MediaItem(trackId, aspects1);
 
@@ -205,17 +205,17 @@ namespace Test.Common
 
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      MediaItemAspect.AddOrUpdateRelationship(aspects, trackRelationship, artistRelationship, artistId, 0);
+      MediaItemAspect.AddOrUpdateRelationship(aspects, trackRelationship, artistRelationship, artistId, false, 0);
 
       Assert.AreEqual(aspects.Keys.Count, 1, "aspect key count");
 
       IList<MultipleMediaItemAspect> relationships;
 
-      MediaItemAspect.AddOrUpdateRelationship(aspects, trackRelationship, albumRelationship, albumId, 1);
+      MediaItemAspect.AddOrUpdateRelationship(aspects, trackRelationship, albumRelationship, albumId, true, 1);
       Assert.IsTrue(MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships), "Relationships");
       Assert.AreEqual(relationships.Count, 2);
 
-      MediaItemAspect.AddOrUpdateRelationship(aspects, trackRelationship, albumRelationship, albumId, 2); // This will update the existing track / album relationship
+      MediaItemAspect.AddOrUpdateRelationship(aspects, trackRelationship, albumRelationship, albumId, true, 2); // This will update the existing track / album relationship
       Assert.IsTrue(MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships), "Relationships");
       Assert.AreEqual(relationships.Count, 2);
     }
@@ -247,7 +247,7 @@ namespace Test.Common
 
       MultipleMediaItemAspect providerAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
       providerAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-      providerAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+      providerAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
       providerAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "audio/mp3");
 
       Assert.AreEqual(aspects.Keys.Count, 1, "aspect key count");

@@ -22,7 +22,9 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
@@ -30,28 +32,57 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
   /// <summary>
   /// ITimeshiftControl defines all actions and properties for TV providers timeshift features.
   /// </summary>
-  public interface ITimeshiftControl
+  public interface ITimeshiftControlAsync
   {
     /// <summary>
     /// Starts timeshifting a channel an returns the created MediaItem.
     /// </summary>
     /// <param name="slotIndex">Slot Index for Playback (0=Primary, 1=PiP).</param>
     /// <param name="channel">Channel.</param>
-    /// <param name="timeshiftMediaItem">Returns the created MediaItem.</param>
-    /// <returns>True if succeeded.</returns>
-    bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem);
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if programs could be found.
+    /// <see cref="AsyncResult{T}.Result"/> returns the created MediaItem.
+    /// </returns>
+    Task<AsyncResult<MediaItem>> StartTimeshiftAsync(int slotIndex, IChannel channel);
 
     /// <summary>
     /// Stops the active timeshifting.
     /// </summary>
     /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
     /// <returns>True if succeeded.</returns>
-    bool StopTimeshift(int slotIndex);
+    Task<bool> StopTimeshiftAsync(int slotIndex);
 
     /// <summary>
     /// Gets the currently timeshifting channel.
     /// </summary>
     IChannel GetChannel(int slotIndex);
-    //TODO: define methods for error and message handling
   }
+
+  ///// <summary>
+  ///// ITimeshiftControl defines all actions and properties for TV providers timeshift features.
+  ///// </summary>
+  //public interface ITimeshiftControl
+  //{
+  //  /// <summary>
+  //  /// Starts timeshifting a channel an returns the created MediaItem.
+  //  /// </summary>
+  //  /// <param name="slotIndex">Slot Index for Playback (0=Primary, 1=PiP).</param>
+  //  /// <param name="channel">Channel.</param>
+  //  /// <param name="timeshiftMediaItem">Returns the created MediaItem.</param>
+  //  /// <returns>True if succeeded.</returns>
+  //  bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem);
+
+  //  /// <summary>
+  //  /// Stops the active timeshifting.
+  //  /// </summary>
+  //  /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
+  //  /// <returns>True if succeeded.</returns>
+  //  bool StopTimeshift(int slotIndex);
+
+  //  /// <summary>
+  //  /// Gets the currently timeshifting channel.
+  //  /// </summary>
+  //  IChannel GetChannel(int slotIndex);
+  //  //TODO: define methods for error and message handling
+  //}
 }

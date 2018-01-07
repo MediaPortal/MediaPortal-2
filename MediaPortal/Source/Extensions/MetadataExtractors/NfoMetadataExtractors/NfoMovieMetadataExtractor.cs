@@ -41,8 +41,11 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
-using System.Collections;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.MediaManagement.TransientAspects;
+using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
+using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -120,6 +123,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
         movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(movieCategory);
+
+      // All non-default media item aspects must be registered
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(TempActorAspect.Metadata);
     }
 
     /// <summary>
@@ -152,7 +159,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       LoadSettings();
 
-      _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoMovieMetadataExtractorSettings>();
+      _settings = _settingWatcher.Settings;
 
       if (_settings.EnableDebugLogging)
       {
@@ -209,29 +216,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
     /// <param name="importOnly">If <c>true</c>, nothing is downloaded from the internet</param>
     /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    private async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    private async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
       // for one call are not contained one after another in debug log. We therefore prepend this number before every log entry.
       var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
+      bool isStub = extractedAspectData.ContainsKey(StubAspect.ASPECT_ID);
       try
       {
-        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (importOnly: {2})", miNumber, mediaItemAccessor, importOnly);
-
-        // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
-        // has identified this MediaItem as a video and therefore added a VideoAspect.
-        if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
-        {
-          _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
-          return false;
-        }
+        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (importOnly: {2}, forceQuickMode: {3})", miNumber, mediaItemAccessor, importOnly, forceQuickMode);
 
         // This MetadataExtractor only works for MediaItems accessible by an IFileSystemResourceAccessor.
         // Otherwise it is not possible to find a nfo-file in the MediaItem's directory.
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
         {
           _debugLogger.Info("[#{0}]: Cannot extract metadata; mediaItemAccessor is not an IFileSystemResourceAccessor", miNumber);
+          return false;
+        }
+
+        // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
+        // has identified this MediaItem as a video and therefore added a VideoAspect.
+        if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+        {
+          _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
           return false;
         }
 
@@ -244,7 +252,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         // Now we (asynchronously) extract the metadata into a stub object.
         // If there is an error parsing the nfo-file with XmlNfoReader, we at least try to parse for a valid IMDB-ID.
         // If no metadata was found, nothing can be stored in the MediaItemAspects.
-        var nfoReader = new NfoMovieReader(_debugLogger, miNumber, importOnly, _httpClient, _settings);
+        NfoMovieReader nfoReader = new NfoMovieReader(_debugLogger, miNumber, false, importOnly, forceQuickMode, isStub, _httpClient, _settings);
         using (nfoFsra)
         {
           if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&
@@ -252,6 +260,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           {
             _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
             return false;
+          }
+          else if (isStub)
+          {
+            Stubs.MovieStub movie = nfoReader.GetMovieStubs().FirstOrDefault();
+            if (movie != null)
+            {
+              IList<MultipleMediaItemAspect> providerResourceAspects;
+              if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
+              {
+                MultipleMediaItemAspect providerResourceAspect = providerResourceAspects.First(pa => pa.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB);
+                string mime = null;
+                if (movie.FileInfo != null && movie.FileInfo.Count > 0)
+                  mime = MimeTypeDetector.GetMimeTypeFromExtension("file" + movie.FileInfo.First().Container);
+                if (mime != null)
+                  providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mime);
+              }
+
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, movie.Title);
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, movie.SortTitle != null ? movie.SortTitle : BaseInfo.GetSortTitle(movie.Title));
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, movie.Premiered.HasValue ? movie.Premiered.Value : movie.Year.HasValue ? movie.Year.Value : (DateTime?)null);
+
+              if (movie.FileInfo != null && movie.FileInfo.Count > 0)
+              {
+                extractedAspectData.Remove(VideoStreamAspect.ASPECT_ID);
+                extractedAspectData.Remove(VideoAudioStreamAspect.ASPECT_ID);
+                extractedAspectData.Remove(SubtitleAspect.ASPECT_ID);
+                StubParser.ParseFileInfo(extractedAspectData, movie.FileInfo, movie.Title, movie.Fps);
+              }
+            }
           }
         }
 
@@ -424,14 +461,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
-      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
-        return false;
+      //if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+      //  return false;
 
       // The following is bad practice as it wastes one ThreadPool thread.
       // ToDo: Once the IMetadataExtractor interface is updated to support async operations, call TryExtractMetadataAsync directly
-      return TryExtractMetadataAsync(mediaItemAccessor, extractedAspectData, importOnly).Result;
+      return TryExtractMetadataAsync(mediaItemAccessor, extractedAspectData, importOnly, forceQuickMode).Result;
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
+      return false;
     }
 
     #endregion

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.ServerCommunication;
@@ -33,18 +34,19 @@ namespace MediaPortal.UI.Services.UserManagement
 {
   public class UserManagement : IUserManagement
   {
-    public static UserProfile UNKNWON_USER = new UserProfile(Guid.Empty, "Unkwown");
+    public static UserProfile UNKNOWN_USER = new UserProfile(Guid.Empty, "Unknown");
 
     private UserProfile _currentUser = null;
+    private bool _applyRestrictions = false;
 
     public bool IsValidUser
     {
-      get { return CurrentUser != UNKNWON_USER; }
+      get { return CurrentUser != UNKNOWN_USER; }
     }
 
     public UserProfile CurrentUser
     {
-      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser() ?? UNKNWON_USER); }
+      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().Result ?? UNKNOWN_USER); }
       set { _currentUser = value; }
     }
 
@@ -57,18 +59,28 @@ namespace MediaPortal.UI.Services.UserManagement
       }
     }
 
-    public UserProfile GetOrCreateDefaultUser()
+    public bool ApplyUserRestriction
     {
-      UserProfile user = null;
+      get { return _applyRestrictions; }
+      set { _applyRestrictions = value; }
+    }
+
+    public async Task<UserProfile> GetOrCreateDefaultUser()
+    {
       string profileName = SystemInformation.ComputerName;
       IUserProfileDataManagement updm = UserProfileDataManagement;
-      if (updm != null && !updm.GetProfileByName(profileName, out user))
-      {
-        Guid profileId = updm.CreateProfile(profileName);
-        if (!updm.GetProfile(profileId, out user))
-          return null;
-      }
-      return user;
+      if (updm == null)
+        return null;
+
+      var result = await updm.GetProfileByNameAsync(profileName);
+      if (result.Success)
+        return result.Result;
+
+      Guid profileId = await updm.CreateProfileAsync(profileName);
+      result = await updm.GetProfileAsync(profileId);
+      if (result.Success)
+        return result.Result;
+      return null;
     }
   }
 }

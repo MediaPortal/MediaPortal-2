@@ -49,13 +49,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
   </Screen.Resources>
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
-      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
       <EventTrigger.Actions>
+        <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
         <BeginStoryboard Storyboard="{ThemeResource ShowScreenStoryboard}"/>
       </EventTrigger.Actions>
     </EventTrigger>
     <EventTrigger RoutedEvent="Screen.Hide">
       <EventTrigger.Actions>
+        <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
         <BeginStoryboard Storyboard="{ThemeResource HideScreenStoryboard}"/>
       </EventTrigger.Actions>
     </EventTrigger>
@@ -118,7 +119,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- HeaderPanel -->
 
-    <Grid  Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,40,0,0">
+    <Grid HorizontalAlignment="Stretch" Margin="0,40,0,0">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
@@ -131,9 +132,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="60,0,10,30" 
-          IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-          Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="60,-5,20,35" 
+              IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
       </Button>
 
       <Border Height="74" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0,-20,5,20" >
@@ -199,14 +200,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </StackPanel>
 
           <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
-               Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
         </StackPanel>
       </Border>
-
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="10,0,60,30"
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="10,-5,60,35"
               HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="False">
       </Button>
-      
     </Grid>
 
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
@@ -227,24 +226,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Control>
 
       <!-- PlayerControlsPanel Focusable="True"-->
-      <Grid x:Name="FooterPanel" Height="{ThemeResource FooterPanelHeight}" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5"
-                  IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
-
+      <Grid x:Name="FooterPanel" Height="{ThemeResource FooterPanelHeight}" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+            Margin="-55,0,-55,0" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         <DockPanel x:Name="PlayerControlPanel" DockPanel.Dock="Bottom" LastChildFill="False">
-
           <mp_special_controls:PlayerControl x:Name="PrimaryPlayerControl" Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Left"
                 HorizontalAlignment="Left" VerticalAlignment="Top" Height="205"
                 AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
-
           <mp_special_controls:PlayerControl x:Name="SecondaryPlayerControl" Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyleSecondary}" Width="710" DockPanel.Dock="Right"
                 HorizontalAlignment="Right" VerticalAlignment="Top"
                 AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
-
         </DockPanel>
       </Grid>
-
+      
     </Grid>
     <!-- FooterPanel -->
-
   </Grid>
 </Screen>

@@ -34,8 +34,8 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   {
     protected IFilter _filter;
 
-    public FilteredRelationshipFilter(Guid role, IFilter filter) :
-      base(role)
+    public FilteredRelationshipFilter(Guid role, Guid linkedRole, IFilter filter) :
+      base(role, linkedRole)
     {
       _filter = filter;
     }
@@ -49,7 +49,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
 
     public override string ToString()
     {
-      return "(ITEM_ID IN (" + _filter + ")" + (_role != Guid.Empty ? " AND (ROLE='" + _role + "' OR LINKED_ROLE='" + _role + "')" : "") + ")";
+      return "(ROLE = '" + _role + "' AND LINKED_ROLE = '" + _linkedRole + "' AND LINKED_ID IN (" + _filter + "))";
     }
 
     #region Additional members for the XML serialization

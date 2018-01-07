@@ -53,7 +53,7 @@
                 <Label x:Name="Temperature" FontSize="48" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
                     Content="{Binding CurrentLocation.Condition.Temperature}" VerticalAlignment="Center"/>
               </StackPanel>
-              <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"
+              <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="55" Color="{ThemeResource TextColor}"
                   Content="{Binding CurrentLocation.Name}"/>
             </StackPanel>
             <Grid x:Name="CurrentConditionDetail" Grid.Column="2" Grid.Row="0" Margin="0,30,0,0"
@@ -81,9 +81,9 @@
           </Grid>
 
           <!-- Forecasts (dynamic count) -->
-          <ListView Margin="-75,0,-70,50" HorizontalAlignment="Left" VerticalAlignment="Center"
-                Style="{ThemeResource ForecastListViewStyle}"
-                ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" >
+          <ListView Margin="-75,-25,-73,85" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                    Style="{ThemeResource ForecastListViewStyle}"
+                    ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" >
           </ListView>
           
           <StackPanel HorizontalAlignment="Right" Margin="-80,15,-70,0">
@@ -91,7 +91,6 @@
             <Label x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
                 HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource TextColor}"/>
           </StackPanel>
-          <Image Margin="0,20,-70,0" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         </StackPanel>
       </Grid>
     </ControlTemplate>

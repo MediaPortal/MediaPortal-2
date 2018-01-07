@@ -36,14 +36,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
   {
     #region Audio
 
-    bool AssignMissingMusicGenreIds(List<GenreInfo> genres);
     List<AlbumInfo> GetLastChangedAudioAlbums();
     void ResetLastChangedAudioAlbums();
     List<TrackInfo> GetLastChangedAudio();
     void ResetLastChangedAudio();
     bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly);
     bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly);
-    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly);
+    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly);
     bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly);
     bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly);
     bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force);
@@ -54,7 +53,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 
     #region Movie
 
-    bool AssignMissingMovieGenreIds(List<GenreInfo> genres);
     List<MovieInfo> GetLastChangedMovies();
     void ResetLastChangedMovies();
     List<MovieCollectionInfo> GetLastChangedMovieCollections();
@@ -73,7 +71,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 
     #region Series
 
-    bool AssignMissingSeriesGenreIds(List<GenreInfo> genres);
     List<SeriesInfo> GetLastChangedSeries();
     void ResetLastChangedSeries();
     List<EpisodeInfo> GetLastChangedEpisodes();

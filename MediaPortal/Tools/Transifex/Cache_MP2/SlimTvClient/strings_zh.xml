@@ -42,6 +42,7 @@
   <string name="SlimTvClient.EpgNumberOfRows.Help">定义EPG显示的条目(频道) 数</string>
   <string name="SlimTvClient.EpgNumberOfHours">EPG中的小时数</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">定义EPG中显示的小时(节目)数</string>
+  <string name="SlimTvClient.Notifications">提示信息</string>
   <string name="SlimTvClient.RecordingsMenuItem">录制</string>
   <string name="SlimTvClient.RecordingsRootViewName">电视录制</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">按频道过滤</string>

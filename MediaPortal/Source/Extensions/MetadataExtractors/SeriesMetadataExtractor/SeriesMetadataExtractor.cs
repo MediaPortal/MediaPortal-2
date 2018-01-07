@@ -37,6 +37,7 @@ using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
 using MediaPortal.Common.Messaging;
 using System.Threading;
+using MediaPortal.Common.MediaManagement.TransientAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -83,6 +84,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
         seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(seriesCategory);
+
+      // All non-default media item aspects must be registered
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(TempSeriesAspect.Metadata);
     }
 
     public SeriesMetadataExtractor()
@@ -183,10 +188,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      if (extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
+      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
         return false; //Subtitles can only be imported not refreshed
 
       bool refresh = false;
@@ -258,14 +263,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
         episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
       }
-      IList<MultipleMediaItemAspect> audioAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+
+      if (episodeInfo.Languages.Count == 0)
       {
-        foreach (MultipleMediaItemAspect aspect in audioAspects)
+        IList<MultipleMediaItemAspect> audioAspects;
+        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
         {
-          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-          if (!string.IsNullOrEmpty(language))
-            episodeInfo.Languages.Add(language);
+          foreach (MultipleMediaItemAspect aspect in audioAspects)
+          {
+            string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+            if (!string.IsNullOrEmpty(language) && !episodeInfo.Languages.Contains(language))
+              episodeInfo.Languages.Add(language);
+          }
         }
       }
 
@@ -287,7 +296,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!SkipOnlineSearches && !episodeInfo.HasExternalId)
         return false;
 
-      if(refresh)
+      if (episodeInfo.EpisodeNameSort.IsEmpty)
+      {
+        if (!episodeInfo.SeriesName.IsEmpty && episodeInfo.SeasonNumber.HasValue && episodeInfo.DvdEpisodeNumbers.Any())
+          episodeInfo.EpisodeNameSort = $"{episodeInfo.SeriesName.Text} S{episodeInfo.SeasonNumber.Value.ToString("00")}E{episodeInfo.DvdEpisodeNumbers.First().ToString("000.000")}";
+        if (!episodeInfo.SeriesName.IsEmpty && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Any())
+          episodeInfo.EpisodeNameSort = $"{episodeInfo.SeriesName.Text} S{episodeInfo.SeasonNumber.Value.ToString("00")}E{episodeInfo.EpisodeNumbers.First().ToString("000")}";
+        else if (!episodeInfo.EpisodeName.IsEmpty)
+          episodeInfo.EpisodeNameSort = BaseInfo.GetSortTitle(episodeInfo.EpisodeName.Text);
+      }
+
+      if (refresh)
       {
         if((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_ACTOR) && episodeInfo.Actors.Count > 0) ||
           (IncludeCharacterDetails && !BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ROLE_CHARACTER) && episodeInfo.Characters.Count > 0) ||
@@ -317,10 +336,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
+        if (forceQuickMode)
+          return false;
+
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
 
@@ -333,6 +355,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
+      return false;
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
       return false;
     }
 

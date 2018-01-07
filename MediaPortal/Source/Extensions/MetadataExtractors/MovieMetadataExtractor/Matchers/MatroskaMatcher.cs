@@ -31,6 +31,8 @@ using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
@@ -123,7 +125,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       if (tags != null)
       {
         List<GenreInfo> genreList = tags.Select(s => new GenreInfo { Name = s }).ToList();
-        OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+        GenreMapper.AssignMissingMovieGenreIds(genreList);
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
       }
 
@@ -131,17 +133,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       tags = tagsToExtract[MatroskaConsts.TAG_ACTORS];
       if (tags != null)
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
-          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR, MediaName = movieInfo.MovieName.Text }).ToList(), false);
 
       tags = tagsToExtract[MatroskaConsts.TAG_DIRECTORS];
       if (tags != null)
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Directors,
-          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_DIRECTOR }).ToList(), false);
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_DIRECTOR, MediaName = movieInfo.MovieName.Text }).ToList(), false);
 
       tags = tagsToExtract[MatroskaConsts.TAG_WRITTEN_BY];
       if (tags != null)
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Writers,
-          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_WRITER }).ToList(), false);
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_WRITER, MediaName = movieInfo.MovieName.Text }).ToList(), false);
 
       if (tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID] != null)
       {

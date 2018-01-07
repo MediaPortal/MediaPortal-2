@@ -36,6 +36,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -76,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         });
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
@@ -97,7 +98,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
         EpisodeInfo episodeInfo = GetSeriesFromTags(tags);
         if (episodeInfo.IsBaseInfoPresent)
         {
-          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
+          if(!forceQuickMode)
+            OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
@@ -187,7 +189,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      miatr.RegisterLocallyKnownMediaItemAspectType(RecordingAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(RecordingAspect.Metadata);
     }
 
     public Tve3RecordingMetadataExtractor()
@@ -233,7 +235,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (TryGet(extractedTags, TAG_GENRE, out tmpString))
       {
         episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = tmpString } });
-        OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episodeInfo.Genres);
+        GenreMapper.AssignMissingSeriesGenreIds(episodeInfo.Genres);
       }
 
       episodeInfo.HasChanged = true;
@@ -258,14 +260,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
     {
       try
       {
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
-          return false;
-        if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
           return false;
 
         Tags tags;
@@ -275,10 +275,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
             tags = (Tags)GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
+        string value;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ISDVD, false);
 
-        string value;
         if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
         {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
@@ -288,7 +288,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (TryGet(tags, TAG_GENRE, out value))
         {
           List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value } });
-          OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+          GenreMapper.AssignMissingMovieGenreIds(genreList);
           MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
           genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
           genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
@@ -345,6 +345,21 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (!ResourcePath.Deserialize(metaFilePath).TryCreateLocalResourceAccessor(out metaFileAccessor))
         return false;
       return true;
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
+      return false;
     }
 
     #endregion

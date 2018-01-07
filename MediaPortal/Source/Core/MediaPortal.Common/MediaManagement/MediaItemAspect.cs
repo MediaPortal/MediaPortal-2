@@ -715,12 +715,13 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     public static void AddOrUpdateRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
-      Guid role, Guid linkedRole, Guid linkedId, int linkedIndex)
+      Guid role, Guid linkedRole, Guid linkedId, bool playable, int linkedIndex)
     {
       MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(RelationshipAspect.Metadata);
       aspect.SetAttribute(RelationshipAspect.ATTR_ROLE, role);
       aspect.SetAttribute(RelationshipAspect.ATTR_LINKED_ROLE, linkedRole);
       aspect.SetAttribute(RelationshipAspect.ATTR_LINKED_ID, linkedId);
+      aspect.SetAttribute(RelationshipAspect.ATTR_PLAYABLE, playable);
       aspect.SetAttribute(RelationshipAspect.ATTR_RELATIONSHIP_INDEX, linkedIndex);
       AddOrUpdateAspect(aspectData, aspect);
     }

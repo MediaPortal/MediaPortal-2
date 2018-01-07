@@ -25,7 +25,6 @@
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {

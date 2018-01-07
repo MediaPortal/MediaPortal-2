@@ -74,6 +74,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     public void Dispose()
     {
+      MpcSubtitles.FreeSubtitles();
     }
 
     #endregion

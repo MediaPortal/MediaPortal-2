@@ -29,10 +29,10 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.OnlineLibraries;
 using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -197,7 +197,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
               episodeNums.Add(episodeNum);
           }
         }
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeNums, true);
+        List<int> tmpList = episodeInfo.EpisodeNumbers.ToList();
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(tmpList, episodeNums, true);
+        episodeInfo.EpisodeNumbers = new HashSet<int>(tmpList);
       }
       return true;
     }

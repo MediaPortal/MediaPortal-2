@@ -78,6 +78,9 @@ namespace MediaPortal.UI
       logger.Debug("UiExtension: Registering IMediaItemAspectTypeRegistration service");
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
 
+      logger.Debug("UiExtension: Registering IRelationshipTypeRegistration service");
+      ServiceRegistration.Set<IRelationshipTypeRegistration>(new RelationshipTypeRegistration());
+
       logger.Debug("UiExtension: Registering IFrontendServer service");
       ServiceRegistration.Set<IFrontendServer>(new Services.FrontendServer.FrontendServer());
 

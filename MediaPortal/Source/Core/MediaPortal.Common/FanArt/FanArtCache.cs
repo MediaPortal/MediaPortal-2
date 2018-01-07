@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Utilities.FileSystem;
 using System;
@@ -44,18 +45,33 @@ namespace MediaPortal.Common.FanArt
     private static object _fanArtCountSync = new object();
     private static object _initSync = new object();
 
+    private static SettingsChangeWatcher<FanArtSettings> _settingsChangeWatcher = null;
+
     static FanArtCache()
     {
+      LoadSettings();
+
+      _settingsChangeWatcher = new SettingsChangeWatcher<FanArtSettings>();
+      _settingsChangeWatcher.SettingsChanged += SettingsChanged;
+    }
+
+    private static void LoadSettings()
+    {
       FanArtSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<FanArtSettings>();
-      MAX_FANART_IMAGES.Add(FanArtTypes.Banner, settings.MaxBannerFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.ClearArt, settings.MaxClearArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Cover, settings.MaxPosterFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.DiscArt, settings.MaxDiscArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.FanArt, settings.MaxBackdropFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Logo, settings.MaxLogoFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Poster, settings.MaxPosterFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Thumbnail, settings.MaxThumbFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Undefined, 0);
+      MAX_FANART_IMAGES[FanArtTypes.Banner] = settings.MaxBannerFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.ClearArt] = settings.MaxClearArt;
+      MAX_FANART_IMAGES[FanArtTypes.Cover] = settings.MaxPosterFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.DiscArt] = settings.MaxDiscArt;
+      MAX_FANART_IMAGES[FanArtTypes.FanArt] = settings.MaxBackdropFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.Logo] = settings.MaxLogoFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.Poster] = settings.MaxPosterFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.Thumbnail] = settings.MaxThumbFanArt;
+      MAX_FANART_IMAGES[FanArtTypes.Undefined] = 0;
+    }
+
+    private static void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
     }
 
     public static void InitFanArtCache(string mediaItemId)
@@ -111,6 +127,25 @@ namespace MediaPortal.Common.FanArt
           fanartFiles.AddRange(Directory.GetFiles(path, "*.tbn"));
       }
       return fanartFiles;
+    }
+
+    public static ICollection<Guid> GetAllFanArtIds()
+    {
+      List<Guid> mediaItemIds = new List<Guid>();
+      try
+      {
+        foreach (DirectoryInfo fanartDirectory in new DirectoryInfo(FANART_CACHE_PATH).EnumerateDirectories())
+        {
+          Guid mediaItemId;
+          if (Guid.TryParse(fanartDirectory.Name, out mediaItemId))
+            mediaItemIds.Add(mediaItemId);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("FanArtCache: Error reading fanart directory '{0}'", ex, FANART_CACHE_PATH);
+      }
+      return mediaItemIds;
     }
 
     public static void DeleteFanArtFiles(string mediaItemId)

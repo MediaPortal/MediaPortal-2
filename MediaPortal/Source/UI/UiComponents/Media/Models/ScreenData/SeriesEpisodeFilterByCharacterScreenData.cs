@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesEpisodeFilterByCharacterScreenData() :
         base(Consts.SCREEN_SERIES_EPISODE_FILTER_BY_CHARACTER, Consts.RES_COMMON_BY_CHARACTER_MENU_ITEM,
-        Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new FilterByCharacterCriterion(EpisodeAspect.ROLE_EPISODE))
+        Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new FilterByCharacterCriterion(CharacterAspect.ROLE_CHARACTER, EpisodeAspect.ROLE_EPISODE))
     {
       _availableMias = Consts.NECESSARY_CHARACTER_MIAS;
       if (Consts.OPTIONAL_CHARACTER_MIAS != null)

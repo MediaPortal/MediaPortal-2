@@ -22,6 +22,7 @@
   <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nagrania wg nazwy</string>
   <!--Schedule management-->
   <!--Settings-->
+  <string name="SlimTvClient.Notifications">Powiadomienia</string>
   <string name="SlimTvClient.RecordingsMenuItem">Nagrania</string>
   <string name="SlimTvClient.RecordingsRootViewName">Nagrania TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtruj wg kanału</string>

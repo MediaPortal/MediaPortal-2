@@ -32,6 +32,8 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using System.Linq;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.Genres;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -92,7 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       UpdateCharacters(aspects, seriesInfo.Characters, true);
       if (!UpdateSeries(aspects, seriesInfo))
         return false;
-      OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(seriesInfo.Genres);
+      GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres);
 
       extractedLinkedAspects = new List<RelationshipItem>();
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
@@ -135,7 +137,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
 
       IEnumerable<int> episodes = linkedAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
-      List<int> episodeList = new List<int>(episodes);
+      List<int> episodeList = new SafeList<int>(episodes);
 
       index = season.Value * 1000 + episodeList.First();
       return index >= 0;

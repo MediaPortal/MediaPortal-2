@@ -221,7 +221,35 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       IMediaPlaybackControl player = videoPlayer as IMediaPlaybackControl;
       _videoPlayerSuspended = player == null || player.IsPaused;
-      PlayerSuspendLevel = videoPlayer == null ? SuspendLevel.None : SuspendLevel.DisplayRequired;
+      if (videoPlayer != null)
+        PlayerSuspendLevel = _videoPlayerSuspended ? SuspendLevel.None : SuspendLevel.DisplayRequired;
+      else
+        HandleNonVideoPlayers();
+    }
+
+    private void HandleNonVideoPlayers()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayer primaryPlayer = playerContextManager[PlayerContextIndex.PRIMARY];
+      IMediaPlaybackControl mbc = primaryPlayer as IMediaPlaybackControl;
+      bool isPlaying = mbc == null || !mbc.IsPaused;
+      if (primaryPlayer == null)
+      {
+        PlayerSuspendLevel = SuspendLevel.None;
+        return;
+      }
+      if (primaryPlayer is IAudioPlayer)
+      {
+        // For audio players we allow turning off the screen, but avoiding suspend.
+        PlayerSuspendLevel = isPlaying ? SuspendLevel.AvoidSuspend : SuspendLevel.None;
+        return;
+      }
+      if (primaryPlayer is IImagePlayer)
+      {
+        // For image players we avoiding both suspend and display off.
+        PlayerSuspendLevel = isPlaying ? SuspendLevel.DisplayRequired : SuspendLevel.None;
+        return;
+      }
     }
 
     public SuspendLevel PlayerSuspendLevel
@@ -401,8 +429,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _renderThreadStopped = true;
       if (SkinContext.RenderThread == null)
         return;
-      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Stoping render thread");
-      SkinContext.RenderThread.Join();
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Stopping render thread");
+      if(!SkinContext.RenderThread.Join(5000))
+      {
+        SkinContext.RenderThread.Abort();
+      }
       SkinContext.RenderThread = null;
     }
 
@@ -443,31 +474,33 @@ namespace MediaPortal.UI.SkinEngine.GUI
     /// </summary>
     private void RenderLoop()
     {
-      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting main render loop");
+      try
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting main render loop");
 #if MEASURE_FPS
       Stopwatch sw = new Stopwatch();
       sw.Start();
       int cnt = 0;
 #endif
-      while (!_renderThreadStopped)
-      {
-        // EVR handling
-        bool isVideoPlayer = SynchronizedToEVR;
+        while (!_renderThreadStopped)
+        {
+          // EVR handling
+          bool isVideoPlayer = SynchronizedToEVR;
 
-        _renderFinishedEvent.Reset();
+          _renderFinishedEvent.Reset();
 
-        if (isVideoPlayer && !_videoPlayerSuspended)
-          // If our video player synchronizes the rendering, it sets the _videoRenderFrameEvent when a new frame is available,
-          // so we wait for that event here.
-          _videoRenderFrameEvent.WaitOne(RENDER_MAX_WAIT_FOR_VIDEO_FRAME_MS);
+          if (isVideoPlayer && !_videoPlayerSuspended)
+            // If our video player synchronizes the rendering, it sets the _videoRenderFrameEvent when a new frame is available,
+            // so we wait for that event here.
+            _videoRenderFrameEvent.WaitOne(RENDER_MAX_WAIT_FOR_VIDEO_FRAME_MS);
 
         //bool shouldWait = GraphicsDevice.Render(!isVideoPlayer || _videoPlayerSuspended); // If the video player isn't active or if it is suspended, use the configured target framerate of the GraphicsDevice
         bool shouldWait = GraphicsDevice11.Instance.Render(!isVideoPlayer || _videoPlayerSuspended); // If the video player isn't active or if it is suspended, use the configured target framerate of the GraphicsDevice
-        _renderFinishedEvent.Set();
+          _renderFinishedEvent.Set();
 
-        if (shouldWait || !_hasFocus)
-          // The device was lost or we don't have focus - reduce the render rate
-          Thread.Sleep(10);
+          if (shouldWait || !_hasFocus)
+            // The device was lost or we don't have focus - reduce the render rate
+            Thread.Sleep(10);
 
 #if MEASURE_FPS
         cnt++;
@@ -480,8 +513,17 @@ namespace MediaPortal.UI.SkinEngine.GUI
           sw.Restart();
         }
 #endif
+        }
+        ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Main render loop was stopped");
       }
-      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Main render loop was stopped");
+      catch(ThreadAbortException)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Main render loop was aborted");
+      }
+      catch(Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Main render loop crashed", ex);
+      }
     }
 
     public void Start()

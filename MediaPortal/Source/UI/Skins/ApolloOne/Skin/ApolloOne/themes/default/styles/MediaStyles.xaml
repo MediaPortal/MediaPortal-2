@@ -15,8 +15,6 @@
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
 
-  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
-
   <!-- 
     Media Navigation styles.
     We provide different control styles for thumbnail list and grid views for each navigation item (filter, audio, video,...).
@@ -286,7 +284,7 @@
       <!-- GE2301: Unwatched marker added by red tab -->      
       <Image Source="MediaItem_Unwatched.png" Margin="-7,-4,-8,-4">
         <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
         </Image.IsVisible>
       </Image>
       <!-- GE2301: Unwatched marker added by red tab -->      

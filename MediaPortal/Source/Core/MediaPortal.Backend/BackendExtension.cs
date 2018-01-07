@@ -56,6 +56,9 @@ namespace MediaPortal.Backend
       logger.Debug("BackendExtension: Registering IMediaItemAspectTypeRegistration service");
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
 
+      logger.Debug("BackendExtension: Registering IRelationshipTypeRegistration service");
+      ServiceRegistration.Set<IRelationshipTypeRegistration>(new RelationshipTypeRegistration());
+
       logger.Debug("BackendExtension: Registering IBackendServer service");
       ServiceRegistration.Set<IBackendServer>(new Services.BackendServer.BackendServer());
 

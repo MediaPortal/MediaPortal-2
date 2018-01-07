@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Extensions.OnlineLibraries</RootNamespace>
     <AssemblyName>OnlineLibraries</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -41,11 +41,11 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\Packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="Libraries\Common\Data\DownloadData.cs" />
     <Compile Include="Libraries\Common\ExternalIPResolver.cs" />
+    <Compile Include="Libraries\IMatcher.cs" />
     <Compile Include="Libraries\IOnlineMatcherService.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ChangeCollection.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Change.cs" />
@@ -98,6 +99,13 @@
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecording.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackReleaseSearchResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\MusicBrainzDownloader.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiPerson.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiMovie.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiPersonSearchResult.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiPersonSearchItem.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiMovieSearchItem.cs" />
+    <Compile Include="Libraries\SimApiV1\Data\SimApiMovieSearchResult.cs" />
+    <Compile Include="Libraries\SimApiV1\SimApiV1.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbBaseResponse.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbSearchItem.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbSearchResult.cs" />
@@ -299,6 +307,7 @@
     <Compile Include="Libraries\IMovieMatcher.cs" />
     <Compile Include="Libraries\ISeriesMatcher.cs" />
     <Compile Include="Libraries\IMusicMatcher.cs" />
+    <Compile Include="Matchers\MovieSimApiMatcher.cs" />
     <Compile Include="Matchers\MusicMatcher.cs" />
     <Compile Include="Matchers\IdMapper.cs" />
     <Compile Include="Matchers\SimpleNameMatcher.cs" />
@@ -310,19 +319,17 @@
     <Compile Include="Matches\IdMatch.cs" />
     <Compile Include="Matches\SimpleNameMatch.cs" />
     <Compile Include="OnlineMatcherService.cs" />
-    <Compile Include="MetadataUpdater.cs" />
-    <Compile Include="SerializableRegex.cs" />
-    <Compile Include="Settings\GenreMapping.cs" />
     <Compile Include="Settings\MatcherSetting.cs" />
     <Compile Include="Settings\OnlineLibrarySettings.cs" />
     <Compile Include="Wrappers\ApiWrapperImageCollection.cs" />
+    <Compile Include="Wrappers\SimApiWrapper.cs" />
     <Compile Include="Wrappers\OmDbWrapper.cs" />
     <Compile Include="Matchers\SeriesOmDbMatcher.cs" />
     <Compile Include="Matchers\SeriesTvMazeMatcher.cs" />
     <Compile Include="Matchers\SeriesTheMovieDbMatcher.cs" />
     <Compile Include="Matchers\MusicFanArtTvMatcher.cs" />
     <Compile Include="Wrappers\FanArtTVWrapper.cs" />
-    <Compile Include="Matchers\CDFreeDbMatcher.cs" />
+    <Compile Include="Matchers\MusicFreeDbMatcher.cs" />
     <Compile Include="Wrappers\FreeDbWrapper.cs" />
     <Compile Include="GeoLocationService.cs" />
     <Compile Include="Libraries\AudioDbV1\Data\AudioDbTracks.cs" />
@@ -487,9 +494,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

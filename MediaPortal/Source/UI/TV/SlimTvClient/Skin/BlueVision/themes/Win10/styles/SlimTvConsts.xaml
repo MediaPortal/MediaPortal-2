@@ -11,12 +11,16 @@
   
   <ResourceWrapper x:Key="ChannelLogoLarge" Resource="180"/>
   <ResourceWrapper x:Key="ChannelLogoContainerLarge" Resource="100"/>
+  
+  <ResourceWrapper x:Key="ChannelLogoWidth" Resource="140"/>
 
   <ResourceWrapper x:Key="MainListChannelNameLength" Resource="250"/>
   <ResourceWrapper x:Key="MainListTimeLength" Resource="100"/>
   <ResourceWrapper x:Key="TvGuideRowHeaderWidth" Resource="350"/>
 
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="220"/>
+
+  <ResourceWrapper x:Key="GroupButtonWidth" Resource="55"/>
 
   <ResourceWrapper x:Key="MiniGuideHeight" Resource="700"/>
   <ResourceWrapper x:Key="MiniGuideWidth" Resource="900"/>

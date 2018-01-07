@@ -25,7 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.PluginManager;
@@ -57,6 +59,9 @@ namespace MediaPortal.UiComponents.Media.Models
     protected ItemsList _mediaItemActionItems = new ItemsList();
     private readonly List<MediaItemActionExtension> _actions = new List<MediaItemActionExtension>();
     private IPluginItemStateTracker _mediaActionPluginItemStateTracker; // Lazy initialized
+    private DialogCloseWatcher _dialogCloseWatcher;
+    private IDeferredMediaItemAction _deferredAction;
+    private MediaItem _deferredMediaItem;
 
     #endregion
 
@@ -92,17 +97,62 @@ namespace MediaPortal.UiComponents.Media.Models
       if (!item.AdditionalProperties.TryGetValue(Consts.KEY_MEDIA_ITEM_ACTION, out actionObj) || !item.AdditionalProperties.TryGetValue(Consts.KEY_MEDIA_ITEM, out mediaItemObj))
         return;
 
+      IMediaItemActionConfirmation confirmation = actionObj as IMediaItemActionConfirmation;
       IMediaItemAction action = actionObj as IMediaItemAction;
       MediaItem mediaItem = mediaItemObj as MediaItem;
       if (action == null || mediaItem == null)
         return;
 
+      if (confirmation != null)
+        ShowConfirmation(confirmation, mediaItem);
+      else
+        _ = InvokeAction(action, mediaItem);
+    }
+
+    protected void ShowConfirmation(IMediaItemActionConfirmation confirmation, MediaItem mediaItem)
+    {
+      IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+      string header = LocalizationHelper.Translate(Consts.RES_CONFIRM_HEADER);
+      string text = LocalizationHelper.Translate(confirmation.ConfirmationMessage);
+      Guid handle = dialogManager.ShowDialog(header, text, DialogType.YesNoDialog, false, DialogButtonType.No);
+      _dialogCloseWatcher = new DialogCloseWatcher(this, handle,
+        async dialogResult =>
+        {
+          if (dialogResult == DialogResult.Yes)
+          {
+            await InvokeAction(confirmation, mediaItem);
+          }
+          _dialogCloseWatcher?.Dispose();
+        });
+    }
+
+    protected async Task InvokeAction(IMediaItemAction action, MediaItem mediaItem)
+    {
+      IDeferredMediaItemAction dmi = action as IDeferredMediaItemAction;
+      if (dmi != null)
+      {
+        // Will be called when context is left
+        _deferredAction = dmi;
+        _deferredMediaItem = mediaItem;
+        return;
+      }
+      await InvokeInternal(action, mediaItem);
+    }
+
+    private async Task InvokeDeferred()
+    {
+      if (_deferredAction != null && _deferredMediaItem != null)
+        await InvokeInternal(_deferredAction, _deferredMediaItem);
+    }
+
+    private async Task InvokeInternal(IMediaItemAction action, MediaItem mediaItem)
+    {
       try
       {
-        ContentDirectoryMessaging.MediaItemChangeType changeType;
-        if (action.Process(mediaItem, out changeType) && changeType != ContentDirectoryMessaging.MediaItemChangeType.None)
+        var result = await action.ProcessAsync(mediaItem);
+        if (result.Success && result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
         {
-          ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, changeType);
+          ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, result.Result);
         }
       }
       catch (Exception ex)
@@ -128,7 +178,7 @@ namespace MediaPortal.UiComponents.Media.Models
         try
         {
           MediaItemActionExtension mediaExtension = pluginManager.RequestPluginItem<MediaItemActionExtension>(
-              MediaItemActionBuilder.MEDIA_EXTENSION_PATH, itemMetadata.Id, _mediaActionPluginItemStateTracker);
+            MediaItemActionBuilder.MEDIA_EXTENSION_PATH, itemMetadata.Id, _mediaActionPluginItemStateTracker);
           if (mediaExtension == null)
             ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Media extension with id '{0}'", itemMetadata.Id);
           else
@@ -151,12 +201,12 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    protected bool FillItemsList(MediaItem mediaItem)
+    protected async Task<bool> FillItemsList(MediaItem mediaItem)
     {
       _mediaItemActionItems.Clear();
       foreach (MediaItemActionExtension action in _actions.OrderBy(a => a.Sort))
       {
-        if (!action.Action.IsAvailable(mediaItem))
+        if (!await action.Action.IsAvailableAsync(mediaItem))
           continue;
 
         ListItem item = new ListItem(Consts.KEY_NAME, action.Caption);
@@ -168,10 +218,10 @@ namespace MediaPortal.UiComponents.Media.Models
       return _mediaItemActionItems.Count > 0;
     }
 
-    protected bool PrepareState(NavigationContext context)
+    protected async Task<bool> PrepareState(NavigationContext context)
     {
       MediaItem item = (MediaItem)context.GetContextVariable(KEY_MEDIA_ITEM, false);
-      return item != null && FillItemsList(item);
+      return item != null && await FillItemsList(item);
     }
 
     protected void LeaveMediaItemActionState()
@@ -192,18 +242,21 @@ namespace MediaPortal.UiComponents.Media.Models
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
       BuildExtensions();
-      return PrepareState(newContext);
+      return PrepareState(newContext).Result;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      _deferredAction = null;
+      _deferredMediaItem = null;
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(Consts.DIALOG_MEDIAITEM_ACTION_MENU, (dialogName, dialogInstanceId) => LeaveMediaItemActionState());
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do
+      // Check for pending actions that need to be invoked in former context
+      _ = InvokeDeferred();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

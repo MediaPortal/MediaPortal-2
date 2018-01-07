@@ -2,18 +2,36 @@
 <resources>
   <string name="Menu.Audio">Звук</string>
   <string name="Menu.Image">Слике</string>
+  <string name="Menu.MediaHub">Видео</string>
   <string name="Menu.TV">ТВ</string>
   <string name="Menu.News">Новости</string>
   <string name="Menu.Weather">Време</string>
   <string name="Menu.Settings">Подешавања</string>
+  <string name="Menu.Others">Остало</string>
   <string name="Menu.Home">Основна страна</string>
+  <string name="Menu.Main">Главни мени</string>
   <string name="Movies.Title">Филмови</string>
   <string name="Series.Title">Серије</string>
   <string name="Audio.Title">Звук</string>
   <string name="Recordings.Title">Снимљено</string>
   <string name="Images.Title">Слике</string>
   <string name="Videos.Title">Видео</string>
+  <string name="Video.Title">Видео</string>
+  <string name="Subtitle.Title">Поднапис</string>
   <string name="News.Title">Новости</string>
   <string name="Weather.Title">Време</string>
   <string name="General.Title">Генерално</string>
+  <string name="CastCrew.Title">Глумци + екипа</string>
+  <string name="MediaInfo.Title">Медија информације</string>
+  <string name="Media.AudioAlbumArtistsLabel">Албум Уметник:</string>
+  <string name="Media.AudioTrackLabel">Нумера:</string>
+  <string name="Media.AudioBitRateLabel">Бит рата:</string>
+  <string name="Media.AudioComposersLabel">Композитори:</string>
+  <string name="Media.AudioMimeTypeLabel">Тип:</string>
+  <string name="BlueVision.Configuration">BlueVision подешавање:</string>
+  <string name="BlueVision.Configuration.Help">Омогућава подешавање BlueVision изгледа</string>
+  <string name="BlueVision.DisableHomeTab">Онемогући почетни табулатор</string>
+  <string name="BlueVision.DisableAutoSelection">Онемогући аутоматски одабир табулаторног менија</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">Користи BlueVision екран</string>
+  <string name="BlueVision.ResetMenuLayout">Ресетуј распоред у менију на почетне вредности</string>
 </resources>

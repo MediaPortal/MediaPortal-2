@@ -99,9 +99,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        //ToDo: Replace this with a call to IsSingleResource once this method is implemented in the MetadataExtractors
-        if (!importResource.ResourceAccessor.IsFile && await ExtractMetadata(importResource.ResourceAccessor, null, true) == null)
-          importResource.IsSingleResource = false;
+        importResource.IsSingleResource = await IsSingleResource(importResource.ResourceAccessor);
 
         if (!importResource.IsSingleResource && ImportJobInformation.IncludeSubDirectories)
         {

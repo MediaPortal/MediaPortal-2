@@ -22,8 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement;
@@ -32,8 +30,14 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
-using System.Linq;
+using MediaPortal.UiComponents.Media.FilterTrees;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Settings;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -46,9 +50,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     protected Guid _linkedRole;
     protected IEnumerable<Guid> _necessaryMIATypeIds;
     protected IEnumerable<Guid> _optionalMIATypeIds;
-    protected SortInformation _sortInformation;
+    protected ISortInformation _sortInformation;
 
-    public RelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, SortInformation sortInformation)
+    public RelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, ISortInformation sortInformation)
     {
       _role = role;
       _linkedRole = linkedRole;
@@ -59,39 +63,51 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override async Task<ICollection<FilterValue>> GetAvailableValuesAsync(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
-
+      
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
 
       IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
-      IFilter queryFilter;
-      if (filter != null)
-        queryFilter = new FilteredRelationshipFilter(_role, filter);
-      else
-        queryFilter = new RelationshipFilter(_role, _linkedRole, Guid.Empty);
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
+      IFilter queryFilter = new FilteredRelationshipFilter(_role, _linkedRole, filter);
+
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
       if (_sortInformation != null)
-        query.SortInformation = new List<SortInformation> { _sortInformation };
-      IList<MediaItem> items = cd.Search(query, true, userProfile, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+        query.SortInformation = new List<ISortInformation> { _sortInformation };
+      
+      IList<MediaItem> items = await cd.SearchAsync(query, true, userProfile, showVirtual);
+      CertificationHelper.ConvertCertifications(items);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)
       {
         string name;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out name);
         result.Add(new FilterValue(name,
-          new RelationshipFilter(_linkedRole, _role, item.MediaItemId),
+          new FilterTreePath(_role),
           null,
           item,
           this));
       }
+
+      //ToDo: Add support for an empty entry for all filtered items that don't have this relationship
+      //The below works OK in simple cases but results in an extra, relatively long running query. Maybe this should be handled
+      //at the server for all relationship queries...
+      //IFilter emptyRelationshipFilter = new NotFilter(new RelationshipFilter(_linkedRole, _role, Guid.Empty));
+      //queryFilter = filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, emptyRelationshipFilter) : emptyRelationshipFilter;
+      //int numEmptyEntries = cd.CountMediaItems(necessaryMIATypeIds, queryFilter, true, showVirtual);
+      //if(numEmptyEntries > 0)
+      //  result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyRelationshipFilter, null, this));
+
       return result;
     }
 
@@ -100,9 +116,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       return string.Format("{0}", groupKey).Trim();
     }
 
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
-      return null;
+      return Task.FromResult((ICollection<FilterValue>)null);
     }
 
     #endregion
