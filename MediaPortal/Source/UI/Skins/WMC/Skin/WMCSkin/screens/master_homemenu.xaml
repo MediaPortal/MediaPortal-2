@@ -309,7 +309,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <BeginStoryboard x:Name="Content1BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                 </DataTrigger.EnterActions>
                 <DataTrigger.ExitActions>
-                  <!--BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/-->
+                  <BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
                   <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
                 </DataTrigger.ExitActions>
               </DataTrigger>
