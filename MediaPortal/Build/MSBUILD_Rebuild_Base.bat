@@ -10,15 +10,16 @@ if not exist %MB% set MB="%ProgramFiles(x86)%\MSBUILD\14.0\Bin\MSBUILD.exe"
 if not exist %MB% echo "No supported MSBUILD version found. Exiting here." && exit 1
 echo Start building using %MB%
 
-%MB% RestorePackages.targets /target:RestoreBuildPackages
+rem %MB% RestorePackages.targets /target:RestoreBuildPackages
 
-set PathToBuildReport=.\..\Packages\BuildReport.1.0.0
-xcopy /I /Y %PathToBuildReport%\_BuildReport_Files .\_BuildReport_Files
+rem set PathToBuildReport=.\..\Packages\BuildReport.1.0.0
+rem xcopy /I /Y %PathToBuildReport%\_BuildReport_Files .\_BuildReport_Files
 
 set xml=%1.xml
 set html=%1.html
 
-set logger=/l:XmlFileLogger,"%PathToBuildReport%\MSBuild.ExtensionPack.Loggers.dll";logfile=%xml%
+rem set logger=/l:XmlFileLogger,"%PathToBuildReport%\MSBuild.ExtensionPack.Loggers.dll";logfile=%xml%
+set logger=
 %MB% /m Build.proj %logger% %2
 
-%PathToBuildReport%\msxsl %xml% _BuildReport_Files\BuildReport.xslt -o %html%
+rem %PathToBuildReport%\msxsl %xml% _BuildReport_Files\BuildReport.xslt -o %html%
