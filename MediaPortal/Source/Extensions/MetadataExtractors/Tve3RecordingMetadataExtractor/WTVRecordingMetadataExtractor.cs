@@ -22,22 +22,23 @@
 
 #endregion
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using MCEBuddy.MetaData;
 using MediaPortal.Common;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
-using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Utilities;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common.Genres;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -216,17 +217,17 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
-          return false;
+          return Task.FromResult(false);
         if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
-          return false;
+          return Task.FromResult(false);
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractMetadata(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode);
+          return Task.FromResult(ExtractMetadata(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode));
 
       }
       catch (Exception e)
@@ -235,7 +236,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("WTVRecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     protected virtual bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)

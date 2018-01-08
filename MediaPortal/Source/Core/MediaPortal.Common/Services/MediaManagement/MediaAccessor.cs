@@ -22,15 +22,12 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RawUrlResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider;
@@ -38,6 +35,10 @@ using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Common.Services.MediaManagement
 {
@@ -647,7 +648,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           kvp => kvp.Key).ToList();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    public Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
       IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode)
     {
       ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
@@ -657,10 +658,10 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
           extractors.Add(extractor);
       }
-      return ExtractMetadata(mediaItemAccessor, extractors, forceQuickMode);
+      return ExtractMetadataAsync(mediaItemAccessor, extractors, forceQuickMode);
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    public Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
       IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
     {
       ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
@@ -670,16 +671,16 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
           extractors.Add(extractor);
       }
-      return ExtractMetadata(mediaItemAccessor, extractors, existingAspects, forceQuickMode);
+      return ExtractMetadataAsync(mediaItemAccessor, extractors, existingAspects, forceQuickMode);
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    public Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
       IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode)
     {
-      return ExtractMetadata(mediaItemAccessor, metadataExtractors, new Dictionary<Guid, IList<MediaItemAspect>>(), forceQuickMode);
+      return ExtractMetadataAsync(mediaItemAccessor, metadataExtractors, new Dictionary<Guid, IList<MediaItemAspect>>(), forceQuickMode);
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    public async Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
       IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
     {
       IDictionary<Guid, IList<MediaItemAspect>> result = existingAspects;
@@ -698,7 +699,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         try
         {
-          if (extractor.TryExtractMetadata(mediaItemAccessor, result, forceQuickMode))
+          if (await extractor.TryExtractMetadataAsync(mediaItemAccessor, result, forceQuickMode).ConfigureAwait(false))
             success = true;
         }
         catch (Exception e)
@@ -715,7 +716,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     public MediaItem CreateLocalMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, true);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = ExtractMetadataAsync(mediaItemAccessor, metadataExtractorIds, true).Result;
       if (aspects == null)
         return null;
       IList<MultipleMediaItemAspect> providerResourceAspects;

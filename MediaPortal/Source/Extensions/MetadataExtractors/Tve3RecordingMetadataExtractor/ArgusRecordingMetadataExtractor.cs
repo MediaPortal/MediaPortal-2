@@ -22,21 +22,22 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Xml.Serialization;
 using MediaPortal.Common;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
-using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.Genres;
+using MediaPortal.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -77,15 +78,15 @@ namespace MediaPortal.Extensions.MetadataExtractors
         });
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public override Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
-          return false;
+          return Task.FromResult(false);
         if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-          return false;
+          return Task.FromResult(false);
 
         // Handle series information
         Argus.Recording recording;
@@ -103,7 +104,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
-        return episodeInfo.IsBaseInfoPresent;
+        return Task.FromResult(episodeInfo.IsBaseInfoPresent);
       }
       catch (Exception e)
       {
@@ -111,7 +112,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("ArgusRecordingSeriesMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return false;
+      return Task.FromResult(false);
     }
   }
 
@@ -221,13 +222,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
-          return false;
+          return Task.FromResult(false);
 
         Argus.Recording recording;
         using (metaFileAccessor)
@@ -282,7 +283,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (!string.IsNullOrWhiteSpace(recording.Actors))
           MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, recording.Actors.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
 
-        return true;
+        return Task.FromResult(true);
       }
       catch (Exception e)
       {
@@ -290,7 +291,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("ArgusRecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     protected static bool CanExtract(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, out IResourceAccessor metaFileAccessor)

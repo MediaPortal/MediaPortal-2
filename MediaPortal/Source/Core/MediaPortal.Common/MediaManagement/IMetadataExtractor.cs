@@ -22,9 +22,10 @@
 
 #endregion
 
+using MediaPortal.Common.ResourceAccess;
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.ResourceAccess;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -65,7 +66,7 @@ namespace MediaPortal.Common.MediaManagement
     /// If the return value is <c>true</c>, the extractedAspectData collection was filled by this metadata extractor.
     /// If the return value is <c>false</c>, the <paramref name="extractedAspectData"/> collection remains
     /// unchanged.</returns>
-    bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode);
+    Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode);
 
     /// <summary>
     /// Checks if the given directory <paramref name="mediaItemAccessor"/> is considered a "single item" media source (like DVD or BD folders on hard drive).

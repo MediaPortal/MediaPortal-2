@@ -22,23 +22,24 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Device.Location;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Common.Services.Settings;
+using System;
+using System.Collections.Generic;
+using System.Device.Location;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 {
@@ -149,13 +150,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       string fileName = mediaItemAccessor.ResourceName;
       if (!HasImageExtension(fileName))
-        return false;
+        return Task.FromResult(false);
       if (DosPathHelper.GetFileNameWithoutExtension(fileName).ToLowerInvariant() == "folder")
-        return false; //Ignore folder images
+        return Task.FromResult(false); //Ignore folder images
 
       bool refresh = false;
       if (extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID))
@@ -171,7 +172,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
 
           if (!(mediaItemAccessor is IFileSystemResourceAccessor))
-            return false;
+            return Task.FromResult(false);
 
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
           if (!forceQuickMode)
@@ -234,7 +235,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           byte[] thumbData;
           // We only want to create missing thumbnails here, so check for existing ones first
           if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumbData) && thumbData != null)
-            return true;
+            return Task.FromResult(true);
 
           using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
@@ -249,7 +250,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
             }
           }
-          return true;
+          return Task.FromResult(true);
         }
         else
         {
@@ -272,7 +273,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           byte[] thumbData;
           // We only want to create missing thumbnails here, so check for existing ones first
           if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumbData) && thumbData != null)
-            return updated;
+            return Task.FromResult(updated);
 
           using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
@@ -292,7 +293,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               }
             }
           }
-          return updated;
+          return Task.FromResult(updated);
         }
       }
       catch (Exception e)
@@ -301,7 +302,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("ImageMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)

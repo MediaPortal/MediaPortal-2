@@ -22,28 +22,29 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MediaInfoLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
-using System.Text.RegularExpressions;
-using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Text;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.Services.Settings;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 {
@@ -1238,13 +1239,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra == null)
-          return false;
+          return Task.FromResult(false);
 
         VideoResult result = null;
         if (!fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
@@ -1256,7 +1257,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             using (MediaInfoWrapper videoTsInfo = ReadMediaInfo(fsraVideoTs.GetResource("VIDEO_TS.IFO")))
             {
               if (!videoTsInfo.IsValid || videoTsInfo.GetVideoCount() == 0)
-                return false; // Invalid video_ts.ifo file
+                return Task.FromResult(false); // Invalid video_ts.ifo file
               result = VideoResult.CreateDVDInfo(fsra.ResourceName, videoTsInfo);
             }
             // Iterate over all video files; MediaInfo finds different audio/video metadata for each .ifo file
@@ -1297,7 +1298,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 }
                 UpdateSetName(lfsra, extractedAspectData, -1);
               }
-              return true;
+              return Task.FromResult(true);
             }
           }
         }
@@ -1308,7 +1309,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           if (HasVideoExtension(filePath))
           {
             if (IsSampleFile(fsra))
-              return false;
+              return Task.FromResult(false);
 
             int multipart = -1;
             int multipartSet = 0;
@@ -1326,7 +1327,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             {
               // Before we start evaluating the file, check if it is a video at all
               if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
-                return false;
+                return Task.FromResult(false);
 
                 result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
                 if (result != null)
@@ -1372,7 +1373,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                   if (!forceQuickMode)
                     FindExternalSubtitles(lfsra, extractedAspectData);
 
-                  return true;
+                  return Task.FromResult(true);
                 }
               }
             }
@@ -1385,7 +1386,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("VideoMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", e, mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)

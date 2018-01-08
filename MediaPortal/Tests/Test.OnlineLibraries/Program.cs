@@ -211,7 +211,7 @@ namespace Test.OnlineLibraries
 
       IMetadataExtractor extractor = new Tve3RecordingMetadataExtractor();
       IResourceAccessor accessor = new MockLocalFsResourceAccessor(ProviderPathHelper.ChangeExtension(filename, ".ts"));
-      extractor.TryExtractMetadata(accessor, aspects, false);
+      extractor.TryExtractMetadataAsync(accessor, aspects, false);
 
       Console.WriteLine("After extract:");
       ShowMIAs(aspects, registration);

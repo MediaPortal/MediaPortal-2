@@ -38,6 +38,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -288,18 +289,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         if (forceQuickMode)
-          return false;
+          return Task.FromResult(false);
 
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
-          return false;
+          return Task.FromResult(false);
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractSeriesData(rah.LocalFsResourceAccessor, extractedAspectData);
+          return Task.FromResult(ExtractSeriesData(rah.LocalFsResourceAccessor, extractedAspectData));
       }
       catch (Exception e)
       {
@@ -307,7 +308,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)

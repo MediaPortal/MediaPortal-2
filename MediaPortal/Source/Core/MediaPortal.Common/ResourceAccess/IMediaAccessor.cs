@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Common.ResourceAccess
@@ -151,7 +152,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
-    IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
       IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode);
 
     /// <summary>
@@ -167,7 +168,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
-    IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
       IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects,
       bool forceQuickMode);
 
@@ -182,7 +183,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <c>null</c>, if none of the specified providers could extract any metadata.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
-    IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
       IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode);
 
     /// <summary>
@@ -197,7 +198,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// <c>null</c>, if none of the specified providers could extract any metadata.
     /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
-    IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
       IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects,
       bool forceQuickMode);
 
