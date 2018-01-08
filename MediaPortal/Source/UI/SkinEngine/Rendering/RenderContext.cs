@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     protected readonly float _zOrder = 1.0f;
     protected readonly double _opacity = 1.0f;
-    protected readonly Matrix _transform;
+    protected readonly RawMatrix3x2 _transform;
     protected RawRectangleF _transformedRenderBounds = RectangleF.Empty;
 
     #endregion
@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     /// <param name="startingTransform">Initial transform to use in this context.</param>
     /// <param name="untransformedBounds">Bounds of the element currently being rendered, in local space.</param>
-    public RenderContext(Matrix startingTransform, RectangleF untransformedBounds)
+    public RenderContext(RawMatrix3x2 startingTransform, RectangleF untransformedBounds)
     {
       _transform = startingTransform;
       SetUntransformedContentsBounds(untransformedBounds);
@@ -58,7 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="opacity">Combined opacity value.</param>
     /// <param name="untransformedBounds">Bounds of the element currently being rendered, in local space.</param>
     /// <param name="zOrder">Z coordinate of the currently rendered element.</param>
-    public RenderContext(Matrix transform, double opacity, RectangleF untransformedBounds, float zOrder)
+    public RenderContext(RawMatrix3x2 transform, double opacity, RectangleF untransformedBounds, float zOrder)
     {
       _zOrder = zOrder;
       _opacity = opacity;
@@ -79,14 +79,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         Matrix? localRenderTransform, Vector2? renderTransformOrigin,
         double localOpacity)
     {
-      Matrix finalTransform = _transform.Clone();
+      Matrix3x2 finalTransform = _transform.Clone();
       RectangleF rect = bounds.ToRectangleF();
       if (localLayoutTransform.HasValue && localLayoutTransform != Matrix.Identity)
       {
         // Layout transforms don't support translations, so center the transformation matrix at the start point
         // of the control and apply the layout transform without translation
         Vector2 origin = new Vector2(rect.X + 0.5f*rect.Width, rect.Y + 0.5f*rect.Height);
-        Matrix transform = Matrix.Translation(new Vector3(-origin.X, -origin.Y, 0));
+        Matrix3x2 transform = Matrix3x2.Translation(new Vector2(-origin.X, -origin.Y));
         transform *= localLayoutTransform.Value.RemoveTranslation();
         transform *= Matrix.Translation(new Vector3(origin.X, origin.Y, 0));
         finalTransform = transform * finalTransform;
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         Vector2 origin = renderTransformOrigin.HasValue ? new Vector2(
             rect.X + rect.Width * renderTransformOrigin.Value.X,
             rect.Y + rect.Height * renderTransformOrigin.Value.Y) : new Vector2(rect.X, rect.Y);
-        Matrix transform = Matrix.Translation(new Vector3(-origin.X, -origin.Y, 0));
+        Matrix3x2 transform = Matrix3x2.Translation(new Vector2(-origin.X, -origin.Y));
         transform *= localRenderTransform.Value;
         transform *= Matrix.Translation(new Vector3(origin.X, origin.Y, 0));
         finalTransform = transform * finalTransform;
@@ -119,7 +119,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       get { return _opacity; }
     }
 
-    public RawMatrix Transform
+    public RawMatrix3x2 Transform
     {
       get { return _transform; }
     }

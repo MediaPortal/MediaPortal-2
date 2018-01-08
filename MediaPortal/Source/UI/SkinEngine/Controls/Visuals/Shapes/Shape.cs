@@ -329,7 +329,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected SharpDX.Direct2D1.Geometry CalculateTransformedPath(SharpDX.Direct2D1.Geometry path, RawRectangleF baseRect)
     {
       SharpDX.Direct2D1.Geometry result = path;
-      Matrix m = Matrix.Identity;
+      Matrix3x2 m = Matrix3x2.Identity;
       //RectangleF bounds = result.GetBounds();
       RectangleF bounds = result.GetWidenedBounds((float)StrokeThickness).ToRectangleF();
       _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
@@ -369,8 +369,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
       m *= Matrix.Translation(rect.X, rect.Y, 0);
 
-      RawMatrix rm = m;
-      result = new TransformedGeometry(path.Factory, path, rm.ToMatrix3x2());
+      result = new TransformedGeometry(path.Factory, path, m);
       return result;
     }
   }

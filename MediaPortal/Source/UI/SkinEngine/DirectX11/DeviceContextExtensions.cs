@@ -138,7 +138,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX11
 
       // Note: no Brush transformation here. The Brush has to be initialized to match control boundaries
 
-      GraphicsDevice11.Instance.Context2D1.Transform = renderContext.Transform.ToMatrix3x2();
+      GraphicsDevice11.Instance.Context2D1.Transform = renderContext.Transform;
 
       renderCall();
 

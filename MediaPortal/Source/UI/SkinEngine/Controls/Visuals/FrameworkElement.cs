@@ -184,8 +184,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected volatile bool _isMeasureInvalid = true;
     protected volatile bool _isArrangeInvalid = true;
 
-    protected Matrix? _inverseFinalTransform = null;
-    protected Matrix? _finalTransform = null;
+    protected Matrix3x2? _inverseFinalTransform = null;
+    protected Matrix3x2? _finalTransform = null;
 
     protected float _lastZIndex = 0;
     private RenderTarget2DAsset _effectInput;
@@ -878,7 +878,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool TransformMouseCoordinates(ref float x, ref float y)
     {
-      Matrix? ift = _inverseFinalTransform;
+      Matrix3x2? ift = _inverseFinalTransform;
       if (ift.HasValue)
       {
         ift.Value.Transform(ref x, ref y);
@@ -1956,7 +1956,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    private static RectangleF CalculateBoundingBox(RawRectangleF rectangle, Matrix transformation)
+    private static RectangleF CalculateBoundingBox(RawRectangleF rectangle, Matrix3x2 transformation)
     {
       Vector2 tl = rectangle.TopLeft();
       Vector2 tr = new Vector2(rectangle.Right, rectangle.Top);
@@ -1979,7 +1979,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       FrameworkElement parent = VisualParent as FrameworkElement;
       if (parent == null)
-        return new RenderContext(Matrix.Identity, RectangleF.Empty);
+        return new RenderContext(Matrix3x2.Identity, RectangleF.Empty);
       Transform layoutTransform = LayoutTransform;
       Transform renderTransform = RenderTransform;
       Matrix? layoutTransformMatrix = layoutTransform == null ? new Matrix?() : layoutTransform.GetTransform();
@@ -1994,7 +1994,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// for this element which can be applied on the <see cref="ActualBounds"/>/<see cref="_innerRect"/> to get the element's render bounds.
     /// </summary>
     /// <returns>Matrix which represents the final transformation for this element.</returns>
-    private Matrix ExtortFinalTransform()
+    private Matrix3x2 ExtortFinalTransform()
     {
       if (_finalTransform.HasValue)
         return _finalTransform.Value;
@@ -2076,11 +2076,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Matrix? layoutTransformMatrix = LayoutTransform == null ? new Matrix?() : LayoutTransform.GetTransform();
       Matrix? renderTransformMatrix = RenderTransform == null ? new Matrix?() : RenderTransform.GetTransform();
       RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix, renderTransformMatrix, RenderTransformOrigin, Opacity);
-      Matrix finalTransform = localRenderContext.Transform;
+      Matrix3x2 finalTransform = localRenderContext.Transform;
       if (finalTransform != _finalTransform)
       {
         _finalTransform = finalTransform;
-        _inverseFinalTransform = Matrix.Invert(_finalTransform.Value);
+        _inverseFinalTransform = Matrix3x2.Invert(_finalTransform.Value);
         _renderedBoundingBox = CalculateBoundingBox(_innerRect, finalTransform);
       }
       return localRenderContext;

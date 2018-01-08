@@ -48,9 +48,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
         new RectangleF(fullVideoClip.Width * 0.5f, 0.0f, fullVideoClip.Width * 0.5f, fullVideoClip.Height); // SBS second pass, right side
     }
 
-    public override Matrix GetRenderPassTransform(Matrix initialScreenTransform)
+    public override Matrix3x2 GetRenderPassTransform(Matrix3x2 initialScreenTransform)
     {
-      Matrix initialMatrix = initialScreenTransform;
+      Matrix3x2 initialMatrix = initialScreenTransform;
       initialMatrix *= Matrix.Scaling(0.5f, 1, 1); // Scale to left side
       if (GraphicsDevice11.Instance.RenderPass == RenderPassType.SecondPass)
         initialMatrix *= Matrix.Translation(SkinContext.WindowSize.Width * 0.5f, 0, 0); // Move to right side

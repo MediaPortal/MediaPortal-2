@@ -60,6 +60,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
     /// </summary>
     /// <param name="initialScreenTransform">Initial transformation matrix of screen</param>
     /// <returns>Transformation</returns>
-    Matrix GetRenderPassTransform(Matrix initialScreenTransform);
+    Matrix3x2 GetRenderPassTransform(Matrix3x2 initialScreenTransform);
   }
 }

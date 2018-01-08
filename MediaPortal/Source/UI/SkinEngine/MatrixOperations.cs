@@ -43,6 +43,15 @@ namespace MediaPortal.UI.SkinEngine
           M41 = matrix.M41, M42 = matrix.M42, M43 = matrix.M43, M44 = matrix.M44,
         };
     }
+    public static Matrix3x2 Clone(this RawMatrix3x2 matrix)
+    {
+      return new Matrix3x2
+        {
+          M11 = matrix.M11, M12 = matrix.M12,
+          M21 = matrix.M21, M22 = matrix.M22,
+          M31 = matrix.M31, M32 = matrix.M32,
+        };
+    }
 
     public static Matrix Scale(this Matrix matrix, float x, float y)
     {
@@ -111,11 +120,37 @@ namespace MediaPortal.UI.SkinEngine
     }
 
     /// <summary>
+    /// Transforms the point given by the coordinates <paramref name="x"/> and <paramref name="y"/> by this matrix.
+    /// </summary>
+    /// <param name="matrix">Transformation matrix.</param>
+    /// <param name="x">X coordinate of the point to transform. Will contain the transformed coordinate after
+    /// this method returns.</param>
+    /// <param name="y">Y coordinate of the point to transform. Will contain the transformed coordinate after
+    /// this method returns.</param>
+    public static void Transform(this Matrix3x2 matrix, ref float x, ref float y)
+    {
+      float w = x * matrix.M11 + y * matrix.M21 + matrix.M31;
+      y = x * matrix.M12 + y * matrix.M22 + matrix.M32;
+      x = w;
+    }
+
+    /// <summary>
     /// Transforms the given two-dimensional vector <paramref name="v"/> by this matrix.
     /// </summary>
     /// <param name="matrix">Transformation matrix.</param>
     /// <param name="v">Vector to transform. Will contain the transformed vector after this method returns.</param>
     public static void Transform(this Matrix matrix, ref Vector2 v)
+    {
+      // DirectX uses row-major matrices, so we need to multiply the transposed matrix
+      matrix.Transform(ref v.X, ref v.Y);
+    }
+
+    /// <summary>
+    /// Transforms the given two-dimensional vector <paramref name="v"/> by this matrix.
+    /// </summary>
+    /// <param name="matrix">Transformation matrix.</param>
+    /// <param name="v">Vector to transform. Will contain the transformed vector after this method returns.</param>
+    public static void Transform(this Matrix3x2 matrix, ref Vector2 v)
     {
       // DirectX uses row-major matrices, so we need to multiply the transposed matrix
       matrix.Transform(ref v.X, ref v.Y);
@@ -156,6 +191,30 @@ namespace MediaPortal.UI.SkinEngine
     }
 
     public static RawRectangleF GetIncludingTransformedRectangle(this Matrix matrix, RawRectangleF rectangle)
+    {
+      Vector2 p0 = new Vector2(rectangle.Left, rectangle.Top);
+      Vector2 p1 = new Vector2(rectangle.Right, rectangle.Top);
+      Vector2 p2 = new Vector2(rectangle.Right, rectangle.Bottom);
+      Vector2 p3 = new Vector2(rectangle.Left, rectangle.Bottom);
+      matrix.Transform(ref p0);
+      matrix.Transform(ref p1);
+      matrix.Transform(ref p2);
+      matrix.Transform(ref p3);
+      RectangleF result = new RectangleF(
+          Math.Min(Math.Min(p0.X, p1.X), Math.Min(p2.X, p3.X)),
+          Math.Min(Math.Min(p0.Y, p1.Y), Math.Min(p2.Y, p3.Y)),
+          Math.Max(Math.Abs(p0.X - p2.X), Math.Abs(p1.X - p3.X)),
+          Math.Max(Math.Abs(p0.Y - p2.Y), Math.Abs(p1.Y - p3.Y)));
+      return result;
+    }
+
+    public static RawRectangleF GetIncludingTransformedRectangle(this RawMatrix3x2 rawMatrix, RawRectangleF rectangle)
+    {
+      Matrix3x2 matrix = rawMatrix;
+      return matrix.GetIncludingTransformedRectangle(rectangle);
+    }
+
+    public static RawRectangleF GetIncludingTransformedRectangle(this Matrix3x2 matrix, RawRectangleF rectangle)
     {
       Vector2 p0 = new Vector2(rectangle.Left, rectangle.Top);
       Vector2 p1 = new Vector2(rectangle.Right, rectangle.Top);

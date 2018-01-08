@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
       tranformedRect = fullVideoClip;
     }
 
-    public virtual Matrix GetRenderPassTransform(Matrix initialScreenTransform)
+    public virtual Matrix3x2 GetRenderPassTransform(Matrix3x2 initialScreenTransform)
     {
       return initialScreenTransform;
     }

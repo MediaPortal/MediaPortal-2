@@ -48,9 +48,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.RenderPipelines
         new RectangleF(0.0f, fullVideoClip.Height * 0.5f, fullVideoClip.Width, fullVideoClip.Height * 0.5f); // TAB second pass, lower side
     }
 
-    public override Matrix GetRenderPassTransform(Matrix initialScreenTransform)
+    public override Matrix3x2 GetRenderPassTransform(Matrix3x2 initialScreenTransform)
     {
-      Matrix initialMatrix = initialScreenTransform;
+      Matrix3x2 initialMatrix = initialScreenTransform;
       initialMatrix *= Matrix.Scaling(1, 0.5f, 1); // Scale to upper half
       if (GraphicsDevice11.Instance.RenderPass == RenderPassType.SecondPass)
         initialMatrix *= Matrix.Translation(0, SkinContext.WindowSize.Height * 0.5f, 0); // Move to bottom half

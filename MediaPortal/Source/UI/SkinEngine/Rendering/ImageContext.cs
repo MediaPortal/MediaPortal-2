@@ -310,7 +310,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           return false;
       }
 
-      _effect.Effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
+      //_effect.Effect.SetValue((int)ParamIndexI.WorldTransform, renderContext.Transform);
       _effect.Effect.SetValue((int)ParamIndexI.Opacity, (float)renderContext.Opacity);
       _effect.Effect.SetValue((int)ParamIndexI.RelativeTransform, (RawMatrix)_inverseRelativeTransformCache);
       _effect.Effect.SetValue((int)ParamIndexI.ImageTransform, _imageTransform);

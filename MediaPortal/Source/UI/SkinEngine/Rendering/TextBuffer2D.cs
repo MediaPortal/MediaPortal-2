@@ -613,7 +613,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
             ContentBounds = localRenderContext.OccupiedTransformedBounds,
             LayerOptions = LayerOptions1.None,
             MaskAntialiasMode = AntialiasMode.PerPrimitive,
-            MaskTransform = localRenderContext.Transform.ToMatrix3x2(),
+            MaskTransform = localRenderContext.Transform,
             Opacity = 1f,
             OpacityBrush = _opacityBrush
           };

@@ -105,7 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     void UpdateRenderTarget(FrameworkElement fe)
     {
       RectangleF bounds = new RectangleF(0, 0, _vertsBounds.Size.Width, _vertsBounds.Size.Height);
-      fe.RenderToTarget(_bitmapAsset2D, new RenderContext(Matrix.Identity, bounds));
+      fe.RenderToTarget(_bitmapAsset2D, new RenderContext(Matrix3x2.Identity, bounds));
     }
 
     protected void PrepareVisual()
