@@ -42,7 +42,7 @@
 
     <ItemGroup>
       <References Include="$(ProjectDir)*.ico" />
-      <References Include="$(ProjectDir)References\**\*.*" />
+      <References Include="$(TvEngineReferences)**\*.*" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
