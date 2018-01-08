@@ -4,7 +4,6 @@
   This file contains MSBuild code to perform all Transifex related operations for the MP2 repository.
   -->
   <Import Project="$(MSBuildThisFileDirectory)\Build.tasks" />
-  <Import Project="$(MSBuildThisFileDirectory)\RestorePackages.targets" />
 
   <PropertyGroup>
     <ProjectRoot Condition="$(ProjectRoot) == ''">$(MSBuildThisFileDirectory)\..</ProjectRoot>
@@ -24,10 +23,8 @@
   <Target Name="DownloadTransifexClient">
     <DownloadFile DownloadAddress="$(TransifexClientDownloadUrl)" OutputFilename="$(TransifexClientExePath)" Condition="!Exists('$(TransifexClientExePath)')" />
   </Target>
-  <Target Name="BuildTransifexHelper"
-          DependsOnTargets="DownloadNuGet">
-    <Exec Command='"$(NuGetExePath)" restore "$(TransifexHelperDir)\TransifexHelper.sln"'/>
-    <MSBuild Projects="$(TransifexHelperDir)\TransifexHelper.sln" Properties="Configuration=Release;Platform=x86" Targets="Rebuild"/>
+  <Target Name="BuildTransifexHelper">
+    <MSBuild Projects="$(TransifexHelperDir)\TransifexHelper.sln" Properties="Configuration=Release;Platform=x86" Targets="Restore;Rebuild"/>
   </Target>
 
   <!-- Targets required for build process -->
