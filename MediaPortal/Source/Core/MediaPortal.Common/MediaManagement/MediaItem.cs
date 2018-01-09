@@ -148,12 +148,27 @@ namespace MediaPortal.Common.MediaManagement
         if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
           return new List<MultipleMediaItemAspect>();
 
-        // Consider only primary resources (physical main parts), but not extra resources (like subtitles)
+        List<int> nonPartSets = new List<int>();
+        IList<MultipleMediaItemAspect> videoStreamAspects;
+        if (MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
+        {
+          nonPartSets = videoStreamAspects.Where(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == -1)
+            .Select(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX))
+            .ToList();
+        }
+
+        // If there are different Editions we need to filter the resources to the current selected edition
+        int? selectedEdition = HasEditions ? 
+          Editions[ActiveEditionIndex].GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) : 
+          (int?)null;
+
+        // Consider only primary resources (physical main parts), but not extra resources (like subtitles)...
         return providerAspects.Where(pra =>
-          pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY &&
-          // Multi-part items all start with 0. For different "editions", the resource index is increassed.
-          pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == 0
-        ).ToList();
+            pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY &&
+            // ... and only non-part sets (single file items)
+            !nonPartSets.Contains(pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)) &&
+            (!selectedEdition.HasValue || pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == selectedEdition.Value)
+          ).ToList();
       }
     }
 
