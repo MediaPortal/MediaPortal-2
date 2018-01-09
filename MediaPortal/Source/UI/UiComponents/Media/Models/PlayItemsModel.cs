@@ -595,16 +595,14 @@ namespace MediaPortal.UiComponents.Media.Models
       }
 
       _playMenuItems = new ItemsList();
-      foreach (var editionAspects in item.Editions)
+      for (var editionIndex = 0; editionIndex < item.Editions.Count; editionIndex++)
       {
-        var edition = editionAspects.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX);
+        var editionAspects = item.Editions[editionIndex];
         var label = editionAspects.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME);
+        var index = editionIndex;
         ListItem editionItem = new ListItem
         {
-          Command = new AsyncMethodDelegateCommand(() =>
-          {
-            return CheckResumeMenuInternal(item, edition);
-          })
+          Command = new AsyncMethodDelegateCommand(() => { return CheckResumeMenuInternal(item, index); })
         };
         editionItem.SetLabel(Consts.KEY_NAME, label);
         _playMenuItems.Add(editionItem);
