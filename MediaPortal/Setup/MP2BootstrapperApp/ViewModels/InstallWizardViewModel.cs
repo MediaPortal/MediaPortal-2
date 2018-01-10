@@ -180,7 +180,7 @@ namespace MP2BootstrapperApp.ViewModels
       if (package != null)
       {
         PackageId id = (PackageId)Enum.Parse(typeof(PackageId), package.Id);
-        package.CurrentInstallState = _packageContext.CheckInstallState(id) ? PackageState.Present : PackageState.Absent;
+        package.CurrentInstallState = PackageState.Absent; //_packageContext.CheckInstallState(id) ? PackageState.Present : PackageState.Absent;
       }
     }
 
