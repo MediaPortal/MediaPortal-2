@@ -170,7 +170,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     internal void Install()
     {
-      _bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
+      //_bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
     }
 
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs e)
@@ -186,8 +186,10 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
-      _wizard.Step = new InstallExistInstallStep(this);
-      CurrentPage = new InstallExistTypePageViewModel(this);
+      // UNCOMMENT THOSE TWO LINES TO VIEW THE EXIST INSTALL PAGE
+      
+      // _wizard.Step = new InstallExistInstallStep(this);
+      // CurrentPage = new InstallExistTypePageViewModel(this);
     }
 
     protected void PlanComplete(object sender, PlanCompleteEventArgs e)
