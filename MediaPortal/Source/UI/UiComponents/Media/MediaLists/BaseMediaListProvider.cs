@@ -50,6 +50,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public delegate PlayableMediaItem PlayableMediaItemToListItemAction(MediaItem mediaItem);
     public delegate PlayableContainerMediaItem PlayableContainerMediaItemToListItemAction(MediaItem mediaItem);
 
+    protected IList<MediaItem> _currentMediaItems;
     protected ItemsList _allItems;
     protected IEnumerable<Guid> _necessaryMias;
     protected PlayableMediaItemToListItemAction _playableConverterAction;
@@ -123,9 +124,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       var items = await contentDirectory.SearchAsync(query, false, userProfile, showVirtual);
       lock (_allItems.SyncRoot)
       {
-        if (_allItems.OfType<PlayableMediaItem>().Select(pmi => pmi.MediaItem.MediaItemId).SequenceEqual(items.Select(mi => mi.MediaItemId)))
+        if (_currentMediaItems != null && _currentMediaItems.Select(m => m.MediaItemId).SequenceEqual(items.Select(m => m.MediaItemId)))
           return false;
-
+        _currentMediaItems = items;
         IEnumerable<ListItem> listItems;
         if (_playableConverterAction != null)
         {

@@ -1927,6 +1927,7 @@
         </Border.Background>
       </Border>
       <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Label Content="{Binding DateAdded}" VerticalAlignment="Bottom" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}" Margin="5" />
     </Grid>
   </ControlTemplate>
 
