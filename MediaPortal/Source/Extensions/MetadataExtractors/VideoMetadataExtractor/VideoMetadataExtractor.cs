@@ -1313,7 +1313,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             if (IsSampleFile(fsra))
               return false;
 
-            int multipart = 0;
+            int multipart = -1;
             int multipartSet = 0;
             Match match = REGEXP_MULTIFILE.Match(filePath);
             if (match.Groups[GROUP_DISC].Length > 0)
