@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities.Collections;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -89,24 +90,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return identifiers;
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      extractedLinkedAspects = null;
-
       if (!NfoSeriesMetadataExtractor.IncludeCharacterDetails)
-        return false;
+        return Task.FromResult(false);
 
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
-        return false;
+        return Task.FromResult(false);
 
       if (!UpdateCharacters(aspects, seriesInfo.Characters, true))
-        return false;
+        return Task.FromResult(false);
 
       if (seriesInfo.Characters.Count == 0)
-        return false;
-
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+        return Task.FromResult(false);
+      
       foreach (CharacterInfo character in seriesInfo.Characters)
       {
         character.AssignNameId();
@@ -117,7 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         if (characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(characterAspects);
       }
-      return extractedLinkedAspects.Count > 0;
+      return Task.FromResult(extractedLinkedAspects.Count > 0);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

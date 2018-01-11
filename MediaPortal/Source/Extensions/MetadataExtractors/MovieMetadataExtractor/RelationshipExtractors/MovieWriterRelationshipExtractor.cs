@@ -33,6 +33,7 @@ using MediaPortal.Utilities.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -85,19 +86,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      extractedLinkedAspects = null;
-
       if (!MovieMetadataExtractor.IncludeWriterDetails)
-        return false;
+        return Task.FromResult(false);
 
       if (BaseInfo.IsVirtualResource(aspects))
-        return false;
+        return Task.FromResult(false);
 
       MovieInfo movieInfo = new MovieInfo();
       if (!movieInfo.FromMetadata(aspects))
-        return false;
+        return Task.FromResult(false);
 
       int count = 0;
       if (!MovieMetadataExtractor.SkipOnlineSearches)
@@ -113,15 +112,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
 
       if (movieInfo.Writers.Count == 0)
-        return false;
+        return Task.FromResult(false);
 
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && movieInfo.Writers.Count > 0))
         movieInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!movieInfo.HasChanged)
-        return false;
-
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+        return Task.FromResult(false);
+      
       foreach (PersonInfo person in movieInfo.Writers)
       {
         person.AssignNameId();
@@ -132,7 +130,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(personAspects);
       }
-      return extractedLinkedAspects.Count > 0;
+      return Task.FromResult(extractedLinkedAspects.Count > 0);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

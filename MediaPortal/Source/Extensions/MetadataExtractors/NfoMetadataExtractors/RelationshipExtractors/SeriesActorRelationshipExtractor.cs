@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities.Collections;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -83,24 +84,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      extractedLinkedAspects = null;
-
       if (!NfoSeriesMetadataExtractor.IncludeActorDetails)
-        return false;
+        return Task.FromResult(false);
 
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
-        return false;
+        return Task.FromResult(false);
 
       if (!UpdatePersons(aspects, seriesInfo.Actors, true))
-        return false;
+        return Task.FromResult(false);
 
       if (seriesInfo.Actors.Count == 0)
-        return false;
-
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+        return Task.FromResult(false);
+      
       foreach (PersonInfo person in seriesInfo.Actors)
       {
         person.AssignNameId();
@@ -111,7 +109,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(personAspects);
       }
-      return extractedLinkedAspects.Count > 0;
+      return Task.FromResult(extractedLinkedAspects.Count > 0);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

@@ -33,6 +33,7 @@ using MediaPortal.Utilities.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -111,28 +112,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return seasonIdentifiers;
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      extractedLinkedAspects = null;
-
       EpisodeInfo episodeInfo = new EpisodeInfo();
       if (!episodeInfo.FromMetadata(aspects))
-        return false;
+        return Task.FromResult(false);
 
       SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
         OnlineMatcherService.Instance.UpdateSeason(seasonInfo, false);
 
       if (seasonInfo.SeriesName.IsEmpty)
-        return false;
+        return Task.FromResult(false);
 
       if (!BaseInfo.HasRelationship(aspects, LinkedRole))
         seasonInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!seasonInfo.HasChanged)
-        return false;
-
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+        return Task.FromResult(false);
+      
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seasonInfo.SetMetadata(seasonAspects);
 
@@ -141,10 +139,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         MediaItemAspect.SetAttribute(seasonAspects, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
 
       if (!seasonAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        return false;
+        return Task.FromResult(false);
 
       extractedLinkedAspects.Add(seasonAspects);
-      return true;
+      return Task.FromResult(true);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

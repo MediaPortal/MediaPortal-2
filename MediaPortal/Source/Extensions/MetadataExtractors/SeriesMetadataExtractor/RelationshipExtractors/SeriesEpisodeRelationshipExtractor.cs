@@ -33,6 +33,7 @@ using MediaPortal.Utilities.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -101,32 +102,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return episodeIdentifiers;
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      extractedLinkedAspects = null;
-
       if (SeriesMetadataExtractor.OnlyLocalMedia)
-        return false;
+        return Task.FromResult(false);
 
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
-        return false;
+        return Task.FromResult(false);
 
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
         OnlineMatcherService.Instance.UpdateSeries(seriesInfo, true, false);
 
       if (seriesInfo.Episodes.Count == 0)
-        return false;
+        return Task.FromResult(false);
 
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < seriesInfo.Episodes.Count)
         seriesInfo.HasChanged = true; //Force save for new episodes
       else
-        return false;
+        return Task.FromResult(false);
 
       if (!seriesInfo.HasChanged)
-        return false;
-
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+        return Task.FromResult(false);
+      
       for (int i = 0; i < seriesInfo.Episodes.Count; i++)
       {
         EpisodeInfo episodeInfo = seriesInfo.Episodes[i];
@@ -139,7 +137,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (episodeAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(episodeAspects);
       }
-      return extractedLinkedAspects.Count > 0;
+      return Task.FromResult(extractedLinkedAspects.Count > 0);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

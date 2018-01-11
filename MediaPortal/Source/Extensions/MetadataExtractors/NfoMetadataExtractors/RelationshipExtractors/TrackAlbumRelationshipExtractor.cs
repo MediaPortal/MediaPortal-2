@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -81,24 +82,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_ALBUM);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      extractedLinkedAspects = null;
-
       if (!NfoAudioMetadataExtractor.IncludeAlbumDetails)
-        return false;
+        return Task.FromResult(false);
 
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
-        return false;
+        return Task.FromResult(false);
 
       AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
       UpdateArtists(aspects, albumInfo.Artists, true);
       if (!UpdateAlbum(aspects, albumInfo))
-        return false;
+        return Task.FromResult(false);
       GenreMapper.AssignMissingSeriesGenreIds(albumInfo.Genres);
-
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       albumInfo.SetMetadata(albumAspects);
 
@@ -110,12 +108,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       }
 
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        return false;
+        return Task.FromResult(false);
 
       StoreArtists(albumAspects, albumInfo.Artists, true);
 
       extractedLinkedAspects.Add(albumAspects);
-      return true;
+      return Task.FromResult(true);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

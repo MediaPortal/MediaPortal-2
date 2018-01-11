@@ -182,7 +182,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     protected async Task ExtractRelationships(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       //Get the relations
-      ICollection<ExtractedRelation> relations = ExtractRelationshipMetadata(mediaItemId, aspects);
+      ICollection<ExtractedRelation> relations = await ExtractRelationshipMetadata(mediaItemId, aspects);
 
       if (relations.Count == 0)
         return;
@@ -225,11 +225,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="mediaItemId">The id of the media item.</param>
     /// <param name="aspects">The aspects of the media item.</param>
     /// <returns></returns>
-    protected ICollection<ExtractedRelation> ExtractRelationshipMetadata(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    protected async Task<ICollection<ExtractedRelation>> ExtractRelationshipMetadata(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       ICollection<ExtractedRelation> relations = new List<ExtractedRelation>();
       foreach (IRelationshipRoleExtractor extractor in GetRoleExtractors(aspects))
-        ExtractRelationshipMetadata(extractor, mediaItemId, aspects, relations);
+        await ExtractRelationshipMetadata(extractor, mediaItemId, aspects, relations);
       return relations;
     }
 
@@ -240,11 +240,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="mediaItemId">The id of the media item.</param>
     /// <param name="aspects">The aspects of the media item.</param>
     /// <param name="relations">Collection of relations to add any extracted relations.</param>
-    protected void ExtractRelationshipMetadata(IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, ICollection<ExtractedRelation> relations)
+    protected async Task ExtractRelationshipMetadata(IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, ICollection<ExtractedRelation> relations)
     {
       int extractedCount = 0;
-      IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedItems;
-      if (roleExtractor.TryExtractRelationships(aspects, out extractedItems))
+      IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedItems = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (await roleExtractor.TryExtractRelationshipsAsync(aspects, extractedItems))
       {
         extractedCount = extractedItems.Count;
         foreach (IDictionary<Guid, IList<MediaItemAspect>> extractedItem in extractedItems)
