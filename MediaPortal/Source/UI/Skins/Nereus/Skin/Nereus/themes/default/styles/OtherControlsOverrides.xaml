@@ -844,13 +844,43 @@
         <RowDefinition Height="35"/>
       </Grid.RowDefinitions>
       <Rectangle x:Name="ItemBackground" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#307d9a" Opacity="1">
-        <!--Rectangle.Fill>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {1} ? {2})">
-            <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
-            <Binding Source="BB49A591-7705-408F-8177-45D633FDFAD0"/>
-            <Binding Source="#345678"/>
-          </>
-        </Rectangle.Fill-->
+        <Rectangle.Triggers>
+          <!-- NEWS -->
+          <DataTrigger Value="bb49a591-7705-408f-8177-45d633fdfad0">
+            <DataTrigger.Binding>
+              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            </DataTrigger.Binding>
+            <Setter TargetName="ItemBackground" Property="Fill" Value="Green"/>
+          </DataTrigger>
+          <!-- TV -->
+          <DataTrigger Value="b4a9199f-6dd4-4bda-a077-de9c081f7703">
+            <DataTrigger.Binding>
+              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            </DataTrigger.Binding>
+            <Setter TargetName="ItemBackground" Property="Fill" Value="Red"/>
+          </DataTrigger>
+          <!-- SERIES -->
+          <DataTrigger Value="30f57cba-459c-4202-a587-09fff5098251">
+            <DataTrigger.Binding>
+              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            </DataTrigger.Binding>
+            <Setter TargetName="ItemBackground" Property="Fill" Value="Orange"/>
+          </DataTrigger>
+          <!-- MOVIES -->
+          <DataTrigger Value="80d2e2cc-baaa-4750-807b-f37714153751">
+            <DataTrigger.Binding>
+              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            </DataTrigger.Binding>
+            <Setter TargetName="ItemBackground" Property="Fill" Value="Purple"/>
+          </DataTrigger>
+          <!-- AUDIO -->
+          <DataTrigger Value="30715d73-4205-417f-80aa-e82f0834171f">
+            <DataTrigger.Binding>
+              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            </DataTrigger.Binding>
+            <Setter TargetName="ItemBackground" Property="Fill" Value="Grey"/>
+          </DataTrigger>
+        </Rectangle.Triggers>
       </Rectangle>
       <Rectangle x:Name="ItemBand" Grid.Row="1" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0"/>
       <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.8"
@@ -879,7 +909,10 @@
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemFrame" Property="Opacity" Value="1.2"/>
               </Trigger>
-              <!--DataTrigger>
+              <!--DataTrigger Binding="{Binding Path=AdditionalProperties[MenuModel: Item-Action].ActionId}" Value="BB49A591-7705-408F-8177-45D633FDFAD0">
+                <Setter Property="Fill" Value="#345678"/>
+              </>
+              <DataTrigger>
                 <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" Value="30F57CBA-459C-4202-A587-09FFF5098251"/>
                 <Setter TargetName="ItemBackground" Property="Fill" Value="Orange" />
               </-->

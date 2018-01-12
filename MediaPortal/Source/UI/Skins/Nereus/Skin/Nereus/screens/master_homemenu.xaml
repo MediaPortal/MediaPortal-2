@@ -37,10 +37,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Include.Resources>
 
-    <!--ControlTemplate x:Key="FanArtBackground_Template">
-      <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].FanartOverlayOpacity}" Source="Background_GridView.png"/>
-    </-->
-
     <!-- Background Manager for menu hovers -->
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="HomeMenuModel" Id="8AA7C126-DCCB-4DC7-AB17-34BF0C368F6D"/>
@@ -91,12 +87,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.RowDefinitions>
           <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
             <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center" 
-                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
               <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Ellipse x:Name="ItemBackground" Fill="#FF02c6d8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
-                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+                         IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
                 <Image x:Name="ItemImage" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="PowerMenu\Suspend.png" Margin="15" Opacity="0.4"/>
+                       DockPanel.Dock="Center" Source="PowerMenu\Suspend.png" Margin="15" Opacity="0.6"/>
               </DockPanel>
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
@@ -104,10 +100,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </Trigger>
               </Button.Triggers>
             </Button>
-            <Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0" IsEnabled="False" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
+            <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Ellipse x:Name="ItemBackground2" Fill="#FF02c6d8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+                <Image x:Name="ItemImage2" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                       DockPanel.Dock="Center" Source="Person.png" Margin="-5" Opacity="0.6"/>
+              </DockPanel>
+            </Button>
           </StackPanel>
-          <Grid x:Name="ContentMediaItemView" Grid.Row="1">
+          <!--Grid x:Name="ContentMediaItemView" Grid.Row="1">
             <StackPanel Orientation="Horizontal">
               <ListView Margin="20,0,0,0" x:Name="SubItemsListViewHome"
                      SetFocusPrio="DefaultHigh" Style="{ThemeResource HomeMenuListViewStyle}"
@@ -118,6 +121,119 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </ListView.Resources>
               </ListView>
             </StackPanel>
+          </-->
+
+          <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="1700"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="880"/>
+            </Grid.RowDefinitions>
+
+            <Grid.Resources>
+              <!-- HomeContent Storyboard -->
+              <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="500"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="256"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="131"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="67"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="34"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:01.0" Value="17"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:01.1" Value="8"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:01.2" Value="4"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:01.3" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:01.4" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:01.40" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+              <Storyboard x:Key="SlideOutStoryboard" FillBehavior="Stop">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="4"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="8"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="17"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="34"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="67"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="131"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="256"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="500"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Grid.Resources>
+
+            <!-- To allow the next home content to slide in whilst the previous slides out we use the HomeContentModel
+               To alternate the content between HomeContent0Control and HomeContent1Control below -->
+
+            <!-- Home Content 0 -->
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.RenderTransform>
+                <TranslateTransform X="1200"/>
+              </Grid.RenderTransform>
+              <Grid.Triggers>
+                <!-- Trigger for the HomeContent Storyboard -->
+                <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="0">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard x:Name="Content0BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                  </DataTrigger.EnterActions>
+                  <DataTrigger.ExitActions>
+                    <BeginStoryboard x:Name="Content0BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                    <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
+                  </DataTrigger.ExitActions>
+                </DataTrigger>
+              </Grid.Triggers>
+
+              <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content0ActionId}}"/>
+
+            </Grid>
+
+            <!-- Home Content 1 -->
+
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.RenderTransform>
+                <TranslateTransform X="1200"/>
+              </Grid.RenderTransform>
+              <Grid.Triggers>
+                <!-- Trigger for the HomeContent Storyboard -->
+                <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="1">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard x:Name="Content1BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                  </DataTrigger.EnterActions>
+                  <DataTrigger.ExitActions>
+                    <BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                    <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
+                  </DataTrigger.ExitActions>
+                </DataTrigger>
+              </Grid.Triggers>
+
+              <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content1ActionId}}"/>
+
+            </Grid>
+
           </Grid>
 
         </Grid>
@@ -145,118 +261,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Control.TemplateControl>
         </-->
 
-        <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-150,50,0">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1000"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="615"/>
-          </Grid.RowDefinitions>
-
-          <Grid.Resources>
-            <!-- HomeContent Storyboard -->
-            <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="500"/>                
-                <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="256"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="131"/>                
-                <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="67"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="34"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.0" Value="17"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.1" Value="8"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.2" Value="4"/>                
-                <SplineDoubleKeyFrame KeyTime="00:00:01.3" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.4" Value="0"/>                
-              </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.40" Value="1"/>
-              </DoubleAnimationUsingKeyFrames>
-            </Storyboard>
-            <Storyboard x:Key="SlideOutStoryboard" FillBehavior="Stop">
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="4"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="8"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="17"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="34"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="67"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="131"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="256"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="500"/>
-              </DoubleAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
-                <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="0"/>
-              </DoubleAnimationUsingKeyFrames>
-            </Storyboard>
-          </Grid.Resources>
-          
-          <!-- To allow the next home content to slide in whilst the previous slides out we use the HomeContentModel
-               To alternate the content between HomeContent0Control and HomeContent1Control below -->
-
-          <!-- Home Content 0 -->
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TranslateTransform X="1200"/>
-            </Grid.RenderTransform>
-            <Grid.Triggers>
-              <!-- Trigger for the HomeContent Storyboard -->
-              <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="0">
-                <DataTrigger.EnterActions>
-                  <BeginStoryboard x:Name="Content0BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
-                </DataTrigger.EnterActions>
-                <DataTrigger.ExitActions>
-                  <BeginStoryboard x:Name="Content0BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
-                  <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
-                </DataTrigger.ExitActions>
-              </DataTrigger>
-            </Grid.Triggers>
-
-            <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content0ActionId}}"/>
-            
-          </Grid>
-
-          <!-- Home Content 1 -->
-
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TranslateTransform X="1200"/>
-            </Grid.RenderTransform>
-            <Grid.Triggers>
-              <!-- Trigger for the HomeContent Storyboard -->
-              <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="1">
-                <DataTrigger.EnterActions>
-                  <BeginStoryboard x:Name="Content1BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
-                </DataTrigger.EnterActions>
-                <DataTrigger.ExitActions>
-                  <BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
-                  <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
-                </DataTrigger.ExitActions>
-              </DataTrigger>
-            </Grid.Triggers>
-
-            <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content1ActionId}}"/>
-            
-          </Grid>
-
-        </Grid>
+       
         
       </Grid>
     </ControlTemplate>
