@@ -47,9 +47,9 @@
   </Register>
 
   <!--Register support for the home editor to ensure its configuration is visible in this skin-->
-  <Register Location="/HomeEditor">
+  <!--Register Location="/HomeEditor">
     <HomeEditorRegistration Id="4D0738C3-84BA-4DBC-904D-9951911403C0" SkinName="WMCSkin"/>
-  </Register>
+  </Register-->
 
   <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
