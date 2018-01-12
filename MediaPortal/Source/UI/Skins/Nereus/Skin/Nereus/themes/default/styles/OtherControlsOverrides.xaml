@@ -834,6 +834,100 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource LeftMenuItemContainerStyle}"/>
   </Style>
 
+  <DataTemplate x:Key="HomeMenuItemDataTemplate">
+    <Grid x:Name="ItemControl" Margin="6">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="170"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="135"/>
+        <RowDefinition Height="35"/>
+      </Grid.RowDefinitions>
+      <Rectangle x:Name="ItemBackground" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#307d9a" Opacity="1">
+        <!--Rectangle.Fill>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {1} ? {2})">
+            <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
+            <Binding Source="BB49A591-7705-408F-8177-45D633FDFAD0"/>
+            <Binding Source="#345678"/>
+          </>
+        </Rectangle.Fill-->
+      </Rectangle>
+      <Rectangle x:Name="ItemBand" Grid.Row="1" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0"/>
+      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.8"
+             Width="70" Height="70" Stretch="Fill" Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}">
+      </Image>
+      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
+             FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="0" Margin="5,0,5,0"
+             ScrollDelay="0" Scroll="None"/>
+      <Rectangle x:Name="ItemFrame" Grid.RowSpan="2" Fill="Transparent" Stroke="White" StrokeThickness="5" Opacity="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="HomeItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource NereusListButtonStyle}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemBand" Property="Opacity" Value="0.4"/>
+                <Setter TargetName="ItemLabel" Property="Opacity" Value="1.2"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MenuTextForeground}"/>
+                <Setter TargetName="ItemImage" Property="Opacity" Value="1.2"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemFrame" Property="Opacity" Value="1.2"/>
+              </Trigger>
+              <!--DataTrigger>
+                <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" Value="30F57CBA-459C-4202-A587-09FFF5098251"/>
+                <Setter TargetName="ItemBackground" Property="Fill" Value="Orange" />
+              </-->
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource VerticalMediaScrollViewerStyle}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <!--StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="190,190" Margin="0,-20,0,-20">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource HomeMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
+  </Style>
+
   <!-- ****************************** PlayerControl ********************************** -->
 
   <Style x:Key="CPPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">

@@ -37,124 +37,93 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Include.Resources>
 
-    <ControlTemplate x:Key="FanArtBackground_Template">
+    <!--ControlTemplate x:Key="FanArtBackground_Template">
       <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].FanartOverlayOpacity}" Source="Background_GridView.png"/>
-    </ControlTemplate>
+    </-->
 
     <!-- Background Manager for menu hovers -->
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="HomeMenuModel" Id="8AA7C126-DCCB-4DC7-AB17-34BF0C368F6D"/>
     <Model x:Key="HomeContentModel" Id="93F2124B-08A3-4FC0-AA7D-7709A65F8240"/>
-
-    <!-- Header has to be defined by the includer: "Header_Text" -->
+    <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
 
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
-      <Grid x:Name="MainLayoutPanel" Margin="300,50,0,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0">
-
+      <Grid x:Name="MainLayoutPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-110,0,-3">
         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="200"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="500"/>
-          <RowDefinition Height="480"/>
         </Grid.RowDefinitions>
         <Grid.Resources>
           <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
-          <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
         </Grid.Resources>
-        <Grid.Triggers>
-          <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableMainMenuAnimations}" Value="True">
-            <DataTrigger.EnterActions>
-              <BeginStoryboard x:Name="BeginMainMenuFadeAnimation" Storyboard="{ThemeResource MainMenuFadeAnimation}"/>
-            </DataTrigger.EnterActions>
-            <DataTrigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="BeginMainMenuFadeAnimation" />
-            </DataTrigger.ExitActions>
-          </DataTrigger>
-        </Grid.Triggers>
+        
+        <Rectangle Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9"/>
+        <Image Source="LeftMenuIndicator.PNG" HorizontalAlignment="Right" Stretch="Fill" Width="25" Height="45" 
+               Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,0"/>
 
-        <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2"  Style="{ThemeResource MyMainMenuListViewStyle}"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0"
+        <!--ListView x:Name="MainMenu" Grid.Column="0" Style="{ThemeResource HomeMenuListViewStyle}"
+                  HorizontalAlignment="Center" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh"
                   ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=NestedMenuItems,Mode=OneTime}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </-->
+
+        <ListView x:Name="MainMenu" Grid.Column="0" Style="{ThemeResource HomeMenuListViewStyle}" RestoreFocus="True"
+                  HorizontalAlignment="Center" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh"
+                  ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
 
-        <Grid x:Name="SubItemsFadeControl" Grid.Row="2" Grid.Column="0" Opacity="0" Panel.ZIndex="100"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="ContentView" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
+          <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+            <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center" 
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+              <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Ellipse x:Name="ItemBackground" Fill="#FF02c6d8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+                <Image x:Name="ItemImage" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                     DockPanel.Dock="Center" Source="PowerMenu\Suspend.png" Margin="15" Opacity="0.4"/>
+              </DockPanel>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemImage" Property="Opacity" Value="1" />
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0" IsEnabled="False" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
+          </StackPanel>
+          <Grid x:Name="ContentMediaItemView" Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+              <ListView Margin="20,0,0,0" x:Name="SubItemsListViewHome"
+                     SetFocusPrio="DefaultHigh" Style="{ThemeResource HomeMenuListViewStyle}"
+                     ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
+                     SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
+                <ListView.Resources>
+                  <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+                </ListView.Resources>
+              </ListView>
+            </StackPanel>
+          </Grid>
 
-          <Grid.RenderTransform>
-            <TranslateTransform Y="0"/>
-          </Grid.RenderTransform>
-
-          <Grid.Triggers>
-            <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableSubMenuAnimations}" Value="True">
-              <DataTrigger.EnterActions>
-                <BeginStoryboard x:Name="BeginFadeAnimation" Storyboard="{ThemeResource SubItemsFadeAnimation}"/>
-              </DataTrigger.EnterActions>
-              <DataTrigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="BeginFadeAnimation" />
-              </DataTrigger.ExitActions>
-            </DataTrigger>
-
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableSubMenuAnimations}" Value="True"/>
-                <Condition Binding="{Binding Source={StaticResource HomeMenuModel},Path=ScrollDirection}" Value="Up"/>
-              </MultiTrigger.Conditions>
-              <MultiTrigger.EnterActions>
-                <BeginStoryboard x:Name="BeginTransformDownAnimation" Storyboard="{ThemeResource SubItemsTransformAnimationDown}"/>
-              </MultiTrigger.EnterActions>
-              <MultiTrigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="BeginTransformDownAnimation" />
-              </MultiTrigger.ExitActions>
-            </MultiTrigger>
-
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableSubMenuAnimations}" Value="True"/>
-                <Condition Binding="{Binding Source={StaticResource HomeMenuModel},Path=ScrollDirection}" Value="Down"/>
-              </MultiTrigger.Conditions>
-              <MultiTrigger.EnterActions>
-                <BeginStoryboard x:Name="BeginTransformUpAnimation" Storyboard="{ThemeResource SubItemsTransformAnimationUp}"/>
-              </MultiTrigger.EnterActions>
-              <MultiTrigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="BeginTransformUpAnimation" />
-              </MultiTrigger.ExitActions>
-            </MultiTrigger>
-
-          </Grid.Triggers>
-
-          <ListView Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" 
-                   SetFocusPrio="DefaultHigh"
-                   ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
-                   Style="{ThemeResource SubMenuListViewStyle}"
-                   SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
-            <ListView.Resources>
-              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-            </ListView.Resources>
-          </ListView>
-        </Grid>
-
-        <Grid Grid.Row="2" Grid.Column="0" Opacity="1" Panel.ZIndex="99">
-          <Grid.Resources>
-            <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
-          </Grid.Resources>
-          <Image x:Name="FocusFrame" Source="Focus.frame.png" 
-                 Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="11,-1,0,18"/>
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" Grid.Row="2" Grid.Column="0" SetFocusPrio="Default">
+        <!--Grid x:Name="ContentPanel" Grid.Row="2" Grid.Column="0" SetFocusPrio="Default">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -163,30 +132,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.RowDefinitions>
           <Control Margin="10,0,10,10" x:Name="ContentViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
-        </Grid>
-
-        <Grid x:Name="RightButtonGrid" Grid.Row="1" HorizontalAlignment="Left" Margin="-290,0,0,-140" Panel.ZIndex="1000"
-              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuRightButtonStyle}" Height="50"
-                  Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}"/>
-        </Grid>
+        </Grid-->
 
 
         <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
         <!--++++++++++++++++++++++++   HOME CONTENT   ++++++++++++++++++++++-->
         <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
 
-        <Control Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="-200,-50,0,0" Width="500">
+        <!--Control Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="-200,-50,0,0" Width="500">
           <Control.TemplateControl>
             <Include Source="screens\MultiDetailsHome.inc"/>
           </Control.TemplateControl>
-        </Control>
+        </-->
 
         <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-150,50,0">
           <Grid.ColumnDefinitions>
@@ -301,21 +258,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         </Grid>
         
-        <Grid x:Name="LeftButtonGrid" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,-140" Panel.ZIndex="1000"
-              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuLeftButtonStyle}" Height="50"
-                  Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNextSubItem}"/>
-        </Grid>
-
-        <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
-        <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
-
       </Grid>
     </ControlTemplate>
   </Include.Resources>

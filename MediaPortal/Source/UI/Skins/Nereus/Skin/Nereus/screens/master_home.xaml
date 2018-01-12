@@ -34,28 +34,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
-  <Screen.Resources>
-    <Model x:Key="DefaultMenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
-    <!--<Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
-      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HoverGrid" Storyboard.TargetProperty="RenderTransform.X">
-        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="470"/>
-        <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="0"/>
-      </DoubleAnimationUsingKeyFrames>
-      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="Opacity">
-        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.0"/>
-        <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="1.0"/>
-      </DoubleAnimationUsingKeyFrames>
-    </Storyboard>-->
-  </Screen.Resources>
-  <Screen.Triggers>
-    <EventTrigger RoutedEvent="Screen.Show">
-      <!--Set default state of side menus to hidden-->
-      <TriggerCommand Command="{Command Source={StaticResource DefaultMenuModel}, Path=CloseMenu}"/>
-      <!--<EventTrigger.Actions>
-        <BeginStoryboard Storyboard="{StaticResource SlideInStoryboard}"/>
-      </EventTrigger.Actions>-->
-    </EventTrigger>
-  </Screen.Triggers>
 
   <Grid x:Name="RootElement">
     <Grid.RowDefinitions>
@@ -65,108 +43,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Image x:Name="L1" Source="Effects\Layer1.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAnimatedBackground}"/>
-    <Image x:Name="L2" Source="Effects\Layer2.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAnimatedBackground}"/>
-    <Image x:Name="L3" Source="Effects\Layer3.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAnimatedBackground}"/>
-    <Image x:Name="L4" Source="Effects\Layer4.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAnimatedBackground}"/>
-    <Image x:Name="L5" Source="Effects\Layer5.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAnimatedBackground}"/>
-
     <Grid.Resources>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
       <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
       <Model x:Key="ScreenModeModel" Id="6A232D95-9BDE-4005-905E-69CB092B012B"/>
       <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
-      <Storyboard
-                x:Key="AnimationL1"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L1" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:03.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
-      <Storyboard
-                x:Key="AnimationL2"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L2" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
-      <Storyboard
-                x:Key="AnimationL3"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L3" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:08.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
-      <Storyboard
-                x:Key="AnimationL4"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L4" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:11.500" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
-      <Storyboard
-                x:Key="AnimationL5"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L5" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:14.500" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
     </Grid.Resources>
-
-    <Grid.Triggers>
-      <Trigger Property="IsVisible" Value="True">
-        <Trigger.EnterActions>
-          <BeginStoryboard x:Name="BeginStoryboardL1" Storyboard="{StaticResource AnimationL1}"/>
-          <BeginStoryboard x:Name="BeginStoryboardL2" Storyboard="{StaticResource AnimationL2}"/>
-          <BeginStoryboard x:Name="BeginStoryboardL3" Storyboard="{StaticResource AnimationL3}"/>
-          <BeginStoryboard x:Name="BeginStoryboardL4" Storyboard="{StaticResource AnimationL4}"/>
-          <BeginStoryboard x:Name="BeginStoryboardL5" Storyboard="{StaticResource AnimationL5}"/>
-          <!--BeginStoryboard x:Name="BeginStoryboardL6" Storyboard="{StaticResource AnimationL6}"/-->
-        </Trigger.EnterActions>
-        <Trigger.ExitActions>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL1"/>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL2"/>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL3"/>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL4"/>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL5"/>
-          <!--StopStoryboard BeginStoryboardName="BeginStoryboardL6"/-->
-        </Trigger.ExitActions>
-      </Trigger>
-    </Grid.Triggers>
 
     <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       LastChildFill="True">
@@ -180,6 +62,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
+        <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
         <Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,30,50,0">
           <Grid.Resources>
             <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
@@ -189,24 +74,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
                  Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
         </Grid>
       </Grid>
-                  
-      <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-      <Control x:Name="ClientArea" DockPanel.Dock="Right" Template="{DynamicResource Client_Template}"/>
-    </DockPanel>
-
-    <!-- FooterPanel -->
-    <Grid x:Name="FooterPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="1000,0,0,0">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
+      <!-- FooterPanel -->
+      <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel x:Name="PlayerControls" Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+          <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
                   AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-      <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
+          <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
                   AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-    </Grid>
+        </StackPanel>
+      </Grid>
+      <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
+      <Control x:Name="ClientArea" Template="{DynamicResource Client_Template}"/>
+    </DockPanel>
 
     <Grid x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="30,10,0,10">
       <Grid.Resources>
@@ -225,8 +111,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
         </StackPanel>
-        <Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
-                Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
+        <!--Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
+                Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/-->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
                     DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">

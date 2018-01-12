@@ -126,6 +126,7 @@
     <Content Include="Skin\Nereus\images\Effects\Layer6.png" />
     <Content Include="Skin\Nereus\images\HOME.FOCUS.PNG" />
     <Content Include="Skin\Nereus\images\HOME.NOFOCUS.PNG" />
+    <Content Include="Skin\Nereus\images\LeftMenuIndicator.PNG" />
     <Content Include="Skin\Nereus\images\Medialogos\aspectratio\1.33.png" />
     <Content Include="Skin\Nereus\images\Medialogos\aspectratio\1.66.png" />
     <Content Include="Skin\Nereus\images\Medialogos\aspectratio\1.78.png" />
