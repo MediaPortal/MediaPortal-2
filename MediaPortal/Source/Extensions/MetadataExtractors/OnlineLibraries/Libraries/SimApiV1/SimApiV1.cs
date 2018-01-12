@@ -134,25 +134,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1
     /// </summary>
     /// <param name="id">IMDB id of series</param>
     /// <returns>Person information</returns>
-    public SimApiPerson GetPerson(string id, bool cacheOnly)
+    public async Task<SimApiPerson> GetPersonAsync(string id, bool cacheOnly)
     {
-      lock (_personSync)
+      string cache = CreateAndGetCacheName(id, "Person");
+      SimApiPerson returnValue = null;
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string cache = CreateAndGetCacheName(id, "Person");
-        SimApiPerson returnValue = null;
-        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-        {
-          returnValue = _downloader.ReadCache<SimApiPerson>(cache);
-        }
-        else
-        {
-          if (cacheOnly) return null;
-          string url = GetUrl(URL_GETIMDBIDPERSON, id.StartsWith("nm", System.StringComparison.InvariantCultureIgnoreCase) ? id.Substring(2) : id);
-          returnValue = _downloader.Download<SimApiPerson>(url, cache);
-        }
-        if (returnValue == null) return null;
-        return returnValue;
+        returnValue = await _downloader.ReadCacheAsync<SimApiPerson>(cache).ConfigureAwait(false);
       }
+      else
+      {
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_GETIMDBIDPERSON, id.StartsWith("nm", System.StringComparison.InvariantCultureIgnoreCase) ? id.Substring(2) : id);
+        returnValue = await _downloader.DownloadAsync<SimApiPerson>(url, cache).ConfigureAwait(false);
+      }
+      if (returnValue == null) return null;
+      return returnValue;
     }
 
     /// <summary>

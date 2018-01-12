@@ -86,7 +86,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override async Task<bool> UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMovieAsync(MovieInfo movie, string language, bool cacheOnly)
     {
       try
       {
@@ -132,7 +132,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMoviePersonAsync(MovieInfo movieInfo, PersonInfo person, string language, bool cacheOnly)
     {
       try
       {
@@ -140,7 +140,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         SimApiPerson personDetail = null;
         if (!string.IsNullOrEmpty(person.ImdbId))
-          personDetail = _simApiHandler.GetPerson(person.ImdbId, cacheOnly);
+          personDetail = await _simApiHandler.GetPersonAsync(person.ImdbId, cacheOnly).ConfigureAwait(false);
         if (personDetail == null) return false;
 
         person.ImdbId = personDetail.ImdbID;
@@ -201,7 +201,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         PersonInfo person = infoObject as PersonInfo;
         if (person != null && !string.IsNullOrEmpty(person.ImdbId))
         {
-          SimApiPerson personDetail = _simApiHandler.GetPerson(person.ImdbId, false);
+          SimApiPerson personDetail = _simApiHandler.GetPersonAsync(person.ImdbId, false).Result;
           if (!string.IsNullOrEmpty(personDetail.ImageUrl))
           {
             images.Thumbnails.Add(personDetail.ImageUrl);

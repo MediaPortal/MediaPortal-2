@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override Task<bool> UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMovieAsync(MovieInfo movie, string language, bool cacheOnly)
     {
       return Task.FromResult(movie.MovieDbId > 0 || !string.IsNullOrEmpty(movie.ImdbId));
     }

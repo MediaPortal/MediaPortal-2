@@ -245,7 +245,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     /// </summary>
     /// <param name="movieInfo">Movie to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public virtual async Task<bool> FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
+    public virtual async Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo, bool importOnly)
     {
       try
       {
@@ -285,7 +285,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             if (SetMovieId(movieMatch, match.Id))
             {
               //If Id was found in cache the online movie info is probably also in the cache
-              if (await _wrapper.UpdateFromOnlineMovie(movieMatch, language, true).ConfigureAwait(false))
+              if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, true).ConfigureAwait(false))
               {
                 Logger.Debug(_id + ": Found movie {0} in cache", movieInfo.ToString());
                 matchFound = true;
@@ -304,13 +304,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Logger.Debug(_id + ": Search for movie {0} online", movieInfo.ToString());
 
             //Try to update movie information from online source if online Ids are present
-            if (!await _wrapper.UpdateFromOnlineMovie(movieMatch, language, false).ConfigureAwait(false))
+            if (!await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, false).ConfigureAwait(false))
             {
               //Search for the movie online and update the Ids if a match is found
-              if (await _wrapper.SearchMovieUniqueAndUpdate(movieMatch, language).ConfigureAwait(false))
+              if (await _wrapper.SearchMovieUniqueAndUpdateAsync(movieMatch, language).ConfigureAwait(false))
               {
                 //Ids were updated now try to update movie information from online source
-                if (await _wrapper.UpdateFromOnlineMovie(movieMatch, language, false).ConfigureAwait(false))
+                if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, false).ConfigureAwait(false))
                   matchFound = true;
               }
             }
@@ -387,7 +387,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly)
+    public virtual async Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation, bool importOnly)
     {
       try
       {
@@ -469,20 +469,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         foreach (PersonInfo person in persons)
         {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineMoviePerson(movieMatch, person, language, true))
+          if (!await _wrapper.UpdateFromOnlineMoviePersonAsync(movieMatch, person, language, true).ConfigureAwait(false))
           {
             if (!importOnly)
             {
               Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
               //Try to update person information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineMoviePerson(movieMatch, person, language, false))
+              if (!await _wrapper.UpdateFromOnlineMoviePersonAsync(movieMatch, person, language, false).ConfigureAwait(false))
               {
                 //Search for the person online and update the Ids if a match is found
                 if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
                 {
                   //Ids were updated now try to fetch the online person info
-                  if (_wrapper.UpdateFromOnlineMoviePerson(movieMatch, person, language, false))
+                  if (await _wrapper.UpdateFromOnlineMoviePersonAsync(movieMatch, person, language, false).ConfigureAwait(false))
                   {
                     //Set as changed because cache has changed and might contain new/updated data
                     movieInfo.HasChanged = true;
@@ -577,7 +577,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
+    public virtual async Task<bool> UpdateCharactersAsync(MovieInfo movieInfo, bool importOnly)
     {
       try
       {
@@ -600,20 +600,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
 
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineMovieCharacter(movieMatch, character, language, true))
+          if (!await _wrapper.UpdateFromOnlineMovieCharacterAsync(movieMatch, character, language, true).ConfigureAwait(false))
           {
             if (!importOnly)
             {
               Logger.Debug(_id + ": Search for character {0} online", character.ToString());
 
               //Try to update character information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineMovieCharacter(movieMatch, character, language, false))
+              if (!await _wrapper.UpdateFromOnlineMovieCharacterAsync(movieMatch, character, language, false).ConfigureAwait(false))
               {
                 //Search for the character online and update the Ids if a match is found
                 if (_wrapper.SearchCharacterUniqueAndUpdate(character, language))
                 {
                   //Ids were updated now try to fetch the online character info
-                  if (_wrapper.UpdateFromOnlineMovieCharacter(movieMatch, character, language, false))
+                  if (await _wrapper.UpdateFromOnlineMovieCharacterAsync(movieMatch, character, language, false).ConfigureAwait(false))
                   {
                     //Set as changed because cache has changed and might contain new/updated data
                     movieInfo.HasChanged = true;
@@ -666,7 +666,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly)
+    public virtual async Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType, bool importOnly)
     {
       try
       {
@@ -706,20 +706,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         foreach (CompanyInfo company in companies)
         {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineMovieCompany(movieMatch, company, language, true))
+          if (!await _wrapper.UpdateFromOnlineMovieCompanyAsync(movieMatch, company, language, true).ConfigureAwait(false))
           {
             if (!importOnly)
             {
               Logger.Debug(_id + ": Search for company {0} online", company.ToString());
 
               //Try to update company information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineMovieCompany(movieMatch, company, language, false))
+              if (!await _wrapper.UpdateFromOnlineMovieCompanyAsync(movieMatch, company, language, false).ConfigureAwait(false))
               {
                 //Search for the company online and update the Ids if a match is found
                 if (_wrapper.SearchCompanyUniqueAndUpdate(company, language))
                 {
                   //Ids were updated now try to fetch the online company info
-                  if (_wrapper.UpdateFromOnlineMovieCompany(movieMatch, company, language, false))
+                  if (await _wrapper.UpdateFromOnlineMovieCompanyAsync(movieMatch, company, language, false).ConfigureAwait(false))
                   {
                     //Set as changed because cache has changed and might contain new/updated data
                     movieInfo.HasChanged = true;
@@ -776,7 +776,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly)
+    public virtual async Task<bool> UpdateCollectionAsync(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly)
     {
       try
       {
@@ -789,14 +789,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         MovieCollectionInfo movieCollectionMatch = movieCollectionInfo.Clone();
         movieCollectionMatch.Movies.Clear();
         //Try updating from cache
-        if (!_wrapper.UpdateFromOnlineMovieCollection(movieCollectionMatch, language, true))
+        if (!await _wrapper.UpdateFromOnlineMovieCollectionAsync(movieCollectionMatch, language, true).ConfigureAwait(false))
         {
           if (!importOnly)
           {
             Logger.Debug(_id + ": Search for collection {0} online", movieCollectionInfo.ToString());
 
             //Try to update movie collection information from online source
-            if (_wrapper.UpdateFromOnlineMovieCollection(movieCollectionMatch, language, false))
+            if (await _wrapper.UpdateFromOnlineMovieCollectionAsync(movieCollectionMatch, language, false).ConfigureAwait(false))
               updated = true;
           }
         }

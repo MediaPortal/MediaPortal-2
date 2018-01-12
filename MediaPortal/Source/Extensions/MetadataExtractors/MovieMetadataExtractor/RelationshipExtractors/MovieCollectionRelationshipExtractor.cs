@@ -84,15 +84,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_COLLECTION);
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       MovieInfo movieInfo = new MovieInfo();
       if (!movieInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
       MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
-        OnlineMatcherService.Instance.UpdateCollection(collectionInfo, false, false);
+        await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, false, false).ConfigureAwait(false);
 
       bool hasId = false;
       if (!MovieMetadataExtractor.SkipOnlineSearches)
@@ -104,8 +104,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         collectionInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!collectionInfo.HasChanged)
-        return Task.FromResult(false);
-      
+        return false;
+
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
 
       collectionInfo.SetMetadata(collectionAspects);
@@ -119,7 +119,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         extractedLinkedAspects.Add(collectionAspects);
 
-      return Task.FromResult(extractedLinkedAspects.Count > 0);
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

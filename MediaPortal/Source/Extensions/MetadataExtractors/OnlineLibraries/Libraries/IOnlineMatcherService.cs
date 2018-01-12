@@ -57,11 +57,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedMovies();
     List<MovieCollectionInfo> GetLastChangedMovieCollections();
     void ResetLastChangedMovieCollections();
-    Task<bool> FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly);
-    bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly);
-    bool UpdateCharacters(MovieInfo movieInfo, bool importOnly);
-    bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly);
-    bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly);
+    Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo, bool importOnly);
+    Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation, bool importOnly);
+    Task<bool> UpdateCharactersAsync(MovieInfo movieInfo, bool importOnly);
+    Task<bool> UpdateCollectionAsync(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly);
+    Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType, bool importOnly);
     bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force);
     void StoreMoviePersonMatch(PersonInfo person);
     void StoreMovieCharacterMatch(CharacterInfo character);

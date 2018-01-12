@@ -354,42 +354,42 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public async Task<bool> FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
+    public async Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo, bool importOnly)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= await matcher.FindAndUpdateMovie(movieInfo, matcher.Primary ? false : importOnly).ConfigureAwait(false);
+        success |= await matcher.FindAndUpdateMovieAsync(movieInfo, matcher.Primary ? false : importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation, bool importOnly)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdatePersons(movieInfo, occupation, importOnly);
+        success |= await matcher.UpdatePersonsAsync(movieInfo, occupation, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
+    public async Task<bool> UpdateCharactersAsync(MovieInfo movieInfo, bool importOnly)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateCharacters(movieInfo, importOnly);
+        success |= await matcher.UpdateCharactersAsync(movieInfo, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly)
+    public async Task<bool> UpdateCollectionAsync(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateCollection(collectionInfo, updateMovieList, importOnly);
+        success |= await matcher.UpdateCollectionAsync(collectionInfo, updateMovieList, importOnly).ConfigureAwait(false);
       }
 
       if (updateMovieList)
@@ -409,12 +409,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly)
+    public async Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType, bool importOnly)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateCompanies(movieInfo, companyType, importOnly);
+        success |= await matcher.UpdateCompaniesAsync(movieInfo, companyType, importOnly).ConfigureAwait(false);
       }
       return success;
     }

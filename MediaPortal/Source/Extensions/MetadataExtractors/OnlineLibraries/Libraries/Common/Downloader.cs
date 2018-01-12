@@ -275,12 +275,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// </summary>
     /// <param name="cacheFile">Name for the cached response</param>
     /// <returns>Cached object</returns>
-    public bool DeleteCache(string cacheFile)
+    public async Task<bool> DeleteCacheAsync(string cacheFile)
     {
       if (string.IsNullOrEmpty(cacheFile))
         return true;
 
-      using (_jsonLock.WriterLock(cacheFile))
+      using (await _jsonLock.WriterLockAsync(cacheFile).ConfigureAwait(false))
       {
         try
         {

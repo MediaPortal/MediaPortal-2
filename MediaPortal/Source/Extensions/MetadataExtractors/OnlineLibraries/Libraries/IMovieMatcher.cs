@@ -36,11 +36,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     List<MovieCollectionInfo> GetLastChangedMovieCollections();
     void ResetLastChangedMovieCollections();
 
-    Task<bool> FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly);
-    bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly);
-    bool UpdateCharacters(MovieInfo movieInfo, bool importOnly);
-    bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly);
-    bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly);
+    Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo, bool importOnly);
+    Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation, bool importOnly);
+    Task<bool> UpdateCharactersAsync(MovieInfo movieInfo, bool importOnly);
+    Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType, bool importOnly);
+    Task<bool> UpdateCollectionAsync(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly);
 
     void StoreActorMatch(PersonInfo person);
     void StoreDirectorMatch(PersonInfo person);

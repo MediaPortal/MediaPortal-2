@@ -191,7 +191,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override async Task<bool> UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMovieAsync(MovieInfo movie, string language, bool cacheOnly)
     {
       try
       {
@@ -200,7 +200,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         Movie movieDetail = null;
         if (movie.MovieDbId > 0)
-          movieDetail = await _movieDbHandler.GetMovie(movie.MovieDbId, language, cacheOnly).ConfigureAwait(false);
+          movieDetail = await _movieDbHandler.GetMovieAsync(movie.MovieDbId, language, cacheOnly).ConfigureAwait(false);
         if (movieDetail == null && !string.IsNullOrEmpty(movie.ImdbId))
           movieDetail = await _movieDbHandler.GetMovie(movie.ImdbId, language, cacheOnly).ConfigureAwait(false);
         if (movieDetail == null && cacheOnly == false)
@@ -209,7 +209,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           {
             List<IdResult> ids = await _movieDbHandler.FindMovieByImdbId(movie.ImdbId, language).ConfigureAwait(false);
             if (ids != null && ids.Count > 0)
-              movieDetail = await _movieDbHandler.GetMovie(ids[0].Id, language, false).ConfigureAwait(false);
+              movieDetail = await _movieDbHandler.GetMovieAsync(ids[0].Id, language, false).ConfigureAwait(false);
           }
         }
         if (movieDetail == null) return false;
@@ -231,7 +231,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         movie.Tagline = movieDetail.Tagline;
         movie.Runtime = movieDetail.Runtime ?? 0;
 
-        MovieCasts movieCasts = await _movieDbHandler.GetMovieCastCrew(movieDetail.Id, language, cacheOnly).ConfigureAwait(false);
+        MovieCasts movieCasts = await _movieDbHandler.GetMovieCastCrewAsync(movieDetail.Id, language, cacheOnly).ConfigureAwait(false);
         if (cacheOnly && movieCasts == null)
           cacheIncomplete = true;
         if (movieCasts != null)
@@ -251,7 +251,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMovieCollection(MovieCollectionInfo collection, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMovieCollectionAsync(MovieCollectionInfo collection, string language, bool cacheOnly)
     {
       try
       {
@@ -259,7 +259,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         MovieCollection collectionDetail = null;
         if (collection.MovieDbId > 0)
-          collectionDetail = _movieDbHandler.GetCollection(collection.MovieDbId, language, cacheOnly).Result;
+          collectionDetail = await _movieDbHandler.GetCollectionAsync(collection.MovieDbId, language, cacheOnly).ConfigureAwait(false);
         if (collectionDetail == null) return false;
 
         collection.MovieDbId = collectionDetail.Id;
@@ -276,7 +276,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMoviePersonAsync(MovieInfo movieInfo, PersonInfo person, string language, bool cacheOnly)
     {
       try
       {
@@ -284,18 +284,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         Person personDetail = null;
         if (person.MovieDbId > 0)
-          personDetail = _movieDbHandler.GetPerson(person.MovieDbId, language, cacheOnly).Result;
+          personDetail = await _movieDbHandler.GetPersonAsync(person.MovieDbId, language, cacheOnly).ConfigureAwait(false);
         if (personDetail == null && cacheOnly == false)
         {
           List<IdResult> ids = null;
 
           if (!string.IsNullOrEmpty(person.ImdbId))
-            ids = _movieDbHandler.FindPersonByImdbId(person.ImdbId, language).Result;
+            ids = await _movieDbHandler.FindPersonByImdbIdAsync(person.ImdbId, language).ConfigureAwait(false);
           if (personDetail == null && person.TvRageId > 0)
-            ids = _movieDbHandler.FindPersonByTvRageId(person.TvRageId, language).Result;
+            ids = await _movieDbHandler.FindPersonByTvRageIdAsync(person.TvRageId, language).ConfigureAwait(false);
 
           if (ids != null && ids.Count > 0)
-            personDetail = _movieDbHandler.GetPerson(ids[0].Id, language, false).Result;
+            personDetail = await _movieDbHandler.GetPersonAsync(ids[0].Id, language, false).ConfigureAwait(false);
         }
         if (personDetail == null) return false;
 
@@ -317,7 +317,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMovieCharacterAsync(MovieInfo movieInfo, CharacterInfo character, string language, bool cacheOnly)
     {
       try
       {
@@ -327,7 +327,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (movieInfo.MovieDbId <= 0)
           return false;
 
-        MovieCasts movieCasts = _movieDbHandler.GetMovieCastCrew(movieInfo.MovieDbId, language, cacheOnly).Result;
+        MovieCasts movieCasts = await _movieDbHandler.GetMovieCastCrewAsync(movieInfo.MovieDbId, language, cacheOnly).ConfigureAwait(false);
         if (cacheOnly && movieCasts == null)
           cacheIncomplete = true;
         if (movieCasts != null)
@@ -354,7 +354,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMovieCompanyAsync(MovieInfo movieInfo, CompanyInfo company, string language, bool cacheOnly)
     {
       try
       {
@@ -364,7 +364,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return false;
         Company companyDetail = null;
         if (company.MovieDbId > 0)
-          companyDetail = _movieDbHandler.GetCompany(company.MovieDbId, language, cacheOnly).Result;
+          companyDetail = await _movieDbHandler.GetCompanyAsync(company.MovieDbId, language, cacheOnly).ConfigureAwait(false);
         if (companyDetail == null) return false;
 
         company.MovieDbId = companyDetail.Id;
@@ -668,12 +668,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineMoviePerson(null, person, language, cacheOnly);
+      return UpdateFromOnlineMoviePersonAsync(null, person, language, cacheOnly).Result;
     }
 
     public override bool UpdateFromOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineMoviePerson(null, person, language, cacheOnly);
+      return UpdateFromOnlineMoviePersonAsync(null, person, language, cacheOnly).Result;
     }
 
     public override bool UpdateFromOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, string language, bool cacheOnly)
@@ -684,7 +684,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (company.Type == CompanyAspect.COMPANY_PRODUCTION)
         {
-          return UpdateFromOnlineMovieCompany(null, company, language, cacheOnly);
+          return UpdateFromOnlineMovieCompanyAsync(null, company, language, cacheOnly).Result;
         }
         else if (company.Type == CompanyAspect.COMPANY_TV_NETWORK)
         {

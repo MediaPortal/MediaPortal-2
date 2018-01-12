@@ -104,7 +104,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       {
         try
         {
-          _downloader.DeleteCache(file);
+          _downloader.DeleteCacheAsync(file).Wait();
         }
         catch
         { }
@@ -116,7 +116,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       {
         try
         {
-          _downloader.DeleteCache(file);
+          _downloader.DeleteCacheAsync(file).Wait();
         }
         catch
         { }

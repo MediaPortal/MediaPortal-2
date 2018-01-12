@@ -282,7 +282,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="movieSearch">Movie search parameters</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if at exactly one Movie was found.</returns>
-    public async Task<bool> SearchMovieUniqueAndUpdate(MovieInfo movieSearch, TLang language)
+    public async Task<bool> SearchMovieUniqueAndUpdateAsync(MovieInfo movieSearch, TLang language)
     {
       language = language != null ? language : PreferredLanguage;
       IList<MovieInfo> movies = await SearchMovieAsync(movieSearch, language).ConfigureAwait(false);
@@ -307,7 +307,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SimpleTitle originalName = movieSearch.MovieName;
           string namePart = movieSearch.MovieName.Text.Split(new[] { '-' })[0].Trim();
           movieSearch.MovieName = new SimpleTitle(namePart);
-          if (await SearchMovieUniqueAndUpdate(movieSearch, language).ConfigureAwait(false))
+          if (await SearchMovieUniqueAndUpdateAsync(movieSearch, language).ConfigureAwait(false))
             return true;
           movieSearch.MovieName = originalName;
           return false;
@@ -401,7 +401,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual Task<bool> UpdateFromOnlineMovie(MovieInfo movie, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMovieAsync(MovieInfo movie, TLang language, bool cacheOnly)
     {
       return Task.FromResult(false);
     }
@@ -411,9 +411,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMovieCollection(MovieCollectionInfo collection, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMovieCollectionAsync(MovieCollectionInfo collection, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     public virtual bool IsCacheChangedForOnlineMovieCollection(MovieCollectionInfo collection, TLang language)
@@ -916,9 +916,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return persons.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMoviePersonAsync(MovieInfo movieInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     public virtual bool IsCacheChangedForOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, TLang language)
@@ -1071,9 +1071,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return characters.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMovieCharacterAsync(MovieInfo movieInfo, CharacterInfo character, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     public virtual bool IsCacheChangedForOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, TLang language)
@@ -1207,9 +1207,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return companies.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMovieCompanyAsync(MovieInfo movieInfo, CompanyInfo company, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     public virtual bool IsCacheChangedForOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, TLang language)

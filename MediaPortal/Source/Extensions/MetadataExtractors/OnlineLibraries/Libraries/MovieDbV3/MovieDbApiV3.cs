@@ -193,7 +193,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       {
         try
         {
-          _downloader.DeleteCache(file);
+          _downloader.DeleteCacheAsync(file).Wait();
         }
         catch
         { }
@@ -205,7 +205,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       {
         try
         {
-          _downloader.DeleteCache(file);
+          _downloader.DeleteCacheAsync(file).Wait();
         }
         catch
         { }
@@ -229,7 +229,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       {
         try
         {
-          _downloader.DeleteCache(file);
+          _downloader.DeleteCacheAsync(file).Wait();
         }
         catch
         { }
@@ -350,13 +350,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       return result.MovieResults;
     }
 
-    public async Task<List<IdResult>> FindPersonByImdbId(string imDbId, string language)
+    public async Task<List<IdResult>> FindPersonByImdbIdAsync(string imDbId, string language)
     {
       IdSearchResult result = await FindByExternalId(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
       return result.PersonResults;
     }
 
-    public async Task<List<IdResult>> FindPersonByTvRageId(int tvRageId, string language)
+    public async Task<List<IdResult>> FindPersonByTvRageIdAsync(int tvRageId, string language)
     {
       IdSearchResult result = await FindByExternalId(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
       return result.PersonResults;
@@ -410,21 +410,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       return result.SeriesEpisodeResults;
     }
 
-    protected Task<T> Get<T>(string getUrl, string prefix, int id, string language, bool cacheOnly, string appendToQuery = null)
+    protected Task<T> GetAsync<T>(string getUrl, string prefix, int id, string language, bool cacheOnly, string appendToQuery = null)
     {
-      return Get<T>(getUrl, prefix, id.ToString(), language, cacheOnly, appendToQuery);
+      return GetAsync<T>(getUrl, prefix, id.ToString(), language, cacheOnly, appendToQuery);
     }
 
-    protected Task<T> Get<T>(string getUrl, string prefix, string id, string language, bool cacheOnly, string appendToQuery = null)
+    protected Task<T> GetAsync<T>(string getUrl, string prefix, string id, string language, bool cacheOnly, string appendToQuery = null)
     {
       string cache = CreateAndGetCacheName(id, language, prefix);
       string url = GetUrl(getUrl, language, id);
       if (!string.IsNullOrEmpty(appendToQuery))
         url += "&append_to_response=" + appendToQuery;
-      return Get<T>(url, cache, cacheOnly);
+      return GetAsync<T>(url, cache, cacheOnly);
     }
 
-    protected Task<T> Get<T>(string url, string cacheName, bool cacheOnly)
+    protected Task<T> GetAsync<T>(string url, string cacheName, bool cacheOnly)
     {
       if (!string.IsNullOrEmpty(cacheName) && File.Exists(cacheName))
         return Task.FromResult(_downloader.ReadCache<T>(cacheName));
@@ -432,7 +432,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       return _downloader.DownloadAsync<T>(url, cacheName);
     }
 
-    protected async Task<ImageCollection> GetImages(string getUrl, string language, params object[] args)
+    protected async Task<ImageCollection> GetImagesAsync(string getUrl, string language, params object[] args)
     {
       string url = GetUrl(getUrl, language, args);
       ImageCollection result = await _downloader.DownloadAsync<ImageCollection>(url).ConfigureAwait(false);
@@ -440,9 +440,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       return result;
     }
 
-    protected async Task<Movie> GetMovieById(string id, string language, bool cacheOnly)
+    protected async Task<Movie> GetMovieByIdAsync(string id, string language, bool cacheOnly)
     {
-      Movie movie = await Get<Movie>(URL_GETMOVIE, PREFIX_MOVIE, id, language, cacheOnly).ConfigureAwait(false);
+      Movie movie = await GetAsync<Movie>(URL_GETMOVIE, PREFIX_MOVIE, id, language, cacheOnly).ConfigureAwait(false);
       if (movie != null && movie.Id > 0 && movie.Collection != null && movie.Collection.Id > 0)
       {
         lock (_collectionMovieList)
@@ -463,9 +463,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of movie</param>
     /// <param name="language">Language</param>
     /// <returns>Movie information</returns>
-    public Task<Movie> GetMovie(int id, string language, bool cacheOnly)
+    public Task<Movie> GetMovieAsync(int id, string language, bool cacheOnly)
     {
-      return GetMovieById(id.ToString(), language, cacheOnly);
+      return GetMovieByIdAsync(id.ToString(), language, cacheOnly);
     }
 
     /// <summary>
@@ -487,7 +487,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Movie information</returns>
     public Task<Movie> GetMovie(string imdbId, string language, bool cacheOnly)
     {
-      return GetMovieById(imdbId, language, cacheOnly);
+      return GetMovieByIdAsync(imdbId, language, cacheOnly);
     }
 
     /// <summary>
@@ -505,11 +505,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// </summary>
     /// <param name="id">TMDB id of movie</param>
     /// <returns>Cast and Crew</returns>
-    public Task<MovieCasts> GetMovieCastCrew(int id, string language, bool cacheOnly)
+    public Task<MovieCasts> GetMovieCastCrewAsync(int id, string language, bool cacheOnly)
     {
       string url = GetUrl(URL_GETMOVIECASTCREW, null, id);
       string cache = CreateAndGetCacheName(id, language, PREFIX_CREW);
-      return Get<MovieCasts>(url, cache, cacheOnly);
+      return GetAsync<MovieCasts>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -530,7 +530,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Image collection</returns>
     public Task<ImageCollection> GetMovieImages(int id, string language)
     {
-      return GetImages(URL_GETMOVIEIMAGES, language, id);
+      return GetImagesAsync(URL_GETMOVIEIMAGES, language, id);
     }
 
     /// <summary>
@@ -540,12 +540,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of collection</param>
     /// <param name="language">Language</param>
     /// <returns>Collection information</returns>
-    public Task<MovieCollection> GetCollection(int id, string language, bool cacheOnly)
+    public async Task<MovieCollection> GetCollectionAsync(int id, string language, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, language, PREFIX_COLLECTION);
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        MovieCollection collection = _downloader.ReadCache<MovieCollection>(cache);
+        MovieCollection collection = await _downloader.ReadCacheAsync<MovieCollection>(cache).ConfigureAwait(false);
         if (collection != null)
         {
           bool expired = false;
@@ -564,14 +564,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
             }
           }
           if (expired)
-            _downloader.DeleteCache(cache);
+            await _downloader.DeleteCacheAsync(cache).ConfigureAwait(false);
           else
-            return Task.FromResult(collection);
+            return collection;
         }
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETCOLLECTION, language, id);
-      return _downloader.DownloadAsync<MovieCollection>(url, cache);
+      return await _downloader.DownloadAsync<MovieCollection>(url, cache).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -592,7 +592,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Image collection</returns>
     public Task<ImageCollection> GetMovieCollectionImages(int id, string language)
     {
-      return GetImages(URL_GETCOLLECTIONIMAGES, language, id);
+      return GetImagesAsync(URL_GETCOLLECTIONIMAGES, language, id);
     }
 
     /// <summary>
@@ -602,9 +602,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of company</param>
     /// <param name="language">Language</param>
     /// <returns>Company information</returns>
-    public Task<Company> GetCompany(int id, string language, bool cacheOnly)
+    public Task<Company> GetCompanyAsync(int id, string language, bool cacheOnly)
     {
-      return Get<Company>(URL_GETCOMPANY, PREFIX_COMPANY, id, language, cacheOnly);
+      return GetAsync<Company>(URL_GETCOMPANY, PREFIX_COMPANY, id, language, cacheOnly);
     }
 
     /// <summary>
@@ -626,7 +626,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Network information</returns>
     public Task<Network> GetNetwork(int id, string language, bool cacheOnly)
     {
-      return Get<Network>(URL_GETNETWORK, PREFIX_NETWORK, id, language, cacheOnly);
+      return GetAsync<Network>(URL_GETNETWORK, PREFIX_NETWORK, id, language, cacheOnly);
     }
 
     /// <summary>
@@ -646,9 +646,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of person</param>
     /// <param name="language">Language</param>
     /// <returns>Person information</returns>
-    public Task<Person> GetPerson(int id, string language, bool cacheOnly)
+    public Task<Person> GetPersonAsync(int id, string language, bool cacheOnly)
     {
-      return Get<Person>(URL_GETPERSON, PREFIX_PERSON, id, language, cacheOnly, "external_ids");
+      return GetAsync<Person>(URL_GETPERSON, PREFIX_PERSON, id, language, cacheOnly, "external_ids");
     }
 
     /// <summary>
@@ -669,7 +669,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Image collection</returns>
     public Task<ImageCollection> GetPersonImages(int id, string language)
     {
-      return GetImages(URL_GETPERSONIMAGES, language, id);
+      return GetImagesAsync(URL_GETPERSONIMAGES, language, id);
     }
 
     /// <summary>
@@ -681,7 +681,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Series information</returns>
     public Task<Series> GetSeries(int id, string language, bool cacheOnly)
     {
-      return Get<Series>(URL_GETSERIES, PREFIX_SERIES, id, language, cacheOnly, "external_ids,content_ratings");
+      return GetAsync<Series>(URL_GETSERIES, PREFIX_SERIES, id, language, cacheOnly, "external_ids,content_ratings");
     }
 
     /// <summary>
@@ -703,7 +703,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       string url = GetUrl(URL_GETSERIESCASTCREW, null, id);
       string cache = CreateAndGetCacheName(id, language, PREFIX_SERIES_CREW);
-      return Get<MovieCasts>(url, cache, cacheOnly);
+      return GetAsync<MovieCasts>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -724,7 +724,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Image collection</returns>
     public Task<ImageCollection> GetSeriesImages(int id, string language)
     {
-      return GetImages(URL_GETSERIESIMAGES, language, id);
+      return GetImagesAsync(URL_GETSERIESIMAGES, language, id);
     }
 
     /// <summary>
@@ -739,7 +739,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       string url = GetUrl(URL_GETSEASON, language, id, season) + "&append_to_response=external_ids";
       string cache = CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_FORMAT, season));
-      return Get<Season>(url, cache, cacheOnly);
+      return GetAsync<Season>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -762,7 +762,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       string url = GetUrl(URL_GETSEASONCASTCREW, null, id, season);
       string cache = CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_CREW_FORMAT, season));
-      return Get<MovieCasts>(url, cache, cacheOnly);
+      return GetAsync<MovieCasts>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -784,7 +784,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Image collection</returns>
     public Task<ImageCollection> GetSeriesSeasonImages(int id, int season, string language)
     {
-      return GetImages(URL_GETSEASONIMAGES, language, id, season);
+      return GetImagesAsync(URL_GETSEASONIMAGES, language, id, season);
     }
 
     /// <summary>
@@ -800,7 +800,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       string url = GetUrl(URL_GETEPISODE, language, id, season, episode) + "&append_to_response=external_ids";
       string cache = CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_EPISODE_FORMAT, season, episode));
-      return Get<Episode>(url, cache, cacheOnly);
+      return GetAsync<Episode>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -824,7 +824,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       string url = GetUrl(URL_GETEPISODECASTCREW, null, id, season, episode);
       string cache = CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_EPISODE_CREW_FORMAT, season, episode));
-      return Get<MovieCasts>(url, cache, cacheOnly);
+      return GetAsync<MovieCasts>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -847,7 +847,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Image collection</returns>
     public Task<ImageCollection> GetSeriesEpisodeImages(int id, int season, int episode, string language)
     {
-      return GetImages(URL_GETEPISODEIMAGES, language, id, season, episode);
+      return GetImagesAsync(URL_GETEPISODEIMAGES, language, id, season, episode);
     }
 
     /// <summary>

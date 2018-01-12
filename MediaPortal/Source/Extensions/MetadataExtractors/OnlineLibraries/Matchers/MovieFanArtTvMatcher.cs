@@ -22,15 +22,15 @@
 
 #endregion
 
-using System;
-using System.Globalization;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
+using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -87,24 +87,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly)
+    public override Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
+    public override Task<bool> UpdateCharactersAsync(MovieInfo movieInfo, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly)
+    public override Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly)
+    public override Task<bool> UpdateCollectionAsync(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
