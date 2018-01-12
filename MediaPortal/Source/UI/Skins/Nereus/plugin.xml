@@ -1,0 +1,115 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Nereus"
+    PluginId="{DFD14B03-F168-4020-8CE4-B14AE337083A}"
+    Author="Morpheus_xx, ge2301, Brownard"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="WMC skin for MP2.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2016-03-27 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="Nereus.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/> <!-- SkinBase -->
+    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}" CompatibleAPI="1"/> <!-- Background Manager -->
+    <PluginReference PluginId="{DF6A25DF-D937-4DFF-B1BD-563641A62417}" CompatibleAPI="1"/> <!-- Home Menu Editor -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{B4D6171B-81CB-4813-ACBE-FD3133ADC504}" CompatibleAPI="1"/> <!-- SkinSettings plugin -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="2"/> <!-- Media -->
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="8AA7C126-DCCB-4DC7-AB17-34BF0C368F6D" Name="WMCHomeMenuModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeMenuModel"/>
+    <Model Id="6A232D95-9BDE-4005-905E-69CB092B012B" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScreenModeModel"/>
+    <Model Id="93F2124B-08A3-4FC0-AA7D-7709A65F8240" Name="HomeContentModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeContentModel"/>
+    <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
+  </Register>
+  
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="NereusLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="NereusSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/SkinSettings">
+    <SkinSettings Id="CC3C2ED3-027A-47EE-A12D-652D79D02676" Name="Nereus" ClassName="MediaPortal.UiComponents.Nereus.Settings.WMCSkinSettings"/>
+  </Register>
+
+  <!--Register support for the home editor to ensure its configuration is visible in this skin-->
+  <Register Location="/HomeEditor">
+    <HomeEditorRegistration Id="4D0738C3-84BA-4DBC-904D-9951911403C0" SkinName="WMCSkin"/>
+  </Register>
+
+  <!-- Contents of '/Appearance' section -->
+  <Register Location="/Configuration/Settings/Appearance">
+    <ConfigSection
+        Id="Skin"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin' section -->
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigSection
+        Id="SkinSettings"
+        Redundant="true"
+        Text="[SkinSettings.Configuration.SkinSettings]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
+    <ConfigSetting
+        Id="NereusEnableFanart"
+        Text="[Nereus.Configuration.EnableFanart]"
+        HelpText="[Nereus.Configuration.EnableFanart.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
+    
+    <ConfigSetting
+        Id="NereusFanartOverlayOpacity"
+        Text="[Nereus.Configuration.FanartOverlayOpacity]"
+        HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"/>
+    
+    <ConfigSetting
+        Id="NereusEnableWatchedFlags"
+        Text="[Nereus.Configuration.EnableWatchedFlags]"
+        HelpText="[Nereus.Configuration.EnableWatchedFlags.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableWatchedFlagsConfiguration"/>
+    
+    <ConfigSetting
+        Id="NereusEnableAgeCertificationLogos"
+        Text="[Nereus.Configuration.EnableAgeCertificationLogos]"
+        HelpText="[Nereus.Configuration.EnableAgeCertificationLogos.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAgeCertificationLogosConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableBanners"
+        Text="[Nereus.Configuration.EnableBanners]"
+        HelpText="[Nereus.Configuration.EnableBanners.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableBannersConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableAnimatedBackground"
+        Text="[Nereus.Configuration.EnableAnimatedBackground]"
+        HelpText="[Nereus.Configuration.EnableAnimatedBackground.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAnimatedBackgroundConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableMediaItemDetailsView"
+        Text="[Nereus.Configuration.EnableMediaItemDetailsView]"
+        HelpText="[Nereus.Configuration.EnableMediaItemDetailsView.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/>
+  </Register>
+
+</Plugin>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27205.2004
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -233,6 +233,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Media", "..\Tests\Tests.Media\Tests.Media.csproj", "{61D4920F-81AA-4215-A34B-F9BD06B85B71}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubMetadataExtractors", "Extensions\MetadataExtractors\StubMetadataExtractors\StubMetadataExtractors.csproj", "{B7D9598A-9744-489D-BDED-88BA73AD5DC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nereus", "UI\Skins\Nereus\Nereus.csproj", "{B3152567-81EE-42F5-BC32-986E0D5A3B25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -586,6 +588,10 @@ Global
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Debug|x86.Build.0 = Debug|x86
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.ActiveCfg = Release|x86
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.Build.0 = Release|x86
+		{B3152567-81EE-42F5-BC32-986E0D5A3B25}.Debug|x86.ActiveCfg = Debug|x86
+		{B3152567-81EE-42F5-BC32-986E0D5A3B25}.Debug|x86.Build.0 = Debug|x86
+		{B3152567-81EE-42F5-BC32-986E0D5A3B25}.Release|x86.ActiveCfg = Release|x86
+		{B3152567-81EE-42F5-BC32-986E0D5A3B25}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -697,5 +703,9 @@ Global
 		{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A} = {B9CFC9D5-27AF-4A57-B8CC-2B6221B77C61}
 		{61D4920F-81AA-4215-A34B-F9BD06B85B71} = {6383E739-61E6-46EE-9B06-8940E50A13D3}
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
+		{B3152567-81EE-42F5-BC32-986E0D5A3B25} = {9579F1D5-315A-4528-AC60-FA7D61874E27}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {94D73B6A-8B2F-4903-8F5F-B79AF26BD8FE}
 	EndGlobalSection
 EndGlobal

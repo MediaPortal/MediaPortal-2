@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Configuration.EnableFanart">Enable Fanart</string>
+  <string name="Nereus.Configuration.EnableFanart.Help">Whether to display background fanart.</string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity">Fanart Visibility</string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Adjust the opacity of the background fanart overlay. A lower value increases the visibility of fanart (default is 1.0).</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags">Enable Watched Flags</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.Help">Whether to display watched icons in the selected views.</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.ListView">List View</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.GridView">Grid View</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.CoverView">Cover View</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos">Enable Age Certification Logos</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos.Help">Whether to display age certification logos in media screens.</string>
+  <string name="Nereus.Configuration.EnableBanners">Show Banners</string>
+  <string name="Nereus.Configuration.EnableBanners.Help">Whether to show banners in grid view instead of covers.</string>
+  <string name="Nereus.Configuration.EnableBanners.Movies">Movies</string>
+  <string name="Nereus.Configuration.EnableBanners.Series">Series</string>
+  <string name="Nereus.Configuration.EnableBanners.Seasons">Seasons</string>
+  <string name="Nereus.Configuration.EnableAnimatedBackground">Enable Animated Background</string>
+  <string name="Nereus.Configuration.EnableAnimatedBackground.Help">Whether to enable the aurora animation on the home screen.</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView">Enable Media Item Details View</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Whether to show media item details instead of playing media item directly.</string>
+
+  <string name="Nereus.Home.LatestAdded">Latest Added</string>
+  <string name="Nereus.Home.LatestPlayed">Latest Played</string>
+  <string name="Nereus.Home.ContinuePlayed">Continue Playing</string>
+  <string name="Nereus.Home.CurrentPrograms">Current Programs</string>
+  <string name="Nereus.Home.CurrentSchedules">Current Schedules</string>
+  <string name="Nereus.Home.Favorites">Favorites</string>
+  <string name="Nereus.Home.Unplayed">Unplayed</string>
+
+</resources>

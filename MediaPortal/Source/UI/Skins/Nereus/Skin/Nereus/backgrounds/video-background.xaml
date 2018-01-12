@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Video background screen. We don't use it here, because current video is shown inside PlayerControl
+-->
+
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="DefaultBackgroundScreen"
+    >
+  <StackPanel Background="{ThemeResource BackgroundBrush}"/>
+</Screen>
