@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -197,8 +198,8 @@ public void Init(MediaItem mediaItem)
   SeriesName = (string) aspect[EpisodeAspect.ATTR_SERIES_NAME];
   Season = (int?) aspect[EpisodeAspect.ATTR_SEASON];
   SeasonName = (string) aspect[EpisodeAspect.ATTR_SERIES_SEASON];
-  Episode = (IEnumerable<int>) aspect[EpisodeAspect.ATTR_EPISODE];
-  DvdEpisode = (IEnumerable<double>) aspect[EpisodeAspect.ATTR_DVDEPISODE];
+  Episode = ((IEnumerable<int>) aspect[EpisodeAspect.ATTR_EPISODE])?.Distinct().OrderBy(e => e);
+  DvdEpisode = ((IEnumerable<double>) aspect[EpisodeAspect.ATTR_DVDEPISODE])?.Distinct().OrderBy(e => e);
   EpisodeName = (string) aspect[EpisodeAspect.ATTR_EPISODE_NAME];
   TotalRating = (double?) aspect[EpisodeAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[EpisodeAspect.ATTR_RATING_COUNT];

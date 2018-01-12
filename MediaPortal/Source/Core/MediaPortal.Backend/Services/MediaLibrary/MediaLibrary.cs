@@ -340,6 +340,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IDictionary<string, SystemName> _systemsOnline = new Dictionary<string, SystemName>(); // System ids mapped to system names
 
     protected MIA_Management _miaManagement = null;
+    protected PreparedStatements _preparedStatements = null;
     protected RelationshipManagement _relationshipManagement = null;
     protected object _syncObj = new object();
     protected string _localSystemId;
@@ -354,24 +355,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
     protected ICollection<Share> _importingSharesCache;
-
-    #endregion
-
-    #region Private fields
-
-    // Prepared SQL strings for better performance
-    private static string SELECT_MEDIAITEM_ID_FROM_PATH_SQL = null;
-    private static string INSERT_USER_PLAYCOUNT_SQL = null;
-    private static string SELECT_MEDIAITEM_RELATIONSHIPS_FROM_ID_SQL = null;
-    private static string DELETE_MEDIAITEM_RELATIONSHIPS_FROM_ID_SQL = null;
-    private static string SELECT_ORPHAN_COUNT_SQL = null;
-    private static string UPDATE_USER_PLAY_DATA_FROM_ID_SQL = null;
-    private static string INSERT_USER_PLAY_DATA_FOR_ID_SQL = null;
-    private static string UPDATE_MEDIAITEMS_DIRTY_ATTRIBUTE_FROM_ID_SQL = null;
-    private static string SELECT_PARENT_IDS_FROM_CHILD_IDS_SQL = null;
-    private static string SELECT_PLAY_DATA_FROM_PARENT_ID_SQL = null;
-    private static string SELECT_USER_DATA_FROM_PARENT_ID_SQL = null;
-    private static string SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL = null;
 
     #endregion
 
@@ -615,7 +598,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         database.AddParameter(command, "SYSTEM_ID", systemId, typeof(string));
         database.AddParameter(command, "PATH", resourcePath.Serialize(), typeof(string));
 
-        command.CommandText = SELECT_MEDIAITEM_ID_FROM_PATH_SQL;
+        command.CommandText = _preparedStatements.SelectMediaItemIdFromPathSQL;
         using (IDataReader reader = command.ExecuteReader())
         {
           if (!reader.Read())
@@ -778,105 +761,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
 
       _miaManagement = new MIA_Management();
+      _preparedStatements = new PreparedStatements(_miaManagement);
       _relationshipManagement = new RelationshipManagement(_miaManagement, _localSystemId);
-      PrepareDatabaseQueries(); //Initial prepare
 
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
 
-    private void PrepareDatabaseQueries()
-    {
-      //Prepare SQLs
-      SELECT_MEDIAITEM_RELATIONSHIPS_FROM_ID_SQL = "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-        " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
-        " UNION" +
-        " SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
-        " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
-      UPDATE_MEDIAITEMS_DIRTY_ATTRIBUTE_FROM_ID_SQL = "UPDATE " + _miaManagement.GetMIATableName(ImporterAspect.Metadata) +
-        " SET " + _miaManagement.GetMIAAttributeColumnName(ImporterAspect.ATTR_DIRTY) + " = 1" +
-        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN ({0})";
-      SELECT_PARENT_IDS_FROM_CHILD_IDS_SQL = "SELECT DISTINCT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
-        " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-        " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_PLAYABLE) + " = 1" +
-        " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN({0})";
-      SELECT_PLAY_DATA_FROM_PARENT_ID_SQL = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
-        ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-        ", U2." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-        ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_PLAYCOUNT) +
-        " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
-        " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
-        " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
-        " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
-        " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U2" +
-        " ON U2." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " AND U2." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
-        " AND U2." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY2" +
-        " WHERE M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
-        " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
-        " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_PLAYABLE) + " = 1" +
-        ")";
-      SELECT_USER_DATA_FROM_PARENT_ID_SQL = "SELECT R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-        " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
-        " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
-        " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
-        " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
-        " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
-        " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
-        " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_PLAYABLE) + " = 1" +
-        " AND M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 0";
-      SELECT_MEDIAITEM_ID_FROM_PATH_SQL = "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + _miaManagement.GetMIATableName(ProviderResourceAspect.Metadata) +
-        " WHERE " + _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID) + " = @SYSTEM_ID AND " +
-        _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) + " = @PATH";
-      INSERT_USER_PLAYCOUNT_SQL = "INSERT INTO " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-        "(" + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + ", " +
-        MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ", " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + ", " +
-        UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + ") " +
-        "SELECT " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + ", @MEDIA_ITEM_ID, @DATA_KEY, @MEDIA_ITEM_DATA FROM " +
-        UserProfileDataManagement_SubSchema.USER_TABLE_NAME;
-      DELETE_MEDIAITEM_RELATIONSHIPS_FROM_ID_SQL = "DELETE FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-        " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID";
-      SELECT_ORPHAN_COUNT_SQL = "SELECT COUNT(*) FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
-        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
-        " SELECT T0." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " T0" +
-        " JOIN " + _miaManagement.GetMIATableName(ProviderResourceAspect.Metadata) + " T1 ON " +
-        " T1." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = " +
-        " T0." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " WHERE T0." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
-        " AND T1." + _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_TYPE) + " = " + ProviderResourceAspect.TYPE_VIRTUAL +
-        " AND NOT EXISTS (" +
-        "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-        " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
-        " OR " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
-        "))";
-      UPDATE_USER_PLAY_DATA_FROM_ID_SQL = "UPDATE " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-        " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = @USER_DATA_VALUE" +
-        " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
-        " AND " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
-        " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY";
-      INSERT_USER_PLAY_DATA_FOR_ID_SQL = "INSERT INTO " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-        " (" + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + ", " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ", " +
-        UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + ", " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + ")" +
-        " VALUES (@USER_PROFILE_ID, @ITEM_ID, @USER_DATA_KEY, @USER_DATA_VALUE)";
-      SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL = "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + "," + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + "," +
-        UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-        " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-        " WHERE " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN({0})";
-    }
-
     public void ActivateImporterWorker()
     {
-      //PrepareDatabaseQueries(); //Second prepare
       InitShareWatchers();
-
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Activate(_mediaBrowsingCallback, _importResultHandler);
     }
@@ -972,7 +865,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               //Find relations
               List<Guid> relations = new List<Guid>();
-              command.CommandText = SELECT_MEDIAITEM_RELATIONSHIPS_FROM_ID_SQL;
+              command.CommandText = _preparedStatements.SelectMediaItemRelationshipsFromIdSQL;
               using (IDataReader reader = command.ExecuteReader())
               {
                 while (reader.Read())
@@ -985,7 +878,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               Logger.Debug("MediaLibrary: Delete media item {0} relations {1}", mediaItemId, relations.Count);
 
               //Delete relations
-              command.CommandText = DELETE_MEDIAITEM_RELATIONSHIPS_FROM_ID_SQL;
+              command.CommandText = _preparedStatements.DeleteMediaItemRelationshipsFromIdSQL;
               command.ExecuteNonQuery();
 
               //Delete orphaned relations
@@ -1145,7 +1038,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                       command.Parameters.Clear();
                       for (int index = currentItem; index < endItem; index++)
                         database.AddParameter(command, "MI" + index, foundItems[index].MediaItemId, typeof(Guid));
-                      command.CommandText = string.Format(UPDATE_MEDIAITEMS_DIRTY_ATTRIBUTE_FROM_ID_SQL,
+                      command.CommandText = string.Format(_preparedStatements.UpdateMediaItemsDirtyAttributeFromIdSQL,
                         string.Join(",", foundItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + index)));
                       command.ExecuteNonQuery();
                       itemCount += (endItem - currentItem);
@@ -1378,7 +1271,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               database.AddParameter(command, "USER_PROFILE_ID", userProfileId.Value, typeof(Guid));
               for (int index = currentItem; index < endItem; index++)
                 database.AddParameter(command, "MI" + index, mediaItems[index].MediaItemId, typeof(Guid));
-              command.CommandText = string.Format(SELECT_MEDIAITEM_USER_DATA_FROM_IDS_SQL,
+              command.CommandText = string.Format(_preparedStatements.SelectMediaItemUserDataFromIdsSQL,
                 string.Join(",", mediaItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + (index + currentItem))));
               using (IDataReader reader = command.ExecuteReader())
               {
@@ -1872,7 +1765,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         //Update user watch data
         using (IDbCommand command = transaction.CreateCommand())
         {
-          command.CommandText = INSERT_USER_PLAYCOUNT_SQL;
+          command.CommandText = _preparedStatements.InsertUserPlayCountSQL;
           database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId.Value, typeof(Guid));
           IDbDataParameter dataKey = database.AddParameter(command, "DATA_KEY", UserDataKeysKnown.KEY_PLAY_PERCENTAGE, typeof(string));
           IDbDataParameter dataValue = database.AddParameter(command, "MEDIA_ITEM_DATA", UserDataKeysKnown.GetSortablePlayPercentageString(100), typeof(string));
@@ -2298,7 +2191,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
 
-          command.CommandText = SELECT_ORPHAN_COUNT_SQL;
+          command.CommandText = _preparedStatements.SelectOrphanCountSQL;
           if (Convert.ToInt32(command.ExecuteScalar()) > 0)
           {
             Logger.Debug("MediaLibrary: Deleted orphaned media item {0}", mediaItemId);
@@ -2329,7 +2222,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             //Find parents
             for (int index = 0; index < mediaItemIds.Length; index++)
               database.AddParameter(command, "MI" + index, mediaItemIds[index], typeof(Guid));
-            command.CommandText = string.Format(SELECT_PARENT_IDS_FROM_CHILD_IDS_SQL, string.Join(",", mediaItemIds.Select((id, index) => "@MI" + index)));
+            command.CommandText = string.Format(_preparedStatements.SelectParentIdsFromChildIdsSQL, string.Join(",", mediaItemIds.Select((id, index) => "@MI" + index)));
             using (IDataReader reader = command.ExecuteReader())
             {
               while (reader.Read())
@@ -2354,7 +2247,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               key2Param.Value = UserDataKeysKnown.KEY_PLAY_PERCENTAGE;
 
               //Find children play count
-              command.CommandText = SELECT_PLAY_DATA_FROM_PARENT_ID_SQL;
+              command.CommandText = _preparedStatements.SelectPlayDataFromParentIdSQL;
               float nonVirtualChildCount = 0;
               float watchedCount = 0;
               float playCountSum = 0;
@@ -2397,7 +2290,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
 
               //Update parent
-              command.CommandText = UPDATE_USER_PLAY_DATA_FROM_ID_SQL;
+              command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
               if (watchPercentage >= 100)
                 watchPercentage = 100;
@@ -2406,9 +2299,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               valueParam.Value = UserDataKeysKnown.GetSortablePlayPercentageString(watchPercentage);
               if (command.ExecuteNonQuery() == 0)
               {
-                command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
+                command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
                 command.ExecuteNonQuery();
-                command.CommandText = UPDATE_USER_PLAY_DATA_FROM_ID_SQL;
+                command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               }
               Logger.Debug("MediaLibrary: Set parent media item {0} watch percentage = {1}", parentId, valueParam.Value);
 
@@ -2417,9 +2310,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               //valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(Convert.ToInt32(playCountSum / nonVirtualChildCount));
               if (command.ExecuteNonQuery() == 0)
               {
-                command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
+                command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
                 command.ExecuteNonQuery();
-                command.CommandText = UPDATE_USER_PLAY_DATA_FROM_ID_SQL;
+                command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               }
               Logger.Debug("MediaLibrary: Set parent media item {0} watch count = {1}", parentId, valueParam.Value);
 
@@ -2429,9 +2322,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 valueParam.Value = watchPercentage >= 100 ? UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now) : "";
                 if (command.ExecuteNonQuery() == 0)
                 {
-                  command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
+                  command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
                   command.ExecuteNonQuery();
-                  command.CommandText = UPDATE_USER_PLAY_DATA_FROM_ID_SQL;
+                  command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
                 }
                 Logger.Debug("MediaLibrary: Set parent media item {0} watch date = {1}", parentId, valueParam.Value);
               }
@@ -2463,7 +2356,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
             database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
 
-            command.CommandText = SELECT_USER_DATA_FROM_PARENT_ID_SQL;
+            command.CommandText = _preparedStatements.SelectUserDataFromParentIdSQL;
             using (IDataReader reader = command.ExecuteReader())
             {
               while (reader.Read())
@@ -2486,7 +2379,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             var userParam = database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
             var keyParam = database.AddParameter(command, "USER_DATA_KEY", "", typeof(string));
             var valueParam = database.AddParameter(command, "USER_DATA_VALUE", "", typeof(string));
-            command.CommandText = UPDATE_USER_PLAY_DATA_FROM_ID_SQL;
+            command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
             foreach (var key in childPlayCounts)
             {
               itemParam.Value = key.Key;
@@ -2495,9 +2388,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               valueParam.Value = watched ? UserDataKeysKnown.GetSortablePlayPercentageString(100) : UserDataKeysKnown.GetSortablePlayPercentageString(0);
               if (command.ExecuteNonQuery() == 0)
               {
-                command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
+                command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
                 command.ExecuteNonQuery();
-                command.CommandText = UPDATE_USER_PLAY_DATA_FROM_ID_SQL;
+                command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               }
               Logger.Debug("MediaLibrary: Set parent media item {0} watch percentage = {1}", key.Key, valueParam.Value);
 
@@ -2505,9 +2398,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(key.Value);
               if (command.ExecuteNonQuery() == 0)
               {
-                command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
+                command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
                 command.ExecuteNonQuery();
-                command.CommandText = UPDATE_USER_PLAY_DATA_FROM_ID_SQL;
+                command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               }
               Logger.Debug("MediaLibrary: Set parent media item {0} watch count = {1}", key.Key, valueParam.Value);
 
@@ -2517,9 +2410,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 valueParam.Value = key.Value > 0 ? UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now) : "";
                 if (command.ExecuteNonQuery() == 0)
                 {
-                  command.CommandText = INSERT_USER_PLAY_DATA_FOR_ID_SQL;
+                  command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
                   command.ExecuteNonQuery();
-                  command.CommandText = UPDATE_USER_PLAY_DATA_FROM_ID_SQL;
+                  command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
                 }
                 Logger.Debug("MediaLibrary: Set parent media item {0} watch date = {1}", key.Key, valueParam.Value);
               }

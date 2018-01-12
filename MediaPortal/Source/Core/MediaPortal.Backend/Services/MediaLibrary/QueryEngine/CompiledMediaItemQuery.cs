@@ -55,8 +55,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IFilter _filter;
     protected readonly IFilter _subqueryFilter;
     protected readonly Guid? _userProfileId;
-    protected uint? _offset;
-    protected uint? _limit;
+    protected readonly uint? _offset;
+    protected readonly uint? _limit;
 
     protected readonly IList<ISortInformation> _sortInformation;
 
@@ -192,10 +192,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         query.Filter, query.SubqueryFilter, query.SortInformation, userProfileId, query.Limit, query.Offset);
     }
 
-    private IList<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, bool singleMode, IEnumerable<MediaItemAspectMetadata> selectedMIAs, out IList<Guid> mediaItemIds, out IDictionary<Guid, IList<Guid>> complexMediaItems)
+    private IList<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, bool singleMode, IEnumerable<MediaItemAspectMetadata> selectedMIAs, out IList<Guid> mediaItemIds, out IDictionary<Guid, IList<Guid>> complexMediaItems, bool forceSingleMIAMode = false)
     {
       string statementStr;
       IList<BindVar> bindVars;
+      uint? limit = _limit;
+      uint? offset = _offset;
+      //Force Single MIA based selection if there are limit because Multiple MIAs will cause duplicate rows
+      forceSingleMIAMode = forceSingleMIAMode || limit.HasValue || offset.HasValue;
 
       MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement,
           _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _subqueryFilter, _sortInformation, _userProfileId);
@@ -206,13 +210,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IDictionary<MediaItemAspectMetadata, string> miamAliases;
         // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
         IDictionary<QueryAttribute, string> qa2a;
-        builder.GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a,
-            out statementStr, out bindVars);
+        if (!forceSingleMIAMode)
+          builder.GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out bindVars);
+        else
+          builder.GenerateSingleMIASqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out bindVars);
 
         // Try to use SQL side paging, which gives best performance if supported
         ISQLDatabasePaging paging = database as ISQLDatabasePaging;
         if (paging != null)
-          paging.Process(ref statementStr, ref bindVars, ref _offset, ref _limit);
+          paging.Process(ref statementStr, ref bindVars, ref offset, ref limit);
 
         command.CommandText = statementStr;
         foreach (BindVar bindVar in bindVars)
@@ -225,10 +231,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           complexMediaItems = new Dictionary<Guid, IList<Guid>>();
 
           var records = fullReader.AsEnumerable();
-          if (_offset.HasValue)
-            records = records.Skip((int)_offset.Value);
-          if (_limit.HasValue)
-            records = records.Take((int)_limit.Value);
+          if (offset.HasValue)
+            records = records.Skip((int)offset.Value);
+          if (limit.HasValue)
+            records = records.Take((int)limit.Value);
           foreach (var reader in records)
           {
             Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias2));
@@ -441,7 +447,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
         IList<Guid> mediaItemIds;
         IDictionary<Guid, IList<Guid>> complexMediaItemIds;
-        IList<MediaItem> mediaItems = GetMediaItems(database, transaction, singleMode, selectedMIAs, out mediaItemIds, out complexMediaItemIds);
+        IList<MediaItem> mediaItems = GetMediaItems(database, transaction, singleMode, selectedMIAs, out mediaItemIds, out complexMediaItemIds);     
 
         //logger.Debug("CompiledMediaItemQuery::Query got media items IDs [{0}]", string.Join(",", mediaItemIds));
 

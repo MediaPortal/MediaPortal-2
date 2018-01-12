@@ -48,7 +48,7 @@
         </VisualBrush>
       </Grid.OpacityMask>
       <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="White"/>
-      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="10,5,10,5">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
                                     fanart:MaxWidth="{StaticResource CHANNEL_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource CHANNEL_GRID_HEIGHT_S}"/>
@@ -74,7 +74,7 @@
       </Grid.RowDefinitions>
       <Border Background="Black" CornerRadius="5" BorderThickness="0" Opacity="0.2" HorizontalAlignment="Stretch" 
               Grid.ColumnSpan="3" Grid.RowSpan="2" VerticalAlignment="Stretch"/>
-      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="10" Grid.RowSpan="2" VerticalAlignment="Center" >
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="15,10,15,10" Grid.RowSpan="2" VerticalAlignment="Center" >
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT_S}"/>

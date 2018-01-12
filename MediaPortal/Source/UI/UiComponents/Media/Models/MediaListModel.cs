@@ -39,6 +39,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -282,12 +283,12 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected override void Update()
     {
-      UpdateItems();
+      _ = UpdateAllProvidersAsync();
     }
 
     private void OnProviderRequested(object sender, ProviderEventArgs e)
     {
-      UpdateAsync(e.Provider, UpdateReason.Forced);
+      _ = UpdateProviderAsync(e.Provider, Limit, UpdateReason.Forced);
     }
 
     public void InitProviders()
@@ -339,7 +340,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    public bool UpdateItems()
+    public async Task<bool> UpdateAllProvidersAsync()
     {
       try
       {
@@ -363,8 +364,9 @@ namespace MediaPortal.UiComponents.Media.Models
         _playbackUpdatePending = false;
         _nextMinute = DateTime.Now.AddMinutes(1);
 
+        int maxItems = Limit;
         foreach (var provider in _listProviders.EnabledProviders)
-          UpdateAsync(provider, updateReason);
+          await UpdateProviderAsync(provider, maxItems, updateReason);
 
         return true;
       }
@@ -375,10 +377,17 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    protected void UpdateAsync(IMediaListProvider provider, UpdateReason updateReason)
+    public async Task<bool> UpdateProviderAsync(IMediaListProvider provider, int maxItems, UpdateReason updateReason)
     {
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(() => provider.UpdateItemsAsync(Limit, updateReason));
+      try
+      {
+        return await provider.UpdateItemsAsync(maxItems, updateReason);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Error updating Media List {0}", provider.GetType().Name, ex);
+        return false;
+      }
     }
   }
 }
