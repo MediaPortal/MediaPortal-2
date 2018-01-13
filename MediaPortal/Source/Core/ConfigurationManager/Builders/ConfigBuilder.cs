@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.Configuration.Builders
 {
@@ -43,6 +44,7 @@ namespace MediaPortal.Configuration.Builders
       string sort = null;
       string iconSmallPath = null;
       string iconLargePath = null;
+      UserProfileType? profileType = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
         switch (attr.Key)
@@ -59,6 +61,9 @@ namespace MediaPortal.Configuration.Builders
           case "IconLargePath":
             iconLargePath = attr.Value;
             break;
+          case "MinUserProfile":
+            profileType = ParseOptionalProfileType(attr.Value);
+            break;
           default:
             throw new ArgumentException("'ConfigSection' builder doesn't define an attribute '" + attr.Key + "'");
         }
@@ -67,7 +72,8 @@ namespace MediaPortal.Configuration.Builders
         throw new ArgumentException("'ConfigSection' item needs an attribute 'Text'");
       return new ConfigSectionMetadata(location, text, sort,
                                        plugin.Metadata.GetAbsolutePath(iconSmallPath),
-                                       plugin.Metadata.GetAbsolutePath(iconLargePath));
+                                       plugin.Metadata.GetAbsolutePath(iconLargePath),
+                                       profileType);
     }
 
     protected static ConfigGroupMetadata BuildGroup(
@@ -76,6 +82,7 @@ namespace MediaPortal.Configuration.Builders
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
       string sort = null;
+      UserProfileType? profileType = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
         switch (attr.Key)
@@ -86,13 +93,16 @@ namespace MediaPortal.Configuration.Builders
           case "Sort":
             sort = attr.Value;
             break;
+          case "MinUserProfile":
+            profileType = ParseOptionalProfileType(attr.Value);
+            break;
           default:
             throw new ArgumentException("'ConfigGroup' builder doesn't define an attribute '" + attr.Key + "'");
         }
       }
       if (text == null)
         throw new ArgumentException("'ConfigGroup' item needs an attribute 'Text'");
-      return new ConfigGroupMetadata(location, text, sort);
+      return new ConfigGroupMetadata(location, text, sort, profileType);
     }
 
     protected static ConfigSettingMetadata BuildSetting(
@@ -104,6 +114,7 @@ namespace MediaPortal.Configuration.Builders
       string className = null;
       string helpText = null;
       ICollection<string> listenTo = null;
+      UserProfileType? profileType = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
         switch (attr.Key)
@@ -123,13 +134,16 @@ namespace MediaPortal.Configuration.Builders
           case "ListenTo":
             listenTo = ParseListenTo(attr.Value);
             break;
+          case "MinUserProfile":
+            profileType = ParseOptionalProfileType(attr.Value);
+            break;
           default:
             throw new ArgumentException("'ConfigSetting' builder doesn't define an attribute '" + attr.Key+ "'");
         }
       }
       if (text == null)
         throw new ArgumentException("'ConfigSetting' item needs an attribute 'Text'");
-      return new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo);
+      return new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo, profileType);
     }
 
     protected static ConfigSettingMetadata BuildCustomSetting(
@@ -143,6 +157,7 @@ namespace MediaPortal.Configuration.Builders
       IDictionary<string, string> additionalData = null;
       IDictionary<string, Type> additionalTypes = null;
       ICollection<string> listenTo = null;
+      UserProfileType? profileType = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
         switch (attr.Key)
@@ -168,13 +183,16 @@ namespace MediaPortal.Configuration.Builders
           case "AdditionalTypes":
             additionalTypes = ParseAdditionalTypes(attr.Value, plugin);
             break;
+          case "MinUserProfile":
+            profileType = ParseOptionalProfileType(attr.Value);
+            break;
           default:
             throw new ArgumentException("'ConfigSetting' builder doesn't define an attribute '" + attr.Key + "'");
         }
       }
       if (text == null)
         throw new ArgumentException("'ConfigSetting' item needs an attribute 'Text'");
-      ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo)
+      ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo, profileType)
         {
             AdditionalData = additionalData,
             AdditionalTypes = additionalTypes
@@ -224,6 +242,15 @@ namespace MediaPortal.Configuration.Builders
         }
       }
       return result;
+    }
+
+    protected static UserProfileType? ParseOptionalProfileType(string minUserProfile)
+    {
+      if (string.IsNullOrEmpty(minUserProfile)) return null;
+      UserProfileType tmpValue;
+      if (!Enum.TryParse(minUserProfile, out tmpValue))
+        throw new ArgumentException(string.Format("Invalid value '{0}' for 'MinUserProfile'", minUserProfile));
+      return tmpValue;
     }
 
     #endregion

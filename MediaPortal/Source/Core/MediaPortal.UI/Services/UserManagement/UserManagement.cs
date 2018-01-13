@@ -59,6 +59,14 @@ namespace MediaPortal.UI.Services.UserManagement
       }
     }
 
+    public bool CheckUserAccess(IUserRestriction restrictedElement)
+    {
+      if (!IsValidUser)
+        return true;
+
+      return !restrictedElement.MinUserProfile.HasValue || CurrentUser.ProfileType >= restrictedElement.MinUserProfile;
+    }
+
     public bool ApplyUserRestriction
     {
       get { return _applyRestrictions; }

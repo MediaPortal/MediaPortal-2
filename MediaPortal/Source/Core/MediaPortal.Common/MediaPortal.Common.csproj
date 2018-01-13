@@ -482,6 +482,7 @@
     <Compile Include="UPnP\UPnPDtUserProfile.cs" />
     <Compile Include="UPnP\UPnPDtUserProfileEnumeration.cs" />
     <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
+    <Compile Include="UserProfileDataManagement\IUserRestriction.cs" />
     <Compile Include="UserProfileDataManagement\UserDataKeysKnown.cs" />
     <Compile Include="UserProfileDataManagement\UserProfile.cs" />
     <Compile Include="VersionInfo\VersionInfo.cs" />

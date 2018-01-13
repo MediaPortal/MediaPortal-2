@@ -23,9 +23,7 @@
 #endregion
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Services.UserManagement;
@@ -156,9 +154,10 @@ namespace MediaPortal.UI.Presentation.Workflow
       get
       {
         IDictionary<Guid, WorkflowAction> filteredActions = new Dictionary<Guid, WorkflowAction>();
+        var um = ServiceRegistration.Get<IUserManagement>();
         foreach (KeyValuePair<Guid, WorkflowAction> action in MenuActionsInternal)
         {
-          if (FilterActionsByUserProfile(action.Value))
+          if (um.CheckUserAccess(action.Value))
             filteredActions.Add(action);
         }
         return filteredActions;
@@ -184,15 +183,6 @@ namespace MediaPortal.UI.Presentation.Workflow
           result[pair.Key] = pair.Value;
         return result;
       }
-    }
-
-    protected static bool FilterActionsByUserProfile(WorkflowAction action)
-    {
-      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      if (!userManagement.IsValidUser)
-        return true;
-
-      return !action.MinUserProfile.HasValue || userManagement.CurrentUser.ProfileType >= action.MinUserProfile;
     }
 
     /// <summary>

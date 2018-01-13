@@ -25,11 +25,12 @@
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.UserProfileDataManagement;
 
 
 namespace MediaPortal.Common.Configuration
 {
-  public abstract class ConfigBase
+  public abstract class ConfigBase: IUserRestriction
   {
     #region Protected fields
 
@@ -115,6 +116,9 @@ namespace MediaPortal.Common.Configuration
     {
       _metadata = metadata;
       _text = LocalizationHelper.CreateResourceString(_metadata.Text);
+      MinUserProfile = metadata.MinUserProfile;
     }
+
+    public UserProfileType? MinUserProfile { get; set; }
   }
 }

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UI.Presentation.Workflow
 {
@@ -36,7 +37,7 @@ namespace MediaPortal.UI.Presentation.Workflow
   /// Typically, a workflow state action will provide the data for a menu item at the GUI.
   /// Sub classes will implement the abstract properties and methods of this class.
   /// </summary>
-  public abstract class WorkflowAction
+  public abstract class WorkflowAction: IUserRestriction
   {
     #region Protected fields
 

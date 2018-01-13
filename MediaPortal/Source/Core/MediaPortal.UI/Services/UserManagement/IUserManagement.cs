@@ -52,5 +52,12 @@ namespace MediaPortal.UI.Services.UserManagement
     /// Exposes access to the <see cref="IUserProfileDataManagement"/> service. This property will be <c>null</c>, if no server connection is available.
     /// </summary>
     IUserProfileDataManagement UserProfileDataManagement { get; }
+
+    /// <summary>
+    /// Checks if the <see cref="CurrentUser"/> is allowed to access the given <see cref="IUserRestriction"/>.
+    /// </summary>
+    /// <param name="restrictedElement">Element to check</param>
+    /// <returns><c>true</c> if user has access or the element does not require a specific access level.</returns>
+    bool CheckUserAccess(IUserRestriction restrictedElement);
   }
 }

@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Common.UserProfileDataManagement;
+
 namespace MediaPortal.Common.Configuration
 {
   /// <summary>
@@ -29,6 +31,6 @@ namespace MediaPortal.Common.Configuration
   /// </summary>
   public class ConfigGroupMetadata : ConfigBaseMetadata
   {
-    public ConfigGroupMetadata(string location, string text, string sort) : base(location, text, sort) { }
+    public ConfigGroupMetadata(string location, string text, string sort, UserProfileType? profileType) : base(location, text, sort, profileType) { }
   }
 }
