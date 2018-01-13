@@ -30,9 +30,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
   public interface IUserRestriction
   {
     /// <summary>
-    /// Gets the minimum required user profile level to access this object or action.
-    /// Can be <c>null</c> if there is no restriction.
+    /// Gets or sets a group name that can be mapped to user profiles.
     /// </summary>
-    UserProfileType? MinUserProfile { get; set; }
+    string RestrictionGroup { get; set; }
   }
 }

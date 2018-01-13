@@ -170,7 +170,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sourceStates = null;
       string targetState = null;
       string navigationContextDisplayLabel = null;
-      string minUserProfile = null;
+      string restrictionGroup = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -204,8 +204,8 @@ namespace MediaPortal.UI.Services.Workflow
             case "HelpText":
               helpText = attrNav.Value;
               break;
-            case "MinUserProfile":
-              minUserProfile = attrNav.Value;
+            case "RestrictionGroup":
+              restrictionGroup = attrNav.Value;
               break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
@@ -226,7 +226,7 @@ namespace MediaPortal.UI.Services.Workflow
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder,
-            MinUserProfile = ParseOptionalProfileType(actionNav.Name, minUserProfile, name)
+            RestrictionGroup = restrictionGroup
         };
       return result;
     }
@@ -240,7 +240,7 @@ namespace MediaPortal.UI.Services.Workflow
       string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
-      string minUserProfile = null;
+      string restrictionGroup = null;
       int numPop = -1;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
@@ -273,8 +273,8 @@ namespace MediaPortal.UI.Services.Workflow
             case "HelpText":
               helpText = attrNav.Value;
               break;
-            case "MinUserProfile":
-              minUserProfile = attrNav.Value;
+            case "RestrictionGroup":
+              restrictionGroup = attrNav.Value;
               break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
@@ -293,7 +293,7 @@ namespace MediaPortal.UI.Services.Workflow
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder,
-            MinUserProfile = ParseOptionalProfileType(actionNav.Name, minUserProfile, name)
+            RestrictionGroup = restrictionGroup
       };
       return result;
     }
@@ -308,7 +308,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sortOrder = null;
       string sourceStates = null;
       string contributorModel = null;
-      string minUserProfile = null;
+      string restrictionGroup = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -339,8 +339,8 @@ namespace MediaPortal.UI.Services.Workflow
             case "HelpText":
               helpText = attrNav.Value;
               break;
-            case "MinUserProfile":
-              minUserProfile = attrNav.Value;
+            case "RestrictionGroup":
+              restrictionGroup = attrNav.Value;
               break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
@@ -359,7 +359,7 @@ namespace MediaPortal.UI.Services.Workflow
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder,
-            MinUserProfile = ParseOptionalProfileType(actionNav.Name, minUserProfile, name)
+            RestrictionGroup = restrictionGroup
       };
       return result;
     }
@@ -375,7 +375,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sourceStates = null;
       string modelId = null;
       string methodName = null;
-      string minUserProfile = null;
+      string restrictionGroup = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -409,8 +409,8 @@ namespace MediaPortal.UI.Services.Workflow
             case "MethodName":
               methodName = attrNav.Value;
               break;
-            case "MinUserProfile":
-              minUserProfile = attrNav.Value;
+            case "RestrictionGroup":
+              restrictionGroup = attrNav.Value;
               break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
@@ -432,7 +432,7 @@ namespace MediaPortal.UI.Services.Workflow
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder,
-            MinUserProfile = ParseOptionalProfileType(actionNav.Name, minUserProfile, name)
+            RestrictionGroup = restrictionGroup
       };
       return result;
     }
@@ -443,7 +443,7 @@ namespace MediaPortal.UI.Services.Workflow
 
       UserProfileType tmpValue;
       if (!Enum.TryParse(minUserProfile, out tmpValue))
-        throw new ArgumentException(string.Format("{0} '{1}': Invalid value '{2}' for 'MinUserProfile'", actionNavName, name, minUserProfile));
+        throw new ArgumentException(string.Format("{0} '{1}': Invalid value '{2}' for 'RestrictionGroup'", actionNavName, name, minUserProfile));
       return tmpValue;
     }
   }

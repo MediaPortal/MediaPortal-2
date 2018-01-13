@@ -26,6 +26,7 @@ using MediaPortal.Utilities.UPnP;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -60,6 +61,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     protected UserProfileType _profileType;
     protected byte[] _image;
     protected IDictionary<string, IDictionary<int, string>> _userData = new Dictionary<string, IDictionary<int, string>>();
+    protected readonly ICollection<string> EMPTY_COLLECTION = new HashSet<string>();
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
@@ -91,6 +93,47 @@ namespace MediaPortal.Common.UserProfileDataManagement
       if (!AdditionalData.ContainsKey(key))
         AdditionalData.Add(key, new Dictionary<int, string>());
       AdditionalData[key].Add(valueNo, value);
+    }
+
+    /// <summary>
+    /// Indicates if restrictions should be applied for this user.
+    /// </summary>
+    [XmlIgnore]
+    public bool EnableRestrictionGroups
+    {
+      get
+      {
+        IDictionary<int, string> values;
+        if (!AdditionalData.TryGetValue(UserDataKeysKnown.KEY_ENABLE_RESTRICTION_GROUPS, out values) || values.Count == 0)
+          return false;
+        return values[0] == "1";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_ENABLE_RESTRICTION_GROUPS, value ? "1" : "0");
+      }
+    }
+
+    /// <summary>
+    /// If <see cref="EnableRestrictionGroups"/> is <c>true</c>,  this property exposes all allowed group names.
+    /// </summary>
+    [XmlIgnore]
+    public ICollection<string> RestrictionGroups
+    {
+      get
+      {
+        IDictionary<int, string> values;
+        if (!AdditionalData.TryGetValue(UserDataKeysKnown.KEY_RESTRICTION_GROUPS, out values))
+          return EMPTY_COLLECTION;
+
+        return new HashSet<string>(values.Values, StringComparer.InvariantCultureIgnoreCase);
+      }
+      set
+      {
+        int idx = 0;
+        foreach (string group in value)
+          AddAdditionalData(UserDataKeysKnown.KEY_RESTRICTION_GROUPS, ++idx, group);
+      }
     }
 
     /// <summary>

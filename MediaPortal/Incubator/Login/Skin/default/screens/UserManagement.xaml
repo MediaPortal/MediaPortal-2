@@ -69,38 +69,47 @@
                 Command="{Command OpenChooseProfileTypeDialog}"/>
 
         <StackPanel Orientation="Horizontal"  Grid.Row="4" Grid.Column="1">
+          <CheckBox x:Name="CheckRestrictionGroups" HorizontalAlignment="Center"
+                    IsChecked="{Binding Path=UserProxy.EnableRestrictionGroups,Mode=TwoWay}"/>
+          <Label Margin="5" Content="[UserConfig.RestrictionGroups]" Color="{ThemeResource TextColor}"/>
+        </StackPanel>
+        <Button x:Name="EditRestrictionsButton" Grid.Row="4" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                Content="{Binding SelectedRestrictionGroupsInfo}" IsEnabled="{Binding ElementName=CheckRestrictionGroups, Path=IsChecked}"
+                Command="{Command OpenSelectRestrictionDialog}"/>
+
+        <StackPanel Orientation="Horizontal"  Grid.Row="5" Grid.Column="1">
           <CheckBox x:Name="CheckShareFilter" HorizontalAlignment="Center"
                     IsChecked="{Binding Path=UserProxy.RestrictShares,Mode=TwoWay}"/>
           <Label Margin="5" Content="[UserConfig.ShareRestrictions]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
-        <Button x:Name="EditSharesButton" Grid.Row="4" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+        <Button x:Name="EditSharesButton" Grid.Row="5" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
                 Content="{Binding SelectedSharesInfo}" IsEnabled="{Binding ElementName=CheckShareFilter, Path=IsChecked}"
                 Command="{Command OpenSelectSharesDialog}"/>
 
-        <StackPanel Orientation="Horizontal"  Grid.Row="5" Grid.Column="1">
+        <StackPanel Orientation="Horizontal"  Grid.Row="6" Grid.Column="1">
           <CheckBox x:Name="CheckAgeFilter" HorizontalAlignment="Center"
                     IsChecked="{Binding Path=UserProxy.RestrictAges,Mode=TwoWay}"/>
           <Label Margin="5" Content="[UserConfig.AgeFilter]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
-        <TextBox Grid.Row="5" Grid.Column="3" IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}" 
+        <TextBox Grid.Row="6" Grid.Column="3" IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}" 
                  TextAlign="Center" HorizontalContentAlignment="Center"
                  Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40"/>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1" Margin="35,0,0,0">
+        <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1" Margin="35,0,0,0">
           <CheckBox x:Name="CheckIncludeParentFilter" HorizontalAlignment="Center"
                     IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"
                     IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
           <Label Margin="5" Content="[UserConfig.IncludePGContent]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1" Margin="35,0,0,0">
+        <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" Margin="35,0,0,0">
           <CheckBox x:Name="CheckIncludeUnratedContentFilter" HorizontalAlignment="Center"
                   IsChecked="{Binding Path=UserProxy.IncludeUnratedContent,Mode=TwoWay}"
                   IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
           <Label Margin="5" Content="[UserConfig.IncludeUnratedContent]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
         
-        <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2">
+        <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2">
           <Label Margin="5" Content="[UserConfig.LastLogin]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
           <Label Margin="5" Content=": " Color="{ThemeResource TextColor}" Opacity="0.5"/>
           <Label Margin="5" Content="{Binding UserProxy.LastLogin}" Color="{ThemeResource TextColor}" Scroll="Auto" Opacity="0.5"/>

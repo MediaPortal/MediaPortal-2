@@ -106,13 +106,13 @@ namespace MediaPortal.Common.Configuration
     /// if there is a parent, and the Id of this setting registration as last location path element.</param>
     /// <param name="text">The text to be displayed for this setting registration.</param>
     /// <param name="sort">Sorting information.</param>
-    /// <param name="profileType">Optional profile type to restrict access</param>
-    public ConfigBaseMetadata(string location, string text, string sort, UserProfileType? profileType)
+    /// <param name="restrictionGroup">Optional group to restrict access</param>
+    public ConfigBaseMetadata(string location, string text, string sort, string restrictionGroup)
     {
       _location = location;
       _text = text;
       _sort = sort;
-      MinUserProfile = profileType;
+      RestrictionGroup = restrictionGroup;
     }
 
     #endregion
@@ -189,7 +189,7 @@ namespace MediaPortal.Common.Configuration
 
     #region IUserRestriction members
 
-    public UserProfileType? MinUserProfile { get; set; }
+    public string RestrictionGroup { get; set; }
 
     #endregion
   }

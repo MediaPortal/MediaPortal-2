@@ -22,8 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common.UserProfileDataManagement;
-
 namespace MediaPortal.Common.Configuration
 {
   /// <summary>
@@ -34,8 +32,8 @@ namespace MediaPortal.Common.Configuration
     protected string _iconSmallFilePath;
     protected string _iconLargeFilePath;
 
-    public ConfigSectionMetadata(string location, string text, string sort, string iconSmall, string iconLarge, UserProfileType? profileType)
-      : base(location, text, sort, profileType)
+    public ConfigSectionMetadata(string location, string text, string sort, string iconSmall, string iconLarge, string restrictionGroup)
+      : base(location, text, sort, restrictionGroup)
     {
       _iconSmallFilePath = iconSmall;
       _iconLargeFilePath = iconLarge;

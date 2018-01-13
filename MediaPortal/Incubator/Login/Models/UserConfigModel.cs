@@ -77,12 +77,14 @@ namespace MediaPortal.UiComponents.Login.Models
     protected ItemsList _localSharesList = null;
     protected ItemsList _userList = null;
     protected ItemsList _profileList = null;
+    protected ItemsList _restrictionGroupList = null;
     protected UserProxy _userProxy = null; // Encapsulates state and communication of user configuration
     protected AbstractProperty _isHomeServerConnectedProperty;
     protected AbstractProperty _showLocalSharesProperty;
     protected AbstractProperty _isLocalHomeServerProperty;
     protected AbstractProperty _anyShareAvailableProperty;
     protected AbstractProperty _selectShareInfoProperty;
+    protected AbstractProperty _selectedRestrictionGroupsInfoProperty;
     protected AbstractProperty _profileTypeNameProperty;
     protected AbstractProperty _isUserSelectedProperty;
     protected AbstractProperty _isSystemUserSelectedProperty;
@@ -111,6 +113,7 @@ namespace MediaPortal.UiComponents.Login.Models
       _isLocalHomeServerProperty = new WProperty(typeof(bool), false);
       _anyShareAvailableProperty = new WProperty(typeof(bool), false);
       _selectShareInfoProperty = new WProperty(typeof(string), string.Empty);
+      _selectedRestrictionGroupsInfoProperty = new WProperty(typeof(string), string.Empty);
       _profileTypeNameProperty = new WProperty(typeof(string), string.Empty);
       _isUserSelectedProperty = new WProperty(typeof(bool), false);
       _isSystemUserSelectedProperty = new WProperty(typeof(bool), false);
@@ -129,6 +132,8 @@ namespace MediaPortal.UiComponents.Login.Models
         _profileList.Add(item);
       }
 
+      _restrictionGroupList = new ItemsList();
+
       UserProxy = new UserProxy();
       UserProxy.ProfileTypeProperty.Attach(OnProfileTypeChanged);
       ProfileTypeName = _profileTypes.FirstOrDefault(i => i.Key == UserProxy.ProfileType).Value;
@@ -141,6 +146,7 @@ namespace MediaPortal.UiComponents.Login.Models
       _localSharesList = null;
       _userList = null;
       _profileList = null;
+      _restrictionGroupList = null;
     }
 
     #endregion
@@ -267,6 +273,15 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
+    public ItemsList RestrictionGroupList
+    {
+      get
+      {
+        lock(_syncObj)
+          return _restrictionGroupList;
+      }
+    }
+
     public AbstractProperty IsHomeServerConnectedProperty
     {
       get { return _isHomeServerConnectedProperty; }
@@ -320,6 +335,17 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (string)_selectShareInfoProperty.GetValue(); }
       set { _selectShareInfoProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SelectedRestrictionGroupsInfoProperty
+    {
+      get { return _selectedRestrictionGroupsInfoProperty; }
+    }
+
+    public string SelectedRestrictionGroupsInfo
+    {
+      get { return (string)_selectedRestrictionGroupsInfoProperty.GetValue(); }
+      set { _selectedRestrictionGroupsInfoProperty.SetValue(value); }
     }
 
     public AbstractProperty ProfileTypeNameProperty
@@ -474,6 +500,8 @@ namespace MediaPortal.UiComponents.Login.Models
         user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
         user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
         user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+        user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
+        user.RestrictionGroups = UserProxy.RestrictionGroups;
 
         ListItem item = new ListItem();
         item.SetLabel(Consts.KEY_NAME, user.Name);
@@ -574,6 +602,11 @@ namespace MediaPortal.UiComponents.Login.Models
             success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
             success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
             success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ENABLE_RESTRICTION_GROUPS, UserProxy.EnableRestrictionGroups ? "1" : "0");
+            success &= await userManagement.UserProfileDataManagement.ClearUserAdditionalDataKeyAsync(UserProxy.Id, UserDataKeysKnown.KEY_RESTRICTION_GROUPS);
+            int groupCount = 0;
+            foreach (var group in UserProxy.RestrictionGroups)
+              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_RESTRICTION_GROUPS, group, ++groupCount);
 
             if (!success)
             {
@@ -597,6 +630,8 @@ namespace MediaPortal.UiComponents.Login.Models
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
           user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
           user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+          user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
+          user.RestrictionGroups = UserProxy.RestrictionGroups;
 
           // Update current logged in user if the same
           if(userManagement.CurrentUser.ProfileId == user.ProfileId)
@@ -655,6 +690,7 @@ namespace MediaPortal.UiComponents.Login.Models
         IsSystemUserSelected = userProfile?.ProfileType == UserProfileType.ClientProfile;
 
         SetSelectedShares();
+        SetSelectedRestrictionGroups();
       }
       catch (Exception e)
       {
@@ -666,6 +702,12 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       if (UserProxy != null)
         SelectedSharesInfo = string.Format("{0}: {1}", LocalizationHelper.Translate(Consts.RES_SHARES_TEXT), UserProxy.SelectedShares.Count);
+    }
+
+    private void SetSelectedRestrictionGroups()
+    {
+      if (UserProxy != null)
+        SelectedRestrictionGroupsInfo = string.Format("{0}: {1}", LocalizationHelper.Translate(Consts.RES_RESTRICTION_GROUPS_TEXT), UserProxy.RestrictionGroups.Count);
     }
 
     protected internal async Task UpdateUserLists_NoLock(bool create)

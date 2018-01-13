@@ -48,6 +48,8 @@ namespace MediaPortal.UiComponents.Login.Models
     protected AbstractProperty _profileTypeProperty;
     protected AbstractProperty _restrictAgesProperty;
     protected AbstractProperty _restrictSharesProperty;
+    protected AbstractProperty _enableRestrictionGroupsProperty;
+    protected AbstractProperty _restrictionGroupsProperty;
     protected AbstractProperty _allowedAgeProperty;
     protected AbstractProperty _includeParentGuidedAgesProperty;
     protected AbstractProperty _includeUnratedProperty;
@@ -72,6 +74,8 @@ namespace MediaPortal.UiComponents.Login.Models
       _profileTypeProperty = new WProperty(typeof(UserProfileType), UserProfileType.UserProfile);
       _restrictAgesProperty = new WProperty(typeof(bool), false);
       _restrictSharesProperty = new WProperty(typeof(bool), false);
+      _enableRestrictionGroupsProperty = new WProperty(typeof(bool), false);
+      _restrictionGroupsProperty = new WProperty(typeof(ICollection<string>), new HashSet<string>());
       _allowedAgeProperty = new WProperty(typeof(int), 5);
       _passwordProperty = new WProperty(typeof(string), string.Empty);
       _includeParentGuidedAgesProperty = new WProperty(typeof(bool), false);
@@ -97,6 +101,8 @@ namespace MediaPortal.UiComponents.Login.Models
       ProfileType = userProfile.ProfileType;
       LastLogin = userProfile.LastLogin ?? DateTime.MinValue;
       Image = userProfile.Image;
+      EnableRestrictionGroups = userProfile.EnableRestrictionGroups;
+      RestrictionGroups = userProfile.RestrictionGroups;
 
       SelectedShares.Clear();
 
@@ -152,6 +158,8 @@ namespace MediaPortal.UiComponents.Login.Models
 
       RestrictAges = false;
       RestrictShares = false;
+      EnableRestrictionGroups = false;
+      RestrictionGroups.Clear();
       AllowedAge = 5;
       IncludeParentGuidedContent = false;
       IncludeUnratedContent = false;
@@ -247,6 +255,28 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (bool)_restrictSharesProperty.GetValue(); }
       set { _restrictSharesProperty.SetValue(value); }
+    }
+
+    public AbstractProperty EnableRestrictionGroupsProperty
+    {
+      get { return _enableRestrictionGroupsProperty; }
+    }
+
+    public bool EnableRestrictionGroups
+    {
+      get { return (bool)_enableRestrictionGroupsProperty.GetValue(); }
+      set { _enableRestrictionGroupsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty RestrictionGroupsProperty
+    {
+      get { return _restrictionGroupsProperty; }
+    }
+
+    public ICollection<string> RestrictionGroups
+    {
+      get { return (ICollection<string>)_restrictionGroupsProperty.GetValue(); }
+      set { _restrictionGroupsProperty.SetValue(value); }
     }
 
     public AbstractProperty AllowedAgeProperty

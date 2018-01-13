@@ -27,7 +27,6 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.UserProfileDataManagement;
 
-
 namespace MediaPortal.Common.Configuration
 {
   public abstract class ConfigBase: IUserRestriction
@@ -116,9 +115,9 @@ namespace MediaPortal.Common.Configuration
     {
       _metadata = metadata;
       _text = LocalizationHelper.CreateResourceString(_metadata.Text);
-      MinUserProfile = metadata.MinUserProfile;
+      RestrictionGroup = metadata.RestrictionGroup;
     }
 
-    public UserProfileType? MinUserProfile { get; set; }
+    public string RestrictionGroup { get; set; }
   }
 }
