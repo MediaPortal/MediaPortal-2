@@ -92,19 +92,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return identifiers;
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       if (!SeriesMetadataExtractor.IncludeCharacterDetails)
-        return Task.FromResult(false);
+        return false;
 
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
       int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.UpdateSeriesCharacters(seriesInfo, false);
+        await OnlineMatcherService.Instance.UpdateSeriesCharactersAsync(seriesInfo, false).ConfigureAwait(false);
         count = seriesInfo.Characters.Where(p => p.HasExternalId).Count();
         if (!seriesInfo.IsRefreshed)
           seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
@@ -115,13 +115,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       }
 
       if (seriesInfo.Characters.Count == 0)
-        return Task.FromResult(false);
+        return false;
 
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && seriesInfo.Characters.Count > 0))
         seriesInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!seriesInfo.HasChanged)
-        return Task.FromResult(false);
+        return false;
       
       foreach (CharacterInfo character in seriesInfo.Characters.Take(SeriesMetadataExtractor.MaximumCharacterCount))
       {
@@ -133,7 +133,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(characterAspects);
       }
-      return Task.FromResult(extractedLinkedAspects.Count > 0);
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

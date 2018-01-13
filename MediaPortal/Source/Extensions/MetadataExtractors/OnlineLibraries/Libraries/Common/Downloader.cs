@@ -155,19 +155,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns><c>true</c> if successful</returns>
     public bool DownloadFile(string url, string downloadFile)
     {
+      return DownloadFileAsync(url, downloadFile).Result;
+    }
+
+    /// <summary>
+    /// Donwload a file from given <paramref name="url"/> and save it to <paramref name="downloadFile"/>.
+    /// </summary>
+    /// <param name="url">Url to download</param>
+    /// <param name="downloadFile">Target file name</param>
+    /// <returns><c>true</c> if successful</returns>
+    public async Task<bool> DownloadFileAsync(string url, string downloadFile)
+    {
       if (string.IsNullOrEmpty(downloadFile))
         return false;
       if (File.Exists(downloadFile))
         return true;
 
-      using (_fileLock.WriterLock(downloadFile))
+      using (await _fileLock.WriterLockAsync(downloadFile).ConfigureAwait(false))
       {
         try
         {
           if (File.Exists(downloadFile))
             return true;
           using (WebClient webClient = new CompressionWebClient())
-            webClient.DownloadFile(url, downloadFile);
+            await webClient.DownloadFileTaskAsync(url, downloadFile).ConfigureAwait(false);
           return true;
         }
         catch (Exception ex)
@@ -306,6 +317,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
         return null;
 
       using (_fileLock.ReaderLock(downloadedFile))
+      {
+        try
+        {
+          if (!File.Exists(downloadedFile))
+            return null;
+          return File.ReadAllBytes(downloadedFile);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading file {0} ({1})", downloadedFile, ex.Message);
+          return null;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Returns contents of a file <paramref name="downloadFile"/> downloaded earlier.
+    /// </summary>
+    /// <param name="downloadedFile">Target file name</param>
+    /// <returns>File contents</returns>
+    public async Task<byte[]> ReadDownloadedFileAsync(string downloadedFile)
+    {
+      if (!File.Exists(downloadedFile))
+        return null;
+
+      using (await _fileLock.ReaderLockAsync(downloadedFile))
       {
         try
         {

@@ -86,19 +86,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_NETWORK);
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       if (!SeriesMetadataExtractor.IncludeTVNetworkDetails)
-        return Task.FromResult(false);
+        return false;
 
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
       int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK, false);
+        await OnlineMatcherService.Instance.UpdateSeriesCompaniesAsync(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK, false).ConfigureAwait(false);
         count = seriesInfo.Networks.Where(c => c.HasExternalId).Count();
         if (!seriesInfo.IsRefreshed)
           seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
@@ -109,13 +109,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       }
 
       if (seriesInfo.Networks.Count == 0)
-        return Task.FromResult(false);
+        return false;
 
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && seriesInfo.Networks.Count > 0))
         seriesInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!seriesInfo.HasChanged)
-        return Task.FromResult(false);
+        return false;
       
       foreach (CompanyInfo company in seriesInfo.Networks)
       {
@@ -127,7 +127,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(companyAspects);
       }
-      return Task.FromResult(extractedLinkedAspects.Count > 0);
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

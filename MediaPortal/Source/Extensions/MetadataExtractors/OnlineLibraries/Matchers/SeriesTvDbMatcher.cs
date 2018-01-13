@@ -22,21 +22,20 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
+using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using MediaPortal.Common;
-using MediaPortal.Common.Localization;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.PathManager;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
-using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -83,10 +82,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         TvDbWrapper wrapper = new TvDbWrapper();
         // Try to lookup online content in the configured language
         CultureInfo mpLocal = new CultureInfo(PreferredLanguageCulture);
-        if (wrapper.Init(CACHE_PATH, useHttps))
+        if (wrapper.InitAsync(CACHE_PATH, useHttps).Result)
         {
           _wrapper = wrapper;
-          wrapper.SetPreferredLanguage(mpLocal.TwoLetterISOLanguageName);
+          wrapper.SetPreferredLanguageAsync(mpLocal.TwoLetterISOLanguageName).Wait();
           return true;
         }
       }

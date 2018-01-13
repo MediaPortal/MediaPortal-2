@@ -57,25 +57,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult(movie.MovieDbId > 0 || !string.IsNullOrEmpty(movie.ImdbId));
     }
 
-    public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineSeriesAsync(SeriesInfo series, string language, bool cacheOnly)
     {
-      if (series.TvdbId > 0)
-        return true;
-      return false;
+      return Task.FromResult(series.TvdbId > 0);
     }
 
-    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, string language, bool cacheOnly)
     {
-      if (season.SeriesTvdbId > 0)
-        return true;
-      return false;
+      return Task.FromResult(season.SeriesTvdbId > 0);
     }
 
-    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineSeriesEpisodeAsync(EpisodeInfo episode, string language, bool cacheOnly)
     {
-      if (episode.SeriesTvdbId > 0)
-        return true;
-      return false;
+      return Task.FromResult(episode.SeriesTvdbId > 0);
     }
 
     public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)

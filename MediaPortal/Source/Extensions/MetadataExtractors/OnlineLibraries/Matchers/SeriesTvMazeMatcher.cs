@@ -22,13 +22,14 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -91,14 +92,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
+    public override Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
+    public override Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion

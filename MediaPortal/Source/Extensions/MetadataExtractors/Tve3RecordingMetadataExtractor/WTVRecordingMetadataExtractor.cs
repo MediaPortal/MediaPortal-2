@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return episodeInfo;
     }
 
-    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    protected override async Task<bool> ExtractMetadataAsync(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (!CanExtract(lfsra, extractedAspectData))
         return false;
@@ -118,7 +118,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (episodeInfo.IsBaseInfoPresent)
       {
         if (!forceQuickMode)
-          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, false);
+          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, false).ConfigureAwait(false);
         if (episodeInfo.IsBaseInfoPresent)
           episodeInfo.SetMetadata(extractedAspectData);
       }
@@ -217,17 +217,17 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
-          return Task.FromResult(false);
+          return false;
         if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
-          return Task.FromResult(false);
+          return false;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return Task.FromResult(ExtractMetadata(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode));
+          return await ExtractMetadataAsync(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode).ConfigureAwait(false);
 
       }
       catch (Exception e)
@@ -236,13 +236,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("WTVRecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return Task.FromResult(false);
+      return false;
     }
 
-    protected virtual bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    protected virtual Task<bool> ExtractMetadataAsync(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (!CanExtract(lfsra, extractedAspectData))
-        return false;
+        return Task.FromResult(false);
 
       using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
       {
@@ -300,7 +300,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (TryGet(tags, TAG_ENDTIME, out lValue))
           MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, FromMCEFileTime(lValue));
       }
-      return true;
+      return Task.FromResult(true);
     }
 
     protected static bool CanExtract(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)

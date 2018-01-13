@@ -86,21 +86,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_SERIES);
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       EpisodeInfo episodeInfo = new EpisodeInfo();
       if (!episodeInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
       SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        OnlineMatcherService.Instance.UpdateSeries(seriesInfo, false, false);
+        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false, false).ConfigureAwait(false);
 
       if (!BaseInfo.HasRelationship(aspects, LinkedRole))
         seriesInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!seriesInfo.HasChanged)
-        return Task.FromResult(false);
+        return false;
       
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seriesInfo.SetMetadata(seriesAspects);
@@ -113,10 +113,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       }
 
       if (!seriesAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        return Task.FromResult(false);
+        return false;
 
       extractedLinkedAspects.Add(seriesAspects);
-      return Task.FromResult(true);
+      return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

@@ -182,7 +182,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     #region Protected methods
 
-    protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    protected async Task<bool> ExtractSeriesDataAsync(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
@@ -253,13 +253,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         EpisodeInfo tempInfo = episodeInfo.Clone();
-        OnlineMatcherService.Instance.FindAndUpdateEpisode(tempInfo, false);
+        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(tempInfo, false).ConfigureAwait(false);
         episodeInfo.CopyIdsFrom(tempInfo);
         episodeInfo.HasChanged = tempInfo.HasChanged;
       }
       else if (!SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, false);
+        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, false).ConfigureAwait(false);
       }
 
       //Send it to the videos section
@@ -289,18 +289,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
-    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         if (forceQuickMode)
-          return Task.FromResult(false);
+          return false;
 
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
-          return Task.FromResult(false);
+          return false;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return Task.FromResult(ExtractSeriesData(rah.LocalFsResourceAccessor, extractedAspectData));
+          return await ExtractSeriesDataAsync(rah.LocalFsResourceAccessor, extractedAspectData).ConfigureAwait(false);
       }
       catch (Exception e)
       {
@@ -308,7 +308,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return Task.FromResult(false);
+      return false;
     }
 
     public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)

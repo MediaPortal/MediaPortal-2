@@ -102,28 +102,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return episodeIdentifiers;
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       if (SeriesMetadataExtractor.OnlyLocalMedia)
-        return Task.FromResult(false);
+        return false;
 
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        OnlineMatcherService.Instance.UpdateSeries(seriesInfo, true, false);
+        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, true, false).ConfigureAwait(false);
 
       if (seriesInfo.Episodes.Count == 0)
-        return Task.FromResult(false);
+        return false;
 
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < seriesInfo.Episodes.Count)
         seriesInfo.HasChanged = true; //Force save for new episodes
       else
-        return Task.FromResult(false);
+        return false;
 
       if (!seriesInfo.HasChanged)
-        return Task.FromResult(false);
+        return false;
       
       for (int i = 0; i < seriesInfo.Episodes.Count; i++)
       {
@@ -137,7 +137,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (episodeAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(episodeAspects);
       }
-      return Task.FromResult(extractedLinkedAspects.Count > 0);
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

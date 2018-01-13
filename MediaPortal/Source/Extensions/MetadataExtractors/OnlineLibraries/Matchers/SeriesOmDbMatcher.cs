@@ -22,13 +22,13 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -109,65 +109,65 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)
+    public override Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo, bool importOnly)
     {
       // Don't allow OMDB during first import cycle because it is english only
       // If it was allowed it would prevent the update of metadata with preffered language
       // during refresh cycle that also allows searches which might be needed to find metadata 
       // in the preferred language
       if (importOnly && !Primary)
-        return false;
+        return Task.FromResult(false);
 
-      return base.FindAndUpdateEpisode(episodeInfo, importOnly);
+      return base.FindAndUpdateEpisodeAsync(episodeInfo, importOnly);
     }
 
-    public override bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
+    public override Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
     {
       // Don't allow OMDB during first import cycle because it is english only
       // If it was allowed it would prevent the update of metadata with preffered language
       // during refresh cycle that also allows searches which might be needed to find metadata 
       // in the preferred language
       if (importOnly && !Primary)
-        return false;
+        return Task.FromResult(false);
 
-      return base.UpdateSeries(seriesInfo, updateEpisodeList, importOnly);
+      return base.UpdateSeriesAsync(seriesInfo, updateEpisodeList, importOnly);
     }
 
-    public override bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
+    public override Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo, bool importOnly)
     {
       // Don't allow OMDB during first import cycle because it is english only
       // If it was allowed it would prevent the update of metadata with preffered language
       // during refresh cycle that also allows searches which might be needed to find metadata 
       // in the preferred language
       if (importOnly && !Primary)
-        return false;
+        return Task.FromResult(false);
 
-      return base.UpdateSeason(seasonInfo, importOnly);
+      return base.UpdateSeasonAsync(seasonInfo, importOnly);
     }
 
-    public override bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
+    public override Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly)
+    public override Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
+    public override Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly)
+    public override Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly)
+    public override Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo, bool importOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion

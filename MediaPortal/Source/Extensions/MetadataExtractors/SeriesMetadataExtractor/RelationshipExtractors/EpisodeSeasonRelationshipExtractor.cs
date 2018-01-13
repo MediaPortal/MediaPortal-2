@@ -112,24 +112,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return seasonIdentifiers;
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       EpisodeInfo episodeInfo = new EpisodeInfo();
       if (!episodeInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
       SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        OnlineMatcherService.Instance.UpdateSeason(seasonInfo, false);
+        await OnlineMatcherService.Instance.UpdateSeasonAsync(seasonInfo, false).ConfigureAwait(false);
 
       if (seasonInfo.SeriesName.IsEmpty)
-        return Task.FromResult(false);
+        return false;
 
       if (!BaseInfo.HasRelationship(aspects, LinkedRole))
         seasonInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!seasonInfo.HasChanged)
-        return Task.FromResult(false);
+        return false;
       
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seasonInfo.SetMetadata(seasonAspects);
@@ -139,10 +139,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         MediaItemAspect.SetAttribute(seasonAspects, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
 
       if (!seasonAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        return Task.FromResult(false);
+        return false;
 
       extractedLinkedAspects.Add(seasonAspects);
-      return Task.FromResult(true);
+      return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

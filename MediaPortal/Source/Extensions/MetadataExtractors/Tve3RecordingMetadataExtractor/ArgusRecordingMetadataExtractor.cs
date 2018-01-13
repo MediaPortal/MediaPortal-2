@@ -78,15 +78,15 @@ namespace MediaPortal.Extensions.MetadataExtractors
         });
     }
 
-    public override Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public override async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
-          return Task.FromResult(false);
+          return false;
         if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-          return Task.FromResult(false);
+          return false;
 
         // Handle series information
         Argus.Recording recording;
@@ -100,11 +100,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (episodeInfo.IsBaseInfoPresent)
         {
           if(!forceQuickMode)
-            OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, false);
+            await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, false).ConfigureAwait(false);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
-        return Task.FromResult(episodeInfo.IsBaseInfoPresent);
+        return episodeInfo.IsBaseInfoPresent;
       }
       catch (Exception e)
       {
@@ -112,7 +112,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("ArgusRecordingSeriesMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return Task.FromResult(false);
+      return false;
     }
   }
 

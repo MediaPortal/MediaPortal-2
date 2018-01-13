@@ -22,17 +22,18 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data;
+using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.FanArt;
-using MediaPortal.Utilities;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -55,20 +56,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override bool SearchSeriesEpisode(EpisodeInfo episodeSearch, string language, out List<EpisodeInfo> episodes)
+    public override async Task<List<EpisodeInfo>> SearchSeriesEpisodeAsync(EpisodeInfo episodeSearch, string language)
     {
-      episodes = null;
       SeriesInfo seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
       if (episodeSearch.SeriesTvMazeId <= 0)
       {
-        if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
-          return false;
+        if (!await SearchSeriesUniqueAndUpdateAsync(seriesSearch, language).ConfigureAwait(false))
+          return null;
         episodeSearch.CopyIdsFrom(seriesSearch);
       }
 
+      List<EpisodeInfo> episodes = null;
       if (episodeSearch.SeriesTvMazeId > 0 && episodeSearch.SeasonNumber.HasValue)
       {
-        TvMazeSeries seriesDetail = _tvMazeHandler.GetSeries(episodeSearch.SeriesTvMazeId, false);
+        TvMazeSeries seriesDetail = await _tvMazeHandler.GetSeriesAsync(episodeSearch.SeriesTvMazeId, false).ConfigureAwait(false);
         List<TvMazeEpisode> seasonEpisodes = null;
         if(seriesDetail.Embedded != null && seriesDetail.Embedded.Episodes != null)
           seasonEpisodes = seriesDetail.Embedded.Episodes.Where(s => s.SeasonNumber == episodeSearch.SeasonNumber.Value).ToList();
@@ -106,22 +107,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         info.CopyIdsFrom(seriesSearch);
         CollectionUtils.AddAll(info.EpisodeNumbers, episodeSearch.EpisodeNumbers);
         episodes.Add(info);
-        return true;
       }
 
-      return episodes != null;
+      return episodes;
     }
 
-    public override bool SearchSeries(SeriesInfo seriesSearch, string language, out List<SeriesInfo> series)
+    public override async Task<List<SeriesInfo>> SearchSeriesAsync(SeriesInfo seriesSearch, string language)
     {
-      series = null;
-      List<TvMazeSeries> foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.SeriesName.Text);
+      List<TvMazeSeries> foundSeries = await _tvMazeHandler.SearchSeriesAsync(seriesSearch.SeriesName.Text).ConfigureAwait(false);
       if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.OriginalName))
-        foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.OriginalName);
+        foundSeries = await _tvMazeHandler.SearchSeriesAsync(seriesSearch.OriginalName).ConfigureAwait(false);
       if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
-        foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.AlternateName);
-      if (foundSeries == null) return false;
-      series = foundSeries.Select(s => new SeriesInfo()
+        foundSeries = await _tvMazeHandler.SearchSeriesAsync(seriesSearch.AlternateName).ConfigureAwait(false);
+      if (foundSeries == null) return null;
+      return foundSeries.Select(s => new SeriesInfo()
       {
         TvMazeId = s.Id,
         ImdbId = s.Externals.ImDbId,
@@ -130,13 +129,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         SeriesName = new SimpleTitle(s.Name, true),
         FirstAired = s.Premiered,
       }).ToList();
-      return series.Count > 0;
     }
 
     public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
     {
       persons = null;
-      List<TvMazePerson> foundPersons = _tvMazeHandler.SearchPerson(personSearch.Name);
+      List<TvMazePerson> foundPersons = _tvMazeHandler.SearchPersonAsync(personSearch.Name).Result;
       if (foundPersons == null) return false;
       persons = foundPersons.Select(p => new PersonInfo()
       {
@@ -150,17 +148,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineSeriesAsync(SeriesInfo series, string language, bool cacheOnly)
     {
       try
       {
         TvMazeSeries seriesDetail = null;
         if (series.TvMazeId > 0)
-          seriesDetail = _tvMazeHandler.GetSeries(series.TvMazeId, cacheOnly);
+          seriesDetail = await _tvMazeHandler.GetSeriesAsync(series.TvMazeId, cacheOnly).ConfigureAwait(false);
         if (seriesDetail == null && !string.IsNullOrEmpty(series.ImdbId))
-          seriesDetail = _tvMazeHandler.GetSeriesByImDb(series.ImdbId, cacheOnly);
+          seriesDetail = await _tvMazeHandler.GetSeriesByImDbAsync(series.ImdbId, cacheOnly).ConfigureAwait(false);
         if (seriesDetail == null && series.TvdbId > 0)
-          seriesDetail = _tvMazeHandler.GetSeriesByTvDb(series.TvdbId, cacheOnly);
+          seriesDetail = await _tvMazeHandler.GetSeriesByTvDbAsync(series.TvdbId, cacheOnly).ConfigureAwait(false);
         if (seriesDetail == null) return false;
 
         series.TvMazeId = seriesDetail.Id;
@@ -251,18 +249,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, string language, bool cacheOnly)
     {
       try
       {
         TvMazeSeries seriesDetail = null;
         TvMazeSeason seasonDetail = null;
         if (season.SeriesTvMazeId > 0)
-          seriesDetail = _tvMazeHandler.GetSeries(season.SeriesTvMazeId, cacheOnly);
+          seriesDetail = await _tvMazeHandler.GetSeriesAsync(season.SeriesTvMazeId, cacheOnly).ConfigureAwait(false);
         if (seriesDetail == null) return false;
         if (season.SeriesTvMazeId > 0 && season.SeasonNumber.HasValue)
         {
-          List<TvMazeSeason> seasons = _tvMazeHandler.GetSeriesSeasons(season.SeriesTvMazeId, cacheOnly);
+          List<TvMazeSeason> seasons = await _tvMazeHandler.GetSeriesSeasonsAsync(season.SeriesTvMazeId, cacheOnly).ConfigureAwait(false);
           if (seasons != null)
             seasonDetail = seasons.Where(s => s.SeasonNumber == season.SeasonNumber).FirstOrDefault();
         }
@@ -289,7 +287,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineSeriesEpisodeAsync(EpisodeInfo episode, string language, bool cacheOnly)
     {
       try
       {
@@ -299,16 +297,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
         {
-          seriesDetail = _tvMazeHandler.GetSeries(episode.SeriesTvMazeId, cacheOnly);
+          seriesDetail = await _tvMazeHandler.GetSeriesAsync(episode.SeriesTvMazeId, cacheOnly).ConfigureAwait(false);
           if (seriesDetail == null && !string.IsNullOrEmpty(episode.SeriesImdbId))
-            seriesDetail = _tvMazeHandler.GetSeriesByImDb(episode.SeriesImdbId, cacheOnly);
+            seriesDetail = await _tvMazeHandler.GetSeriesByImDbAsync(episode.SeriesImdbId, cacheOnly).ConfigureAwait(false);
           if (seriesDetail == null && episode.SeriesTvdbId > 0)
-            seriesDetail = _tvMazeHandler.GetSeriesByTvDb(episode.SeriesTvdbId, cacheOnly);
+            seriesDetail = await _tvMazeHandler.GetSeriesByTvDbAsync(episode.SeriesTvdbId, cacheOnly).ConfigureAwait(false);
           if (seriesDetail == null) return false;
 
           foreach (int episodeNumber in episode.EpisodeNumbers)
           {
-            episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episodeNumber, cacheOnly);
+            episodeDetail = await _tvMazeHandler.GetSeriesEpisodeAsync(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episodeNumber, cacheOnly).ConfigureAwait(false);
             if (episodeDetail == null) continue;
             if (episodeDetail.EpisodeNumber <= 0) continue;
 
@@ -359,13 +357,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineSeriesPersonAsync(SeriesInfo seriesInfo, PersonInfo person, string language, bool cacheOnly)
     {
       try
       {
         TvMazePerson personDetail = null;
         if (person.TvMazeId > 0)
-          personDetail = _tvMazeHandler.GetPerson(person.TvMazeId, cacheOnly);
+          personDetail = await _tvMazeHandler.GetPersonAsync(person.TvMazeId, cacheOnly).ConfigureAwait(false);
         if (personDetail == null) return false;
 
         person.TvMazeId = personDetail.Id;
@@ -380,18 +378,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineSeriesEpisodePersonAsync(EpisodeInfo episodeInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineSeriesPerson(episodeInfo.CloneBasicInstance<SeriesInfo>(), person, language, cacheOnly);
+      return UpdateFromOnlineSeriesPersonAsync(episodeInfo.CloneBasicInstance<SeriesInfo>(), person, language, cacheOnly);
     }
 
-    public override bool UpdateFromOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineSeriesCharacterAsync(SeriesInfo seriesInfo, CharacterInfo character, string language, bool cacheOnly)
     {
       try
       {
         TvMazeSeries seriesDetail = null;
         if (seriesInfo.TvMazeId > 0)
-          seriesDetail = _tvMazeHandler.GetSeries(seriesInfo.TvMazeId, cacheOnly);
+          seriesDetail = await _tvMazeHandler.GetSeriesAsync(seriesInfo.TvMazeId, cacheOnly).ConfigureAwait(false);
         if (seriesDetail == null) return false;
         if (seriesDetail.Embedded != null)
         {
@@ -421,9 +419,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineSeriesEpisodeCharacterAsync(EpisodeInfo episodeInfo, CharacterInfo character, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineSeriesCharacter(episodeInfo.CloneBasicInstance<SeriesInfo>(), character, language, cacheOnly);
+      return UpdateFromOnlineSeriesCharacterAsync(episodeInfo.CloneBasicInstance<SeriesInfo>(), character, language, cacheOnly);
     }
 
     #endregion
@@ -502,7 +500,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (series != null && series.TvMazeId > 0)
           {
             // Download all image information, filter later!
-            TvMazeSeries seriesDetail = _tvMazeHandler.GetSeries(series.TvMazeId, false);
+            TvMazeSeries seriesDetail = _tvMazeHandler.GetSeriesAsync(series.TvMazeId, false).Result;
             if (seriesDetail != null)
             {
               images.Id = series.TvMazeId.ToString();
@@ -517,7 +515,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (episode != null && episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
           {
             // Download all image information, filter later!
-            TvMazeEpisode episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, false);
+            TvMazeEpisode episodeDetail = _tvMazeHandler.GetSeriesEpisodeAsync(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, false).Result;
             if (episodeDetail != null)
             {
               images.Id = episode.SeriesTvMazeId.ToString();
@@ -532,7 +530,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (person != null && person.TvMazeId > 0)
           {
             // Download all image information, filter later!
-            TvMazePerson personDetail = _tvMazeHandler.GetPerson(person.TvMazeId, false);
+            TvMazePerson personDetail = _tvMazeHandler.GetPersonAsync(person.TvMazeId, false).Result;
             if (personDetail != null)
             {
               images.Id = person.TvMazeId.ToString();
@@ -547,7 +545,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (character != null && character.TvMazeId > 0)
           {
             // Download all image information, filter later!
-            TvMazePerson personDetail = _tvMazeHandler.GetCharacter(character.TvMazeId, false);
+            TvMazePerson personDetail = _tvMazeHandler.GetCharacterAsync(character.TvMazeId, false).Result;
             if (personDetail != null)
             {
               images.Id = character.TvMazeId.ToString();
@@ -573,7 +571,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int ID;
       if (int.TryParse(id, out ID))
       {
-        return _tvMazeHandler.DownloadImage(ID, image, folderPath);
+        return _tvMazeHandler.DownloadImageAsync(ID, image, folderPath).Result;
       }
       return false;
     }
@@ -595,14 +593,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         DateTime startTime = DateTime.Now;
         List<int> changedItems = new List<int>();
-        Dictionary<int, DateTime> seriesChangeDates = _tvMazeHandler.GetSeriesChangeDates();
+        Dictionary<int, DateTime> seriesChangeDates = _tvMazeHandler.GetSeriesChangeDatesAsync().Result;
         foreach (var change in seriesChangeDates)
         {
           if(change.Value > lastRefresh)
             changedItems.Add(change.Key);
         }
         foreach (int seriesId in changedItems)
-          _tvMazeHandler.DeleteSeriesCache(seriesId);
+          _tvMazeHandler.DeleteSeriesCacheAsync(seriesId).Wait();
         FireCacheUpdateFinished(startTime, DateTime.Now, UpdateType.Person, changedItems.Select(i => i.ToString()).ToList());
 
         return true;

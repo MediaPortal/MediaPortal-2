@@ -514,52 +514,52 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)
+    public async Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo, bool importOnly)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.FindAndUpdateEpisode(episodeInfo, matcher.Primary ? false : importOnly);
+        success |= await matcher.FindAndUpdateEpisodeAsync(episodeInfo, matcher.Primary ? false : importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation, bool importOnly)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateEpisodePersons(episodeInfo, occupation, importOnly);
+        success |= await matcher.UpdateEpisodePersonsAsync(episodeInfo, occupation, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly)
+    public async Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo, bool importOnly)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateEpisodeCharacters(episodeInfo, importOnly);
+        success |= await matcher.UpdateEpisodeCharactersAsync(episodeInfo, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
+    public async Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo, bool importOnly)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeason(seasonInfo, importOnly);
+        success |= await matcher.UpdateSeasonAsync(seasonInfo, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
+    public async Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeries(seriesInfo, updateEpisodeList, matcher.Primary ? false : importOnly);
+        success |= await matcher.UpdateSeriesAsync(seriesInfo, updateEpisodeList, matcher.Primary ? false : importOnly).ConfigureAwait(false);
       }
 
       if (updateEpisodeList)
@@ -580,32 +580,32 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation, bool importOnly)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeriesPersons(seriesInfo, occupation, importOnly);
+        success |= await matcher.UpdateSeriesPersonsAsync(seriesInfo, occupation, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly)
+    public async Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo, bool importOnly)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeriesCharacters(seriesInfo, importOnly);
+        success |= await matcher.UpdateSeriesCharactersAsync(seriesInfo, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
+    public async Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType, bool importOnly)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeriesCompanies(seriesInfo, companyType, importOnly);
+        success |= await matcher.UpdateSeriesCompaniesAsync(seriesInfo, companyType, importOnly).ConfigureAwait(false);
       }
       return success;
     }

@@ -184,7 +184,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<IMediaAccessor>(new TestMediaAccessor());
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MockMediaItemAspectTypeRegistration());
 
-      ApplicationCore.RegisterDefaultMediaItemAspectTypes();
+      ApplicationCore.RegisterDefaultMediaItemAspectTypes().Wait();
 
       ServiceRegistration.Set<SeriesTvDbMatcher>(new SeriesTvDbMatcher());
 
@@ -223,7 +223,7 @@ namespace Test.OnlineLibraries
         {
           TvdbId = Int32.Parse(value)
         };
-        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, false, false);
+        SeriesTvDbMatcher.Instance.UpdateSeriesAsync(seriesInfo, false, false).Wait();
         Console.WriteLine("{0}: {1}", seriesInfo.SeriesName, seriesInfo.Description);
       }
 
