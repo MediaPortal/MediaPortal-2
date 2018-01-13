@@ -23,9 +23,11 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Configuration
 {
@@ -97,7 +99,13 @@ namespace MediaPortal.UiComponents.Configuration
 
     public abstract void ExecuteConfiguration();
 
-    public abstract bool IsSettingSupported(ConfigSetting setting);
+    public virtual bool IsSettingSupported(ConfigSetting setting)
+    {
+      if (setting == null)
+        return false;
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      return userManagement.CheckUserAccess(setting);
+    }
 
     public abstract Type ConfigSettingType { get; }
 

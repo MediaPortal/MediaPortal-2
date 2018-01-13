@@ -72,6 +72,7 @@
   <Register Location="/Configuration/Settings/Shares">
     <CustomConfigSetting
         Id="NetworkCredentials"
+        MinUserProfile="AdminProfile"
         Text="[Settings.ServerSettings.NetworkCredentials]"
         HelpText="[Settings.ServerSettings.NetworkCredentials.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerNetworkCredentials"
@@ -290,6 +291,7 @@
   <Register Location="/Configuration/Settings/Shares/ExtendedConfigureShares">
     <CustomConfigSetting
         Id="ImporterWorker"
+        MinUserProfile="AdminProfile"
         Text="[Settings.ServerSettings.ImporterWorker]"
         HelpText="[Settings.ServerSettings.ImporterWorker.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerImporterWorker"
