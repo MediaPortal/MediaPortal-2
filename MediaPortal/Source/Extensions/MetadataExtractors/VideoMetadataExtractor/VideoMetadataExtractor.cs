@@ -267,7 +267,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         foreach (Regex regex in REGEXP_CLEANUPS)
           title = regex.Replace(title, "");
-        while(title.Contains(".."))
+        while (title.Contains(".."))
           title = title.Replace("..", "."); //Remove leftover periods
         return BaseInfo.CleanupWhiteSpaces(title);
       }
@@ -1329,23 +1329,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
                 return Task.FromResult(false);
 
-                result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
-                if (result != null)
-                {
-                  using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-                  {
-                    ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
-                    if (lfsra != null)
-                    {
-                      result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, true);
-
-                      if (!forceQuickMode)
-                        FindExternalSubtitles(lfsra, extractedAspectData);
-                    }
-                  }
-                }
-              }
+              result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
             }
+
             using (Stream stream = fsra.OpenRead())
               result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
 
