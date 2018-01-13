@@ -903,7 +903,10 @@
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
              FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="0" Margin="5,0,5,0"
              ScrollDelay="0" Scroll="None"/>
-      <Rectangle x:Name="ItemFrame" Grid.RowSpan="2" Fill="Transparent" Stroke="White" StrokeThickness="5" Opacity="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Image x:Name="ItemFrame" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
+             Stretch="Fill" Source="TileFrameOverlay.png">
+      </Image>
+      <!--Rectangle x:Name="ItemFrame" Grid.RowSpan="2" Fill="Transparent" Stroke="White" StrokeThickness="5" Opacity="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/-->
     </Grid>
   </DataTemplate>
 
