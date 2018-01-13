@@ -27,6 +27,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -58,6 +59,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Consts
 
     public const String BLOCK_NAME = "RelationshipExtractorBlock";
+    //Dummy value for the ConcurrentDictionary used in this class as a kind of ConcurrentHashSet
+    private const byte DUMMY_DICTIONARY_VALUE = 0;
 
     protected static readonly IEnumerable<Guid> RECONCILE_MIA_ID_ENUMERATION = new[]
       {
@@ -72,6 +75,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     protected SemaphoreSlim _cacheSync;
     protected RelationshipCache _relationshipCache;
     protected CancellationToken _ct;
+    //Used as a ConcurrentHashSet to avoid processing items with the same media item id
+    protected ConcurrentDictionary<Guid, byte> _processedMediaItemIds;
 
     #endregion
 
@@ -100,6 +105,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       _relationshipCache = new RelationshipCache();
       _ct = ct;
       _cacheSync = new SemaphoreSlim(1, 1);
+      _processedMediaItemIds = new ConcurrentDictionary<Guid, byte>();
     }
 
     #endregion
@@ -123,11 +129,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           //Try to cache the resource as a matching item might get extracted later, e.g. the SeriesEpisodeExtractor
           //might extract a matching episode and we should avoid processing the item again.
-          //If CacheImportResource returns false then an item with the same media item id has already been cached/processed
-          //so we can just ignore it, this can happen if an external subtitle is merged into an existing media item and therefore
-          //has the same media item id as the existing item.
-          if (await CacheImportResource(importResource))
-            await ExtractRelationships(importResource.MediaItemId.Value, importResource.Aspects);
+          await CacheImportResource(importResource);
+          await ExtractRelationships(importResource.MediaItemId.Value, importResource.Aspects);
         }
 
         importResource.IsValid = false;
@@ -155,7 +158,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       //It's possible for the media item id to be empty, particularly in the case of subtitles where no mergable media item
       //was found in the database. Don't process the item if that is the case
-      if (!importResource.MediaItemId.HasValue || importResource.MediaItemId.Value == Guid.Empty)
+      if (!importResource.MediaItemId.HasValue || importResource.MediaItemId.Value == Guid.Empty ||
+        !_processedMediaItemIds.TryAdd(importResource.MediaItemId.Value, DUMMY_DICTIONARY_VALUE))
         return false;
 
       //Aspects will be null if this import resource was restored from disk, try and load the aspects from the DB
