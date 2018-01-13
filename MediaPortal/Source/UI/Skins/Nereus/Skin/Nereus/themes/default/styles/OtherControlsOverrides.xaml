@@ -843,7 +843,7 @@
         <RowDefinition Height="135"/>
         <RowDefinition Height="35"/>
       </Grid.RowDefinitions>
-      <Rectangle x:Name="ItemBackground" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#307d9a" Opacity="1">
+      <Rectangle x:Name="ItemBackground" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="Gray" Opacity="1">
         <Rectangle.Triggers>
           <!-- NEWS -->
           <DataTrigger Value="bb49a591-7705-408f-8177-45d633fdfad0">
@@ -878,7 +878,21 @@
             <DataTrigger.Binding>
               <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
             </DataTrigger.Binding>
-            <Setter TargetName="ItemBackground" Property="Fill" Value="Grey"/>
+            <Setter TargetName="ItemBackground" Property="Fill" Value="DarkCyan"/>
+          </DataTrigger>
+          <!-- IMAGES -->
+          <DataTrigger Value="55556593-9fe9-436c-a3b6-a971e10c9d44">
+            <DataTrigger.Binding>
+              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            </DataTrigger.Binding>
+            <Setter TargetName="ItemBackground" Property="Fill" Value="Navy"/>
+          </DataTrigger>
+          <!-- WEATHER -->
+          <DataTrigger Value="e34fdb62-1f3e-4aa9-8a61-d143e0af77b5">
+            <DataTrigger.Binding>
+              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            </DataTrigger.Binding>
+            <Setter TargetName="ItemBackground" Property="Fill" Value="DeepSkyBlue"/>
           </DataTrigger>
         </Rectangle.Triggers>
       </Rectangle>

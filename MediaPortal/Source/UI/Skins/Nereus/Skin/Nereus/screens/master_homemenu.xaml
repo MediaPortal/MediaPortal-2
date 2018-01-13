@@ -45,7 +45,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
-      <Grid x:Name="MainLayoutPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-110,0,-3">
+      <Grid x:Name="MainLayoutPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-110,0,-5">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="200"/>
           <ColumnDefinition Width="*"/>
@@ -85,6 +85,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="100"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
+          
+          
+          
           <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
             <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center" 
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
@@ -92,11 +95,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <Ellipse x:Name="ItemBackground" Fill="#FF02c6d8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
                          IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
                 <Image x:Name="ItemImage" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                       DockPanel.Dock="Center" Source="PowerMenu\Suspend.png" Margin="15" Opacity="0.6"/>
+                       DockPanel.Dock="Center" Source="power.png" Margin="15" Opacity="0.7"/>
               </DockPanel>
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemImage" Property="Opacity" Value="1" />
+                  <Setter TargetName="ItemImage" Property="Opacity" Value="1.1" />
                 </Trigger>
               </Button.Triggers>
             </Button>
@@ -104,10 +107,30 @@ Parameters which have to be accessible by a DynamicResource lookup:
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Ellipse x:Name="ItemBackground2" Fill="#FF02c6d8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
-                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+                         IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
                 <Image x:Name="ItemImage2" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                       DockPanel.Dock="Center" Source="Person.png" Margin="-5" Opacity="0.6"/>
+                       DockPanel.Dock="Center" Source="user.png" Margin="15" Opacity="0.7"/>
               </DockPanel>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemImage2" Property="Opacity" Value="1.1" />
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+
+            <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=E7422BB8-2779-49ab-BC99-E3F56138061B}">
+              <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Ellipse x:Name="ItemBackground3" Fill="#FF02c6d8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
+                         IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+                <Image x:Name="ItemImage3" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                       DockPanel.Dock="Center" Source="Settings.png" Margin="15" Opacity="0.7"/>
+              </DockPanel>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemImage3" Property="Opacity" Value="1.1" />
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </StackPanel>
           <!--Grid x:Name="ContentMediaItemView" Grid.Row="1">
@@ -184,7 +207,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Grid.RenderTransform>
-                <TranslateTransform X="1200"/>
+                <TranslateTransform X="1700"/>
               </Grid.RenderTransform>
               <Grid.Triggers>
                 <!-- Trigger for the HomeContent Storyboard -->
@@ -214,7 +237,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Grid.RenderTransform>
-                <TranslateTransform X="1200"/>
+                <TranslateTransform X="1700"/>
               </Grid.RenderTransform>
               <Grid.Triggers>
                 <!-- Trigger for the HomeContent Storyboard -->
