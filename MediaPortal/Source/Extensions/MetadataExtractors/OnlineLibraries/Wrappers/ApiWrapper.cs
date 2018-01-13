@@ -946,9 +946,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackAlbumPersonAsync(AlbumInfo albumInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     public virtual bool IsCacheChangedForOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, TLang language)
@@ -956,9 +956,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackPersonAsync(TrackInfo trackInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     public virtual bool IsCacheChangedForOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, TLang language)
@@ -1227,9 +1227,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackAlbumCompanyAsync(AlbumInfo albumInfo, CompanyInfo company, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     public virtual bool IsCacheChangedForOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, TLang language)
@@ -1241,22 +1241,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Music
 
-    public virtual bool SearchTrack(TrackInfo trackSearch, TLang language, out List<TrackInfo> tracks)
+    public virtual Task<List<TrackInfo>> SearchTrackAsync(TrackInfo trackSearch, TLang language)
     {
-      tracks = null;
-      return false;
+      return Task.FromResult<List<TrackInfo>>(null);
     }
 
-    public bool SearchTrackUniqueAndUpdate(TrackInfo trackSearch, TLang language)
+    public async Task<bool> SearchTrackUniqueAndUpdateAsync(TrackInfo trackSearch, TLang language)
     {
       //Don't try to search for a track without artists
       if (trackSearch.AlbumArtists.Count == 0 && trackSearch.Artists.Count == 0)
         return false;
 
-      List<TrackInfo> tracks;
       language = language != null ? language : PreferredLanguage;
 
-      if (!SearchTrack(trackSearch, language, out tracks))
+      List<TrackInfo> tracks = await SearchTrackAsync(trackSearch, language).ConfigureAwait(false);
+      if (tracks == null || tracks.Count == 0)
         return false;
       if (TestTrackMatch(trackSearch, ref tracks))
       {
@@ -1266,7 +1265,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (tracks.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchTrack(trackSearch, _defaultLanguage, out tracks))
+        tracks = await SearchTrackAsync(trackSearch, _defaultLanguage).ConfigureAwait(false);
+        if (tracks == null || tracks.Count == 0)
           return false;
         if (TestTrackMatch(trackSearch, ref tracks))
         {
@@ -1426,22 +1426,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool SearchTrackAlbum(AlbumInfo albumSearch, TLang language, out List<AlbumInfo> albums)
+    public virtual Task<List<AlbumInfo>> SearchTrackAlbumAsync(AlbumInfo albumSearch, TLang language)
     {
-      albums = null;
-      return false;
+      return Task.FromResult<List<AlbumInfo>>(null);
     }
 
-    public bool SearchTrackAlbumUniqueAndUpdate(AlbumInfo albumSearch, TLang language)
+    public async Task<bool> SearchTrackAlbumUniqueAndUpdateAsync(AlbumInfo albumSearch, TLang language)
     {
       //Don't try to search for an album without artists
       if (albumSearch.Artists.Count == 0)
         return false;
 
-      List<AlbumInfo> albums;
       language = language != null ? language : PreferredLanguage;
 
-      if (!SearchTrackAlbum(albumSearch, language, out albums))
+      List<AlbumInfo> albums = await SearchTrackAlbumAsync(albumSearch, language).ConfigureAwait(false);
+      if (albums == null || albums.Count == 0)
         return false;
       if (TestAlbumMatch(albumSearch, ref albums))
       {
@@ -1451,7 +1450,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (albums.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchTrackAlbum(albumSearch, _defaultLanguage, out albums))
+        albums = await SearchTrackAlbumAsync(albumSearch, _defaultLanguage).ConfigureAwait(false);
+        if (albums == null || albums.Count == 0)
           return false;
         if (TestAlbumMatch(albumSearch, ref albums))
         {
@@ -1607,24 +1607,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMusicTrack(TrackInfo track, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackAsync(TrackInfo track, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMusicTrack(TrackInfo track, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMusicTrackAsync(TrackInfo track, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMusicTrackAlbum(AlbumInfo album, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMusicTrackAlbumAsync(AlbumInfo album, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     private bool CompareArtists(List<PersonInfo> trackArtists, List<PersonInfo> searchArtists, bool strict)

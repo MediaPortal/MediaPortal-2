@@ -86,19 +86,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_COMPANY);
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       if (!AudioMetadataExtractor.IncludeMusicLabelDetails)
-        return Task.FromResult(false);
+        return false;
 
       AlbumInfo albumInfo = new AlbumInfo();
       if (!albumInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
       int count = 0;
       if (!AudioMetadataExtractor.SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, false);
+        await OnlineMatcherService.Instance.UpdateAlbumCompaniesAsync(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, false).ConfigureAwait(false);
         count = albumInfo.MusicLabels.Where(c => c.HasExternalId).Count();
         if (!albumInfo.IsRefreshed)
           albumInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
@@ -109,13 +109,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
 
       if (albumInfo.MusicLabels.Count == 0)
-        return Task.FromResult(false);
+        return false;
 
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && albumInfo.MusicLabels.Count > 0))
         albumInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!albumInfo.HasChanged)
-        return Task.FromResult(false);
+        return false;
       
       foreach (CompanyInfo company in albumInfo.MusicLabels)
       {
@@ -125,7 +125,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(companyAspects);
       }
-      return Task.FromResult(extractedLinkedAspects.Count > 0);
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

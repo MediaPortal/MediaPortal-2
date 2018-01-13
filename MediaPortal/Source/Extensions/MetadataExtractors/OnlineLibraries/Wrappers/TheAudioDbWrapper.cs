@@ -22,16 +22,17 @@
 
 #endregion
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common;
-using MediaPortal.Common.FanArt;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -53,15 +54,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override bool SearchTrack(TrackInfo trackSearch, string language, out List<TrackInfo> tracks)
+    public override async Task<List<TrackInfo>> SearchTrackAsync(TrackInfo trackSearch, string language)
     {
-      tracks = null;
       language = language ?? PreferredLanguage;
 
       List<AudioDbTrack> foundTracks = null;
       foreach (PersonInfo person in trackSearch.AlbumArtists)
       {
-        foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName, language);
+        foundTracks = await _audioDbHandler.SearchTrackAsync(person.Name, trackSearch.TrackName, language).ConfigureAwait(false);
         if (foundTracks != null)
           break;
       }
@@ -69,13 +69,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         foreach (PersonInfo person in trackSearch.Artists)
         {
-          foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName, language);
+          foundTracks = await _audioDbHandler.SearchTrackAsync(person.Name, trackSearch.TrackName, language).ConfigureAwait(false);
           if (foundTracks != null)
             break;
         }
       }
-      if (foundTracks == null) return false;
+      if (foundTracks == null) return null;
 
+      List<TrackInfo> tracks = null;
       foreach (AudioDbTrack track in foundTracks)
       {
         if (tracks == null)
@@ -96,25 +97,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         tracks.Add(info);
       }
 
-      return tracks != null;
+      return tracks;
     }
 
-    public override bool SearchTrackAlbum(AlbumInfo albumSearch, string language, out List<AlbumInfo> albums)
+    public override async Task<List<AlbumInfo>> SearchTrackAlbumAsync(AlbumInfo albumSearch, string language)
     {
-      albums = null;
       language = language ?? PreferredLanguage;
 
       List<AudioDbAlbum> foundAlbums = null;
       if(albumSearch.Artists.Count == 0)
-        foundAlbums = _audioDbHandler.SearchAlbum("", albumSearch.Album, language);
+        foundAlbums = await _audioDbHandler.SearchAlbumAsync("", albumSearch.Album, language).ConfigureAwait(false);
       foreach (PersonInfo person in albumSearch.Artists)
       {
-        foundAlbums = _audioDbHandler.SearchAlbum(person.Name, albumSearch.Album, language);
+        foundAlbums = await _audioDbHandler.SearchAlbumAsync(person.Name, albumSearch.Album, language).ConfigureAwait(false);
         if (foundAlbums != null)
           break;
       }
-      if (foundAlbums == null) return false;
+      if (foundAlbums == null) return null;
 
+      List<AlbumInfo> albums = null;
       foreach (AudioDbAlbum album in foundAlbums)
       {
         if (albums == null)
@@ -133,7 +134,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         albums.Add(info);
       }
 
-      return albums != null;
+      return albums;
     }
 
     public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
@@ -144,7 +145,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (personSearch.Occupation != PersonAspect.OCCUPATION_ARTIST)
         return false;
 
-      List<AudioDbArtist> foundArtists = _audioDbHandler.SearchArtist(personSearch.Name, language);
+      List<AudioDbArtist> foundArtists = _audioDbHandler.SearchArtistAsync(personSearch.Name, language).Result;
       if (foundArtists == null) return false;
 
       foreach (AudioDbArtist artist in foundArtists)
@@ -217,7 +218,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMusicTrackAlbumPersonAsync(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
     {
       try
       {
@@ -225,13 +226,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         language = language ?? PreferredLanguage;
 
         if (person.AudioDbId > 0)
-          artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, language, cacheOnly);
+          artistDetail = await _audioDbHandler.GetArtistAsync(person.AudioDbId, language, cacheOnly).ConfigureAwait(false);
         if (artistDetail == null && !string.IsNullOrEmpty(person.MusicBrainzId))
         {
-          List<AudioDbArtist> foundArtists = _audioDbHandler.GetArtistByMbid(person.MusicBrainzId, language, cacheOnly);
+          List<AudioDbArtist> foundArtists = await _audioDbHandler.GetArtistByMbidAsync(person.MusicBrainzId, language, cacheOnly).ConfigureAwait(false);
           if (foundArtists != null && foundArtists.Count == 1)
           {
-            artistDetail = _audioDbHandler.GetArtist(foundArtists[0].ArtistId, language, cacheOnly);
+            artistDetail = await _audioDbHandler.GetArtistAsync(foundArtists[0].ArtistId, language, cacheOnly).ConfigureAwait(false);
           }
         }
         if (artistDetail == null) return false;
@@ -265,12 +266,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMusicTrackPersonAsync(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineMusicTrackAlbumPerson(trackInfo.CloneBasicInstance<AlbumInfo>(), person, language, cacheOnly);
+      return UpdateFromOnlineMusicTrackAlbumPersonAsync(trackInfo.CloneBasicInstance<AlbumInfo>(), person, language, cacheOnly);
     }
 
-    public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMusicTrackAsync(TrackInfo track, string language, bool cacheOnly)
     {
       try
       {
@@ -279,11 +280,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         language = language ?? PreferredLanguage;
 
         if (track.AudioDbId > 0)
-          trackDetail = _audioDbHandler.GetTrack(track.AudioDbId, language, cacheOnly);
+          trackDetail = await _audioDbHandler.GetTrackAsync(track.AudioDbId, language, cacheOnly).ConfigureAwait(false);
 
         if (trackDetail == null && track.TrackNum > 0 && track.AlbumAudioDbId > 0)
         {
-          List<AudioDbTrack> foundTracks = _audioDbHandler.GetTracksByAlbumId(track.AlbumAudioDbId, language, cacheOnly);
+          List<AudioDbTrack> foundTracks = await _audioDbHandler.GetTracksByAlbumIdAsync(track.AlbumAudioDbId, language, cacheOnly).ConfigureAwait(false);
           if (foundTracks != null && foundTracks.Count > 0)
             trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
         }
@@ -297,7 +298,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (trackDetail == null) return false;
 
         //Get the track into the cache
-        AudioDbTrack trackTempDetail = _audioDbHandler.GetTrack(trackDetail.TrackID, language, cacheOnly);
+        AudioDbTrack trackTempDetail = await _audioDbHandler.GetTrackAsync(trackDetail.TrackID, language, cacheOnly).ConfigureAwait(false);
         if (trackTempDetail != null)
           trackDetail = trackTempDetail;
 
@@ -327,7 +328,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (trackDetail.AlbumID.HasValue)
         {
-          AudioDbAlbum album = _audioDbHandler.GetAlbum(trackDetail.AlbumID.Value, language, cacheOnly);
+          AudioDbAlbum album = await _audioDbHandler.GetAlbumAsync(trackDetail.AlbumID.Value, language, cacheOnly).ConfigureAwait(false);
           if (cacheOnly && album == null)
             cacheIncomplete = true;
           if (album != null && album.LabelId.HasValue)
@@ -343,7 +344,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, string language, bool cacheOnly)
     {
       try
       {
@@ -352,13 +353,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         language = language ?? PreferredLanguage;
 
         if (album.AudioDbId > 0)
-          albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, cacheOnly);
+          albumDetail = await _audioDbHandler.GetAlbumAsync(album.AudioDbId, language, cacheOnly).ConfigureAwait(false);
         if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzGroupId))
         {
-          List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzGroupId, language, cacheOnly);
+          List<AudioDbAlbum> foundAlbums = await _audioDbHandler.GetAlbumByMbidAsync(album.MusicBrainzGroupId, language, cacheOnly).ConfigureAwait(false);
           if (foundAlbums != null && foundAlbums.Count == 1)
           {
-            albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, language, cacheOnly);
+            albumDetail = await _audioDbHandler.GetAlbumAsync(foundAlbums[0].AlbumId, language, cacheOnly).ConfigureAwait(false);
           }
         }
         if (albumDetail == null) return false;
@@ -386,7 +387,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (albumDetail.LabelId.HasValue)
           album.MusicLabels = ConvertToCompanies(albumDetail.LabelId.Value, albumDetail.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
 
-        List<AudioDbTrack> albumTracks = _audioDbHandler.GetTracksByAlbumId(albumDetail.AlbumId, language, cacheOnly);
+        List<AudioDbTrack> albumTracks = await _audioDbHandler.GetTracksByAlbumIdAsync(albumDetail.AlbumId, language, cacheOnly).ConfigureAwait(false);
         if (cacheOnly && albumTracks == null)
           cacheIncomplete = true;
         if (albumTracks != null && albumTracks.Count > 0)
@@ -435,7 +436,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo album, CompanyInfo company, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMusicTrackAlbumCompanyAsync(AlbumInfo album, CompanyInfo company, string language, bool cacheOnly)
     {
       try
       {
@@ -443,14 +444,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         language = language ?? PreferredLanguage;
 
         if (album.AudioDbId > 0)
-          albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, cacheOnly);
+          albumDetail = await _audioDbHandler.GetAlbumAsync(album.AudioDbId, language, cacheOnly).ConfigureAwait(false);
         if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzId))
         {
-          List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, language, cacheOnly);
+          List<AudioDbAlbum> foundAlbums = await _audioDbHandler.GetAlbumByMbidAsync(album.MusicBrainzId, language, cacheOnly).ConfigureAwait(false);
           if (foundAlbums != null && foundAlbums.Count == 1)
           {
             //Get the album into the cache
-            albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, language, cacheOnly);
+            albumDetail = await _audioDbHandler.GetAlbumAsync(foundAlbums[0].AlbumId, language, cacheOnly).ConfigureAwait(false);
           }
         }
         if (albumDetail == null) return false;
@@ -492,7 +493,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
           if (album != null && album.AudioDbId > 0)
           {
-            AudioDbAlbum albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, false);
+            AudioDbAlbum albumDetail = _audioDbHandler.GetAlbumAsync(album.AudioDbId, language, false).Result;
             if (albumDetail != null)
             {
               images.Id = album.AudioDbId.ToString();
@@ -507,7 +508,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           PersonInfo person = infoObject as PersonInfo;
           if (person != null && person.AudioDbId > 0)
           {
-            AudioDbArtist artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, language, false);
+            AudioDbArtist artistDetail = _audioDbHandler.GetArtistAsync(person.AudioDbId, language, false).Result;
             if (artistDetail != null)
             {
               images.Id = person.AudioDbId.ToString();
@@ -538,7 +539,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int ID;
       if (int.TryParse(id, out ID))
       {
-        return _audioDbHandler.DownloadImage(ID, image, folderPath);
+        return _audioDbHandler.DownloadImageAsync(ID, image, folderPath).Result;
       }
       return false;
     }

@@ -40,11 +40,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedAudioAlbums();
     List<TrackInfo> GetLastChangedAudio();
     void ResetLastChangedAudio();
-    bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly);
-    bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly);
-    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly);
-    bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly);
-    bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly);
+    Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo, bool importOnly);
+    Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation, bool importOnly);
+    Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly);
+    Task<bool> UpdateAlbumCompaniesAsync(AlbumInfo albumInfo, string companyType, bool importOnly);
+    Task<bool> UpdateAlbumAsync(AlbumInfo albumInfo, bool updateTrackList, bool importOnly);
     bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force);
     void StoreAudioPersonMatch(PersonInfo person);
     void StoreAudioCompanyMatch(CompanyInfo company);

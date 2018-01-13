@@ -101,20 +101,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
       return tags.Split(';', '/');
     }
 
-    public override Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public override async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // If the base AudioMDE already extracted metadata, don't try here again to avoid conflicts.
       if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
-        return Task.FromResult(false);
+        return false;
 
       ILocalFsResourceAccessor fsra = mediaItemAccessor as ILocalFsResourceAccessor;
       if (fsra == null)
-        return Task.FromResult(false);
+        return false;
       if (!fsra.IsFile)
-        return Task.FromResult(false);
+        return false;
       string fileName = fsra.ResourceName;
       if (!HasAudioExtension(fileName))
-        return Task.FromResult(false);
+        return false;
 
       try
       {
@@ -122,7 +122,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         using (fsra.EnsureLocalFileSystemAccess())
           tags = BassTags.BASS_TAG_GetFromFile(fsra.LocalFileSystemPath);
         if (tags == null)
-          return Task.FromResult(false);
+          return false;
 
         fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
         string title;
@@ -267,14 +267,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         }
 
         if(!SkipOnlineSearches && !forceQuickMode)
-          OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, false);
+          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, false).ConfigureAwait(false);
 
         if (!trackInfo.HasChanged)
-          return Task.FromResult(false);
+          return false;
 
         trackInfo.SetMetadata(extractedAspectData);
 
-        return Task.FromResult(trackInfo.IsBaseInfoPresent);
+        return trackInfo.IsBaseInfoPresent;
       }
       catch (Exception e)
       {
@@ -282,7 +282,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         // couldn't perform our task here
         ServiceRegistration.Get<ILogger>().Info("BassAudioMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", fsra.CanonicalLocalResourcePath, e.Message);
       }
-      return Task.FromResult(false);
+      return false;
     }
 
     #endregion

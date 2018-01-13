@@ -415,17 +415,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return _metadata; }
     }
 
-    public virtual Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null)
-        return Task.FromResult(false);
+        return false;
       if (!fsra.IsFile)
-        return Task.FromResult(false);
+        return false;
       string fileName = fsra.ResourceName;
       bool isStub = extractedAspectData.ContainsKey(StubAspect.ASPECT_ID);
       if (!HasAudioExtension(fileName) && !isStub)
-        return Task.FromResult(false);
+        return false;
 
       try
       {
@@ -447,14 +447,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               // Only log at the info level here - And simply return false. This makes the importer know that we
               // couldn't perform our task here.
               ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Audio file '{0}' seems to be broken", fsra.CanonicalLocalResourcePath);
-              return Task.FromResult(false);
+              return false;
             }
 
             using (tag)
             {
               // Some file extensions like .mp4 can contain audio and video. Do not handle files with video content here.
               if (tag.Properties.VideoHeight > 0 && tag.Properties.VideoWidth > 0)
-                return Task.FromResult(false);
+                return false;
 
               fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
               string title;
@@ -732,18 +732,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if (SkipOnlineSearches && !SkipFanArtDownload)
           {
             TrackInfo tempInfo = trackInfo.Clone();
-            OnlineMatcherService.Instance.FindAndUpdateTrack(tempInfo, false);
+            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo, false).ConfigureAwait(false);
             trackInfo.CopyIdsFrom(tempInfo);
             trackInfo.HasChanged = tempInfo.HasChanged;
           }
           else if (!SkipOnlineSearches)
           {
-            OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, false);
+            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, false).ConfigureAwait(false);
           }
         }
 
         if (!trackInfo.HasChanged)
-          return Task.FromResult(false);
+          return false;
 
         trackInfo.SetMetadata(extractedAspectData);
 
@@ -761,12 +761,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           }
         }
 
-        return Task.FromResult(trackInfo.IsBaseInfoPresent);
+        return trackInfo.IsBaseInfoPresent;
       }
       catch (UnsupportedFormatException)
       {
         ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Unsupported audio file '{0}'", fsra.CanonicalLocalResourcePath);
-        return Task.FromResult(false);
+        return false;
       }
       catch (Exception e)
       {
@@ -774,7 +774,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         // couldn't perform our task here
         ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", fsra.CanonicalLocalResourcePath, e.Message);
       }
-      return Task.FromResult(false);
+      return false;
     }
 
     protected List<PersonInfo> GetCorrectedArtistsList(TrackInfo trackInfo, List<PersonInfo> persons)

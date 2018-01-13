@@ -22,13 +22,13 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
-using MediaPortal.Common.PathManager;
-using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using MediaPortal.Extensions.OnlineLibraries.Matches;
+using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -75,13 +75,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return false;
     }
 
-    public override bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
+    public override Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo, bool importOnly)
     {
       if (!string.IsNullOrEmpty(trackInfo.AlbumCdDdId))
       {
-        return base.FindAndUpdateTrack(trackInfo, importOnly);
+        return base.FindAndUpdateTrackAsync(trackInfo, importOnly);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion

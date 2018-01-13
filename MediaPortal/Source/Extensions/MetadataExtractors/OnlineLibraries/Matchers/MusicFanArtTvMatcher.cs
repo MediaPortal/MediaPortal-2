@@ -22,15 +22,14 @@
 
 #endregion
 
-using System;
-using System.Globalization;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Globalization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {

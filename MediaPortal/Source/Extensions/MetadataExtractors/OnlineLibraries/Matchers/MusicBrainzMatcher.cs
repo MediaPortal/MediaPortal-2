@@ -22,18 +22,17 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {

@@ -72,39 +72,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult(episode.SeriesTvdbId > 0);
     }
 
-    public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMusicTrackAsync(TrackInfo track, string language, bool cacheOnly)
     {
-      if (!string.IsNullOrEmpty(track.MusicBrainzId))
-        return true;
-      return false;
+      return Task.FromResult(!string.IsNullOrEmpty(track.MusicBrainzId));
     }
 
-    public override bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, string language, bool cacheOnly)
     {
-      if (!string.IsNullOrEmpty(album.MusicBrainzGroupId))
-        return true;
-      return false;
+      return Task.FromResult(!string.IsNullOrEmpty(album.MusicBrainzGroupId));
     }
 
-    public override bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMusicTrackAlbumCompanyAsync(AlbumInfo albumInfo, CompanyInfo company, string language, bool cacheOnly)
     {
-      if (!string.IsNullOrEmpty(company.MusicBrainzId))
-        return true;
-      return false;
+      return Task.FromResult(!string.IsNullOrEmpty(company.MusicBrainzId));
     }
 
-    public override bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMusicTrackAlbumPersonAsync(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      if (!string.IsNullOrEmpty(person.MusicBrainzId))
-        return true;
-      return false;
+      return Task.FromResult(!string.IsNullOrEmpty(person.MusicBrainzId));
     }
 
-    public override bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMusicTrackPersonAsync(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      if (!string.IsNullOrEmpty(person.MusicBrainzId))
-        return true;
-      return false;
+      return Task.FromResult(!string.IsNullOrEmpty(person.MusicBrainzId));
     }
 
     #endregion

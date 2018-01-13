@@ -199,52 +199,52 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
+    public async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo, bool importOnly)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.FindAndUpdateTrack(trackInfo, matcher.Primary ? false : importOnly);
+        success |= await matcher.FindAndUpdateTrackAsync(trackInfo, matcher.Primary ? false : importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation, bool importOnly)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateAlbumPersons(albumInfo, occupation, importOnly);
+        success |= await matcher.UpdateAlbumPersonsAsync(albumInfo, occupation, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly)
+    public async Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateTrackPersons(trackInfo, occupation, forAlbum, importOnly);
+        success |= await matcher.UpdateTrackPersonsAsync(trackInfo, occupation, forAlbum, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly)
+    public async Task<bool> UpdateAlbumCompaniesAsync(AlbumInfo albumInfo, string companyType, bool importOnly)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateAlbumCompanies(albumInfo, companyType, importOnly);
+        success |= await matcher.UpdateAlbumCompaniesAsync(albumInfo, companyType, importOnly).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly)
+    public async Task<bool> UpdateAlbumAsync(AlbumInfo albumInfo, bool updateTrackList, bool importOnly)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateAlbum(albumInfo, updateTrackList, matcher.Primary ? false : importOnly);
+        success |= await matcher.UpdateAlbumAsync(albumInfo, updateTrackList, matcher.Primary ? false : importOnly).ConfigureAwait(false);
       }
 
       if (updateTrackList)
