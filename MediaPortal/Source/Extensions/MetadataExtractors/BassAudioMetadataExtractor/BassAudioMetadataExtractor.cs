@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
       return tags.Split(';', '/');
     }
 
-    public new Task<bool> TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public override Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // If the base AudioMDE already extracted metadata, don't try here again to avoid conflicts.
       if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
@@ -250,7 +250,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
             else
             {
               // In quick mode only allow thumbs taken from cache.
-              bool cachedOnly = importOnly | forceQuickMode;
+              bool cachedOnly = forceQuickMode;
 
               // Thumbnail extraction
               fileName = mediaItemAccessor.ResourcePathName;
@@ -267,9 +267,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         }
 
         if(!SkipOnlineSearches && !forceQuickMode)
-          OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, importOnly);
+          OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, false);
 
-        if (!trackInfo.HasChanged && !importOnly)
+        if (!trackInfo.HasChanged)
           return Task.FromResult(false);
 
         trackInfo.SetMetadata(extractedAspectData);
