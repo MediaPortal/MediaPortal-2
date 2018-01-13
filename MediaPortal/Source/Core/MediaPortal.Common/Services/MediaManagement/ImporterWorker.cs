@@ -376,8 +376,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         try
         {
-          resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects), importJob.JobType == ImportJobType.Refresh, importJob.BasePath);
-          resultHandler.DeleteUnderPath(path);
+          resultHandler.UpdateMediaItemAsync(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects), importJob.JobType == ImportJobType.Refresh, importJob.BasePath);
+          resultHandler.DeleteUnderPathAsync(path);
         }
         catch
         {
@@ -424,7 +424,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         SingleMediaItemAspect da;
         if (!MediaItemAspect.TryGetAspect(directoryItem.Aspects, DirectoryAspect.Metadata, out da))
         { // This is the case if the path was formerly imported as a non-directory media item; we cannot reuse it
-          resultHandler.DeleteMediaItem(directoryPath);
+          resultHandler.DeleteMediaItemAsync(directoryPath);
           directoryItem = null;
         }
       }
@@ -444,7 +444,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               mia,
               da,
           });
-        return resultHandler.UpdateMediaItem(parentDirectoryId, directoryPath, aspects, importJob.JobType == ImportJobType.Refresh, importJob.BasePath);
+        return resultHandler.UpdateMediaItemAsync(parentDirectoryId, directoryPath, aspects, importJob.JobType == ImportJobType.Refresh, importJob.BasePath).Result;
       }
       return directoryItem.MediaItemId;
     }
@@ -542,7 +542,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               // This happens if the resource doesn't exist any more - we also catch missing directories here
             }
             // Delete all remaining items
-            resultHandler.DeleteMediaItem(path);
+            resultHandler.DeleteMediaItemAsync(path);
             CheckImportStillRunning(importJob.State);
           }
         }

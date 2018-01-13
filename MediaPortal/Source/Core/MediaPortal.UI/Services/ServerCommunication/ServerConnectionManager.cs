@@ -40,10 +40,9 @@ using MediaPortal.UI.Shares;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UPnP.Infrastructure.CP;
 using RelocationMode = MediaPortal.Common.MediaManagement.RelocationMode;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
@@ -132,11 +131,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       #region IImportResultHandler implementation
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
+      public async Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
-          return _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, updatedAspects).Result;
+          return await _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, updatedAspects);
         }
         catch (Exception)
         {
@@ -144,11 +143,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
+      public async Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, Guid mediItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
-          return _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects).Result;
+          return await _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects);
         }
         catch (Exception)
         {
@@ -156,11 +155,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
+      public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
       {
         try
         {
-          return _contentDirectory.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
+          return await _contentDirectory.ReconcileMediaItemRelationshipsAsync(mediaItemId, mediaItemAspects, relationshipItems);
         }
         catch (Exception)
         {
@@ -168,11 +167,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public void DeleteMediaItem(ResourcePath path)
+      public async Task DeleteMediaItemAsync(ResourcePath path)
       {
         try
         {
-          _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, true);
+          await _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, true);
         }
         catch (Exception)
         {
@@ -180,11 +179,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public void DeleteUnderPath(ResourcePath path)
+      public async Task DeleteUnderPathAsync(ResourcePath path)
       {
         try
         {
-          _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, false);
+          await _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, false);
         }
         catch (Exception)
         {

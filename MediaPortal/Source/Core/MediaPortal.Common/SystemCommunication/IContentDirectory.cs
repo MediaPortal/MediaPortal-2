@@ -374,7 +374,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="mediaItemAspects">Aspects to add the relationships to.</param>
     /// <param name="relationshipItems">Enumeration of relations to reconcile and add relationships for.</param>
     /// <returns></returns>
-    IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
+    Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
       IEnumerable<RelationshipItem> relationshipItems);
 
     /// <summary>

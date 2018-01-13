@@ -22,10 +22,10 @@
 
 #endregion
 
+using MediaPortal.Common.ResourceAccess;
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.ResourceAccess;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -40,7 +40,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="updatedAspects">Enumeration of updated media item aspects.</param>
     /// <returns>Id of the media item which has been added or updated.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath);
+    Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath);
 
     /// <summary>
     /// Adds or updates the metadata of the specified media item located on the local system.
@@ -52,7 +52,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="updatedAspects">Enumeration of updated media item aspects.</param>
     /// <returns>Id of the media item which has been added or updated.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath);
+    Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath);
 
     /// <summary>
     /// Reconciles the relationshipItems and adds a RelationshipAspect for each reconciled item to aspects and adds them to
@@ -62,14 +62,14 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="mediaItemAspects">Aspects to add the relationships to.</param>
     /// <param name="relationshipItems">Enumeration of relations to reconcile and add relationships for.</param>
     /// <returns></returns>
-    IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems);
+    Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems);
 
     /// <summary>
     /// Deletes the media item of the given location located on the local system.
     /// </summary>
     /// <param name="path">Location of the media item to delete.</param>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    void DeleteMediaItem(ResourcePath path);
+    Task DeleteMediaItemAsync(ResourcePath path);
 
     /// <summary>
     /// Deletes all media items whose path starts with the given <paramref name="path"/> located on the local system,
@@ -77,6 +77,6 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     /// <param name="path">Start path of media items to be deleted.</param>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    void DeleteUnderPath(ResourcePath path);
+    Task DeleteUnderPathAsync(ResourcePath path);
   }
 }

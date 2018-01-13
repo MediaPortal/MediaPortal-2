@@ -159,13 +159,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
+      public Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
           lock (_parent.GetResourcePathLock(basePath))
           {
-            return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, isRefresh);
+            return Task.FromResult(_parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, isRefresh));
           }
         }
         catch (Exception)
@@ -174,13 +174,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
+      public Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
           lock (_parent.GetResourcePathLock(basePath))
           {
-            return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, isRefresh);
+            return Task.FromResult(_parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, isRefresh));
           }
         }
         catch (Exception)
@@ -189,11 +189,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
+      public Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
       {
         try
         {
-          return _parent.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
+          return Task.FromResult(_parent.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems));
         }
         catch (Exception)
         {
@@ -201,11 +201,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public void DeleteMediaItem(ResourcePath path)
+      public Task DeleteMediaItemAsync(ResourcePath path)
       {
         try
         {
           _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
+          return Task.CompletedTask;
         }
         catch (Exception)
         {
@@ -213,11 +214,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public void DeleteUnderPath(ResourcePath path)
+      public Task DeleteUnderPathAsync(ResourcePath path)
       {
         try
         {
           _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
+          return Task.CompletedTask;
         }
         catch (Exception)
         {

@@ -529,7 +529,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
-    public IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
+    public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
       IEnumerable<RelationshipItem> relationshipItems)
     {
       CpAction action = GetAction("X_MediaPortal_ReconcileMediaItemRelationships");
@@ -539,7 +539,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
             mediaItemAspects,
             relationshipItems
         };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MediaItem>)outParameters[0];
     }
 

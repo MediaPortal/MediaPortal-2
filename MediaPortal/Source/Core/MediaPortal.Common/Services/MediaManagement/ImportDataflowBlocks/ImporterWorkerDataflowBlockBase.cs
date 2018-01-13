@@ -385,7 +385,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _importResultHandler.UpdateMediaItem(parentDirectoryId, path, updatedAspects, isRefresh, jobInfo.BasePath);
+          return await _importResultHandler.UpdateMediaItemAsync(parentDirectoryId, path, updatedAspects, isRefresh, jobInfo.BasePath);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
@@ -404,7 +404,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _importResultHandler.UpdateMediaItem(parentDirectoryId, path, mediaItemId, updatedAspects, isRefresh, jobInfo.BasePath);
+          return await _importResultHandler.UpdateMediaItemAsync(parentDirectoryId, path, mediaItemId, updatedAspects, isRefresh, jobInfo.BasePath);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
@@ -424,7 +424,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _importResultHandler.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
+          return await _importResultHandler.ReconcileMediaItemRelationshipsAsync(mediaItemId, mediaItemAspects, relationshipItems);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
@@ -442,8 +442,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         try
         {
           await Activated.WaitAsync();
-          _importResultHandler.DeleteMediaItem(path);
-          return;
+          await _importResultHandler.DeleteMediaItemAsync(path);
         }
         catch (DisconnectedException)
         {
@@ -460,8 +459,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         try
         {
           await Activated.WaitAsync();
-          _importResultHandler.DeleteUnderPath(path);
-          return;
+          await _importResultHandler.DeleteUnderPathAsync(path);
         }
         catch (DisconnectedException)
         {
