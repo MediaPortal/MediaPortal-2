@@ -59,6 +59,7 @@
 
   <string name="UserConfig.RestrictionGroups">Restrictions</string>
   <string name="UserConfig.RestrictedGroupsText">Restrictions</string>
+  <string name="UserConfig.SelectRestrictions">Select allowed features for user</string>
 
   <string name="UserConfig.SharesText">Shares</string>
   <string name="UserConfig.SelectShares">Select share access</string>

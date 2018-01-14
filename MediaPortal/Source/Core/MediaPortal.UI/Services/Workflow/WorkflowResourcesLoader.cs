@@ -32,6 +32,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Services.Workflow
@@ -205,7 +206,7 @@ namespace MediaPortal.UI.Services.Workflow
               helpText = attrNav.Value;
               break;
             case "RestrictionGroup":
-              restrictionGroup = attrNav.Value;
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
               break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
@@ -274,7 +275,7 @@ namespace MediaPortal.UI.Services.Workflow
               helpText = attrNav.Value;
               break;
             case "RestrictionGroup":
-              restrictionGroup = attrNav.Value;
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
               break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
@@ -340,7 +341,7 @@ namespace MediaPortal.UI.Services.Workflow
               helpText = attrNav.Value;
               break;
             case "RestrictionGroup":
-              restrictionGroup = attrNav.Value;
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
               break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
@@ -410,7 +411,7 @@ namespace MediaPortal.UI.Services.Workflow
               methodName = attrNav.Value;
               break;
             case "RestrictionGroup":
-              restrictionGroup = attrNav.Value;
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
               break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
@@ -445,6 +446,12 @@ namespace MediaPortal.UI.Services.Workflow
       if (!Enum.TryParse(minUserProfile, out tmpValue))
         throw new ArgumentException(string.Format("{0} '{1}': Invalid value '{2}' for 'RestrictionGroup'", actionNavName, name, minUserProfile));
       return tmpValue;
+    }
+
+    private static void SetValueAndRegister(ref string restrictionGroup, string attrValue)
+    {
+      restrictionGroup = attrValue;
+      ServiceRegistration.Get<IUserManagement>().RegisterRestrictionGroup(restrictionGroup);
     }
   }
 }

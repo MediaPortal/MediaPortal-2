@@ -88,7 +88,7 @@
   <string name="SlimTvClient.EpgVisibleChannelInfo">Visible channel information in EPG</string>
   <string name="SlimTvClient.EpgVisibleChannelInfo.Help">Configure whether to display channel name, logo and number in the EPG.</string>
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Channel name</string>
-  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Channel number</string>  
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Channel number</string>
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelLogo">Channel logo</string>
   <string name="SlimTvClient.ZapFromGuide">Zap from TV Guide</string>
   <string name="SlimTvClient.ZapFromGuide.Help">If enabled, "OK" on currently running programs tunes the channel</string>
@@ -122,7 +122,9 @@
   <string name="SlimTvClient.NameFilterMenuItemLabel">Filter by name</string>
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
   <string name="SlimTvClient.RecordingsByNameHeader">Recordings by name</string>
-  
+
   <string name="SlimTvClient.RecordingStartedHeader">Recording started</string>
   <string name="SlimTvClient.RecordingEndedHeader">Recording ended</string>
+
+  <string name="RestrictionGroup.SlimTvClient.DeleteRecording">TV: Delete recordings</string>
 </resources>

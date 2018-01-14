@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UI.Services.UserManagement
@@ -52,6 +53,18 @@ namespace MediaPortal.UI.Services.UserManagement
     /// Exposes access to the <see cref="IUserProfileDataManagement"/> service. This property will be <c>null</c>, if no server connection is available.
     /// </summary>
     IUserProfileDataManagement UserProfileDataManagement { get; }
+
+    /// <summary>
+    /// Allows components and plugins to register known restriction groups, which can be used inside user management to restrict user profiles.
+    /// This method can be called multiple times with same values, only distinct case-insensitive values are stored.
+    /// </summary>
+    /// <param name="restrictionGroup"></param>
+    void RegisterRestrictionGroup(string restrictionGroup);
+
+    /// <summary>
+    /// Gets a unique collection of known restriction group names.
+    /// </summary>
+    ICollection<string> RestrictionGroups { get; }
 
     /// <summary>
     /// Checks if the <see cref="CurrentUser"/> is allowed to access the given <see cref="IUserRestriction"/>.

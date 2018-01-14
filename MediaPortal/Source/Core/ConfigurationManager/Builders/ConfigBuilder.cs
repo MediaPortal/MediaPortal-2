@@ -24,9 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.Configuration.Builders
 {
@@ -62,7 +63,7 @@ namespace MediaPortal.Configuration.Builders
             iconLargePath = attr.Value;
             break;
           case "RestrictionGroup":
-            restrictionGroup = attr.Value;
+            SetValueAndRegister(ref restrictionGroup, attr.Value);
             break;
           default:
             throw new ArgumentException("'ConfigSection' builder doesn't define an attribute '" + attr.Key + "'");
@@ -94,7 +95,7 @@ namespace MediaPortal.Configuration.Builders
             sort = attr.Value;
             break;
           case "RestrictionGroup":
-            restrictionGroup = attr.Value;
+            SetValueAndRegister(ref restrictionGroup, attr.Value);
             break;
           default:
             throw new ArgumentException("'ConfigGroup' builder doesn't define an attribute '" + attr.Key + "'");
@@ -135,7 +136,7 @@ namespace MediaPortal.Configuration.Builders
             listenTo = ParseListenTo(attr.Value);
             break;
           case "RestrictionGroup":
-            restrictionGroup = attr.Value;
+            SetValueAndRegister(ref restrictionGroup, attr.Value);
             break;
           default:
             throw new ArgumentException("'ConfigSetting' builder doesn't define an attribute '" + attr.Key+ "'");
@@ -184,7 +185,7 @@ namespace MediaPortal.Configuration.Builders
             additionalTypes = ParseAdditionalTypes(attr.Value, plugin);
             break;
           case "RestrictionGroup":
-            restrictionGroup = attr.Value;
+            SetValueAndRegister(ref restrictionGroup, attr.Value);
             break;
           default:
             throw new ArgumentException("'ConfigSetting' builder doesn't define an attribute '" + attr.Key + "'");
@@ -242,6 +243,12 @@ namespace MediaPortal.Configuration.Builders
         }
       }
       return result;
+    }
+
+    private static void SetValueAndRegister(ref string restrictionGroup, string attrValue)
+    {
+      restrictionGroup = attrValue;
+      ServiceRegistration.Get<IUserManagement>().RegisterRestrictionGroup(restrictionGroup);
     }
 
     #endregion

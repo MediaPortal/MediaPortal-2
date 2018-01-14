@@ -34,6 +34,7 @@ namespace MediaPortal.UiComponents.Login.General
     public const string KEY_SHARE = "Share";
     public const string KEY_PROFILE_TYPE = "ProfileType";
     public const string KEY_COUNTRY = "Country";
+    public const string KEY_RESTRICTION_GROUP = "RestrictionGroup";
 
     public const string RES_CLIENT_PROFILE_TEXT = "[UserConfig.ClientProfileType]";
     public const string RES_USER_PROFILE_TEXT = "[UserConfig.UserProfileType]";

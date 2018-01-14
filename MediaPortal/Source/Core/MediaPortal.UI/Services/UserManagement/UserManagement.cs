@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common;
@@ -38,6 +39,7 @@ namespace MediaPortal.UI.Services.UserManagement
 
     private UserProfile _currentUser = null;
     private bool _applyRestrictions = false;
+    private ICollection<string> _restrictionGroups = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 
     public bool IsValidUser
     {
@@ -57,6 +59,17 @@ namespace MediaPortal.UI.Services.UserManagement
         UPnPClientControlPoint controlPoint = ServiceRegistration.Get<IServerConnectionManager>().ControlPoint;
         return controlPoint != null ? controlPoint.UserProfileDataManagementService : null;
       }
+    }
+
+    public void RegisterRestrictionGroup(string restrictionGroup)
+    {
+      if (!string.IsNullOrWhiteSpace(restrictionGroup))
+        _restrictionGroups.Add(restrictionGroup);
+    }
+
+    public ICollection<string> RestrictionGroups
+    {
+      get { return _restrictionGroups; }
     }
 
     public bool CheckUserAccess(IUserRestriction restrictedElement)

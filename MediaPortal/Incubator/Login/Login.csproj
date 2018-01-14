@@ -158,4 +158,9 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogSelectRestrictions.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
 </Project>

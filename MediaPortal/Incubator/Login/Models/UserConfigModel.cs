@@ -132,7 +132,7 @@ namespace MediaPortal.UiComponents.Login.Models
         _profileList.Add(item);
       }
 
-      _restrictionGroupList = new ItemsList();
+      FillRestrictionGroupList();
 
       UserProxy = new UserProxy();
       UserProxy.ProfileTypeProperty.Attach(OnProfileTypeChanged);
@@ -660,6 +660,20 @@ namespace MediaPortal.UiComponents.Login.Models
       UserProxy.ProfileType = profileType;
     }
 
+    public void OpenSelectRestrictionDialog()
+    {
+      foreach (ListItem item in _restrictionGroupList)
+        item.Selected = UserProxy.RestrictionGroups.Contains(item.AdditionalProperties[Consts.KEY_RESTRICTION_GROUP]);
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectRestrictions",
+        (string name, System.Guid id) =>
+        {
+          UserProxy.RestrictionGroups.Clear();
+          foreach (ListItem item in _restrictionGroupList.Where(i => i.Selected))
+            UserProxy.RestrictionGroups.Add((string)item.AdditionalProperties[Consts.KEY_RESTRICTION_GROUP]);
+          SetSelectedRestrictionGroups();
+        });
+    }
+
     #endregion
 
     #region Private and protected methods
@@ -695,6 +709,20 @@ namespace MediaPortal.UiComponents.Login.Models
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Error selecting user", e);
+      }
+    }
+
+    private void FillRestrictionGroupList()
+    {
+      _restrictionGroupList = new ItemsList();
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      foreach (string restrictionGroup in userManagement.RestrictionGroups.OrderBy(r => r))
+      {
+        ListItem item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, string.Format("[RestrictionGroup.{0}]", restrictionGroup));
+        item.AdditionalProperties[Consts.KEY_RESTRICTION_GROUP] = restrictionGroup;
+        lock (_syncObj)
+          _restrictionGroupList.Add(item);
       }
     }
 
@@ -848,6 +876,7 @@ namespace MediaPortal.UiComponents.Login.Models
         _userList = null;
         _localSharesList = null;
         _serverSharesList = null;
+        _restrictionGroupList = null;
       }
     }
 
@@ -875,6 +904,7 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       SubscribeToMessages();
       ClearData();
+      FillRestrictionGroupList();
       _ = UpdateShareLists_NoLock(true);
       _ = UpdateUserLists_NoLock(true);
     }

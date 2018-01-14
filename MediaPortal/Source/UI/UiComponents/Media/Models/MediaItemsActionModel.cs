@@ -32,12 +32,14 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -208,6 +210,14 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         if (!await action.Action.IsAvailableAsync(mediaItem))
           continue;
+
+        // Some actions can be restricted to users.
+        IUserRestriction restriction = action.Action as IUserRestriction;
+        if (restriction != null)
+        {
+          if (!ServiceRegistration.Get<IUserManagement>().CheckUserAccess(restriction))
+            continue;
+        }
 
         ListItem item = new ListItem(Consts.KEY_NAME, action.Caption);
         item.AdditionalProperties[Consts.KEY_MEDIA_ITEM] = mediaItem;
