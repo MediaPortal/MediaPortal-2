@@ -296,7 +296,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       }
     }
 
-    protected Task<T> Search<T>(string queryUrl, string query, string language)
+    protected Task<T> SearchAsync<T>(string queryUrl, string query, string language)
     {
       string url = GetUrl(queryUrl, language) + "&query=" + HttpUtility.UrlEncode(query);
       return _downloader.DownloadAsync<T>(url);
@@ -308,9 +308,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="query">Full or partly name of movie</param>
     /// <param name="language">Language</param>
     /// <returns>List of possible matches</returns>
-    public async Task<List<MovieSearchResult>> SearchMovie(string query, string language)
+    public async Task<List<MovieSearchResult>> SearchMovieAsync(string query, string language)
     {
-      PagedMovieSearchResult result = await Search<PagedMovieSearchResult>(URL_MOVIEQUERY, query, language).ConfigureAwait(false);
+      PagedMovieSearchResult result = await SearchAsync<PagedMovieSearchResult>(URL_MOVIEQUERY, query, language).ConfigureAwait(false);
       return result.Results;
     }
 
@@ -320,25 +320,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="query">Full or partly name of series</param>
     /// <param name="language">Language</param>
     /// <returns>List of possible matches</returns>
-    public async Task<List<SeriesSearchResult>> SearchSeries(string query, string language)
+    public async Task<List<SeriesSearchResult>> SearchSeriesAsync(string query, string language)
     {
-      PagedSeriesSearchResult result = await Search<PagedSeriesSearchResult>(URL_SERIESQUERY, query, language).ConfigureAwait(false);
+      PagedSeriesSearchResult result = await SearchAsync<PagedSeriesSearchResult>(URL_SERIESQUERY, query, language).ConfigureAwait(false);
       return result.Results;
     }
 
-    public async Task<List<PersonSearchResult>> SearchPerson(string query, string language)
+    public async Task<List<PersonSearchResult>> SearchPersonAsync(string query, string language)
     {
-      PagedPersonSearchResult result = await Search<PagedPersonSearchResult>(URL_PERSONQUERY, query, language).ConfigureAwait(false);
+      PagedPersonSearchResult result = await SearchAsync<PagedPersonSearchResult>(URL_PERSONQUERY, query, language).ConfigureAwait(false);
       return result.Results;
     }
 
-    public async Task<List<CompanySearchResult>> SearchCompany(string query, string language)
+    public async Task<List<CompanySearchResult>> SearchCompanyAsync(string query, string language)
     {
-      PagedCompanySearchResult result = await Search<PagedCompanySearchResult>(URL_COMPANYQUERY, query, language).ConfigureAwait(false);
+      PagedCompanySearchResult result = await SearchAsync<PagedCompanySearchResult>(URL_COMPANYQUERY, query, language).ConfigureAwait(false);
       return result.Results;
     }
 
-    protected Task<IdSearchResult> FindByExternalId(object id, string language, string externalSource)
+    protected Task<IdSearchResult> FindByExternalIdAsync(object id, string language, string externalSource)
     {
       string url = GetUrl(URL_IDQUERY, language, id) + "&external_source=" + externalSource;
       return _downloader.DownloadAsync<IdSearchResult>(url);
@@ -346,67 +346,67 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
 
     public async Task<List<IdResult>> FindMovieByImdbId(string imDbId, string language)
     {
-      IdSearchResult result = await FindByExternalId(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
       return result.MovieResults;
     }
 
     public async Task<List<IdResult>> FindPersonByImdbIdAsync(string imDbId, string language)
     {
-      IdSearchResult result = await FindByExternalId(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
       return result.PersonResults;
     }
 
     public async Task<List<IdResult>> FindPersonByTvRageIdAsync(int tvRageId, string language)
     {
-      IdSearchResult result = await FindByExternalId(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
       return result.PersonResults;
     }
 
     public async Task<List<IdResult>> FindSeriesByImdbIdAsync(string imDbId, string language)
     {
-      IdSearchResult result = await FindByExternalId(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
       return result.SeriesResults;
     }
 
     public async Task<List<IdResult>> FindSeriesByTvDbIdAsync(int tvDbId, string language)
     {
-      IdSearchResult result = await FindByExternalId(tvDbId, language, EXTERNAL_SOURCE_TVDB).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(tvDbId, language, EXTERNAL_SOURCE_TVDB).ConfigureAwait(false);
       return result.SeriesResults;
     }
 
     public async Task<List<IdResult>> FindSeriesByTvRageIdAsync(int tvRageId, string language)
     {
-      IdSearchResult result = await FindByExternalId(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
       return result.SeriesResults;
     }
 
     public async Task<List<IdResult>> FindSeriesSeasonByTvDbIdAsync(int tvDbId, string language)
     {
-      IdSearchResult result = await FindByExternalId(tvDbId, language, EXTERNAL_SOURCE_TVDB).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(tvDbId, language, EXTERNAL_SOURCE_TVDB).ConfigureAwait(false);
       return result.SeriesSeasonResults;
     }
 
     public async Task<List<IdResult>> FindSeriesSeasonByTvRageIdAsync(int tvRageId, string language)
     {
-      IdSearchResult result = await FindByExternalId(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
       return result.SeriesSeasonResults;
     }
 
     public async Task<List<IdResult>> FindSeriesEpisodeByImdbIdAsync(string imDbId, string language)
     {
-      IdSearchResult result = await FindByExternalId(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
       return result.SeriesEpisodeResults;
     }
 
     public async Task<List<IdResult>> FindSeriesEpisodeByTvDbIdAsync(int tvDbId, string language)
     {
-      IdSearchResult result = await FindByExternalId(tvDbId, language, EXTERNAL_SOURCE_TVDB).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(tvDbId, language, EXTERNAL_SOURCE_TVDB).ConfigureAwait(false);
       return result.SeriesEpisodeResults;
     }
 
     public async Task<List<IdResult>> FindSeriesEpisodeByTvRageIdAsync(int tvRageId, string language)
     {
-      IdSearchResult result = await FindByExternalId(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
+      IdSearchResult result = await FindByExternalIdAsync(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
       return result.SeriesEpisodeResults;
     }
 
@@ -485,7 +485,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="imdbId">IMDB id of movie</param>
     /// <param name="language">Language</param>
     /// <returns>Movie information</returns>
-    public Task<Movie> GetMovie(string imdbId, string language, bool cacheOnly)
+    public Task<Movie> GetMovieAsync(string imdbId, string language, bool cacheOnly)
     {
       return GetMovieByIdAsync(imdbId, language, cacheOnly);
     }
@@ -528,7 +528,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of movie</param>
     /// <param name="language">Language</param>
     /// <returns>Image collection</returns>
-    public Task<ImageCollection> GetMovieImages(int id, string language)
+    public Task<ImageCollection> GetMovieImagesAsync(int id, string language)
     {
       return GetImagesAsync(URL_GETMOVIEIMAGES, language, id);
     }

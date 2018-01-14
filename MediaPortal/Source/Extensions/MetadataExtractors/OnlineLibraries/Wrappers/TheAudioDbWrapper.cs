@@ -137,17 +137,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return albums;
     }
 
-    public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
+    public override async Task<List<PersonInfo>> SearchPersonAsync(PersonInfo personSearch, string language)
     {
-      persons = null;
       language = language ?? PreferredLanguage;
 
       if (personSearch.Occupation != PersonAspect.OCCUPATION_ARTIST)
-        return false;
+        return null;
 
-      List<AudioDbArtist> foundArtists = _audioDbHandler.SearchArtistAsync(personSearch.Name, language).Result;
-      if (foundArtists == null) return false;
+      List<AudioDbArtist> foundArtists = await _audioDbHandler.SearchArtistAsync(personSearch.Name, language).ConfigureAwait(false);
+      if (foundArtists == null) return null;
 
+      List<PersonInfo> persons = null;
       foreach (AudioDbArtist artist in foundArtists)
       {
         if (persons == null)
@@ -165,7 +165,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         persons.Add(info);
       }
 
-      return persons != null;
+      return persons;
     }
 
     #endregion

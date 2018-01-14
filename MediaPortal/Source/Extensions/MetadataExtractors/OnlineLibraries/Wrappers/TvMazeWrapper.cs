@@ -131,17 +131,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }).ToList();
     }
 
-    public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
+    public override async Task<List<PersonInfo>> SearchPersonAsync(PersonInfo personSearch, string language)
     {
-      persons = null;
-      List<TvMazePerson> foundPersons = _tvMazeHandler.SearchPersonAsync(personSearch.Name).Result;
-      if (foundPersons == null) return false;
-      persons = foundPersons.Select(p => new PersonInfo()
+      List<TvMazePerson> foundPersons = await _tvMazeHandler.SearchPersonAsync(personSearch.Name).ConfigureAwait(false);
+      if (foundPersons == null) return null;
+      return foundPersons.Select(p => new PersonInfo()
       {
         TvMazeId = p.Id,
         Name = p.Name,
       }).ToList();
-      return persons.Count > 0;
     }
 
     #endregion

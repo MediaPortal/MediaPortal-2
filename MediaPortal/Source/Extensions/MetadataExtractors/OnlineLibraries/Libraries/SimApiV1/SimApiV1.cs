@@ -87,10 +87,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1
     /// </summary>
     /// <param name="name">Full or partly name of person</param>
     /// <returns>List of possible matches</returns>
-    public List<SimApiPersonSearchItem> SearchPerson(string name)
+    public async Task<List<SimApiPersonSearchItem>> SearchPersonAsync(string name)
     {
       string url = GetUrl(URL_QUERYPERSON, HttpUtility.UrlEncode(name));
-      SimApiPersonSearchResult results = _downloader.Download<SimApiPersonSearchResult>(url);
+      SimApiPersonSearchResult results = await _downloader.DownloadAsync<SimApiPersonSearchResult>(url).ConfigureAwait(false);
       return results.SearchResults;
     }
 
@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1
     /// </summary>
     /// <param name="id">IMDB id of movie</param>
     /// <returns>Movie information</returns>
-    public async Task<SimApiMovie> GetMovie(string id, bool cacheOnly)
+    public async Task<SimApiMovie> GetMovieAsync(string id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Movie");
       SimApiMovie returnValue = null;

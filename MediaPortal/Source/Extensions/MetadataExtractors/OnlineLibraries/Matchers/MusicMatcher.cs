@@ -504,7 +504,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               if (!await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, false).ConfigureAwait(false))
               {
                 //Search for the person online and update the Ids if a match is found
-                if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
                   //Ids were updated now try to fetch the online person info
                   if (await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, false).ConfigureAwait(false))
@@ -684,7 +684,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, false).ConfigureAwait(false))
               {
                 //Search for the person online and update the Ids if a match is found
-                if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
                   //Ids were updated now try to fetch the online person info
                   if (await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, false).ConfigureAwait(false))
@@ -794,7 +794,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, false).ConfigureAwait(false))
               {
                 //Search for the company online and update the Ids if a match is found
-                if (_wrapper.SearchCompanyUniqueAndUpdate(company, language))
+                if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
                 {
                   //Ids were updated now try to fetch the online company info
                   if (await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, false).ConfigureAwait(false))

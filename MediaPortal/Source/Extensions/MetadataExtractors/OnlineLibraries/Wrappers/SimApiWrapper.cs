@@ -67,19 +67,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }).ToList();
     }
 
-    public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
+    public override async Task<List<PersonInfo>> SearchPersonAsync(PersonInfo personSearch, string language)
     {
       language = language ?? PreferredLanguage;
 
-      persons = null;
-      List<SimApiPersonSearchItem> foundPersons = _simApiHandler.SearchPerson(personSearch.Name);
-      if (foundPersons == null) return false;
-      persons = foundPersons.Select(p => new PersonInfo()
+      List<SimApiPersonSearchItem> foundPersons = await _simApiHandler.SearchPersonAsync(personSearch.Name).ConfigureAwait(false);
+      if (foundPersons == null) return null;
+      return foundPersons.Select(p => new PersonInfo()
       {
         ImdbId = p.ImdbID,
         Name = p.Name,
       }).ToList();
-      return persons.Count > 0;
     }
 
     #endregion
@@ -92,7 +90,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         SimApiMovie movieDetail = null;
         if (!string.IsNullOrEmpty(movie.ImdbId))
-          movieDetail = await _simApiHandler.GetMovie(movie.ImdbId, cacheOnly).ConfigureAwait(false);
+          movieDetail = await _simApiHandler.GetMovieAsync(movie.ImdbId, cacheOnly).ConfigureAwait(false);
         if (movieDetail == null) return false;
 
         movie.ImdbId = movieDetail.ImdbID;
@@ -188,7 +186,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         MovieInfo movie = infoObject as MovieInfo;
         if (movie != null && !string.IsNullOrEmpty(movie.ImdbId))
         {
-          SimApiMovie movieDetail = _simApiHandler.GetMovie(movie.ImdbId, false).Result;
+          SimApiMovie movieDetail = _simApiHandler.GetMovieAsync(movie.ImdbId, false).Result;
           if(!string.IsNullOrEmpty(movieDetail.PosterUrl))
           {
             images.Posters.Add(movieDetail.PosterUrl);

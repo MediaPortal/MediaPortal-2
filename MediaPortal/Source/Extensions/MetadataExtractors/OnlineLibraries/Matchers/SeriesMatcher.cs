@@ -642,7 +642,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               if (!await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
               {
                 //Search for the movie online and update the Ids if a match is found
-                if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
                   //Ids were updated now try to fetch the online movie info
                   if (await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
@@ -735,7 +735,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               if (!await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
               {
                 //Search for the movie online and update the Ids if a match is found
-                if (_wrapper.SearchCharacterUniqueAndUpdate(character, language))
+                if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
                 {
                   //Ids were updated now try to fetch the online movie info
                   if (await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
@@ -862,7 +862,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               if (!await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
               {
                 //Search for the company online and update the Ids if a match is found
-                if (_wrapper.SearchCompanyUniqueAndUpdate(company, language))
+                if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
                 {
                   //Ids were updated now try to fetch the online company info
                   if (await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
@@ -1033,7 +1033,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               if (!await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
               {
                 //Search for the person online and update the Ids if a match is found
-                if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
                   //Ids were updated now try to fetch the online person info
                   if (await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
@@ -1173,7 +1173,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               if (!await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
               {
                 //Search for the character online and update the Ids if a match is found
-                if (_wrapper.SearchCharacterUniqueAndUpdate(character, language))
+                if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
                 {
                   //Ids were updated now try to fetch the online character info
                   if (await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))

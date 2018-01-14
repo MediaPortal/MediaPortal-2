@@ -131,17 +131,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return albums;
     }
 
-    public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
+    public override async Task<List<PersonInfo>> SearchPersonAsync(PersonInfo personSearch, string language)
     {
-      persons = null;
       language = language ?? PreferredLanguage;
 
       if (personSearch.Occupation != PersonAspect.OCCUPATION_ARTIST)
-        return false;
+        return null;
 
-      List<TrackArtist> foundArtists = _musicBrainzHandler.SearchArtistAsync(personSearch.Name).Result;
-      if (foundArtists == null) return false;
+      List<TrackArtist> foundArtists = await _musicBrainzHandler.SearchArtistAsync(personSearch.Name).ConfigureAwait(false);
+      if (foundArtists == null) return null;
 
+      List<PersonInfo> persons = null;
       foreach (TrackArtist artist in foundArtists)
       {
         if (persons == null)
@@ -157,20 +157,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         persons.Add(info);
       }
 
-      return persons != null;
+      return persons;
     }
 
-    public override bool SearchCompany(CompanyInfo companySearch, string language, out List<CompanyInfo> companies)
+    public override async Task<List<CompanyInfo>> SearchCompanyAsync(CompanyInfo companySearch, string language)
     {
-      companies = null;
       language = language ?? PreferredLanguage;
 
       if (companySearch.Type != CompanyAspect.COMPANY_MUSIC_LABEL)
-        return false;
+        return null;
 
-      List<TrackLabelSearchResult> foundLabels = _musicBrainzHandler.SearchLabelAsync(companySearch.Name).Result;
-      if (foundLabels == null) return false;
+      List<TrackLabelSearchResult> foundLabels = await _musicBrainzHandler.SearchLabelAsync(companySearch.Name).ConfigureAwait(false);
+      if (foundLabels == null) return null;
 
+      List<CompanyInfo> companies = null;
       foreach (TrackLabelSearchResult company in foundLabels)
       {
         if (companies == null)
@@ -185,7 +185,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         companies.Add(info);
       }
 
-      return companies != null;
+      return companies;
     }
 
     #endregion

@@ -62,11 +62,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override async Task<IList<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
     {
-      List<MovieSearchResult> foundMovies = await _movieDbHandler.SearchMovie(movieSearch.MovieName.Text, language).ConfigureAwait(false);
+      List<MovieSearchResult> foundMovies = await _movieDbHandler.SearchMovieAsync(movieSearch.MovieName.Text, language).ConfigureAwait(false);
       if (foundMovies == null) return null;
       if (foundMovies.Count == 0 && !string.IsNullOrEmpty(movieSearch.OriginalName))
       {
-        foundMovies = await _movieDbHandler.SearchMovie(movieSearch.OriginalName, language).ConfigureAwait(false);
+        foundMovies = await _movieDbHandler.SearchMovieAsync(movieSearch.OriginalName, language).ConfigureAwait(false);
         if (foundMovies == null) return null;
       }
       return foundMovies.Count > 0 ? foundMovies.Select(m => new MovieInfo()
@@ -139,11 +139,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       language = language ?? PreferredLanguage;
       
-      List<SeriesSearchResult> foundSeries = await _movieDbHandler.SearchSeries(seriesSearch.SeriesName.Text, language).ConfigureAwait(false);
+      List<SeriesSearchResult> foundSeries = await _movieDbHandler.SearchSeriesAsync(seriesSearch.SeriesName.Text, language).ConfigureAwait(false);
       if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.OriginalName))
-        foundSeries = await _movieDbHandler.SearchSeries(seriesSearch.OriginalName, language).ConfigureAwait(false);
+        foundSeries = await _movieDbHandler.SearchSeriesAsync(seriesSearch.OriginalName, language).ConfigureAwait(false);
       if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
-        foundSeries = await _movieDbHandler.SearchSeries(seriesSearch.AlternateName, language).ConfigureAwait(false);
+        foundSeries = await _movieDbHandler.SearchSeriesAsync(seriesSearch.AlternateName, language).ConfigureAwait(false);
       if (foundSeries == null) return null;
       return foundSeries.Select(s => new SeriesInfo()
       {
@@ -154,34 +154,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }).ToList();
     }
 
-    public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
+    public override async Task<List<PersonInfo>> SearchPersonAsync(PersonInfo personSearch, string language)
     {
       language = language ?? PreferredLanguage;
 
-      persons = null;
-      List<PersonSearchResult> foundPersons = _movieDbHandler.SearchPerson(personSearch.Name, language).Result;
-      if (foundPersons == null) return false;
-      persons = foundPersons.Select(p => new PersonInfo()
+      List<PersonSearchResult> foundPersons = await _movieDbHandler.SearchPersonAsync(personSearch.Name, language).ConfigureAwait(false);
+      if (foundPersons == null) return null;
+      return foundPersons.Select(p => new PersonInfo()
       {
         MovieDbId = p.Id,
         Name = p.Name,
       }).ToList();
-      return persons.Count > 0;
     }
 
-    public override bool SearchCompany(CompanyInfo companySearch, string language, out List<CompanyInfo> companies)
+    public override async Task<List<CompanyInfo>> SearchCompanyAsync(CompanyInfo companySearch, string language)
     {
       language = language ?? PreferredLanguage;
-
-      companies = null;
-      List<CompanySearchResult> foundCompanies = _movieDbHandler.SearchCompany(companySearch.Name, language).Result;
-      if (foundCompanies == null) return false;
-      companies = foundCompanies.Select(p => new CompanyInfo()
+      
+      List<CompanySearchResult> foundCompanies = await _movieDbHandler.SearchCompanyAsync(companySearch.Name, language).ConfigureAwait(false);
+      if (foundCompanies == null) return null;
+      return foundCompanies.Select(p => new CompanyInfo()
       {
         MovieDbId = p.Id,
         Name = p.Name,
       }).ToList();
-      return companies.Count > 0;
     }
 
     #endregion
@@ -199,7 +195,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (movie.MovieDbId > 0)
           movieDetail = await _movieDbHandler.GetMovieAsync(movie.MovieDbId, language, cacheOnly).ConfigureAwait(false);
         if (movieDetail == null && !string.IsNullOrEmpty(movie.ImdbId))
-          movieDetail = await _movieDbHandler.GetMovie(movie.ImdbId, language, cacheOnly).ConfigureAwait(false);
+          movieDetail = await _movieDbHandler.GetMovieAsync(movie.ImdbId, language, cacheOnly).ConfigureAwait(false);
         if (movieDetail == null && cacheOnly == false)
         {
           if (!string.IsNullOrEmpty(movie.ImdbId))
@@ -980,7 +976,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (movie != null && movie.MovieDbId > 0)
         {
           // Download all image information, filter later!
-          imgs = _movieDbHandler.GetMovieImages(movie.MovieDbId, null).Result;
+          imgs = _movieDbHandler.GetMovieImagesAsync(movie.MovieDbId, null).Result;
         }
       }
       else if (fanartMediaType == FanArtMediaTypes.Series)
