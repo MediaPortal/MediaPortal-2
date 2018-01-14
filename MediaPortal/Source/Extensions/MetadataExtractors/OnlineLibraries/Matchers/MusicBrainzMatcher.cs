@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -63,7 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       Enabled = false;
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -75,14 +76,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("MusicBrainzMatcher: Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion

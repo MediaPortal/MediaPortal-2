@@ -36,6 +36,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -75,14 +76,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       Primary = true;
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override async Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
         TvDbWrapper wrapper = new TvDbWrapper();
         // Try to lookup online content in the configured language
         CultureInfo mpLocal = new CultureInfo(PreferredLanguageCulture);
-        if (wrapper.InitAsync(CACHE_PATH, useHttps).Result)
+        if (await wrapper.InitAsync(CACHE_PATH, useHttps).ConfigureAwait(false))
         {
           _wrapper = wrapper;
           wrapper.SetPreferredLanguageAsync(mpLocal.TwoLetterISOLanguageName).Wait();

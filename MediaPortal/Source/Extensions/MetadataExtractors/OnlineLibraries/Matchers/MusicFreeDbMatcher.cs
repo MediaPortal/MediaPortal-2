@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -65,14 +65,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("MusicFreeDbMatcher: Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     public override Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo, bool importOnly)

@@ -41,6 +41,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
@@ -56,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       public List<string> LastUpdatedMovieCollections { get; set; }
     }
 
-    protected readonly object _initSyncObj = new object();
+    protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
 
     #region Init
@@ -77,22 +78,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _configFile = Path.Combine(cachePath, "MovieConfig.xml");
     }
 
-    public override bool Init()
+    public override async Task<bool> InitAsync()
     {
       if (!_enabled)
         return false;
 
-      lock (_initSyncObj)
+      await _initSyncObj.WaitAsync().ConfigureAwait(false);
+      try
       {
         if (_isInit)
           return true;
 
-        if (!base.Init())
+        if (!await base.InitAsync().ConfigureAwait(false))
           return false;
 
         LoadConfig();
 
-        if (InitWrapper(UseSecureWebCommunication))
+        if (await InitWrapperAsync(UseSecureWebCommunication).ConfigureAwait(false))
         {
           if (_wrapper != null)
             _wrapper.CacheUpdateFinished += CacheUpdateFinished;
@@ -100,6 +102,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return true;
         }
         return false;
+      }
+      finally
+      {
+        _initSyncObj.Release();
       }
     }
 
@@ -121,7 +127,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       Settings.Save(_configFile, _config);
     }
 
-    public abstract bool InitWrapper(bool useHttps);
+    public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
     #endregion
 
@@ -250,7 +256,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         MovieInfo movieMatch = null;
@@ -392,7 +398,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
@@ -582,7 +588,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
@@ -671,7 +677,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
@@ -781,7 +787,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(movieCollectionInfo.Languages);
@@ -1017,7 +1023,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       List<MovieInfo> movies = new List<MovieInfo>();
 
-      if (!Init())
+      if (!InitAsync().Result)
         return movies;
 
       foreach (string id in _config.LastUpdatedMovies)
@@ -1031,7 +1037,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedMovies()
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return;
       _config.LastUpdatedMovies.Clear();
       SaveConfig();
@@ -1041,7 +1047,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
 
-      if (!Init())
+      if (!InitAsync().Result)
         return collections;
 
       foreach (string id in _config.LastUpdatedMovieCollections)
@@ -1055,7 +1061,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedMovieCollections()
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return;
 
       _config.LastUpdatedMovieCollections.Clear();
@@ -1068,7 +1074,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return false;
 
       string id;
@@ -1192,7 +1198,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         name = string.Format("{0} ({1})", data.MediaItemId, data.Name);
 
-        if (!Init())
+        if (!InitAsync().Result)
           return;
 
         try

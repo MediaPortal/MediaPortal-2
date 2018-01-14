@@ -22,11 +22,13 @@
 
 #endregion
 
+using System.Threading.Tasks;
+
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
   public interface IMatcher
   {
-    bool Init();
+    Task<bool> InitAsync();
     bool Primary { get; set; }
     bool Enabled { get; set; }
     string Id { get; }

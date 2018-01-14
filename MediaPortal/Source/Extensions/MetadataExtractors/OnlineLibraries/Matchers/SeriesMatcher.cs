@@ -42,6 +42,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
@@ -57,7 +58,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       public List<string> LastUpdatedEpisodes { get; set; }
     }
 
-    protected readonly object _initSyncObj = new object();
+    protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
 
     #region Init
@@ -80,22 +81,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _configFile = Path.Combine(cachePath, "SeriesConfig.xml");
     }
 
-    public override bool Init()
+    public override async Task<bool> InitAsync()
     {
       if (!_enabled)
         return false;
 
-      lock (_initSyncObj)
+      await _initSyncObj.WaitAsync().ConfigureAwait(false);
+      try
       {
         if (_isInit)
           return true;
 
-        if (!base.Init())
+        if (!await base.InitAsync().ConfigureAwait(false))
           return false;
 
         LoadConfig();
 
-        if (InitWrapper(UseSecureWebCommunication))
+        if (await InitWrapperAsync(UseSecureWebCommunication).ConfigureAwait(false))
         {
           if (_wrapper != null)
             _wrapper.CacheUpdateFinished += CacheUpdateFinished;
@@ -103,6 +105,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return true;
         }
         return false;
+      }
+      finally
+      {
+        _initSyncObj.Release();
       }
     }
 
@@ -124,7 +130,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       Settings.Save(_configFile, _config);
     }
 
-    public abstract bool InitWrapper(bool useHttps);
+    public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
     #endregion
 
@@ -261,7 +267,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         EpisodeInfo episodeMatch = null;
@@ -442,7 +448,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         string id;
@@ -554,7 +560,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(seasonInfo.Languages);
@@ -597,7 +603,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
@@ -707,7 +713,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
@@ -796,7 +802,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
@@ -946,7 +952,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
@@ -1145,7 +1151,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
@@ -1439,7 +1445,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       List<SeriesInfo> series = new List<SeriesInfo>();
 
-      if (!Init())
+      if (!InitAsync().Result)
         return series;
 
       foreach (string id in _config.LastUpdatedSeries)
@@ -1453,7 +1459,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedSeries()
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return;
 
       _config.LastUpdatedSeries.Clear();
@@ -1464,7 +1470,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       List<EpisodeInfo> episodes = new List<EpisodeInfo>();
 
-      if (!Init())
+      if (!InitAsync().Result)
         return episodes;
 
       foreach (string id in _config.LastUpdatedEpisodes)
@@ -1478,7 +1484,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedEpisodes()
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return;
 
       _config.LastUpdatedEpisodes.Clear();
@@ -1512,7 +1518,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return false;
 
       string id;
@@ -1687,7 +1693,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         name = string.Format("{0} ({1})", data.MediaItemId, data.Name);
 
-        if (!Init())
+        if (!InitAsync().Result)
           return;
 
         try

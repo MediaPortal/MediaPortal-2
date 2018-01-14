@@ -22,15 +22,15 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using MediaPortal.Common;
-using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.Utilities.Network;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
@@ -130,7 +130,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       _onlyBasicFanArt = settings.OnlyBasicFanArt;
     }
 
-    public virtual bool Init()
+    public virtual Task<bool> InitAsync()
     {
       if (_storage == null)
         _storage = new MatchStorage<TMatch, TId>(MatchesSettingsFile);
@@ -143,9 +143,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
         _inited = true;
       }
 
-      if (!NetworkConnectionTracker.IsNetworkConnected)
-        return false;
-      return true;
+      return Task.FromResult(NetworkConnectionTracker.IsNetworkConnected);
     }
 
     protected bool ScheduleDownload(TId id, string downloadId, bool force = false)

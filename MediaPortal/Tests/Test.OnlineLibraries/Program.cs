@@ -88,7 +88,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
       MusicBrainzMatcher matcher = new MusicBrainzMatcher();
-      matcher.Init();
+      matcher.InitAsync().Wait();
 
       TrackInfo track = new TrackInfo();
       track.TrackName = title;
@@ -120,7 +120,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
       MusicFreeDbMatcher matcher = new MusicFreeDbMatcher();
-      matcher.Init();
+      matcher.InitAsync().Wait();
 
       TrackInfo track = new TrackInfo();
       track.AlbumCdDdId = cdDbId;
@@ -148,7 +148,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
       MusicTheAudioDbMatcher matcher = new MusicTheAudioDbMatcher();
-      matcher.Init();
+      matcher.InitAsync().Wait();
 
       TrackInfo track = new TrackInfo();
       track.TrackName = title;

@@ -59,7 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -75,14 +75,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("MusicTheAudioDbMatcher: Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -91,7 +91,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public override async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo, bool importOnly)
     {
-      if (!Init())
+      if (!await InitAsync().ConfigureAwait(false))
         return false;
 
       //Try and find the album and match the track against the album tracks as the track name search can be a bit hit and miss.

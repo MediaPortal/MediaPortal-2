@@ -41,6 +41,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
@@ -56,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       public List<string> LastUpdatedTracks { get; set; }
     }
 
-    protected readonly object _initSyncObj = new object();
+    protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
 
     #region Init
@@ -77,22 +78,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _configFile = Path.Combine(cachePath, "MusicConfig.xml");
     }
 
-    public override bool Init()
+    public override async Task<bool> InitAsync()
     {
       if (!_enabled)
         return false;
 
-      lock (_initSyncObj)
+      await _initSyncObj.WaitAsync().ConfigureAwait(false);
+      try
       {
         if (_isInit)
           return true;
 
-        if (!base.Init())
+        if (!await base.InitAsync().ConfigureAwait(false))
           return false;
 
         LoadConfig();
 
-        if (InitWrapper(UseSecureWebCommunication))
+        if (await InitWrapperAsync(UseSecureWebCommunication).ConfigureAwait(false))
         {
           if (_wrapper != null)
             _wrapper.CacheUpdateFinished += CacheUpdateFinished;
@@ -100,6 +102,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return true;
         }
         return false;
+      }
+      finally
+      {
+        _initSyncObj.Release();
       }
     }
 
@@ -121,7 +127,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       Settings.Save(_configFile, _config);
     }
 
-    public abstract bool InitWrapper(bool useHttps);
+    public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
     #endregion
 
@@ -251,7 +257,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TrackInfo trackMatch = null;
@@ -396,7 +402,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(trackInfo.Languages);
@@ -639,7 +645,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(albumInfo.Languages);
@@ -749,7 +755,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(albumInfo.Languages);
@@ -862,7 +868,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(albumInfo.Languages);
@@ -1153,7 +1159,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       List<AlbumInfo> albums = new List<AlbumInfo>();
 
-      if (!Init())
+      if (!InitAsync().Result)
         return albums;
 
       foreach (string id in _config.LastUpdatedAlbums)
@@ -1167,7 +1173,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedAudioAlbums()
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return;
 
       _config.LastUpdatedAlbums.Clear();
@@ -1177,7 +1183,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<TrackInfo> GetLastChangedAudio()
     {
       List<TrackInfo> tracks = new List<TrackInfo>();
-      if (!Init())
+      if (!InitAsync().Result)
         return tracks;
 
       foreach (string id in _config.LastUpdatedTracks)
@@ -1191,7 +1197,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedAudio()
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return;
 
       _config.LastUpdatedTracks.Clear();
@@ -1204,7 +1210,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return false;
 
       string id;
@@ -1304,7 +1310,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         name = string.Format("{0} ({1})", data.MediaItemId, data.Name);
 
-        if (!Init())
+        if (!InitAsync().Result)
           return;
 
         try

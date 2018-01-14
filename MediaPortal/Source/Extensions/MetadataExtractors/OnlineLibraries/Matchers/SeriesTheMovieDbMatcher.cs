@@ -22,15 +22,15 @@
 
 #endregion
 
-using System;
-using System.Globalization;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -59,7 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -70,14 +70,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH, useHttps, false))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("SeriesTheMovieDbMatcher: Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
