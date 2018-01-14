@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Overrides
 
-    public override async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo, bool importOnly)
+    public override async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
     {
       if (!await InitAsync().ConfigureAwait(false))
         return false;
@@ -99,14 +99,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       //search won't be
       //TODO: Handle this better in the wrapper.
       if (trackInfo.AudioDbId == 0)
-        await FindTrackFromAlbum(trackInfo, importOnly);
-      return await base.FindAndUpdateTrackAsync(trackInfo, importOnly);
+        await FindTrackFromAlbum(trackInfo);
+      return await base.FindAndUpdateTrackAsync(trackInfo);
     }
 
-    protected async Task FindTrackFromAlbum(TrackInfo trackInfo, bool importOnly)
+    protected async Task FindTrackFromAlbum(TrackInfo trackInfo)
     {
       AlbumInfo album = trackInfo.CloneBasicInstance<AlbumInfo>();
-      if (!await UpdateAlbumAsync(album, true, importOnly).ConfigureAwait(false))
+      if (!await UpdateAlbumAsync(album, true).ConfigureAwait(false))
         return;
       List<TrackInfo> tracks = new List<TrackInfo>(album.Tracks);
       if (_wrapper.TestTrackMatch(trackInfo, ref tracks))

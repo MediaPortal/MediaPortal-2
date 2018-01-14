@@ -96,7 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return false;
 
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
-        await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, true, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, true).ConfigureAwait(false);
 
       if (collectionInfo.Movies.Count == 0)
         return false;

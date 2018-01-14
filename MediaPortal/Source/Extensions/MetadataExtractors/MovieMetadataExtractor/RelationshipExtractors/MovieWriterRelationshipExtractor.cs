@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       int count = 0;
       if (!MovieMetadataExtractor.SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.UpdatePersonsAsync(movieInfo, PersonAspect.OCCUPATION_WRITER, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdatePersonsAsync(movieInfo, PersonAspect.OCCUPATION_WRITER).ConfigureAwait(false);
         count = movieInfo.Writers.Where(p => p.HasExternalId).Count();
         if (!movieInfo.IsRefreshed)
           movieInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs

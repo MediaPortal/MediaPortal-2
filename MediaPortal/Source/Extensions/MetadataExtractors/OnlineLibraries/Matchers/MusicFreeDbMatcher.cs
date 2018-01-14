@@ -75,11 +75,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return Task.FromResult(false);
     }
 
-    public override Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo, bool importOnly)
+    public override Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
     {
       if (!string.IsNullOrEmpty(trackInfo.AlbumCdDdId))
       {
-        return base.FindAndUpdateTrackAsync(trackInfo, importOnly);
+        return base.FindAndUpdateTrackAsync(trackInfo);
       }
       return Task.FromResult(false);
     }

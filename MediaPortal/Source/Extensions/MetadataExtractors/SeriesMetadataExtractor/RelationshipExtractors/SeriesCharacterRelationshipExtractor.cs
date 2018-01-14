@@ -104,7 +104,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.UpdateSeriesCharactersAsync(seriesInfo, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateSeriesCharactersAsync(seriesInfo).ConfigureAwait(false);
         count = seriesInfo.Characters.Where(p => p.HasExternalId).Count();
         if (!seriesInfo.IsRefreshed)
           seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs

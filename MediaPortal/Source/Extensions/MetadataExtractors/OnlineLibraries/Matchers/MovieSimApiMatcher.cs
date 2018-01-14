@@ -81,29 +81,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo, bool importOnly)
-    {
-      // Don't allow SimApi during first import cycle because it is english only
-      // If it was allowed it would prevent the update of metadata with preferred language
-      // during refresh cycle that also allows searches which might be needed to find metadata 
-      // in the preferred language
-      if (importOnly && !Primary)
-        return Task.FromResult(false);
-
-      return base.FindAndUpdateMovieAsync(movieInfo, importOnly);
-    }
-
-    public override Task<bool> UpdateCharactersAsync(MovieInfo movieInfo, bool importOnly)
+    public override Task<bool> UpdateCharactersAsync(MovieInfo movieInfo)
     {
       return Task.FromResult(false);
     }
 
-    public override Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType, bool importOnly)
+    public override Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType)
     {
       return Task.FromResult(false);
     }
 
-    public override Task<bool> UpdateCollectionAsync(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly)
+    public override Task<bool> UpdateCollectionAsync(MovieCollectionInfo movieCollectionInfo, bool updateMovieList)
     {
       return Task.FromResult(false);
     }

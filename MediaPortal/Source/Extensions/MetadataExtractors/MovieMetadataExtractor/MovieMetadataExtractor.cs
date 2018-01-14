@@ -289,7 +289,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         MovieInfo tempInfo = movieInfo.Clone();
-        if (await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(tempInfo, false).ConfigureAwait(false))
+        if (await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(tempInfo).ConfigureAwait(false))
         {
           movieInfo.CopyIdsFrom(tempInfo);
           movieInfo.HasChanged = tempInfo.HasChanged;
@@ -297,7 +297,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
       else if (!SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(movieInfo, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(movieInfo).ConfigureAwait(false);
       }
 
       //Send it to the videos section

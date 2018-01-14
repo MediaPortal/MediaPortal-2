@@ -109,63 +109,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo, bool importOnly)
-    {
-      // Don't allow OMDB during first import cycle because it is english only
-      // If it was allowed it would prevent the update of metadata with preffered language
-      // during refresh cycle that also allows searches which might be needed to find metadata 
-      // in the preferred language
-      if (importOnly && !Primary)
-        return Task.FromResult(false);
-
-      return base.FindAndUpdateEpisodeAsync(episodeInfo, importOnly);
-    }
-
-    public override Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
-    {
-      // Don't allow OMDB during first import cycle because it is english only
-      // If it was allowed it would prevent the update of metadata with preffered language
-      // during refresh cycle that also allows searches which might be needed to find metadata 
-      // in the preferred language
-      if (importOnly && !Primary)
-        return Task.FromResult(false);
-
-      return base.UpdateSeriesAsync(seriesInfo, updateEpisodeList, importOnly);
-    }
-
-    public override Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo, bool importOnly)
-    {
-      // Don't allow OMDB during first import cycle because it is english only
-      // If it was allowed it would prevent the update of metadata with preffered language
-      // during refresh cycle that also allows searches which might be needed to find metadata 
-      // in the preferred language
-      if (importOnly && !Primary)
-        return Task.FromResult(false);
-
-      return base.UpdateSeasonAsync(seasonInfo, importOnly);
-    }
-
-    public override Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation, bool importOnly)
+    public override Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation)
     {
       return Task.FromResult(false);
     }
 
-    public override Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo, bool importOnly)
+    public override Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo)
     {
       return Task.FromResult(false);
     }
 
-    public override Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType, bool importOnly)
+    public override Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType)
     {
       return Task.FromResult(false);
     }
 
-    public override Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation, bool importOnly)
+    public override Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation)
     {
       return Task.FromResult(false);
     }
 
-    public override Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo, bool importOnly)
+    public override Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo)
     {
       return Task.FromResult(false);
     }

@@ -253,13 +253,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         EpisodeInfo tempInfo = episodeInfo.Clone();
-        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(tempInfo, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(tempInfo).ConfigureAwait(false);
         episodeInfo.CopyIdsFrom(tempInfo);
         episodeInfo.HasChanged = tempInfo.HasChanged;
       }
       else if (!SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
       }
 
       //Send it to the videos section

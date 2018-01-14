@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.UpdateSeriesCompaniesAsync(seriesInfo, CompanyAspect.COMPANY_PRODUCTION, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateSeriesCompaniesAsync(seriesInfo, CompanyAspect.COMPANY_PRODUCTION).ConfigureAwait(false);
         count = seriesInfo.ProductionCompanies.Where(c => c.HasExternalId).Count();
         if (!seriesInfo.IsRefreshed)
           seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs

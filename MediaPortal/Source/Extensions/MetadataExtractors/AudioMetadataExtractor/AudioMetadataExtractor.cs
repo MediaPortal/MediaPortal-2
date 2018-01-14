@@ -732,13 +732,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if (SkipOnlineSearches && !SkipFanArtDownload)
           {
             TrackInfo tempInfo = trackInfo.Clone();
-            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo, false).ConfigureAwait(false);
+            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo).ConfigureAwait(false);
             trackInfo.CopyIdsFrom(tempInfo);
             trackInfo.HasChanged = tempInfo.HasChanged;
           }
           else if (!SkipOnlineSearches)
           {
-            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, false).ConfigureAwait(false);
+            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo).ConfigureAwait(false);
           }
         }
 

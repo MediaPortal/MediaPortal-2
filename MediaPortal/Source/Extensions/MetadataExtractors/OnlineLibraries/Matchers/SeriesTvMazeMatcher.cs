@@ -92,12 +92,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo, bool importOnly)
+    public override Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo)
     {
       return Task.FromResult(false);
     }
 
-    public override Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType, bool importOnly)
+    public override Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType)
     {
       return Task.FromResult(false);
     }

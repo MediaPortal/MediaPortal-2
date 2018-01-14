@@ -36,14 +36,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     List<EpisodeInfo> GetLastChangedEpisodes();
     void ResetLastChangedEpisodes();
 
-    Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo, bool importOnly);
-    Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly);
-    Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo, bool importOnly);
-    Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation, bool importOnly);
-    Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo, bool importOnly);
-    Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType, bool importOnly);
-    Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation, bool importOnly);
-    Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo, bool importOnly);
+    Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo);
+    Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList);
+    Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo);
+    Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation);
+    Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo);
+    Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType);
+    Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation);
+    Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo);
 
     void StoreActorMatch(PersonInfo person);
     void StoreDirectorMatch(PersonInfo person);

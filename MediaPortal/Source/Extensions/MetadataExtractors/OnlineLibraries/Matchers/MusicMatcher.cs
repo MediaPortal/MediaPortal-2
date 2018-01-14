@@ -56,7 +56,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
       public List<string> LastUpdatedTracks { get; set; }
     }
-
+    
     protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
 
@@ -252,7 +252,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     /// </summary>
     /// <param name="trackInfo">Track to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public virtual async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo, bool importOnly)
+    public virtual async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
     {
       try
       {
@@ -308,7 +308,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound && !importOnly)
+          if (!matchFound)
           {
             Logger.Debug(_id + ": Search for track {0} online", trackInfo.ToString());
 
@@ -331,8 +331,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         //Always save match even if none to avoid retries
-        if (!importOnly)
-          StoreTrackMatch(trackInfo, trackMatch);
+        StoreTrackMatch(trackInfo, trackMatch);
 
         if (matchFound)
         {
@@ -397,7 +396,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly)
+    public virtual async Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum)
     {
       try
       {
@@ -502,29 +501,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for person {0} online", person.ToString());
+            Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
-              //Try to update person information from online source if online Ids are present
-              if (!await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, false).ConfigureAwait(false))
+            //Try to update person information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, false).ConfigureAwait(false))
+            {
+              //Search for the person online and update the Ids if a match is found
+              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
               {
-                //Search for the person online and update the Ids if a match is found
-                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
+                //Ids were updated now try to fetch the online person info
+                if (await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online person info
-                  if (await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, false).ConfigureAwait(false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    trackInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  trackInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -538,11 +534,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Try to update artist based on album information
           AlbumInfo album = trackMatch.CloneBasicInstance<AlbumInfo>();
-          if(forAlbum)
+          if (forAlbum)
             album.Artists = trackMatch.AlbumArtists;
           else
             album.Artists = trackMatch.Artists;
-          if (await UpdateAlbumPersonsAsync(album, occupation, importOnly).ConfigureAwait(false))
+          if (await UpdateAlbumPersonsAsync(album, occupation).ConfigureAwait(false))
           {
             trackMatch.HasChanged = album.HasChanged ? album.HasChanged : trackMatch.HasChanged;
             updated = true;
@@ -576,8 +572,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _artistMatcher.StoreNameMatch("", person.Name, person.Name);
+              _artistMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -593,8 +588,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _artistMatcher.StoreNameMatch("", person.Name, person.Name);
+              _artistMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -640,7 +634,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation, bool importOnly)
+    public virtual async Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation)
     {
       try
       {
@@ -682,29 +676,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for person {0} online", person.ToString());
+            Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
-              //Try to update person information from online source if online Ids are present
-              if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, false).ConfigureAwait(false))
+            //Try to update person information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, false).ConfigureAwait(false))
+            {
+              //Search for the person online and update the Ids if a match is found
+              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
               {
-                //Search for the person online and update the Ids if a match is found
-                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
+                //Ids were updated now try to fetch the online person info
+                if (await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online person info
-                  if (await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, false).ConfigureAwait(false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    albumInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  albumInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -735,8 +726,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _artistMatcher.StoreNameMatch("", person.Name, person.Name);
+              _artistMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -750,7 +740,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateAlbumCompaniesAsync(AlbumInfo albumInfo, string companyType, bool importOnly)
+    public virtual async Task<bool> UpdateAlbumCompaniesAsync(AlbumInfo albumInfo, string companyType)
     {
       try
       {
@@ -792,29 +782,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for company {0} online", company.ToString());
+            Logger.Debug(_id + ": Search for company {0} online", company.ToString());
 
-              //Try to update company information from online source if online Ids are present
-              if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, false).ConfigureAwait(false))
+            //Try to update company information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, false).ConfigureAwait(false))
+            {
+              //Search for the company online and update the Ids if a match is found
+              if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
               {
-                //Search for the company online and update the Ids if a match is found
-                if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
+                //Ids were updated now try to fetch the online company info
+                if (await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online company info
-                  if (await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, false).ConfigureAwait(false))
-                  {
-                    //Set track as changed because cache has changed and might contain new/updated data
-                    albumInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set track as changed because cache has changed and might contain new/updated data
+                  albumInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -845,8 +832,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              if (!importOnly)
-                _labelMatcher.StoreNameMatch("", company.Name, company.Name);
+              _labelMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
         }
@@ -860,7 +846,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateAlbumAsync(AlbumInfo albumInfo, bool updateTrackList, bool importOnly)
+    public virtual async Task<bool> UpdateAlbumAsync(AlbumInfo albumInfo, bool updateTrackList)
     {
       try
       {
@@ -885,32 +871,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
         }
-        
+
         bool updated = false;
         AlbumInfo albumMatch = albumInfo.Clone();
         albumMatch.Tracks.Clear();
         //Try updating from cache
         if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumMatch, language, true).ConfigureAwait(false))
         {
-          if (!importOnly)
-          {
-            Logger.Debug(_id + ": Search for album {0} online", albumInfo.ToString());
+          Logger.Debug(_id + ": Search for album {0} online", albumInfo.ToString());
 
-            //Try to update company information from online source if online Ids are present
-            if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumMatch, language, false).ConfigureAwait(false))
+          //Try to update company information from online source if online Ids are present
+          if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumMatch, language, false).ConfigureAwait(false))
+          {
+            //Search for the company online and update the Ids if a match is found
+            if (await _wrapper.SearchTrackAlbumUniqueAndUpdateAsync(albumMatch, language).ConfigureAwait(false))
             {
-              //Search for the company online and update the Ids if a match is found
-              if (await _wrapper.SearchTrackAlbumUniqueAndUpdateAsync(albumMatch, language).ConfigureAwait(false))
-              {
-                //Ids were updated now try to fetch the online company info
-                if (await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumMatch, language, false).ConfigureAwait(false))
-                  updated = true;
-              }
+              //Ids were updated now try to fetch the online company info
+              if (await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumMatch, language, false).ConfigureAwait(false))
+                updated = true;
             }
-            else
-            {
-              updated = true;
-            }
+          }
+          else
+          {
+            updated = true;
           }
         }
         else
@@ -949,10 +932,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
         }
 
-        if (!importOnly)
-        {
-          StoreAlbumMatch(albumInfo, albumMatch);
-        }
+        StoreAlbumMatch(albumInfo, albumMatch);
         return updated;
       }
       catch (Exception ex)

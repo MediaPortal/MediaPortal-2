@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
-        await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, false, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, false).ConfigureAwait(false);
 
       bool hasId = false;
       if (!MovieMetadataExtractor.SkipOnlineSearches)

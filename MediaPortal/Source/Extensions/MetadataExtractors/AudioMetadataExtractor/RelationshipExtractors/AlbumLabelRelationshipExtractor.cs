@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       int count = 0;
       if (!AudioMetadataExtractor.SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.UpdateAlbumCompaniesAsync(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateAlbumCompaniesAsync(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL).ConfigureAwait(false);
         count = albumInfo.MusicLabels.Where(c => c.HasExternalId).Count();
         if (!albumInfo.IsRefreshed)
           albumInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs

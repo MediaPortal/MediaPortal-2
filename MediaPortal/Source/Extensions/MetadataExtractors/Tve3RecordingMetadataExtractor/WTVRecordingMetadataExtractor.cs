@@ -118,7 +118,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (episodeInfo.IsBaseInfoPresent)
       {
         if (!forceQuickMode)
-          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, false).ConfigureAwait(false);
+          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
         if (episodeInfo.IsBaseInfoPresent)
           episodeInfo.SetMetadata(extractedAspectData);
       }

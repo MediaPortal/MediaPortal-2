@@ -90,7 +90,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       SeriesInfo seriesInfo = seasonInfo.CloneBasicInstance<SeriesInfo>();
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false).ConfigureAwait(false);
 
       if (!BaseInfo.HasRelationship(aspects, LinkedRole))
         seriesInfo.HasChanged = true; //Force save if no relationship exists

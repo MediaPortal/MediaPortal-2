@@ -262,7 +262,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     /// </summary>
     /// <param name="episodeInfo">Episode to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public virtual async Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo, bool importOnly)
+    public virtual async Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo)
     {
       try
       {
@@ -343,7 +343,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound && !importOnly)
+          if (!matchFound)
           {
             Logger.Debug(_id + ": Search for episode {0} online", episodeInfo.ToString());
 
@@ -367,8 +367,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         //Always save match even if none to avoid retries
         SeriesInfo cloneBasicSeries = episodeMatch != null ? episodeMatch.CloneBasicInstance<SeriesInfo>() : null;
-        if (!importOnly)
-          StoreSeriesMatch(episodeSeries, cloneBasicSeries);
+        StoreSeriesMatch(episodeSeries, cloneBasicSeries);
 
         if (matchFound && episodeMatch != null)
         {
@@ -443,7 +442,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
+    public virtual async Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList)
     {
       try
       {
@@ -473,25 +472,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         //Try updating from cache
         if (!await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, true).ConfigureAwait(false))
         {
-          if (!importOnly)
-          {
-            Logger.Debug(_id + ": Search for series {0} online", seriesInfo.ToString());
+          Logger.Debug(_id + ": Search for series {0} online", seriesInfo.ToString());
 
-            //Try to update series information from online source if online Ids are present
-            if (!await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, false).ConfigureAwait(false))
+          //Try to update series information from online source if online Ids are present
+          if (!await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, false).ConfigureAwait(false))
+          {
+            //Search for the series online and update the Ids if a match is found
+            if (await _wrapper.SearchSeriesUniqueAndUpdateAsync(seriesMatch, language).ConfigureAwait(false))
             {
-              //Search for the series online and update the Ids if a match is found
-              if (await _wrapper.SearchSeriesUniqueAndUpdateAsync(seriesMatch, language).ConfigureAwait(false))
-              {
-                //Ids were updated now try to fetch the online series info
-                if (await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, false).ConfigureAwait(false))
-                  updated = true;
-              }
+              //Ids were updated now try to fetch the online series info
+              if (await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, false).ConfigureAwait(false))
+                updated = true;
             }
-            else
-            {
-              updated = true;
-            }
+          }
+          else
+          {
+            updated = true;
           }
         }
         else
@@ -542,8 +538,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!GetSeriesId(seriesInfo, out Id))
         {
           //Store empty match so it is not retried
-          if (!importOnly)
-            _seriesNameMatcher.StoreNameMatch("", seriesInfo.SeriesName.Text, seriesInfo.SeriesName.Text);
+          _seriesNameMatcher.StoreNameMatch("", seriesInfo.SeriesName.Text, seriesInfo.SeriesName.Text);
         }
 
         return updated;
@@ -555,7 +550,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo, bool importOnly)
+    public virtual async Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo)
     {
       try
       {
@@ -569,14 +564,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         //Try updating from cache
         if (!await _wrapper.UpdateFromOnlineSeriesSeasonAsync(seasonMatch, language, true).ConfigureAwait(false))
         {
-          if (!importOnly)
-          {
-            Logger.Debug(_id + ": Search for season {0} online", seasonInfo.ToString());
+          Logger.Debug(_id + ": Search for season {0} online", seasonInfo.ToString());
 
-            //Try to update season information from online source
-            if (await _wrapper.UpdateFromOnlineSeriesSeasonAsync(seasonMatch, language, false).ConfigureAwait(false))
-              updated = true;
-          }
+          //Try to update season information from online source
+          if (await _wrapper.UpdateFromOnlineSeriesSeasonAsync(seasonMatch, language, false).ConfigureAwait(false))
+            updated = true;
         }
         else
         {
@@ -598,7 +590,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation, bool importOnly)
+    public virtual async Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation)
     {
       try
       {
@@ -640,29 +632,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for person {0} online", person.ToString());
+            Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
-              //Try to update movie information from online source if online Ids are present
-              if (!await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
+            //Try to update movie information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
+            {
+              //Search for the movie online and update the Ids if a match is found
+              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
               {
-                //Search for the movie online and update the Ids if a match is found
-                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
+                //Ids were updated now try to fetch the online movie info
+                if (await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online movie info
-                  if (await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    seriesInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  seriesInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -693,8 +682,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _actorMatcher.StoreNameMatch("", person.Name, person.Name);
+              _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -708,7 +696,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo, bool importOnly)
+    public virtual async Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo)
     {
       try
       {
@@ -733,29 +721,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for character {0} online", character.ToString());
+            Logger.Debug(_id + ": Search for character {0} online", character.ToString());
 
-              //Try to update movie information from online source if online Ids are present
-              if (!await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
+            //Try to update movie information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
+            {
+              //Search for the movie online and update the Ids if a match is found
+              if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
               {
-                //Search for the movie online and update the Ids if a match is found
-                if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
+                //Ids were updated now try to fetch the online movie info
+                if (await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online movie info
-                  if (await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    seriesInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  seriesInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -783,8 +768,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            if (!importOnly)
-              _characterMatcher.StoreNameMatch("", character.Name, character.Name);
+            _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }
 
@@ -797,7 +781,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType, bool importOnly)
+    public virtual async Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType)
     {
       try
       {
@@ -860,29 +844,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for company {0} online", company.ToString());
+            Logger.Debug(_id + ": Search for company {0} online", company.ToString());
 
-              //Try to update company information from online source if online Ids are present
-              if (!await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
+            //Try to update company information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
+            {
+              //Search for the company online and update the Ids if a match is found
+              if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
               {
-                //Search for the company online and update the Ids if a match is found
-                if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
+                //Ids were updated now try to fetch the online company info
+                if (await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online company info
-                  if (await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    seriesInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  seriesInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -915,8 +896,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              if (!importOnly)
-                _companyMatcher.StoreNameMatch("", company.Name, company.Name);
+              _companyMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
         }
@@ -932,8 +912,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              if (!importOnly)
-                _networkMatcher.StoreNameMatch("", company.Name, company.Name);
+              _networkMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
         }
@@ -947,7 +926,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation, bool importOnly)
+    public virtual async Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation)
     {
       try
       {
@@ -1031,29 +1010,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for person {0} online", person.ToString());
+            Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
-              //Try to update person information from online source if online Ids are present
-              if (!await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
+            //Try to update person information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
+            {
+              //Search for the person online and update the Ids if a match is found
+              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
               {
-                //Search for the person online and update the Ids if a match is found
-                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
+                //Ids were updated now try to fetch the online person info
+                if (await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online person info
-                  if (await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    episodeInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  episodeInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -1068,7 +1044,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try to update person based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
           series.Actors = episodeMatch.Actors;
-          if (await UpdateSeriesPersonsAsync(series, occupation, importOnly).ConfigureAwait(false))
+          if (await UpdateSeriesPersonsAsync(series, occupation).ConfigureAwait(false))
             updated = true;
         }
 
@@ -1097,8 +1073,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _actorMatcher.StoreNameMatch("", person.Name, person.Name);
+              _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -1114,8 +1089,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _directorMatcher.StoreNameMatch("", person.Name, person.Name);
+              _directorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -1131,8 +1105,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _writerMatcher.StoreNameMatch("", person.Name, person.Name);
+              _writerMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -1146,7 +1119,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual async Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo, bool importOnly)
+    public virtual async Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo)
     {
       try
       {
@@ -1171,29 +1144,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for character {0} online", character.ToString());
+            Logger.Debug(_id + ": Search for character {0} online", character.ToString());
 
-              //Try to update character information from online source if online Ids are present
-              if (!await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
+            //Try to update character information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
+            {
+              //Search for the character online and update the Ids if a match is found
+              if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
               {
-                //Search for the character online and update the Ids if a match is found
-                if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
+                //Ids were updated now try to fetch the online character info
+                if (await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online character info
-                  if (await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    episodeInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  episodeInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -1208,7 +1178,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try to update character based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
           series.Characters = episodeMatch.Characters;
-          if (await UpdateSeriesCharactersAsync(series, importOnly).ConfigureAwait(false))
+          if (await UpdateSeriesCharactersAsync(series).ConfigureAwait(false))
             updated = true;
         }
 
@@ -1230,8 +1200,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            if (!importOnly)
-              _characterMatcher.StoreNameMatch("", character.Name, character.Name);
+            _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }
 

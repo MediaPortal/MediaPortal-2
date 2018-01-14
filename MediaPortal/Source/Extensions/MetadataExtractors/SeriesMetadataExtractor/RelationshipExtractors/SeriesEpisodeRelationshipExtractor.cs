@@ -112,7 +112,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, true, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, true).ConfigureAwait(false);
 
       if (seriesInfo.Episodes.Count == 0)
         return false;
