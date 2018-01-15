@@ -436,6 +436,7 @@
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="General\MultimediaDirectory.cs" />
     <Compile Include="Helpers\VirtualMediaHelper.cs" />
+    <Compile Include="MediaPlugin.cs" />
     <Compile Include="Views\BrowseMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\AbstractMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\LocalMediaRootProxyViewSpecification.cs" />

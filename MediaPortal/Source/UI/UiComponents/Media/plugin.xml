@@ -11,7 +11,7 @@
     PluginVersion="1.1"
     ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
     CurrentAPI="2"/>
-  
+
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
@@ -28,6 +28,7 @@
 
   <Runtime>
     <Assembly FileName="Media.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.Media.MediaPlugin"/>
   </Runtime>
 
   <Register Location="/Models">

@@ -29,6 +29,7 @@ using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.General;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Services.UserManagement
@@ -49,7 +50,13 @@ namespace MediaPortal.UI.Services.UserManagement
     public UserProfile CurrentUser
     {
       get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().Result ?? UNKNOWN_USER); }
-      set { _currentUser = value; }
+      set
+      {
+        bool changed = _currentUser != value;
+        _currentUser = value;
+        if (changed)
+          UserMessaging.SendUserMessage(UserMessaging.MessageType.UserChanged);
+      }
     }
 
     public IUserProfileDataManagement UserProfileDataManagement

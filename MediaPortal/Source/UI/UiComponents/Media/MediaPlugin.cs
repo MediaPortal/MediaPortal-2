@@ -22,29 +22,23 @@
 
 #endregion
 
-using MediaPortal.Common;
+using System;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Plugins.SlimTv.Client.Helpers;
-using MediaPortal.Plugins.SlimTv.Client.MediaExtensions;
-using MediaPortal.Plugins.SlimTv.Client.Notifications;
-using MediaPortal.Plugins.SlimTv.Client.TvHandler;
-using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UI.Services.UserManagement;
 
-namespace MediaPortal.Plugins.SlimTv.Client
+namespace MediaPortal.UiComponents.Media
 {
-  public class SlimTvClientPlugin : IPluginStateTracker
+  public class MediaPlugin : IPluginStateTracker
   {
+    private UserMessageHandler _userMessageHandler;
+
     #region IPluginStateTracker implementation
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      ServiceRegistration.Set<ITvHandler>(new SlimTvHandler());
-      ServiceRegistration.Set<ISlimTvNotificationService>(new SlimTvNotificationService());
-      // Register recording section in MediaLibrary
-      RecordingsLibrary.RegisterOnMediaLibrary();
-
-      // Dummy call to static instance which creates required message handlers
-      var channels = ChannelContext.Instance.Channels;
+      _userMessageHandler = new UserMessageHandler();
+      _userMessageHandler.RequestRestrictions += RequestRestrictions;
     }
 
     public bool RequestEnd()
@@ -54,7 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Client
 
     public void Stop()
     {
-      ServiceRegistration.RemoveAndDispose<ITvHandler>();
+      _userMessageHandler.Dispose();
     }
 
     public void Continue() { }
@@ -62,5 +56,12 @@ namespace MediaPortal.Plugins.SlimTv.Client
     public void Shutdown() { }
 
     #endregion
+
+    private void RequestRestrictions(object sender, EventArgs eventArgs)
+    {
+      // Register restrictions for MediaItemActions.
+      MediaItemsActionModel model = new MediaItemsActionModel();
+      model.BuildExtensions();
+    }
   }
 }

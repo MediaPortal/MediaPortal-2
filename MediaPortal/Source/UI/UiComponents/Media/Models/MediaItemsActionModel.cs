@@ -167,7 +167,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Protected members
 
-    protected void BuildExtensions()
+    public void BuildExtensions()
     {
       if (_mediaActionPluginItemStateTracker != null)
         return;

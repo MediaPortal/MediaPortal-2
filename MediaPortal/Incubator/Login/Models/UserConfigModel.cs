@@ -47,6 +47,7 @@ using MediaPortal.Utilities.Graphics;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.UI.General;
 using MediaPortal.UI.Presentation.Utilities;
 
 namespace MediaPortal.UiComponents.Login.Models
@@ -132,6 +133,7 @@ namespace MediaPortal.UiComponents.Login.Models
         _profileList.Add(item);
       }
 
+      RequestRestrictions();
       FillRestrictionGroupList();
 
       UserProxy = new UserProxy();
@@ -268,7 +270,7 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get
       {
-        lock(_syncObj)
+        lock (_syncObj)
           return _profileList;
       }
     }
@@ -277,7 +279,7 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get
       {
-        lock(_syncObj)
+        lock (_syncObj)
           return _restrictionGroupList;
       }
     }
@@ -570,7 +572,7 @@ namespace MediaPortal.UiComponents.Login.Models
           bool success = true;
           string hash = UserProxy.Password;
           bool wasCreated = false;
-          if(UserProxy.IsPasswordChanged)
+          if (UserProxy.IsPasswordChanged)
             hash = Utils.HashPassword(UserProxy.Password);
           if (UserProxy.ProfileType == UserProfileType.ClientProfile)
             hash = ""; //Client profiles can't have passwords
@@ -634,7 +636,7 @@ namespace MediaPortal.UiComponents.Login.Models
           user.RestrictionGroups = UserProxy.RestrictionGroups;
 
           // Update current logged in user if the same
-          if(userManagement.CurrentUser.ProfileId == user.ProfileId)
+          if (userManagement.CurrentUser.ProfileId == user.ProfileId)
             userManagement.CurrentUser = user;
 
           item.SetLabel(Consts.KEY_NAME, user.Name);
@@ -716,14 +718,26 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       _restrictionGroupList = new ItemsList();
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      ILocalization loc = ServiceRegistration.Get<ILocalization>();
       foreach (string restrictionGroup in userManagement.RestrictionGroups.OrderBy(r => r))
       {
         ListItem item = new ListItem();
-        item.SetLabel(Consts.KEY_NAME, string.Format("[RestrictionGroup.{0}]", restrictionGroup));
+        // Try translation or use the orginal value
+        string labelResource;
+        if (!loc.TryTranslate("RestrictionGroup", restrictionGroup, out labelResource))
+          labelResource = restrictionGroup;
+
+        item.SetLabel(Consts.KEY_NAME, labelResource);
         item.AdditionalProperties[Consts.KEY_RESTRICTION_GROUP] = restrictionGroup;
         lock (_syncObj)
           _restrictionGroupList.Add(item);
       }
+    }
+
+    private static void RequestRestrictions()
+    {
+      // Request registration of groups from all components and plugins
+      UserMessaging.SendUserMessage(UserMessaging.MessageType.RequestRestrictions);
     }
 
     private void SetSelectedShares()
