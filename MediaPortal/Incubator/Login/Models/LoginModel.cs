@@ -42,6 +42,7 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Login.Models

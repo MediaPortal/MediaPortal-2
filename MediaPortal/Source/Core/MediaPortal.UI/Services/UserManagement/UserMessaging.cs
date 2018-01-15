@@ -25,6 +25,7 @@
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UI.General

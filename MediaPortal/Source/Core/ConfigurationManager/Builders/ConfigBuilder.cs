@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.Configuration.Builders
 {
@@ -248,7 +248,8 @@ namespace MediaPortal.Configuration.Builders
     private static void SetValueAndRegister(ref string restrictionGroup, string attrValue)
     {
       restrictionGroup = attrValue;
-      ServiceRegistration.Get<IUserManagement>().RegisterRestrictionGroup(restrictionGroup);
+      var userManagement = ServiceRegistration.Get<IUserManagement>(false);
+      userManagement?.RegisterRestrictionGroup(restrictionGroup);
     }
 
     #endregion

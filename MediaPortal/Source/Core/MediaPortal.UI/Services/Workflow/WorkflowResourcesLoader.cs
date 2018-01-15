@@ -29,6 +29,7 @@ using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;

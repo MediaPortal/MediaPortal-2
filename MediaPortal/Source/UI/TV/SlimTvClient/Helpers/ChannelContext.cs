@@ -28,6 +28,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;

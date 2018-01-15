@@ -31,6 +31,7 @@ using MediaPortal.UI.ServerCommunication;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 

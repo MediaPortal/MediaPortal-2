@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Services.UserManagement;
 

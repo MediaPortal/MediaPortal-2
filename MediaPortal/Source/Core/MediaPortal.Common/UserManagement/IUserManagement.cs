@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Common.UserProfileDataManagement;
 
-namespace MediaPortal.UI.Services.UserManagement
+namespace MediaPortal.Common.UserManagement
 {
   /// <summary>
   /// <see cref="IUserManagement"/> provides properties and methods for managing user profiles. It is able to provide the <see cref="CurrentUser"/> to be used in all

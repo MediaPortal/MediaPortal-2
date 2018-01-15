@@ -47,6 +47,7 @@ using MediaPortal.Utilities.Graphics;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.General;
 using MediaPortal.UI.Presentation.Utilities;
 

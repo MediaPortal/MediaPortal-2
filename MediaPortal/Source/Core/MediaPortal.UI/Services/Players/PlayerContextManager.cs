@@ -44,6 +44,7 @@ using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UI.Services.Players

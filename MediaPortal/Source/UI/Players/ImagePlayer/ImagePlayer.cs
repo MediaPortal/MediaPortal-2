@@ -46,6 +46,7 @@ using PointF = SharpDX.Vector2;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Players.Image

@@ -37,6 +37,7 @@ using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Services.Players.Settings;
 
 namespace MediaPortal.UI.Players.BassPlayer

@@ -27,6 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Configuration
