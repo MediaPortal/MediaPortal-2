@@ -14,7 +14,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid DataContext="{Binding Source={StaticResource Model}}">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="0,0,0,-20">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
@@ -115,7 +115,7 @@
           <Label Margin="5" Content="{Binding UserProxy.LastLogin}" Color="{ThemeResource TextColor}" Scroll="Auto" Opacity="0.5"/>
         </StackPanel>
 
-        <Button Grid.Row="6" Grid.RowSpan="3" Grid.ColumnSpan="3" Grid.Column="3" Margin="0,0,5,0"
+        <Button Grid.Row="6" Grid.RowSpan="4" Grid.ColumnSpan="3" Grid.Column="3" Margin="0,0,5,20"
                 HorizontalAlignment="Right" VerticalAlignment="Center"
                 Width="150" Height="150" Command="{Command OpenSelectUserImageDialog}" >
           <Image x:Name="BigIcon" Source="{Binding UserProxy.Image}" FallbackSource="person.png" Stretch="Uniform"/>
