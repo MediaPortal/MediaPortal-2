@@ -74,7 +74,7 @@
           <Label Margin="5" Content="[UserConfig.RestrictionGroups]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
         <Button x:Name="EditRestrictionsButton" Grid.Row="4" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-                Content="{Binding SelectedRestrictionGroupsInfo}" IsEnabled="{Binding ElementName=CheckRestrictionGroups, Path=IsChecked}"
+                Content="{Binding SelectedRestrictionGroupsInfo}" IsVisible="{Binding ElementName=CheckRestrictionGroups, Path=IsChecked}"
                 Command="{Command OpenSelectRestrictionDialog}"/>
 
         <StackPanel Orientation="Horizontal"  Grid.Row="5" Grid.Column="1">
@@ -83,7 +83,7 @@
           <Label Margin="5" Content="[UserConfig.ShareRestrictions]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
         <Button x:Name="EditSharesButton" Grid.Row="5" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-                Content="{Binding SelectedSharesInfo}" IsEnabled="{Binding ElementName=CheckShareFilter, Path=IsChecked}"
+                Content="{Binding SelectedSharesInfo}" IsVisible="{Binding ElementName=CheckShareFilter, Path=IsChecked}"
                 Command="{Command OpenSelectSharesDialog}"/>
 
         <StackPanel Orientation="Horizontal"  Grid.Row="6" Grid.Column="1">

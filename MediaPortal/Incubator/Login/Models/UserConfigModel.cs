@@ -743,14 +743,24 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private void SetSelectedShares()
     {
+      var totalShares = _serverSharesList.Count + _localSharesList.Count;
       if (UserProxy != null)
-        SelectedSharesInfo = string.Format("{0}: {1}", LocalizationHelper.Translate(Consts.RES_SHARES_TEXT), UserProxy.SelectedShares.Count);
+        SelectedSharesInfo = FormatLabel(UserProxy.SelectedShares.Count, totalShares);
     }
 
     private void SetSelectedRestrictionGroups()
     {
       if (UserProxy != null)
-        SelectedRestrictionGroupsInfo = string.Format("{0}: {1}", LocalizationHelper.Translate(Consts.RES_RESTRICTION_GROUPS_TEXT), UserProxy.RestrictionGroups.Count);
+        SelectedRestrictionGroupsInfo = FormatLabel(UserProxy.RestrictionGroups.Count, _restrictionGroupList.Count);
+    }
+
+    private string FormatLabel(int selected, int total)
+    {
+      if (selected == 0)
+        return LocalizationHelper.Translate(Consts.RES_RESTRICTIONS_NONE);
+      if (selected < total)
+        return LocalizationHelper.Translate(Consts.RES_RESTRICTIONS_NUMBERS, selected, total);
+      return LocalizationHelper.Translate(Consts.RES_RESTRICTIONS_ALL);
     }
 
     protected internal async Task UpdateUserLists_NoLock(bool create)
