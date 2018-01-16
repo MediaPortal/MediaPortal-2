@@ -283,12 +283,12 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected override void Update()
     {
-      _ = UpdateAllProvidersAsync();
+      Task.Run(UpdateAllProvidersAsync);
     }
 
     private void OnProviderRequested(object sender, ProviderEventArgs e)
     {
-      _ = UpdateProviderAsync(e.Provider, Limit, UpdateReason.Forced);
+      Task.Run(() => UpdateProviderAsync(e.Provider, Limit, UpdateReason.Forced));
     }
 
     public void InitProviders()
