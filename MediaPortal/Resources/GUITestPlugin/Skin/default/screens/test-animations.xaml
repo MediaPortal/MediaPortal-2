@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <StackPanel>
+    <StackPanel.Resources>
+      <!--Slide with acceleration and hold end-->
+      <Storyboard x:Key="SlideWithAccelerationHoldEndStoryboard" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccellerationRatio="1.0" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+
+      <!--Slide with deceleration and hold end-->
+      <Storyboard x:Key="SlideWithDecelerationHoldEndStoryboard" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" DecelerationRatio="1.0" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+
+      <!--Slide with acceleration deceleration and hold end-->
+      <Storyboard x:Key="SlideWithAccelerationAndDecelerationHoldEndStoryboard" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccellerationRatio="0.4" DecelerationRatio="0.4" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+
+      <!--Slide with acceleration deceleration auto reverse-->
+      <Storyboard x:Key="SlideWithAccelerationAndDecelerationAutoReverseStoryboard">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccellerationRatio="1.0" AutoReverse="True" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+
+    </StackPanel.Resources>
+
+    <Label HorizontalAlignment="Center"
+        Content="Animations Test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with acceleration"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_Acceleration_BeginStoryboard" Storyboard="{StaticResource SlideWithAccelerationHoldEndStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+    
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with deceleration"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_Deceleration_BeginStoryboard" Storyboard="{StaticResource SlideWithDecelerationHoldEndStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with acceleration and deceleration"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_Acceleration_Deceleration_BeginStoryboard" Storyboard="{StaticResource SlideWithAccelerationAndDecelerationHoldEndStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with auto reverse"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_AutoReverse_BeginStoryboard" Storyboard="{StaticResource SlideWithAccelerationAndDecelerationAutoReverseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+  </StackPanel>
+
+</Screen>
