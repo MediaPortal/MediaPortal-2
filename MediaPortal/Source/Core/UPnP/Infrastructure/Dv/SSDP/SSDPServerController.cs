@@ -253,9 +253,9 @@ namespace UPnP.Infrastructure.Dv.SSDP
         NetworkHelper.BindAndConfigureSSDPMulticastSocket(socket, address);
         StartReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
       }
-      catch (Exception) // SocketException, SecurityException
+      catch (Exception e) // SocketException, SecurityException
       {
-        UPnPConfiguration.LOGGER.Info("SSDPServerController: Unable to bind to multicast address(es) for endpoint '{0}'",
+        UPnPConfiguration.LOGGER.Warn("SSDPServerController: Unable to bind to multicast address(es) for endpoint '{0}'", e,
             NetworkHelper.IPAddrToString(address));
       }
 
@@ -310,9 +310,9 @@ namespace UPnP.Infrastructure.Dv.SSDP
           }
         StartReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
       }
-      catch (Exception) // SocketException, SecurityException
+      catch (Exception e) // SocketException, SecurityException
       {
-        UPnPConfiguration.LOGGER.Info("SSDPServerController: Unable to bind to unicast address '{0}'",
+        UPnPConfiguration.LOGGER.Warn("SSDPServerController: Unable to bind to unicast address '{0}'", e,
             NetworkHelper.IPAddrToString(address));
       }
     }
