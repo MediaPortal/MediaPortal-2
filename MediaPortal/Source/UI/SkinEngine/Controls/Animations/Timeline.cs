@@ -120,9 +120,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     #region Protected fields
 
     protected AbstractProperty _beginTimeProperty;
-    protected AbstractProperty _accellerationProperty;
-    protected AbstractProperty _autoReverseProperty;
+    protected AbstractProperty _accellerationRatioProperty;
     protected AbstractProperty _decelerationRatioProperty;
+    protected AbstractProperty _autoReverseProperty;
     protected AbstractProperty _durationProperty;
     protected AbstractProperty _repeatBehaviourProperty;
     protected AbstractProperty _fillBehaviourProperty;
@@ -140,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     void Init()
     {
       _beginTimeProperty = new SProperty(typeof(TimeSpan), new TimeSpan(0, 0, 0));
-      _accellerationProperty = new SProperty(typeof(double), 0.0);
+      _accellerationRatioProperty = new SProperty(typeof(double), 0.0);
       _autoReverseProperty = new SProperty(typeof(bool), false);
       _decelerationRatioProperty = new SProperty(typeof(double), 0.0);
       _durationProperty = new SProperty(typeof(TimeSpan?), null);
@@ -178,9 +178,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _beginTimeProperty.SetValue(value); }
     }
 
-    public AbstractProperty AccellerationProperty
+    public AbstractProperty AccellerationRatioProperty
     {
-      get { return _accellerationProperty; }
+      get { return _accellerationRatioProperty; }
     }
 
     /// <summary>
@@ -193,8 +193,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     /// </remarks>
     public double AccellerationRatio
     {
-      get { return (double) _accellerationProperty.GetValue(); }
-      set { _accellerationProperty.SetValue(value); }
+      get { return (double) _accellerationRatioProperty.GetValue(); }
+      set { _accellerationRatioProperty.SetValue(value); }
     }
 
     public AbstractProperty DecelerationRatioProperty
