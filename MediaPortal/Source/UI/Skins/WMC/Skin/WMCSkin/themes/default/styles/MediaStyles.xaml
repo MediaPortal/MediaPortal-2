@@ -2975,7 +2975,7 @@
           </VisualBrush>
         </Image.OpacityMask>
       </Image>
-      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
@@ -3011,7 +3011,7 @@
           </VisualBrush>
         </Image.OpacityMask>
       </Image>
-      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">

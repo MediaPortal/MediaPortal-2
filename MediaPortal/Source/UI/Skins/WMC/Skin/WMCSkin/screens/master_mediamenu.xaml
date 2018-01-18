@@ -172,25 +172,23 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="IsVisible">
                   <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="True"/>
                 </ObjectAnimationUsingKeyFrames>
-                <DoubleAnimation BeginTime="00:00:00" From="0" To="-550" Duration="00:00:00.6" DecelerationRatio="1"
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="-550" Duration="00:00:00.9" DecelerationRatio="0"
                                  FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
+                  <DoubleAnimation.EasingFunction>
+                    <BackEase Amplitude="0.35" EasingMode="EaseOut"/>
+                  </DoubleAnimation.EasingFunction>
                 </DoubleAnimation>
-                <!--DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel"  Storyboard.TargetProperty="RenderTransform.X">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                  <EasingDoubleKeyFrame KeyTime="00:00:01" Value="-550">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                      <BackEase Amplitude="0.5" EasingMode="EaseIn"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                  </EasingDoubleKeyFrame>
-                </DoubleAnimationUsingKeyFrames-->
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00.01" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="Opacity">
                   <SplineDoubleKeyFrame KeyTime="00:00:00.01" Value="0"/>
                   <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="0.5"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
               <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
-                <DoubleAnimation BeginTime="00:00:00" From="-550" To="0" Duration="00:00:00.6" AccellerationRatio="1"
+                <DoubleAnimation BeginTime="00:00:00" From="-550" To="0" Duration="00:00:00.9"
                                  FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
+                  <DoubleAnimation.EasingFunction>
+                    <BackEase Amplitude="0.35" EasingMode="EaseIn"/>
+                  </DoubleAnimation.EasingFunction>
                 </DoubleAnimation>
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="Opacity">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.5"/>
