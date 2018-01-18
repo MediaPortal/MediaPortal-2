@@ -212,7 +212,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
             <Storyboard x:Key="SlideOutStoryboard" FillBehavior="Stop">
-              <DoubleAnimation BeginTime="00:00:00" From="0" To="500" Duration="00:00:00.75" AccellerationRatio="1"
+              <DoubleAnimation BeginTime="00:00:00" From="0" To="500" Duration="00:00:00.75" AccelerationRatio="1"
                                FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X" >
               </DoubleAnimation>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">

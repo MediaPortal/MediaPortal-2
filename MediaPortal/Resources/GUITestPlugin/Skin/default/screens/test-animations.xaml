@@ -6,7 +6,7 @@
     <StackPanel.Resources>
       <!--Slide with acceleration and hold end-->
       <Storyboard x:Key="SlideWithAccelerationHoldEndStoryboard" FillBehavior="HoldEnd">
-        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccellerationRatio="1.0" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccelerationRatio="1.0" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
           <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
           <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
         </DoubleAnimationUsingKeyFrames>
@@ -22,7 +22,7 @@
 
       <!--Slide with acceleration deceleration and hold end-->
       <Storyboard x:Key="SlideWithAccelerationAndDecelerationHoldEndStoryboard" FillBehavior="HoldEnd">
-        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccellerationRatio="0.4" DecelerationRatio="0.4" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccelerationRatio="0.4" DecelerationRatio="0.4" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
           <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
           <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
         </DoubleAnimationUsingKeyFrames>
@@ -30,7 +30,7 @@
 
       <!--Slide with acceleration deceleration auto reverse-->
       <Storyboard x:Key="SlideWithAccelerationAndDecelerationAutoReverseStoryboard">
-        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccellerationRatio="0.4" DecelerationRatio="0.4" AutoReverse="True" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccelerationRatio="0.4" DecelerationRatio="0.4" AutoReverse="True" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
           <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
           <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
         </DoubleAnimationUsingKeyFrames>

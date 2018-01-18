@@ -120,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     #region Protected fields
 
     protected AbstractProperty _beginTimeProperty;
-    protected AbstractProperty _accellerationRatioProperty;
+    protected AbstractProperty _accelerationRatioProperty;
     protected AbstractProperty _decelerationRatioProperty;
     protected AbstractProperty _autoReverseProperty;
     protected AbstractProperty _durationProperty;
@@ -140,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     void Init()
     {
       _beginTimeProperty = new SProperty(typeof(TimeSpan), new TimeSpan(0, 0, 0));
-      _accellerationRatioProperty = new SProperty(typeof(double), 0.0);
+      _accelerationRatioProperty = new SProperty(typeof(double), 0.0);
       _autoReverseProperty = new SProperty(typeof(bool), false);
       _decelerationRatioProperty = new SProperty(typeof(double), 0.0);
       _durationProperty = new SProperty(typeof(TimeSpan?), null);
@@ -153,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       base.DeepCopy(source, copyManager);
       Timeline t = (Timeline) source;
       BeginTime = t.BeginTime;
-      AccellerationRatio = t.AccellerationRatio;
+      AccelerationRatio = t.AccelerationRatio;
       AutoReverse = t.AutoReverse;
       DecelerationRatio = t.DecelerationRatio;
       _durationProperty.SetValue(t._durationProperty.GetValue()); // Copying of a Nullable<TimeSpan>
@@ -178,9 +178,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _beginTimeProperty.SetValue(value); }
     }
 
-    public AbstractProperty AccellerationRatioProperty
+    public AbstractProperty AccelerationRatioProperty
     {
-      get { return _accellerationRatioProperty; }
+      get { return _accelerationRatioProperty; }
     }
 
     /// <summary>
@@ -191,10 +191,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     /// This property must be set to a value between 0 and 1, inclusive, and the sum of
     /// this property and Deceleration ratio cannot be greater than 1/
     /// </remarks>
-    public double AccellerationRatio
+    public double AccelerationRatio
     {
-      get { return (double) _accellerationRatioProperty.GetValue(); }
-      set { _accellerationRatioProperty.SetValue(value); }
+      get { return (double) _accelerationRatioProperty.GetValue(); }
+      set { _accelerationRatioProperty.SetValue(value); }
     }
 
     public AbstractProperty DecelerationRatioProperty
@@ -468,7 +468,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
         return passed;
 
       double durationTicks = duration.Ticks;
-      double accelerationRatio = AccellerationRatio;
+      double accelerationRatio = AccelerationRatio;
       double decelerationRatio = DecelerationRatio;
       if (accelerationRatio == 0 && decelerationRatio == 0)
         return passed;
