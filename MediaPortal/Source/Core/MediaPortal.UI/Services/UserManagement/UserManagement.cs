@@ -82,7 +82,7 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public bool CheckUserAccess(IUserRestriction restrictedElement)
     {
-      if (!IsValidUser || !CurrentUser.EnableRestrictionGroups)
+      if (!IsValidUser || CurrentUser.ProfileType == UserProfileType.AdminProfile || !CurrentUser.EnableRestrictionGroups)
         return true;
 
       return string.IsNullOrEmpty(restrictedElement.RestrictionGroup) || CurrentUser.RestrictionGroups.Contains(restrictedElement.RestrictionGroup);
