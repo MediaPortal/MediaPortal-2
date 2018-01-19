@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.Controls.Animations.EasingFunctions;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
@@ -34,6 +35,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     protected AbstractProperty _fromProperty;
     protected AbstractProperty _toProperty;
     protected AbstractProperty _byProperty;
+    protected AbstractProperty _easingFunctionProperty;
 
     #endregion
 
@@ -49,6 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       _fromProperty = new SProperty(typeof(double?), null);
       _toProperty = new SProperty(typeof(double?), null);
       _byProperty = new SProperty(typeof(double?), null);
+      _easingFunctionProperty = new SProperty(typeof(IEasingFunction), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -58,6 +61,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       From = a.From;
       To = a.To;
       By = a.By;
+      EasingFunction = copyManager.GetCopy(a.EasingFunction);
     }
 
     #endregion
@@ -98,6 +102,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _byProperty.SetValue(value); }
     }
 
+    public AbstractProperty EasingFunctionProperty
+    {
+      get { return _easingFunctionProperty; }
+    }
+
+    public IEasingFunction EasingFunction
+    {
+      get { return (IEasingFunction)_easingFunctionProperty.GetValue(); }
+      set { _easingFunctionProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Animation properties
@@ -117,8 +132,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
         return;
       }
 
-      double dist = (to - from) / duration;
-      dist *= timepassed;
+      double progress = timepassed / duration;
+
+      IEasingFunction easingFunction = EasingFunction;
+      if (easingFunction != null)
+        progress = easingFunction.Ease(progress);
+
+      double dist = to - from;
+      dist *= progress;
       dist += from;
 
       patc.DataDescriptor.Value = dist;
