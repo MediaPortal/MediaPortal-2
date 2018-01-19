@@ -79,7 +79,7 @@
       </Grid>
       <Grid>
         <Grid.IsVisible>
-          <<Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
         </Grid.IsVisible>
         <Image Source="flag.png" Height="71" Stretch="Uniform"/>
         <Image x:Name="WatchedLabel" Height="18" Margin="0,4,4,0" Stretch="Uniform"
@@ -708,6 +708,7 @@
         </Image>
         <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
                Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
       </Grid>
@@ -967,6 +968,7 @@
         </Image>
         <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
                Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>      
       </Grid>
@@ -1139,6 +1141,7 @@
         <Image x:Name="Thumb" Stretch="Fill" Source="{Binding MediaItem}"/>
         <Image Stretch="Uniform" Source="1190A648-90F3-413D-88AC-DA89684E9766.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
                Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1150,6 +1153,7 @@
       <Image x:Name="Thumb" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}"/>
       <Image Stretch="Uniform" Source="1190A648-90F3-413D-88AC-DA89684E9766.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
              Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
@@ -1237,6 +1241,7 @@
         </Image>
         <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
                Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1252,6 +1257,7 @@
       </Image>
       <Image Stretch="Uniform" Source="D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
              Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
@@ -1342,6 +1348,7 @@
              HorizontalAlignment="Center" VerticalAlignment="Center"/>
       <Image Stretch="Uniform" Source="E1748A80-347C-4E1A-8A26-DABEC246A540.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
              Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1369,6 +1376,7 @@
         </Image>
         <Image Stretch="Uniform" Source="E1748A80-347C-4E1A-8A26-DABEC246A540.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
                Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
       </Grid>
