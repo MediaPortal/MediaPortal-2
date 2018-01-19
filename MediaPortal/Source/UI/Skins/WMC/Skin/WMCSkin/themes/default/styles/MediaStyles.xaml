@@ -2755,12 +2755,12 @@
    <ControlTemplate x:Key="GridViewAudioItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH}"/>
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image x:Name="thumb" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+      <Image x:Name="thumb" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}"
              Source="{Binding MediaItem}">
         <Image.OpacityMask>
           <VisualBrush>
@@ -2770,7 +2770,7 @@
           </VisualBrush>
         </Image.OpacityMask>
       </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}"
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
@@ -2779,7 +2779,7 @@
           </LinearGradientBrush>
         </Border.Background>
       </Border>
-      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}"
              Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
@@ -2957,12 +2957,12 @@
   <ControlTemplate x:Key="GridViewAlbumItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH}"/>
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image x:Name="thumb" Stretch="Fill">
+      <Image x:Name="thumb" Stretch="Fill" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -2975,7 +2975,7 @@
           </VisualBrush>
         </Image.OpacityMask>
       </Image>
-      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}"
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
@@ -2984,7 +2984,7 @@
           </LinearGradientBrush>
         </Border.Background>
       </Border>
-      <Image Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Image Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}" />
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
     </Grid>
@@ -3011,7 +3011,7 @@
           </VisualBrush>
         </Image.OpacityMask>
       </Image>
-      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
