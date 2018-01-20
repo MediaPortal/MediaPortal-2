@@ -675,11 +675,35 @@
     <Setter Property="PlayerContext" Value="SecondaryPlayer"/>
   </Style>
 
+  
+  
+  
+  
   <!-- 
     Media Navigation styles.
     We provide different control styles for thumbnail list and grid views for each navigation item (filter, audio, video,...).
   -->
   <Model x:Key="ViewModeModel" Id="6997CD35-63F0-4F96-8997-E18C9382E2DC"/>
+
+
+  <ControlTemplate x:Key="Cover_WatchedFlag_Template">
+    <Grid>
+      <Grid>
+        <Image x:Name="PartlyWatchedLabel" Height="40" Margin="5,5,0,0" Stretch="Uniform"
+               Source="partlywatched.png" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Grid.IsVisible>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+        </Grid.IsVisible>
+      </Grid>
+      <Grid>
+        <Grid.IsVisible>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
+        </Grid.IsVisible>
+        <Image x:Name="WatchedLabel" Height="40" Margin="5,5,0,0" Stretch="Uniform"
+               Source="watched.png" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
 
   <!-- Fallback data template, if data template for actual item type is not defined -->
   <DataTemplate DataType="{x:Type navitems:NavigationItem}">
@@ -952,8 +976,9 @@
       <Image Stretch="Fill" Margin="-1" IsVisible="{Binding ElementName=thumb, Path=!HasImage}" 
              Source="tvseries_widebanner_background.png" Opacity="0.85"/>
       <Image Source="tvseries_widebanner_large_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="0,0,0,0"
-       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -993,12 +1018,7 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <!-- Unwatched indicator -->
-      <!--Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image-->
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1114,12 +1134,7 @@
       <Image Source="tvseries_widebanner_large_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="0,0,0,0"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
-      <!-- Unwatched indicator -->
-      <!--Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image-->
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1159,12 +1174,7 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <!-- Unwatched indicator -->
-      <!--Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image-->
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1263,12 +1273,7 @@
              Width="{StaticResource MEDIA_VIDEO_WIDTH}" Margin="-8,-2,-6,-2"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1306,12 +1311,7 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <!--Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1429,12 +1429,7 @@
           <ImageBrush ImageSource="filmstrip_mask.png"/>
         </Image.OpacityMask>
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Grid.Column="1" Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1547,12 +1542,7 @@
       <Image Source="video_thumb_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="0,0,0,0"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1575,12 +1565,7 @@
           <ImageBrush ImageSource="filmstrip_mask.png"/>
         </Image.OpacityMask>
       </Image>
-      <!-- Unwatched indicator -->
-        <Image Grid.Column="1" Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
-          <Image.IsVisible>
-            <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-          </Image.IsVisible>
-        </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1683,12 +1668,7 @@
              Width="{StaticResource MEDIA_VIDEO_WIDTH}" Margin="-8,-2,-6,-2"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1726,12 +1706,7 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <!--Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1847,12 +1822,7 @@
              Margin="-5"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-2">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1897,12 +1867,7 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2010,12 +1975,7 @@
              Margin="-5"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-2">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2057,12 +2017,7 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2164,12 +2119,7 @@
              Margin="-5"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-2">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2194,9 +2144,6 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <!--Image Stretch="Fill" Margin="0" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
-       Source="music_background_mask.png" Opacity="0.85">
-      </Image-->
       <Image Stretch="Uniform" Margin="80" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
              Source="defaultPicture.png">
         <Image.Opacity>
@@ -2207,12 +2154,7 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
