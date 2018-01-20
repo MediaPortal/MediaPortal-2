@@ -710,6 +710,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           anySharesAvailable = _serverSharesList.Count > 0 || _localSharesList.Count > 0;
         AnyShareAvailable = anySharesAvailable;
       }
+      catch(Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Error updating shares list", ex);
+      }
       finally
       {
         lock (_syncObj)

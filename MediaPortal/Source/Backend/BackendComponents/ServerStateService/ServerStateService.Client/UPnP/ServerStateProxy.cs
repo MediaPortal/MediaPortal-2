@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Threading;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.ServerStateService.Interfaces;
@@ -106,9 +107,9 @@ namespace MediaPortal.Plugins.ServerStateService.Client.UPnP
         }
         ServerStateMessaging.SendStatesChangedMessage(updatedStates);
       }
-      catch (Exception)
+      catch (Exception ex)
       {
-        throw;
+        ServiceRegistration.Get<ILogger>().Warn("ServerStateService: Error getting states from the server", ex);
       }
     }
   }
