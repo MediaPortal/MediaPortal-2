@@ -47,6 +47,7 @@ using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.UserManagement;
+using MediaPortal.UiComponents.Login.Settings;
 using MediaPortal.UI.General;
 using MediaPortal.UI.Presentation.Utilities;
 
@@ -72,7 +73,6 @@ namespace MediaPortal.UiComponents.Login.Models
     protected object _syncObj = new object();
     protected bool _updatingProperties = false;
     protected string _imagePath = null;
-    protected Dictionary<UserProfileType, string> _profileTypes = new Dictionary<UserProfileType, string>();
     protected PathBrowserCloseWatcher _pathBrowserCloseWatcher = null;
     protected ItemsList _serverSharesList = null;
     protected ItemsList _localSharesList = null;
@@ -119,16 +119,13 @@ namespace MediaPortal.UiComponents.Login.Models
       _isUserSelectedProperty = new WProperty(typeof(bool), false);
       _isSystemUserSelectedProperty = new WProperty(typeof(bool), false);
 
-      _profileTypes.Add(UserProfileType.ClientProfile, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
-      _profileTypes.Add(UserProfileType.UserProfile, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
-
       _profileList = new ItemsList();
       ListItem item = null;
-      foreach (var profile in _profileTypes.Where(p => p.Key != UserProfileType.ClientProfile))
+      foreach (var profile in UserSettingStorage.UserProfileTemplates)
       {
         item = new ListItem();
-        item.SetLabel(Consts.KEY_NAME, profile.Value);
-        item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] = profile.Key;
+        item.SetLabel(Consts.KEY_NAME, profile.TemplateName);
+        item.AdditionalProperties[Consts.KEY_PROFILE_TEMPLATE_ID] = profile.TemplateId;
         _profileList.Add(item);
       }
 
@@ -136,8 +133,8 @@ namespace MediaPortal.UiComponents.Login.Models
       FillRestrictionGroupList();
 
       UserProxy = new UserProxy();
-      UserProxy.ProfileTypeProperty.Attach(OnProfileTypeChanged);
-      ProfileTypeName = _profileTypes.FirstOrDefault(i => i.Key == UserProxy.ProfileType).Value;
+      UserProxy.TemplateIdProperty.Attach(OnProfileTemplateChanged);
+      ProfileTypeName = UserSettingStorage.UserProfileTemplates.FirstOrDefault(i => i.TemplateId == UserProxy.TemplateId)?.TemplateName;
     }
 
     public void Dispose()
@@ -604,6 +601,7 @@ namespace MediaPortal.UiComponents.Login.Models
             success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
             success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
             success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ENABLE_RESTRICTION_GROUPS, UserProxy.EnableRestrictionGroups ? "1" : "0");
+            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_TEMPLATE_ID, UserProxy.TemplateId.ToString());
             success &= await userManagement.UserProfileDataManagement.ClearUserAdditionalDataKeyAsync(UserProxy.Id, UserDataKeysKnown.KEY_RESTRICTION_GROUPS);
             int groupCount = 0;
             foreach (var group in UserProxy.RestrictionGroups)
@@ -633,6 +631,7 @@ namespace MediaPortal.UiComponents.Login.Models
           user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
           user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
           user.RestrictionGroups = UserProxy.RestrictionGroups;
+          user.TemplateId = UserProxy.TemplateId;
 
           // Update current logged in user if the same
           if (userManagement.CurrentUser.ProfileId == user.ProfileId)
@@ -657,8 +656,9 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void SelectProfileType(ListItem item)
     {
-      UserProfileType profileType = (UserProfileType)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE];
-      UserProxy.ProfileType = profileType;
+      Guid templateId = (Guid)item.AdditionalProperties[Consts.KEY_PROFILE_TEMPLATE_ID];
+      var template = UserSettingStorage.UserProfileTemplates.FirstOrDefault(i => i.TemplateId == templateId);
+      ApplyTemplate(template);
     }
 
     public void OpenSelectRestrictionDialog()
@@ -693,7 +693,7 @@ namespace MediaPortal.UiComponents.Login.Models
           UserProxy.SetUserProfile(userProfile, _localSharesList, _serverSharesList);
           foreach (var item in _profileList)
           {
-            item.Selected = (UserProfileType)item.AdditionalProperties[Consts.KEY_PROFILE_TYPE] == UserProxy.ProfileType;
+            item.Selected = (Guid)item.AdditionalProperties[Consts.KEY_PROFILE_TEMPLATE_ID] == UserProxy.TemplateId;
           }
         }
         else
@@ -820,9 +820,24 @@ namespace MediaPortal.UiComponents.Login.Models
       SetUser(userProfile);
     }
 
-    private void OnProfileTypeChanged(AbstractProperty property, object oldValue)
+    private void OnProfileTemplateChanged(AbstractProperty property, object oldValue)
     {
-      ProfileTypeName = _profileTypes.FirstOrDefault(i => i.Key == UserProxy.ProfileType).Value;
+      var template = UserSettingStorage.UserProfileTemplates.FirstOrDefault(i => i.TemplateId == UserProxy.TemplateId);
+      ProfileTypeName = template?.TemplateName;
+    }
+
+    private void ApplyTemplate(UserProfileTemplate template)
+    {
+      if (template == null)
+        return;
+
+      ProfileTypeName = template.TemplateName;
+      UserProxy.TemplateId = template.TemplateId;
+      UserProxy.RestrictAges = template.RestrictAges;
+      UserProxy.AllowedAge = template.AllowedAge ?? 0;
+      UserProxy.EnableRestrictionGroups = template.EnableRestrictionGroups;
+      UserProxy.RestrictionGroups = template.RestrictionGroups;
+      SetSelectedRestrictionGroups();
     }
 
     protected internal async Task UpdateShareLists_NoLock(bool create)

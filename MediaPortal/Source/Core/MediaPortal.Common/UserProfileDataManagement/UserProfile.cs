@@ -26,6 +26,7 @@ using MediaPortal.Utilities.UPnP;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -39,6 +40,16 @@ namespace MediaPortal.Common.UserProfileDataManagement
   {
     ClientProfile = 0,
     UserProfile = 1,
+  }
+
+  public class UserProfileTemplate
+  {
+    public Guid TemplateId { get; set; }
+    public string TemplateName { get; set; }
+    public bool EnableRestrictionGroups { get; set; }
+    public ICollection<string> RestrictionGroups { get; set; }
+    public bool RestrictAges { get; set; }
+    public int? AllowedAge { get; set; }
   }
 
   /// <summary>
@@ -141,6 +152,27 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public Guid ProfileId
     {
       get { return _profileId; }
+    }
+
+    /// <summary>
+    /// Returns the template ID which was used when user was created.
+    /// </summary>
+    [XmlIgnore]
+    public Guid TemplateId
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        Guid templateId;
+        if (AdditionalData.TryGetValue(UserDataKeysKnown.KEY_TEMPLATE_ID, out value) &&
+          Guid.TryParse(value.Values.FirstOrDefault(), out templateId))
+          return templateId;
+        return Guid.Empty;
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_TEMPLATE_ID, 0, value.ToString());
+      }
     }
 
     /// <summary>

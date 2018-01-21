@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Login.General
     public const string KEY_NAME = "Name";
     public const string KEY_USER = "User";
     public const string KEY_SHARE = "Share";
-    public const string KEY_PROFILE_TYPE = "ProfileType";
+    public const string KEY_PROFILE_TEMPLATE_ID = "TemplateId";
     public const string KEY_COUNTRY = "Country";
     public const string KEY_RESTRICTION_GROUP = "RestrictionGroup";
 

@@ -72,7 +72,10 @@ namespace MediaPortal.UI.Services.UserManagement
     public void RegisterRestrictionGroup(string restrictionGroup)
     {
       if (!string.IsNullOrWhiteSpace(restrictionGroup))
-        _restrictionGroups.Add(restrictionGroup);
+        foreach (var group in restrictionGroup.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+        {
+          _restrictionGroups.Add(group);
+        }
     }
 
     public ICollection<string> RestrictionGroups

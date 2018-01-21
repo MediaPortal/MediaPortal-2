@@ -58,6 +58,7 @@ namespace MediaPortal.UiComponents.Login.Models
     protected AbstractProperty _lastLoginProperty;
     protected AbstractProperty _imageProperty;
     protected AbstractProperty _idProperty;
+    protected AbstractProperty _templateIdProperty;
 
     protected Timer _inputTimer;
     protected readonly object _syncObj = new object();
@@ -68,6 +69,7 @@ namespace MediaPortal.UiComponents.Login.Models
     public UserProxy()
     {
       _idProperty = new WProperty(typeof(Guid), Guid.Empty);
+      _templateIdProperty = new WProperty(typeof(Guid), Guid.Empty);
       _userNameProperty = new WProperty(typeof(string), string.Empty);
       _selectedSharesList = new List<Guid>();
       _isUserValidProperty = new WProperty(typeof(bool), false);
@@ -95,6 +97,7 @@ namespace MediaPortal.UiComponents.Login.Models
     public void SetUserProfile(UserProfile userProfile, ItemsList localSharesList = null, ItemsList serverSharesList = null)
     {
       Id = userProfile.ProfileId;
+      TemplateId = userProfile.TemplateId;
       Name = userProfile.Name;
       Password = userProfile.Password;
       _originalPassword = userProfile.Password;
@@ -148,6 +151,7 @@ namespace MediaPortal.UiComponents.Login.Models
     public void Clear()
     {
       Id = Guid.Empty;
+      TemplateId = Guid.Empty;
       Name = String.Empty;
       Password = String.Empty;
       ProfileType = UserProfileType.UserProfile;
@@ -200,6 +204,17 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (Guid)_idProperty.GetValue(); }
       set { _idProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TemplateIdProperty
+    {
+      get { return _templateIdProperty; }
+    }
+
+    public Guid TemplateId
+    {
+      get { return (Guid)_templateIdProperty.GetValue(); }
+      set { _templateIdProperty.SetValue(value); }
     }
 
     public AbstractProperty NameProperty

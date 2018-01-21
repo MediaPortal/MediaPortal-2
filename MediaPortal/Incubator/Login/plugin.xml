@@ -103,6 +103,7 @@
 
     <CustomConfigSetting
         Id="UserOverview"
+        RestrictionGroup="Settings.UserProfile,Settings.UserProfile.ManageOwn"
         Text="[Settings.Users.Config.UserManagement]"
         HelpText="[Settings.Users.Config.UserManagement.Help]"
         ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserManagementSetting"
