@@ -38,7 +38,6 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
 using MediaPortal.UiComponents.Login.General;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.Localization;
@@ -90,7 +89,6 @@ namespace MediaPortal.UiComponents.Login.Models
     protected AbstractProperty _profileTypeNameProperty;
     protected AbstractProperty _isUserSelectedProperty;
     protected AbstractProperty _isSystemUserSelectedProperty;
-    protected AbstractProperty _isAdminUserSelectedProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
 
     protected readonly static string[] DEFAULT_IMAGE_FILE_EXTENSIONS = new string[]
@@ -120,11 +118,9 @@ namespace MediaPortal.UiComponents.Login.Models
       _profileTypeNameProperty = new WProperty(typeof(string), string.Empty);
       _isUserSelectedProperty = new WProperty(typeof(bool), false);
       _isSystemUserSelectedProperty = new WProperty(typeof(bool), false);
-      _isAdminUserSelectedProperty = new WProperty(typeof(bool), false);
 
       _profileTypes.Add(UserProfileType.ClientProfile, LocalizationHelper.Translate(Consts.RES_CLIENT_PROFILE_TEXT));
       _profileTypes.Add(UserProfileType.UserProfile, LocalizationHelper.Translate(Consts.RES_USER_PROFILE_TEXT));
-      _profileTypes.Add(UserProfileType.AdminProfile, LocalizationHelper.Translate(Consts.RES_ADMIN_PROFILE_TEXT));
 
       _profileList = new ItemsList();
       ListItem item = null;
@@ -384,17 +380,6 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (bool)_isSystemUserSelectedProperty.GetValue(); }
       set { _isSystemUserSelectedProperty.SetValue(value); }
-    }
-
-    public AbstractProperty IsAdminUserSelectedProperty
-    {
-      get { return _isAdminUserSelectedProperty; }
-    }
-
-    public bool IsAdminUserSelected
-    {
-      get { return (bool)_isAdminUserSelectedProperty.GetValue(); }
-      set { _isAdminUserSelectedProperty.SetValue(value); }
     }
 
     public string ImagePath
@@ -718,7 +703,6 @@ namespace MediaPortal.UiComponents.Login.Models
 
         IsUserSelected = userProfile != null;
         IsSystemUserSelected = userProfile?.ProfileType == UserProfileType.ClientProfile;
-        IsAdminUserSelected = userProfile?.ProfileType == UserProfileType.AdminProfile;
 
         SetSelectedShares();
         SetSelectedRestrictionGroups();

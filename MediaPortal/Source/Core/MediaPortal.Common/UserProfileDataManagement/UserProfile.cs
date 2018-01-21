@@ -26,7 +26,6 @@ using MediaPortal.Utilities.UPnP;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -40,7 +39,6 @@ namespace MediaPortal.Common.UserProfileDataManagement
   {
     ClientProfile = 0,
     UserProfile = 1,
-    AdminProfile = 100
   }
 
   /// <summary>
