@@ -85,10 +85,13 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public bool CheckUserAccess(IUserRestriction restrictedElement)
     {
-      if (!IsValidUser || !CurrentUser.EnableRestrictionGroups)
+      if (!IsValidUser || !CurrentUser.EnableRestrictionGroups || string.IsNullOrEmpty(restrictedElement.RestrictionGroup))
         return true;
 
-      return string.IsNullOrEmpty(restrictedElement.RestrictionGroup) || CurrentUser.RestrictionGroups.Contains(restrictedElement.RestrictionGroup);
+      foreach (var group in restrictedElement.RestrictionGroup.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+        if (CurrentUser.RestrictionGroups.Contains(group))
+          return true;
+      return false;
     }
 
     public bool ApplyUserRestriction

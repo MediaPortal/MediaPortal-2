@@ -59,6 +59,11 @@ namespace MediaPortal.UiComponents.Login.Models
   /// </summary>
   public class UserConfigModel : IWorkflowModel, IDisposable
   {
+    internal class AccessCheck : IUserRestriction
+    {
+      public string RestrictionGroup { get; set; }
+    }
+
     #region Consts
 
     public const string STR_MODEL_ID_USERCONFIG = "9B20B421-DF2E-42B6-AFF2-7EB6B60B601D";
@@ -777,11 +782,16 @@ namespace MediaPortal.UiComponents.Login.Models
         if (userManagement == null || userManagement.UserProfileDataManagement == null)
           return;
 
+        bool manageAllUsers = userManagement.CheckUserAccess(new AccessCheck { RestrictionGroup = "Settings.UserProfile" });
+
         // add users to expose them
         var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
         _userList.Clear();
         foreach (UserProfile user in users)
         {
+          if (!manageAllUsers && user.ProfileId != userManagement.CurrentUser.ProfileId)
+            continue;
+
           ListItem item = new ListItem();
           item.SetLabel(Consts.KEY_NAME, user.Name);
           item.AdditionalProperties[Consts.KEY_USER] = user;
