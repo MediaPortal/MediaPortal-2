@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Login.Settings
       new UserProfileTemplate
       {
         TemplateId = new Guid("{0D5E6C2E-07DA-4427-964F-A92C497BCE04}"),
-        TemplateName = "Admin template",
+        TemplateName = "[UserProfileTemplate.Admin]",
         EnableRestrictionGroups = false,
         RestrictionGroups = new List<string>(),
         RestrictAges = false,
@@ -45,20 +45,29 @@ namespace MediaPortal.UiComponents.Login.Settings
       new UserProfileTemplate
       {
         TemplateId = new Guid("{56477003-A827-461D-92CB-E91FADD69B7D}"),
-        TemplateName = "User template - no age restriction",
+        TemplateName = "[UserProfileTemplate.UserUnrestricted]",
         EnableRestrictionGroups = true,
-        RestrictionGroups = new List<string> { "Settings.UserProfile.ManageOwn" },
+        RestrictionGroups = new List<string> { "Settings", "Settings.UserProfile.ManageOwn" },
         RestrictAges = false,
         AllowedAge = null
       },
       new UserProfileTemplate
       {
         TemplateId = new Guid("{24172540-6A51-49E7-B95C-A41D3DBECCCE}"),
-        TemplateName = "User template - age restriction: 8",
+        TemplateName = "[UserProfileTemplate.UserAge8]",
         EnableRestrictionGroups = true,
-        RestrictionGroups = new List<string> { "Settings.UserProfile.ManageOwn" },
+        RestrictionGroups = new List<string> { "Settings", "Settings.UserProfile.ManageOwn" },
         RestrictAges = true,
         AllowedAge = 8
+      },
+      new UserProfileTemplate
+      {
+        TemplateId = new Guid("{039E1532-B6C9-4BE2-86E0-6BF66526F737}"),
+        TemplateName = "[UserProfileTemplate.UserAge14]",
+        EnableRestrictionGroups = true,
+        RestrictionGroups = new List<string> { "Settings", "Settings.UserProfile.ManageOwn" },
+        RestrictAges = true,
+        AllowedAge = 14
       },
     };
 
