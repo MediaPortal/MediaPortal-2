@@ -95,12 +95,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false).ConfigureAwait(false);
-
-      if (!BaseInfo.HasRelationship(aspects, LinkedRole))
-        seriesInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!seriesInfo.HasChanged)
-        return false;
       
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seriesInfo.SetMetadata(seriesAspects);

@@ -88,9 +88,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!MovieMetadataExtractor.IncludeProductionCompanyDetails)
-        return false;
-
       if (BaseInfo.IsVirtualResource(aspects))
         return false;
 
@@ -98,36 +95,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      int count = 0;
-      if (!MovieMetadataExtractor.SkipOnlineSearches)
-      {
+      if (MovieMetadataExtractor.IncludeProductionCompanyDetails && !MovieMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateCompaniesAsync(movieInfo, CompanyAspect.COMPANY_PRODUCTION).ConfigureAwait(false);
-        count = movieInfo.ProductionCompanies.Where(c => c.HasExternalId).Count();
-        if (!movieInfo.IsRefreshed)
-          movieInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
-      }
-      else
-      {
-        count = movieInfo.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Count();
-      }
 
-      if (movieInfo.ProductionCompanies.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && movieInfo.ProductionCompanies.Count > 0))
-        movieInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!movieInfo.HasChanged)
-        return false;
-      
       foreach (CompanyInfo company in movieInfo.ProductionCompanies)
       {
-        company.AssignNameId();
-        company.HasChanged = movieInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        company.SetMetadata(companyAspects);
-
-        if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (company.SetMetadata(companyAspects) && companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(companyAspects);
       }
       return extractedLinkedAspects.Count > 0;

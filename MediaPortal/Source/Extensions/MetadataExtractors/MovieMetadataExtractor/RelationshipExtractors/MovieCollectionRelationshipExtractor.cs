@@ -94,27 +94,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
         await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, false).ConfigureAwait(false);
 
-      bool hasId = false;
-      if (!MovieMetadataExtractor.SkipOnlineSearches)
-        hasId = collectionInfo.HasExternalId || !string.IsNullOrEmpty(movieInfo.CollectionNameId);
-      else
-        hasId = !string.IsNullOrEmpty(movieInfo.CollectionNameId);
-
-      if (!BaseInfo.HasRelationship(aspects, LinkedRole) && hasId)
-        collectionInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!collectionInfo.HasChanged)
-        return false;
-
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-
       collectionInfo.SetMetadata(collectionAspects);
 
       bool movieVirtual = true;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
-      {
         MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
-      }
 
       if (collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         extractedLinkedAspects.Add(collectionAspects);

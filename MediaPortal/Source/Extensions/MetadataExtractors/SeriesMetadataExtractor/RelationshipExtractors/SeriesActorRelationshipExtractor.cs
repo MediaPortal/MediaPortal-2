@@ -88,44 +88,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!SeriesMetadataExtractor.IncludeActorDetails)
-        return false;
-
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
-      int count = 0;
-      if (!SeriesMetadataExtractor.SkipOnlineSearches)
-      {
+      if (SeriesMetadataExtractor.IncludeActorDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesPersonsAsync(seriesInfo, PersonAspect.OCCUPATION_ACTOR).ConfigureAwait(false);
-        count = seriesInfo.Actors.Where(p => p.HasExternalId).Count();
-        if (!seriesInfo.IsRefreshed)
-          seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
-      }
-      else
-      {
-        count = seriesInfo.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Count();
-      }
 
-      if (seriesInfo.Actors.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && seriesInfo.Actors.Count > 0))
-        seriesInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!seriesInfo.HasChanged)
-        return false;
-      
       foreach (PersonInfo person in seriesInfo.Actors.Take(SeriesMetadataExtractor.MaximumActorCount))
       {
-        person.AssignNameId();
-        person.HasChanged = seriesInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        person.SetMetadata(personAspects);
-
-        if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-            extractedLinkedAspects.Add(personAspects);
+        if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(personAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }

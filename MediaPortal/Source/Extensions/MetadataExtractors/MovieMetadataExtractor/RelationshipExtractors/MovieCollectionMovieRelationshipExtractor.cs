@@ -47,8 +47,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     }
 
     public Guid Role
-    {
-      
+    {      
       get { return MovieCollectionAspect.ROLE_MOVIE_COLLECTION; }
     }
 
@@ -97,17 +96,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
         await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, true).ConfigureAwait(false);
-
-      if (collectionInfo.Movies.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < collectionInfo.Movies.Count)
-        collectionInfo.HasChanged = true; //Force save for new movies
-      else
-        return false;
-
-      if (!collectionInfo.HasChanged)
-        return false;
       
       for (int i = 0; i < collectionInfo.Movies.Count; i++)
       {
@@ -115,11 +103,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         movieInfo.CollectionNameId = collectionInfo.NameId;
 
         IDictionary<Guid, IList<MediaItemAspect>> movieAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        movieInfo.SetMetadata(movieAspects);
-        MediaItemAspect.SetAttribute(movieAspects, MediaAspect.ATTR_ISVIRTUAL, true);
-
-        if (movieAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(movieAspects);
+        if (movieInfo.SetMetadata(movieAspects))
+        {
+          MediaItemAspect.SetAttribute(movieAspects, MediaAspect.ATTR_ISVIRTUAL, true);
+          if (movieAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+            extractedLinkedAspects.Add(movieAspects);
+        }
       }
       return extractedLinkedAspects.Count > 0;
     }

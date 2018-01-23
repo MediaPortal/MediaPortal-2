@@ -88,41 +88,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!AudioMetadataExtractor.IncludeMusicLabelDetails)
-        return false;
-
       AlbumInfo albumInfo = new AlbumInfo();
       if (!albumInfo.FromMetadata(aspects))
         return false;
-
-      int count = 0;
-      if (!AudioMetadataExtractor.SkipOnlineSearches)
-      {
+      
+      if (AudioMetadataExtractor.IncludeMusicLabelDetails && !AudioMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateAlbumCompaniesAsync(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL).ConfigureAwait(false);
-        count = albumInfo.MusicLabels.Where(c => c.HasExternalId).Count();
-        if (!albumInfo.IsRefreshed)
-          albumInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
-      }
-      else
-      {
-        count = albumInfo.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Count();
-      }
-
-      if (albumInfo.MusicLabels.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && albumInfo.MusicLabels.Count > 0))
-        albumInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!albumInfo.HasChanged)
-        return false;
       
       foreach (CompanyInfo company in albumInfo.MusicLabels)
       {
-        company.AssignNameId();
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        company.SetMetadata(companyAspects);
-        if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (company.SetMetadata(companyAspects) && companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(companyAspects);
       }
       return extractedLinkedAspects.Count > 0;

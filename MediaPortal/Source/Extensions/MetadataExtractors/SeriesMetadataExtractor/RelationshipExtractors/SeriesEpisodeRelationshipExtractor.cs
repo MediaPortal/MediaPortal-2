@@ -113,27 +113,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, true).ConfigureAwait(false);
-
-      if (seriesInfo.Episodes.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < seriesInfo.Episodes.Count)
-        seriesInfo.HasChanged = true; //Force save for new episodes
-      else
-        return false;
-
-      if (!seriesInfo.HasChanged)
-        return false;
       
-      for (int i = 0; i < seriesInfo.Episodes.Count; i++)
+      foreach (EpisodeInfo episodeInfo in seriesInfo.Episodes)
       {
-        EpisodeInfo episodeInfo = seriesInfo.Episodes[i];
         episodeInfo.SeriesNameId = seriesInfo.NameId;
-
         IDictionary<Guid, IList<MediaItemAspect>> episodeAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         episodeInfo.SetMetadata(episodeAspects);
         MediaItemAspect.SetAttribute(episodeAspects, MediaAspect.ATTR_ISVIRTUAL, true);
-
         if (episodeAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(episodeAspects);
       }

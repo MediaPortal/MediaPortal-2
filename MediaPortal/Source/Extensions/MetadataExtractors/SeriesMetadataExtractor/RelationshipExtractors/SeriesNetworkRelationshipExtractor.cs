@@ -32,7 +32,6 @@ using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities.Collections;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
@@ -88,43 +87,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!SeriesMetadataExtractor.IncludeTVNetworkDetails)
-        return false;
-
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
-      int count = 0;
-      if (!SeriesMetadataExtractor.SkipOnlineSearches)
-      {
+      if (SeriesMetadataExtractor.IncludeTVNetworkDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesCompaniesAsync(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK).ConfigureAwait(false);
-        count = seriesInfo.Networks.Where(c => c.HasExternalId).Count();
-        if (!seriesInfo.IsRefreshed)
-          seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
-      }
-      else
-      {
-        count = seriesInfo.Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Count();
-      }
 
-      if (seriesInfo.Networks.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && seriesInfo.Networks.Count > 0))
-        seriesInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!seriesInfo.HasChanged)
-        return false;
-      
       foreach (CompanyInfo company in seriesInfo.Networks)
       {
-        company.AssignNameId();
-        company.HasChanged = seriesInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        company.SetMetadata(companyAspects);
-
-        if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (company.SetMetadata(companyAspects) && companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(companyAspects);
       }
       return extractedLinkedAspects.Count > 0;

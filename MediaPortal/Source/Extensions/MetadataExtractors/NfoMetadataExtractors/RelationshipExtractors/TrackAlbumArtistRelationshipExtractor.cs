@@ -85,27 +85,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!NfoAudioMetadataExtractor.IncludeArtistDetails)
-        return Task.FromResult(false);
-
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
         return Task.FromResult(false);
 
       if (!UpdateArtists(aspects, trackInfo.AlbumArtists, false))
         return Task.FromResult(false);
-
-      if (trackInfo.AlbumArtists.Count == 0)
-        return Task.FromResult(false);
       
       foreach (PersonInfo person in trackInfo.AlbumArtists)
       {
-        person.AssignNameId();
-        person.HasChanged = true;
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        person.SetMetadata(personAspects);
-
-        if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(personAspects);
       }
       return Task.FromResult(extractedLinkedAspects.Count > 0);

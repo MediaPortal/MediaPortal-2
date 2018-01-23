@@ -96,12 +96,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       AudioRelationshipExtractor.UpdatePersons(aspects, albumInfo.Artists, true);
       if (!AudioMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateAlbumAsync(albumInfo, false).ConfigureAwait(false);
-
-      if (!BaseInfo.HasRelationship(aspects, LinkedRole))
-        albumInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!albumInfo.HasChanged)
-        return false;
       
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       albumInfo.SetMetadata(albumAspects);

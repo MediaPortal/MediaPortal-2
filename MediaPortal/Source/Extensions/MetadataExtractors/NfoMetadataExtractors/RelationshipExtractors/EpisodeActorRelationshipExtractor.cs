@@ -86,27 +86,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!NfoSeriesMetadataExtractor.IncludeActorDetails)
-        return Task.FromResult(false);
-
       EpisodeInfo episodeInfo = new EpisodeInfo();
       if (!episodeInfo.FromMetadata(aspects))
         return Task.FromResult(false);
 
       if (!UpdatePersons(aspects, episodeInfo.Actors, false))
         return Task.FromResult(false);
-
-      if (episodeInfo.Actors.Count == 0)
-        return Task.FromResult(false);
       
       foreach (PersonInfo person in episodeInfo.Actors)
       {
-        person.AssignNameId();
-        person.HasChanged = true;
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        person.SetMetadata(personAspects);
-
-        if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(personAspects);
       }
       return Task.FromResult(extractedLinkedAspects.Count > 0);

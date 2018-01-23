@@ -94,9 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return Task.FromResult(false);
 
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-
-      //Create custom collection
-      collectionInfo.AssignNameId();
+      
       collectionInfo.SetMetadata(collectionAspects);
 
       bool movieVirtual = true;

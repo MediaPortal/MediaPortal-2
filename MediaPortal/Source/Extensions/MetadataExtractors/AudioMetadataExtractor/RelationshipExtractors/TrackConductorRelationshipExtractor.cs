@@ -87,34 +87,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!AudioMetadataExtractor.IncludeArtistDetails)
-        return Task.FromResult(false);
-
       if (BaseInfo.IsVirtualResource(aspects))
         return Task.FromResult(false);
 
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
         return Task.FromResult(false);
-
-      int count = trackInfo.Conductors.Where(p => !string.IsNullOrEmpty(p.Name)).Count();
-      if (trackInfo.Conductors.Count == 0)
-        return Task.FromResult(false);
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && trackInfo.Conductors.Count > 0))
-        trackInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!trackInfo.HasChanged)
-        return Task.FromResult(false);
       
       foreach (PersonInfo person in trackInfo.Conductors)
       {
-        person.AssignNameId();
-        person.HasChanged = trackInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        person.SetMetadata(personAspects);
-
-        if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(personAspects);
       }
       return Task.FromResult(extractedLinkedAspects.Count > 0);

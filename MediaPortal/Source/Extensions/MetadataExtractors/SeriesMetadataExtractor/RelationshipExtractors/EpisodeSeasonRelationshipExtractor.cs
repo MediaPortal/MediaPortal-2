@@ -124,12 +124,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       if (seasonInfo.SeriesName.IsEmpty)
         return false;
-
-      if (!BaseInfo.HasRelationship(aspects, LinkedRole))
-        seasonInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!seasonInfo.HasChanged)
-        return false;
       
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seasonInfo.SetMetadata(seasonAspects);
