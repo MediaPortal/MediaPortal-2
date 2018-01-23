@@ -57,6 +57,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public MusicTheAudioDbMatcher() : 
       base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
+      //Will be overridden if the user enables it in setttings
+      Enabled = false;
     }
 
     public override Task<bool> InitWrapperAsync(bool useHttps)

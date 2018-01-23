@@ -105,12 +105,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         IMatcher matcher = matchers.FirstOrDefault(m => m.Id.Equals(setting.Id, StringComparison.OrdinalIgnoreCase));
         if (matcher != null)
         {
-          matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
           matcher.PreferredLanguageCulture = languageCulture;
         }
       }
-      matchers = matchers.Where(m => m.Primary).Union(matchers.Where(m => !m.Primary)).ToList();
     }
 
     private void SaveSettings()
@@ -122,7 +120,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
         setting.Enabled = matcher.Enabled;
-        setting.Primary = matcher.Primary;
         list.Add(setting);
       }
       settings.MusicMatchers = list.ToArray();
@@ -133,7 +130,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
         setting.Enabled = matcher.Enabled;
-        setting.Primary = matcher.Primary;
         list.Add(setting);
       }
       settings.MovieMatchers = list.ToArray();
@@ -144,7 +140,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
         setting.Enabled = matcher.Enabled;
-        setting.Primary = matcher.Primary;
         list.Add(setting);
       }
       settings.SeriesMatchers = list.ToArray();

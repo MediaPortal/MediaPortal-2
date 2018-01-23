@@ -73,7 +73,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public SeriesTvDbMatcher() :
       base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
     {
-      Primary = true;
     }
 
     public override async Task<bool> InitWrapperAsync(bool useHttps)

@@ -29,7 +29,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
   public interface IMatcher
   {
     Task<bool> InitAsync();
-    bool Primary { get; set; }
     bool Enabled { get; set; }
     string Id { get; }
     string PreferredLanguageCulture { get; set; }

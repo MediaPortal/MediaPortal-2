@@ -57,7 +57,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public MovieTheMovieDbMatcher() :
       base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
     {
-      Primary = true;
     }
 
     public override Task<bool> InitWrapperAsync(bool useHttps)

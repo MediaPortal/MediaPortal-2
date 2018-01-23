@@ -114,28 +114,23 @@
   <Register Location="/Configuration/Settings/Media/AudioMDESettings">
     <ConfigSetting
         Id="ServerAudioMDEOnlineData"
-        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData]"
-        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEOnlineData]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEOnlineData.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEOnlineData"/>
     <ConfigSetting
         Id="ServerAudioMDESourceEnable"
-        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable]"
-        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDESourceEnable]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDESourceEnable.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDESourceEnable"/>
     <ConfigSetting
-        Id="ServerAudioMDESourcePrimary"
-        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary]"
-        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDESourcePrimary"/>
-    <ConfigSetting
         Id="ServerAudioMDEBrowseOffline"
-        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOffline]"
-        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOffline.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEBrowseOffline]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEBrowseOffline.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEBrowseOffline"/>
     <ConfigSetting
         Id="ServerAudioMDEFilter"
-        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter]"
-        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEFilter]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEFilter.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEFilter"/>
   </Register>
 
@@ -152,28 +147,23 @@
   <Register Location="/Configuration/Settings/Media/MovieMDESettings">
     <ConfigSetting
         Id="ServerMovieMDEOnlineData"
-        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData]"
-        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEOnlineData]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEOnlineData.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEOnlineData"/>
     <ConfigSetting
         Id="ServerMovieMDESourceEnable"
-        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable]"
-        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDESourceEnable]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDESourceEnable.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDESourceEnable"/>
     <ConfigSetting
-        Id="ServerMovieMDESourcePrimary"
-        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary]"
-        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDESourcePrimary"/>
-    <ConfigSetting
         Id="ServerMovieMDEBrowseOffline"
-        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOffline]"
-        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOffline.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEBrowseOffline]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEBrowseOffline.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEBrowseOffline"/>
     <ConfigSetting
         Id="ServerMovieMDEFilter"
-        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEFilter]"
-        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEFilter.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEFilter]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEFilter.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEFilter"/>
   </Register>
 
@@ -181,28 +171,23 @@
   <Register Location="/Configuration/Settings/Media/SeriesMDESettings">
     <ConfigSetting
         Id="ServerSeriesMDEOnlineData"
-        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData]"
-        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEOnlineData]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEOnlineData.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEOnlineData"/>
     <ConfigSetting
         Id="ServerSeriesMDESourceEnable"
-        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable]"
-        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDESourceEnable]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDESourceEnable.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDESourceEnable"/>
     <ConfigSetting
-        Id="ServerSeriesMDESourcePrimary"
-        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary]"
-        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDESourcePrimary"/>
-    <ConfigSetting
         Id="ServerSeriesMDEBrowseOffline"
-        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOffline]"
-        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOffline.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEBrowseOffline]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEBrowseOffline.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEBrowseOffline"/>
     <ConfigSetting
         Id="ServerSeriesMDEFilter"
-        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter]"
-        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEFilter.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEFilter]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEFilter.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEFilter"/>
   </Register>
   

@@ -153,7 +153,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private string _configFile;
     private TimeSpan _maxCacheDuration;
     private bool _enabled = true;
-    private bool _primary = false;
     private string _id = null;
     private bool _cacheRefreshable;
     private DateTime? _lastCacheRefresh;
@@ -179,12 +178,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       get { return _enabled; }
       set { _enabled = value; }
-    }
-
-    public bool Primary
-    {
-      get { return _primary; }
-      set { _primary = value; }
     }
 
     public string Id
