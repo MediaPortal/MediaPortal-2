@@ -81,6 +81,8 @@
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEOnlineData.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDESourceEnable.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEBrowseOffline.cs" />
+    <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEDownloadAllCollectionMovies.cs" />
+    <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEDownloadAllSeriesEpisodes.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEFilter.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEOnlineData.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDESourceEnable.cs" />

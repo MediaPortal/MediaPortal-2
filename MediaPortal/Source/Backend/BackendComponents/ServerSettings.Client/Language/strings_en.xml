@@ -43,6 +43,11 @@
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Writers">Populate writer filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.ProductionStudios">Populate production studio filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.TvNetwork">Populate tv network filter</string>
+  
+  <string name="Settings.ServerSettings.MDESettings.MovieMDEDownloadAllCollectionMovies">Download metadata for all movies in a collection</string>
+  <string name="Settings.ServerSettings.MDESettings.MovieMDEDownloadAllCollectionMovies.Help">Whether to add all movies in a collection to the Media Library even if the movie is not available locally.</string>
+  <string name="Settings.ServerSettings.MDESettings.SeriesMDEDownloadAllSeriesEpisodes">Download metadata for all episodes in a series</string>
+  <string name="Settings.ServerSettings.MDESettings.SeriesMDEDownloadAllSeriesEpisodes.Help">Whether to add all episodes in a series to the Media Library even if the episode is not available locally.</string>
 
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Lookup geolocation details</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Enables whether geolocation should be found from geographic coordinates stored in image.</string>

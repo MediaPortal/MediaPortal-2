@@ -156,6 +156,11 @@
         HelpText="[Settings.ServerSettings.MDESettings.MDESourceEnable.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDESourceEnable"/>
     <ConfigSetting
+        Id="DownloadAllCollectionMovies"
+        Text="[Settings.ServerSettings.MDESettings.MovieMDEDownloadAllCollectionMovies]"
+        HelpText="[Settings.ServerSettings.MDESettings.MovieMDEDownloadAllCollectionMovies.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEDownloadAllCollectionMovies"/>
+    <ConfigSetting
         Id="ServerMovieMDEBrowseOffline"
         Text="[Settings.ServerSettings.MDESettings.MDEBrowseOffline]"
         HelpText="[Settings.ServerSettings.MDESettings.MDEBrowseOffline.Help]"
@@ -179,6 +184,11 @@
         Text="[Settings.ServerSettings.MDESettings.MDESourceEnable]"
         HelpText="[Settings.ServerSettings.MDESettings.MDESourceEnable.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDESourceEnable"/>
+    <ConfigSetting
+        Id="DownloadAllSeriesEpisodes"
+        Text="[Settings.ServerSettings.MDESettings.SeriesMDEDownloadAllSeriesEpisodes]"
+        HelpText="[Settings.ServerSettings.MDESettings.SeriesMDEDownloadAllSeriesEpisodes.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEDownloadAllSeriesEpisodes"/>
     <ConfigSetting
         Id="ServerSeriesMDEBrowseOffline"
         Text="[Settings.ServerSettings.MDESettings.MDEBrowseOffline]"

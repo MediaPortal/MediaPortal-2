@@ -230,7 +230,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Sett
     /// <summary>
     /// If <c>true</c>, the SeriesMetadataExtractor does not fetch any information for missing local episodes.
     /// </summary>
-    [Setting(SettingScope.Global, false)]
+    [Setting(SettingScope.Global, true)]
     public bool OnlyLocalMedia { get; set; }
 
     /// <summary>
