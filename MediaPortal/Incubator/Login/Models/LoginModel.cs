@@ -41,6 +41,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
@@ -292,7 +293,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
       // Client login retry
       if (CurrentUser == UserManagement.UNKNOWN_USER)
-        SetCurrentUser().Wait();
+        SetCurrentUser().TryWait();
 
       // Update user
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
