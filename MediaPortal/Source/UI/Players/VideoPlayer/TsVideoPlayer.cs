@@ -187,6 +187,8 @@ namespace MediaPortal.UI.Players.Video
 
       using (DSFilter d = new DSFilter((IBaseFilter)_tsReader))
       {
+        // Would release the filter which causes errors in later access (like stream enumeration)
+        d.ReleaseOnDestroy = false;
         var videoOutPin = d.Pins.FirstOrDefault(p => p.Direction == PinDirection.Output && p.ConnectionMediaType.majorType == MediaType.Video);
         if (videoOutPin != null)
         {
