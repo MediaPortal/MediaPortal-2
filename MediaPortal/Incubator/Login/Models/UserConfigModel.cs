@@ -46,6 +46,7 @@ using MediaPortal.Utilities.Graphics;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.UiComponents.Login.Settings;
 using MediaPortal.UI.General;
@@ -138,8 +139,6 @@ namespace MediaPortal.UiComponents.Login.Models
       FillRestrictionGroupList();
 
       UserProxy = new UserProxy();
-      UserProxy.TemplateIdProperty.Attach(OnProfileTemplateChanged);
-      ProfileTypeName = UserSettingStorage.UserProfileTemplates.FirstOrDefault(i => i.TemplateId == UserProxy.TemplateId)?.TemplateName;
     }
 
     public void Dispose()
@@ -192,9 +191,6 @@ namespace MediaPortal.UiComponents.Login.Models
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
-            _ = UpdateUserLists_NoLock(false);
-            _ = UpdateShareLists_NoLock(false);
-            break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
             _ = UpdateUserLists_NoLock(false);
             _ = UpdateShareLists_NoLock(false);
@@ -463,6 +459,11 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void AddUser()
     {
+      OpenChooseProfileTypeDialog();
+    }
+
+    private void AddUser(UserProfileTemplate template)
+    {
       try
       {
         UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProfileType.UserProfile);
@@ -474,12 +475,17 @@ namespace MediaPortal.UiComponents.Login.Models
         item.SelectedProperty.Attach(OnUserItemSelectionChanged);
         item.Selected = true;
 
+        ApplyTemplate(user, template);
+
         lock (_syncObj)
           _userList.Add(item);
 
         SetUser(user);
 
         _userList.FireChange();
+
+        // Auto save to avoid unsaved user profiles
+        SaveUser().TryWait();
       }
       catch (Exception e)
       {
@@ -630,10 +636,10 @@ namespace MediaPortal.UiComponents.Login.Models
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
           foreach (var shareId in UserProxy.SelectedShares)
             user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
-          user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.RestrictAges ? "0" : "1");
-          user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
-          user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
-          user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+          user.RestrictAges = UserProxy.RestrictAges;
+          user.RestrictShares = UserProxy.RestrictShares;
+          user.IncludeParentGuidedContent = UserProxy.IncludeParentGuidedContent;
+          user.IncludeUnratedContent = UserProxy.IncludeUnratedContent;
           user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
           user.RestrictionGroups = UserProxy.RestrictionGroups;
           user.TemplateId = UserProxy.TemplateId;
@@ -663,7 +669,7 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       Guid templateId = (Guid)item.AdditionalProperties[Consts.KEY_PROFILE_TEMPLATE_ID];
       var template = UserSettingStorage.UserProfileTemplates.FirstOrDefault(i => i.TemplateId == templateId);
-      ApplyTemplate(template);
+      AddUser(template);
     }
 
     public void OpenSelectRestrictionDialog()
@@ -696,10 +702,6 @@ namespace MediaPortal.UiComponents.Login.Models
         if (userProfile != null && UserProxy != null)
         {
           UserProxy.SetUserProfile(userProfile, _localSharesList, _serverSharesList);
-          foreach (var item in _profileList)
-          {
-            item.Selected = (Guid)item.AdditionalProperties[Consts.KEY_PROFILE_TEMPLATE_ID] == UserProxy.TemplateId;
-          }
         }
         else
         {
@@ -708,6 +710,8 @@ namespace MediaPortal.UiComponents.Login.Models
 
         IsUserSelected = userProfile != null;
         IsSystemUserSelected = userProfile?.ProfileType == UserProfileType.ClientProfile;
+
+        ProfileTypeName = userProfile != null ? LocalizationHelper.Translate("[UserConfig." + userProfile.ProfileType + "]") : string.Empty;
 
         SetSelectedShares();
         SetSelectedRestrictionGroups();
@@ -830,24 +834,16 @@ namespace MediaPortal.UiComponents.Login.Models
       SetUser(userProfile);
     }
 
-    private void OnProfileTemplateChanged(AbstractProperty property, object oldValue)
-    {
-      var template = UserSettingStorage.UserProfileTemplates.FirstOrDefault(i => i.TemplateId == UserProxy.TemplateId);
-      ProfileTypeName = template?.TemplateName;
-    }
-
-    private void ApplyTemplate(UserProfileTemplate template)
+    private void ApplyTemplate(UserProfile userProfile, UserProfileTemplate template)
     {
       if (template == null)
         return;
 
-      ProfileTypeName = template.TemplateName;
-      UserProxy.TemplateId = template.TemplateId;
-      UserProxy.RestrictAges = template.RestrictAges;
-      UserProxy.AllowedAge = template.AllowedAge ?? 0;
-      UserProxy.EnableRestrictionGroups = template.EnableRestrictionGroups;
-      UserProxy.RestrictionGroups = template.RestrictionGroups;
-      SetSelectedRestrictionGroups();
+      userProfile.TemplateId = template.TemplateId;
+      userProfile.RestrictAges = template.RestrictAges;
+      userProfile.AllowedAge = template.AllowedAge;
+      userProfile.EnableRestrictionGroups = template.EnableRestrictionGroups;
+      userProfile.RestrictionGroups = template.RestrictionGroups;
     }
 
     protected internal async Task UpdateShareLists_NoLock(bool create)

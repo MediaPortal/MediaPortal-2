@@ -68,9 +68,8 @@
 
         <Label Grid.Row="3" Grid.Column="1" Margin="5"
                Content="[UserConfig.ProfileType]" Color="{ThemeResource TextColor}"/>
-        <Button x:Name="EditProfileTypeButton" Grid.Row="3" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-                Content="{Binding ProfileTypeName}" IsEnabled="{Binding Path=!IsSystemUserSelected}"
-                Command="{Command OpenChooseProfileTypeDialog}"/>
+        <Label Grid.Row="3" Grid.Column="3" Margin="5"
+               Content="{Binding ProfileTypeName}" Color="{ThemeResource TextColor}"/>
 
         <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1">
           <CheckBox x:Name="CheckRestrictionGroups" HorizontalAlignment="Center"

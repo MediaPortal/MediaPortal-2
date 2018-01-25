@@ -176,6 +176,95 @@ namespace MediaPortal.Common.UserProfileDataManagement
     }
 
     /// <summary>
+    /// Define if age restrictions should be applied.
+    /// </summary>
+    [XmlIgnore]
+    public bool RestrictAges
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        return AdditionalData.TryGetValue(UserDataKeysKnown.KEY_ALLOW_ALL_AGES, out value) && value.Values.FirstOrDefault() == "0";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_AGES, 0, value ? "0" : "1");
+      }
+    }
+    /// <summary>
+    /// Define the allowed age.
+    /// </summary>
+    [XmlIgnore]
+    public int? AllowedAge
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        int age;
+        if (AdditionalData.TryGetValue(UserDataKeysKnown.KEY_ALLOWED_AGE, out value) &&
+            int.TryParse(value.Values.FirstOrDefault(), out age))
+          return age;
+        return null;
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, 0, value.ToString());
+      }
+    }
+
+    /// <summary>
+    /// Define if share restrictions should be applied.
+    /// </summary>
+    [XmlIgnore]
+    public bool RestrictShares
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        return AdditionalData.TryGetValue(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, out value) && value.Values.FirstOrDefault() == "0";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, 0, value ? "0" : "1");
+      }
+    }
+
+    /// <summary>
+    /// Define if PG content should be allowed.
+    /// </summary>
+    [XmlIgnore]
+    public bool IncludeParentGuidedContent
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        return AdditionalData.TryGetValue(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, out value) && value.Values.FirstOrDefault() == "1";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, 0, value ? "1" : "0");
+      }
+    }
+
+
+    /// <summary>
+    /// Define if unrated content should be allowed.
+    /// </summary>
+    [XmlIgnore]
+    public bool IncludeUnratedContent
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        return AdditionalData.TryGetValue(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, out value) && value.Values.FirstOrDefault() == "1";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, 0, value ? "1" : "0");
+      }
+    }
+
+    /// <summary>
     /// Returns the user name of this profile.
     /// </summary>
     [XmlIgnore]

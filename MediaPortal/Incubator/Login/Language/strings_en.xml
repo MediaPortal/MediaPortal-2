@@ -53,9 +53,8 @@
   <string name="UserConfig.Ok">OK</string>
 
   <string name="UserConfig.SelectProfileType">Select profile type</string>
-  <string name="UserConfig.ClientProfileType">Client profile</string>
-  <string name="UserConfig.UserProfileType">User profile</string>
-  <string name="UserConfig.AdminProfileType">Administrator profile</string>
+  <string name="UserConfig.ClientProfile">Client profile</string>
+  <string name="UserConfig.UserProfile">User profile</string>
 
   <string name="UserConfig.RestrictionGroups">Restrict actions</string>
   <string name="UserConfig.RestrictedAll">All allowed</string>

@@ -50,7 +50,7 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public UserProfile CurrentUser
     {
-      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().Result ?? UNKNOWN_USER); }
+      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().TryWait() ?? UNKNOWN_USER); }
       set
       {
         bool changed = _currentUser != value;
