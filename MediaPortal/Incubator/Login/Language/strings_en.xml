@@ -74,8 +74,8 @@
   <string name="RestrictionGroup.Settings.UserProfile">Settings: Manange all users</string>
   <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Settings: Manage own profile</string>
 
-  <string name="UserProfileTemplate.Admin">Admin template</string>
-  <string name="UserProfileTemplate.UserOwnProfile">User - allow changing own profile</string>
-  <string name="UserProfileTemplate.UserNoSettings">User - no settings</string>
+  <string name="UserProfileTemplate.Admin">Administrator</string>
+  <string name="UserProfileTemplate.Teenager">Teenager</string>
+  <string name="UserProfileTemplate.Child">Child</string>
 
 </resources>

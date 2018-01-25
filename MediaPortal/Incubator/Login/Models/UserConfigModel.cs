@@ -479,7 +479,7 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       try
       {
-        UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProfileType.UserProfile);
+        UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(template.TemplateName), UserProfileType.UserProfile);
         user.LastLogin = DateTime.Now;
 
         ListItem item = new ListItem();
@@ -569,6 +569,11 @@ namespace MediaPortal.UiComponents.Login.Models
             }
           }
         }
+
+        // Set focus to first in list
+        var firstItem = _userList.FirstOrDefault();
+        if (firstItem != null)
+          firstItem.Selected = true;
 
         _userList.FireChange();
       }

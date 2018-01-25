@@ -45,20 +45,20 @@ namespace MediaPortal.UiComponents.Login.Settings
       new UserProfileTemplate
       {
         TemplateId = new Guid("{56477003-A827-461D-92CB-E91FADD69B7D}"),
-        TemplateName = "[UserProfileTemplate.UserOwnProfile]",
+        TemplateName = "[UserProfileTemplate.Teenager]",
         EnableRestrictionGroups = true,
         RestrictionGroups = new List<string> { "Settings", "Settings.UserProfile.ManageOwn" },
-        RestrictAges = false,
-        AllowedAge = null
+        RestrictAges = true,
+        AllowedAge = 13
       },
       new UserProfileTemplate
       {
         TemplateId = new Guid("{24172540-6A51-49E7-B95C-A41D3DBECCCE}"),
-        TemplateName = "[UserProfileTemplate.UserNoSettings]",
+        TemplateName = "[UserProfileTemplate.Child]",
         EnableRestrictionGroups = true,
         RestrictionGroups = new List<string>(),
-        RestrictAges = false,
-        AllowedAge = null
+        RestrictAges = true,
+        AllowedAge = 5
       },
     };
 
