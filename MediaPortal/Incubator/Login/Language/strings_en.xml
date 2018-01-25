@@ -52,7 +52,7 @@
   <string name="UserConfig.No">No</string>
   <string name="UserConfig.Ok">OK</string>
 
-  <string name="UserConfig.SelectProfileType">Select profile type</string>
+  <string name="UserConfig.SelectProfileTemplate">Select profile template</string>
   <string name="UserConfig.ClientProfile">Client profile</string>
   <string name="UserConfig.UserProfile">User profile</string>
 
@@ -75,8 +75,7 @@
   <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Settings: Manage own profile</string>
 
   <string name="UserProfileTemplate.Admin">Admin template</string>
-  <string name="UserProfileTemplate.UserUnrestricted">User template - no age restriction</string>
-  <string name="UserProfileTemplate.UserAge8">User template - age restriction: 8</string>
-  <string name="UserProfileTemplate.UserAge14">User template - age restriction: 14</string>
+  <string name="UserProfileTemplate.UserOwnProfile">User - allow changing own profile</string>
+  <string name="UserProfileTemplate.UserNoSettings">User - no settings</string>
 
 </resources>

@@ -71,41 +71,55 @@
         <Label Grid.Row="3" Grid.Column="3" Margin="5"
                Content="{Binding ProfileTypeName}" Color="{ThemeResource TextColor}"/>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1">
+        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1" IsVisible="{Binding !IsRestrictedToOwn}">
           <CheckBox x:Name="CheckRestrictionGroups" HorizontalAlignment="Center"
                     IsChecked="{Binding Path=UserProxy.EnableRestrictionGroups,Mode=TwoWay}"/>
           <Label Margin="5" Content="[UserConfig.RestrictionGroups]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
         <Button x:Name="EditRestrictionsButton" Grid.Row="4" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-                Content="{Binding SelectedRestrictionGroupsInfo}" IsVisible="{Binding ElementName=CheckRestrictionGroups, Path=IsChecked}"
-                Command="{Command OpenSelectRestrictionDialog}"/>
+                Content="{Binding SelectedRestrictionGroupsInfo}"
+                Command="{Command OpenSelectRestrictionDialog}">
+          <Button.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}&amp;&amp;{1}">
+              <Binding ElementName="CheckRestrictionGroups" Path="IsChecked"/>
+              <Binding Path="!IsRestrictedToOwn"/>
+            </MultiBinding>
+          </Button.IsVisible>
+        </Button>
 
-        <StackPanel Orientation="Horizontal"  Grid.Row="5" Grid.Column="1">
+        <StackPanel Orientation="Horizontal"  Grid.Row="5" Grid.Column="1" IsVisible="{Binding !IsRestrictedToOwn}">
           <CheckBox x:Name="CheckShareFilter" HorizontalAlignment="Center"
                     IsChecked="{Binding Path=UserProxy.RestrictShares,Mode=TwoWay}"/>
           <Label Margin="5" Content="[UserConfig.ShareRestrictions]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
         <Button x:Name="EditSharesButton" Grid.Row="5" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
-                Content="{Binding SelectedSharesInfo}" IsVisible="{Binding ElementName=CheckShareFilter, Path=IsChecked}"
-                Command="{Command OpenSelectSharesDialog}"/>
+                Content="{Binding SelectedSharesInfo}"
+                Command="{Command OpenSelectSharesDialog}">
+          <Button.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}&amp;&amp;{1}">
+              <Binding ElementName="CheckShareFilter" Path="IsChecked"/>
+              <Binding Path="!IsRestrictedToOwn"/>
+            </MultiBinding>
+          </Button.IsVisible>
+        </Button>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1">
+        <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1" IsVisible="{Binding !IsRestrictedToOwn}">
           <CheckBox x:Name="CheckAgeFilter" HorizontalAlignment="Center"
                     IsChecked="{Binding Path=UserProxy.RestrictAges,Mode=TwoWay}"/>
           <Label Margin="5" Content="[UserConfig.AgeFilter]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
-        <TextBox Grid.Row="6" Grid.Column="3" IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"
+        <TextBox Grid.Row="6" Grid.Column="3" IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}" IsVisible="{Binding !IsRestrictedToOwn}"
                  TextAlign="Center" HorizontalContentAlignment="Center"
                  Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40"/>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1" Margin="35,0,0,0">
+        <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1" Margin="35,0,0,0" IsVisible="{Binding !IsRestrictedToOwn}">
           <CheckBox x:Name="CheckIncludeParentFilter" HorizontalAlignment="Center"
                     IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"
                     IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
           <Label Margin="5" Content="[UserConfig.IncludePGContent]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" Margin="35,0,0,0">
+        <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" Margin="35,0,0,0" IsVisible="{Binding !IsRestrictedToOwn}">
           <CheckBox x:Name="CheckIncludeUnratedContentFilter" HorizontalAlignment="Center"
                   IsChecked="{Binding Path=UserProxy.IncludeUnratedContent,Mode=TwoWay}"
                   IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
@@ -131,16 +145,24 @@
         </Button>
 
         <UniformGrid Columns="4" Grid.ColumnSpan="4" Grid.Row="10" Height="80" VerticalAlignment="Bottom">
-          <Button x:Name="AddUserButton" Style="{ThemeResource WizardButtonStyle}"
-                  Content="[UserConfig.AddUser]" Command="{Command AddUser}" Margin="10"/>
+          <Button x:Name="AddUserButton" Style="{ThemeResource WizardButtonStyle}" IsEnabled="{Binding !IsRestrictedToOwn}"
+                  Content="[UserConfig.AddUser]" Command="{Command AddUser}" Margin="10" />
           <Button x:Name="CopyUserButton" Style="{ThemeResource WizardButtonStyle}" Margin="10"
-                  Content="[UserConfig.CopyUser]" Command="{Command CopyUser}" IsEnabled="{Binding IsUserSelected}"/>
-          <Button x:Name="DeleteUserButton" Style="{ThemeResource WizardButtonStyle}" Margin="10"
-                  Content="[UserConfig.DeleteUser]" Command="{Command OpenConfirmDeleteDialog}">
+                  Content="[UserConfig.CopyUser]" Command="{Command CopyUser}">
             <Button.IsEnabled>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                 <Binding Path="IsUserSelected"/>
+                <Binding Path="!IsRestrictedToOwn"/>
+              </MultiBinding>
+            </Button.IsEnabled>
+          </Button>
+          <Button x:Name="DeleteUserButton" Style="{ThemeResource WizardButtonStyle}" Margin="10"
+                  Content="[UserConfig.DeleteUser]" Command="{Command OpenConfirmDeleteDialog}">
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} &amp;&amp; {2}">
+                <Binding Path="IsUserSelected"/>
                 <Binding Path="!IsSystemUserSelected"/>
+                <Binding Path="!IsRestrictedToOwn"/>
               </MultiBinding>
             </Button.IsEnabled>
           </Button>
@@ -152,3 +174,4 @@
 
   </Include.Resources>
 </Include>
+

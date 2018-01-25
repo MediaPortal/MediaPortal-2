@@ -109,43 +109,25 @@ namespace MediaPortal.UiComponents.Login.Models
 
       SelectedShares.Clear();
 
-      int allowedAge = 5;
-      bool allowAllAges = true;
-      bool allowAllShares = true;
-      bool includeParentContent = false;
-      bool includeUnratedContent = false;
-      string preferredMovieCountry = string.Empty;
-      string preferredSeriesCountry = string.Empty;
-
       foreach (var data in userProfile.AdditionalData)
       {
         foreach (var val in data.Value)
         {
-          if (data.Key == UserDataKeysKnown.KEY_ALLOWED_AGE)
-            allowedAge = Convert.ToInt32(val.Value);
-          else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_AGES)
-            allowAllAges = Convert.ToInt32(val.Value) > 0;
-          else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
-            allowAllShares = Convert.ToInt32(val.Value) > 0;
-          else if (data.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
+          if (data.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
           {
             Guid shareId = Guid.Parse(val.Value);
             if (localSharesList != null && localSharesList.Any(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId) ||
                 serverSharesList != null && serverSharesList.Any(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId))
               SelectedShares.Add(shareId);
           }
-          else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT)
-            includeParentContent = Convert.ToInt32(val.Value) > 0;
-          else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT)
-            includeUnratedContent = Convert.ToInt32(val.Value) > 0;
         }
       }
 
-      RestrictAges = !allowAllAges;
-      RestrictShares = !allowAllShares;
-      AllowedAge = allowedAge;
-      IncludeParentGuidedContent = includeParentContent;
-      IncludeUnratedContent = includeUnratedContent;
+      RestrictAges = userProfile.RestrictAges;
+      RestrictShares = userProfile.RestrictShares;
+      AllowedAge = userProfile.AllowedAge ?? 5;
+      IncludeParentGuidedContent = userProfile.IncludeParentGuidedContent;
+      IncludeUnratedContent = userProfile.IncludeUnratedContent;
     }
 
     public void Clear()

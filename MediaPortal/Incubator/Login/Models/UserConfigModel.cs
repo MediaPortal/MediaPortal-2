@@ -83,7 +83,7 @@ namespace MediaPortal.UiComponents.Login.Models
     protected ItemsList _serverSharesList = null;
     protected ItemsList _localSharesList = null;
     protected ItemsList _userList = null;
-    protected ItemsList _profileList = null;
+    protected ItemsList _templateList = null;
     protected ItemsList _restrictionGroupList = null;
     protected UserProxy _userProxy = null; // Encapsulates state and communication of user configuration
     protected AbstractProperty _isHomeServerConnectedProperty;
@@ -93,6 +93,7 @@ namespace MediaPortal.UiComponents.Login.Models
     protected AbstractProperty _selectShareInfoProperty;
     protected AbstractProperty _selectedRestrictionGroupsInfoProperty;
     protected AbstractProperty _profileTypeNameProperty;
+    protected AbstractProperty _isRestrictedToOwnProperty;
     protected AbstractProperty _isUserSelectedProperty;
     protected AbstractProperty _isSystemUserSelectedProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -122,17 +123,18 @@ namespace MediaPortal.UiComponents.Login.Models
       _selectShareInfoProperty = new WProperty(typeof(string), string.Empty);
       _selectedRestrictionGroupsInfoProperty = new WProperty(typeof(string), string.Empty);
       _profileTypeNameProperty = new WProperty(typeof(string), string.Empty);
+      _isRestrictedToOwnProperty = new WProperty(typeof(bool), false);
       _isUserSelectedProperty = new WProperty(typeof(bool), false);
       _isSystemUserSelectedProperty = new WProperty(typeof(bool), false);
 
-      _profileList = new ItemsList();
+      _templateList = new ItemsList();
       ListItem item = null;
       foreach (var profile in UserSettingStorage.UserProfileTemplates)
       {
         item = new ListItem();
         item.SetLabel(Consts.KEY_NAME, profile.TemplateName);
         item.AdditionalProperties[Consts.KEY_PROFILE_TEMPLATE_ID] = profile.TemplateId;
-        _profileList.Add(item);
+        _templateList.Add(item);
       }
 
       RequestRestrictions();
@@ -147,7 +149,7 @@ namespace MediaPortal.UiComponents.Login.Models
       _serverSharesList = null;
       _localSharesList = null;
       _userList = null;
-      _profileList = null;
+      _templateList = null;
       _restrictionGroupList = null;
     }
 
@@ -263,12 +265,12 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
-    public ItemsList ProfileTypeList
+    public ItemsList ProfileTemplateList
     {
       get
       {
         lock (_syncObj)
-          return _profileList;
+          return _templateList;
       }
     }
 
@@ -369,6 +371,17 @@ namespace MediaPortal.UiComponents.Login.Models
       set { _isUserSelectedProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsRestrictedToOwnProperty
+    {
+      get { return _isRestrictedToOwnProperty; }
+    }
+
+    public bool IsRestrictedToOwn
+    {
+      get { return (bool)_isRestrictedToOwnProperty.GetValue(); }
+      set { _isRestrictedToOwnProperty.SetValue(value); }
+    }
+
     public AbstractProperty IsSystemUserSelectedProperty
     {
       get { return _isSystemUserSelectedProperty; }
@@ -407,7 +420,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void OpenChooseProfileTypeDialog()
     {
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseProfileType");
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseProfileTemplate");
     }
 
     public void OpenConfirmDeleteDialog()
@@ -502,13 +515,13 @@ namespace MediaPortal.UiComponents.Login.Models
         if (UserProxy.IsPasswordChanged)
           hash = Utils.HashPassword(UserProxy.Password);
         UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProxy.ProfileType, hash, DateTime.Now, UserProxy.Image);
-        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
+        user.AllowedAge = UserProxy.AllowedAge;
         foreach (var shareId in UserProxy.SelectedShares)
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
-        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.RestrictAges ? "0" : "1");
-        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
-        user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
-        user.AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+        user.RestrictAges = UserProxy.RestrictAges;
+        user.RestrictShares = UserProxy.RestrictShares;
+        user.IncludeParentGuidedContent = UserProxy.IncludeParentGuidedContent;
+        user.IncludeUnratedContent = UserProxy.IncludeUnratedContent;
         user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
         user.RestrictionGroups = UserProxy.RestrictionGroups;
 
@@ -584,39 +597,45 @@ namespace MediaPortal.UiComponents.Login.Models
           if (UserProxy.ProfileType == UserProfileType.ClientProfile)
             hash = ""; //Client profiles can't have passwords
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-          if (userManagement != null && userManagement.UserProfileDataManagement != null)
+          var userId = UserProxy.Id;
+          if (userManagement.UserProfileDataManagement != null)
           {
-            if (UserProxy.Id == Guid.Empty)
+            if (userId == Guid.Empty)
             {
-              UserProxy.Id = await userManagement.UserProfileDataManagement.CreateProfileAsync(UserProxy.Name, UserProxy.ProfileType, hash);
+              userId = UserProxy.Id = await userManagement.UserProfileDataManagement.CreateProfileAsync(UserProxy.Name, UserProxy.ProfileType, hash);
               wasCreated = true;
             }
             else
             {
-              success = await userManagement.UserProfileDataManagement.UpdateProfileAsync(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash);
+              success = await userManagement.UserProfileDataManagement.UpdateProfileAsync(userId, UserProxy.Name, UserProxy.ProfileType, hash);
             }
-            if (UserProxy.Id == Guid.Empty)
+            if (userId == Guid.Empty)
             {
               ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving user '{0}'", UserProxy.Name);
               return;
             }
 
             if (UserProxy.Image != null)
-              success &= await userManagement.UserProfileDataManagement.SetProfileImageAsync(UserProxy.Id, UserProxy.Image);
-            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
-            success &= await userManagement.UserProfileDataManagement.ClearUserAdditionalDataKeyAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE);
-            foreach (var shareId in UserProxy.SelectedShares)
-              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOWED_SHARE, shareId.ToString(), ++shareCount);
-            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.RestrictAges ? "0" : "1");
-            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
-            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
-            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
-            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_ENABLE_RESTRICTION_GROUPS, UserProxy.EnableRestrictionGroups ? "1" : "0");
-            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_TEMPLATE_ID, UserProxy.TemplateId.ToString());
-            success &= await userManagement.UserProfileDataManagement.ClearUserAdditionalDataKeyAsync(UserProxy.Id, UserDataKeysKnown.KEY_RESTRICTION_GROUPS);
-            int groupCount = 0;
-            foreach (var group in UserProxy.RestrictionGroups)
-              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(UserProxy.Id, UserDataKeysKnown.KEY_RESTRICTION_GROUPS, group, ++groupCount);
+              success &= await userManagement.UserProfileDataManagement.SetProfileImageAsync(userId, UserProxy.Image);
+
+            // If the current user is restricted to own profile, we skip all properties that would allow a "self unrestriction"
+            if (!IsRestrictedToOwn)
+            {
+              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
+              success &= await userManagement.UserProfileDataManagement.ClearUserAdditionalDataKeyAsync(userId, UserDataKeysKnown.KEY_ALLOWED_SHARE);
+              foreach (var shareId in UserProxy.SelectedShares)
+                success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ALLOWED_SHARE, shareId.ToString(), ++shareCount);
+              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.RestrictAges ? "0" : "1");
+              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
+              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
+              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
+              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ENABLE_RESTRICTION_GROUPS, UserProxy.EnableRestrictionGroups ? "1" : "0");
+              success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_TEMPLATE_ID, UserProxy.TemplateId.ToString());
+              success &= await userManagement.UserProfileDataManagement.ClearUserAdditionalDataKeyAsync(userId, UserDataKeysKnown.KEY_RESTRICTION_GROUPS);
+              int groupCount = 0;
+              foreach (var group in UserProxy.RestrictionGroups)
+                success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_RESTRICTION_GROUPS, group, ++groupCount);
+            }
 
             if (!success)
             {
@@ -630,14 +649,14 @@ namespace MediaPortal.UiComponents.Login.Models
             return;
 
           shareCount = 0;
-          UserProfile user = new UserProfile(UserProxy.Id, UserProxy.Name, UserProxy.ProfileType, hash, UserProxy.LastLogin, UserProxy.Image);
+          UserProfile user = new UserProfile(userId, UserProxy.Name, UserProxy.ProfileType, hash, UserProxy.LastLogin, UserProxy.Image);
           if (wasCreated)
             user.LastLogin = DateTime.Now;
-          user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
+          user.RestrictAges = UserProxy.RestrictAges;
+          user.AllowedAge = UserProxy.AllowedAge;
+          user.RestrictShares = UserProxy.RestrictShares;
           foreach (var shareId in UserProxy.SelectedShares)
             user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
-          user.RestrictAges = UserProxy.RestrictAges;
-          user.RestrictShares = UserProxy.RestrictShares;
           user.IncludeParentGuidedContent = UserProxy.IncludeParentGuidedContent;
           user.IncludeUnratedContent = UserProxy.IncludeUnratedContent;
           user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
@@ -665,7 +684,7 @@ namespace MediaPortal.UiComponents.Login.Models
       }
     }
 
-    public void SelectProfileType(ListItem item)
+    public void SelectProfileTemplate(ListItem item)
     {
       Guid templateId = (Guid)item.AdditionalProperties[Consts.KEY_PROFILE_TEMPLATE_ID];
       var template = UserSettingStorage.UserProfileTemplates.FirstOrDefault(i => i.TemplateId == templateId);
@@ -710,6 +729,8 @@ namespace MediaPortal.UiComponents.Login.Models
 
         IsUserSelected = userProfile != null;
         IsSystemUserSelected = userProfile?.ProfileType == UserProfileType.ClientProfile;
+
+        IsRestrictedToOwn = CheckRestrictedToOwn();
 
         ProfileTypeName = userProfile != null ? LocalizationHelper.Translate("[UserConfig." + userProfile.ProfileType + "]") : string.Empty;
 
@@ -770,6 +791,19 @@ namespace MediaPortal.UiComponents.Login.Models
       return LocalizationHelper.Translate(Consts.RES_RESTRICTIONS_ALL);
     }
 
+    private bool CheckRestrictedToOwn()
+    {
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userManagement == null || userManagement.UserProfileDataManagement == null)
+        return true;
+
+      var hasSettings = userManagement.CheckUserAccess(new AccessCheck { RestrictionGroup = "Settings.UserProfile" });
+      var hasOwn = userManagement.CheckUserAccess(new AccessCheck { RestrictionGroup = "Settings.UserProfile.ManageOwn" });
+
+      // The restriction to own profile is only valid if the global user management is prohibited.
+      return !hasSettings && hasOwn;
+    }
+
     protected internal async Task UpdateUserLists_NoLock(bool create)
     {
       lock (_syncObj)
@@ -786,7 +820,7 @@ namespace MediaPortal.UiComponents.Login.Models
         if (userManagement == null || userManagement.UserProfileDataManagement == null)
           return;
 
-        bool manageAllUsers = userManagement.CheckUserAccess(new AccessCheck { RestrictionGroup = "Settings.UserProfile" });
+        bool manageAllUsers = !CheckRestrictedToOwn();
 
         // add users to expose them
         var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();

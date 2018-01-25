@@ -117,7 +117,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Skin\default\screens\DialogChooseProfileType.xaml">
+    <None Include="Skin\default\screens\DialogChooseProfileTemplate.xaml">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
