@@ -479,31 +479,38 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       try
       {
-        UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(template.TemplateName), UserProfileType.UserProfile);
+        var userName = GetUniqueName(LocalizationHelper.Translate(template.TemplateName));
+        UserProfile user = new UserProfile(Guid.Empty, userName, UserProfileType.UserProfile);
         user.LastLogin = DateTime.Now;
-
-        ListItem item = new ListItem();
-        item.SetLabel(Consts.KEY_NAME, user.Name);
-        item.AdditionalProperties[Consts.KEY_USER] = user;
-        item.SelectedProperty.Attach(OnUserItemSelectionChanged);
-        item.Selected = true;
-
         ApplyTemplate(user, template);
-
-        lock (_syncObj)
-          _userList.Add(item);
-
         SetUser(user);
-
-        _userList.FireChange();
-
         // Auto save to avoid unsaved user profiles
         SaveUser().TryWait();
+        UpdateUserLists_NoLock(false, UserProxy.Id).TryWait();
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems adding user", e);
       }
+    }
+
+    /// <summary>
+    /// Returns an unique user name by adding a counter. This is required because user profiles have unique names, so an existing name would update the entry.
+    /// </summary>
+    /// <param name="baseName">Desired username</param>
+    /// <returns></returns>
+    private string GetUniqueName(string baseName)
+    {
+      int counter = 0;
+      string testName = baseName;
+      do
+      {
+        if (_userList.Select(item => item.Labels[Consts.KEY_NAME]).All(name => name.Evaluate() != testName))
+          return testName;
+
+        testName = string.Format("{0} ({1})", baseName, ++counter);
+      } while (counter < 10);
+      return null;
     }
 
     public void CopyUser()
@@ -514,7 +521,7 @@ namespace MediaPortal.UiComponents.Login.Models
         string hash = UserProxy.Password;
         if (UserProxy.IsPasswordChanged)
           hash = Utils.HashPassword(UserProxy.Password);
-        UserProfile user = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NEW_USER_TEXT), UserProxy.ProfileType, hash, DateTime.Now, UserProxy.Image);
+        UserProfile user = new UserProfile(Guid.Empty, GetUniqueName(UserProxy.Name), UserProxy.ProfileType, hash, DateTime.Now, UserProxy.Image);
         user.AllowedAge = UserProxy.AllowedAge;
         foreach (var shareId in UserProxy.SelectedShares)
           user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
@@ -525,18 +532,10 @@ namespace MediaPortal.UiComponents.Login.Models
         user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
         user.RestrictionGroups = UserProxy.RestrictionGroups;
 
-        ListItem item = new ListItem();
-        item.SetLabel(Consts.KEY_NAME, user.Name);
-        item.AdditionalProperties[Consts.KEY_USER] = user;
-        item.SelectedProperty.Attach(OnUserItemSelectionChanged);
-        item.Selected = true;
-
-        lock (_syncObj)
-          _userList.Add(item);
-
         SetUser(user);
-
-        _userList.FireChange();
+        // Auto save to avoid unsaved user profiles
+        SaveUser().TryWait();
+        UpdateUserLists_NoLock(false, UserProxy.Id).TryWait();
       }
       catch (Exception e)
       {
@@ -552,6 +551,7 @@ namespace MediaPortal.UiComponents.Login.Models
         if (item == null)
           return;
 
+        int oldItemIndex = _userList.IndexOf(item) - 1;
         UserProfile user = (UserProfile)item.AdditionalProperties[Consts.KEY_USER];
 
         item.SelectedProperty.Detach(OnUserItemSelectionChanged);
@@ -571,9 +571,14 @@ namespace MediaPortal.UiComponents.Login.Models
         }
 
         // Set focus to first in list
-        var firstItem = _userList.FirstOrDefault();
-        if (firstItem != null)
-          firstItem.Selected = true;
+        if (oldItemIndex > 0 && oldItemIndex < _userList.Count)
+          _userList[oldItemIndex].Selected = true;
+        else
+        {
+          var firstItem = _userList.FirstOrDefault();
+          if (firstItem != null)
+            firstItem.Selected = true;
+        }
 
         _userList.FireChange();
       }
@@ -809,7 +814,7 @@ namespace MediaPortal.UiComponents.Login.Models
       return !hasSettings && hasOwn;
     }
 
-    protected internal async Task UpdateUserLists_NoLock(bool create)
+    protected internal async Task UpdateUserLists_NoLock(bool create, Guid? selectedUserId = null)
     {
       lock (_syncObj)
       {
@@ -830,6 +835,7 @@ namespace MediaPortal.UiComponents.Login.Models
         // add users to expose them
         var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
         _userList.Clear();
+        bool selectedOnce = false;
         foreach (UserProfile user in users)
         {
           if (!manageAllUsers && user.ProfileId != userManagement.CurrentUser.ProfileId)
@@ -838,15 +844,17 @@ namespace MediaPortal.UiComponents.Login.Models
           ListItem item = new ListItem();
           item.SetLabel(Consts.KEY_NAME, user.Name);
           item.AdditionalProperties[Consts.KEY_USER] = user;
+          if (selectedUserId.HasValue)
+            selectedOnce |= item.Selected = user.ProfileId == selectedUserId;
           item.SelectedProperty.Attach(OnUserItemSelectionChanged);
           lock (_syncObj)
             _userList.Add(item);
         }
-        if (_userList.Count > 0)
+        if (!selectedOnce && _userList.Count > 0)
         {
           _userList[0].Selected = true;
-          SetUser((UserProfile)_userList[0].AdditionalProperties[Consts.KEY_USER]);
         }
+        _userList.FireChange();
       }
       catch (NotConnectedException)
       {
@@ -865,6 +873,10 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private void OnUserItemSelectionChanged(AbstractProperty property, object oldValue)
     {
+      // Only handle the event if new item got selected. The unselected event can be ignored.
+      if (!(bool)property.GetValue())
+        return;
+
       UserProfile userProfile = null;
       lock (_syncObj)
       {
