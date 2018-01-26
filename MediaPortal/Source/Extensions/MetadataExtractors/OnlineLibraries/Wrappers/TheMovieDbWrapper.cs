@@ -949,108 +949,89 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<ImageItem> images)
+    public override async Task<ApiWrapperImageCollection<ImageItem>> GetFanArtAsync<T>(T infoObject, string language, string fanartMediaType)
     {
-      language = language ?? PreferredLanguage;
-
       ImageCollection imgs = null;
-      images = new ApiWrapperImageCollection<ImageItem>();
-
       if (fanartMediaType == FanArtMediaTypes.MovieCollection)
-      {
-        MovieInfo movie = infoObject as MovieInfo;
-        MovieCollectionInfo collection = infoObject as MovieCollectionInfo;
-        if (collection == null && movie != null)
-        {
-          collection = movie.CloneBasicInstance<MovieCollectionInfo>();
-        }
-        if (collection != null && collection.MovieDbId > 0)
-        {
-          // Download all image information, filter later!
-          imgs = _movieDbHandler.GetMovieCollectionImagesAsync(collection.MovieDbId, null).Result;
-        }
-      }
+        imgs = await GetMovieCollectionImages(infoObject.AsMovieCollection()).ConfigureAwait(false);
       else if (fanartMediaType == FanArtMediaTypes.Movie)
-      {
-        MovieInfo movie = infoObject as MovieInfo;
-        if (movie != null && movie.MovieDbId > 0)
-        {
-          // Download all image information, filter later!
-          imgs = _movieDbHandler.GetMovieImagesAsync(movie.MovieDbId, null).Result;
-        }
-      }
+        imgs = await GetMovieImages(infoObject as MovieInfo).ConfigureAwait(false);
       else if (fanartMediaType == FanArtMediaTypes.Series)
-      {
-        EpisodeInfo episode = infoObject as EpisodeInfo;
-        SeasonInfo season = infoObject as SeasonInfo;
-        SeriesInfo series = infoObject as SeriesInfo;
-        if (series == null && season != null)
-        {
-          series = season.CloneBasicInstance<SeriesInfo>();
-        }
-        if (series == null && episode != null)
-        {
-          series = episode.CloneBasicInstance<SeriesInfo>();
-        }
-        if (series != null && series.MovieDbId > 0)
-        {
-          // Download all image information, filter later!
-          imgs = _movieDbHandler.GetSeriesImagesAsync(series.MovieDbId, null).Result;
-        }
-      }
+        imgs = await GetSeriesImages(infoObject.AsSeries()).ConfigureAwait(false);
       else if (fanartMediaType == FanArtMediaTypes.SeriesSeason)
-      {
-        EpisodeInfo episode = infoObject as EpisodeInfo;
-        SeasonInfo season = infoObject as SeasonInfo;
-        if (season == null && episode != null)
-        {
-          season = episode.CloneBasicInstance<SeasonInfo>();
-        }
-        if (season != null && season.SeriesMovieDbId > 0 && season.SeasonNumber.HasValue)
-        {
-          // Download all image information, filter later!
-          imgs = _movieDbHandler.GetSeriesSeasonImagesAsync(season.SeriesMovieDbId, season.SeasonNumber.Value, null).Result;
-        }
-      }
+        imgs = await GetSeasonImages(infoObject.AsSeason()).ConfigureAwait(false);
       else if (fanartMediaType == FanArtMediaTypes.Episode)
-      {
-        EpisodeInfo episode = infoObject as EpisodeInfo;
-        if (episode != null && episode.SeriesMovieDbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
-        {
-          // Download all image information, filter later!
-          imgs = _movieDbHandler.GetSeriesEpisodeImagesAsync(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, null).Result;
-        }
-      }
+        imgs = await GetEpisodeImages(infoObject as EpisodeInfo).ConfigureAwait(false);
       else if (fanartMediaType == FanArtMediaTypes.Actor || fanartMediaType == FanArtMediaTypes.Director || fanartMediaType == FanArtMediaTypes.Writer)
-      {
-        PersonInfo person = infoObject as PersonInfo;
-        if (person != null && person.MovieDbId > 0)
-        {
-          // Download all image information, filter later!
-          imgs = _movieDbHandler.GetPersonImagesAsync(person.MovieDbId, null).Result;
-        }
-      }
+        imgs = await GetPersonImages(infoObject as PersonInfo).ConfigureAwait(false);
       else
-      {
-        return true;
-      }
+        return null;
 
       if (imgs != null)
       {
+        ApiWrapperImageCollection<ImageItem> images = new ApiWrapperImageCollection<ImageItem>();
         if (imgs.Id > 0) images.Id = imgs.Id.ToString();
         if (imgs.Backdrops != null) images.Backdrops.AddRange(imgs.Backdrops.OrderBy(b => string.IsNullOrEmpty(b.Language)));
         if (imgs.Covers != null) images.Covers.AddRange(imgs.Covers.OrderBy(b => string.IsNullOrEmpty(b.Language)));
         if (imgs.Posters != null) images.Posters.AddRange(imgs.Posters.OrderBy(b => string.IsNullOrEmpty(b.Language)));
         if (imgs.Profiles != null) images.Thumbnails.AddRange(imgs.Profiles.OrderBy(b => string.IsNullOrEmpty(b.Language)));
         if (imgs.Stills != null) images.Thumbnails.AddRange(imgs.Stills.OrderBy(b => string.IsNullOrEmpty(b.Language)));
-        return true;
+        return images;
       }
-      return false;
+      return null;
     }
 
     public override bool DownloadFanArt(string id, ImageItem image, string folderPath)
     {
       return _movieDbHandler.DownloadImage(id, image, folderPath);
+    }
+
+    protected Task<ImageCollection> GetMovieCollectionImages(MovieCollectionInfo collection)
+    {
+      if (collection == null || collection.MovieDbId < 1)
+        return Task.FromResult<ImageCollection>(null);
+      // Download all image information, filter later!
+      return _movieDbHandler.GetMovieCollectionImagesAsync(collection.MovieDbId, null);
+    }
+
+    protected Task<ImageCollection> GetMovieImages(MovieInfo movie)
+    {
+      if (movie == null || movie.MovieDbId < 1)
+        return Task.FromResult<ImageCollection>(null);
+      // Download all image information, filter later!
+      return _movieDbHandler.GetMovieImagesAsync(movie.MovieDbId, null);
+    }
+
+    protected Task<ImageCollection> GetSeriesImages(SeriesInfo series)
+    {
+      if (series == null || series.MovieDbId < 1)
+        return Task.FromResult<ImageCollection>(null);
+      // Download all image information, filter later!
+      return _movieDbHandler.GetSeriesImagesAsync(series.MovieDbId, null);
+    }
+
+    protected Task<ImageCollection> GetSeasonImages(SeasonInfo season)
+    {
+      if (season == null || season.SeriesMovieDbId < 1 || !season.SeasonNumber.HasValue)
+        return Task.FromResult<ImageCollection>(null);
+      // Download all image information, filter later!
+      return _movieDbHandler.GetSeriesSeasonImagesAsync(season.SeriesMovieDbId, season.SeasonNumber.Value, null);
+    }
+
+    protected Task<ImageCollection> GetEpisodeImages(EpisodeInfo episode)
+    {
+      if (episode == null || episode.SeriesMovieDbId < 1 || !episode.SeasonNumber.HasValue || episode.EpisodeNumbers.Count == 0)
+        return Task.FromResult<ImageCollection>(null);
+      // Download all image information, filter later!
+      return _movieDbHandler.GetSeriesEpisodeImagesAsync(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, null);
+    }
+
+    protected Task<ImageCollection> GetPersonImages(PersonInfo person)
+    {
+      if (person == null || person.MovieDbId < 1)
+        return Task.FromResult<ImageCollection>(null);
+      // Download all image information, filter later!
+      return _movieDbHandler.GetPersonImagesAsync(person.MovieDbId, null);
     }
 
     #endregion

@@ -175,48 +175,44 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<string> images)
+    public override Task<ApiWrapperImageCollection<string>> GetFanArtAsync<T>(T infoObject, string language, string fanartMediaType)
     {
-      language = language ?? PreferredLanguage;
-
-      images = new ApiWrapperImageCollection<string>();
-
       if (fanartMediaType == FanArtMediaTypes.Movie)
-      {
-        MovieInfo movie = infoObject as MovieInfo;
-        if (movie != null && !string.IsNullOrEmpty(movie.ImdbId))
-        {
-          SimApiMovie movieDetail = _simApiHandler.GetMovieAsync(movie.ImdbId, false).Result;
-          if(!string.IsNullOrEmpty(movieDetail.PosterUrl))
-          {
-            images.Posters.Add(movieDetail.PosterUrl);
-            return true;
-          }
-        }
-      }
-      else if (fanartMediaType == FanArtMediaTypes.Actor || fanartMediaType == FanArtMediaTypes.Director || fanartMediaType == FanArtMediaTypes.Writer)
-      {
-        PersonInfo person = infoObject as PersonInfo;
-        if (person != null && !string.IsNullOrEmpty(person.ImdbId))
-        {
-          SimApiPerson personDetail = _simApiHandler.GetPersonAsync(person.ImdbId, false).Result;
-          if (!string.IsNullOrEmpty(personDetail.ImageUrl))
-          {
-            images.Thumbnails.Add(personDetail.ImageUrl);
-            return true;
-          }
-        }
-      }
-      else
-      {
-        return true;
-      }
-      return false;
+        return GetMovieFanArtAsync(infoObject as MovieInfo);
+      if (fanartMediaType == FanArtMediaTypes.Actor || fanartMediaType == FanArtMediaTypes.Director || fanartMediaType == FanArtMediaTypes.Writer)
+        return GetPersonFanArtAsync(infoObject as PersonInfo);
+      return Task.FromResult<ApiWrapperImageCollection<string>>(null);
     }
 
     public override bool DownloadFanArt(string id, string image, string folderPath)
     {
       return _simApiHandler.DownloadImage(id, image, folderPath);
+    }
+
+    protected async Task<ApiWrapperImageCollection<string>> GetMovieFanArtAsync(MovieInfo movie)
+    {
+      if (movie == null || string.IsNullOrEmpty(movie.ImdbId))
+        return null;
+      SimApiMovie movieDetail = await _simApiHandler.GetMovieAsync(movie.ImdbId, false).ConfigureAwait(false);
+      if (movieDetail == null || string.IsNullOrEmpty(movieDetail.PosterUrl))
+        return null;
+      ApiWrapperImageCollection<string> images = new ApiWrapperImageCollection<string>();
+      images.Id = movie.ImdbId;
+      images.Posters.Add(movieDetail.PosterUrl);
+      return images;
+    }
+
+    protected async Task<ApiWrapperImageCollection<string>> GetPersonFanArtAsync(PersonInfo person)
+    {
+      if (person == null || string.IsNullOrEmpty(person.ImdbId))
+        return null;
+      SimApiPerson personDetail = await _simApiHandler.GetPersonAsync(person.ImdbId, false).ConfigureAwait(false);
+      if (personDetail == null || string.IsNullOrEmpty(personDetail.ImageUrl))
+        return null;
+      ApiWrapperImageCollection<string> images = new ApiWrapperImageCollection<string>();
+      images.Id = person.ImdbId;
+      images.Posters.Add(personDetail.ImageUrl);
+      return images;
     }
 
     #endregion

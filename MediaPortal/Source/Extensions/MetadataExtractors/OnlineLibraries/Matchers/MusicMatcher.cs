@@ -32,7 +32,6 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using System;
@@ -46,7 +45,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class MusicMatcher<TImg, TLang> : BaseMatcher<TrackMatch, string>, IMusicMatcher
+  public abstract class MusicMatcher<TImg, TLang> : BaseMatcher<TrackMatch, string, TImg, TLang>, IMusicMatcher
   {
     public class MusicMatcherSettings
     {
@@ -132,8 +131,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #endregion
 
     #region Constants
-
-    public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
+    
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
 
     protected override string MatchesSettingsFile
@@ -153,7 +151,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private string _configFile;
     private TimeSpan _maxCacheDuration;
     private bool _enabled = true;
-    private string _id = null;
     private bool _cacheRefreshable;
     private DateTime? _lastCacheRefresh;
     private DateTime _lastCacheCheck = DateTime.MinValue;
@@ -165,11 +162,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private SimpleNameMatcher _labelMatcher;
     private SimpleNameMatcher _albumMatcher;
 
-    /// <summary>
-    /// Contains the initialized ApiWrapper.
-    /// </summary>
-    protected ApiWrapper<TImg, TLang> _wrapper = null;
-
     #endregion
 
     #region Properties
@@ -178,11 +170,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       get { return _enabled; }
       set { _enabled = value; }
-    }
-
-    public string Id
-    {
-      get { return _id; }
     }
 
     public bool CacheRefreshable
@@ -1181,250 +1168,52 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
+    protected override bool TryGetFanArtInfo(BaseInfo info, out TLang language, out string fanArtMediaType, out bool includeThumbnails)
     {
-      if (!InitAsync().Result)
+      language = default(TLang);
+      fanArtMediaType = null;
+      includeThumbnails = true;
+
+      TrackInfo trackInfo = info as TrackInfo;
+      if (trackInfo != null)
+      {
+        language = FindBestMatchingLanguage(trackInfo.Languages);
+        fanArtMediaType = FanArtMediaTypes.Audio;
+        return true;
+      }
+
+      AlbumInfo albumInfo = info as AlbumInfo;
+      if (albumInfo != null)
+      {
+        language = FindBestMatchingLanguage(albumInfo.Languages);
+        fanArtMediaType = FanArtMediaTypes.Album;
+        return true;
+      }
+
+      if (OnlyBasicFanArt)
         return false;
 
-      string id;
-      string mediaItem = mediaItemId.ToString().ToUpperInvariant();
-      if (info is TrackInfo)
+      CompanyInfo companyInfo = info as CompanyInfo;
+      if (companyInfo != null)
       {
-        TrackInfo trackInfo = info as TrackInfo;
-        if (GetTrackId(trackInfo, out id))
-        {
-          TLang language = FindBestMatchingLanguage(trackInfo.Languages);
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.Audio,
-            ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItem,
-            Name = trackInfo.ToString()
-          };
-          data.FanArtId[FanArtMediaTypes.Audio] = id;
-          if (GetTrackAlbumId(trackInfo.CloneBasicInstance<AlbumInfo>(), out id))
-          {
-            data.FanArtId[FanArtMediaTypes.Album] = id;
-          }
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
+        language = FindMatchingLanguage(string.Empty);
+        fanArtMediaType = FanArtMediaTypes.MusicLabel;
+        return true;
       }
-      else if (info is AlbumInfo)
+
+      PersonInfo personInfo = info as PersonInfo;
+      if (personInfo != null)
       {
-        AlbumInfo albumInfo = info as AlbumInfo;
-        if (GetTrackAlbumId(albumInfo, out id))
-        {
-          TLang language = FindBestMatchingLanguage(albumInfo.Languages);
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.Album,
-            ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItem,
-            Name = albumInfo.ToString()
-          };
-          data.FanArtId[FanArtMediaTypes.Album] = id;
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is CompanyInfo)
-      {
-        CompanyInfo companyInfo = info as CompanyInfo;
-        if (GetCompanyId(companyInfo, out id))
-        {
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.MusicLabel,
-            ShortLanguage = "",
-            MediaItemId = mediaItem,
-            Name = companyInfo.ToString()
-          };
-          data.FanArtId[FanArtMediaTypes.MusicLabel] = id;
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is PersonInfo)
-      {
-        PersonInfo personInfo = info as PersonInfo;
-        if (GetPersonId(personInfo, out id))
-        {
-          DownloadData data = new DownloadData()
-          {
-            ShortLanguage = "",
-            MediaItemId = mediaItem,
-            Name = personInfo.ToString()
-          };
-          if (personInfo.Occupation == PersonAspect.OCCUPATION_ARTIST)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Artist;
-            data.FanArtId[FanArtMediaTypes.Artist] = id;
-          }
-          else if (personInfo.Occupation == PersonAspect.OCCUPATION_COMPOSER)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Writer;
-            data.FanArtId[FanArtMediaTypes.Writer] = id;
-          }
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
+        if (personInfo.Occupation == PersonAspect.OCCUPATION_ARTIST)
+          fanArtMediaType = FanArtMediaTypes.Artist;
+        else if (personInfo.Occupation == PersonAspect.OCCUPATION_COMPOSER)
+          fanArtMediaType = FanArtMediaTypes.Writer;
+        else
+          return false;
+        language = FindMatchingLanguage(string.Empty);
+        return true;
       }
       return false;
-    }
-
-    protected override void DownloadFanArt(FanartDownload<string> fanartDownload)
-    {
-      string name = fanartDownload.DownloadId;
-      try
-      {
-        if (string.IsNullOrEmpty(fanartDownload.DownloadId))
-          return;
-
-        DownloadData data = new DownloadData();
-        if (!data.Deserialize(fanartDownload.DownloadId))
-          return;
-
-        name = string.Format("{0} ({1})", data.MediaItemId, data.Name);
-
-        if (!InitAsync().Result)
-          return;
-
-        try
-        {
-          TLang language = FindMatchingLanguage(data.ShortLanguage);
-          Logger.Debug(_id + " Download: Started for media item {0}", name);
-          ApiWrapperImageCollection<TImg> images = null;
-          string Id = "";
-          if (data.FanArtMediaType == FanArtMediaTypes.Audio)
-          {
-            Id = data.FanArtId[FanArtMediaTypes.Audio];
-            TrackInfo trackInfo = new TrackInfo();
-            if (SetTrackId(trackInfo, Id))
-            {
-              if (_wrapper.GetFanArt(trackInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for track ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Album)
-          {
-            Id = data.FanArtId[FanArtMediaTypes.Album];
-            AlbumInfo albumInfo = new AlbumInfo();
-            if (SetTrackAlbumId(albumInfo, Id))
-            {
-              if (_wrapper.GetFanArt(albumInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for album ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Artist || data.FanArtMediaType == FanArtMediaTypes.Writer)
-          {
-            if (OnlyBasicFanArt)
-              return;
-
-            Id = data.FanArtId[data.FanArtMediaType];
-            PersonInfo personInfo = new PersonInfo();
-            if (SetPersonId(personInfo, Id))
-            {
-              if (_wrapper.GetFanArt(personInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for music person ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.MusicLabel)
-          {
-            if (OnlyBasicFanArt)
-              return;
-
-            Id = data.FanArtId[FanArtMediaTypes.MusicLabel];
-            CompanyInfo companyInfo = new CompanyInfo();
-            if (SetCompanyId(companyInfo, Id))
-            {
-              if (_wrapper.GetFanArt(companyInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for music company ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-          if (images != null)
-          {
-            Logger.Debug(_id + " Download: Downloading images for ID {0} [{1}]", Id, name);
-
-            SaveFanArtImages(images.Id, images.Backdrops, language, data.MediaItemId, data.Name, FanArtTypes.FanArt);
-            SaveFanArtImages(images.Id, images.Posters, language, data.MediaItemId, data.Name, FanArtTypes.Poster);
-            SaveFanArtImages(images.Id, images.Banners, language, data.MediaItemId, data.Name, FanArtTypes.Banner);
-            SaveFanArtImages(images.Id, images.Covers, language, data.MediaItemId, data.Name, FanArtTypes.Cover);
-            SaveFanArtImages(images.Id, images.Thumbnails, language, data.MediaItemId, data.Name, FanArtTypes.Thumbnail);
-
-            if (!OnlyBasicFanArt)
-            {
-              SaveFanArtImages(images.Id, images.ClearArt, language, data.MediaItemId, data.Name, FanArtTypes.ClearArt);
-              SaveFanArtImages(images.Id, images.DiscArt, language, data.MediaItemId, data.Name, FanArtTypes.DiscArt);
-              SaveFanArtImages(images.Id, images.Logos, language, data.MediaItemId, data.Name, FanArtTypes.Logo);
-            }
-
-            Logger.Debug(_id + " Download: Finished saving images for ID {0} [{1}]", Id, name);
-          }
-        }
-        finally
-        {
-          // Remember we are finished
-          FinishDownloadFanArt(fanartDownload);
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Debug(_id + " Download: Exception downloading images for {0}", ex, name);
-      }
-    }
-
-    protected virtual bool VerifyFanArtImage(TImg image, TLang language)
-    {
-      return image != null;
-    }
-
-    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, TLang language, string mediaItemId, string name, string fanartType)
-    {
-      try
-      {
-        if (images == null)
-          return 0;
-
-        int idx = 0;
-        foreach (TImg img in images)
-        {
-          using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
-          {
-            if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-              break;
-            if (!VerifyFanArtImage(img, language))
-              continue;
-            if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-              break;
-            FanArtCache.InitFanArtCache(mediaItemId, name);
-            if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
-            {
-              countLock.Count++;
-              idx++;
-            }
-            else
-            {
-              Logger.Warn(_id + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanartType);
-            }
-          }
-        }
-        Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
-        return idx;
-      }
-      catch (Exception ex)
-      {
-        Logger.Debug(_id + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
-        return 0;
-      }
     }
 
     #endregion

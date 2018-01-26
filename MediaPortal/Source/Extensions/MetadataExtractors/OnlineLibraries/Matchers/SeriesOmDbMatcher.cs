@@ -188,15 +188,5 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     }
 
     #endregion
-
-    #region FanArt
-
-    protected override void DownloadFanArt(FanartDownload<string> fanartDownload)
-    {
-      // No fanart to download
-      FinishDownloadFanArt(fanartDownload);
-    }
-
-    #endregion
   }
 }

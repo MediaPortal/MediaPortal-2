@@ -86,13 +86,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       get { return _metadata; }
     }
 
-    public void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    public Task CollectFanArtAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
-      if (_checkCache.Contains(mediaItemId))
-        return;
-
-      _checkCache.Add(mediaItemId);
-      ExtractFanArt(mediaItemId, aspects);
+      if (!_checkCache.Contains(mediaItemId))
+      {
+        _checkCache.Add(mediaItemId);
+        ExtractFanArt(mediaItemId, aspects);
+      }
+      return Task.CompletedTask;
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)

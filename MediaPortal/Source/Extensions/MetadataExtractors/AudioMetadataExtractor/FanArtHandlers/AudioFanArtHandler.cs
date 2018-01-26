@@ -92,11 +92,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return _metadata; }
     }
 
-    public void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    public Task CollectFanArtAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
-      if (_checkCache.Contains(mediaItemId))
-        return;
-
       Guid? albumMediaItemId = null;
       IDictionary<Guid, string> artistMediaItems = new Dictionary<Guid, string>();
       SingleMediaItemAspect audioAspect;
@@ -126,11 +123,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         }
       }
 
-      _checkCache.Add(mediaItemId);
-      ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems);
+      return ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems);
     }
 
-    private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? albumMediaItemId, IDictionary<Guid, string> artistMediaItems)
+    private async Task ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? albumMediaItemId, IDictionary<Guid, string> artistMediaItems)
     {
       if (aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
@@ -141,15 +137,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         trackInfo.FromMetadata(aspects);
         bool forceFanart = !trackInfo.IsRefreshed;
         AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
-        ExtractLocalImages(aspects, albumMediaItemId, artistMediaItems, albumInfo.ToString());
-        if(!AudioMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, trackInfo, forceFanart);
+        if (!_checkCache.Contains(mediaItemId))
+        {
+          _checkCache.Add(mediaItemId);
+          ExtractLocalImages(aspects, albumMediaItemId, artistMediaItems, albumInfo.ToString());
+          if (!AudioMetadataExtractor.SkipFanArtDownload)
+            await OnlineMatcherService.Instance.DownloadAudioFanArtAsync(mediaItemId, trackInfo, forceFanart).ConfigureAwait(false);
+        }
 
         if (albumMediaItemId.HasValue && !_checkCache.Contains(albumMediaItemId.Value))
         {
           _checkCache.Add(albumMediaItemId.Value);
           if (!AudioMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadAudioFanArt(albumMediaItemId.Value, albumInfo, forceFanart);
+            await OnlineMatcherService.Instance.DownloadAudioFanArtAsync(albumMediaItemId.Value, albumInfo, forceFanart).ConfigureAwait(false);
         }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
@@ -159,7 +159,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (personInfo.Occupation == PersonAspect.OCCUPATION_ARTIST || personInfo.Occupation == PersonAspect.OCCUPATION_COMPOSER)
         {
           if (!AudioMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, personInfo, !personInfo.IsRefreshed);
+            await OnlineMatcherService.Instance.DownloadAudioFanArtAsync(mediaItemId, personInfo, !personInfo.IsRefreshed).ConfigureAwait(false);
         }
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
@@ -169,7 +169,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (companyInfo.Type == CompanyAspect.COMPANY_MUSIC_LABEL)
         {
           if (!AudioMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, companyInfo, !companyInfo.IsRefreshed);
+            await OnlineMatcherService.Instance.DownloadAudioFanArtAsync(mediaItemId, companyInfo, !companyInfo.IsRefreshed).ConfigureAwait(false);
         }
       }
     }

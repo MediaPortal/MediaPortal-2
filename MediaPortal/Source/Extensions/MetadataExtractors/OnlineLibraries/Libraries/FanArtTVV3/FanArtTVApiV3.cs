@@ -22,13 +22,13 @@
 
 #endregion
 
-using System.IO;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
-using Newtonsoft.Json;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
 {
@@ -71,64 +71,64 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
 
     #region Public members
 
-    public FanArtArtistThumbs GetArtistThumbs(string artistMbid)
+    public Task<FanArtArtistThumbs> GetArtistThumbsAsync(string artistMbid)
     {
       string cache = CreateAndGetCacheName(artistMbid, "Artist");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<FanArtArtistThumbs>(cache);
+        return _downloader.ReadCacheAsync<FanArtArtistThumbs>(cache);
       }
 
       string url = GetUrl(URL_GETMUSICARTIST, artistMbid);
-      return _downloader.Download<FanArtArtistThumbs>(url, cache);
+      return _downloader.DownloadAsync<FanArtArtistThumbs>(url, cache);
     }
 
-    public FanArtAlbumDetails GetAlbumThumbs(string albumMbid)
+    public Task<FanArtAlbumDetails> GetAlbumThumbsAsync(string albumMbid)
     {
       string cache = CreateAndGetCacheName(albumMbid, "Album");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<FanArtAlbumDetails>(cache);
+        return _downloader.ReadCacheAsync<FanArtAlbumDetails>(cache);
       }
 
       string url = GetUrl(URL_GETMUSICALBUM, albumMbid);
-      return _downloader.Download<FanArtAlbumDetails>(url, cache);
+      return _downloader.DownloadAsync<FanArtAlbumDetails>(url, cache);
     }
 
-    public FanArtLabelThumbs GetLabelThumbs(string labelMbid)
+    public Task<FanArtLabelThumbs> GetLabelThumbsAsync(string labelMbid)
     {
       string cache = CreateAndGetCacheName(labelMbid, "Label");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<FanArtLabelThumbs>(cache);
+        return _downloader.ReadCacheAsync<FanArtLabelThumbs>(cache);
       }
 
       string url = GetUrl(URL_GETMUSICLABEL, labelMbid);
-      return _downloader.Download<FanArtLabelThumbs>(url, cache);
+      return _downloader.DownloadAsync<FanArtLabelThumbs>(url, cache);
     }
 
-    public FanArtMovieThumbs GetMovieThumbs(string imDbIdOrtmDbId)
+    public Task<FanArtMovieThumbs> GetMovieThumbsAsync(string imDbIdOrtmDbId)
     {
       string cache = CreateAndGetCacheName(imDbIdOrtmDbId, "Movie");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<FanArtMovieThumbs>(cache);
+        return _downloader.ReadCacheAsync<FanArtMovieThumbs>(cache);
       }
 
       string url = GetUrl(URL_GETMOVIE, imDbIdOrtmDbId);
-      return _downloader.Download<FanArtMovieThumbs>(url, cache);
+      return _downloader.DownloadAsync<FanArtMovieThumbs>(url, cache);
     }
 
-    public FanArtTVThumbs GetSeriesThumbs(string tvdbid)
+    public Task<FanArtTVThumbs> GetSeriesThumbsAsync(string tvdbid)
     {
       string cache = CreateAndGetCacheName(tvdbid, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<FanArtTVThumbs>(cache);
+        return _downloader.ReadCacheAsync<FanArtTVThumbs>(cache);
       }
 
       string url = GetUrl(URL_GETSERIES, tvdbid);
-      return _downloader.Download<FanArtTVThumbs>(url, cache);
+      return _downloader.DownloadAsync<FanArtTVThumbs>(url, cache);
     }
 
     /// <summary>

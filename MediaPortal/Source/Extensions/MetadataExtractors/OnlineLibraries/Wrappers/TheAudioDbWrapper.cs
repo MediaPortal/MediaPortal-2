@@ -477,61 +477,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<string> images)
+    public override Task<ApiWrapperImageCollection<string>> GetFanArtAsync<T>(T infoObject, string language, string fanartMediaType)
     {
-      images = new ApiWrapperImageCollection<string>();
-
-      try
-      {
-        if (fanartMediaType == FanArtMediaTypes.Album)
-        {
-          TrackInfo track = infoObject as TrackInfo;
-          AlbumInfo album = infoObject as AlbumInfo;
-          if (album == null && track != null)
-          {
-            album = track.CloneBasicInstance<AlbumInfo>();
-          }
-          if (album != null && album.AudioDbId > 0)
-          {
-            AudioDbAlbum albumDetail = _audioDbHandler.GetAlbumAsync(album.AudioDbId, language, false).Result;
-            if (albumDetail != null)
-            {
-              images.Id = album.AudioDbId.ToString();
-              if (!string.IsNullOrEmpty(albumDetail.AlbumThumb)) images.Covers.Add(albumDetail.AlbumThumb);
-              if (!string.IsNullOrEmpty(albumDetail.AlbumCDart)) images.DiscArt.Add(albumDetail.AlbumCDart);
-              return true;
-            }
-          }
-        }
-        else if (fanartMediaType == FanArtMediaTypes.Artist)
-        {
-          PersonInfo person = infoObject as PersonInfo;
-          if (person != null && person.AudioDbId > 0)
-          {
-            AudioDbArtist artistDetail = _audioDbHandler.GetArtistAsync(person.AudioDbId, language, false).Result;
-            if (artistDetail != null)
-            {
-              images.Id = person.AudioDbId.ToString();
-              if (!string.IsNullOrEmpty(artistDetail.ArtistBanner)) images.Banners.Add(artistDetail.ArtistBanner);
-              if (!string.IsNullOrEmpty(artistDetail.ArtistFanart)) images.Backdrops.Add(artistDetail.ArtistFanart);
-              if (!string.IsNullOrEmpty(artistDetail.ArtistFanart2)) images.Backdrops.Add(artistDetail.ArtistFanart2);
-              if (!string.IsNullOrEmpty(artistDetail.ArtistFanart3)) images.Backdrops.Add(artistDetail.ArtistFanart3);
-              if (!string.IsNullOrEmpty(artistDetail.ArtistLogo)) images.Logos.Add(artistDetail.ArtistLogo);
-              if (!string.IsNullOrEmpty(artistDetail.ArtistThumb)) images.Thumbnails.Add(artistDetail.ArtistThumb);
-              return true;
-            }
-          }
-        }
-        else
-        {
-          return true;
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception downloading images", ex);
-      }
-      return false;
+      if (fanartMediaType == FanArtMediaTypes.Album)
+        return GetAlbumFanArtAsync(infoObject.AsAlbum(), language);
+      if (fanartMediaType == FanArtMediaTypes.Artist)
+        return GetArtistFanArtAsync(infoObject as PersonInfo, language);
+      return Task.FromResult<ApiWrapperImageCollection<string>>(null);
     }
 
     public override bool DownloadFanArt(string id, string image, string folderPath)
@@ -542,6 +494,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return _audioDbHandler.DownloadImageAsync(ID, image, folderPath).Result;
       }
       return false;
+    }
+
+    protected async Task<ApiWrapperImageCollection<string>> GetAlbumFanArtAsync(AlbumInfo album, string language)
+    {
+      if (album == null || album.AudioDbId < 1)
+        return null;
+      AudioDbAlbum albumDetail = await _audioDbHandler.GetAlbumAsync(album.AudioDbId, language, false).ConfigureAwait(false);
+      if (albumDetail == null)
+        return null;
+      ApiWrapperImageCollection<string> images = new ApiWrapperImageCollection<string>();
+      images.Id = album.AudioDbId.ToString();
+      if (!string.IsNullOrEmpty(albumDetail.AlbumThumb)) images.Covers.Add(albumDetail.AlbumThumb);
+      if (!string.IsNullOrEmpty(albumDetail.AlbumCDart)) images.DiscArt.Add(albumDetail.AlbumCDart);
+      return images;
+    }
+
+    protected async Task<ApiWrapperImageCollection<string>> GetArtistFanArtAsync(PersonInfo person, string language)
+    {
+      if (person == null || person.AudioDbId < 1)
+        return null;
+      AudioDbArtist artistDetail = await _audioDbHandler.GetArtistAsync(person.AudioDbId, language, false).ConfigureAwait(false);
+      if (artistDetail == null)
+        return null;
+      ApiWrapperImageCollection<string> images = new ApiWrapperImageCollection<string>();
+      images.Id = person.AudioDbId.ToString();
+      if (!string.IsNullOrEmpty(artistDetail.ArtistBanner)) images.Banners.Add(artistDetail.ArtistBanner);
+      if (!string.IsNullOrEmpty(artistDetail.ArtistFanart)) images.Backdrops.Add(artistDetail.ArtistFanart);
+      if (!string.IsNullOrEmpty(artistDetail.ArtistFanart2)) images.Backdrops.Add(artistDetail.ArtistFanart2);
+      if (!string.IsNullOrEmpty(artistDetail.ArtistFanart3)) images.Backdrops.Add(artistDetail.ArtistFanart3);
+      if (!string.IsNullOrEmpty(artistDetail.ArtistLogo)) images.Logos.Add(artistDetail.ArtistLogo);
+      if (!string.IsNullOrEmpty(artistDetail.ArtistThumb)) images.Thumbnails.Add(artistDetail.ArtistThumb);
+      return images;
     }
 
     #endregion

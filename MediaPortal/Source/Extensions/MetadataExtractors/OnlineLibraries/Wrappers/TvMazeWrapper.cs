@@ -476,92 +476,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<TvMazeImageCollection> images)
+    public override Task<ApiWrapperImageCollection<TvMazeImageCollection>> GetFanArtAsync<T>(T infoObject, string language, string fanartMediaType)
     {
-      images = new ApiWrapperImageCollection<TvMazeImageCollection>();
-
-      try
-      {
-        if (fanartMediaType == FanArtMediaTypes.Series)
-        {
-          EpisodeInfo episode = infoObject as EpisodeInfo;
-          SeasonInfo season = infoObject as SeasonInfo;
-          SeriesInfo series = infoObject as SeriesInfo;
-          if (series == null && season != null)
-          {
-            series = season.CloneBasicInstance<SeriesInfo>();
-          }
-          if (series == null && episode != null)
-          {
-            series = episode.CloneBasicInstance<SeriesInfo>();
-          }
-          if (series != null && series.TvMazeId > 0)
-          {
-            // Download all image information, filter later!
-            TvMazeSeries seriesDetail = _tvMazeHandler.GetSeriesAsync(series.TvMazeId, false).Result;
-            if (seriesDetail != null)
-            {
-              images.Id = series.TvMazeId.ToString();
-              images.Posters.Add(seriesDetail.Images);
-              return true;
-            }
-          }
-        }
-        else if (fanartMediaType == FanArtMediaTypes.Episode)
-        {
-          EpisodeInfo episode = infoObject as EpisodeInfo;
-          if (episode != null && episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
-          {
-            // Download all image information, filter later!
-            TvMazeEpisode episodeDetail = _tvMazeHandler.GetSeriesEpisodeAsync(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, false).Result;
-            if (episodeDetail != null)
-            {
-              images.Id = episode.SeriesTvMazeId.ToString();
-              images.Thumbnails.Add(episodeDetail.Images);
-              return true;
-            }
-          }
-        }
-        else if (fanartMediaType == FanArtMediaTypes.Actor)
-        {
-          PersonInfo person = infoObject as PersonInfo;
-          if (person != null && person.TvMazeId > 0)
-          {
-            // Download all image information, filter later!
-            TvMazePerson personDetail = _tvMazeHandler.GetPersonAsync(person.TvMazeId, false).Result;
-            if (personDetail != null)
-            {
-              images.Id = person.TvMazeId.ToString();
-              images.Thumbnails.Add(personDetail.Images);
-              return true;
-            }
-          }
-        }
-        else if (fanartMediaType == FanArtMediaTypes.Character)
-        {
-          CharacterInfo character = infoObject as CharacterInfo;
-          if (character != null && character.TvMazeId > 0)
-          {
-            // Download all image information, filter later!
-            TvMazePerson personDetail = _tvMazeHandler.GetCharacterAsync(character.TvMazeId, false).Result;
-            if (personDetail != null)
-            {
-              images.Id = character.TvMazeId.ToString();
-              images.Thumbnails.Add(personDetail.Images);
-              return true;
-            }
-          }
-        }
-        else
-        {
-          return true;
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception downloading images", ex);
-      }
-      return false;
+      if (fanartMediaType == FanArtMediaTypes.Series)
+        return GetSeriesFanArtAsync(infoObject.AsSeries());
+      if (fanartMediaType == FanArtMediaTypes.Episode)
+        return GetEpisodeFanArtAsync(infoObject as EpisodeInfo);
+      if (fanartMediaType == FanArtMediaTypes.Actor)
+        return GetActorFanArtAsync(infoObject as PersonInfo);
+      if (fanartMediaType == FanArtMediaTypes.Character)
+        return GetCharactorFanArtAsync(infoObject as CharacterInfo);
+      return Task.FromResult<ApiWrapperImageCollection<TvMazeImageCollection>>(null);
     }
 
     public override bool DownloadFanArt(string id, TvMazeImageCollection image, string folderPath)
@@ -572,6 +497,58 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return _tvMazeHandler.DownloadImageAsync(ID, image, folderPath).Result;
       }
       return false;
+    }
+
+    protected async Task<ApiWrapperImageCollection<TvMazeImageCollection>> GetSeriesFanArtAsync(SeriesInfo series)
+    {
+      if (series == null || series.TvMazeId < 1)
+        return null;
+      TvMazeSeries seriesDetail = await _tvMazeHandler.GetSeriesAsync(series.TvMazeId, false).ConfigureAwait(false);
+      if (seriesDetail == null)
+        return null;
+      ApiWrapperImageCollection<TvMazeImageCollection> images = new ApiWrapperImageCollection<TvMazeImageCollection>();
+      images.Id = series.TvMazeId.ToString();
+      images.Posters.Add(seriesDetail.Images);
+      return images;
+    }
+
+    protected async Task<ApiWrapperImageCollection<TvMazeImageCollection>> GetEpisodeFanArtAsync(EpisodeInfo episode)
+    {
+      if (episode == null || episode.SeriesTvMazeId < 1 || !episode.SeasonNumber.HasValue || episode.EpisodeNumbers.Count == 0)
+        return null;
+      TvMazeEpisode episodeDetail = await _tvMazeHandler.GetSeriesEpisodeAsync(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episode.FirstEpisodeNumber, false).ConfigureAwait(false);
+      if (episodeDetail == null)
+        return null;
+      ApiWrapperImageCollection<TvMazeImageCollection> images = new ApiWrapperImageCollection<TvMazeImageCollection>();
+      images.Id = episode.SeriesTvMazeId.ToString();
+      images.Thumbnails.Add(episodeDetail.Images);
+      return images;
+    }
+
+    protected async Task<ApiWrapperImageCollection<TvMazeImageCollection>> GetActorFanArtAsync(PersonInfo person)
+    {
+      if (person == null || person.TvMazeId < 1)
+        return null;
+      TvMazePerson personDetail = await _tvMazeHandler.GetPersonAsync(person.TvMazeId, false).ConfigureAwait(false);
+      if (personDetail == null)
+        return null;
+      ApiWrapperImageCollection<TvMazeImageCollection> images = new ApiWrapperImageCollection<TvMazeImageCollection>();
+      images.Id = person.TvMazeId.ToString();
+      images.Thumbnails.Add(personDetail.Images);
+      return images;
+    }
+
+    protected async Task<ApiWrapperImageCollection<TvMazeImageCollection>> GetCharactorFanArtAsync(CharacterInfo character)
+    {
+      if (character == null || character.TvMazeId < 1)
+        return null;
+      TvMazePerson personDetail = await _tvMazeHandler.GetCharacterAsync(character.TvMazeId, false).ConfigureAwait(false);
+      if (personDetail == null)
+        return null;
+      ApiWrapperImageCollection<TvMazeImageCollection> images = new ApiWrapperImageCollection<TvMazeImageCollection>();
+      images.Id = character.TvMazeId.ToString();
+      images.Thumbnails.Add(personDetail.Images);
+      return images;
     }
 
     #endregion

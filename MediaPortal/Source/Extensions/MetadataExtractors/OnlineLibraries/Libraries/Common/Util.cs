@@ -260,6 +260,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           retList.Add(Color.FromArgb(red, green, blue));
         }
       }
+
+      if (retList.Count > 0)
+        return retList;
       Log.Warn("Couldn't parse colors: " + text);
       return null;
     }

@@ -1675,14 +1675,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           AddRelationshipAspect(itemMatcher, linkedId, aspects, item.Aspects);
         }
 
-        //Get the virtual state to decide whether parent state needs to be updated, virtual items currently don't
-        //effect their parent's state.
-        bool isVirtual;
-        if (!MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, out isVirtual))
-          isVirtual = false;
-        UpdateReconciledItem(database, transaction, mediaItemId, MediaItemAspect.GetAspects(aspects), !isVirtual);
+        IList<MediaItemAspect> relationshipAspects;
+        if (aspects.TryGetValue(RelationshipAspect.ASPECT_ID, out relationshipAspects))
+        {
+          //Get the virtual state to decide whether parent state needs to be updated, virtual items currently don't
+          //effect their parent's state.
+          bool isVirtual;
+          if (!MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, out isVirtual))
+            isVirtual = false;
+          UpdateReconciledItem(database, transaction, mediaItemId, relationshipAspects, !isVirtual);
+        }
         transaction.Commit();
       }
+
+      //Notify listeners that the reconciled item has changed
+      MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(new MediaItem(mediaItemId, aspects));
 
       if (updatedItemIds.Count > 0)
       {
@@ -1699,7 +1706,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void UpdateReconciledItem(ISQLDatabase database, ITransaction transaction, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool updateParents)
     {
-      mediaItemAspects = RemoveInverseRelationships(mediaItemAspects);
       UpdateMediaItem(database, transaction, mediaItemId, mediaItemAspects);
       if (updateParents)
         _relationshipManagement.UpdateParents(transaction, mediaItemId);

@@ -226,8 +226,6 @@ namespace Test.OnlineLibraries
         SeriesTvDbMatcher.Instance.UpdateSeriesAsync(seriesInfo, false).Wait();
         Console.WriteLine("{0}: {1}", seriesInfo.SeriesName, seriesInfo.Description);
       }
-
-      SeriesTvDbMatcher.Instance.EndDownloads();
     }
 
     static void Usage()

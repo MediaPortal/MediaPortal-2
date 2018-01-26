@@ -28,11 +28,9 @@ using MediaPortal.Common.Genres;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using System;
@@ -47,7 +45,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class SeriesMatcher<TImg, TLang> : BaseMatcher<SeriesMatch, string>, ISeriesMatcher
+  public abstract class SeriesMatcher<TImg, TLang> : BaseMatcher<SeriesMatch, string, TImg, TLang>, ISeriesMatcher
   {
     public class SeriresMatcherSettings
     {
@@ -136,7 +134,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Constants
 
-    public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
     private Regex seriesTitleYearRegex = new Regex(@"(?<title>.*)\((?<year>\d{4})\)", RegexOptions.IgnoreCase);
 
@@ -158,7 +155,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private string _configFile;
     private TimeSpan _maxCacheDuration;
     private bool _enabled = true;
-    private string _id = null;
     private bool _cacheRefreshable;
     private DateTime? _lastCacheRefresh;
     private DateTime _lastCacheCheck = DateTime.MinValue;
@@ -172,8 +168,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private SimpleNameMatcher _characterMatcher;
     private SimpleNameMatcher _seriesNameMatcher;
 
-    protected ApiWrapper<TImg, TLang> _wrapper = null;
-
     #endregion
 
     #region Properties
@@ -182,11 +176,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       get { return _enabled; }
       set { _enabled = value; }
-    }
-
-    public string Id
-    {
-      get { return _id; }
     }
 
     public bool CacheRefreshable
@@ -1478,416 +1467,77 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
+    protected override bool TryGetFanArtInfo(BaseInfo info, out TLang language, out string fanArtMediaType, out bool includeThumbnails)
     {
-      if (!InitAsync().Result)
+      language = default(TLang);
+      fanArtMediaType = null;
+      includeThumbnails = true;
+
+      SeriesInfo seriesInfo = info as SeriesInfo;
+      if (seriesInfo != null)
+      {
+        language = FindBestMatchingLanguage(seriesInfo.Languages);
+        fanArtMediaType = FanArtMediaTypes.Series;
+        includeThumbnails = false;
+        return true;
+      }
+
+      SeasonInfo seasonInfo = info as SeasonInfo;
+      if (seasonInfo != null)
+      {
+        language = FindBestMatchingLanguage(seasonInfo.Languages);
+        fanArtMediaType = FanArtMediaTypes.SeriesSeason;
+        includeThumbnails = false;
+        return true;
+      }
+
+      EpisodeInfo episodeInfo = info as EpisodeInfo;
+      if (episodeInfo != null)
+      {
+        language = FindBestMatchingLanguage(episodeInfo.Languages);
+        fanArtMediaType = FanArtMediaTypes.Episode;
+        return true;
+      }
+
+      if (OnlyBasicFanArt)
         return false;
 
-      string id;
-      string mediaItem = mediaItemId.ToString().ToUpperInvariant();
-      if (info is SeriesInfo)
+      CompanyInfo companyInfo = info as CompanyInfo;
+      if (companyInfo != null)
       {
-        SeriesInfo seriesInfo = info as SeriesInfo;
-        if (GetSeriesId(seriesInfo, out id))
-        {
-          TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.Series,
-            ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItem,
-            Name = seriesInfo.ToString()
-          };
-          data.FanArtId[FanArtMediaTypes.Series] = id;
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
+        if (companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
+          fanArtMediaType = FanArtMediaTypes.TVNetwork;
+        else if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
+          fanArtMediaType = FanArtMediaTypes.Company;
+        else
+          return false;
+        language = FindMatchingLanguage(string.Empty);
+        return true;
       }
-      else if (info is SeasonInfo)
-      {
-        SeasonInfo seasonInfo = info as SeasonInfo;
-        if (seasonInfo != null)
-        {
-          TLang language = FindBestMatchingLanguage(seasonInfo.Languages);
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.SeriesSeason,
-            ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItem,
-            Name = seasonInfo.ToString()
-          };
-          if (GetSeriesId(seasonInfo.CloneBasicInstance<SeriesInfo>(), out id))
-          {
-            data.FanArtId[FanArtMediaTypes.Series] = id;
-          }
-          if (seasonInfo.SeasonNumber.HasValue)
-          {
-            data.FanArtId[FanArtMediaTypes.SeriesSeason] = seasonInfo.SeasonNumber.Value.ToString();
-          }
-          if (GetSeriesSeasonId(seasonInfo, out id))
-          {
-            data.FanArtId[FanArtMediaTypes.Undefined] = id;
-          }
-          ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is EpisodeInfo)
-      {
-        EpisodeInfo episodeInfo = info as EpisodeInfo;
-        if (episodeInfo != null)
-        {
-          TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.Episode,
-            ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItem,
-            Name = episodeInfo.ToString()
-          };
-          if (GetSeriesId(episodeInfo.CloneBasicInstance<SeriesInfo>(), out id))
-          {
-            data.FanArtId[FanArtMediaTypes.Series] = id;
-          }
-          if (episodeInfo.SeasonNumber.HasValue)
-          {
-            data.FanArtId[FanArtMediaTypes.SeriesSeason] = episodeInfo.SeasonNumber.Value.ToString();
-          }
-          if (episodeInfo.EpisodeNumbers.Count > 0)
-          {
-            data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.FirstEpisodeNumber.ToString();
-          }
-          if (GetSeriesEpisodeId(episodeInfo, out id))
-          {
-            data.FanArtId[FanArtMediaTypes.Undefined] = id;
-          }
-          ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is CompanyInfo)
-      {
-        CompanyInfo companyInfo = info as CompanyInfo;
-        if (GetCompanyId(companyInfo, out id))
-        {
-          DownloadData data = new DownloadData()
-          {
-            ShortLanguage = "",
-            MediaItemId = mediaItem,
-            Name = companyInfo.ToString()
-          };
-          if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Company;
-            data.FanArtId[FanArtMediaTypes.Company] = id;
-          }
-          else if (companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.TVNetwork;
-            data.FanArtId[FanArtMediaTypes.TVNetwork] = id;
-          }
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is CharacterInfo)
-      {
-        CharacterInfo characterInfo = info as CharacterInfo;
-        if (GetCharacterId(characterInfo, out id))
-        {
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.Character,
-            ShortLanguage = "",
-            MediaItemId = mediaItem,
-            Name = characterInfo.ToString()
-          };
-          data.FanArtId[FanArtMediaTypes.Character] = id;
 
-          string actorId;
-          PersonInfo actor = characterInfo.CloneBasicInstance<PersonInfo>();
-          if (GetPersonId(actor, out actorId))
-          {
-            data.FanArtId[FanArtMediaTypes.Actor] = actorId;
-          }
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is PersonInfo)
+      CharacterInfo characterInfo = info as CharacterInfo;
+      if (characterInfo != null)
       {
-        PersonInfo personInfo = info as PersonInfo;
-        if (GetPersonId(personInfo, out id))
-        {
-          DownloadData data = new DownloadData()
-          {
-            ShortLanguage = "",
-            MediaItemId = mediaItem,
-            Name = personInfo.ToString()
-          };
-          if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Actor;
-            data.FanArtId[FanArtMediaTypes.Actor] = id;
-          }
-          else if (personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Director;
-            data.FanArtId[FanArtMediaTypes.Director] = id;
-          }
-          else if (personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Writer;
-            data.FanArtId[FanArtMediaTypes.Writer] = id;
-          }
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
+        language = FindMatchingLanguage(string.Empty);
+        fanArtMediaType = FanArtMediaTypes.Character;
+        return true;
+      }
+
+      PersonInfo personInfo = info as PersonInfo;
+      if (personInfo != null)
+      {
+        if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR)
+          fanArtMediaType = FanArtMediaTypes.Actor;
+        else if (personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR)
+          fanArtMediaType = FanArtMediaTypes.Director;
+        else if (personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
+          fanArtMediaType = FanArtMediaTypes.Writer;
+        else
+          return false;
+        language = FindMatchingLanguage(string.Empty);
+        return true;
       }
       return false;
-    }
-
-    protected override void DownloadFanArt(FanartDownload<string> fanartDownload)
-    {
-      string name = fanartDownload.DownloadId;
-      try
-      {
-        if (string.IsNullOrEmpty(fanartDownload.DownloadId))
-          return;
-
-        DownloadData data = new DownloadData();
-        if (!data.Deserialize(fanartDownload.DownloadId))
-          return;
-
-        name = string.Format("{0} ({1})", data.MediaItemId, data.Name);
-
-        if (!InitAsync().Result)
-          return;
-
-        try
-        {
-          string seriesId = null;
-          string seasonId = null;
-          string episodeId = null;
-          string seasonNo = null;
-          string episodeNo = null;
-          TLang language = FindMatchingLanguage(data.ShortLanguage);
-
-          Logger.Debug(_id + " Download: Started for media item {0}", name);
-          ApiWrapperImageCollection<TImg> images = null;
-          string Id = "";
-          if (data.FanArtMediaType == FanArtMediaTypes.Series)
-          {
-            Id = data.FanArtId[FanArtMediaTypes.Series];
-            seriesId = Id;
-            SeriesInfo seriesInfo = new SeriesInfo();
-            if (SetSeriesId(seriesInfo, seriesId))
-            {
-              if (_wrapper.GetFanArt(seriesInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for series ID {0} [{1}]", Id, name);
-                return;
-              }
-
-              //Not used
-              images.Thumbnails.Clear();
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.SeriesSeason)
-          {
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Undefined))
-            {
-              seasonId = data.FanArtId[FanArtMediaTypes.Undefined];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Series))
-            {
-              seriesId = data.FanArtId[FanArtMediaTypes.Series];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.SeriesSeason))
-            {
-              seasonNo = data.FanArtId[FanArtMediaTypes.SeriesSeason];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Episode))
-            {
-              episodeNo = data.FanArtId[FanArtMediaTypes.Episode];
-            }
-            SeriesInfo seriesInfo = new SeriesInfo();
-            SeasonInfo seasonInfo = new SeasonInfo();
-            if (SetSeriesId(seriesInfo, seriesId))
-            {
-              seasonInfo.CopyIdsFrom(seriesInfo);
-            }
-            SetSeriesSeasonId(seasonInfo, seasonId);
-            if (seasonNo != null)
-            {
-              seasonInfo.SeasonNumber = Convert.ToInt32(seasonNo);
-            }
-            if (_wrapper.GetFanArt(seasonInfo, language, data.FanArtMediaType, out images) == false)
-            {
-              Logger.Debug(_id + " Download: Failed getting images for series season {0} [{1}]", Id, name);
-              return;
-            }
-
-            //Not used
-            images.Thumbnails.Clear();
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Episode)
-          {
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Undefined))
-            {
-              episodeId = data.FanArtId[FanArtMediaTypes.Undefined];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Series))
-            {
-              seriesId = data.FanArtId[FanArtMediaTypes.Series];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.SeriesSeason))
-            {
-              seasonNo = data.FanArtId[FanArtMediaTypes.SeriesSeason];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Episode))
-            {
-              episodeNo = data.FanArtId[FanArtMediaTypes.Episode];
-            }
-            SeriesInfo seriesInfo = new SeriesInfo();
-            EpisodeInfo episodeInfo = new EpisodeInfo();
-            if (SetSeriesId(seriesInfo, seriesId))
-            {
-              episodeInfo.CopyIdsFrom(seriesInfo);
-            }
-            SetSeriesEpisodeId(episodeInfo, episodeId);
-            if (seasonNo != null)
-            {
-              episodeInfo.SeasonNumber = Convert.ToInt32(seasonNo);
-            }
-            if (episodeNo != null)
-            {
-              episodeInfo.EpisodeNumbers.Add(Convert.ToInt32(episodeNo));
-            }
-            if (_wrapper.GetFanArt(episodeInfo, language, data.FanArtMediaType, out images) == false)
-            {
-              Logger.Debug(_id + " Download: Failed getting images for series episode {0} [{1}]", Id, name);
-              return;
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Actor || data.FanArtMediaType == FanArtMediaTypes.Director || data.FanArtMediaType == FanArtMediaTypes.Writer)
-          {
-            if (OnlyBasicFanArt)
-              return;
-
-            Id = data.FanArtId[data.FanArtMediaType];
-            PersonInfo personInfo = new PersonInfo();
-            if (SetPersonId(personInfo, Id))
-            {
-              if (_wrapper.GetFanArt(personInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for series person ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Character)
-          {
-            if (OnlyBasicFanArt)
-              return;
-
-            Id = data.FanArtId[FanArtMediaTypes.Character];
-            CharacterInfo characterInfo = new CharacterInfo();
-            if (SetCharacterId(characterInfo, Id))
-            {
-              if (_wrapper.GetFanArt(characterInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for series character ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Company || data.FanArtMediaType == FanArtMediaTypes.TVNetwork)
-          {
-            if (OnlyBasicFanArt)
-              return;
-
-            Id = data.FanArtId[data.FanArtMediaType];
-            CompanyInfo companyInfo = new CompanyInfo();
-            if (SetCompanyId(companyInfo, Id))
-            {
-              if (_wrapper.GetFanArt(companyInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for series company ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-
-          if (images != null)
-          {
-            Logger.Debug(_id + " Download: Downloading images for ID {0} [{1}]", Id, name);
-
-            SaveFanArtImages(images.Id, images.Backdrops, language, data.MediaItemId, data.Name, FanArtTypes.FanArt);
-            SaveFanArtImages(images.Id, images.Posters, language, data.MediaItemId, data.Name, FanArtTypes.Poster);
-            SaveFanArtImages(images.Id, images.Banners, language, data.MediaItemId, data.Name, FanArtTypes.Banner);
-            SaveFanArtImages(images.Id, images.Covers, language, data.MediaItemId, data.Name, FanArtTypes.Cover);
-            SaveFanArtImages(images.Id, images.Thumbnails, language, data.MediaItemId, data.Name, FanArtTypes.Thumbnail);
-
-            if (!OnlyBasicFanArt)
-            {
-              SaveFanArtImages(images.Id, images.ClearArt, language, data.MediaItemId, data.Name, FanArtTypes.ClearArt);
-              SaveFanArtImages(images.Id, images.DiscArt, language, data.MediaItemId, data.Name, FanArtTypes.DiscArt);
-              SaveFanArtImages(images.Id, images.Logos, language, data.MediaItemId, data.Name, FanArtTypes.Logo);
-            }
-
-            Logger.Debug(_id + " Download: Finished saving images for ID {0} [{1}]", Id, name);
-          }
-        }
-        finally
-        {
-          // Remember we are finished
-          FinishDownloadFanArt(fanartDownload);
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Debug(_id + " Download: Exception downloading images for {0}", ex, name);
-      }
-    }
-
-    protected virtual bool VerifyFanArtImage(TImg image, TLang language)
-    {
-      return image != null;
-    }
-
-    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, TLang language, string mediaItemId, string name, string fanartType)
-    {
-      try
-      {
-        if (images == null)
-          return 0;
-
-        int idx = 0;
-        foreach (TImg img in images)
-        {
-          using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
-          {
-            if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-              break;
-            if (!VerifyFanArtImage(img, language))
-              continue;
-            if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-              break;
-            FanArtCache.InitFanArtCache(mediaItemId, name);
-            if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
-            {
-              countLock.Count++;
-              idx++;
-            }
-            else
-            {
-              Logger.Warn(_id + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanartType);
-            }
-          }
-        }
-        Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
-        return idx;
-      }
-      catch (Exception ex)
-      {
-        Logger.Debug(_id + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
-        return 0;
-      }
     }
 
     #endregion

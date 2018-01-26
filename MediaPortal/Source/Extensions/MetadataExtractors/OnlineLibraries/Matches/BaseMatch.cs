@@ -24,8 +24,13 @@
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
-  public class BaseMatch
+  public class BaseMatch<T>
   {
+    /// <summary>
+    /// Id of the online library, type is specified by <typeparamref name="T"/>.
+    /// </summary>
+    public T Id;
+
     /// <summary>
     /// Item name
     /// </summary>

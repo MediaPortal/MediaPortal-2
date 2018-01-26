@@ -1672,10 +1672,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public virtual bool GetFanArt<T>(T infoObject, TLang language, string fanartMediaType, out ApiWrapperImageCollection<TImg> images)
+    public virtual Task<ApiWrapperImageCollection<TImg>> GetFanArtAsync<T>(T infoObject, TLang language, string fanartMediaType) where T : BaseInfo
     {
-      images = null;
-      return false;
+      return Task.FromResult<ApiWrapperImageCollection<TImg>>(null);
     }
 
     public virtual bool DownloadFanArt(string id, TImg image, string folderPath)

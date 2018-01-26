@@ -470,42 +470,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<TrackImage> images)
+    public override Task<ApiWrapperImageCollection<TrackImage>> GetFanArtAsync<T>(T infoObject, string language, string fanartMediaType)
     {
-      images = new ApiWrapperImageCollection<TrackImage>();
-
-      try
-      {
-        if (fanartMediaType == FanArtMediaTypes.Album)
-        {
-          TrackInfo track = infoObject as TrackInfo;
-          AlbumInfo album = infoObject as AlbumInfo;
-          if (album == null && track != null)
-          {
-            album = track.CloneBasicInstance<AlbumInfo>();
-          }
-          if (album != null && !string.IsNullOrEmpty(album.MusicBrainzId))
-          {
-            // Download all image information, filter later!
-            TrackImageCollection albumImages = _musicBrainzHandler.GetImagesAsync(album.MusicBrainzId).Result;
-            if (albumImages != null)
-            {
-              images.Id = album.MusicBrainzId;
-              images.Covers.AddRange(albumImages.Images);
-              return true;
-            }
-          }
-        }
-        else
-        {
-          return true;
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception downloading images", ex);
-      }
-      return false;
+      if (fanartMediaType == FanArtMediaTypes.Album)
+        return GetAlbumFanArtAsync(infoObject.AsAlbum());
+      return Task.FromResult<ApiWrapperImageCollection<TrackImage>>(null);
     }
 
     public override bool DownloadFanArt(string id, TrackImage image, string folderPath)
@@ -515,6 +484,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return _musicBrainzHandler.DownloadImageAsync(id, image, folderPath).Result;
       }
       return false;
+    }
+
+    protected async Task<ApiWrapperImageCollection<TrackImage>> GetAlbumFanArtAsync(AlbumInfo album)
+    {
+      if (album == null || string.IsNullOrEmpty(album.MusicBrainzId))
+        return null;
+      // Download all image information, filter later!
+      TrackImageCollection albumImages = await _musicBrainzHandler.GetImagesAsync(album.MusicBrainzId).ConfigureAwait(false);
+      if (albumImages == null)
+        return null;
+      ApiWrapperImageCollection<TrackImage> images = new ApiWrapperImageCollection<TrackImage>();
+      images.Id = album.MusicBrainzId;
+      images.Covers.AddRange(albumImages.Images);
+      return images;
     }
 
     #endregion

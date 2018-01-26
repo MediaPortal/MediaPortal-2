@@ -662,126 +662,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, TvdbLanguage language, string fanartMediaType, out ApiWrapperImageCollection<TvdbBanner> images)
+    public override Task<ApiWrapperImageCollection<TvdbBanner>> GetFanArtAsync<T>(T infoObject, TvdbLanguage language, string fanartMediaType)
     {
-      images = new ApiWrapperImageCollection<TvdbBanner>();
-
-      try
-      {
-        try
-        {
-          TvdbSeries seriesDetail = null;
-          language = language ?? PreferredLanguage;
-
-          if (fanartMediaType == FanArtMediaTypes.Series)
-          {
-            EpisodeInfo episode = infoObject as EpisodeInfo;
-            SeasonInfo season = infoObject as SeasonInfo;
-            SeriesInfo series = infoObject as SeriesInfo;
-            if (series == null && season != null)
-            {
-              series = season.CloneBasicInstance<SeriesInfo>();
-            }
-            if (series == null && episode != null)
-            {
-              series = episode.CloneBasicInstance<SeriesInfo>();
-            }
-            if (series != null && series.TvdbId > 0)
-            {
-              seriesDetail = _tvdbHandler.GetSeriesAsync(series.TvdbId, language, false, true, true).Result;
-
-              if (seriesDetail != null)
-              {
-                images.Id = series.TvdbId.ToString();
-                images.Posters.AddRange(seriesDetail.PosterBanners.OrderBy(b => b.Language != language));
-                images.Banners.AddRange(seriesDetail.SeriesBanners.OrderBy(b => b.Language != language));
-                images.Backdrops.AddRange(seriesDetail.FanartBanners.OrderBy(b => b.Language != language));
-                return true;
-              }
-            }
-          }
-          else if (fanartMediaType == FanArtMediaTypes.SeriesSeason)
-          {
-            EpisodeInfo episode = infoObject as EpisodeInfo;
-            SeasonInfo season = infoObject as SeasonInfo;
-            if (season == null && episode != null)
-            {
-              season = episode.CloneBasicInstance<SeasonInfo>();
-            }
-            if (season != null && season.SeriesTvdbId > 0 && season.SeasonNumber.HasValue)
-            {
-              seriesDetail = _tvdbHandler.GetSeriesAsync(season.SeriesTvdbId, language, false, false, true).Result;
-
-              if (seriesDetail != null)
-              {
-                images.Id = season.TvdbId.ToString();
-
-                var seasonLookup = seriesDetail.SeasonBanners.Where(s => s.Season == season.SeasonNumber).ToLookup(s => string.Format("{0}_{1}", s.Season, s.BannerType), v => v);
-                foreach (IGrouping<string, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
-                {
-                  images.Banners.AddRange(seasonLookup[tvdbSeasonBanners.Key].Where(b => b.BannerPath.Contains("wide")).OrderBy(b => b.Language != language));
-                  images.Posters.AddRange(seasonLookup[tvdbSeasonBanners.Key].Where(b => !b.BannerPath.Contains("wide")).OrderBy(b => b.Language != language));
-                }
-                return true;
-              }
-            }
-          }
-          else if (fanartMediaType == FanArtMediaTypes.Episode)
-          {
-            EpisodeInfo episode = infoObject as EpisodeInfo;
-            if (episode != null && episode.SeriesTvdbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
-            {
-              seriesDetail = _tvdbHandler.GetSeriesAsync(episode.SeriesTvdbId, language, true, false, true).Result;
-
-              if (seriesDetail != null)
-              {
-                images.Id = episode.TvdbId.ToString();
-
-                TvdbEpisode episodeDetail = seriesDetail.Episodes.Find(e => e.SeasonNumber == episode.SeasonNumber.Value && e.EpisodeNumber == episode.FirstEpisodeNumber);
-                if (episodeDetail != null)
-                  images.Thumbnails.AddRange(new TvdbBanner[] { episodeDetail.Banner });
-                return true;
-              }
-            }
-          }
-          else if (fanartMediaType == FanArtMediaTypes.Actor)
-          {
-            PersonInfo person = infoObject as PersonInfo;
-            string seriesId = null;
-            _seriesToActorMap.GetMappedId(person.TvdbId.ToString(), out seriesId);
-            int seriesTvdbId = 0;
-            if (int.TryParse(seriesId, out seriesTvdbId))
-            {
-              seriesDetail = _tvdbHandler.GetSeriesAsync(seriesTvdbId, language, false, true, true).Result;
-              if (seriesDetail != null)
-              {
-                foreach (TvdbActor actor in seriesDetail.TvdbActors)
-                {
-                  if (actor.Id == person.TvdbId)
-                  {
-                    images.Id = actor.Id.ToString();
-                    images.Thumbnails.AddRange(new TvdbBanner[] { actor.ActorImage });
-                    return true;
-                  }
-                }
-              }
-            }
-          }
-          else
-          {
-            return true;
-          }
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Error("TvDbWrapper: Error getting fan art for scope {0}", ex, fanartMediaType);
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception downloading images", ex);
-      }
-      return false;
+      language = language ?? PreferredLanguage;
+      if (fanartMediaType == FanArtMediaTypes.Series)
+        return GetSeriesFanArtAsync(infoObject.AsSeries(), language);
+      if (fanartMediaType == FanArtMediaTypes.SeriesSeason)
+        return GetSeasonFanArtAsync(infoObject.AsSeason(), language);
+      if (fanartMediaType == FanArtMediaTypes.Episode)
+        return GetEpisodeFanArtAsync(infoObject as EpisodeInfo, language);
+      if (fanartMediaType == FanArtMediaTypes.Actor)
+        return GetActorFanArtAsync(infoObject as PersonInfo, language);
+      return Task.FromResult<ApiWrapperImageCollection<TvdbBanner>>(null);
     }
 
     public override bool DownloadFanArt(string id, TvdbBanner image, string folderPath)
@@ -789,6 +681,74 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       image.CachePath = folderPath;
       image.LoadBanner();
       return image.UnloadBanner(true);
+    }
+
+    protected async Task<ApiWrapperImageCollection<TvdbBanner>> GetSeriesFanArtAsync(SeriesInfo series, TvdbLanguage language)
+    {
+      if (series == null || series.TvdbId < 1)
+        return null;
+      TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(series.TvdbId, language, false, true, true).ConfigureAwait(false);
+      if (seriesDetail == null)
+        return null;
+      ApiWrapperImageCollection<TvdbBanner> images = new ApiWrapperImageCollection<TvdbBanner>();
+      images.Id = series.TvdbId.ToString();
+      images.Posters.AddRange(seriesDetail.PosterBanners.OrderBy(b => b.Language != language));
+      images.Banners.AddRange(seriesDetail.SeriesBanners.OrderBy(b => b.Language != language));
+      images.Backdrops.AddRange(seriesDetail.FanartBanners.OrderBy(b => b.Language != language));
+      return images;
+    }
+
+    protected async Task<ApiWrapperImageCollection<TvdbBanner>> GetSeasonFanArtAsync(SeasonInfo season, TvdbLanguage language)
+    {
+      if (season == null || season.SeriesTvdbId < 1 || !season.SeasonNumber.HasValue)
+        return null;
+      TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(season.SeriesTvdbId, language, false, false, true).ConfigureAwait(false);
+      if (seriesDetail == null)
+        return null;
+      ApiWrapperImageCollection<TvdbBanner> images = new ApiWrapperImageCollection<TvdbBanner>();
+      images.Id = season.TvdbId.ToString();
+      var seasonLookup = seriesDetail.SeasonBanners.Where(s => s.Season == season.SeasonNumber).ToLookup(s => string.Format("{0}_{1}", s.Season, s.BannerType), v => v);
+      foreach (IGrouping<string, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
+      {
+        images.Banners.AddRange(seasonLookup[tvdbSeasonBanners.Key].Where(b => b.BannerPath.Contains("wide")).OrderBy(b => b.Language != language));
+        images.Posters.AddRange(seasonLookup[tvdbSeasonBanners.Key].Where(b => !b.BannerPath.Contains("wide")).OrderBy(b => b.Language != language));
+      }
+      return images;
+    }
+
+    protected async Task<ApiWrapperImageCollection<TvdbBanner>> GetEpisodeFanArtAsync(EpisodeInfo episode, TvdbLanguage language)
+    {
+      if (episode == null || episode.SeriesTvdbId < 1 || !episode.SeasonNumber.HasValue || episode.EpisodeNumbers.Count == 0)
+        return null;
+      TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(episode.SeriesTvdbId, language, true, false, true).ConfigureAwait(false);
+      if (seriesDetail == null)
+        return null;
+      TvdbEpisode episodeDetail = seriesDetail.Episodes.Find(e => e.SeasonNumber == episode.SeasonNumber.Value && e.EpisodeNumber == episode.FirstEpisodeNumber);
+      if (episodeDetail == null)
+        return null;
+      ApiWrapperImageCollection<TvdbBanner> images = new ApiWrapperImageCollection<TvdbBanner>();
+      images.Id = episode.TvdbId.ToString();
+      images.Thumbnails.AddRange(new TvdbBanner[] { episodeDetail.Banner });
+      return images;
+    }
+
+    protected async Task<ApiWrapperImageCollection<TvdbBanner>> GetActorFanArtAsync(PersonInfo person, TvdbLanguage language)
+    {
+      if (person == null || person.TvdbId < 1)
+        return null;
+      int seriesTvdbId;
+      if (!_seriesToActorMap.GetMappedId(person.TvdbId.ToString(), out string seriesId) || !int.TryParse(seriesId, out seriesTvdbId))
+        return null;
+      TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(seriesTvdbId, language, false, true, true).ConfigureAwait(false);
+      if (seriesDetail == null)
+        return null;
+      TvdbActor actor = seriesDetail.TvdbActors.FirstOrDefault(a => a.Id == person.TvdbId);
+      if (actor == null)
+        return null;
+      ApiWrapperImageCollection<TvdbBanner> images = new ApiWrapperImageCollection<TvdbBanner>();
+      images.Id = actor.Id.ToString();
+      images.Thumbnails.AddRange(new TvdbBanner[] { actor.ActorImage });
+      return images;
     }
 
     #endregion

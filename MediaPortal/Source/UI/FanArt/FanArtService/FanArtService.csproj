@@ -57,6 +57,8 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="AlbumThumbs.cs" />
+    <Compile Include="FanArtDataflow\FanArtActionBlock.cs" />
+    <Compile Include="FanArtDataflow\FanArtManagerAction.cs" />
     <Compile Include="FanArtLibraryManager.cs" />
     <Compile Include="FanArtService.cs" />
     <Compile Include="FanArtServicePlugin.cs" />

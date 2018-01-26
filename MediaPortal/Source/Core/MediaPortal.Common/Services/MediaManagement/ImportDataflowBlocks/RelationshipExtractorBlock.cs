@@ -62,12 +62,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     //Dummy value for the ConcurrentDictionary used in this class as a kind of ConcurrentHashSet
     private const byte DUMMY_DICTIONARY_VALUE = 0;
 
-    protected static readonly IEnumerable<Guid> RECONCILE_MIA_ID_ENUMERATION = new[]
-      {
-        MediaAspect.ASPECT_ID,
-        RelationshipAspect.ASPECT_ID
-      };
-
     #endregion
 
     #region Variables
@@ -276,12 +270,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         //Add relationship aspects for any cached relations, and get a collection of uncached relations.
         ICollection<ExtractedRelation> newRelations = AddCachedRelationshipsAndGetUncached(mediaItemId, aspects, relations);
 
-        //Get an enumeration of the minimum aspects required to reconcile.
-        IList<MediaItemAspect> reconcileAspects = GetReconcileAspects(aspects);
-
         //Add new relations to the MediaLibrary and update the relationship aspects of the parent item.
         //The MediaLibrary will handle adding the relationship aspects for the new relations. 
-        newMediaItems = await ReconcileMediaItemRelationships(mediaItemId, reconcileAspects,
+        newMediaItems = await ReconcileMediaItemRelationships(mediaItemId, MediaItemAspect.GetAspects(aspects),
           newRelations.Select(r => new RelationshipItem(r.Extractor.Role, r.Extractor.LinkedRole, r.Aspects)));
 
         //Cache all newly added/updated relations
@@ -401,18 +392,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       bool playable = rt != null ? rt.UpdatePlayPercentage : false;
 
       MediaItemAspect.AddOrUpdateRelationship(roleAspects, role, linkedRole, linkedId, playable, index);
-    }
-
-    private static IList<MediaItemAspect> GetReconcileAspects(IDictionary<Guid, IList<MediaItemAspect>> aspects)
-    {
-      List<MediaItemAspect> result = new List<MediaItemAspect>();
-
-      IList<MediaItemAspect> aspect;
-      foreach (Guid aspectId in RECONCILE_MIA_ID_ENUMERATION)
-        if (aspects.TryGetValue(aspectId, out aspect))
-          result.AddRange(aspect);
-
-      return result;
     }
 
     private static void TransferTransientAspects(IDictionary<Guid, IList<MediaItemAspect>> aspects, IEnumerable<MediaItem> destinationMediaItems)

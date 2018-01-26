@@ -92,6 +92,7 @@
     <Compile Include="Genres\GenreMapping.cs" />
     <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\HelperExtensionMethods.cs" />
     <Compile Include="MediaManagement\Helpers\RelationshipCache.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleRating.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleTitle.cs" />

@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Settings
 {
@@ -33,5 +34,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Settings
 
     [Setting(SettingScope.Global, 24)]
     public int CleanupOrphanedFanArtIntervalHours { get; set; }
+
+    [Setting(SettingScope.Global)]
+    public FanArtManagerAction[] PendingFanArtActions { get; set; }
   }
 }

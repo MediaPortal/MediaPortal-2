@@ -86,11 +86,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
-    public void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    public Task CollectFanArtAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
-      if (_checkCache.Contains(mediaItemId))
-        return;
-
       Guid? collectionMediaItemId = null;
       IDictionary<Guid, string> actorMediaItems = new Dictionary<Guid, string>();
       SingleMediaItemAspect videoAspect;
@@ -120,11 +117,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      _checkCache.Add(mediaItemId);
-      ExtractFanArt(mediaItemId, aspects, collectionMediaItemId, actorMediaItems);
+      return ExtractFanArt(mediaItemId, aspects, collectionMediaItemId, actorMediaItems);
     }
 
-    private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? collectionMediaItemId, IDictionary<Guid, string> actorMediaItems)
+    private async Task ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? collectionMediaItemId, IDictionary<Guid, string> actorMediaItems)
     {
       if (aspects.ContainsKey(MovieAspect.ASPECT_ID))
       {
@@ -135,16 +131,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         movieInfo.FromMetadata(aspects);
         bool forceFanart = !movieInfo.IsRefreshed;
         MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-        ExtractLocalImages(aspects, mediaItemId, collectionMediaItemId, movieInfo.ToString(), collectionInfo.ToString(), actorMediaItems);
-        if(!MovieMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.Instance.DownloadMovieFanArt(mediaItemId, movieInfo, forceFanart);
+        if (!_checkCache.Contains(mediaItemId))
+        {
+          _checkCache.Add(mediaItemId);
+          ExtractLocalImages(aspects, mediaItemId, collectionMediaItemId, movieInfo.ToString(), collectionInfo.ToString(), actorMediaItems);
+          if (!MovieMetadataExtractor.SkipFanArtDownload)
+            await OnlineMatcherService.Instance.DownloadMovieFanArtAsync(mediaItemId, movieInfo, forceFanart).ConfigureAwait(false);
+        }
 
         //Take advantage of the movie language being known and download collection too
         if (collectionMediaItemId.HasValue && !_checkCache.Contains(collectionMediaItemId.Value))
         {
           _checkCache.Add(collectionMediaItemId.Value);
           if (!MovieMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadMovieFanArt(collectionMediaItemId.Value, collectionInfo, forceFanart);
+            await OnlineMatcherService.Instance.DownloadMovieFanArtAsync(collectionMediaItemId.Value, collectionInfo, forceFanart).ConfigureAwait(false);
         }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
@@ -155,7 +155,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
         {
           if (!MovieMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadMovieFanArt(mediaItemId, personInfo, !personInfo.IsRefreshed);
+            await OnlineMatcherService.Instance.DownloadMovieFanArtAsync(mediaItemId, personInfo, !personInfo.IsRefreshed).ConfigureAwait(false);
         }
       }
       else if (aspects.ContainsKey(CharacterAspect.ASPECT_ID))
@@ -163,7 +163,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         CharacterInfo characterInfo = new CharacterInfo();
         characterInfo.FromMetadata(aspects);
         if (!MovieMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.Instance.DownloadMovieFanArt(mediaItemId, characterInfo, !characterInfo.IsRefreshed);
+          await OnlineMatcherService.Instance.DownloadMovieFanArtAsync(mediaItemId, characterInfo, !characterInfo.IsRefreshed).ConfigureAwait(false);
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
       {
@@ -172,7 +172,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
         {
           if (!MovieMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadMovieFanArt(mediaItemId, companyInfo, !companyInfo.IsRefreshed);
+            await OnlineMatcherService.Instance.DownloadMovieFanArtAsync(mediaItemId, companyInfo, !companyInfo.IsRefreshed).ConfigureAwait(false);
         }
       }
     }
