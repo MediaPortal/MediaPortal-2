@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -23,15 +23,17 @@
 #endregion
 
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Settings
 {
-  public class FanArtServiceSettings
+  public class FanArtActionSettings
   {
-    [Setting(SettingScope.Global, true)]
-    public bool EnableCleanupOrphanedFanArt { get; set; }
-
-    [Setting(SettingScope.Global, 24)]
-    public int CleanupOrphanedFanArtIntervalHours { get; set; }
+    /// <summary>
+    /// Contains all scheduled <see cref="FanArtManagerAction"/>s that
+    /// have not been completed.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public FanArtManagerAction[] PendingFanArtActions { get; set; }
   }
 }

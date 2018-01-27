@@ -23,20 +23,16 @@
 #endregion
 
 using MediaPortal.Backend.Database;
-using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Settings;
-using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
@@ -121,47 +117,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         _fanartActionBlock.Cancel();
         //Wait for all blocks to complete before returning
         Task.WhenAll(_fanartActionBlock.Completion, _fanartCleanupBlock.Completion).Wait();
-        PersistPendingActions();
       }
-    }
-
-    protected void PersistPendingActions()
-    {
-      FanArtServiceSettings settings = _settings.Settings;
-      settings.PendingFanArtActions = _fanartActionBlock.PendingActions.ToArray();
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
-      if(settings.PendingFanArtActions.Length > 0)
-        ServiceRegistration.Get<ILogger>().Debug("FanArtLibraryManager: Persisted {0} pending fanart actions", settings.PendingFanArtActions.Length);
     }
 
     protected void RestorePendingActions()
     {
-      int restoredCount = 0;
       lock (_syncObj)
-      {
-        if (!_isInit)
-          return;
-        FanArtServiceSettings settings = _settings.Settings;
-        FanArtManagerAction[] pendingActions = settings.PendingFanArtActions;
-        if (pendingActions == null || pendingActions.Length == 0)
-          return;
-        IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-        MediaItemQuery query = new MediaItemQuery(new[] { ProviderResourceAspect.ASPECT_ID }, mediaLibrary.GetManagedMediaItemAspectMetadata().Keys, null);
-        foreach (FanArtManagerAction action in pendingActions)
-        {
-          query.Filter = new MediaItemIdFilter(action.MediaItemId);
-          var items = mediaLibrary.Search(query, false, null, true);
-          if (items != null && items.Count > 0)
-          {
-            action.Aspects = items[0].Aspects;
-            _fanartActionBlock.Post(action);
-            restoredCount++;
-          }
-        }
-        settings.PendingFanArtActions = null;
-        ServiceRegistration.Get<ISettingsManager>().Save(settings);
-      }
-      ServiceRegistration.Get<ILogger>().Debug("FanArtLibraryManager: Restored {0} pending fanart actions", restoredCount);
+        if (_isInit)
+          _fanartActionBlock.Restore();
     }
 
     /// <summary>
