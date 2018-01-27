@@ -79,7 +79,7 @@
       </Grid>
       <Grid>
         <Grid.IsVisible>
-          <<Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
         </Grid.IsVisible>
         <Image Source="flag.png" Height="71" Stretch="Uniform"/>
         <Image x:Name="WatchedLabel" Height="18" Margin="0,4,4,0" Stretch="Uniform"
