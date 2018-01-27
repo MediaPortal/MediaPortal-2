@@ -981,9 +981,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return null;
     }
 
-    public override bool DownloadFanArt(string id, ImageItem image, string folderPath)
+    public override Task<bool> DownloadFanArtAsync(string id, ImageItem image, string folderPath)
     {
-      return _movieDbHandler.DownloadImage(id, image, folderPath);
+      return _movieDbHandler.DownloadImageAsync(id, image, folderPath);
     }
 
     protected Task<ImageCollection> GetMovieCollectionImages(MovieCollectionInfo collection)

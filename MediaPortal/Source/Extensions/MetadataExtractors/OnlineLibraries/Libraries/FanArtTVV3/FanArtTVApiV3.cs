@@ -137,14 +137,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
     /// <param name="image">Image to download</param>
     /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(string id, FanArtThumb image, string folderPath)
+    public Task<bool> DownloadImageAsync(string id, FanArtThumb image, string folderPath)
     {
       string cacheFileName = CreateAndGetCacheName(id, image, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
-        return false;
+        return Task.FromResult(false);
 
       string sourceUri = image.Url;
-      return _downloader.DownloadFile(sourceUri, cacheFileName);
+      return _downloader.DownloadFileAsync(sourceUri, cacheFileName);
     }
 
     public byte[] GetImage(string id, FanArtThumb image, string folderPath)

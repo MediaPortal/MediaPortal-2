@@ -119,9 +119,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult<ApiWrapperImageCollection<FanArtMovieThumb>>(null);
     }
 
-    public override bool DownloadFanArt(string id, FanArtMovieThumb image, string folderPath)
+    public override Task<bool> DownloadFanArtAsync(string id, FanArtMovieThumb image, string folderPath)
     {
-      return _fanArtTvHandler.DownloadImage(id, image, folderPath);
+      return _fanArtTvHandler.DownloadImageAsync(id, image, folderPath);
     }
 
     protected async Task<ApiWrapperImageCollection<FanArtMovieThumb>> GetMovieFanArtAsync(MovieInfo movie, string language)

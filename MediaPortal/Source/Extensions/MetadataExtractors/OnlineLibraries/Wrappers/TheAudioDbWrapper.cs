@@ -486,14 +486,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult<ApiWrapperImageCollection<string>>(null);
     }
 
-    public override bool DownloadFanArt(string id, string image, string folderPath)
+    public override Task<bool> DownloadFanArtAsync(string id, string image, string folderPath)
     {
-      int ID;
-      if (int.TryParse(id, out ID))
-      {
-        return _audioDbHandler.DownloadImageAsync(ID, image, folderPath).Result;
-      }
-      return false;
+      int intId;
+      return int.TryParse(id, out intId) ? _audioDbHandler.DownloadImageAsync(intId, image, folderPath) : Task.FromResult(false);
     }
 
     protected async Task<ApiWrapperImageCollection<string>> GetAlbumFanArtAsync(AlbumInfo album, string language)

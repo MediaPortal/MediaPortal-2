@@ -489,14 +489,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult<ApiWrapperImageCollection<TvMazeImageCollection>>(null);
     }
 
-    public override bool DownloadFanArt(string id, TvMazeImageCollection image, string folderPath)
+    public override Task<bool> DownloadFanArtAsync(string id, TvMazeImageCollection image, string folderPath)
     {
-      int ID;
-      if (int.TryParse(id, out ID))
-      {
-        return _tvMazeHandler.DownloadImageAsync(ID, image, folderPath).Result;
-      }
-      return false;
+      int intId;
+      if (!int.TryParse(id, out intId))
+        return Task.FromResult(false);
+      return _tvMazeHandler.DownloadImageAsync(intId, image, folderPath);
     }
 
     protected async Task<ApiWrapperImageCollection<TvMazeImageCollection>> GetSeriesFanArtAsync(SeriesInfo series)

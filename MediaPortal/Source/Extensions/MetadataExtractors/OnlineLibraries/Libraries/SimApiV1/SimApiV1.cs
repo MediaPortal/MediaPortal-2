@@ -168,14 +168,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.SimApiV1
     /// <param name="image">Image to download</param>
     /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(string Id, string imageUrl, string folderPath)
+    public Task<bool> DownloadImageAsync(string Id, string imageUrl, string folderPath)
     {
       string cacheFileName = CreateAndGetCacheName(Id, imageUrl, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
-        return false;
+        return Task.FromResult(false);
 
-      _downloader.DownloadFile(imageUrl, cacheFileName);
-      return true;
+      return _downloader.DownloadFileAsync(imageUrl, cacheFileName);
     }
 
     #endregion

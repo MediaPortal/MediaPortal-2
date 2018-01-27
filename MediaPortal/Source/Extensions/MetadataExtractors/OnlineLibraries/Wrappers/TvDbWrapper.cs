@@ -676,10 +676,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult<ApiWrapperImageCollection<TvdbBanner>>(null);
     }
 
-    public override bool DownloadFanArt(string id, TvdbBanner image, string folderPath)
+    public override async Task<bool> DownloadFanArtAsync(string id, TvdbBanner image, string folderPath)
     {
       image.CachePath = folderPath;
-      image.LoadBanner();
+      await image.LoadBannerAsync().ConfigureAwait(false);
       return image.UnloadBanner(true);
     }
 

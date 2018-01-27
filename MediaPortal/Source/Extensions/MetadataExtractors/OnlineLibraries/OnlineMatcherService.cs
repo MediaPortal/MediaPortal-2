@@ -259,12 +259,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public async Task<bool> DownloadAudioFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
+    public async Task<bool> DownloadAudioFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo, force).ConfigureAwait(false);
+        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo).ConfigureAwait(false);
       }
       return success;
     }
@@ -414,12 +414,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public async Task<bool> DownloadMovieFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
+    public async Task<bool> DownloadMovieFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo, force).ConfigureAwait(false);
+        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo).ConfigureAwait(false);
       }
       return success;
     }
@@ -605,12 +605,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public async Task<bool> DownloadSeriesFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
+    public async Task<bool> DownloadSeriesFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo, force).ConfigureAwait(false);
+        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo).ConfigureAwait(false);
       }
       return success;
     }

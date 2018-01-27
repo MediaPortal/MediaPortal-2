@@ -856,15 +856,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="image">Image to download</param>
     /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(string Id, ImageItem image, string folderPath)
+    public Task<bool> DownloadImageAsync(string Id, ImageItem image, string folderPath)
     {
       string cacheFileName = CreateAndGetCacheName(Id, image, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
-        return false;
+        return Task.FromResult(false);
 
       string sourceUri = Configuration.Images.BaseUrl + "original" + image.FilePath;
-      _downloader.DownloadFile(sourceUri, cacheFileName);
-      return true;
+      return _downloader.DownloadFileAsync(sourceUri, cacheFileName);
     }
 
     public byte[] GetImage(string Id, ImageItem image, string folderPath)

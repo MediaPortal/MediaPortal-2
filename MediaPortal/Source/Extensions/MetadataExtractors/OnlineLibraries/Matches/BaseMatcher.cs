@@ -26,13 +26,13 @@ using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Utilities.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
@@ -48,7 +48,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     #region Constants
     
     public const string CONFIG_DATE_FORMAT = "MMddyyyyHHmm";
-    public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
 
     #endregion
 
@@ -128,7 +127,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       return false;
     }
 
-    public virtual async Task<bool> DownloadFanArtAsync(Guid mediaItemId, BaseInfo info, bool force)
+    public virtual async Task<bool> DownloadFanArtAsync(Guid mediaItemId, BaseInfo info)
     {
       if (info == null)
         return false;
@@ -151,19 +150,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
           return false;
 
         string name = info.ToString();
-        string mediaItem = mediaItemId.ToString().ToUpperInvariant();
         Logger.Debug(_id + " Download: Downloading images for {0} [{1}]", info, mediaItemId);
-        SaveFanArtImages(images.Id, images.Backdrops, language, mediaItem, name, FanArtTypes.FanArt);
-        SaveFanArtImages(images.Id, images.Posters, language, mediaItem, name, FanArtTypes.Poster);
-        SaveFanArtImages(images.Id, images.Banners, language, mediaItem, name, FanArtTypes.Banner);
-        SaveFanArtImages(images.Id, images.Covers, language, mediaItem, name, FanArtTypes.Cover);
+        await SaveFanArtImagesAsync(images.Id, images.Backdrops, language, mediaItemId, name, FanArtTypes.FanArt).ConfigureAwait(false);
+        await SaveFanArtImagesAsync(images.Id, images.Posters, language, mediaItemId, name, FanArtTypes.Poster).ConfigureAwait(false);
+        await SaveFanArtImagesAsync(images.Id, images.Banners, language, mediaItemId, name, FanArtTypes.Banner).ConfigureAwait(false);
+        await SaveFanArtImagesAsync(images.Id, images.Covers, language, mediaItemId, name, FanArtTypes.Cover).ConfigureAwait(false);
         if (includeThumbnails)
-          SaveFanArtImages(images.Id, images.Thumbnails, language, mediaItem, name, FanArtTypes.Thumbnail);
+          await SaveFanArtImagesAsync(images.Id, images.Thumbnails, language, mediaItemId, name, FanArtTypes.Thumbnail).ConfigureAwait(false);
         if (!OnlyBasicFanArt)
         {
-          SaveFanArtImages(images.Id, images.ClearArt, language, mediaItem, name, FanArtTypes.ClearArt);
-          SaveFanArtImages(images.Id, images.DiscArt, language, mediaItem, name, FanArtTypes.DiscArt);
-          SaveFanArtImages(images.Id, images.Logos, language, mediaItem, name, FanArtTypes.Logo);
+          await SaveFanArtImagesAsync(images.Id, images.ClearArt, language, mediaItemId, name, FanArtTypes.ClearArt).ConfigureAwait(false);
+          await SaveFanArtImagesAsync(images.Id, images.DiscArt, language, mediaItemId, name, FanArtTypes.DiscArt).ConfigureAwait(false);
+          await SaveFanArtImagesAsync(images.Id, images.Logos, language, mediaItemId, name, FanArtTypes.Logo).ConfigureAwait(false);
         }
         Logger.Debug(_id + " Download: Finished saving images for {0} [{1}]", info, mediaItemId);
         return true;
@@ -175,43 +173,47 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       return false;
     }
 
-    protected virtual bool VerifyFanArtImage(TImg image, TLang language)
+    protected virtual bool VerifyFanArtImage(TImg image, TLang language, string fanArtType)
     {
       return image != null;
     }
 
-    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, TLang language, string mediaItemId, string name, string fanartType)
+    protected virtual async Task<int> SaveFanArtImagesAsync(string id, IEnumerable<TImg> images, TLang language, Guid mediaItemId, string name, string fanArtType)
     {
       try
       {
-        if (images == null)
+        if (images == null || !images.Any())
           return 0;
 
-        int idx = 0;
-        foreach (TImg img in images)
+        IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
+        int maxCount = fanArtCache.GetMaxFanArtCount(fanArtType);
+        int currentCount = 0;
+        bool cacheIsInit = false;
+
+        using (var countLock = await fanArtCache.GetFanArtCountLock(mediaItemId, fanArtType).ConfigureAwait(false))
         {
-          using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
+          foreach (TImg img in images)
           {
-            if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
+            if (countLock.Count >= maxCount)
               break;
-            if (!VerifyFanArtImage(img, language))
+            if (!VerifyFanArtImage(img, language, fanArtType))
               continue;
-            if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-              break;
-            FanArtCache.InitFanArtCache(mediaItemId, name);
-            if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
+            if (!cacheIsInit)
+            {
+              fanArtCache.InitFanArtCache(mediaItemId, name);
+              cacheIsInit = true;
+            }
+            if (await _wrapper.DownloadFanArtAsync(id, img, fanArtCache.GetFanArtDirectory(mediaItemId, fanArtType)).ConfigureAwait(false))
             {
               countLock.Count++;
-              idx++;
+              currentCount++;
             }
             else
-            {
-              Logger.Warn(_id + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanartType);
-            }
+              Logger.Warn(_id + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanArtType);
           }
         }
-        Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
-        return idx;
+        Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", currentCount, mediaItemId, name, fanArtType);
+        return currentCount;
       }
       catch (Exception ex)
       {

@@ -477,13 +477,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult<ApiWrapperImageCollection<TrackImage>>(null);
     }
 
-    public override bool DownloadFanArt(string id, TrackImage image, string folderPath)
+    public override Task<bool> DownloadFanArtAsync(string id, TrackImage image, string folderPath)
     {
-      if (!string.IsNullOrEmpty(id))
-      {
-        return _musicBrainzHandler.DownloadImageAsync(id, image, folderPath).Result;
-      }
-      return false;
+      return !string.IsNullOrEmpty(id) ? _musicBrainzHandler.DownloadImageAsync(id, image, folderPath) : Task.FromResult(false);
     }
 
     protected async Task<ApiWrapperImageCollection<TrackImage>> GetAlbumFanArtAsync(AlbumInfo album)

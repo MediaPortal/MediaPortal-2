@@ -69,6 +69,7 @@
     <Compile Include="FanArt\FanArtCache.cs" />
     <Compile Include="FanArt\FanArtConstants.cs" />
     <Compile Include="FanArt\FanArtSettings.cs" />
+    <Compile Include="FanArt\IFanArtCache.cs" />
     <Compile Include="Genres\GenreMapper.cs" />
     <Compile Include="Genres\SeriesGenre.cs" />
     <Compile Include="Genres\MovieGenre.cs" />

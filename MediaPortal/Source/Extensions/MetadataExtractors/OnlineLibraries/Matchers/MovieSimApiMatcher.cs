@@ -152,7 +152,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override bool VerifyFanArtImage(string imageUrl, string language)
+    protected override bool VerifyFanArtImage(string imageUrl, string language, string fanArtType)
     {
       return !string.IsNullOrEmpty(imageUrl);
     }

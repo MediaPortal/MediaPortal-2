@@ -48,6 +48,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void StoreCharacterMatch(CharacterInfo character);
     void StoreCompanyMatch(CompanyInfo company);
 
-    Task<bool> DownloadFanArtAsync(Guid mediaItemId, BaseInfo info, bool force);
+    Task<bool> DownloadFanArtAsync(Guid mediaItemId, BaseInfo info);
   }
 }

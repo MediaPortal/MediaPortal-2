@@ -178,7 +178,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override bool VerifyFanArtImage(ImageItem image, string language)
+    protected override bool VerifyFanArtImage(ImageItem image, string language, string fanArtType)
     {
       if (image.Language == null || image.Language == language)
         return true;

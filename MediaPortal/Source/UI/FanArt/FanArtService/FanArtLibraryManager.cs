@@ -259,7 +259,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         var sw = Stopwatch.StartNew();
         //Order is important here, get all fanart ids first to ensure we don't delete the fanart
         //of a media item that was added after the call to GetAllMediaItemIds
-        ICollection<Guid> fanArtIds = FanArtCache.GetAllFanArtIds();
+        ICollection<Guid> fanArtIds = ServiceRegistration.Get<IFanArtCache>().GetAllFanArtIds();
         ICollection<Guid> mediaItemIds = GetAllMediaItemIds();
         ICollection<Guid> fanArtToDelete = fanArtIds.Except(mediaItemIds).ToList();
         if (fanArtToDelete.Count == 0)

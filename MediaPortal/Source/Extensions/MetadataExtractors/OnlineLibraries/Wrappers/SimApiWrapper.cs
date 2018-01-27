@@ -184,9 +184,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult<ApiWrapperImageCollection<string>>(null);
     }
 
-    public override bool DownloadFanArt(string id, string image, string folderPath)
+    public override Task<bool> DownloadFanArtAsync(string id, string image, string folderPath)
     {
-      return _simApiHandler.DownloadImage(id, image, folderPath);
+      return _simApiHandler.DownloadImageAsync(id, image, folderPath);
     }
 
     protected async Task<ApiWrapperImageCollection<string>> GetMovieFanArtAsync(MovieInfo movie)

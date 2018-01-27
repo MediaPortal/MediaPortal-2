@@ -36,6 +36,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
@@ -230,46 +231,47 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override int SaveFanArtImages(string id, IEnumerable<TvdbBanner> images, TvdbLanguage language, string mediaItemId, string name, string fanartType)
+    protected override Task<int> SaveFanArtImagesAsync(string id, IEnumerable<TvdbBanner> images, TvdbLanguage language, Guid mediaItemId, string name, string fanArtType)
     {
-      if (images == null)
-        return 0;
-
-      return SaveBanners(images, language, mediaItemId, name, fanartType);
+      if (images == null || !images.Any())
+        return Task.FromResult(0);
+      return SaveBanners(images, language, mediaItemId, name, fanArtType);
     }
 
-    private int SaveBanners(IEnumerable<TvdbBanner> banners, TvdbLanguage language, string mediaItemId, string name, string fanartType)
+    private async Task<int> SaveBanners(IEnumerable<TvdbBanner> banners, TvdbLanguage language, Guid mediaItemId, string name, string fanArtType)
     {
-      int idx = 0;
-      foreach (TvdbBanner tvdbBanner in banners)
+      IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
+      int maxCount = fanArtCache.GetMaxFanArtCount(fanArtType);
+      int currentCount = 0;
+      bool cacheIsInit = false;
+
+      using (var countLock = await fanArtCache.GetFanArtCountLock(mediaItemId, fanArtType).ConfigureAwait(false))
       {
-        if (tvdbBanner.Language != TvdbLanguage.UniversalLanguage && tvdbBanner.Language != language && language != null && tvdbBanner.Language != null)
-          continue;
-
-        using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
+        foreach (TvdbBanner tvdbBanner in banners)
         {
-          if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
+          if (tvdbBanner.Language != TvdbLanguage.UniversalLanguage && tvdbBanner.Language != language && language != null && tvdbBanner.Language != null)
+            continue;
+
+          if (countLock.Count >= maxCount)
             break;
 
-          if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-            break;
-
-          if (fanartType == FanArtTypes.Banner)
-          {
-            if (!tvdbBanner.BannerPath.Contains("wide") && !tvdbBanner.BannerPath.Contains("graphical"))
-              continue;
-          }
+          if (fanArtType == FanArtTypes.Banner && !tvdbBanner.BannerPath.Contains("wide") && !tvdbBanner.BannerPath.Contains("graphical"))
+            continue;
 
           if (!tvdbBanner.IsLoaded)
           {
             // We need the image only loaded once, later we will access the cache directly
             try
             {
-              FanArtCache.InitFanArtCache(mediaItemId, name);
-              tvdbBanner.CachePath = Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType);
-              tvdbBanner.LoadBanner();
+              if (!cacheIsInit)
+              {
+                fanArtCache.InitFanArtCache(mediaItemId, name);
+                cacheIsInit = true;
+              }
+              tvdbBanner.CachePath = fanArtCache.GetFanArtDirectory(mediaItemId, fanArtType);
+              await tvdbBanner.LoadBannerAsync().ConfigureAwait(false);
               tvdbBanner.UnloadBanner(true);
-              idx++;
+              currentCount++;
               countLock.Count++;
             }
             catch (Exception ex)
@@ -279,10 +281,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
         }
       }
-      if (idx > 0)
+      if (currentCount > 0)
       {
-        Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
-        return idx;
+        Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", currentCount, mediaItemId, name, fanArtType);
+        return currentCount;
       }
 
       // Try fallback languages if no images found for preferred
@@ -290,15 +292,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       {
         if (_useUniversalLanguage)
         {
-          idx = SaveBanners(banners, TvdbLanguage.UniversalLanguage, mediaItemId, name, fanartType);
-          if (idx > 0)
-            return idx;
+          currentCount = await SaveBanners(banners, TvdbLanguage.UniversalLanguage, mediaItemId, name, fanArtType).ConfigureAwait(false);
+          if (currentCount > 0)
+            return currentCount;
         }
 
-        idx = SaveBanners(banners, TvdbLanguage.DefaultLanguage, mediaItemId, name, fanartType);
+        currentCount = await SaveBanners(banners, TvdbLanguage.DefaultLanguage, mediaItemId, name, fanArtType).ConfigureAwait(false);
       }
-      Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
-      return idx;
+      Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", currentCount, mediaItemId, name, fanArtType);
+      return currentCount;
     }
 
     #endregion

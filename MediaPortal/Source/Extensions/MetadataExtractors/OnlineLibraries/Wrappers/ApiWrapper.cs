@@ -1677,9 +1677,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult<ApiWrapperImageCollection<TImg>>(null);
     }
 
-    public virtual bool DownloadFanArt(string id, TImg image, string folderPath)
+    public virtual Task<bool> DownloadFanArtAsync(string id, TImg image, string folderPath)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion

@@ -49,6 +49,7 @@ using MediaPortal.Common.TaskScheduler;
 using MediaPortal.Common.Threading;
 using MediaPortal.Common.FileEventNotification;
 using MediaPortal.Common.Services.FileEventNotification;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Common
 {
@@ -178,6 +179,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Registering IThumbnailGenerator service");
       ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());
+
+      logger.Debug("ApplicationCore: Registering IFanArtCache service");
+      ServiceRegistration.Set<IFanArtCache>(new FanArtCache());
 
       AdditionalPluginItemBuilders.Register();
     }
