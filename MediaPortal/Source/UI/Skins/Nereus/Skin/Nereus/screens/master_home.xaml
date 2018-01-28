@@ -50,8 +50,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
     </Grid.Resources>
 
-    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-      LastChildFill="True">
+    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LastChildFill="False">
       <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
         <Grid.RowDefinitions>
           <RowDefinition Height="100"/>
@@ -62,10 +61,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"/>
-
-        <Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,30,50,0">
+        <Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,20,50,0">
           <Grid.Resources>
             <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
           </Grid.Resources>
@@ -91,10 +87,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </StackPanel>
       </Grid>
       <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-      <Control x:Name="ClientArea" Template="{DynamicResource Client_Template}"/>
+      <Control DockPanel.Dock="Center" x:Name="ClientArea" Template="{DynamicResource Client_Template}"/>
+      
     </DockPanel>
 
-    <Grid x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="30,10,0,10">
+    <Grid x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="220,10,0,10">
       <Grid.Resources>
         <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
         <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
@@ -107,6 +104,54 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="450"/>
       </Grid.ColumnDefinitions>
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+          <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center" 
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+            <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Ellipse x:Name="ItemBackground" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+              <Image x:Name="ItemImage" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                     DockPanel.Dock="Center" Source="power.png" Margin="15" Opacity="0.7">
+                <Image.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter Property="Opacity" Value="1"/>
+                  </DataTrigger>
+                </Image.Triggers>
+              </Image>
+            </DockPanel>
+          </Button>
+          <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+            <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Ellipse x:Name="ItemBackground2" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+              <Image x:Name="ItemImage2" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                     DockPanel.Dock="Center" Source="user.png" Margin="15" Opacity="0.7">
+                <Image.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter Property="Opacity" Value="1"/>
+                  </DataTrigger>
+                </Image.Triggers>
+              </Image>
+            </DockPanel>
+          </Button>
+
+          <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=E7422BB8-2779-49ab-BC99-E3F56138061B}">
+            <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Ellipse x:Name="ItemBackground3" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+              <Image x:Name="ItemImage3" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                     DockPanel.Dock="Center" Source="Settings.png" Margin="15" Opacity="0.7">
+                <Image.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter Property="Opacity" Value="1"/>
+                  </DataTrigger>
+                </Image.Triggers>
+              </Image>
+            </DockPanel>
+          </Button>
+        </StackPanel>
         <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" VerticalAlignment="Center">
           <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
                      HorizontalAlignment="Left" VerticalAlignment="Center"/>

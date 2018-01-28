@@ -86,7 +86,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           
-          <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+          <!--StackPanel Orientation="Horizontal" Margin="20,0,0,0">
             <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center" 
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
               <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -130,7 +130,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </Trigger>
               </Button.Triggers>
             </Button>
-          </StackPanel>
+          </-->
           <!--Grid x:Name="ContentMediaItemView" Grid.Row="1">
             <StackPanel Orientation="Horizontal">
               <ListView Margin="20,0,0,0" x:Name="SubItemsListViewHome"
