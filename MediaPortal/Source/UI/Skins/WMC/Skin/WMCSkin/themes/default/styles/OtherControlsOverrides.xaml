@@ -230,23 +230,27 @@
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Resources>
               <Storyboard x:Key="FocusGrowStoryboard" FillBehavior="HoldEnd">
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                               Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1.18"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1.18"/>
                 </DoubleAnimationUsingKeyFrames>
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                               Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1.18"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1.18"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
               <Storyboard x:Key="FocusShrinkStoryboard" FillBehavior="HoldEnd">
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                               Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.18"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
                 </DoubleAnimationUsingKeyFrames>
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                               Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.18"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
             </Button.Resources>
@@ -570,8 +574,8 @@
           <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="800,0" Margin="-795,0,-805,0">
             <AnimatedWrapPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
-                                           FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
               </Storyboard>
             </AnimatedWrapPanel.Resources>
             <AnimatedWrapPanel.Triggers>

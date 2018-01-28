@@ -199,40 +199,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.Resources>
             <!-- HomeContent Storyboard -->
             <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="500"/>                
-                <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="256"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="131"/>                
-                <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="67"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="34"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.0" Value="17"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.1" Value="8"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.2" Value="4"/>                
-                <SplineDoubleKeyFrame KeyTime="00:00:01.3" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.4" Value="0"/>                
-              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimation BeginTime="00:00:00" From="500" To="0" Duration="00:00:01.4" DecelerationRatio="0"
+                               FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+                <DoubleAnimation.EasingFunction>
+                  <BackEase Amplitude="0.3" EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+              </DoubleAnimation>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.40" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.4" Value="1"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
             <Storyboard x:Key="SlideOutStoryboard" FillBehavior="Stop">
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="4"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="8"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="17"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="34"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="67"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="131"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="256"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="500"/>
-              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimation BeginTime="00:00:00" From="0" To="500" Duration="00:00:00.75" AccelerationRatio="1"
+                               FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X" >
+              </DoubleAnimation>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
                 <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.75" Value="0"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </Grid.Resources>

@@ -486,6 +486,11 @@
 
   <ControlTemplate x:Key="55556593-9fe9-436c-a3b6-a971e10c9d44">
     <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+      <ListView.Resources>
+        <DataTemplate DataType="{x:Type navitems:ImageItem}">
+          <Control Template="{StaticResource GridViewImageItemSmallTemplate}"/>
+        </DataTemplate>
+      </ListView.Resources>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestImages]}"
                     Style="{ThemeResource LatestAddedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>

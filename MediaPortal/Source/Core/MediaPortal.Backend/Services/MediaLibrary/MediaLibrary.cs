@@ -2032,24 +2032,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 while (reader.Read())
                 {
                   int playCount = 0;
-                  if (!int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount))
-                  {
-                    // Prefer user play percentage but use overall play count if not available
-                    int? totalPlayCount = database.ReadDBValue<int?>(reader, 3);
-                    if (totalPlayCount.HasValue)
-                      playCount = totalPlayCount.Value;
-                  }
+                  int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount);
                   if (maxPlayCount < playCount)
                     maxPlayCount = playCount;
 
                   int playPercentage = 0;
-                  if (!int.TryParse(database.ReadDBValue<string>(reader, 2), out playPercentage))
-                  {
-                    // Prefer user play count but use overall play count if not available
-                    int? totalPlayCount = database.ReadDBValue<int?>(reader, 3);
-                    if (totalPlayCount.HasValue)
-                      playPercentage = totalPlayCount.Value > 0 ? 100 : 0;
-                  }
+                  int.TryParse(database.ReadDBValue<string>(reader, 2), out playPercentage);
 
                   bool? childVirtual = database.ReadDBValue<bool?>(reader, 0);
                   if (childVirtual == false)

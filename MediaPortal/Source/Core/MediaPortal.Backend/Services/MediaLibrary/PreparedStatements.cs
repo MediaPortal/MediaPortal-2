@@ -98,7 +98,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           _selectPlayDataFromParentIdSQL = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
           ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
           ", U2." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-          ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_PLAYCOUNT) +
           " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
           " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
           " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +

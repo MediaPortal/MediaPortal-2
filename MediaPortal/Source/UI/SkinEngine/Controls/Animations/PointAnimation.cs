@@ -25,6 +25,7 @@
 using MediaPortal.Common.General;
 using SharpDX;
 using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.UI.SkinEngine.Controls.Animations.EasingFunctions;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
@@ -35,6 +36,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     protected AbstractProperty _fromProperty;
     protected AbstractProperty _toProperty;
     protected AbstractProperty _byProperty;
+    protected AbstractProperty _easingFunctionProperty;
 
     #endregion
 
@@ -50,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       _fromProperty = new SProperty(typeof(Vector2?), null);
       _toProperty = new SProperty(typeof(Vector2?), null);
       _byProperty = new SProperty(typeof(Vector2?), null);
-
+      _easingFunctionProperty = new SProperty(typeof(IEasingFunction), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -60,6 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       From = copyManager.GetCopy(a.From);
       To = copyManager.GetCopy(a.To);
       By = copyManager.GetCopy(a.By);
+      EasingFunction = copyManager.GetCopy(a.EasingFunction);
     }
 
     #endregion
@@ -99,6 +102,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _byProperty.SetValue(value); }
     }
 
+    public AbstractProperty EasingFunctionProperty
+    {
+      get { return _easingFunctionProperty; }
+    }
+
+    public IEasingFunction EasingFunction
+    {
+      get { return (IEasingFunction)_easingFunctionProperty.GetValue(); }
+      set { _easingFunctionProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Animation methods
@@ -118,12 +132,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
         return;
       }
 
-      double distx = (to.X - from.X) / duration;
-      distx *= timepassed;
+      double progress = timepassed / duration;
+
+      IEasingFunction easingFunction = EasingFunction;
+      if (easingFunction != null)
+        progress = easingFunction.Ease(progress);
+
+      double distx = to.X - from.X;
+      distx *= progress;
       distx += from.X;
 
-      double disty = (to.X - from.Y) / duration;
-      disty *= timepassed;
+      double disty = to.Y - from.Y;
+      disty *= progress;
       disty += from.Y;
 
       SetValue(context, new Vector2((float) distx, (float) disty));

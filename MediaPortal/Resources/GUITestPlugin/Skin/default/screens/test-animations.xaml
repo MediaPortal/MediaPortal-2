@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <StackPanel>
+    <StackPanel.Resources>
+      <!--Slide with acceleration and hold end-->
+      <Storyboard x:Key="SlideWithAccelerationHoldEndStoryboard" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccelerationRatio="1.0" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+
+      <!--Slide with deceleration and hold end-->
+      <Storyboard x:Key="SlideWithDecelerationHoldEndStoryboard" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" DecelerationRatio="1.0" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+
+      <!--Slide with acceleration deceleration and hold end-->
+      <Storyboard x:Key="SlideWithAccelerationAndDecelerationHoldEndStoryboard" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccelerationRatio="0.4" DecelerationRatio="0.4" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+
+      <!--Slide with acceleration deceleration auto reverse-->
+      <Storyboard x:Key="SlideWithAccelerationAndDecelerationAutoReverseStoryboard">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" AccelerationRatio="0.4" DecelerationRatio="0.4" AutoReverse="True" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02" Value="600"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+
+      <!--Slide with BackEase and easing key frame-->
+      <Storyboard x:Key="SlideWithBackEaseStoryboard">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+          <EasingDoubleKeyFrame KeyTime="00:00:02" Value="600">
+            <EasingDoubleKeyFrame.EasingFunction>
+              <BackEase Amplitude="0.5" EasingMode="EaseIn"/>
+            </EasingDoubleKeyFrame.EasingFunction>
+          </EasingDoubleKeyFrame>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+
+      <!--Slide with ElasticEase-->
+      <Storyboard x:Key="SlideWithElasticEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <ElasticEase EasingMode="EaseOut"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+      <!--Slide with QuadraticEase-->
+      <Storyboard x:Key="SlideWithQuadraticEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <QuadraticEase EasingMode="EaseIn"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+      <!--Slide with CubicEase-->
+      <Storyboard x:Key="SlideWithCubicEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <CubicEase EasingMode="EaseIn"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+      <!--Slide with QuarticEase-->
+      <Storyboard x:Key="SlideWithQuarticEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <QuarticEase EasingMode="EaseIn"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+      <!--Slide with QuinticEase-->
+      <Storyboard x:Key="SlideWithQuinticEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <QuinticEase EasingMode="EaseIn"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+      <!--Slide with PowerEase-->
+      <Storyboard x:Key="SlideWithPowerEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <PowerEase Power="6" EasingMode="EaseIn"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+      <!--Slide with ExponentialEase-->
+      <Storyboard x:Key="SlideWithExponentialEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <ExponentialEase Exponent="10" EasingMode="EaseIn"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+      <!--Slide with CircleEase-->
+      <Storyboard x:Key="SlideWithCircleEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <CircleEase EasingMode="EaseIn"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+      <!--Slide with SineEase-->
+      <Storyboard x:Key="SlideWithSineEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <SineEase EasingMode="EaseIn"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+      <!--Slide with BounceEase-->
+      <Storyboard x:Key="SlideWithBounceEaseStoryboard">
+        <DoubleAnimation BeginTime="00:00:00" Duration="00:00:02" From="0" To="600" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+          <DoubleAnimation.EasingFunction>
+            <BounceEase Bounces="4" Bounciness="1.5" EasingMode="EaseOut"/>
+          </DoubleAnimation.EasingFunction>
+        </DoubleAnimation>
+      </Storyboard>
+
+    </StackPanel.Resources>
+
+    <Label HorizontalAlignment="Center"
+        Content="Animations Test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with acceleration"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_Acceleration_BeginStoryboard" Storyboard="{StaticResource SlideWithAccelerationHoldEndStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+    
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with deceleration"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_Deceleration_BeginStoryboard" Storyboard="{StaticResource SlideWithDecelerationHoldEndStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with acceleration and deceleration"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_Acceleration_Deceleration_BeginStoryboard" Storyboard="{StaticResource SlideWithAccelerationAndDecelerationHoldEndStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with auto reverse"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_AutoReverse_BeginStoryboard" Storyboard="{StaticResource SlideWithAccelerationAndDecelerationAutoReverseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with BackEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_BackEase_BeginStoryboard" Storyboard="{StaticResource SlideWithBackEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with ElasticEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_ElasticEase_BeginStoryboard" Storyboard="{StaticResource SlideWithElasticEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with QuadraticEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_QuadraticEase_BeginStoryboard" Storyboard="{StaticResource SlideWithQuadraticEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with CubicEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_CubicEase_BeginStoryboard" Storyboard="{StaticResource SlideWithCubicEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with QuarticEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_QuarticEase_BeginStoryboard" Storyboard="{StaticResource SlideWithQuarticEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with QuinticEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_QuinticEase_BeginStoryboard" Storyboard="{StaticResource SlideWithQuinticEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with PowerEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_PowerEase_BeginStoryboard" Storyboard="{StaticResource SlideWithPowerEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with ExponentialEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_ExponentialEase_BeginStoryboard" Storyboard="{StaticResource SlideWithExponentialEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with CircleEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_CircleEase_BeginStoryboard" Storyboard="{StaticResource SlideWithCircleEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with SineEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_SineEase_BeginStoryboard" Storyboard="{StaticResource SlideWithSineEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+    <Button Style="{StaticResource ButtonWideStyle}" Content="Animation with BounceEase"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" FontSize="25">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn_BounceEase_BeginStoryboard" Storyboard="{StaticResource SlideWithBounceEaseStoryboard}"/>
+          </Trigger.EnterActions>
+        </Trigger>
+      </Button.Triggers>
+    </Button>
+
+  </StackPanel>
+
+</Screen>

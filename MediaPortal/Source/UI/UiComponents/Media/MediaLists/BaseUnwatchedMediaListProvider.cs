@@ -50,7 +50,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
       return new MediaItemQuery(_necessaryMias, filter)
       {
-        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Ascending) }
       };
     }
 
