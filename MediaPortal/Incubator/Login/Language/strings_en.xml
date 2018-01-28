@@ -71,7 +71,7 @@
   <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">The home server is currently not connected, so server media sources cannot be managed at the moment.</string>
   <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">The home server is located at the same machine, so only server media sources can be configured.</string>
 
-  <string name="RestrictionGroup.Settings.UserProfile">Settings: Manange all users</string>
+  <string name="RestrictionGroup.Settings.UserProfile">Settings: Manage all user profiles</string>
   <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Settings: Manage own profile</string>
 
   <string name="UserProfileTemplate.Admin">Administrator</string>
