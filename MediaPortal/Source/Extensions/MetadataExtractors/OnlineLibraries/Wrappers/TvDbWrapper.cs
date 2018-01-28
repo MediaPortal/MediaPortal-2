@@ -462,13 +462,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         TvdbSeries seriesDetail = null;
         if (seriesInfo.TvdbId > 0)
-          seriesDetail = await _tvdbHandler.GetSeriesAsync(seriesInfo.TvdbId, language, true, false, false).ConfigureAwait(false);
+          seriesDetail = await _tvdbHandler.GetSeriesAsync(seriesInfo.TvdbId, language, true, true, false).ConfigureAwait(false);
         if (seriesDetail == null && !cacheOnly && !string.IsNullOrEmpty(seriesInfo.ImdbId))
         {
           TvdbSearchResult foundSeries = await _tvdbHandler.GetSeriesByRemoteIdAsync(ExternalId.ImdbId, seriesInfo.ImdbId).ConfigureAwait(false);
           if (foundSeries != null)
           {
-            seriesDetail = await _tvdbHandler.GetSeriesAsync(foundSeries.Id, language, true, false, false).ConfigureAwait(false);
+            seriesDetail = await _tvdbHandler.GetSeriesAsync(foundSeries.Id, language, true, true, false).ConfigureAwait(false);
           }
         }
         if (seriesDetail == null) return false;
@@ -511,13 +511,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         TvdbSeries seriesDetail = null;
         if (seriesInfo.TvdbId > 0)
-          seriesDetail = await _tvdbHandler.GetSeriesAsync(seriesInfo.TvdbId, language, true, false, false).ConfigureAwait(false);
+          seriesDetail = await _tvdbHandler.GetSeriesAsync(seriesInfo.TvdbId, language, true, true, false).ConfigureAwait(false);
         if (seriesDetail == null && !cacheOnly && !string.IsNullOrEmpty(seriesInfo.ImdbId))
         {
           TvdbSearchResult foundSeries = await _tvdbHandler.GetSeriesByRemoteIdAsync(ExternalId.ImdbId, seriesInfo.ImdbId).ConfigureAwait(false);
           if (foundSeries != null)
           {
-            seriesDetail = await _tvdbHandler.GetSeriesAsync(foundSeries.Id, language, true, false, false).ConfigureAwait(false);
+            seriesDetail = await _tvdbHandler.GetSeriesAsync(foundSeries.Id, language, true, true, false).ConfigureAwait(false);
           }
         }
         if (seriesDetail == null) return false;
@@ -687,7 +687,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       if (series == null || series.TvdbId < 1)
         return null;
-      TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(series.TvdbId, language, false, true, true).ConfigureAwait(false);
+      TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(series.TvdbId, language, false, false, true).ConfigureAwait(false);
       if (seriesDetail == null)
         return null;
       ApiWrapperImageCollection<TvdbBanner> images = new ApiWrapperImageCollection<TvdbBanner>();

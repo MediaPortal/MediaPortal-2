@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
@@ -41,6 +42,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
   public class TvdbHandler
   {
     #region private fields
+    private SemaphoreSlim _seriesLoadingSync = new SemaphoreSlim(1, 1);
     private readonly ICacheProvider _cacheProvider;
     private readonly String _apiKey;
     private readonly TvdbDownloader _downloader;
@@ -396,137 +398,157 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       Stopwatch watch = new Stopwatch();
       watch.Start();
       TvdbSeries series = GetSeriesFromCache(seriesId);
-      //Did I get the series completely from cache or did I have to make an additional online request
-      bool loadedAdditionalInfo = false;
 
-      if (series == null || //series not yet cached
-          (useZip && (!series.EpisodesLoaded && !series.TvdbActorsLoaded && !series.BannersLoaded)))//only the basic series info has been loaded -> zip is still faster than fetching the missing informations without using zip
-      {//load complete series from tvdb
-        series = useZip ?
-          await _downloader.DownloadSeriesZippedAsync(seriesId, language).ConfigureAwait(false) :
-          await _downloader.DownloadSeriesAsync(seriesId, language, loadEpisodes, loadActors, loadBanners).ConfigureAwait(false);
+      //Everything needed is loaded, just return the series
+      if (series != null && (!loadEpisodes || series.EpisodesLoaded) && (!loadActors || series.TvdbActorsLoaded) && (!loadBanners || series.BannersLoaded))
+        return series;
 
-        if (series == null)
-        {
-          return null;
-        }
-        watch.Stop();
-        loadedAdditionalInfo = true;
-        Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
-        series.IsFavorite = _userInfo != null && CheckIfSeriesFavorite(seriesId, _userInfo.UserFavorites);
-      }
-      else
-      {//some (if not all) information has already been loaded from tvdb at some point -> fill the missing details and return the series
+      //Synchronise series loading, this avoids multiple threads each missing the cache then trying to load the series whilst another thread is already loading it
+      await _seriesLoadingSync.WaitAsync().ConfigureAwait(false);
+      try
+      {
+        //Check the cache again now we're in the loading lock in case another thread has loaded it whist we were waiting
+        series = GetSeriesFromCache(seriesId);
+        //Everything needed is loaded, just return the series
+        if (series != null && (!loadEpisodes || series.EpisodesLoaded) && (!loadActors || series.TvdbActorsLoaded) && (!loadBanners || series.BannersLoaded))
+          return series;
 
-        if (language != series.Language)
-        {//user wants a different language than the one that has been loaded
-          if (series.GetAvailableLanguages().Contains(language))
-            series.SetLanguage(language);
-          else
+        //Did I get the series completely from cache or did I have to make an additional online request
+        bool loadedAdditionalInfo = false;
+
+        if (series == null || //series not yet cached
+            (useZip && (!series.EpisodesLoaded && !series.TvdbActorsLoaded && !series.BannersLoaded)))//only the basic series info has been loaded -> zip is still faster than fetching the missing informations without using zip
+        {//load complete series from tvdb
+          series = useZip ?
+            await _downloader.DownloadSeriesZippedAsync(seriesId, language).ConfigureAwait(false) :
+            await _downloader.DownloadSeriesAsync(seriesId, language, loadEpisodes, loadActors, loadBanners).ConfigureAwait(false);
+
+          if (series == null)
           {
-            TvdbSeriesFields newFields = await _downloader.DownloadSeriesFieldsAsync(seriesId, language).ConfigureAwait(false);
-            loadedAdditionalInfo = true;
-            if (loadEpisodes)
-            {
-              List<TvdbEpisode> epList = await _downloader.DownloadEpisodesAsync(seriesId, language).ConfigureAwait(false);
-              if (epList != null)
-              {
-                newFields.Episodes.Clear();
-                newFields.Episodes.AddRange(epList);
-                newFields.EpisodesLoaded = true;
-              }
-            }
-            if (newFields != null)
-            {
-              series.AddLanguage(newFields);
+            return null;
+          }
+          watch.Stop();
+          loadedAdditionalInfo = true;
+          Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
+          series.IsFavorite = _userInfo != null && CheckIfSeriesFavorite(seriesId, _userInfo.UserFavorites);
+        }
+        else
+        {//some (if not all) information has already been loaded from tvdb at some point -> fill the missing details and return the series
+
+          if (language != series.Language)
+          {//user wants a different language than the one that has been loaded
+            if (series.GetAvailableLanguages().Contains(language))
               series.SetLanguage(language);
-            }
             else
             {
-              Log.Warn("Couldn't load new language " + language.Abbriviation + " for series " + seriesId);
-              return null;
+              TvdbSeriesFields newFields = await _downloader.DownloadSeriesFieldsAsync(seriesId, language).ConfigureAwait(false);
+              loadedAdditionalInfo = true;
+              if (loadEpisodes)
+              {
+                List<TvdbEpisode> epList = await _downloader.DownloadEpisodesAsync(seriesId, language).ConfigureAwait(false);
+                if (epList != null)
+                {
+                  newFields.Episodes.Clear();
+                  newFields.Episodes.AddRange(epList);
+                  newFields.EpisodesLoaded = true;
+                }
+              }
+              if (newFields != null)
+              {
+                series.AddLanguage(newFields);
+                series.SetLanguage(language);
+              }
+              else
+              {
+                Log.Warn("Couldn't load new language " + language.Abbriviation + " for series " + seriesId);
+                return null;
+              }
             }
           }
+
+          if (loadActors && !series.TvdbActorsLoaded)
+          {//user wants actors loaded
+            Log.Debug("Additionally loading actors");
+            List<TvdbActor> actorList = await _downloader.DownloadActorsAsync(seriesId).ConfigureAwait(false);
+            loadedAdditionalInfo = true;
+            if (actorList != null)
+            {
+              series.TvdbActorsLoaded = true;
+              series.TvdbActors = actorList;
+            }
+          }
+
+          if (loadEpisodes && !series.EpisodesLoaded)
+          {//user wants the full version but only the basic has been loaded (without episodes
+            Log.Debug("Additionally loading episodes");
+            List<TvdbEpisode> epList = await _downloader.DownloadEpisodesAsync(seriesId, language).ConfigureAwait(false);
+            loadedAdditionalInfo = true;
+            if (epList != null)
+              series.SetEpisodes(epList);
+          }
+
+          if (loadBanners && !series.BannersLoaded)
+          {//user wants banners loaded but current series hasn't -> Do it baby
+            Log.Debug("Additionally loading banners");
+            List<TvdbBanner> bannerList = await _downloader.DownloadBannersAsync(seriesId).ConfigureAwait(false);
+            loadedAdditionalInfo = true;
+            if (bannerList != null)
+            {
+              series.BannersLoaded = true;
+              series.Banners = bannerList;
+            }
+          }
+
+          watch.Stop();
+          Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
         }
 
-        if (loadActors && !series.TvdbActorsLoaded)
-        {//user wants actors loaded
-          Log.Debug("Additionally loading actors");
-          List<TvdbActor> actorList = await _downloader.DownloadActorsAsync(seriesId).ConfigureAwait(false);
-          loadedAdditionalInfo = true;
-          if (actorList != null)
+        if (_cacheProvider != null)
+        {
+          //we're using a cache provider
+          
+          //Store a ref to the cacheprovider and series id in each banner, so the banners
+          //can be stored/loaded to/from cache
+          #region add cache provider/series id
+          if (series.Banners != null)
           {
-            series.TvdbActorsLoaded = true;
-            series.TvdbActors = actorList;
+            series.Banners.ForEach(b =>
+            {
+              b.CacheProvider = _cacheProvider;
+              b.SeriesId = series.Id;
+            });
+          }
+
+          if (series.Episodes != null)
+          {
+            series.Episodes.ForEach(e =>
+            {
+              e.Banner.CacheProvider = _cacheProvider;
+              e.Banner.SeriesId = series.Id;
+            });
+          }
+
+          if (series.TvdbActors != null)
+          {
+            series.TvdbActors.ForEach(a =>
+            {
+              a.ActorImage.CacheProvider = _cacheProvider;
+              a.ActorImage.SeriesId = series.Id;
+            });
+          }
+          #endregion
+
+          //if we've loaded data from online source -> save to cache
+          if (_cacheProvider.Initialised && loadedAdditionalInfo)
+          {
+            Log.Info("Store series " + seriesId + " with " + _cacheProvider);
+            _cacheProvider.SaveToCache(series);
           }
         }
-
-        if (loadEpisodes && !series.EpisodesLoaded)
-        {//user wants the full version but only the basic has been loaded (without episodes
-          Log.Debug("Additionally loading episodes");
-          List<TvdbEpisode> epList = await _downloader.DownloadEpisodesAsync(seriesId, language).ConfigureAwait(false);
-          loadedAdditionalInfo = true;
-          if (epList != null)
-            series.SetEpisodes(epList);
-        }
-
-        if (loadBanners && !series.BannersLoaded)
-        {//user wants banners loaded but current series hasn't -> Do it baby
-          Log.Debug("Additionally loading banners");
-          List<TvdbBanner> bannerList = await _downloader.DownloadBannersAsync(seriesId).ConfigureAwait(false);
-          loadedAdditionalInfo = true;
-          if (bannerList != null)
-          {
-            series.BannersLoaded = true;
-            series.Banners = bannerList;
-          }
-        }
-
-        watch.Stop();
-        Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
       }
-
-      if (_cacheProvider != null)
-      {//we're using a cache provider
-        //if we've loaded data from online source -> save to cache
-        if (_cacheProvider.Initialised && loadedAdditionalInfo)
-        {
-          Log.Info("Store series " + seriesId + " with " + _cacheProvider);
-          _cacheProvider.SaveToCache(series);
-        }
-
-        //Store a ref to the cacheprovider and series id in each banner, so the banners
-        //can be stored/loaded to/from cache
-        #region add cache provider/series id
-        if (series.Banners != null)
-        {
-          series.Banners.ForEach(b =>
-                                   {
-                                     b.CacheProvider = _cacheProvider;
-                                     b.SeriesId = series.Id;
-                                   });
-        }
-
-        if (series.Episodes != null)
-        {
-          series.Episodes.ForEach(e =>
-                                    {
-                                      e.Banner.CacheProvider = _cacheProvider;
-                                      e.Banner.SeriesId = series.Id;
-                                    });
-        }
-
-        if (series.TvdbActors != null)
-        {
-          series.TvdbActors.ForEach(a =>
-                                      {
-                                        a.ActorImage.CacheProvider = _cacheProvider;
-                                        a.ActorImage.SeriesId = series.Id;
-                                      });
-        }
-        #endregion
-
-
+      finally
+      {
+        _seriesLoadingSync.Release();
       }
       return series;
     }
