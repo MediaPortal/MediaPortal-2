@@ -43,9 +43,13 @@
   </-->
 
   <ResourceWrapper x:Key="ActionIdFilter">
-    D5D980B9-EB3C-4f07-AB20-0684C35D2764;
-    652C8DEE-38F8-4479-BBB3-F25557641E60;
-    63935BB2-3434-482b-BE52-EBE787522EA7
+    bb49a591-7705-408f-8177-45d633fdfad0;
+    b4a9199f-6dd4-4bda-a077-de9c081f7703;
+    30f57cba-459c-4202-a587-09fff5098251;
+    80d2e2cc-baaa-4750-807b-f37714153751;
+    30715d73-4205-417f-80aa-e82f0834171f;
+    55556593-9fe9-436c-a3b6-a971e10c9d44;
+    e34fdb62-1f3e-4aa9-8a61-d143e0af77b5
   </ResourceWrapper>
 
   <!-- default brush used to paint the background of a page/window -->
