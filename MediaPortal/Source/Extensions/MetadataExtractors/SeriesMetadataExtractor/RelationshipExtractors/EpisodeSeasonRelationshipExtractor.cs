@@ -28,6 +28,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities.Collections;
 using System;
@@ -112,7 +113,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return seasonIdentifiers;
     }
 
-    public async Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       EpisodeInfo episodeInfo = new EpisodeInfo();
       if (!episodeInfo.FromMetadata(aspects))

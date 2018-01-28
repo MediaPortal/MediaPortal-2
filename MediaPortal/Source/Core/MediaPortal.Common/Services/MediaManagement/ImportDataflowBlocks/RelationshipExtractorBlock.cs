@@ -124,7 +124,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           //Try to cache the resource as a matching item might get extracted later, e.g. the SeriesEpisodeExtractor
           //might extract a matching episode and we should avoid processing the item again.
           await CacheImportResource(importResource);
-          await ExtractRelationships(importResource.MediaItemId.Value, importResource.Aspects);
+          await ExtractRelationships(importResource.ResourceAccessor, importResource.MediaItemId.Value, importResource.Aspects);
         }
 
         importResource.IsValid = false;
@@ -177,10 +177,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="mediaItemId">The id of the media item.</param>
     /// <param name="aspects">The aspects of the media item.</param>
     /// <returns></returns>
-    protected async Task ExtractRelationships(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    protected async Task ExtractRelationships(IResourceAccessor mediaItemAccessor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       //Get the relations
-      ICollection<ExtractedRelation> relations = await ExtractRelationshipMetadata(mediaItemId, aspects);
+      ICollection<ExtractedRelation> relations = await ExtractRelationshipMetadata(mediaItemAccessor, mediaItemId, aspects);
 
       if (relations.Count == 0)
         return;
@@ -190,7 +190,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
       //Extract relationships for any new relations
       if (updatedMediaItems != null && updatedMediaItems.Count > 0)
-        await Task.WhenAll(updatedMediaItems.Select(i => ExtractChildRelationships(i.MediaItemId, i.Aspects)));
+        await Task.WhenAll(updatedMediaItems.Select(i => ExtractChildRelationships(mediaItemAccessor, i.MediaItemId, i.Aspects)));
     }
 
     /// <summary>
@@ -204,11 +204,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="mediaItemId">The id of the media item.</param>
     /// <param name="aspects">The aspects of the media item.</param>
     /// <returns></returns>
-    protected async Task ExtractChildRelationships(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    protected async Task ExtractChildRelationships(IResourceAccessor mediaItemAccessor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       try
       {
-        await ExtractRelationships(mediaItemId, aspects);
+        await ExtractRelationships(mediaItemAccessor, mediaItemId, aspects);
       }
       catch (OperationCanceledException)
       {
@@ -223,11 +223,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="mediaItemId">The id of the media item.</param>
     /// <param name="aspects">The aspects of the media item.</param>
     /// <returns></returns>
-    protected async Task<ICollection<ExtractedRelation>> ExtractRelationshipMetadata(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    protected async Task<ICollection<ExtractedRelation>> ExtractRelationshipMetadata(IResourceAccessor mediaItemAccessor,
+      Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       ICollection<ExtractedRelation> relations = new List<ExtractedRelation>();
       foreach (IRelationshipRoleExtractor extractor in GetRoleExtractors(aspects))
-        await ExtractRelationshipMetadata(extractor, mediaItemId, aspects, relations);
+        await ExtractRelationshipMetadata(extractor, mediaItemAccessor, mediaItemId, aspects, relations);
       return relations;
     }
 
@@ -238,11 +239,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="mediaItemId">The id of the media item.</param>
     /// <param name="aspects">The aspects of the media item.</param>
     /// <param name="relations">Collection of relations to add any extracted relations.</param>
-    protected async Task ExtractRelationshipMetadata(IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, ICollection<ExtractedRelation> relations)
+    protected async Task ExtractRelationshipMetadata(IRelationshipRoleExtractor roleExtractor, IResourceAccessor mediaItemAccessor,
+      Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, ICollection<ExtractedRelation> relations)
     {
       int extractedCount = 0;
       IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedItems = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      if (await roleExtractor.TryExtractRelationshipsAsync(aspects, extractedItems))
+      if (await roleExtractor.TryExtractRelationshipsAsync(mediaItemAccessor, aspects, extractedItems))
       {
         extractedCount = extractedItems.Count;
         foreach (IDictionary<Guid, IList<MediaItemAspect>> extractedItem in extractedItems)

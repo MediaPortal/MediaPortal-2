@@ -28,6 +28,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Collections;
 using System;
 using System.Collections.Generic;
@@ -85,7 +86,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON);
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       if (BaseInfo.IsVirtualResource(aspects))
         return Task.FromResult(false);

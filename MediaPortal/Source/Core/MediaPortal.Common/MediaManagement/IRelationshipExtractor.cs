@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -87,7 +88,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="aspects"></param>
     /// <param name="extractedLinkedAspects"></param>
     /// <returns></returns>
-    Task<bool> TryExtractRelationshipsAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects);
+    Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects);
 
     /// <summary>
     /// Part 2 of the relationship building - if the extract was successful
