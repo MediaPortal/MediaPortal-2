@@ -149,7 +149,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          <VirtualizingWrapPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MaxWidth="550"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -176,7 +176,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Vertical" IsItemsHost="True" HorizontalAlignment="Center" LoopScroll="False"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" HorizontalAlignment="Center" LoopScroll="False"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -215,8 +215,8 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="0,350,0,350"
-                               Margin="20,-300,0,-350" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="550,0,0,0"
+                              Margin="-500,20,-550,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <AnimatedStackPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                 <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400"
@@ -247,11 +247,11 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <StackPanel>
-            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,10,0,-6"
+          <StackPanel Orientation="Vertical">
+            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,0,0"
                    Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
 
-            <ListView x:Name="MediaList" Margin="10"
+            <ListView x:Name="MediaList" Margin="20,10,20,10"
                       Style="{Binding Source={DynamicResource List_Style},Path=Resource}"
                       ItemsSource="{Binding Path=AllItems}"/>
 
