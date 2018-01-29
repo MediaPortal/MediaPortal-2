@@ -156,7 +156,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" Background="Yellow" Width="1600"
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" Width="1600"
                               HorizontalAlignment="Stretch">
             <AnimatedStackPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
