@@ -180,7 +180,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\styles\LoginStyles.xaml">
+    <Content Include="Skin\WMCSkin\themes\default\styles\LoginStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
