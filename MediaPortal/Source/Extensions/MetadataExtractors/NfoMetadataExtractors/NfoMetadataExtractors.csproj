@@ -66,7 +66,10 @@
     <Compile Include="NfoAudioMetadataExtractor.cs" />
     <Compile Include="NfoReaders\NfoArtistReader.cs" />
     <Compile Include="NfoReaders\NfoAlbumReader.cs" />
-	<Compile Include="NfoVideoMetadataExtractor.cs" />
+    <Compile Include="NfoVideoMetadataExtractor.cs" />
+    <Compile Include="RelationshipExtractors\AbstractAlbumArtistNfoRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\AbstractAlbumNfoRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\AbstractNfoRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\AlbumArtistRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\INfoRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieActorRelationshipExtractor.cs" />

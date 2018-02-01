@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
-  class TrackAlbumRelationshipExtractor : INfoRelationshipExtractor, IRelationshipRoleExtractor
+  class TrackAlbumRelationshipExtractor : AbstractAlbumNfoRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
@@ -83,17 +83,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_ALBUM);
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
       AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
-      UpdateArtists(aspects, albumInfo.Artists, true);
-      if (!UpdateAlbum(aspects, albumInfo))
-        return Task.FromResult(false);
-      GenreMapper.AssignMissingSeriesGenreIds(albumInfo.Genres);
+      if (!await TryExtractAlbumMetadataAsync(mediaItemAccessor, albumInfo).ConfigureAwait(false))
+        return false;
+      
+      GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres);
       
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       albumInfo.SetMetadata(albumAspects);
@@ -106,12 +106,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       }
 
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        return Task.FromResult(false);
-
-      StoreArtists(albumAspects, albumInfo.Artists, true);
+        return false;
 
       extractedLinkedAspects.Add(albumAspects);
-      return Task.FromResult(true);
+      return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
