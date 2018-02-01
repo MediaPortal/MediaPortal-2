@@ -190,7 +190,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       EpisodeInfo episodeInfo = new EpisodeInfo();
       episodeInfo.FromMetadata(extractedAspectData);
-      SeriesRelationshipExtractor.UpdateEpisodeSeries(extractedAspectData, episodeInfo);
 
       // If there was no complete match, yet, try to get extended information out of matroska files)
       if (!episodeInfo.IsBaseInfoPresent || !episodeInfo.HasExternalId)
