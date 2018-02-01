@@ -96,7 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      AudioRelationshipExtractor.UpdatePersons(aspects, trackInfo.AlbumArtists, true);
+      AudioMetadataExtractor.TryUpdateArtists(mediaItemAccessor, trackInfo.AlbumArtists, true);
       
       if (AudioMetadataExtractor.IncludeArtistDetails && !AudioMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateTrackPersonsAsync(trackInfo, PersonAspect.OCCUPATION_ARTIST, true).ConfigureAwait(false);

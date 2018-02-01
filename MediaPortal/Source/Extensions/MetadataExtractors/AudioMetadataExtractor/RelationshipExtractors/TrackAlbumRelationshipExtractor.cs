@@ -89,12 +89,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      IList<Guid> linkedIds;
-      Guid albumId = BaseInfo.TryGetLinkedIds(aspects, LinkedRole, out linkedIds) ? linkedIds[0] : Guid.Empty;
-
       AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
-      AudioRelationshipExtractor.UpdateAlbum(aspects, albumInfo);
-      AudioRelationshipExtractor.UpdatePersons(aspects, albumInfo.Artists, true);
+      AudioMetadataExtractor.TryUpdateAlbum(mediaItemAccessor, albumInfo);
+
       if (!AudioMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateAlbumAsync(albumInfo, false).ConfigureAwait(false);
       
@@ -111,8 +108,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         //Use image from track as image
         MediaItemAspect.SetAttribute(albumAspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, data);
       }
-
-      AudioRelationshipExtractor.StorePersons(albumAspects, albumInfo.Artists, true);
 
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;

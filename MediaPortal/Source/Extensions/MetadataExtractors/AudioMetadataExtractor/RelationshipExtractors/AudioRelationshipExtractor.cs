@@ -28,9 +28,11 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.MediaManagement.TransientAspects;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.OnlineLibraries;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -214,63 +216,5 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       get { return _extractors; }
     }
-
-    #region TempAspect storage/retrieval
-
-    public static void UpdatePersons(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<PersonInfo> infoPersons, bool forAlbum)
-    {
-      if (aspects.ContainsKey(TempArtistAspect.ASPECT_ID))
-      {
-        IList<MultipleMediaItemAspect> persons;
-        if (MediaItemAspect.TryGetAspects(aspects, TempArtistAspect.Metadata, out persons))
-        {
-          foreach (MultipleMediaItemAspect person in persons)
-          {
-            if (person.GetAttributeValue<bool>(TempArtistAspect.ATTR_FROMALBUM) == forAlbum)
-            {
-              PersonInfo info = infoPersons.Find(p => p.Name.Equals(person.GetAttributeValue<string>(TempArtistAspect.ATTR_NAME), StringComparison.InvariantCultureIgnoreCase) &&
-                  p.Occupation == person.GetAttributeValue<string>(TempArtistAspect.ATTR_OCCUPATION));
-              if (info != null && string.IsNullOrEmpty(info.MusicBrainzId))
-                info.MusicBrainzId = person.GetAttributeValue<string>(TempArtistAspect.ATTR_MBID);
-            }
-          }
-        }
-      }
-    }
-
-    public static void StorePersons(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<PersonInfo> infoPersons, bool forAlbum)
-    {
-      foreach (PersonInfo person in infoPersons)
-      {
-        MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(aspects, TempArtistAspect.Metadata);
-        personAspect.SetAttribute(TempArtistAspect.ATTR_MBID, person.MusicBrainzId);
-        personAspect.SetAttribute(TempArtistAspect.ATTR_NAME, person.Name);
-        personAspect.SetAttribute(TempArtistAspect.ATTR_OCCUPATION, person.Occupation);
-        personAspect.SetAttribute(TempArtistAspect.ATTR_FROMALBUM, forAlbum);
-      }
-    }
-
-    public static void StoreAlbum(IDictionary<Guid, IList<MediaItemAspect>> aspects, string albumName, string albumSortName)
-    {
-      SingleMediaItemAspect personAspect = MediaItemAspect.GetOrCreateAspect(aspects, TempAlbumAspect.Metadata);
-      personAspect.SetAttribute(TempAlbumAspect.ATTR_NAME, albumName);
-      personAspect.SetAttribute(TempAlbumAspect.ATTR_SORT_NAME, albumSortName);
-    }
-
-    public static void UpdateAlbum(IDictionary<Guid, IList<MediaItemAspect>> aspects, AlbumInfo album)
-    {
-      if (aspects.ContainsKey(TempAlbumAspect.ASPECT_ID))
-      {
-        SingleMediaItemAspect albumAspect;
-        if (MediaItemAspect.TryGetAspect(aspects, TempAlbumAspect.Metadata, out albumAspect))
-        {
-          string sortName = albumAspect.GetAttributeValue<string>(TempAlbumAspect.ATTR_SORT_NAME);
-          if (!string.IsNullOrEmpty(sortName))
-            album.AlbumSort = sortName;
-        }
-      }
-    }
-
-    #endregion
   }
 }

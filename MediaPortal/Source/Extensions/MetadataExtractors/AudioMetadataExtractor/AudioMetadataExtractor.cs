@@ -406,6 +406,93 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return result;
     }
 
+    protected static File LoadTag(IFileSystemResourceAccessor fsra)
+    {
+      File tag = null;
+      try
+      {
+        ByteVector.UseBrokenLatin1Behavior = true;  // Otherwise we have problems retrieving non-latin1 chars
+        tag = File.Create(new AudioMetadataExtractor.ResourceProviderFileAbstraction(fsra));
+        return tag;
+      }
+      catch (CorruptFileException)
+      {
+        // Only log at the info level here - And simply return false. This makes the importer know that we
+        // couldn't perform our task here.
+        ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Audio file '{0}' seems to be broken", fsra.CanonicalLocalResourcePath);
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// Tries to update the <paramref name="album"/> with any relevant information from MP3 tags.
+    /// </summary>
+    /// <param name="mediaItemAccessor">ResourceAccessor to the track media item.</param>
+    /// <param name="album">AlbumInfo to update with tag information.</param>
+    /// <returns>True if the album was updated.</returns>
+    public static bool TryUpdateAlbum(IResourceAccessor mediaItemAccessor, AlbumInfo album)
+    {
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null)
+        return false;
+
+      File tag = LoadTag(fsra);
+      if (tag == null)
+        return false;
+
+      bool updated = false;
+      using (tag)
+      {
+        if (!string.IsNullOrEmpty(tag.Tag.AlbumSort))
+        {
+          album.AlbumSort = tag.Tag.AlbumSort.Trim();
+          updated = true;
+        }
+        updated |= TryUpdateArtists(tag, album.Artists, true);
+      }
+      return updated;
+    }
+
+    /// <summary>
+    /// Tries to update the <paramref name="persons"/> with any relevant information from MP3 tags.
+    /// </summary>
+    /// <param name="mediaItemAccessor">ResourceAccessor to the track media item.</param>
+    /// <param name="persons">Person collection to update.</param>
+    /// <param name="forAlbum">Whether to update from the track or album artist tag.</param>
+    /// <returns>True if any person was updated.</returns>
+    public static bool TryUpdateArtists(IResourceAccessor mediaItemAccessor, IList<PersonInfo> persons, bool forAlbum)
+    {
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null)
+        return false;
+      File tag = LoadTag(fsra);
+      if (tag == null)
+        return false;
+      using (tag)
+        return TryUpdateArtists(tag, persons, false);
+    }
+
+    protected static bool TryUpdateArtists(File tag, IList<PersonInfo> persons, bool albumArtists)
+    {
+      IEnumerable<string> artists = albumArtists ? tag.Tag.AlbumArtists : tag.Tag.Performers;
+      if (!artists.Any())
+        return false;
+      artists = (tag.TagTypes & TagTypes.Id3v2) != 0 ?
+        PatchID3v23Enumeration(artists) : artists;
+      artists = ApplyAdditionalSeparator(artists);
+      if (artists.Count() != 1)
+        return false;
+      string musicBrainzId = tag.Tag.MusicBrainzArtistId;
+      if (string.IsNullOrEmpty(musicBrainzId))
+        return false;
+      string artist = artists.First();
+      PersonInfo person = persons.FirstOrDefault(p => p.Name == artist);
+      if (person == null)
+        return false;
+      person.MusicBrainzId = musicBrainzId;
+      return true;
+    }
+
     #endregion
 
     #region IMetadataExtractor implementation
@@ -435,20 +522,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           if (!isStub)
           {
-            File tag = null;
-            try
-            {
-              ByteVector.UseBrokenLatin1Behavior = true;  // Otherwise we have problems retrieving non-latin1 chars
-              tag = File.Create(new ResourceProviderFileAbstraction(fsra));
-
-            }
-            catch (CorruptFileException)
-            {
-              // Only log at the info level here - And simply return false. This makes the importer know that we
-              // couldn't perform our task here.
-              ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Audio file '{0}' seems to be broken", fsra.CanonicalLocalResourcePath);
+            File tag = LoadTag(fsra);
+            if (tag == null)
               return false;
-            }
 
             using (tag)
             {
@@ -515,10 +591,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 trackInfo.Compilation = id3Tag.IsCompilation;
 
               trackInfo.Album = !string.IsNullOrEmpty(tag.Tag.Album) ? tag.Tag.Album.Trim() : null;
-              if (!string.IsNullOrEmpty(tag.Tag.AlbumSort))
-              {
-                AudioRelationshipExtractor.StoreAlbum(extractedAspectData, tag.Tag.Album, tag.Tag.AlbumSort.Trim());
-              }
 
               if (trackNo.HasValue)
                 trackInfo.TrackNum = (int)trackNo.Value;
@@ -560,12 +632,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 }
               }
 
-              //Save id if possible
-              if (trackInfo.Artists.Count == 1 && !string.IsNullOrEmpty(tag.Tag.MusicBrainzArtistId))
-              {
-                trackInfo.Artists[0].MusicBrainzId = tag.Tag.MusicBrainzArtistId;
-              }
-
               IEnumerable<string> albumArtists = tag.Tag.AlbumArtists;
               if ((tag.TagTypes & TagTypes.Id3v2) != 0)
                 albumArtists = PatchID3v23Enumeration(albumArtists);
@@ -582,12 +648,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                     MediaName = trackInfo.TrackName
                   });
                 }
-              }
-
-              //Save id if possible
-              if (trackInfo.AlbumArtists.Count == 1 && !string.IsNullOrEmpty(tag.Tag.MusicBrainzReleaseArtistId))
-              {
-                trackInfo.AlbumArtists[0].MusicBrainzId = tag.Tag.MusicBrainzReleaseArtistId;
               }
 
               IEnumerable<string> composers = tag.Tag.Composers;
@@ -746,21 +806,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           return false;
 
         trackInfo.SetMetadata(extractedAspectData);
-
-        if (!forceQuickMode)
-        {
-          //Store metadata for the Relationship Extractors
-          if (IncludeArtistDetails)
-          {
-            AudioRelationshipExtractor.StorePersons(extractedAspectData, trackInfo.Artists, false);
-            AudioRelationshipExtractor.StorePersons(extractedAspectData, trackInfo.AlbumArtists, true);
-          }
-          if (IncludeComposerDetails)
-          {
-            AudioRelationshipExtractor.StorePersons(extractedAspectData, trackInfo.Composers, false);
-          }
-        }
-
         return trackInfo.IsBaseInfoPresent;
       }
       catch (UnsupportedFormatException)
@@ -785,37 +830,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       foreach (PersonInfo person in persons)
       {
         Match match = SPLIT_MULTIPLE_ARTISTS_REGEX.Match(person.Name);
-        if (match.Success)
-        {
-          if (!string.IsNullOrEmpty(match.Groups["artist"].Value.Trim()) && !string.IsNullOrEmpty(match.Groups["artist2"].Value.Trim()))
-          {
-            PersonInfo tempPerson1 = new PersonInfo()
-            {
-              Name = match.Groups["artist"].Value.Trim(),
-              Occupation = PersonAspect.OCCUPATION_ARTIST,
-              ParentMediaName = trackInfo.Album,
-              MediaName = trackInfo.TrackName
-            };
-            resolvedList.Add(tempPerson1);
-
-            PersonInfo tempPerson2 = new PersonInfo()
-            {
-              Name = match.Groups["artist2"].Value.Trim(),
-              Occupation = PersonAspect.OCCUPATION_ARTIST,
-              ParentMediaName = trackInfo.Album,
-              MediaName = trackInfo.TrackName
-            };
-            resolvedList.Add(tempPerson2);
-          }
-          else
-          {
-            resolvedList.Add(person);
-          }
-        }
-        else
+        if (!match.Success || string.IsNullOrWhiteSpace(match.Groups["artist"].Value) || string.IsNullOrWhiteSpace(match.Groups["artist2"].Value))
         {
           resolvedList.Add(person);
+          continue;
         }
+
+        PersonInfo tempPerson1 = new PersonInfo()
+        {
+          Name = match.Groups["artist"].Value.Trim(),
+          Occupation = PersonAspect.OCCUPATION_ARTIST,
+          ParentMediaName = trackInfo.Album,
+          MediaName = trackInfo.TrackName
+        };
+        resolvedList.Add(tempPerson1);
+
+        PersonInfo tempPerson2 = new PersonInfo()
+        {
+          Name = match.Groups["artist2"].Value.Trim(),
+          Occupation = PersonAspect.OCCUPATION_ARTIST,
+          ParentMediaName = trackInfo.Album,
+          MediaName = trackInfo.TrackName
+        };
+        resolvedList.Add(tempPerson2);
       }
 
       return resolvedList;

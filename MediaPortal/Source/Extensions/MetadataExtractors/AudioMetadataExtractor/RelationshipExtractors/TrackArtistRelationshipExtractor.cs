@@ -90,12 +90,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       if (BaseInfo.IsVirtualResource(aspects))
         return false;
-
+      
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      AudioRelationshipExtractor.UpdatePersons(aspects, trackInfo.Artists, false);
+      AudioMetadataExtractor.TryUpdateArtists(mediaItemAccessor, trackInfo.Artists, false);
       
       if (AudioMetadataExtractor.IncludeArtistDetails && !AudioMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateTrackPersonsAsync(trackInfo, PersonAspect.OCCUPATION_ARTIST, false).ConfigureAwait(false);
