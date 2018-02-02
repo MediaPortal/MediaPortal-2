@@ -152,7 +152,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to register events. This happens only if startup failed. Stopping plugin now.");
         DeInit();
+        return;
       }
+
+      _ = CleanUpRecordingsAsync();
     }
 
     /// <summary>
@@ -294,6 +297,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
             ImportRecording(recording.FileName);
           }
         }
+        if (tvEvent.EventType == TvServerEventType.RecordingEnded)
+        {
+          _ = CleanUpRecordingsAsync();
+        }
       }
       catch (Exception ex)
       {
@@ -322,6 +329,38 @@ namespace MediaPortal.Plugins.SlimTv.Service
       singlePattern = null;
       seriesPattern = null;
       return false;
+    }
+
+    protected async Task CleanUpRecordingsAsync()
+    {
+      await Task.Run(() =>
+      {
+        ServiceRegistration.Get<ILogger>().Info("SlimTvService: Begin recordings auto-cleanup");
+        int countDeleted = 0;
+        var allRecordings = Recording.ListAll();
+        ICollection<string> nonExistingRootPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (Recording recording in allRecordings.Where(r => !r.IsRecording))
+        {
+          var pathRoot = Path.GetPathRoot(recording.FileName);
+          if (nonExistingRootPaths.Contains(pathRoot))
+            continue;
+
+          // If UNC path not available, cache information to avoid retry during this run.
+          if (!Directory.Exists(pathRoot))
+          {
+            nonExistingRootPaths.Add(pathRoot);
+            continue;
+          }
+
+          if (!File.Exists(recording.FileName))
+          {
+            ServiceRegistration.Get<ILogger>().Debug("SlimTvService: Remove '{0}'", recording.FileName);
+            countDeleted++;
+            recording.Delete();
+          }
+        }
+        ServiceRegistration.Get<ILogger>().Info("SlimTvService: Removed {0} no longer existing recordings.", countDeleted);
+      });
     }
 
     #endregion
