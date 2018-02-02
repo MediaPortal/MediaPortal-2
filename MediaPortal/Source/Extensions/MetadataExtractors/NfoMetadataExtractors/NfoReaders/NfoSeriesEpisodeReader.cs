@@ -1239,7 +1239,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteSeriesAspectDvdEpisode(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
-      var episodes = _stubs.Select(episodeStub => episodeStub.DvdEpisodes).Where(episode => episode.Count > 0).ToList();
+      var episodes = _stubs.Select(episodeStub => episodeStub.DvdEpisodes).Where(episode => episode?.Count > 0).ToList();
       if (episodes.Any())
       {
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, EpisodeAspect.ATTR_DVDEPISODE, episodes.SelectMany(e => e).Select(episode => Convert.ToDouble(episode)).Distinct());

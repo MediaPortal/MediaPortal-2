@@ -281,7 +281,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               // Check if episode should be found
               if (isStub || !episodeDetailsFound)
               {
-                if (series != null && series.Episodes.Count > 0)
+                if (series != null && series.Episodes?.Count > 0)
                 {
                   List<Stubs.SeriesEpisodeStub> episodeStubs = null;
                   if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))

@@ -428,7 +428,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       if (!string.IsNullOrEmpty(cacheName) && File.Exists(cacheName))
         return Task.FromResult(_downloader.ReadCache<T>(cacheName));
-      if (cacheOnly) return null;
+      if (cacheOnly) return Task.FromResult(default(T));
       return _downloader.DownloadAsync<T>(url, cacheName);
     }
 
