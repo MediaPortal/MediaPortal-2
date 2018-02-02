@@ -110,7 +110,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return await ExtractThumbnailAsync(rah.LocalFsResourceAccessor, extractedAspectData);
+          return await ExtractThumbnailAsync(rah.LocalFsResourceAccessor, extractedAspectData).ConfigureAwait(false);
       }
       catch (Exception e)
       {
