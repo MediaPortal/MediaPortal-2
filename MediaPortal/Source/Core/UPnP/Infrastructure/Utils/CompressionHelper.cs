@@ -30,7 +30,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Linq;
-using HttpServer;
+using Microsoft.Owin;
 
 namespace UPnP.Infrastructure.Utils
 {
@@ -60,7 +60,7 @@ namespace UPnP.Infrastructure.Utils
     {
       if (string.IsNullOrEmpty(acceptEncoding))
         return null;
-      string[] lowerEncodings = acceptEncoding.ToLowerInvariant().Split(new[] {','});
+      string[] lowerEncodings = acceptEncoding.ToLowerInvariant().Split(new[] { ',' });
       foreach (IDeCompressor compressor in Compressors)
       {
         string encoding = compressor.EncodingName;
@@ -143,10 +143,10 @@ namespace UPnP.Infrastructure.Utils
     /// <param name="acceptEncoding">The Request's accepted encodings.</param>
     /// <param name="response">Response to be written.</param>
     /// <param name="inputStream">The input stream the will be written into the Response.</param>
-    public static void WriteCompressedStream(string acceptEncoding, IHttpResponse response, MemoryStream inputStream)
+    public static void WriteCompressedStream(string acceptEncoding, IOwinResponse response, MemoryStream inputStream)
     {
       IDeCompressor compressor = CheckSupportedCompression(acceptEncoding);
-      
+
       byte[] buffer;
 #if !DISABLE_COMPRESSION
       if (compressor == null)
@@ -160,13 +160,13 @@ namespace UPnP.Infrastructure.Utils
       }
 #endif
 
-      using (MemoryStream compressedStream = (MemoryStream) Compress(compressor, inputStream))
+      using (MemoryStream compressedStream = (MemoryStream)Compress(compressor, inputStream))
         buffer = compressedStream.ToArray();
 
-      response.AddHeader("Content-Encoding", compressor.EncodingName);
+      response.Headers["Content-Encoding"] = compressor.EncodingName;
       // If there were multiple methods supported, we need to indicate the varying header.
       if (acceptEncoding != compressor.EncodingName)
-        response.AddHeader("Vary", "Accept-Encoding");
+        response.Headers["Vary"] = "Accept-Encoding";
 
       response.ContentLength = buffer.Length;
       response.Body.Write(buffer, 0, buffer.Length);

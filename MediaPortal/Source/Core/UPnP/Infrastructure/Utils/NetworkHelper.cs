@@ -82,6 +82,8 @@ namespace UPnP.Infrastructure.Utils
       if (filters == null || filters.Count == 0)
       {
         result.Add((family == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any));
+        //if (family == AddressFamily.InterNetwork)
+        //  result.Add((family == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Loopback : IPAddress.Loopback));
       }
       else
       {
@@ -476,6 +478,32 @@ namespace UPnP.Infrastructure.Utils
       catch (SocketException)
       { }
       socket.Close();
+    }
+
+    public static string TranslateBindableAddress(IPAddress address)
+    {
+      if (address == IPAddress.Any || address == IPAddress.IPv6Any)
+        return "+";
+      return address.ToString();
+    }
+
+    public static int GetFreePort(int preferredPort)
+    {
+      if (preferredPort != 0)
+        return preferredPort;
+
+      int portStartIndex = 50000;
+      int portEndIndex = 51000;
+      IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
+      IPEndPoint[] tcpEndPoints = properties.GetActiveTcpListeners();
+
+      ICollection<int> usedPorts = new HashSet<int>(tcpEndPoints.Select(p => p.Port));
+
+      for (int port = portStartIndex; port < portEndIndex; port++)
+        if (!usedPorts.Contains(port))
+          return port;
+
+      return 0;
     }
   }
 }

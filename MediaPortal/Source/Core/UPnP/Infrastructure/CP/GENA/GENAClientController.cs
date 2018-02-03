@@ -31,9 +31,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using HttpServer;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
+using Microsoft.Owin;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
@@ -113,8 +113,9 @@ namespace UPnP.Infrastructure.CP.GENA
       _upnpVersion = upnpVersion;
       _eventNotificationPath = "/" + Guid.NewGuid();
       IPAddress address = endpoint.EndPointIPAddress;
-      _eventNotificationEndpoint = new IPEndPoint(address, address.AddressFamily == AddressFamily.InterNetwork ?
-          cpData.HttpPortV4 : cpData.HttpPortV6);
+      _eventNotificationEndpoint = new IPEndPoint(address, 55555); // TODO
+        //address.AddressFamily == AddressFamily.InterNetwork ?
+        //  cpData.HttpPortV4 : cpData.HttpPortV6);
       _subscriptionRenewalTimer = new Timer(OnSubscriptionRenewalTimerElapsed);
     }
 
@@ -459,7 +460,7 @@ namespace UPnP.Infrastructure.CP.GENA
       return request;
     }
 
-    public HttpStatusCode HandleUnicastEventNotification(IHttpRequest request)
+    public HttpStatusCode HandleUnicastEventNotification(IOwinRequest request)
     {
       string nt = request.Headers.Get("NT");
       string nts = request.Headers.Get("NTS");

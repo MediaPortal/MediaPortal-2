@@ -508,8 +508,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
     static UPnPError OnGetResourceServerBaseURL(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       IResourceServer resourceServer = ServiceRegistration.Get<IResourceServer>();
-      string baseURL = "http://" + NetworkHelper.IPEndPointToString(context.Endpoint.EndPointIPAddress, resourceServer.GetPortForIP(context.Endpoint.EndPointIPAddress)) +
-        ResourceHttpAccessUrlUtils.RESOURCE_ACCESS_PATH;
+      //string baseURL = "http://" + NetworkHelper.IPEndPointToString(context.Endpoint.EndPointIPAddress, resourceServer.GetPortForIP(context.Endpoint.EndPointIPAddress)) +
+      //  ResourceHttpAccessUrlUtils.RESOURCE_ACCESS_PATH;
+      string baseURL = resourceServer.GetServiceUrl(context.Endpoint.EndPointIPAddress) + ResourceHttpAccessUrlUtils.RESOURCE_ACCESS_PATH;
       outParams = new List<object> {baseURL};
       return null;
     }

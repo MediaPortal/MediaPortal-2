@@ -63,7 +63,7 @@ namespace UPnP.Infrastructure.Dv
       string descriptionBase = config.DescriptionPathBase;
       foreach (DvDevice rootDevice in server.RootDevices)
       {
-        string path = descriptionBase + rootDevice.UDN;
+        string path = config.ServicePrefix + descriptionBase + rootDevice.UDN;
         config.RootDeviceDescriptionPathsToRootDevices.Add(path, rootDevice);
         config.RootDeviceDescriptionPaths.Add(rootDevice, path);
         GeneratePathsRecursive(rootDevice, config);
@@ -75,18 +75,15 @@ namespace UPnP.Infrastructure.Dv
       string deviceRelUrl = StringUtils.CheckSuffix(device.UDN, "/");
       foreach (DvService service in device.Services)
       {
+        var scpdPrefix = config.ServicePrefix + config.DescriptionPathBase + deviceRelUrl + service.ServiceTypeVersion_URN;
+        var cpPrefix = config.ServicePrefix + config.ControlPathBase + deviceRelUrl + service.ServiceTypeVersion_URN;
+        var evtPrefix = config.ServicePrefix + config.EventSubPathBase + deviceRelUrl + service.ServiceTypeVersion_URN;
         ServicePaths servicePaths = new ServicePaths
-          {
-              SCPDPath =
-                  GenerateAndAddUniquePath(config.SCPDPathsToServices,
-                      config.DescriptionPathBase + deviceRelUrl + service.ServiceTypeVersion_URN, ".xml", service),
-              ControlPath = 
-                  GenerateAndAddUniquePath(config.ControlPathsToServices,
-                      config.ControlPathBase + deviceRelUrl + service.ServiceTypeVersion_URN, string.Empty, service),
-              EventSubPath = 
-                  GenerateAndAddUniquePath(config.EventSubPathsToServices,
-                      config.EventSubPathBase + deviceRelUrl + service.ServiceTypeVersion_URN, string.Empty, service)
-          };
+        {
+          SCPDPath = GenerateAndAddUniquePath(config.SCPDPathsToServices, scpdPrefix, ".xml", service),
+          ControlPath = GenerateAndAddUniquePath(config.ControlPathsToServices, cpPrefix, string.Empty, service),
+          EventSubPath = GenerateAndAddUniquePath(config.EventSubPathsToServices, evtPrefix, string.Empty, service)
+        };
         config.ServicePaths.Add(service, servicePaths);
       }
       foreach (DvDevice embeddedDevice in device.EmbeddedDevices)
@@ -95,7 +92,7 @@ namespace UPnP.Infrastructure.Dv
 
     protected static string GenerateAndAddUniquePath<T>(IDictionary<string, T> mapping, string prefix, string suffix, T obj)
     {
-      string result = prefix + suffix;
+      string result = (prefix + suffix).Replace("//", "/");
       ICollection<string> availablePaths = mapping.Keys;
       if (!availablePaths.Contains(result))
       {

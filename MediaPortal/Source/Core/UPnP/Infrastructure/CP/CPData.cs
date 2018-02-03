@@ -47,23 +47,23 @@ namespace UPnP.Infrastructure.CP
       get { return _syncObj; }
     }
 
-    /// <summary>
-    /// Gets or sets the HTTP listening port for IPv4 used for event messages.
-    /// </summary>
-    public int HttpPortV4
-    {
-      get { return _httpPortV4; }
-      internal set { _httpPortV4 = value; }
-    }
+    ///// <summary>
+    ///// Gets or sets the HTTP listening port for IPv4 used for event messages.
+    ///// </summary>
+    //public int HttpPortV4
+    //{
+    //  get { return _httpPortV4; }
+    //  internal set { _httpPortV4 = value; }
+    //}
 
-    /// <summary>
-    /// Gets or sets the HTTP listening port for IPv6 used for event messages.
-    /// </summary>
-    public int HttpPortV6
-    {
-      get { return _httpPortV6; }
-      internal set { _httpPortV6 = value; }
-    }
+    ///// <summary>
+    ///// Gets or sets the HTTP listening port for IPv6 used for event messages.
+    ///// </summary>
+    //public int HttpPortV6
+    //{
+    //  get { return _httpPortV6; }
+    //  internal set { _httpPortV6 = value; }
+    //}
 
     /// <summary>
     /// Gets a collection of all local IP endpoint configurations.
@@ -89,5 +89,7 @@ namespace UPnP.Infrastructure.CP
       get { return _ssdpClientController; }
       internal set { _ssdpClientController = value; }
     }
+
+    public string ServicePrefix { get; internal set; }
   }
 }

@@ -78,7 +78,7 @@ namespace UPnP.Infrastructure.Dv
     protected IDictionary<string, DvService> _controlPathsToServices = new Dictionary<string, DvService>(StringComparer.InvariantCultureIgnoreCase);
     protected IDictionary<string, DvService> _eventSubPathsToServices = new Dictionary<string, DvService>(StringComparer.InvariantCultureIgnoreCase);
     protected IDictionary<DvService, ServicePaths> _servicePaths = new Dictionary<DvService, ServicePaths>();
-    
+
     protected ICollection<EventSubscription> _eventSubscriptions = new List<EventSubscription>();
     protected Int32 _configId = 0;
 
@@ -126,14 +126,19 @@ namespace UPnP.Infrastructure.Dv
       internal set { _endpointIPAddress = value; }
     }
 
+    ///// <summary>
+    ///// The port where the HTTP server, which corresponds to this endpoint, listens.
+    ///// </summary>
+    //public int HTTPServerPort
+    //{
+    //  get { return _httpServerPort; }
+    //  internal set { _httpServerPort = value; }
+    //}
+
     /// <summary>
-    /// The port where the HTTP server, which corresponds to this endpoint, listens.
+    /// Contains the root path of web service, it will be unique per instance.
     /// </summary>
-    public int HTTPServerPort
-    {
-      get { return _httpServerPort; }
-      internal set { _httpServerPort = value; }
-    }
+    public string ServicePrefix { get; internal set; }
 
     /// <summary>
     /// Returns the information if the <see cref="SSDPSearchPort"/> is another port than
@@ -283,7 +288,8 @@ namespace UPnP.Infrastructure.Dv
 
     public string GetEndpointHttpPrefixString()
     {
-      return "http://" + NetworkHelper.IPEndPointToString(EndPointIPAddress, HTTPServerPort);
+      var httpServerPort = 55555; // TODO
+      return "http://" + NetworkHelper.IPEndPointToString(EndPointIPAddress, httpServerPort);
     }
   }
 }

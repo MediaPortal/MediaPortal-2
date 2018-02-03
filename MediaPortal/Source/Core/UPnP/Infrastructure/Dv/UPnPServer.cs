@@ -26,20 +26,21 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-using HttpServer;
+using System.Threading.Tasks;
 using MediaPortal.Utilities.Exceptions;
+using Microsoft.Owin;
+using Microsoft.Owin.Hosting;
+using Owin;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Dv.GENA;
 using UPnP.Infrastructure.Dv.SOAP;
 using UPnP.Infrastructure.Dv.SSDP;
 using UPnP.Infrastructure.Utils;
-using HttpListener = HttpServer.HttpListener;
 
 namespace UPnP.Infrastructure.Dv
 {
@@ -102,14 +103,14 @@ namespace UPnP.Infrastructure.Dv
       }
     }
 
-    private void OnHttpListenerRequestReceived(object sender, RequestEventArgs e)
-    {
-      IHttpClientContext context = (IHttpClientContext)sender;
-      lock (_serverData.SyncObj)
-        if (!_serverData.IsActive)
-          return;
-      HandleHTTPRequest_NoLock(context, e.Request);
-    }
+    //private void OnHttpListenerRequestReceived(object sender, RequestEventArgs e)
+    //{
+    //  IHttpClientContext context = (IHttpClientContext)sender;
+    //  lock (_serverData.SyncObj)
+    //    if (!_serverData.IsActive)
+    //      return;
+    //  HandleHTTPRequest_NoLock(context, e.Request);
+    //}
 
     #endregion
 
@@ -169,60 +170,70 @@ namespace UPnP.Infrastructure.Dv
         if (_serverData.IsActive)
           throw new IllegalCallException("UPnP subsystem mustn't be started multiple times");
 
-        _serverData.HTTP_PORTv4 = 0;
-        if (UPnPConfiguration.USE_IPV4)
+        //var port = _serverData.HTTP_PORTv4 = NetworkHelper.GetFreePort(_serverData.HTTP_PORTv4);
+        var servicePrefix = "/MediaPortal/UPnPServer_" + Guid.NewGuid().ToString("N");
+        _serverData.ServicePrefix = servicePrefix;
+        var startOptions = BuildStartOptions(servicePrefix);
+
+        IDisposable server = null;
+        try
         {
-          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, UPnPConfiguration.IP_ADDRESS_BINDINGS))
-          {
-            HttpListener httpListenerV4 = HttpListener.Create(address, _serverData.HTTP_PORTv4);
-            httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-            try
-            {
-              httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
-              _serverData.HTTP_PORTv4 = httpListenerV4.LocalEndpoint.Port;
-              UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv4 protocol started on port {0}", _serverData.HTTP_PORTv4);
-              _serverData.HTTPListeners.Add(httpListenerV4);
-            }
-            catch (SocketException e)
-            {
-              UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv4)", e);
-            }
-          }
+          server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
+          UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
+          _serverData.HTTPListeners.Add(server);
         }
-        else
+        catch (SocketException e)
         {
-          UPnPConfiguration.LOGGER.Info("UPnP server: IPv4 protocol disabled, so no HTTP listener started for IPv4");
+          server?.Dispose();
+          UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server", e);
         }
 
-        _serverData.HTTP_PORTv6 = 0;
-        if (UPnPConfiguration.USE_IPV6)
-        {
-          foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, UPnPConfiguration.IP_ADDRESS_BINDINGS))
-          {
-            HttpListener httpListenerV6 = HttpListener.Create(address, _serverData.HTTP_PORTv6); // Might fail if IPv6 isn't installed
-            httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-            try
-            {
-              httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-              _serverData.HTTP_PORTv6 = httpListenerV6.LocalEndpoint.Port;
-              UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
-              _serverData.HTTPListeners.Add(httpListenerV6);
-            }
-            catch (SocketException e)
-            {
-              UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv6)", e);
-            }
-          }
-        }
-        else
-        {
-          UPnPConfiguration.LOGGER.Info("UPnP server: IPv6 protocol disabled, so no HTTP listener started for IPv6");
-        }
+
+        //{
+        //  foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, UPnPConfiguration.IP_ADDRESS_BINDINGS))
+        //  {
+        //    //HttpListener httpListenerV4 = HttpListener.Create(address, _serverData.HTTP_PORTv4);
+        //    //httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
+        //  }
+        //}
+        //else
+        //{
+        //  UPnPConfiguration.LOGGER.Info("UPnP server: IPv4 protocol disabled, so no HTTP listener started for IPv4");
+        //}
+
+        //_serverData.HTTP_PORTv6 = 0;
+        //if (UPnPConfiguration.USE_IPV6)
+        //{
+        //  foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, UPnPConfiguration.IP_ADDRESS_BINDINGS))
+        //  {
+        //    //HttpListener httpListenerV6 = HttpListener.Create(address, _serverData.HTTP_PORTv6); // Might fail if IPv6 isn't installed
+        //    //httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
+        //    IDisposable server = null;
+        //    try
+        //    {
+        //      _serverData.HTTP_PORTv6 = NetworkHelper.GetFreePort(_serverData.HTTP_PORTv6);
+        //      var bindableAddress = NetworkHelper.TranslateBindableAddress(address);
+        //      server = WebApp.Start($"http://{bindableAddress}:{_serverData.HTTP_PORTv6}", builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
+        //      //httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
+        //      //_serverData.HTTP_PORTv6 = httpListenerV6.LocalEndpoint.Port;
+        //      UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
+        //      _serverData.HTTPListeners.Add(server);
+        //    }
+        //    catch (SocketException e)
+        //    {
+        //      UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv6)", e);
+        //    }
+        //  }
+        //}
+        //else
+        //{
+        //  UPnPConfiguration.LOGGER.Info("UPnP server: IPv6 protocol disabled, so no HTTP listener started for IPv6");
+        //}
 
         _serverData.SSDPController = new SSDPServerController(_serverData)
-          {
-            AdvertisementExpirationTime = advertisementInterval
-          };
+        {
+          AdvertisementExpirationTime = advertisementInterval
+        };
         _serverData.GENAController = new GENAServerController(_serverData);
 
         InitializeDiscoveryEndpoints();
@@ -235,6 +246,38 @@ namespace UPnP.Infrastructure.Dv
         _serverData.GENAController.Start();
         UPnPConfiguration.LOGGER.Info("UPnP server online hosting {0} UPnP root devices", _serverData.Server.RootDevices.Count);
       }
+    }
+
+    public static StartOptions BuildStartOptions(string servicePrefix)
+    {
+      return BuildStartOptions(servicePrefix, UPnPConfiguration.IP_ADDRESS_BINDINGS);
+    }
+
+    public static StartOptions BuildStartOptions(string servicePrefix, List<string> filters)
+    {
+      ICollection<IPAddress> listenAddresses = new HashSet<IPAddress>();
+      if (UPnPConfiguration.USE_IPV4)
+        foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, filters))
+          listenAddresses.Add(address);
+      if (UPnPConfiguration.USE_IPV6)
+        foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, filters))
+          listenAddresses.Add(address);
+
+      StartOptions startOptions = new StartOptions();
+      int port = 55555;
+      foreach (IPAddress address in listenAddresses)
+      {
+        var bindableAddress = NetworkHelper.TranslateBindableAddress(address);
+        string formattedAddress = $"http://{bindableAddress}:{port}{servicePrefix}";
+        if (address.AddressFamily == AddressFamily.InterNetworkV6)
+        {
+          if (Equals(address, IPAddress.IPv6Any))
+            continue;
+          formattedAddress = $"http://[{bindableAddress}]:{port}{servicePrefix}";
+        }
+        startOptions.Urls.Add(formattedAddress);
+      }
+      return startOptions;
     }
 
     /// <summary>
@@ -272,7 +315,8 @@ namespace UPnP.Infrastructure.Dv
       }
       _serverData.GENAController.Close();
       _serverData.SSDPController.Close();
-      _serverData.HTTPListeners.ForEach(x => x.Stop());
+      _serverData.HTTPListeners.ForEach(x => x.Dispose());
+      _serverData.HTTPListeners.Clear();
       lock (_serverData.SyncObj)
         _serverData.UPnPEndPoints.Clear();
     }
@@ -298,8 +342,12 @@ namespace UPnP.Infrastructure.Dv
     /// </summary>
     /// <param name="context">HTTP client context of the current request.</param>
     /// <param name="request">HTTP request to handle.</param>
-    protected void HandleHTTPRequest_NoLock(IHttpClientContext context, IHttpRequest request)
+    //protected void HandleHTTPRequest_NoLock(IHttpClientContext context, IHttpRequest request)
+    //protected async Task Invoke(AppFunc next, IDictionary<string, object> environment)
+    protected async Task HandleHTTPRequest(IOwinContext context)
     {
+      var request = context.Request;
+      var response = context.Response;
       Uri uri = request.Uri;
       string hostName = uri.Host;
       string pathAndQuery = uri.LocalPath; // Unfortunately, Uri.PathAndQuery doesn't decode characters like '{' and '}', so we use the Uri.LocalPath property
@@ -320,7 +368,7 @@ namespace UPnP.Infrastructure.Dv
           // Handle different HTTP methods here
           if (request.Method == "GET")
           { // GET of descriptions
-            if (pathAndQuery.StartsWith(config.DescriptionPathBase))
+            if (pathAndQuery.StartsWith(_serverData.ServicePrefix + config.DescriptionPathBase))
             {
               string acceptLanguage = request.Headers.Get("ACCEPT-LANGUAGE");
               CultureInfo culture = GetFirstCultureOrDefault(acceptLanguage, CultureInfo.InvariantCulture);
@@ -334,14 +382,13 @@ namespace UPnP.Infrastructure.Dv
                   description = service.BuildSCPDDocument(config, _serverData);
               if (description != null)
               {
-                IHttpResponse response = request.CreateResponse(context);
-                response.Status = HttpStatusCode.OK;
+                response.StatusCode = (int)HttpStatusCode.OK;
                 response.ContentType = "text/xml; charset=utf-8";
                 if (!string.IsNullOrEmpty(acceptLanguage))
-                  response.AddHeader("CONTENT-LANGUAGE", culture.ToString());
+                  response.Headers["CONTENT-LANGUAGE"] = culture.ToString();
                 using (MemoryStream responseStream = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(description)))
                   CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
-                SafeSendResponse(response);
+                //SafeSendResponse(response);
                 return;
               }
             }
@@ -352,14 +399,13 @@ namespace UPnP.Infrastructure.Dv
             {
               string contentType = request.Headers.Get("CONTENT-TYPE");
               string userAgentStr = request.Headers.Get("USER-AGENT");
-              IHttpResponse response = request.CreateResponse(context);
               int minorVersion;
               if (string.IsNullOrEmpty(userAgentStr))
                 minorVersion = 0;
               else if (!ParserHelper.ParseUserAgentUPnP1MinorVersion(userAgentStr, out minorVersion))
               {
-                response.Status = HttpStatusCode.BadRequest;
-                SafeSendResponse(response);
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                //SafeSendResponse(response);
                 return;
               }
               string mediaType;
@@ -368,13 +414,13 @@ namespace UPnP.Infrastructure.Dv
                 throw new ArgumentException("Unable to parse content type");
               if (mediaType != "text/xml")
               { // As specified in (DevArch), 3.2.1
-                response.Status = HttpStatusCode.UnsupportedMediaType;
-                SafeSendResponse(response);
+                response.StatusCode = (int)HttpStatusCode.UnsupportedMediaType;
+                //SafeSendResponse(response);
                 return;
               }
-              response.AddHeader("DATE", DateTime.Now.ToUniversalTime().ToString("R"));
-              response.AddHeader("SERVER", UPnPConfiguration.UPnPMachineInfoHeader);
-              response.AddHeader("CONTENT-TYPE", "text/xml; charset=\"utf-8\"");
+              response.Headers["DATE"] = DateTime.Now.ToUniversalTime().ToString("R");
+              response.Headers["SERVER"] = UPnPConfiguration.UPnPMachineInfoHeader;
+              response.Headers["CONTENT-TYPE"] = "text/xml; charset=\"utf-8\"";
               string result;
               HttpStatusCode status;
               try
@@ -388,10 +434,10 @@ namespace UPnP.Infrastructure.Dv
                 result = SOAPHandler.CreateFaultDocument(501, "Action failed");
                 status = HttpStatusCode.InternalServerError;
               }
-              response.Status = status;
+              response.StatusCode = (int)status;
               using (MemoryStream responseStream = new MemoryStream(encoding.GetBytes(result)))
                 CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
-              SafeSendResponse(response);
+              //SafeSendResponse(response);
               return;
             }
           }
@@ -405,30 +451,31 @@ namespace UPnP.Infrastructure.Dv
           }
           else
           {
-            context.Respond(HttpHelper.HTTP11, HttpStatusCode.MethodNotAllowed, null);
+            context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+            //context.Respond(HttpHelper.HTTP11, HttpStatusCode.MethodNotAllowed, null);
             return;
           }
         }
         // Url didn't match
-        context.Respond(HttpHelper.HTTP11, HttpStatusCode.NotFound, null);
+        context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+        //context.Respond(HttpHelper.HTTP11, HttpStatusCode.NotFound, null);
       }
       catch (Exception e)
       {
         UPnPConfiguration.LOGGER.Error("UPnPServer: Error handling HTTP request '{0}'", e, uri);
-        IHttpResponse response = request.CreateResponse(context);
-        response.Status = HttpStatusCode.InternalServerError;
-        SafeSendResponse(response);
+        response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        //SafeSendResponse(response);
       }
     }
 
-    protected void SafeSendResponse(IHttpResponse response)
-    {
-      try
-      {
-        response.Send();
-      }
-      catch (IOException) { }
-    }
+    //protected void SafeSendResponse(IHttpResponse response)
+    //{
+    //  try
+    //  {
+    //    response.Send();
+    //  }
+    //  catch (IOException) { }
+    //}
 
     protected void GenerateObjectURLs(EndpointConfiguration config)
     {
@@ -444,7 +491,7 @@ namespace UPnP.Infrastructure.Dv
       result = config.SCPDPathsToServices.Values.Select(service => service.BuildSCPDDocument(
           config, _serverData)).Aggregate(result, (current, description) => current + HashGenerator.CalculateHash(0, description));
       result += HashGenerator.CalculateHash(0, NetworkHelper.IPAddrToString(config.EndPointIPAddress));
-      result += config.HTTPServerPort;
+      result += HashGenerator.CalculateHash(0, config.ServicePrefix);
       result += HashGenerator.CalculateHash(0, config.ControlPathBase + config.DescriptionPathBase + config.EventSubPathBase);
       return (int)result;
     }
@@ -476,13 +523,14 @@ namespace UPnP.Infrastructure.Dv
 
         UPnPConfiguration.LOGGER.Debug("UPnPServer: Initializing IP endpoint '{0}'", NetworkHelper.IPAddrToString(address));
         EndpointConfiguration config = new EndpointConfiguration
-          {
-            EndPointIPAddress = address,
-            DescriptionPathBase = DEFAULT_DESCRIPTION_URL_PREFIX,
-            ControlPathBase = DEFAULT_CONTROL_URL_PREFIX,
-            EventSubPathBase = DEFAULT_EVENT_SUB_URL_PREFIX,
-            HTTPServerPort = family == AddressFamily.InterNetwork ? _serverData.HTTP_PORTv4 : _serverData.HTTP_PORTv6
-          };
+        {
+          EndPointIPAddress = address,
+          DescriptionPathBase = DEFAULT_DESCRIPTION_URL_PREFIX,
+          ControlPathBase = DEFAULT_CONTROL_URL_PREFIX,
+          EventSubPathBase = DEFAULT_EVENT_SUB_URL_PREFIX,
+          ServicePrefix = _serverData.ServicePrefix,
+          //HTTPServerPort = family == AddressFamily.InterNetwork ? _serverData.HTTP_PORTv4 : _serverData.HTTP_PORTv6
+        };
         GenerateObjectURLs(config);
         config.ConfigId = GenerateConfigId(config);
         _serverData.UPnPEndPoints.Add(config);

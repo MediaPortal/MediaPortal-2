@@ -22,7 +22,6 @@
 
 #endregion
 
-using HttpServer.HttpModules;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
@@ -33,7 +32,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class FanArtServicePlugin: IPluginStateTracker
   {
-    private HttpModule _fanartModule;
     public void Activated(PluginRuntime pluginRuntime)
     {
       var meta = pluginRuntime.Metadata;
@@ -43,8 +41,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (server != null)
       {
         ServiceRegistration.Set<IFanArtService>(new FanArtService());
-        _fanartModule = new FanartAccessModule();
-        server.AddHttpModule(_fanartModule);
+        //_fanartModule = new FanartAccessModule();
+        server.AddHttpModule(typeof(FanartAccessModule));
       }
     }
 
