@@ -29,16 +29,43 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
-  class AlbumArtistRelationshipExtractor : AbstractAlbumArtistNfoRelationshipExtractor, IRelationshipRoleExtractor
+  class AlbumArtistRelationshipExtractor : NfoAudioExtractorBase, IRelationshipRoleExtractor
   {
+    #region Static fields
+
     private static readonly Guid[] ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
+
+    #endregion
+
+    #region Protected methods
+
+    /// <summary>
+    /// Asynchronously tries to extract series actors for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
+    /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
+    protected async Task<bool> TryExtractAlbumArtistMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      NfoAlbumReader albumNfoReader = await TryGetNfoAlbumReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      if (albumNfoReader != null)
+        return albumNfoReader.TryWriteArtistMetadata(extractedAspects);
+      return false;
+    }
+
+    #endregion
+
+    #region IRelationshipRoleExtractor implementation
 
     public bool BuildRelationship
     {
@@ -90,10 +117,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!albumInfo.FromMetadata(aspects))
         return false;
 
-      if (!await TryExtractAlbumArtistMetadataAsync(mediaItemAccessor, albumInfo.Artists).ConfigureAwait(false))
+      if (!await TryExtractAlbumArtistMetadataAsync(mediaItemAccessor, extractedLinkedAspects).ConfigureAwait(false))
         return false;
-      
-      foreach (PersonInfo person in albumInfo.Artists)
+
+      IList<PersonInfo> artists = extractedLinkedAspects.Select(a =>
+      {
+        PersonInfo person = new PersonInfo();
+        return person.SetMetadata(a) ? person : null;
+      })
+      .Where(p => p != null && !string.IsNullOrEmpty(p.Name))
+      .ToList();
+
+      extractedLinkedAspects.Clear();
+
+      foreach (PersonInfo person in artists)
       {
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
@@ -139,9 +176,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return index >= 0;
     }
 
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }
+    #endregion
   }
 }

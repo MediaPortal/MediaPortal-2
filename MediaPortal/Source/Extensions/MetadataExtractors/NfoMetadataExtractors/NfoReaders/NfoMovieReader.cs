@@ -22,14 +22,8 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using MediaPortal.Common.Certifications;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -38,10 +32,15 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
-using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.Genres;
-using MediaPortal.Common.Certifications;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -63,7 +62,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   ///   Reenable in <see cref="InitializeSupportedElements"/>
   /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
-  class NfoMovieReader : NfoReaderBase<MovieStub>
+  public class NfoMovieReader : NfoReaderBase<MovieStub>
   {
     #region Consts
 
@@ -119,10 +118,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       return _stubs;
     }
 
-    #endregion
-
-    #region Public Methods
-
     /// <summary>
     /// Treats the nfo-file's content as a string and parses it for a valid IMDB-ID; 
     /// if one is found and it represents a movie, it is stored in the stub object.
@@ -176,6 +171,45 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         _debugLogger.Warn("[#{0}]: Cannot extract metadata; error when trying to parse the nfo-file for a valid Imdb-ID", e, _miNumber);
       }
       return false;
+    }
+
+    public bool TryWriteActorMetadata(IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      if (_stubs[0].Actors == null)
+        return false;
+      //Distinct actor names, ordered by Order
+      IEnumerable<PersonStub> actors = _stubs[0].Actors
+        .Where(a => !string.IsNullOrEmpty(a.Name))
+        .GroupBy(a => a.Name).Select(g => g.First())
+        .OrderBy(a => a.Order);
+      return TryWriteRelationshipMetadata(TryWriteActorAspect, actors, extractedAspects);
+    }
+
+    public bool TryWriteCharacterMetadata(IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      if (_stubs[0].Actors == null)
+        return false;
+      //Distinct actor names, ordered by Order
+      IEnumerable<PersonStub> actors = _stubs[0].Actors
+        .Where(a => !string.IsNullOrEmpty(a.Name))
+        .GroupBy(a => a.Name).Select(g => g.First())
+        .OrderBy(a => a.Order);
+      return TryWriteRelationshipMetadata(TryWriteCharacterAspect, actors, extractedAspects);
+    }
+
+    public bool TryWriteDirectorMetadata(IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      if (_stubs[0].Director == null)
+        return false;
+      PersonStub director = new PersonStub { Name = _stubs[0].Director, ImdbId = _stubs[0].DirectorImdb };
+      return TryWriteRelationshipMetadata(TryWriteDirectorAspect, director, extractedAspects);
+    }
+
+    public bool TryWriteCollectionMetadata(IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      if (_stubs[0].Sets == null || !_stubs[0].Sets.Any())
+        return false;
+      return TryWriteRelationshipMetadata(TryWriteMovieCollectionAspect, _stubs[0].Sets.AsEnumerable(), extractedAspects);
     }
 
     #endregion
@@ -1428,14 +1462,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Actors != null && _stubs[0].Actors.Any())
       {
-        foreach(PersonStub person in _stubs[0].Actors)
-        {
-          if (!string.IsNullOrEmpty(person.Name))
-          {
-            INfoRelationshipExtractor.StorePersonAndCharacter(extractedAspectData, person, PersonAspect.OCCUPATION_ACTOR, false);
-          }
-        }
-
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, _stubs[0].Actors.OrderBy(actor => actor.Order).
           Where(actor => !string.IsNullOrEmpty(actor.Name)).Select(actor => actor.Name).ToList());
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_CHARACTERS, _stubs[0].Actors.OrderBy(actor => actor.Order).
@@ -1454,14 +1480,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Director != null)
       {
-        if (!string.IsNullOrEmpty(_stubs[0].Director))
-        {
-          PersonStub ps = new PersonStub();
-          ps.ImdbId = _stubs[0].DirectorImdb;
-          ps.Name = _stubs[0].Director;
-          INfoRelationshipExtractor.StorePersonAndCharacter(extractedAspectData, ps, PersonAspect.OCCUPATION_DIRECTOR, false);
-         }
-
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
         return true;
       }
@@ -1825,6 +1843,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return true;
       }
       return false;
+    }
+
+    #endregion
+
+    #region Relationships
+
+    private bool TryWriteActorAspect(PersonStub person, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      return TryWritePersonAspect(person, PersonAspect.OCCUPATION_ACTOR, extractedAspectData);
+    }
+
+    private bool TryWriteDirectorAspect(PersonStub person, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      return TryWritePersonAspect(person, PersonAspect.OCCUPATION_DIRECTOR, extractedAspectData);
+    }
+
+    private bool TryWriteMovieCollectionAspect(SetStub set, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (set == null)
+        return false;
+      if (set.TmdbId.HasValue)
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, set.TmdbId.Value.ToString());
+      if (set.Name != null)
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, set.Name);
+      if(set.Image != null)
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, set.Image);
+      return true;
     }
 
     #endregion

@@ -28,16 +28,42 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
-  class TrackAlbumRelationshipExtractor : AbstractAlbumNfoRelationshipExtractor, IRelationshipRoleExtractor
+  class TrackAlbumRelationshipExtractor : NfoAudioExtractorBase, IRelationshipRoleExtractor
   {
+    #region Static fields
+
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
+
+    #endregion
+
+    #region Protected methods
+
+    /// <summary>
+    /// Asynchronously tries to extract series metadata for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspectData">Dictionary of MediaItemAspect to update with metadata</param>
+    /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspectData"/>, else <c>false</c></returns>
+    protected async Task<bool> TryExtractAlbumMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      NfoAlbumReader albumNfoReader = await TryGetNfoAlbumReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      if (albumNfoReader != null)
+        return albumNfoReader.TryWriteMetadata(extractedAspectData);
+      return false;
+    }
+
+    #endregion
+
+    #region IRelationshipRoleExtractor implementation
 
     public bool BuildRelationship
     {
@@ -89,26 +115,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
-      if (!await TryExtractAlbumMetadataAsync(mediaItemAccessor, albumInfo).ConfigureAwait(false))
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+      if (!await TryExtractAlbumMetadataAsync(mediaItemAccessor, extractedAspectData).ConfigureAwait(false))
         return false;
-      
+
+      AlbumInfo albumInfo = new AlbumInfo();
+      if (!albumInfo.FromMetadata(extractedAspectData))
+        return false;
+
+      extractedAspectData.Clear();
       GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres);
-      
-      IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      albumInfo.SetMetadata(albumAspects);
+      albumInfo.SetMetadata(extractedAspectData);
 
-      if (aspects.ContainsKey(AudioAspect.ASPECT_ID))
-      {
-        bool trackVirtual = true;
-        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
-          MediaItemAspect.SetAttribute(albumAspects, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
-      }
+      bool trackVirtual;
+      if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
 
-      if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
-      extractedLinkedAspects.Add(albumAspects);
+      extractedLinkedAspects.Add(extractedAspectData);
       return true;
     }
 
@@ -142,5 +168,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       index = disc * 1000 + track;
       return true;
     }
+
+    #endregion
   }
 }

@@ -24,10 +24,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
@@ -43,7 +48,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// There is a TryRead method for any known child element of the nfo-file's root element and a
   /// TryWrite method for any MIA-Attribute we store values in.
   /// </remarks>
-  class NfoAlbumReader : NfoReaderBase<AlbumStub>
+  public class NfoAlbumReader : NfoReaderBase<AlbumStub>
   {
     #region Consts
 
@@ -91,6 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _readFileDetails = readFileDetails;
       _settings = settings;
       InitializeSupportedElements();
+      InitializeSupportedAttributes();
     }
 
     #endregion
@@ -126,6 +132,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("type", new TryReadElementDelegate(Ignore));
     }
 
+    /// <summary>
+    /// Adds a delegate for each Attribute in a MediaItemAspect into which this MetadataExtractor can write metadata to NfoReaderBase._supportedAttributes
+    /// </summary>
+    private void InitializeSupportedAttributes()
+    {
+      _supportedAttributes.Add(TryWriteMediaAspectTitle);
+      _supportedAttributes.Add(TryWriteMediaAspectSortTitle);
+      _supportedAttributes.Add(TryWriteMediaAspectRecordingTime);
+
+      _supportedAttributes.Add(TryWriteAlbumAspectGenres);
+      _supportedAttributes.Add(TryWriteAlbumAspectArtists);
+      _supportedAttributes.Add(TryWriteAlbumAspectDescription);
+      _supportedAttributes.Add(TryWriteAlbumAspectAudioDbId);
+      _supportedAttributes.Add(TryWriteAlbumAspectMusicBrainzId);
+      _supportedAttributes.Add(TryWriteAlbumAspectMusicBrainzGroupId);
+      _supportedAttributes.Add(TryWriteAlbumAspectAlbum);
+      _supportedAttributes.Add(TryWriteAlbumAspectTotalRating);
+      _supportedAttributes.Add(TryWriteAlbumAspectLabels);
+
+      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+    }
+
     #endregion
 
     #region Public methods
@@ -137,6 +165,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     public List<AlbumStub> GetAlbumStubs()
     {
       return _stubs;
+    }
+
+    public bool TryWriteArtistMetadata(IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      if (_stubs[0].Artists == null)
+        return false;
+
+      IEnumerable<PersonStub> artists = _stubs[0].Artists
+        .Where(a => !string.IsNullOrEmpty(a)).Distinct()
+        .Select(a => new PersonStub { Name = a });
+      
+      return TryWriteRelationshipMetadata(TryWriteArtistAspect, artists, extractedAspects);
     }
 
     #endregion
@@ -360,6 +400,241 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // Example of a valid element:
       // <review>This movie is great...</review>
       return ((_currentStub.Review = ParseSimpleString(element)) != null);
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Writer methods to store metadata in MediaItemAspects
+
+    #region MediaAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_TITLE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectTitle(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Title != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _stubs[0].Title);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_SORT_TITLE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectSortTitle(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Title != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, BaseInfo.GetSortTitle(_stubs[0].Title));
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_RECORDINGTIME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectRecordingTime(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      // priority 1:
+      if (_stubs[0].ReleaseDate.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _stubs[0].ReleaseDate.Value);
+        return true;
+      }
+      //priority 2:
+      if (_stubs[0].Year.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _stubs[0].Year.Value);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region AlbumAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="GenreAspect.ATTR_GENRE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteAlbumAspectGenres(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Genres != null && _stubs[0].Genres.Any())
+      {
+        List<GenreInfo> genres = _stubs[0].Genres.Select(s => new GenreInfo { Name = s }).ToList();
+        GenreMapper.AssignMissingSeriesGenreIds(genres);
+        foreach (GenreInfo genre in genres)
+        {
+          MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+          genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);
+          genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genre.Name);
+        }
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="AudioAlbumAspect.ATTR_ARTISTS"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteAlbumAspectArtists(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Artists != null)
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, AudioAlbumAspect.ATTR_ARTISTS, _stubs[0].Artists);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="AudioAlbumAspect.ATTR_DESCRIPTION"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteAlbumAspectDescription(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Review != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, AudioAlbumAspect.ATTR_DESCRIPTION, _stubs[0].Review);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into external id.
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteAlbumAspectAudioDbId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].AudioDbId.HasValue)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_ALBUM, _stubs[0].AudioDbId.Value.ToString());
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into external id.
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteAlbumAspectMusicBrainzId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (!string.IsNullOrEmpty(_stubs[0].MusicBrainzAlbumId))
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_ALBUM, _stubs[0].MusicBrainzAlbumId);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into external id.
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteAlbumAspectMusicBrainzGroupId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (!string.IsNullOrEmpty(_stubs[0].MusicBrainzReleaseGroupId))
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ_GROUP, ExternalIdentifierAspect.TYPE_ALBUM, _stubs[0].MusicBrainzReleaseGroupId);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="AudioAlbumAspect.ATTR_ALBUM"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteAlbumAspectAlbum(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      //priority 1:
+      if (_stubs[0].Title != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, AudioAlbumAspect.ATTR_ALBUM, _stubs[0].Title);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="AudioAlbumAspect.ATTR_TOTAL_RATING"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteAlbumAspectTotalRating(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Rating.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, AudioAlbumAspect.ATTR_TOTAL_RATING, (double)_stubs.Where(e => e.Rating.HasValue).Average(e => e.Rating.Value));
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="AudioAlbumAspect.ATTR_LABELS"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteAlbumAspectLabels(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Labels != null && _stubs[0].Labels.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, AudioAlbumAspect.ATTR_LABELS, _stubs[0].Labels);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region ThumbnailLargeAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="ThumbnailLargeAspect.ATTR_THUMBNAIL"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Thumb != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, _stubs[0].Thumb);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region Relationships
+
+    private bool TryWriteArtistAspect(PersonStub person, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      return TryWritePersonAspect(person, PersonAspect.OCCUPATION_ARTIST, extractedAspectData);
     }
 
     #endregion

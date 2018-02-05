@@ -22,36 +22,30 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.PathManager;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.Logging;
-using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Common.Genres;
-using MediaPortal.Common.MediaManagement.Helpers;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor for album/artist reading from local nfo-files.
   /// </summary>
-  public class NfoAudioMetadataExtractor : IMetadataExtractor, IDisposable
+  public class NfoAudioMetadataExtractor : NfoAudioExtractorBase, IMetadataExtractor
   {
     #region Constants / Static fields
 
@@ -81,32 +75,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// Metadata of this MetadataExtractor
     /// </summary>
     private readonly MetadataExtractorMetadata _metadata;
-
-    /// <summary>
-    /// Settings of the <see cref="NfoMovieMetadataExtractor"/>
-    /// </summary>
-    private readonly NfoAudioMetadataExtractorSettings _settings;
-    
-    /// <summary>
-    /// Debug logger
-    /// </summary>
-    /// <remarks>
-    /// NoLogger if _settings.EnableDebugLogging == <c>false</c>"/>
-    /// FileLogger if _settings.EnableDebugLogging == <c>true</c>"/>
-    /// </remarks>
-    private readonly ILogger _debugLogger;
-
-    /// <summary>
-    /// Unique number of the last MediaItem for which this MetadataExtractor was called
-    /// </summary>
-    private long _lastMediaItemNumber = 1;
-
-    /// <summary>
-    /// <see cref="HttpClient"/> used to download from http URLs contained in nfo-files
-    /// </summary>
-    private HttpClient _httpClient;
-
-    private SettingsChangeWatcher<NfoAudioMetadataExtractorSettings> _settingWatcher;
 
     #endregion
 
@@ -148,34 +116,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           AudioAspect.Metadata,
           ThumbnailLargeAspect.Metadata
         });
-
-      _settingWatcher = new SettingsChangeWatcher<NfoAudioMetadataExtractorSettings>();
-      _settingWatcher.SettingsChanged += SettingsChanged;
-
-      LoadSettings();
-
-      _settings = _settingWatcher.Settings;
-
-      if (_settings.EnableDebugLogging)
-      {
-        _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\NfoAudioMetadataExtractorDebug.log"), LogLevel.Debug, false, true);
-        LogSettings();
-      }
-      else
-        _debugLogger = new NoLogger();
-
-      var handler = new HttpClientHandler();
-      if (handler.SupportsAutomaticDecompression)
-        // This enables the automatic decompression of the content. It does not automatically send an "Accept-Encoding" header!
-        // We therefore have to add the Accept-Encoding header(s) manually below.
-        // Additionally, due to the automatic decompression, HttpResponseMessage.Content.Headers DOES NOT contain
-        // a "Content-Encoding" header anymore when we try to access it. It is automatically removed when decompressing.
-        handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-      else
-        _debugLogger.Warn("HttpClient does not support compression");
-      _httpClient = new HttpClient(handler);
-      _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-      _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
     }
 
     #endregion
@@ -185,15 +125,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeAlbumDetails { get; private set; }
 
-    private void LoadSettings()
+    protected override void LoadSettings()
     {
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeAlbumDetails = _settingWatcher.Settings.IncludeAlbumDetails;
-    }
-
-    private void SettingsChanged(object sender, EventArgs e)
-    {
-      LoadSettings();
     }
 
     #endregion
@@ -391,191 +326,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
-    #region Resource helpers
-
-    /// <summary>
-    /// Tries to find an album nfo-file for the given <param name="mediaFsra"></param>
-    /// </summary>
-    /// <param name="miNumber">Unique number for logging purposes</param>
-    /// <param name="mediaFsra">FileSystemResourceAccessor for which we search an album nfo-file</param>
-    /// <param name="albumNfoFsra">FileSystemResourceAccessor of the album nfo-file or <c>null</c> if no album nfo-file was found</param>
-    /// <returns><c>true</c> if an album nfo-file was found, otherwise <c>false</c></returns>
-    private bool TryGetAlbumNfoSResourceAccessor(long miNumber, IFileSystemResourceAccessor mediaFsra, out IFileSystemResourceAccessor albumNfoFsra)
-    {
-      albumNfoFsra = null;
-
-      // Determine the directory, in which we look for the album nfo-file
-      // We cannot use mediaFsra.GetResource, because for ChainedResourceProviders the parent directory
-      // may be located in the ParentResourceProvider. For details see the comments for the ResourcePathHelper class.
-
-      // First get the ResourcePath of the parent directory
-      // The parent directory is
-      // - for an IFilesystemResourceAcessor pointing to a file:
-      //   the directory in which the file is located;
-      // - for an IFilesystemResourceAcessor pointing to a root directory of a ChainedResourceProvider (e.g. in case of a DVD iso-file):
-      //   the directory in which the file that was unfolded by the ChainedResourceProvider is located;
-      // - for an IFilesystemResourceAcessor pointing to any other directory (e.g. DVD directories):
-      //   the parent directory of such directory.
-      var albumNfoDirectoryResourcePath = ResourcePathHelper.Combine(mediaFsra.CanonicalLocalResourcePath, "../");
-      _debugLogger.Info("[#{0}]: album nfo-directory: '{1}'", miNumber, albumNfoDirectoryResourcePath);
-
-      // Then try to create an IFileSystemResourceAccessor for this directory
-      IResourceAccessor albumNfoDirectoryRa;
-      albumNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out albumNfoDirectoryRa);
-      var albumNfoDirectoryFsra = albumNfoDirectoryRa as IFileSystemResourceAccessor;
-      if (albumNfoDirectoryFsra == null)
-      {
-        _debugLogger.Info("[#{0}]: Cannot extract metadata; album nfo-directory not accessible'", miNumber, albumNfoDirectoryResourcePath);
-        if (albumNfoDirectoryRa != null)
-          albumNfoDirectoryRa.Dispose();
-        return false;
-      }
-
-      // Finally try to find an episode nfo-file in that directory
-      using (albumNfoDirectoryFsra)
-      {
-        var albumNfoFileNames = GetAlbumNfoFileNames();
-        foreach (var albumNfoFileName in albumNfoFileNames)
-          if (albumNfoDirectoryFsra.ResourceExists(albumNfoFileName))
-          {
-            _debugLogger.Info("[#{0}]: album nfo-file found: '{1}'", miNumber, albumNfoFileName);
-            albumNfoFsra = albumNfoDirectoryFsra.GetResource(albumNfoFileName);
-            return true;
-          }
-          else
-            _debugLogger.Info("[#{0}]: album nfo-file '{1}' not found; checking next possible file...", miNumber, albumNfoFileName);
-      }
-
-      _debugLogger.Info("[#{0}]: Cannot extract metadata; No album nfo-file found", miNumber);
-      return false;
-    }
-
-    /// <summary>
-    /// Tries to find a artist nfo-file for the given <param name="mediaFsra"></param>
-    /// </summary>
-    /// <param name="miNumber">Unique number for logging purposes</param>
-    /// <param name="mediaFsra">FileSystemResourceAccessor for which we search a artist nfo-file</param>
-    /// <param name="artistNfoFsra">FileSystemResourceAccessor of the artist nfo-file or <c>null</c> if no artist nfo-file was found</param>
-    /// <returns><c>true</c> if a artist nfo-file was found, otherwise <c>false</c></returns>
-    private bool TryGetArtistNfoSResourceAccessor(long miNumber, IFileSystemResourceAccessor mediaFsra, out IFileSystemResourceAccessor artistNfoFsra)
-    {
-      artistNfoFsra = null;
-
-      // Determine the first directory, in which we look for the artist nfo-file
-      // We cannot use mediaFsra.GetResource, because for ChainedResourceProviders the parent directory
-      // may be located in the ParentResourceProvider. For details see the comments for the ResourcePathHelper class.
-
-      // First get the ResourcePath of the parent directory
-      // The parent directory is
-      // - for an IFilesystemResourceAcessor pointing to a file:
-      //   the directory in which the file is located;
-      // - for an IFilesystemResourceAcessor pointing to a root directory of a ChainedResourceProvider (e.g. in case of a DVD iso-file):
-      //   the directory in which the file that was unfolded by the ChainedResourceProvider is located;
-      // - for an IFilesystemResourceAcessor pointing to any other directory (e.g. DVD directories):
-      //   the parent directory of such directory.
-      var firstArtistNfoDirectoryResourcePath = ResourcePathHelper.Combine(mediaFsra.CanonicalLocalResourcePath, "../");
-      _debugLogger.Info("[#{0}]: first artist nfo-directory: '{1}'", miNumber, firstArtistNfoDirectoryResourcePath);
-
-      // Then try to create an IFileSystemResourceAccessor for this directory
-      IResourceAccessor artistNfoDirectoryRa;
-      firstArtistNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out artistNfoDirectoryRa);
-      var artistNfoDirectoryFsra = artistNfoDirectoryRa as IFileSystemResourceAccessor;
-      if (artistNfoDirectoryFsra == null)
-      {
-        _debugLogger.Info("[#{0}]: first artist nfo-directory not accessible'", miNumber, firstArtistNfoDirectoryResourcePath);
-        if (artistNfoDirectoryRa != null)
-          artistNfoDirectoryRa.Dispose();
-      }
-      else
-      {
-        // Try to find a artist nfo-file in the that directory
-        using (artistNfoDirectoryFsra)
-        {
-          var artistNfoFileNames = GetArtistNfoFileNames();
-          foreach (var artistNfoFileName in artistNfoFileNames)
-            if (artistNfoDirectoryFsra.ResourceExists(artistNfoFileName))
-            {
-              _debugLogger.Info("[#{0}]: artist nfo-file found: '{1}'", miNumber, artistNfoFileName);
-              artistNfoFsra = artistNfoDirectoryFsra.GetResource(artistNfoFileName);
-              return true;
-            }
-            else
-              _debugLogger.Info("[#{0}]: artist nfo-file '{1}' not found; checking next possible file...", miNumber, artistNfoFileName);
-        }
-      }
-
-      // Determine the second directory, in which we look for the series nfo-file
-
-      // First get the ResourcePath of the parent directory's parent directory
-      var secondArtistNfoDirectoryResourcePath = ResourcePathHelper.Combine(firstArtistNfoDirectoryResourcePath, "../");
-      _debugLogger.Info("[#{0}]: second artist nfo-directory: '{1}'", miNumber, secondArtistNfoDirectoryResourcePath);
-
-      // Then try to create an IFileSystemResourceAccessor for this directory
-      secondArtistNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out artistNfoDirectoryRa);
-      artistNfoDirectoryFsra = artistNfoDirectoryRa as IFileSystemResourceAccessor;
-      if (artistNfoDirectoryFsra == null)
-      {
-        _debugLogger.Info("[#{0}]: second artist nfo-directory not accessible'", miNumber, secondArtistNfoDirectoryResourcePath);
-        if (artistNfoDirectoryRa != null)
-          artistNfoDirectoryRa.Dispose();
-        return false;
-      }
-
-      // Finally try to find a artist nfo-file in the that second directory
-      using (artistNfoDirectoryFsra)
-      {
-        var artistNfoFileNames = GetArtistNfoFileNames();
-        foreach (var artistNfoFileName in artistNfoFileNames)
-          if (artistNfoDirectoryFsra.ResourceExists(artistNfoFileName))
-          {
-            _debugLogger.Info("[#{0}]: artist nfo-file found: '{1}'", miNumber, artistNfoFileName);
-            artistNfoFsra = artistNfoDirectoryFsra.GetResource(artistNfoFileName);
-            return true;
-          }
-          else
-            _debugLogger.Info("[#{0}]: artist nfo-file '{1}' not found; checking next possible file...", miNumber, artistNfoFileName);
-      }
-
-      _debugLogger.Info("[#{0}]: No artist nfo-file found", miNumber);
-      return false;
-    }
-
-    /// <summary>
-    /// Determines all possible file names for the album nfo-file based on the respective NfoSeriesMetadataExtractorSettings
-    /// </summary>
-    /// <returns>IEnumerable of strings containing the possible album nfo-file names</returns>
-    IEnumerable<string> GetAlbumNfoFileNames()
-    {
-      var result = new List<string>();
-
-      // Combine the SeriesNfoFileNames from the settings with the NfoFileNameExtensions from the settings
-      foreach (var extension in _settings.NfoFileNameExtensions)
-        result.AddRange(_settings.AlbumNfoFileNames.Select(albumNfoFileName => albumNfoFileName + extension));
-      return result;
-    }
-
-    /// <summary>
-    /// Determines all possible file names for the artist nfo-file based on the respective NfoSeriesMetadataExtractorSettings
-    /// </summary>
-    /// <returns>IEnumerable of strings containing the possible artist nfo-file names</returns>
-    IEnumerable<string> GetArtistNfoFileNames()
-    {
-      var result = new List<string>();
-
-      // Combine the SeriesNfoFileNames from the settings with the NfoFileNameExtensions from the settings
-      foreach (var extension in _settings.NfoFileNameExtensions)
-        result.AddRange(_settings.ArtistNfoFileNames.Select(seriesNfoFileName => seriesNfoFileName + extension));
-      return result;
-    }
-
-    #endregion
-
     #region Logging helpers
 
     /// <summary>
     /// Logs version and setting information into <see cref="_debugLogger"/>
     /// </summary>
-    private void LogSettings()
+    protected override void LogSettings()
     {
       _debugLogger.Info("-------------------------------------------------------------");
       _debugLogger.Info("NfoAudioMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
@@ -592,18 +348,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     #endregion
-
-    #endregion
-
-    #region IDisposable implementation
-
-    public void Dispose()
-    {
-      if (_httpClient == null)
-        return;
-      _httpClient.Dispose();
-      _httpClient = null;
-    }
 
     #endregion
 

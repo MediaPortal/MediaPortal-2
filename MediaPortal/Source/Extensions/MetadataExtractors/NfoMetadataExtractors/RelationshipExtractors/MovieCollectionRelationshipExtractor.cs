@@ -29,16 +29,43 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
-  class MovieCollectionRelationshipExtractor : INfoRelationshipExtractor, IRelationshipRoleExtractor
+  class MovieCollectionRelationshipExtractor : NfoMovieExtractorBase, IRelationshipRoleExtractor
   {
+    #region Static fields
+
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieCollectionAspect.ASPECT_ID };
+
+    #endregion
+
+    #region Protected methods
+
+    /// <summary>
+    /// Asynchronously tries to extract a movie collection for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
+    /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
+    protected async Task<bool> TryExtractMovieCollectionMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      NfoMovieReader movieNfoReader = await TryGetNfoMovieReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      if (movieNfoReader != null)
+        return movieNfoReader.TryWriteCollectionMetadata(extractedAspects);
+      return false;
+    }
+
+    #endregion
+
+    #region IRelationshipRoleExtractor implementation
 
     public bool BuildRelationship
     {
@@ -84,28 +111,38 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_COLLECTION);
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       MovieInfo movieInfo = new MovieInfo();
       if (!movieInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
-      MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-      if (collectionInfo.CollectionName.IsEmpty || collectionInfo.HasExternalId)
-        return Task.FromResult(false);
+      if (!await TryExtractMovieCollectionMetadataAsync(mediaItemAccessor, extractedLinkedAspects).ConfigureAwait(false))
+        return false;
 
-      IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      
-      collectionInfo.SetMetadata(collectionAspects);
+      IList<MovieCollectionInfo> movieCollections = extractedLinkedAspects.Select(a =>
+      {
+        MovieCollectionInfo collection = new MovieCollectionInfo();
+        return collection.SetMetadata(a) ? collection : null;
+      })
+      .Where(c => c != null && !c.CollectionName.IsEmpty)
+      .ToList();
 
-      bool movieVirtual = true;
+      bool movieVirtual;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
-        MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
+        movieVirtual = false;
 
-      if (collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        extractedLinkedAspects.Add(collectionAspects);
-
-      return Task.FromResult(extractedLinkedAspects.Count > 0);
+      extractedLinkedAspects.Clear();
+      foreach (MovieCollectionInfo collection in movieCollections)
+      {
+        IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        if (collection.SetMetadata(collectionAspects) && collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        {
+          MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
+          extractedLinkedAspects.Add(collectionAspects);
+        }
+      }
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
@@ -129,9 +166,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return index >= 0;
     }
 
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }
+    #endregion
   }
 }

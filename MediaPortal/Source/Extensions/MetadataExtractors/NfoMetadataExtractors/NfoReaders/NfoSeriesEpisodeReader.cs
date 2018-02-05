@@ -58,7 +58,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   ///   child elements has been disabled. Reenable in <see cref="NfoReaderBase{T}.ParsePerson"/>
   /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
-  class NfoSeriesEpisodeReader : NfoReaderBase<SeriesEpisodeStub>
+  public class NfoSeriesEpisodeReader : NfoReaderBase<SeriesEpisodeStub>
   {
     #region Consts
 
@@ -201,17 +201,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteVideoAspectWriters);
       _supportedAttributes.Add(TryWriteVideoAspectStoryPlot);
 
-      _supportedAttributes.Add(TryWriteSeriesAspectTvDbId);
-      _supportedAttributes.Add(TryWriteSeriesAspectSeriesName);
-      _supportedAttributes.Add(TryWriteSeriesAspectSeriesYear);
-      _supportedAttributes.Add(TryWriteSeriesAspectSeason);
-      _supportedAttributes.Add(TryWriteSeriesAspectSeriesSeason);
-      _supportedAttributes.Add(TryWriteSeriesAspectEpisode);
-      _supportedAttributes.Add(TryWriteSeriesAspectDvdEpisode);
-      _supportedAttributes.Add(TryWriteSeriesAspectEpisodeName);
-      _supportedAttributes.Add(TryWriteSeriesAspectFirstAired);
-      _supportedAttributes.Add(TryWriteSeriesAspectTotalRating);
-      _supportedAttributes.Add(TryWriteSeriesAspectRatingCount);
+      _supportedAttributes.Add(TryWriteEpisodeAspectTvDbId);
+      _supportedAttributes.Add(TryWriteEpisodeAspectSeriesName);
+      _supportedAttributes.Add(TryWriteEpisodeAspectSeriesYear);
+      _supportedAttributes.Add(TryWriteEpisodeAspectSeason);
+      _supportedAttributes.Add(TryWriteEpisodeAspectSeriesSeason);
+      _supportedAttributes.Add(TryWriteEpisodeAspectEpisode);
+      _supportedAttributes.Add(TryWriteEpisodeAspectDvdEpisode);
+      _supportedAttributes.Add(TryWriteEpisodeAspectEpisodeName);
+      _supportedAttributes.Add(TryWriteEpisodeAspectFirstAired);
+      _supportedAttributes.Add(TryWriteEpisodeAspectTotalRating);
+      _supportedAttributes.Add(TryWriteEpisodeAspectRatingCount);
 
       _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
     }
@@ -983,14 +983,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       List<string> characters = null;
       if (_stubs[0].Actors != null)
       {
-        foreach (PersonStub person in _stubs[0].Actors)
-        {
-          if (!string.IsNullOrEmpty(person.Name))
-          {
-            INfoRelationshipExtractor.StorePersonAndCharacter(extractedAspectData, person, PersonAspect.OCCUPATION_ACTOR, false);
-          }
-        }
-
         actors = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Name)).
           Select(actor => actor.Name).Distinct().ToList();
         characters = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Role)).
@@ -998,14 +990,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       }
       if (_useSeriesStubs && _seriesStubs[0].Actors != null)
       {
-        foreach (PersonStub person in _seriesStubs[0].Actors)
-        {
-          if (!string.IsNullOrEmpty(person.Name))
-          {
-            INfoRelationshipExtractor.StorePersonAndCharacter(extractedAspectData, person, PersonAspect.OCCUPATION_ACTOR, false);
-          }
-        }
-
         actors = actors != null ?
           actors.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Name)).
           Select(actor => actor.Name)).ToList() :
@@ -1101,14 +1085,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
     #endregion
 
-    #region SeriesAspect
+    #region EpisodeAspect
 
     /// <summary>
     /// Tries to write metadata into external id.
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectTvDbId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectTvDbId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       //priority 1:
       if (_stubs[0].Id.HasValue)
@@ -1130,7 +1114,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectSeriesName(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectSeriesName(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       //priority 1:
       if (_stubs[0].ShowTitle != null)
@@ -1154,7 +1138,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectSeriesYear(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectSeriesYear(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       //priority 1:
       if (_stubs[0].Premiered != null)
@@ -1176,7 +1160,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectSeason(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectSeason(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       //priority 1:
       if (_stubs[0].Season.HasValue)
@@ -1198,7 +1182,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectSeriesSeason(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectSeriesSeason(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       var series = _stubs[0].ShowTitle;
       if (_useSeriesStubs && series == null && _seriesStubs[0].ShowTitle != null)
@@ -1221,7 +1205,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectEpisode(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectEpisode(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       var episodes = _stubs.Select(episodeStub => episodeStub.Episodes).Where(episode => episode.Count > 0).ToList();
       if (episodes.Any())
@@ -1237,7 +1221,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectDvdEpisode(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectDvdEpisode(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       var episodes = _stubs.Select(episodeStub => episodeStub.DvdEpisodes).Where(episode => episode?.Count > 0).ToList();
       if (episodes.Any())
@@ -1253,7 +1237,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectEpisodeName(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectEpisodeName(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_stubs[0].Title != null)
       {
@@ -1269,7 +1253,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectFirstAired(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectFirstAired(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (_stubs[0].Aired.HasValue)
       {
@@ -1284,7 +1268,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectTotalRating(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectTotalRating(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // priority 1:
       if (_stubs[0].Rating.HasValue)
@@ -1306,7 +1290,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
-    private bool TryWriteSeriesAspectRatingCount(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool TryWriteEpisodeAspectRatingCount(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       //priority 1:
       if (_stubs[0].Votes.HasValue && _stubs[0].Rating.HasValue)
@@ -1340,6 +1324,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return true;
       }
       return false;
+    }
+
+    #endregion
+
+    #region Relationships
+
+    private bool TryWriteActorAspect(PersonStub person, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      return TryWritePersonAspect(person, PersonAspect.OCCUPATION_ACTOR, extractedAspectData);
     }
 
     #endregion
@@ -1402,6 +1395,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       }
       if (_stubs.Count > 1)
         _debugLogger.Warn("[#{0}]: There were multiple episodes contained in the episode stub; only information from the first episode is used.", _miNumber);
+    }
+
+    public bool TryWriteActorMetadata(IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      IEnumerable<PersonStub> stubActors = null;
+      if (_stubs[0].Actors != null)
+        stubActors = _stubs[0].Actors;
+      else if (_useSeriesStubs && _seriesStubs[0].Actors != null)
+        stubActors = _seriesStubs[0].Actors;
+      else
+        return false;
+      //Distinct actor names, ordered by Order
+      IEnumerable<PersonStub> actors = stubActors
+          .Where(a => !string.IsNullOrEmpty(a.Name))
+          .GroupBy(a => a.Name).Select(g => g.First())
+          .OrderBy(a => a.Order);
+      return TryWriteRelationshipMetadata(TryWriteActorAspect, actors, extractedAspects);
+    }
+
+    public bool TryWriteCharacterMetadata(IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      IEnumerable<PersonStub> stubActors = null;
+      if (_stubs[0].Actors != null)
+        stubActors = _stubs[0].Actors;
+      else if (_useSeriesStubs && _seriesStubs[0].Actors != null)
+        stubActors = _seriesStubs[0].Actors;
+      else
+        return false;
+
+      //Distinct actor names, ordered by Order
+      IEnumerable<PersonStub> actors = _stubs[0].Actors
+        .Where(a => !string.IsNullOrEmpty(a.Name))
+        .GroupBy(a => a.Name).Select(g => g.First())
+        .OrderBy(a => a.Order);
+      return TryWriteRelationshipMetadata(TryWriteCharacterAspect, actors, extractedAspects);
     }
 
     #endregion

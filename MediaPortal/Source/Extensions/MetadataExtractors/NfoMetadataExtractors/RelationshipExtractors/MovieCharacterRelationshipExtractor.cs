@@ -22,24 +22,49 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Utilities.Collections;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
-  class MovieCharacterRelationshipExtractor : INfoRelationshipExtractor, IRelationshipRoleExtractor
+  class MovieCharacterRelationshipExtractor : NfoMovieExtractorBase, IRelationshipRoleExtractor
   {
+    #region Static fields
+
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
+
+    #endregion
+
+    #region Protected methods
+
+    /// <summary>
+    /// Asynchronously tries to extract movie characters for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
+    /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
+    protected async Task<bool> TryExtractMovieCharactersMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      NfoMovieReader movieNfoReader = await TryGetNfoMovieReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      if (movieNfoReader != null)
+        return movieNfoReader.TryWriteCharacterMetadata(extractedAspects);
+      return false;
+    }
+
+    #endregion
+
+    #region IRelationshipRoleExtractor implementation
 
     public bool BuildRelationship
     {
@@ -91,22 +116,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return identifiers;
     }
 
-    public Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       MovieInfo movieInfo = new MovieInfo();
       if (!movieInfo.FromMetadata(aspects))
-        return Task.FromResult(false);
+        return false;
 
-      if (!UpdateCharacters(aspects, movieInfo.Characters, false))
-        return Task.FromResult(false);
-      
-      foreach (CharacterInfo character in movieInfo.Characters)
+      if (!await TryExtractMovieCharactersMetadataAsync(mediaItemAccessor, extractedLinkedAspects).ConfigureAwait(false))
+        return false;
+
+      IList<CharacterInfo> characters = extractedLinkedAspects.Select(a =>
+      {
+        CharacterInfo character = new CharacterInfo();
+        return character.SetMetadata(a) ? character : null;
+      })
+      .Where(p => p != null && !string.IsNullOrEmpty(p.Name))
+      .ToList();
+
+      extractedLinkedAspects.Clear();
+      foreach (CharacterInfo character in characters)
       {
         IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         if (character.SetMetadata(characterAspects) && characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(characterAspects);
       }
-      return Task.FromResult(extractedLinkedAspects.Count > 0);
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
@@ -146,9 +180,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return index >= 0;
     }
 
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }
+    #endregion
   }
 }

@@ -24,8 +24,6 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
@@ -35,17 +33,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors
 {
-  public class AbstractAlbumArtistNfoRelationshipExtractor : AbstractNfoRelationshipExtractor<NfoAudioMetadataExtractorSettings>
+  public class NfoAudioExtractorBase : NfoExtractorBase<NfoAudioMetadataExtractorSettings>
   {
+    #region Reader helpers
+
     /// <summary>
-    /// Asynchronously tries to extract album artist metadata for the given <param name="mediaItemAccessor"></param>
+    /// Asynchronously tries to extract metadata for the given <param name="mediaItemAccessor"></param>
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
-    /// <param name="extractedArtists">PersonInfo collection to update with metadata</param>
-    /// <returns><c>true</c> if metadata was found and stored into <param name="extractedArtists"></param>, else <c>false</c></returns>
-    protected async Task<bool> TryExtractAlbumArtistMetadataAsync(IResourceAccessor mediaItemAccessor, IList<PersonInfo> extractedArtists)
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
+    /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
+    /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
+    protected async Task<NfoAlbumReader> TryGetNfoAlbumReaderAsync(IResourceAccessor mediaItemAccessor)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -53,84 +54,99 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
       try
       {
-        _debugLogger.Info("[#{0}]: Start extracting album metadata for resource '{1}'", miNumber, mediaItemAccessor);
+        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (forceQuickMode: {2})", miNumber, mediaItemAccessor, false);
 
         // This MetadataExtractor only works for MediaItems accessible by an IFileSystemResourceAccessor.
         // Otherwise it is not possible to find a nfo-file in the MediaItem's directory.
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
         {
           _debugLogger.Info("[#{0}]: Cannot extract metadata; mediaItemAccessor is not an IFileSystemResourceAccessor", miNumber);
-          return false;
+          return null;
         }
-        // Try to find an IFileSystemResourceAccessor pointing to the artist nfo-file.
-        IFileSystemResourceAccessor artistNfoFsra;
-        if (TryGetArtistNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out artistNfoFsra))
+
+        // First we try to find an IFileSystemResourceAccessor pointing to the album nfo-file.
+        IFileSystemResourceAccessor albumNfoFsra;
+        if (TryGetAlbumNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out albumNfoFsra))
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the MediaItemAspects.
-          var artistNfoReader = new NfoArtistReader(_debugLogger, miNumber, false, _httpClient, _settings);
-          using (artistNfoFsra)
+          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, false, false, _httpClient, _settings);
+          using (albumNfoFsra)
           {
-            if (await artistNfoReader.TryReadMetadataAsync(artistNfoFsra).ConfigureAwait(false))
-            {
-              foreach (Stubs.ArtistStub artist in artistNfoReader.GetArtistStubs())
-              {
-                PersonInfo extractedArtist = extractedArtists.FirstOrDefault(p => IsMatchingArtist(p, artist));
-                if (extractedArtist == null)
-                  continue;
-
-                PersonInfo artistInfo = new PersonInfo();
-                if (artist.AudioDbId.HasValue && artist.AudioDbId > 0)
-                  artistInfo.AudioDbId = artist.AudioDbId.Value;
-                if (string.IsNullOrEmpty(artistInfo.MusicBrainzId))
-                  artistInfo.MusicBrainzId = artist.MusicBrainzArtistId;
-                if (string.IsNullOrEmpty(artistInfo.Name))
-                  artistInfo.Name = artist.Name;
-                if (string.IsNullOrEmpty(artistInfo.Biography.Text))
-                  artistInfo.Biography = artist.Biography;
-
-                DateTime? birthDate;
-                DateTime? deathDate;
-                if (artist.Birthdate.HasValue || artist.Deathdate.HasValue)
-                {
-                  birthDate = artist.Birthdate;
-                  deathDate = artist.Deathdate;
-                }
-                else
-                {
-                  extractedArtist.IsGroup = true;
-                  birthDate = artist.Formeddate;
-                  deathDate = artist.Disbandeddate;
-                }
-                if (!artistInfo.DateOfBirth.HasValue)
-                  artistInfo.DateOfBirth = birthDate;
-                if (!artistInfo.DateOfDeath.HasValue)
-                  artistInfo.DateOfDeath = deathDate;
-                artistInfo.Occupation = PersonAspect.OCCUPATION_ARTIST;
-              }
-            }
+            if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
+              return albumNfoReader;
             else
-              _debugLogger.Warn("[#{0}]: No valid metadata found in artist nfo-file", miNumber);
+              _debugLogger.Warn("[#{0}]: No valid metadata found in album nfo-file", miNumber);
           }
         }
-        return true;
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("NfoAudioMetadataExtractor: Exception while extracting album metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
+        ServiceRegistration.Get<ILogger>().Warn("NfoAudioMetadataExtractor: Exception while extracting metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
         _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
-        return false;
       }
+      return null;
     }
 
-    protected bool IsMatchingArtist(PersonInfo artistInfo, Stubs.ArtistStub artistStub)
+    #endregion
+
+    #region Resource helpers
+
+    /// <summary>
+    /// Tries to find an album nfo-file for the given <param name="mediaFsra"></param>
+    /// </summary>
+    /// <param name="miNumber">Unique number for logging purposes</param>
+    /// <param name="mediaFsra">FileSystemResourceAccessor for which we search an album nfo-file</param>
+    /// <param name="albumNfoFsra">FileSystemResourceAccessor of the album nfo-file or <c>null</c> if no album nfo-file was found</param>
+    /// <returns><c>true</c> if an album nfo-file was found, otherwise <c>false</c></returns>
+    protected bool TryGetAlbumNfoSResourceAccessor(long miNumber, IFileSystemResourceAccessor mediaFsra, out IFileSystemResourceAccessor albumNfoFsra)
     {
-      if (artistStub.AudioDbId.HasValue && artistStub.AudioDbId.Value > 0 && artistInfo.AudioDbId == artistStub.AudioDbId.Value)
-        return true;
-      if (!string.IsNullOrEmpty(artistStub.MusicBrainzArtistId) && artistInfo.MusicBrainzId == artistStub.MusicBrainzArtistId)
-        return true;
-      return !string.IsNullOrEmpty(artistStub.Name) && !string.IsNullOrEmpty(artistInfo.Name) &&
-        string.Equals(artistInfo.Name, artistStub.Name, StringComparison.InvariantCultureIgnoreCase);
+      albumNfoFsra = null;
+
+      // Determine the directory, in which we look for the album nfo-file
+      // We cannot use mediaFsra.GetResource, because for ChainedResourceProviders the parent directory
+      // may be located in the ParentResourceProvider. For details see the comments for the ResourcePathHelper class.
+
+      // First get the ResourcePath of the parent directory
+      // The parent directory is
+      // - for an IFilesystemResourceAcessor pointing to a file:
+      //   the directory in which the file is located;
+      // - for an IFilesystemResourceAcessor pointing to a root directory of a ChainedResourceProvider (e.g. in case of a DVD iso-file):
+      //   the directory in which the file that was unfolded by the ChainedResourceProvider is located;
+      // - for an IFilesystemResourceAcessor pointing to any other directory (e.g. DVD directories):
+      //   the parent directory of such directory.
+      var albumNfoDirectoryResourcePath = ResourcePathHelper.Combine(mediaFsra.CanonicalLocalResourcePath, "../");
+      _debugLogger.Info("[#{0}]: album nfo-directory: '{1}'", miNumber, albumNfoDirectoryResourcePath);
+
+      // Then try to create an IFileSystemResourceAccessor for this directory
+      IResourceAccessor albumNfoDirectoryRa;
+      albumNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out albumNfoDirectoryRa);
+      var albumNfoDirectoryFsra = albumNfoDirectoryRa as IFileSystemResourceAccessor;
+      if (albumNfoDirectoryFsra == null)
+      {
+        _debugLogger.Info("[#{0}]: Cannot extract metadata; album nfo-directory not accessible'", miNumber, albumNfoDirectoryResourcePath);
+        if (albumNfoDirectoryRa != null)
+          albumNfoDirectoryRa.Dispose();
+        return false;
+      }
+
+      // Finally try to find an episode nfo-file in that directory
+      using (albumNfoDirectoryFsra)
+      {
+        var albumNfoFileNames = GetAlbumNfoFileNames();
+        foreach (var albumNfoFileName in albumNfoFileNames)
+          if (albumNfoDirectoryFsra.ResourceExists(albumNfoFileName))
+          {
+            _debugLogger.Info("[#{0}]: album nfo-file found: '{1}'", miNumber, albumNfoFileName);
+            albumNfoFsra = albumNfoDirectoryFsra.GetResource(albumNfoFileName);
+            return true;
+          }
+          else
+            _debugLogger.Info("[#{0}]: album nfo-file '{1}' not found; checking next possible file...", miNumber, albumNfoFileName);
+      }
+
+      _debugLogger.Info("[#{0}]: Cannot extract metadata; No album nfo-file found", miNumber);
+      return false;
     }
 
     /// <summary>
@@ -224,6 +240,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     /// <summary>
+    /// Determines all possible file names for the album nfo-file based on the respective NfoSeriesMetadataExtractorSettings
+    /// </summary>
+    /// <returns>IEnumerable of strings containing the possible album nfo-file names</returns>
+    protected IEnumerable<string> GetAlbumNfoFileNames()
+    {
+      var result = new List<string>();
+
+      // Combine the SeriesNfoFileNames from the settings with the NfoFileNameExtensions from the settings
+      foreach (var extension in _settings.NfoFileNameExtensions)
+        result.AddRange(_settings.AlbumNfoFileNames.Select(albumNfoFileName => albumNfoFileName + extension));
+      return result;
+    }
+
+    /// <summary>
     /// Determines all possible file names for the artist nfo-file based on the respective NfoSeriesMetadataExtractorSettings
     /// </summary>
     /// <returns>IEnumerable of strings containing the possible artist nfo-file names</returns>
@@ -236,5 +266,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         result.AddRange(_settings.ArtistNfoFileNames.Select(seriesNfoFileName => seriesNfoFileName + extension));
       return result;
     }
+
+    #endregion
   }
 }

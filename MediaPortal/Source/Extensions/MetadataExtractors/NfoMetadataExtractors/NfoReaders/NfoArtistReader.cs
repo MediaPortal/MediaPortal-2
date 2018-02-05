@@ -22,20 +22,17 @@
 
 #endregion
 
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
+using MediaPortal.Utilities.Cache;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
-using System.Globalization;
-using MediaPortal.Utilities.Cache;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {

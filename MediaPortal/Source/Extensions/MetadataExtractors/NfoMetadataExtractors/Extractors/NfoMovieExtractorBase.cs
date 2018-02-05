@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -24,11 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
@@ -38,159 +34,62 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors
 {
-  /// <summary>
-  /// MediaPortal 2 metadata extractor for video reading from local nfo-files.
-  /// </summary>
-  public class NfoVideoMetadataExtractor : NfoExtractorBase<NfoMovieMetadataExtractorSettings>, IDisposable
+  public class NfoMovieExtractorBase : NfoExtractorBase<NfoMovieMetadataExtractorSettings>
   {
-    #region Constants / Static fields
+    #region Reader helpers
 
     /// <summary>
-    /// GUID of the NfoMetadataExtractors plugin
+    /// Asynchronously creates an <see cref="NfoMovieReader"/> for the given <param name="mediaItemAccessor"></param>
     /// </summary>
-    public const string PLUGIN_ID_STR = "2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5";
-    public static readonly Guid PLUGIN_ID = new Guid(PLUGIN_ID_STR);
-
-    /// <summary>
-    /// GUID for the NfoMovieMetadataExtractor
-    /// </summary>
-    public const string METADATAEXTRACTOR_ID_STR = "183DBA7C-666A-4BBD-BCE8-AD0924B4FEF1";
-    public static readonly Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
-
-    /// <summary>
-    /// MediaCategories this MetadataExtractor is applied to
-    /// </summary>
-    private const string MEDIA_CATEGORY_NAME_VIDEO = "Video";
-    private readonly static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
-
-    #endregion
-
-    #region Private fields
-
-    /// <summary>
-    /// Metadata of this MetadataExtractor
-    /// </summary>
-    private readonly MetadataExtractorMetadata _metadata;
-
-    #endregion
-
-    #region Ctor
-
-    /// <summary>
-    /// Initializes <see cref="MEDIA_CATEGORIES"/> and, if necessary, registers the "Movie" <see cref="MediaCategory"/>
-    /// </summary>
-    static NfoVideoMetadataExtractor()
-    {
-      MediaCategory videoCategory;
-      var mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_VIDEO, out videoCategory))
-        videoCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_VIDEO, new List<MediaCategory> { DefaultMediaCategories.Video });
-      MEDIA_CATEGORIES.Add(videoCategory);
-    }
-
-    /// <summary>
-    /// Instantiates a new <see cref="NfoVideoMetadataExtractor"/> object
-    /// </summary>
-    public NfoVideoMetadataExtractor()
-    {
-      // The metadataExtractorPriority is intentionally set wrong to "Extended" although, depending on the
-      // content of the nfo-file, it may download thumbs from the internet (and should therefore be
-      // "External"). This is a temporary workaround for performance purposes. It ensures that this 
-      // MetadataExtractor is applied before the VideoThumbnailer (which is intentionally set to "External"
-      // although it only uses local files). Creating thumbs with the VideoThumbnailer takes much longer
-      // than downloading them from the internet.
-      // ToDo: Correct this once we have a better priority system
-      _metadata = new MetadataExtractorMetadata(
-        metadataExtractorId: METADATAEXTRACTOR_ID,
-        name: "Nfo video metadata extractor",
-        metadataExtractorPriority: MetadataExtractorPriority.Extended,
-        processesNonFiles: true,
-        shareCategories: MEDIA_CATEGORIES,
-        extractedAspectTypes: new MediaItemAspectMetadata[]
-        {
-          MediaAspect.Metadata,
-          VideoAspect.Metadata,
-          ThumbnailLargeAspect.Metadata
-        });
-    }
-
-    #endregion
-
-    #region Private methods
-
-    #region Metadata extraction
-
-    /// <summary>
-    /// Asynchronously tries to extract metadata for the given <param name="mediaItemAccessor"></param>
-    /// </summary>
-    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
-    /// <param name="importOnly">If <c>true</c>, nothing is downloaded from the internet</param>
-    /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    private async Task<bool> TryExtractVideoMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
-    {
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to create an NfoMovieReader</param>
+    /// <returns>An NfoMovieReader if an nfo file was found, else <c>null</c></returns>
+    protected async Task<NfoMovieReader> TryGetNfoMovieReaderAsync(IResourceAccessor mediaItemAccessor)
+    {      
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
       // for one call are not contained one after another in debug log. We therefore prepend this number before every log entry.
       var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
       try
       {
-        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (forceQuickMode: {2})", miNumber, mediaItemAccessor, forceQuickMode);
-
-        // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
-        // has identified this MediaItem as a video and therefore added a VideoAspect.
-        if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
-        {
-          _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
-          return false;
-        }
+        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}'", miNumber, mediaItemAccessor);
 
         // This MetadataExtractor only works for MediaItems accessible by an IFileSystemResourceAccessor.
         // Otherwise it is not possible to find a nfo-file in the MediaItem's directory.
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
         {
           _debugLogger.Info("[#{0}]: Cannot extract metadata; mediaItemAccessor is not an IFileSystemResourceAccessor", miNumber);
-          return false;
+          return null;
         }
 
         // Here we try to find an IFileSystemResourceAccessor pointing to the nfo-file.
         // If we don't find one, we cannot extract any metadata.
         IFileSystemResourceAccessor nfoFsra;
         if (!TryGetNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out nfoFsra))
-          return false;
+          return null;
 
         // Now we (asynchronously) extract the metadata into a stub object.
+        // If there is an error parsing the nfo-file with XmlNfoReader, we at least try to parse for a valid IMDB-ID.
         // If no metadata was found, nothing can be stored in the MediaItemAspects.
-        var nfoReader = new NfoMovieReader(_debugLogger, miNumber, true, forceQuickMode, false, _httpClient, _settings);
+        NfoMovieReader nfoReader = new NfoMovieReader(_debugLogger, miNumber, false, false, false, _httpClient, _settings);
         using (nfoFsra)
         {
           if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&
               !await nfoReader.TryParseForImdbId(nfoFsra).ConfigureAwait(false))
           {
             _debugLogger.Warn("[#{0}]: No valid metadata found", miNumber);
-            return false;
+            return null;
           }
+          return nfoReader;
         }
-
-        // Then we store the found metadata in the MediaItemAspects. If we only found metadata that is
-        // not (yet) supported by our MediaItemAspects, this MetadataExtractor returns false.
-        if (!nfoReader.TryWriteMetadata(extractedAspectData))
-        {
-          _debugLogger.Warn("[#{0}]: No metadata was written into MediaItemsAspects", miNumber);
-          return false;
-        }
-
-        _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);
-        return true;
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("NfoMovieMetadataExtractor: Exception while extracting metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
         _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
-        return false;
       }
+      return null;
     }
 
     #endregion
@@ -204,14 +103,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="mediaFsra">FileSystemResourceAccessor for which we search a nfo-file</param>
     /// <param name="nfoFsra">FileSystemResourceAccessor of the nfo-file or <c>null</c> if no nfo-file was found</param>
     /// <returns><c>true</c> if a nfo-file was found, otherwise <c>false</c></returns>
-    private bool TryGetNfoSResourceAccessor(long miNumber, IFileSystemResourceAccessor mediaFsra, out IFileSystemResourceAccessor nfoFsra)
+    protected bool TryGetNfoSResourceAccessor(long miNumber, IFileSystemResourceAccessor mediaFsra, out IFileSystemResourceAccessor nfoFsra)
     {
       nfoFsra = null;
 
       // Determine the directory, in which we look for the nfo-file
       // We cannot use mediaFsra.GetResource, because for ChainedResourceProviders the parent directory
       // may be located in the ParentResourceProvider. For details see the comments for the ResourcePathHelper class.
-      
+
       // First get the ResourcePath of the parent directory
       // The parent directory is
       // - for an IFilesystemResourceAcessor pointing to a file:
@@ -259,13 +158,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="mediaFsra">IFilesystemResourceAccessor to the media file for which we search an nfo-file</param>
     /// <returns>IEnumerable of strings containing the possible nfo-file names</returns>
-    IEnumerable<string> GetNfoFileNames(IFileSystemResourceAccessor mediaFsra)
+    protected IEnumerable<string> GetNfoFileNames(IFileSystemResourceAccessor mediaFsra)
     {
       var result = new List<string>();
-      
+
       // Always consider the file or directory name of the media item
       string mediaFileOrDirectoryName;
-      
+
       // If the MediaItem is a file, we simply take the filename without extension
       if (mediaFsra.IsFile)
         mediaFileOrDirectoryName = ResourcePathHelper.GetFileNameWithoutExtension(mediaFsra.CanonicalLocalResourcePath.Serialize());
@@ -273,7 +172,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       {
         // if the media is a directory (such as a DVD or BluRay) we start with the ResourcePath
         mediaFileOrDirectoryName = mediaFsra.CanonicalLocalResourcePath.Serialize();
-        
+
         // In case of the root path of a ChainedResourceProvider (such as for DVD- or BluRay-Iso-Files), we remove the last
         // ChainedResourceProvider, leaving us with the full path of the file, the ChainedResourceProvider has unfolded
         if (mediaFileOrDirectoryName.EndsWith(":///") && mediaFileOrDirectoryName.Contains(">"))
@@ -296,62 +195,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         result.AddRange(_settings.MovieNfoFileNames.Select(movieNfoFileName => movieNfoFileName + extension));
       }
       return result;
-    }
-
-    #endregion
-
-    #region Logging helpers
-
-    /// <summary>
-    /// Logs version and setting information into <see cref="_debugLogger"/>
-    /// </summary>
-    protected override void LogSettings()
-    {
-      _debugLogger.Info("-------------------------------------------------------------");
-      _debugLogger.Info("NfoVideoMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
-      _debugLogger.Info("Setttings:");
-      _debugLogger.Info("   EnableDebugLogging: {0}", _settings.EnableDebugLogging);
-      _debugLogger.Info("   WriteRawNfoFileIntoDebugLog: {0}", _settings.WriteRawNfoFileIntoDebugLog);
-      _debugLogger.Info("   WriteStubObjectIntoDebugLog: {0}", _settings.WriteStubObjectIntoDebugLog);
-      _debugLogger.Info("   MovieNfoFileNames: {0}", String.Join(";", _settings.MovieNfoFileNames));
-      _debugLogger.Info("   NfoFileNameExtensions: {0}", String.Join(" ", _settings.NfoFileNameExtensions));
-      _debugLogger.Info("   SeparatorCharacters: {0}", String.Join(" ", _settings.SeparatorCharacters));
-      _debugLogger.Info("   IgnoreStrings: {0}", String.Join(";", _settings.IgnoreStrings));
-      _debugLogger.Info("-------------------------------------------------------------");
-    }
-
-    #endregion
-
-    #endregion
-
-    #region IMetadataExtractor implementation
-
-    public MetadataExtractorMetadata Metadata
-    {
-      get { return _metadata; }
-    }
-
-    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
-    {
-      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID) || extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-        return Task.FromResult(false);
-      
-      return TryExtractVideoMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
-    }
-
-    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
-    {
-      return false;
-    }
-
-    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
-    {
-      return false;
-    }
-
-    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
-    {
-      return false;
     }
 
     #endregion

@@ -32,16 +32,16 @@ using System;
 using System.Net;
 using System.Net.Http;
 
-namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors
 {
-  public class AbstractNfoRelationshipExtractor<TSettings> where TSettings : NfoMetadataExtractorSettingsBase
+  public abstract class NfoExtractorBase<TSettings> : IDisposable where TSettings : NfoMetadataExtractorSettingsBase
   {
     #region Private fields
 
     protected readonly string _name;
 
     /// <summary>
-    /// Settings of the <see cref="INfoRelationshipExtractor"/>
+    /// Settings of the <see cref="NfoExtractorBase<>"/>
     /// </summary>
     protected TSettings _settings;
 
@@ -73,7 +73,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <summary>
     /// Instantiates a new <see cref="NfoMovieMetadataExtractor"/> object
     /// </summary>
-    public AbstractNfoRelationshipExtractor()
+    public NfoExtractorBase()
     {
       _name = GetType().Name;
 
@@ -82,7 +82,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       _settings = _settingWatcher.Settings;
 
       if (_settings.EnableDebugLogging)
+      {
         _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\" + _name + "Debug.log"), LogLevel.Debug, false, true);
+        LogSettings();
+      }
       else
         _debugLogger = new NoLogger();
 
@@ -104,9 +107,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #region Virtual methods
 
+    protected virtual void LogSettings()
+    {
+
+    }
+
+    protected virtual void LoadSettings()
+    {
+    }
+
     protected virtual void SettingsChanged(object sender, EventArgs e)
     {
-      _settings = _settingWatcher.Settings;
+      LoadSettings();
+    }
+
+    #endregion
+
+    #region IDisposable implementation
+
+    public virtual void Dispose()
+    {
+      if (_httpClient == null)
+        return;
+      _httpClient.Dispose();
+      _httpClient = null;
     }
 
     #endregion
