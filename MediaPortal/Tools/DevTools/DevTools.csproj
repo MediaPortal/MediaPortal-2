@@ -80,10 +80,6 @@
       <Project>{8a791c9c-5d72-42e8-b8d3-ed25adc24188}</Project>
       <Name>SQLiteDatabase</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\HttpServer\HttpServer.csproj">
-      <Project>{b1c97bb7-8e27-4c1b-b086-a1204ef8fb79}</Project>
-      <Name>HttpServer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5b27eb95-b829-40f4-b445-0225ca206f85}</Project>
       <Name>MediaPortal.Backend</Name>
