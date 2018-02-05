@@ -248,8 +248,8 @@
       <Setter.Value>
         <ControlTemplate>
           <StackPanel Orientation="Vertical">
-            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,0,0"
-                   Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
+            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="22,0,0,0"
+                   Content="{Binding Source={DynamicResource List_Label},Path=Resource}" Opacity="1.2"/>
 
             <ListView x:Name="MediaList" Margin="20,10,20,10"
                       Style="{Binding Source={DynamicResource List_Style},Path=Resource}"
