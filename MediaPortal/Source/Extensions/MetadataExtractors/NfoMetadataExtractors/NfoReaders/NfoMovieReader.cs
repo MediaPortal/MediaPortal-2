@@ -283,61 +283,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("lastplayed", new TryReadElementDelegate(TryReadLastPlayed));
       _supportedElements.Add("dateadded", new TryReadElementDelegate(TryReadDateAdded));
       _supportedElements.Add("resume", new TryReadElementDelegate(TryReadResume));
-      _supportedElements["id"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["imdb"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["tmdbid"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["tmdbId"] = new TryReadElementDelegate(Ignore); // Tiny Media Manager (v2.6.5) uses <tmdbId> instead of <tmdbid>
-      _supportedElements["thmdb"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["ids"] = new TryReadElementDelegate(Ignore); // Used by Tiny MediaManager (as of v2.6.0)
-      _supportedElements["allocine"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["cinepassion"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["originaltitle"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["set"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["sets"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["country"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["company"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["studio"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["studios"] = new TryReadElementDelegate(Ignore); // Synonym for <studio>
-      _supportedElements["actor"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["producer"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["director"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["directorimdb"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["credits"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["tagline"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["trailer"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["language"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["languages"] = new TryReadElementDelegate(Ignore); // Synonym for <language>
-      _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["discart"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["logo"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["clearart"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["banner"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["Banner"] = new TryReadElementDelegate(Ignore); // Used wrongly by XBNE instead of <banner>
-      _supportedElements["Landscape"] = new TryReadElementDelegate(Ignore); // Used by XBNE (capital letter in the beginning correct, but not according to spec)
-      _supportedElements["certification"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["mpaa"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["rating"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["ratings"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["votes"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["review"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["top250"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["runtime"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["fps"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["rip"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["fileinfo"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["epbookmark"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["dateadded"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["resume"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["plot"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["outline"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["premiered"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["year"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["genre"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["genres"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["watched"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["playcount"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["lastplayed"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["thumb"] = new TryReadElementDelegate(Ignore);
 
       // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
       // ToDo: Reenable the below once we can store the information in the MediaLibrary

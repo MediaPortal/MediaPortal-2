@@ -22,17 +22,23 @@
 
 #endregion
 
+using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Test.NfoMetadataExtractor
 {
@@ -92,6 +98,62 @@ namespace Test.NfoMetadataExtractor
       Assert.AreEqual(movieStub.Tagline, movieAspect.GetAttributeValue<string>(MovieAspect.ATTR_TAGLINE));
       Assert.AreEqual((double)movieStub.Rating, movieAspect.GetAttributeValue<double?>(MovieAspect.ATTR_TOTAL_RATING));
       Assert.AreEqual(movieStub.Votes, movieAspect.GetAttributeValue<int?>(MovieAspect.ATTR_RATING_COUNT));
+
+      IList<MediaItemAspect> externalIdentifiers;
+      Assert.IsTrue(aspects.TryGetValue(ExternalIdentifierAspect.ASPECT_ID, out externalIdentifiers));
+      Assert.IsTrue(TestUtils.HasExternalId(externalIdentifiers, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, movieStub.TmdbId.ToString()));
+      Assert.IsTrue(TestUtils.HasExternalId(externalIdentifiers, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, movieStub.TmdbCollectionId.ToString()));
+      Assert.IsTrue(TestUtils.HasExternalId(externalIdentifiers, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, movieStub.Id));
+      Assert.IsTrue(TestUtils.HasExternalId(externalIdentifiers, ExternalIdentifierAspect.SOURCE_ALLOCINE, ExternalIdentifierAspect.TYPE_MOVIE, movieStub.Allocine.ToString()));
+      Assert.IsTrue(TestUtils.HasExternalId(externalIdentifiers, ExternalIdentifierAspect.SOURCE_CINEPASSION, ExternalIdentifierAspect.TYPE_MOVIE, movieStub.Cinepassion.ToString()));
+    }
+
+    [Test]
+    public void TestNfoMovieReaderReadMetadata()
+    {
+      //Arrange
+      var resourceProviders = new Dictionary<Guid, IResourceProvider>();
+      resourceProviders.Add(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, new LocalFsResourceProvider());
+      var mockMediaAccessor = new Mock<IMediaAccessor>();
+      ServiceRegistration.Set(mockMediaAccessor.Object);
+      mockMediaAccessor.Setup(x => x.LocalResourceProviders).Returns(resourceProviders);
+
+      Mock <IFileSystemResourceAccessor> mockRA = new Mock<IFileSystemResourceAccessor>();
+      mockRA.Setup(r => r.OpenReadAsync()).Returns(Task.FromResult(
+        Assembly.GetExecutingAssembly().GetManifestResourceStream("Test.NfoMetadataExtractor.TestData.MovieNfo.movie.nfo")));
+      mockRA.SetupGet(t => t.CanonicalLocalResourcePath).Returns(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, @"TestData\MovieNfo\movie.nfo"));
+      NfoMovieReader reader = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, false, false, false, null, new NfoMovieMetadataExtractorSettings());
+
+      //Act
+      reader.TryReadMetadataAsync(mockRA.Object).Wait();
+      var stubs = reader.GetMovieStubs();
+
+      //Assert
+      Assert.NotNull(stubs);
+      Assert.AreEqual(1, stubs.Count);
+      var stub = stubs[0];
+      Assert.NotNull(stub);
+      Assert.AreEqual("The Lego Batman Movie", stub.Title);
+      Assert.AreEqual("The Lego Batman Movie", stub.OriginalTitle);
+      Assert.AreEqual(7.2m, stub.Rating);
+      Assert.AreEqual(new DateTime(2017, 1, 1), stub.Year);
+      Assert.AreEqual(1853, stub.Votes);
+      Assert.AreEqual("In the irreverent spirit of fun that made “The Lego Movie” a worldwide phenomenon, the self-described leading man of that ensemble—Lego Batman—stars in his own big-screen adventure. But there are big changes...", stub.Outline);
+      Assert.AreEqual("In the irreverent spirit of fun that made “The Lego Movie” a worldwide phenomenon, the self-described leading man of that ensemble—Lego Batman—stars in his own big-screen adventure. But there are big changes brewing in Gotham, and if he wants to save the city from The Joker’s hostile takeover, Batman may have to drop the lone vigilante thing, try to work with others and maybe, just maybe, learn to lighten up.", stub.Plot);
+      Assert.AreEqual("Always be yourself. Unless you can be Batman.", stub.Tagline);
+      Assert.AreEqual(TimeSpan.FromMinutes(104), stub.Runtime);
+      CollectionAssert.AreEqual(new[] { "UK:U" }, stub.Mpaa);
+      CollectionAssert.AreEqual(new[] { "UK:U" }, stub.Certification);
+      Assert.AreEqual("tt4116284", stub.Id);
+      Assert.AreEqual(324849, stub.TmdbId);
+      CollectionAssert.AreEqual(new[] { "Denmark", "United States" }, stub.Countries);
+      Assert.AreEqual(false, stub.Watched);
+      Assert.AreEqual(0, stub.PlayCount);
+      CollectionAssert.AreEqual(new[] { "Action", "Animation", "Comedy", "Family", "Fantasy" }, stub.Genres);
+      CollectionAssert.AreEqual(new[] { "Lin Pictures", "Warner Bros. Animation", "Warner Bros.", "Animal Logic", "DC Entertainment", "Lord Miller", "LEGO System A", "S" }, stub.Studios);
+      CollectionAssert.AreEqual(new[] { "Chris McKenna", "Erik Sommers", "Seth Grahame-Smith", "Jared Stern", "John Whittington" }, stub.Credits);
+      Assert.AreEqual("Chris McKay", stub.Director);
+      CollectionAssert.AreEqual(new[] { "English" }, stub.Languages);
     }
 
     protected MovieStub CreateTestMovieStub()

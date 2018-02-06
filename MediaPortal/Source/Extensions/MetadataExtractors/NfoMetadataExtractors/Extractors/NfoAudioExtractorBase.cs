@@ -40,7 +40,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     #region Reader helpers
 
     /// <summary>
-    /// Asynchronously tries to extract metadata for the given <param name="mediaItemAccessor"></param>
+    /// Asynchronously tries to get an <see cref="NfoAlbumReader"/> for the given <param name="mediaItemAccessor"></param>
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
@@ -54,7 +54,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
       var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
       try
       {
-        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (forceQuickMode: {2})", miNumber, mediaItemAccessor, false);
+        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}'", miNumber, mediaItemAccessor);
 
         // This MetadataExtractor only works for MediaItems accessible by an IFileSystemResourceAccessor.
         // Otherwise it is not possible to find a nfo-file in the MediaItem's directory.
@@ -68,13 +68,60 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
         IFileSystemResourceAccessor albumNfoFsra;
         if (TryGetAlbumNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out albumNfoFsra))
         {
-          // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
-          // we store it into the MediaItemAspects.
+          // If we found one, we (asynchronously) extract the metadata into a stub object
           var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, false, false, _httpClient, _settings);
           using (albumNfoFsra)
           {
             if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
               return albumNfoReader;
+            else
+              _debugLogger.Warn("[#{0}]: No valid metadata found in album nfo-file", miNumber);
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("NfoAudioMetadataExtractor: Exception while extracting metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
+        _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// Asynchronously tries to get an <see cref="NfoArtistReader"/> for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
+    /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
+    /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
+    protected async Task<NfoArtistReader> TryGetNfoArtistReaderAsync(IResourceAccessor mediaItemAccessor)
+    {
+      // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
+      // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
+      // for one call are not contained one after another in debug log. We therefore prepend this number before every log entry.
+      var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
+      try
+      {
+        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}'", miNumber, mediaItemAccessor);
+
+        // This MetadataExtractor only works for MediaItems accessible by an IFileSystemResourceAccessor.
+        // Otherwise it is not possible to find a nfo-file in the MediaItem's directory.
+        if (!(mediaItemAccessor is IFileSystemResourceAccessor))
+        {
+          _debugLogger.Info("[#{0}]: Cannot extract metadata; mediaItemAccessor is not an IFileSystemResourceAccessor", miNumber);
+          return null;
+        }
+
+        // First we try to find an IFileSystemResourceAccessor pointing to the artist nfo-file.
+        IFileSystemResourceAccessor artistNfoFsra;
+        if (TryGetArtistNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out artistNfoFsra))
+        {
+          // If we found one, we (asynchronously) extract the metadata into a stub object
+          var artistNfoReader = new NfoArtistReader(_debugLogger, miNumber, false, _httpClient, _settings);
+          using (artistNfoFsra)
+          {
+            if (await artistNfoReader.TryReadMetadataAsync(artistNfoFsra).ConfigureAwait(false))
+              return artistNfoReader;
             else
               _debugLogger.Warn("[#{0}]: No valid metadata found in album nfo-file", miNumber);
           }

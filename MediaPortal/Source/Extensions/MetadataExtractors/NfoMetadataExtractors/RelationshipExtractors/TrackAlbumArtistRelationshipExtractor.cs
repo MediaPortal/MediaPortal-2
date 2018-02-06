@@ -57,6 +57,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
     protected async Task<bool> TryExtractAlbumArtistMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
     {
+      NfoArtistReader artistReader = await TryGetNfoArtistReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      if (artistReader != null)
+      {
+        IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        if (artistReader.TryWriteMetadata(aspects))
+        {
+          extractedAspects.Add(aspects);
+          return true;
+        }
+      }
+
       NfoAlbumReader albumNfoReader = await TryGetNfoAlbumReaderAsync(mediaItemAccessor).ConfigureAwait(false);
       if (albumNfoReader != null)
         return albumNfoReader.TryWriteArtistMetadata(extractedAspects);
