@@ -63,7 +63,7 @@ namespace UPnP.Infrastructure.Dv
       string descriptionBase = config.DescriptionPathBase;
       foreach (DvDevice rootDevice in server.RootDevices)
       {
-        string path = config.ServicePrefix + descriptionBase + rootDevice.UDN;
+        string path = descriptionBase + rootDevice.UDN;
         config.RootDeviceDescriptionPathsToRootDevices.Add(path, rootDevice);
         config.RootDeviceDescriptionPaths.Add(rootDevice, path);
         GeneratePathsRecursive(rootDevice, config);
@@ -75,9 +75,9 @@ namespace UPnP.Infrastructure.Dv
       string deviceRelUrl = StringUtils.CheckSuffix(device.UDN, "/");
       foreach (DvService service in device.Services)
       {
-        var scpdPrefix = config.ServicePrefix + config.DescriptionPathBase + deviceRelUrl + service.ServiceTypeVersion_URN;
-        var cpPrefix = config.ServicePrefix + config.ControlPathBase + deviceRelUrl + service.ServiceTypeVersion_URN;
-        var evtPrefix = config.ServicePrefix + config.EventSubPathBase + deviceRelUrl + service.ServiceTypeVersion_URN;
+        var scpdPrefix = config.DescriptionPathBase + deviceRelUrl + service.ServiceTypeVersion_URN;
+        var cpPrefix = config.ControlPathBase + deviceRelUrl + service.ServiceTypeVersion_URN;
+        var evtPrefix = config.EventSubPathBase + deviceRelUrl + service.ServiceTypeVersion_URN;
         ServicePaths servicePaths = new ServicePaths
         {
           SCPDPath = GenerateAndAddUniquePath(config.SCPDPathsToServices, scpdPrefix, ".xml", service),

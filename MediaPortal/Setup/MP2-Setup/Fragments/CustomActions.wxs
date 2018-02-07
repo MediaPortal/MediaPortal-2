@@ -11,5 +11,32 @@
     <CustomAction Id="InstallLAVFilters" BinaryKey="Custom_Action_Dll" DllEntry="InstallLAVFilters" Impersonate="no" Execute="deferred" Return="ignore" />
 
     <CustomAction Id="StopProcesses" BinaryKey="Custom_Action_Dll" DllEntry="StopProcesses" Impersonate="no" Execute="immediate" Return="ignore" />
+
+    <CustomAction Id="ListenerServiceAddReservation"
+                  Directory="DesktopFolder"
+                  ExeCommand="[SystemFolder]netsh.exe http add urlacl url=http://+:55555/MediaPortal/ sddl=D:(A;;GX;;;S-1-1-0)"
+                  Return="asyncWait" />
+
+    <CustomAction Id="ListenerServiceDeleteReservation"
+                  Directory="DesktopFolder"
+                  ExeCommand="[SystemFolder]netsh.exe http delete urlacl url=http://+:55555/MediaPortal/"
+                  Return="asyncWait" />
+
+    <CustomAction Id="FirewallPortAdd"
+                  Directory="DesktopFolder"
+                  ExeCommand="[SystemFolder]netsh advfirewall firewall add rule name=&quot;MediaPortal UPnP/HttpServer&quot; dir=in action=allow protocol=TCP localport=55555"
+                  Return="asyncWait" />
+
+    <CustomAction Id="FirewallPortRemove"
+                  Directory="DesktopFolder"
+                  ExeCommand="[SystemFolder]netsh advfirewall firewall delete rule name=&quot;MediaPortal UPnP/HttpServer&quot; protocol=TCP localport=55555"
+                  Return="asyncWait" />
+
+    <InstallExecuteSequence>
+      <Custom Action="ListenerServiceDeleteReservation" Before="InstallFinalize">Installed</Custom>
+      <Custom Action="ListenerServiceAddReservation" Before="InstallFinalize">NOT Installed</Custom>
+      <Custom Action="FirewallPortRemove" Before="InstallFinalize">Installed</Custom>
+      <Custom Action="FirewallPortAdd" Before="InstallFinalize">NOT Installed</Custom>
+    </InstallExecuteSequence>
   </Fragment>
 </Wix>

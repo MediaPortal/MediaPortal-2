@@ -171,7 +171,7 @@ namespace UPnP.Infrastructure.Dv
           throw new IllegalCallException("UPnP subsystem mustn't be started multiple times");
 
         //var port = _serverData.HTTP_PORTv4 = NetworkHelper.GetFreePort(_serverData.HTTP_PORTv4);
-        var servicePrefix = "/MediaPortal/UPnPServer_" + Guid.NewGuid().ToString("N");
+        var servicePrefix = "/MediaPortal/UPnPServer_" + Guid.NewGuid().GetHashCode().ToString("X");
         _serverData.ServicePrefix = servicePrefix;
         var startOptions = BuildStartOptions(servicePrefix);
 
@@ -368,7 +368,7 @@ namespace UPnP.Infrastructure.Dv
           // Handle different HTTP methods here
           if (request.Method == "GET")
           { // GET of descriptions
-            if (pathAndQuery.StartsWith(_serverData.ServicePrefix + config.DescriptionPathBase))
+            if (pathAndQuery.StartsWith(config.DescriptionPathBase))
             {
               string acceptLanguage = request.Headers.Get("ACCEPT-LANGUAGE");
               CultureInfo culture = GetFirstCultureOrDefault(acceptLanguage, CultureInfo.InvariantCulture);
@@ -491,7 +491,7 @@ namespace UPnP.Infrastructure.Dv
       result = config.SCPDPathsToServices.Values.Select(service => service.BuildSCPDDocument(
           config, _serverData)).Aggregate(result, (current, description) => current + HashGenerator.CalculateHash(0, description));
       result += HashGenerator.CalculateHash(0, NetworkHelper.IPAddrToString(config.EndPointIPAddress));
-      result += HashGenerator.CalculateHash(0, config.ServicePrefix);
+      //result += HashGenerator.CalculateHash(0, config.ServicePrefix);
       result += HashGenerator.CalculateHash(0, config.ControlPathBase + config.DescriptionPathBase + config.EventSubPathBase);
       return (int)result;
     }
@@ -525,10 +525,10 @@ namespace UPnP.Infrastructure.Dv
         EndpointConfiguration config = new EndpointConfiguration
         {
           EndPointIPAddress = address,
-          DescriptionPathBase = DEFAULT_DESCRIPTION_URL_PREFIX,
-          ControlPathBase = DEFAULT_CONTROL_URL_PREFIX,
-          EventSubPathBase = DEFAULT_EVENT_SUB_URL_PREFIX,
-          ServicePrefix = _serverData.ServicePrefix,
+          DescriptionPathBase = _serverData.ServicePrefix + DEFAULT_DESCRIPTION_URL_PREFIX,
+          ControlPathBase = _serverData.ServicePrefix + DEFAULT_CONTROL_URL_PREFIX,
+          EventSubPathBase = _serverData.ServicePrefix + DEFAULT_EVENT_SUB_URL_PREFIX,
+          //ServicePrefix = _serverData.ServicePrefix,
           //HTTPServerPort = family == AddressFamily.InterNetwork ? _serverData.HTTP_PORTv4 : _serverData.HTTP_PORTv6
         };
         GenerateObjectURLs(config);

@@ -111,7 +111,7 @@ namespace UPnP.Infrastructure.CP.GENA
       _connection = connection;
       _endpoint = endpoint;
       _upnpVersion = upnpVersion;
-      _eventNotificationPath = "/" + Guid.NewGuid();
+      _eventNotificationPath = cpData.ServicePrefix + "/" + Guid.NewGuid();
       IPAddress address = endpoint.EndPointIPAddress;
       _eventNotificationEndpoint = new IPEndPoint(address, 55555); // TODO
         //address.AddressFamily == AddressFamily.InterNetwork ?

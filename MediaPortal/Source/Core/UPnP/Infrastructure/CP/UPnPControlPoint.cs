@@ -186,7 +186,7 @@ namespace UPnP.Infrastructure.CP
 
         //_cpData.HttpPortV4 = 0;
         //var port = _cpData.HttpPortV4 = NetworkHelper.GetFreePort(_cpData.HttpPortV4);
-        var servicePrefix = "/MediaPortal/UPnPControlPoint_" + Guid.NewGuid().ToString("N");
+        var servicePrefix = "/MediaPortal/UPnPControlPoint_" + Guid.NewGuid().GetHashCode().ToString("X");
         _cpData.ServicePrefix = servicePrefix;
         var startOptions = UPnPServer.BuildStartOptions(servicePrefix);
 

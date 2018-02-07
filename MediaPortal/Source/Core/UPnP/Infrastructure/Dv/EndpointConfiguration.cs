@@ -135,10 +135,10 @@ namespace UPnP.Infrastructure.Dv
     //  internal set { _httpServerPort = value; }
     //}
 
-    /// <summary>
-    /// Contains the root path of web service, it will be unique per instance.
-    /// </summary>
-    public string ServicePrefix { get; internal set; }
+    ///// <summary>
+    ///// Contains the root path of web service, it will be unique per instance.
+    ///// </summary>
+    //public string ServicePrefix { get; internal set; }
 
     /// <summary>
     /// Returns the information if the <see cref="SSDPSearchPort"/> is another port than

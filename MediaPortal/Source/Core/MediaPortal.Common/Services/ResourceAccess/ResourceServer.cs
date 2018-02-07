@@ -55,7 +55,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       List<string> filters = settings.IPAddressBindingsList;
       //List<IPAddress> validAddresses = new List<IPAddress>();
 
-      _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().ToString("N");
+      _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
       var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
 
       //if (settings.UseIPv4)
