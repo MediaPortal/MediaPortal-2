@@ -62,6 +62,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="FanArtBackground" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
              Template="{DynamicResource ResourceKey=FanArtBackground_Template}"/>
 
+    <Control x:Name="TopGradient" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="-1"
+             Template="{DynamicResource ResourceKey=TopGradient_Template}"/>
+
+    <Control x:Name="BottomGradient" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-1"
+             Template="{DynamicResource ResourceKey=BottomGradient_Template}"/>
+
     <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Panel.ZIndex="100"
                LastChildFill="True">
       <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">

@@ -781,13 +781,13 @@
 
   <DataTemplate x:Key="HomeMenuItemDataTemplate">
     <Grid x:Name="ItemControl" Margin="6">
-      <Grid.OpacityMask>
+      <!--Grid.OpacityMask>
         <VisualBrush>
           <VisualBrush.Visual>
-            <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            <Border Name="mask" Background="White" CornerRadius="7" BorderThickness="0" BorderBrush="Black"/>
           </VisualBrush.Visual>
         </VisualBrush>
-      </Grid.OpacityMask>
+      </-->
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="170"/>
       </Grid.ColumnDefinitions>
@@ -795,59 +795,7 @@
         <RowDefinition Height="135"/>
         <RowDefinition Height="35"/>
       </Grid.RowDefinitions>
-      <Rectangle x:Name="ItemBackground" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="Gray" Opacity="1">
-        <Rectangle.Triggers>
-          <!-- NEWS -->
-          <DataTrigger Value="bb49a591-7705-408f-8177-45d633fdfad0">
-            <DataTrigger.Binding>
-              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-            </DataTrigger.Binding>
-            <Setter TargetName="ItemBackground" Property="Fill" Value="Green"/>
-          </DataTrigger>
-          <!-- TV -->
-          <DataTrigger Value="b4a9199f-6dd4-4bda-a077-de9c081f7703">
-            <DataTrigger.Binding>
-              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-            </DataTrigger.Binding>
-            <Setter TargetName="ItemBackground" Property="Fill" Value="Red"/>
-          </DataTrigger>
-          <!-- SERIES -->
-          <DataTrigger Value="30f57cba-459c-4202-a587-09fff5098251">
-            <DataTrigger.Binding>
-              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-            </DataTrigger.Binding>
-            <Setter TargetName="ItemBackground" Property="Fill" Value="Orange"/>
-          </DataTrigger>
-          <!-- MOVIES -->
-          <DataTrigger Value="80d2e2cc-baaa-4750-807b-f37714153751">
-            <DataTrigger.Binding>
-              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-            </DataTrigger.Binding>
-            <Setter TargetName="ItemBackground" Property="Fill" Value="Purple"/>
-          </DataTrigger>
-          <!-- AUDIO -->
-          <DataTrigger Value="30715d73-4205-417f-80aa-e82f0834171f">
-            <DataTrigger.Binding>
-              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-            </DataTrigger.Binding>
-            <Setter TargetName="ItemBackground" Property="Fill" Value="DarkCyan"/>
-          </DataTrigger>
-          <!-- IMAGES -->
-          <DataTrigger Value="55556593-9fe9-436c-a3b6-a971e10c9d44">
-            <DataTrigger.Binding>
-              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-            </DataTrigger.Binding>
-            <Setter TargetName="ItemBackground" Property="Fill" Value="Navy"/>
-          </DataTrigger>
-          <!-- WEATHER -->
-          <DataTrigger Value="e34fdb62-1f3e-4aa9-8a61-d143e0af77b5">
-            <DataTrigger.Binding>
-              <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-            </DataTrigger.Binding>
-            <Setter TargetName="ItemBackground" Property="Fill" Value="DeepSkyBlue"/>
-          </DataTrigger>
-        </Rectangle.Triggers>
-      </Rectangle>
+      
       <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="1"
              Stretch="Fill" Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}">
       </Image>
@@ -856,9 +804,8 @@
              FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="0" Margin="5,-5,5,1"
              ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
       <Image x:Name="ItemFrame" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
-             Stretch="Fill" Source="TileFrameOverlayRounded.png">
+             Stretch="Fill" Source="TileFrameOverlay.png">
       </Image>
-      <!--Rectangle x:Name="ItemFrame" Grid.RowSpan="2" Fill="Transparent" Stroke="White" StrokeThickness="5" Opacity="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/-->
     </Grid>
   </DataTemplate>
 

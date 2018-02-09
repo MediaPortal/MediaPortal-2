@@ -97,50 +97,37 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid.ColumnDefinitions>
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
         <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
-          <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center" 
+          <Button Height="80" Width="80" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center" 
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
             <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Ellipse x:Name="ItemBackground" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
-                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
               <Image x:Name="ItemImage" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="power.png" Margin="15" Opacity="0.7">
-                <Image.Triggers>
-                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-                    <Setter Property="Opacity" Value="1"/>
-                  </DataTrigger>
-                </Image.Triggers>
-              </Image>
+                     DockPanel.Dock="Center" Source="power.png" Opacity="0.6" Margin="10"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
+              <Image x:Name="ItemImageFocus" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                     DockPanel.Dock="Center" Source="power_focus.png" Opacity="1" Margin="10"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
             </DockPanel>
           </Button>
-          <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
+          <Button Height="80" Width="80" Style="{ThemeResource EmptyButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
             <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Ellipse x:Name="ItemBackground2" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
-                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
               <Image x:Name="ItemImage2" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="user.png" Margin="15" Opacity="0.7">
-                <Image.Triggers>
-                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-                    <Setter Property="Opacity" Value="1"/>
-                  </DataTrigger>
-                </Image.Triggers>
-              </Image>
+                     DockPanel.Dock="Center" Source="user.png" Opacity="0.6" Margin="10"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
+              <Image x:Name="ItemImageFocus2" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                     DockPanel.Dock="Center" Source="user_focus.png" Opacity="1" Margin="10"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
             </DockPanel>
           </Button>
-
-          <Button Height="70" Width="70" Style="{ThemeResource EmptyButtonStyle}"
+          <Button Height="80" Width="80" Style="{ThemeResource EmptyButtonStyle}"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=E7422BB8-2779-49ab-BC99-E3F56138061B}">
             <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Ellipse x:Name="ItemBackground3" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Opacity="0.7"
-                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
               <Image x:Name="ItemImage3" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="Settings.png" Margin="15" Opacity="0.7">
-                <Image.Triggers>
-                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-                    <Setter Property="Opacity" Value="1"/>
-                  </DataTrigger>
-                </Image.Triggers>
-              </Image>
+                     DockPanel.Dock="Center" Source="settings.png" Opacity="0.6" Margin="10"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
+              <Image x:Name="ItemImageFocus3" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                     DockPanel.Dock="Center" Source="settings_focus.png" Opacity="1" Margin="10"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
             </DockPanel>
           </Button>
         </StackPanel>

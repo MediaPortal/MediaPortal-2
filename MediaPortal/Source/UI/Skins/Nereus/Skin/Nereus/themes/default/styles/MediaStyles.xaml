@@ -2293,31 +2293,18 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <Grid x:Name="Poster" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableMovieGridBanners}">
-        <Image x:Name="thumb" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}" Stretch="Fill">
-        <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-        </Image.Source>
-        <Image.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Image.OpacityMask>
-      </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0"
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}"
-             Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Grid x:Name="Poster" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableMovieGridBanners}"
+            Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
+        <Image IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"
+               Stretch="Fill" Source="Poster_Focus_Frame.png" Margin="-11,-8,-11,-8"/>
+        <Image IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+               Stretch="Fill" Source="Poster_Focus_Frame.png" Margin="-17,-15,-17,-15"/>
+        <Image x:Name="poster" Stretch="Fill" Margin="6">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                      fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          </Image.Source>
+        </Image>
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
