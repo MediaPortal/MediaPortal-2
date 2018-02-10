@@ -29,45 +29,30 @@ using System.Threading.Tasks;
 namespace MediaPortal.Common.FanArt
 {
   /// <summary>
+  /// Delegate that tries to download an image to the specified directory.
+  /// </summary>
+  /// <param name="saveDirectory">The directory where the image should be saved.</param>
+  /// <returns><c>true</c> if the image was saved successfully.</returns>
+  public delegate Task<bool> TrySaveFanArtAsyncDelegate(string saveDirectory);
+
+  /// <summary>
   /// Interface for storage and retrieval of fanart images for media items.
   /// </summary>
   public interface IFanArtCache
   {
     /// <summary>
-    /// Creates a subdirectory in the fanart cache directory for the media item with the specified id. 
-    /// </summary>
-    /// <param name="mediaItemId">The id of the media item to init the directory for.</param>
-    void InitFanArtCache(Guid mediaItemId);
-
-    /// <summary>
-    /// Creates a subdirectory in the fanart cache directory for the media item with the specified id
-    /// and adds an info file containing the specified title.
-    /// </summary>
-    /// <param name="mediaItemId">The id of the media item to init the directory for.</param>
-    /// <param name="title">The title of the media item.</param>
-    void InitFanArtCache(Guid mediaItemId, string title);
-
-    /// <summary>
-    /// Gets the path to the directory to store fanart of the specified type for the specified media item.
-    /// This directory may not be created by this method so the caller should ensure it exists if required.
+    /// Tries to save a fanart image to the cache using the specified <see cref="TrySaveFanArtAsyncDelegate"/>.
     /// </summary>
     /// <param name="mediaItemId">The id of the media item.</param>
+    /// <param name="title">The title to use for the cache directory.</param>
     /// <param name="fanArtType">The type of fanart.</param>
-    /// <returns></returns>
-    string GetFanArtDirectory(Guid mediaItemId, string fanArtType);
-
-    /// <summary>
-    /// Gets the configured maximum number of fanart images to store for fanart of the specified type
-    /// or <paramref name="defaultCount"/> if no maximum has been configured.
-    /// </summary>
-    /// <param name="fanArtType">The type of fanart.</param>
-    /// <param name="defaultCount">The default count if no count has been configured.</param>
-    /// <returns>The maximum count or default.</returns>
-    int GetMaxFanArtCount(string fanArtType, int defaultCount = 3);
+    /// <param name="saveDlgt"><see cref="TrySaveFanArtAsyncDelegate"/> that saves an image to the cache directory.</param>
+    /// <returns><c>true</c> if the image was succesfully saved to the cache.</returns>
+    Task<bool> TrySaveFanArt(Guid mediaItemId, string title, string fanArtType, TrySaveFanArtAsyncDelegate saveDlgt);
 
     /// <summary>
     /// Gets a list of paths to all fanart of the specified type for the specified media item.
-    /// </summary>///
+    /// </summary>
     /// <param name="mediaItemId">The id of the media item.</param>
     /// <param name="fanArtType">The type of fanart.</param>
     /// <returns>List of fanart paths.</returns>
@@ -84,16 +69,5 @@ namespace MediaPortal.Common.FanArt
     /// </summary>
     /// <param name="mediaItemId"></param>
     void DeleteFanArtFiles(Guid mediaItemId);
-
-    /// <summary>
-    /// Obtains a lock on the cache for the specified media item and fanart type which can be used
-    /// to check the current fanart count and block other callers from updating the count of the same
-    /// media item and fanart type.
-    /// Callers should ensure that the FanArtCountLock returned is disposed when finished to release the lock.
-    /// </summary>
-    /// <param name="mediaItemId">The id of the media item.</param>
-    /// <param name="fanArtType">The type of fanart.</param>
-    /// <returns>FanArtCountLock object containing the current count.</returns>
-    Task<FanArtCache.FanArtCountLock> GetFanArtCountLock(Guid mediaItemId, string fanArtType);
   }
 }

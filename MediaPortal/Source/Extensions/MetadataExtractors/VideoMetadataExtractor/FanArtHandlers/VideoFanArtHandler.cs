@@ -157,36 +157,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (lfsra != null)
         {
           fileSystemPath = lfsra.LocalFileSystemPath;
-          var ext = ResourcePathHelper.GetExtension(lfsra.LocalFileSystemPath);
+          var ext = ResourcePathHelper.GetExtension(fileSystemPath);
           if (!MKV_EXTENSIONS.Contains(ext))
             return;
 
           MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
           IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
-          foreach (string pattern in patterns.Keys)
+          foreach (var pattern in patterns)
           {
             byte[] binaryData;
-            if (mkvReader.GetAttachmentByName(pattern, out binaryData))
+            if (mkvReader.GetAttachmentByName(pattern.Key, out binaryData))
             {
-              string fanArtType = patterns[pattern];
-              int maxCount = fanArtCache.GetMaxFanArtCount(fanArtType);
-              using (var countLock = await fanArtCache.GetFanArtCountLock(mediaItemId, fanArtType).ConfigureAwait(false))
-              {
-                if (countLock.Count >= maxCount)
-                  return;
-
-                fanArtCache.InitFanArtCache(mediaItemId, movieTitle);
-                string cacheFile = GetCacheFileName(fanArtCache.GetFanArtDirectory(mediaItemId, fanArtType), "File." + pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
-                if (!File.Exists(cacheFile))
-                {
-                  using (MemoryStream ms = new MemoryStream(binaryData))
-                  using (Image img = Image.FromStream(ms, true, true))
-                  {
-                    img.Save(cacheFile, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    countLock.Count++;
-                  }
-                }
-              }
+              string filename = pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath);
+              await fanArtCache.TrySaveFanArt(mediaItemId, movieTitle, pattern.Value,
+                p => TrySaveTagImage(binaryData, p, filename)).ConfigureAwait(false);
             }
           }
         }
@@ -195,6 +179,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         Logger.Warn("MovieFanArtHandler: Exception while reading mkv attachments from '{0}'", ex, fileSystemPath);
       }
+    }
+
+    private Task<bool> TrySaveTagImage(byte[] imageData, string saveDirectory, string filename)
+    {
+      string savePath = Path.Combine(saveDirectory, "File." + filename + ".jpg");
+      try
+      {
+        if (!File.Exists(savePath))
+        {
+          using (MemoryStream ms = new MemoryStream(imageData))
+          using (Image img = Image.FromStream(ms, true, true))
+            img.Save(savePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+          return Task.FromResult(true);
+        }
+      }
+      catch (Exception ex)
+      {
+        // Decoding of invalid image data can fail, but main MediaItem is correct.
+        Logger.Warn("VideoFanArtHandler: Error saving tag image to path '{0}'", ex, savePath);
+      }
+      return Task.FromResult(false);
     }
 
     private async Task ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? movieMediaItemId, string movieTitle)
@@ -318,41 +323,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
     private async Task SaveFolderFile(IResourceLocator mediaItemLocater, ResourcePath file, string fanArtType, Guid mediaItemId, string title)
     {
-      IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
-      int maxCount = fanArtCache.GetMaxFanArtCount(fanArtType);
-      using (var countLock = await fanArtCache.GetFanArtCountLock(mediaItemId, fanArtType).ConfigureAwait(false))
-      {
-        if (countLock.Count >= maxCount)
-          return;
+      if ((!VideoMetadataExtractor.CacheOfflineFanArt && mediaItemLocater.NativeResourcePath.IsNetworkResource) ||
+          (!VideoMetadataExtractor.CacheLocalFanArt && (!mediaItemLocater.NativeResourcePath.IsNetworkResource && mediaItemLocater.NativeResourcePath.IsValidLocalPath)))
+        return;
 
-        if ((VideoMetadataExtractor.CacheOfflineFanArt && mediaItemLocater.NativeResourcePath.IsNetworkResource) ||
-          (VideoMetadataExtractor.CacheLocalFanArt && !mediaItemLocater.NativeResourcePath.IsNetworkResource && mediaItemLocater.NativeResourcePath.IsValidLocalPath))
+      IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
+      await fanArtCache.TrySaveFanArt(mediaItemId, title, fanArtType,
+        p => TrySaveFolderImage(mediaItemLocater, file, p)).ConfigureAwait(false);
+    }
+
+    private async Task<bool> TrySaveFolderImage(IResourceLocator mediaItemLocater, ResourcePath file, string saveDirectory)
+    {
+      string savePath = Path.Combine(saveDirectory, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
+      try
+      {
+        if (File.Exists(savePath))
+          return false;
+
+        using (var fileRa = new ResourceLocator(mediaItemLocater.NativeSystemId, file).CreateAccessor())
         {
-          fanArtCache.InitFanArtCache(mediaItemId, title);
-          string cacheFile = GetCacheFileName(fanArtCache.GetFanArtDirectory(mediaItemId, fanArtType), "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
-          if (!File.Exists(cacheFile))
+          var fileFsra = fileRa as IFileSystemResourceAccessor;
+          if (fileFsra != null)
           {
-            using (var fileRa = new ResourceLocator(mediaItemLocater.NativeSystemId, file).CreateAccessor())
-            {
-              var fileFsra = fileRa as IFileSystemResourceAccessor;
-              if (fileFsra != null)
-              {
-                using (Stream ms = fileFsra.OpenRead())
-                using (Image img = Image.FromStream(ms, true, true))
-                {
-                  img.Save(cacheFile);
-                  countLock.Count++;
-                }
-              }
-            }
+            using (Stream ms = fileFsra.OpenRead())
+            using (FileStream fs = File.OpenWrite(savePath))
+              await ms.CopyToAsync(fs).ConfigureAwait(false);
+            return true;
           }
         }
-        else
-        {
-          //Also count local FanArt
-          countLock.Count++;
-        }
       }
+      catch (Exception ex)
+      {
+        // Decoding of invalid image data can fail, but main MediaItem is correct.
+        Logger.Warn("VideoFanArtHandler: Error saving folder image to path '{0}'", ex, savePath);
+      }
+      return false;
     }
 
     private string GetCacheFileName(string cachePath, string fileName)

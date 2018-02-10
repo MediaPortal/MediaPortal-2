@@ -233,7 +233,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
       {
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         IEnumerable<IMediaFanArtHandler> handlers = mediaAccessor.LocalFanArtHandlers.Values.Where(h => h.FanArtAspects.Any(a => aspects.ContainsKey(a)));
-        await Task.WhenAll(handlers.Select(h => h.CollectFanArtAsync(mediaItemId, aspects)));
+        foreach (IMediaFanArtHandler handler in handlers)
+          await handler.CollectFanArtAsync(mediaItemId, aspects);
       }
       catch (Exception ex)
       {

@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     where TMatch : BaseMatch<TId>
   {
     #region Constants
-    
+
     public const string CONFIG_DATE_FORMAT = "MMddyyyyHHmm";
 
     #endregion
@@ -59,7 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     /// Locking object to access settings.
     /// </summary>
     protected object _syncObj = new object();
-    
+
     protected bool _downloadFanart = true;
     protected Predicate<TMatch> _matchPredicate;
     protected MatchStorage<TMatch, TId> _storage;
@@ -151,6 +151,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
         string name = info.ToString();
         Logger.Debug(_id + " Download: Downloading images for {0} [{1}]", info, mediaItemId);
+
         await SaveFanArtImagesAsync(images.Id, images.Backdrops, language, mediaItemId, name, FanArtTypes.FanArt).ConfigureAwait(false);
         await SaveFanArtImagesAsync(images.Id, images.Posters, language, mediaItemId, name, FanArtTypes.Poster).ConfigureAwait(false);
         await SaveFanArtImagesAsync(images.Id, images.Banners, language, mediaItemId, name, FanArtTypes.Banner).ConfigureAwait(false);
@@ -180,46 +181,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     protected virtual async Task<int> SaveFanArtImagesAsync(string id, IEnumerable<TImg> images, TLang language, Guid mediaItemId, string name, string fanArtType)
     {
-      try
-      {
-        if (images == null || !images.Any())
-          return 0;
-
-        IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
-        int maxCount = fanArtCache.GetMaxFanArtCount(fanArtType);
-        int currentCount = 0;
-        bool cacheIsInit = false;
-
-        using (var countLock = await fanArtCache.GetFanArtCountLock(mediaItemId, fanArtType).ConfigureAwait(false))
-        {
-          foreach (TImg img in images)
-          {
-            if (countLock.Count >= maxCount)
-              break;
-            if (!VerifyFanArtImage(img, language, fanArtType))
-              continue;
-            if (!cacheIsInit)
-            {
-              fanArtCache.InitFanArtCache(mediaItemId, name);
-              cacheIsInit = true;
-            }
-            if (await _wrapper.DownloadFanArtAsync(id, img, fanArtCache.GetFanArtDirectory(mediaItemId, fanArtType)).ConfigureAwait(false))
-            {
-              countLock.Count++;
-              currentCount++;
-            }
-            else
-              Logger.Warn(_id + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanArtType);
-          }
-        }
-        Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", currentCount, mediaItemId, name, fanArtType);
-        return currentCount;
-      }
-      catch (Exception ex)
-      {
-        Logger.Debug(_id + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
+      if (images == null || !images.Any())
         return 0;
+
+      IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
+      int currentCount = 0;
+      foreach (TImg img in images)
+      {
+        try
+        {
+          if (!VerifyFanArtImage(img, language, fanArtType))
+            continue;
+          if (await fanArtCache.TrySaveFanArt(mediaItemId, name, fanArtType,
+              p => _wrapper.DownloadFanArtAsync(id, img, p)).ConfigureAwait(false))
+            currentCount++;
+        }
+        catch (Exception ex)
+        {
+          Logger.Debug(_id + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
+        }
       }
+      Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", currentCount, mediaItemId, name, fanArtType);
+      return currentCount;
     }
 
     #region IDisposable members

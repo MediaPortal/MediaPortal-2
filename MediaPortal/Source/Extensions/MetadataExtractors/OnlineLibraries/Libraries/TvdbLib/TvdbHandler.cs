@@ -397,21 +397,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     {
       Stopwatch watch = new Stopwatch();
       watch.Start();
-      TvdbSeries series = GetSeriesFromCache(seriesId);
-
-      //Everything needed is loaded, just return the series
-      if (series != null && (!loadEpisodes || series.EpisodesLoaded) && (!loadActors || series.TvdbActorsLoaded) && (!loadBanners || series.BannersLoaded))
-        return series;
-
+      TvdbSeries series = null;
       //Synchronise series loading, this avoids multiple threads each missing the cache then trying to load the series whilst another thread is already loading it
       await _seriesLoadingSync.WaitAsync().ConfigureAwait(false);
       try
       {
         //Check the cache again now we're in the loading lock in case another thread has loaded it whist we were waiting
         series = GetSeriesFromCache(seriesId);
-        //Everything needed is loaded, just return the series
-        if (series != null && (!loadEpisodes || series.EpisodesLoaded) && (!loadActors || series.TvdbActorsLoaded) && (!loadBanners || series.BannersLoaded))
-          return series;
 
         //Did I get the series completely from cache or did I have to make an additional online request
         bool loadedAdditionalInfo = false;
@@ -506,7 +498,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         if (_cacheProvider != null)
         {
           //we're using a cache provider
-          
+
+          //if we've loaded data from online source -> save to cache
+          if (_cacheProvider.Initialised && loadedAdditionalInfo)
+          {
+            Log.Info("Store series " + seriesId + " with " + _cacheProvider);
+            _cacheProvider.SaveToCache(series);
+          }
+
           //Store a ref to the cacheprovider and series id in each banner, so the banners
           //can be stored/loaded to/from cache
           #region add cache provider/series id
@@ -537,13 +536,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
             });
           }
           #endregion
-
-          //if we've loaded data from online source -> save to cache
-          if (_cacheProvider.Initialised && loadedAdditionalInfo)
-          {
-            Log.Info("Store series " + seriesId + " with " + _cacheProvider);
-            _cacheProvider.SaveToCache(series);
-          }
         }
       }
       finally

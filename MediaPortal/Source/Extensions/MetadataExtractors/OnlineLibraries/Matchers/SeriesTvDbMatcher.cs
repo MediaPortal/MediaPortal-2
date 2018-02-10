@@ -231,76 +231,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override Task<int> SaveFanArtImagesAsync(string id, IEnumerable<TvdbBanner> images, TvdbLanguage language, Guid mediaItemId, string name, string fanArtType)
+    protected override async Task<int> SaveFanArtImagesAsync(string id, IEnumerable<TvdbBanner> images, TvdbLanguage language, Guid mediaItemId, string name, string fanArtType)
     {
       if (images == null || !images.Any())
-        return Task.FromResult(0);
-      return SaveBanners(images, language, mediaItemId, name, fanArtType);
-    }
+        return 0;
 
-    private async Task<int> SaveBanners(IEnumerable<TvdbBanner> banners, TvdbLanguage language, Guid mediaItemId, string name, string fanArtType)
-    {
-      IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
-      int maxCount = fanArtCache.GetMaxFanArtCount(fanArtType);
-      int currentCount = 0;
-      bool cacheIsInit = false;
-
-      using (var countLock = await fanArtCache.GetFanArtCountLock(mediaItemId, fanArtType).ConfigureAwait(false))
-      {
-        foreach (TvdbBanner tvdbBanner in banners)
-        {
-          if (tvdbBanner.Language != TvdbLanguage.UniversalLanguage && tvdbBanner.Language != language && language != null && tvdbBanner.Language != null)
-            continue;
-
-          if (countLock.Count >= maxCount)
-            break;
-
-          if (fanArtType == FanArtTypes.Banner && !tvdbBanner.BannerPath.Contains("wide") && !tvdbBanner.BannerPath.Contains("graphical"))
-            continue;
-
-          if (!tvdbBanner.IsLoaded)
-          {
-            // We need the image only loaded once, later we will access the cache directly
-            try
-            {
-              if (!cacheIsInit)
-              {
-                fanArtCache.InitFanArtCache(mediaItemId, name);
-                cacheIsInit = true;
-              }
-              tvdbBanner.CachePath = fanArtCache.GetFanArtDirectory(mediaItemId, fanArtType);
-              await tvdbBanner.LoadBannerAsync().ConfigureAwait(false);
-              tvdbBanner.UnloadBanner(true);
-              currentCount++;
-              countLock.Count++;
-            }
-            catch (Exception ex)
-            {
-              Logger.Debug(GetType().Name + " Download: Exception saving images for ID {0} [{1} ({2})]", ex, tvdbBanner.Id, mediaItemId, name);
-            }
-          }
-        }
-      }
-      if (currentCount > 0)
-      {
-        Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", currentCount, mediaItemId, name, fanArtType);
+      int currentCount = await base.SaveFanArtImagesAsync(id, images, language, mediaItemId, name, fanArtType).ConfigureAwait(false);
+      if (currentCount > 0 || language == TvdbLanguage.UniversalLanguage || language == TvdbLanguage.DefaultLanguage)
         return currentCount;
-      }
 
       // Try fallback languages if no images found for preferred
-      if (language != TvdbLanguage.UniversalLanguage && language != TvdbLanguage.DefaultLanguage)
-      {
-        if (_useUniversalLanguage)
-        {
-          currentCount = await SaveBanners(banners, TvdbLanguage.UniversalLanguage, mediaItemId, name, fanArtType).ConfigureAwait(false);
-          if (currentCount > 0)
-            return currentCount;
-        }
+      language = _useUniversalLanguage ? TvdbLanguage.UniversalLanguage : TvdbLanguage.DefaultLanguage;
+      return await base.SaveFanArtImagesAsync(id, images, language, mediaItemId, name, fanArtType).ConfigureAwait(false);
+    }
 
-        currentCount = await SaveBanners(banners, TvdbLanguage.DefaultLanguage, mediaItemId, name, fanArtType).ConfigureAwait(false);
-      }
-      Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", currentCount, mediaItemId, name, fanArtType);
-      return currentCount;
+    protected override bool VerifyFanArtImage(TvdbBanner image, TvdbLanguage language, string fanArtType)
+    {
+      if (image.IsLoaded)
+        return false;
+      if (image.Language != TvdbLanguage.UniversalLanguage && image.Language != language && language != null && image.Language != null)
+        return false;
+      if (fanArtType == FanArtTypes.Banner && !image.BannerPath.Contains("wide") && !image.BannerPath.Contains("graphical"))
+        return false;
+      return true;
     }
 
     #endregion
