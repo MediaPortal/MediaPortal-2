@@ -24,7 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UI.Presentation.Workflow
 {
@@ -151,10 +154,25 @@ namespace MediaPortal.UI.Presentation.Workflow
     {
       get
       {
+        IDictionary<Guid, WorkflowAction> filteredActions = new Dictionary<Guid, WorkflowAction>();
+        var um = ServiceRegistration.Get<IUserManagement>();
+        foreach (KeyValuePair<Guid, WorkflowAction> action in MenuActionsInternal)
+        {
+          if (um.CheckUserAccess(action.Value))
+            filteredActions.Add(action);
+        }
+        return filteredActions;
+      } 
+    }
+
+    private IDictionary<Guid, WorkflowAction> MenuActionsInternal
+    {
+      get
+      {
         if (_predecessor == null || !_workflowState.InheritMenu)
           return _menuActions;
         // Try to inherit menu actions from predecessor
-        IDictionary<Guid, WorkflowAction> predecessorMenuActions = _predecessor.MenuActions;
+        IDictionary<Guid, WorkflowAction> predecessorMenuActions = _predecessor.MenuActionsInternal;
         if (predecessorMenuActions.Count == 0)
           // Nothing to inherit
           return _menuActions;

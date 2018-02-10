@@ -387,7 +387,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         CallContext context)
     {
       string profileName = (string)inParams[0];
-      int profileType = (int)inParams[1];
+      UserProfileType profileType = (UserProfileType)inParams[1];
       string profilePassword = (string)inParams[2];
       Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfileAsync(profileName, profileType, profilePassword).Result;
       outParams = new List<object> { profileId };
@@ -399,7 +399,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string profileName = (string)inParams[1];
-      int profileType = (int)inParams[2];
+      UserProfileType profileType = (UserProfileType)inParams[2];
       string profilePassword = (string)inParams[3];
       bool success = ServiceRegistration.Get<IUserProfileDataManagement>().UpdateProfileAsync(profileId, profileName, profileType, profilePassword).Result;
       outParams = new List<object> { success };

@@ -25,7 +25,7 @@
   <string name="Media.ImagesMenuItem">Images</string>
   <string name="Media.ImagesMenuItem.Help">Browse the media library for images. Get additional information as locations, year and image details. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.LatestMediaMenuItem">Latest media</string>
-  
+
   <!-- General strings used in filter/sort/group menus -->
   <string name="Media.NameMenuItem">Name</string>
   <string name="Media.TitleMenuItem">Title</string>
@@ -57,7 +57,7 @@
   <string name="Media.TVNetworkMenuItem">TV network</string>
   <string name="Media.MusicLabelMenuItem">Music label</string>
   <string name="Media.CompanyMenuItem">Production studio</string>
-  <string name="Media.ShowAllMenuItem">Show All</string>   
+  <string name="Media.ShowAllMenuItem">Show All</string>
   <string name="Media.VideoPlayCountMenuItem">(Un-)Watched</string>
   <string name="Media.AudioLanguageMenuItem">Language</string>
   <string name="Media.ImageCountryMenuItem">Country</string>
@@ -73,11 +73,11 @@
   <string name="Media.CertificationMenuItem">Certification</string>
 
   <string name="Media.SimpleSearchFilterMenuItem">Search</string>
-  
- <!-- Filter titles -->
+
+  <!-- Filter titles -->
   <string name="Media.SwitchFilterMenuItem">Filter</string>
   <string name="Media.SwitchFilterDialogTitle">Filter by</string>
-  
+
   <!-- Special filters names -->
   <string name="Media.ImageFilterSmall">Small</string>
   <string name="Media.ImageFilterMedium">Medium</string>
@@ -86,16 +86,19 @@
   <string name="Media.CompilationFilterCompiled">Compilations</string>
   <string name="Media.CompilationFilterUncompiled">Non-compilations</string>
   <string name="Media.ContentGroupFilter">{0}</string>
-  
+
   <string name="Media.SwitchToBrowseMLView">To server view</string>
   <string name="Media.SwitchToLocalMediaView">To local view</string>
   <string name="Media.SwitchToBrowseShareView">To folder view</string>
   <string name="Media.SwitchToMediaLibraryView">To library view</string>
 
   <!-- Navbar display labels for sub view navigation -->
-  <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string> <!-- For example: "R.E.M." -->
-  <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string> <!-- For example: "R.E.M." -->
-  <string name="Media.FilterArtistNavbarDisplayLabel">Artist: {0}</string> <!-- For example: "Artist: R.E.M." -->
+  <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
+  <!-- For example: "R.E.M." -->
+  <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string>
+  <!-- For example: "R.E.M." -->
+  <string name="Media.FilterArtistNavbarDisplayLabel">Artist: {0}</string>
+  <!-- For example: "Artist: R.E.M." -->
   <string name="Media.FilterComposerNavbarDisplayLabel">Composer: {0}</string>
   <string name="Media.FilterAlbumArtistNavbarDisplayLabel">Album Artist: {0}</string>
   <string name="Media.FilterAlbumLabelNavbarDisplayLabel">Music Label: {0}</string>
@@ -131,7 +134,7 @@
   <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Album compilations</string>
   <string name="Media.FilterContentGroupNavbarDisplayLabel">Content group: {0}</string>
   <string name="Media.FilterCertificationNavbarDisplayLabel">Certification: {0}</string>
-  
+
   <!-- Display labels for workflow navigation contexts -->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Browse media</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Local media</string>
@@ -227,7 +230,7 @@
   <string name="Media.WriterOccupationName">Writer</string>
   <string name="Media.DirectorOccupationName">Director</string>
   <string name="Media.ComposerOccupationName">Composer</string>
-  
+
   <!-- View names (names for the view instances) -->
   <string name="Media.BrowseMediaRootViewName">Browse media</string>
   <string name="Media.LocalMediaRootViewName">Local media</string>
@@ -244,11 +247,16 @@
   <!-- General strings used in views  -->
   <string name="Media.ViewInvalid">This view could not be built</string>
   <string name="Media.ViewEmpty">&lt;No items to display&gt;</string>
-  <string name="Media.NoItems">No items</string> <!-- Shown in the header of an items list -->
-  <string name="Media.OneItem">One item</string> <!-- Shown in the header of an items list -->
-  <string name="Media.OneOfOneItem">1/1 item</string> <!-- Shown in the header of an items list -->
-  <string name="Media.NOfMItems">{0}/{1} items</string> <!-- Shown in the header of an items list, e.g. "15/350 items" -->
-  <string name="Media.NItems">{0} items</string> <!-- Shown in the header of an items list, e.g. "45 items" -->
+  <string name="Media.NoItems">No items</string>
+  <!-- Shown in the header of an items list -->
+  <string name="Media.OneItem">One item</string>
+  <!-- Shown in the header of an items list -->
+  <string name="Media.OneOfOneItem">1/1 item</string>
+  <!-- Shown in the header of an items list -->
+  <string name="Media.NOfMItems">{0}/{1} items</string>
+  <!-- Shown in the header of an items list, e.g. "15/350 items" -->
+  <string name="Media.NItems">{0} items</string>
+  <!-- Shown in the header of an items list, e.g. "45 items" -->
   <string name="Media.MoreThanMaxItemsHint">This view contains more than {0} items. Please restrict the number of items by adding more filters.</string>
   <string name="Media.MoreThanMaxItemsBrowseHint">This view contains more than {0} items.</string>
   <string name="Media.MoreThanMaxItemsSearchResultHint">The search result contains more than {0} items. Please narrow your search.</string>
@@ -439,7 +447,7 @@
 
   <string name="Media.Watched">Watched</string>
   <string name="Media.Unwatched">Unwatched</string>
-  
+
   <string name="Media.SwitchSortingMenuItem">Sorting</string>
   <string name="Media.SwitchSortingDialogTitle">Sort by</string>
   <string name="Media.SortingBrowseDefault">Default Sorting</string>
@@ -450,7 +458,7 @@
   <string name="Media.SwitchGroupingMenuItem">Grouping</string>
   <string name="Media.SwitchGroupingDialogTitle">Group by</string>
   <string name="Media.NoGrouping">No grouping</string>
-  
+
   <!--Stubs-->
   <string name="Media.Stub.Title">Insert disc</string>
   <string name="Media.Stub.Message">Please insert disc</string>
@@ -479,7 +487,7 @@
   <string name="Settings.Players.OpenPlayerConfigInOsd.Help">Enable this option to display the player configuration after pressing 'Info' a second time</string>
 
   <string name="Settings.Media">Media library</string>
-  
+
   <string name="Settings.Media.ShowVirtual">Show all known media items</string>
   <string name="Settings.Media.ShowVirtual.Help">Select whether to show all known media items even if there is not a local file reference</string>
   <string name="Settings.Media.ShowVirtual.Audio">Show all known album tracks</string>
@@ -508,4 +516,7 @@
 
   <string name="Filter.Filtered">Filtered</string>
   <string name="Filter.StartsWith">Starts with: {0}</string>
+
+  <string name="RestrictionGroup.Media.DeleteMediaItem">Media: Delete items from storage</string>
+
 </resources>

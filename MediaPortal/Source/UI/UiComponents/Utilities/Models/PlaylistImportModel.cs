@@ -38,6 +38,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.Threading;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;

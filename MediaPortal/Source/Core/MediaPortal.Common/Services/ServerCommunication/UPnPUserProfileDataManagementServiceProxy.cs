@@ -76,18 +76,18 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
-    public async Task<Guid> CreateProfileAsync(string profileName, int profileType, string profilePassword)
+    public async Task<Guid> CreateProfileAsync(string profileName, UserProfileType profileType, string profilePassword)
     {
       CpAction action = GetAction("CreateUserProfile");
-      IList<object> inParameters = new List<object> { profileName, profileType, profilePassword };
+      IList<object> inParameters = new List<object> { profileName, (int)profileType, profilePassword };
       IList<object> outParameters = await action.InvokeAsync(inParameters);
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
-    public async Task<bool> UpdateProfileAsync(Guid profileId, string profileName, int profileType, string profilePassword)
+    public async Task<bool> UpdateProfileAsync(Guid profileId, string profileName, UserProfileType profileType, string profilePassword)
     {
       CpAction action = GetAction("UpdateUserProfile");
-      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), profileName, profileType, profilePassword };
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), profileName, (int)profileType, profilePassword };
       IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (bool)outParameters[0];
     }

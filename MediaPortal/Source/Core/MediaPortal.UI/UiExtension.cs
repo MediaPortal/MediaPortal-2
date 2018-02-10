@@ -27,6 +27,7 @@ using MediaPortal.UI.PluginItemBuilders;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.FrontendServer;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.UiNotifications;

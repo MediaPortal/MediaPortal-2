@@ -41,8 +41,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
     Task<AsyncResult<UserProfile>> GetProfileAsync(Guid profileId);
     Task<AsyncResult<UserProfile>> GetProfileByNameAsync(string profileName);
     Task<Guid> CreateProfileAsync(string profileName);
-    Task<Guid> CreateProfileAsync(string profileName, int profileType, string profilePassword);
-    Task<bool> UpdateProfileAsync(Guid profileId, string profileName, int profileType, string profilePassword);
+    Task<Guid> CreateProfileAsync(string profileName, UserProfileType profileType, string profilePassword);
+    Task<bool> UpdateProfileAsync(Guid profileId, string profileName, UserProfileType profileType, string profilePassword);
     Task<bool> SetProfileImageAsync(Guid profileId, byte[] profileImage);
     Task<bool> RenameProfileAsync(Guid profileId, string newName);
     Task<bool> DeleteProfileAsync(Guid profileId);
