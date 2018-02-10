@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 using MediaPortal.Utilities.Exceptions;
 using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
+using Microsoft.Owin.Hosting.Tracing;
 using Owin;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Dv.GENA;
@@ -277,9 +278,22 @@ namespace UPnP.Infrastructure.Dv
         }
         startOptions.Urls.Add(formattedAddress);
       }
+
+      // Disable built-in owin tracing by using a null traceoutput. It causes crashes by concurrency issues.
+      // See: https://stackoverflow.com/questions/17948363/tracelistener-in-owin-self-hosting
+      startOptions.Settings.Add(
+        typeof(ITraceOutputFactory).FullName,
+        typeof(NullTraceOutputFactory).AssemblyQualifiedName);
       return startOptions;
     }
 
+    public class NullTraceOutputFactory : ITraceOutputFactory
+    {
+      public TextWriter Create(string outputFile)
+      {
+        return StreamWriter.Null;
+      }
+    }
     /// <summary>
     /// Has to be called when the server's configuration (i.e. its devices, services, actions or state variables)
     /// was changed.
