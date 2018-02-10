@@ -26,9 +26,12 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Services.PathManager;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
@@ -45,6 +48,12 @@ namespace Test.NfoMetadataExtractor
   [TestFixture]
   public class TestNfoMovieReader
   {
+    static TestNfoMovieReader()
+    {
+      ServiceRegistration.Set<IPathManager>(new PathManager());
+      ServiceRegistration.Set<ISettingsManager>(new NoSettingsManager());
+    }
+
     [Test]
     public void TestNfoMovieReaderReadMetadata()
     {
@@ -207,7 +216,7 @@ namespace Test.NfoMetadataExtractor
         PlayCount = 10,
         Watched = true,
         LastPlayed = new DateTime(2000, 1, 31),
-        Genres = new HashSet<string>(new[] { "Action", "Comedy" }),
+        //Genres = new HashSet<string>(new[] { "Action", "Comedy" }),
         Actors = new HashSet<PersonStub>(actors),
         Director = "TestDirector",
         DirectorImdb = "DirectorId",

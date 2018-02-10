@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NfoEpisodeReaderForTests.cs" />
+    <Compile Include="TestNfoSeriesReader.cs" />
     <Compile Include="TestNfoArtistReader.cs" />
     <Compile Include="TestNfoMovieReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1425,7 +1425,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return false;
 
       //Distinct actor names, ordered by Order
-      IEnumerable<PersonStub> actors = _stubs[0].Actors
+      IEnumerable<PersonStub> actors = stubActors
         .Where(a => !string.IsNullOrEmpty(a.Name))
         .GroupBy(a => a.Name).Select(g => g.First())
         .OrderBy(a => a.Order);
