@@ -41,7 +41,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (server != null)
       {
         ServiceRegistration.Set<IFanArtService>(new FanArtService());
-        //_fanartModule = new FanartAccessModule();
         server.AddHttpModule(typeof(FanartAccessModule));
       }
     }

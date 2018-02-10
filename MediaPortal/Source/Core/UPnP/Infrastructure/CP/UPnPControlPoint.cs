@@ -112,17 +112,6 @@ namespace UPnP.Infrastructure.CP
 
     #region Event handlers
 
-    //private void OnHttpListenerRequestReceived(object sender, RequestEventArgs e)
-    //{
-    //  IHttpClientContext context = (IHttpClientContext)sender;
-    //  lock (_cpData.SyncObj)
-    //  {
-    //    if (!_isActive)
-    //      return;
-    //    HandleHTTPRequest(context, e.Request);
-    //  }
-    //}
-
     private void OnDeviceRebooted(RootDescriptor rootdescriptor)
     {
       foreach (DeviceConnection connection in _connectedDevices.Values)
@@ -184,8 +173,6 @@ namespace UPnP.Infrastructure.CP
 
         UPnPConfiguration.LOGGER.Debug("Will listen on IPs filtered by [{0}]", (UPnPConfiguration.IP_ADDRESS_BINDINGS != null ? String.Join(",", UPnPConfiguration.IP_ADDRESS_BINDINGS) : null));
 
-        //_cpData.HttpPortV4 = 0;
-        //var port = _cpData.HttpPortV4 = NetworkHelper.GetFreePort(_cpData.HttpPortV4);
         var servicePrefix = "/MediaPortal/UPnPControlPoint_" + Guid.NewGuid().GetHashCode().ToString("X");
         _cpData.ServicePrefix = servicePrefix;
         var startOptions = UPnPServer.BuildStartOptions(servicePrefix);
@@ -202,57 +189,6 @@ namespace UPnP.Infrastructure.CP
           server?.Dispose();
           UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server", e);
         }
-
-        //if (UPnPConfiguration.USE_IPV4)
-        //{
-        //  foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, UPnPConfiguration.IP_ADDRESS_BINDINGS))
-        //  {
-        //    //HttpListener httpListenerV4 = HttpListener.Create(address, _cpData.HttpPortV4);
-        //    //httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-        //    IDisposable server = null;
-        //    try
-        //    {
-        //      var port = _cpData.HttpPortV4 = NetworkHelper.GetFreePort(_cpData.HttpPortV4);
-        //      var bindableAddress = NetworkHelper.TranslateBindableAddress(address);
-        //      var baseAddress = $"http://{bindableAddress}:{port}/";
-        //      server = WebApp.Start(baseAddress, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
-        //      //httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
-        //      //_cpData.HttpPortV4 = httpListenerV4.LocalEndpoint.Port;
-        //      UPnPConfiguration.LOGGER.Debug("UPnPControlPoint: HTTP listener for IPv4 protocol started at address '{0}' on port '{1}'", address, port);
-        //      _httpListeners.Add(server);
-        //    }
-        //    catch (SocketException e)
-        //    {
-        //      UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server (IPv4)", e);
-        //    }
-        //  }
-        //}
-
-        //_cpData.HttpPortV6 = 0;
-        //if (UPnPConfiguration.USE_IPV6)
-        //{
-        //  foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, UPnPConfiguration.IP_ADDRESS_BINDINGS))
-        //  {
-        //    //HttpListener httpListenerV6 = HttpListener.Create(address, _cpData.HttpPortV6);
-        //    //httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-        //    IDisposable server = null;
-        //    try
-        //    {
-        //      //httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv6 isn't installed
-        //      //_cpData.HttpPortV6 = httpListenerV6.LocalEndpoint.Port;
-        //      _cpData.HttpPortV6 = NetworkHelper.GetFreePort(_cpData.HttpPortV6);
-        //      var bindableAddress = NetworkHelper.TranslateBindableAddress(address);
-        //      server = WebApp.Start($"http://{bindableAddress}:{_cpData.HttpPortV6}/", builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
-
-        //      UPnPConfiguration.LOGGER.Debug("UPnPControlPoint: HTTP listener for IPv6 protocol started at address '{0}' on port '{1}'", address, _cpData.HttpPortV6);
-        //      _httpListeners.Add(server);
-        //    }
-        //    catch (SocketException e)
-        //    {
-        //      UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server (IPv6)", e);
-        //    }
-        //  }
-        //}
 
         _networkTracker.RootDeviceRemoved += OnRootDeviceRemoved;
         _networkTracker.DeviceRebooted += OnDeviceRebooted;
@@ -401,12 +337,10 @@ namespace UPnP.Infrastructure.CP
         }
         else
         {
-          //context.Respond(HttpHelper.HTTP11, HttpStatusCode.MethodNotAllowed, null);
           response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
           return;
         }
         // Url didn't match
-        //context.Respond(HttpHelper.HTTP11, HttpStatusCode.NotFound, null);
         response.StatusCode = (int)HttpStatusCode.NotFound;
       }
       catch (Exception) // Don't log the exception here - we don't care about not being able to send the return value to the client

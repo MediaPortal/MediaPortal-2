@@ -39,7 +39,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
   {
     protected readonly List<Type> _middleWares = new List<Type>();
     protected IDisposable _httpServer;
-    protected int _serverPort = 55555; // TODO
+    protected int _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
     protected readonly object _syncObj = new object();
     protected string _servicePrefix;
 
@@ -53,24 +53,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       List<string> filters = settings.IPAddressBindingsList;
-      //List<IPAddress> validAddresses = new List<IPAddress>();
 
       _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
       var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
 
-      //if (settings.UseIPv4)
-      //  validAddresses.AddRange(NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, filters));
-      //if (settings.UseIPv6)
-      //  validAddresses.AddRange(NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, filters));
-
       lock (_syncObj)
       {
-        //_serverPort = NetworkHelper.GetFreePort(0);
-        //foreach (IPAddress address in validAddresses)
-        //{
-        //  var bindableAddress = NetworkHelper.TranslateBindableAddress(address);
-        //  startOption.Urls.Add($"http://{bindableAddress}:{_serverPort}/");
-        //}
         _httpServer = WebApp.Start(startOptions, builder =>
         {
           foreach (Type middleWareType in _middleWares)
@@ -133,24 +121,20 @@ namespace MediaPortal.Common.Services.ResourceAccess
       CreateAndStartServer();
     }
 
-    public void AddHttpModule(Type module)
+    public void AddHttpModule(Type moduleType)
     {
-      _middleWares.Add(module);
+      _middleWares.Add(moduleType);
       if (_httpServer != null)
       {
+        // Note: the Owin pipeline is not designed to allow dynamic changes, so we have to rebuild it completely.
         StopServer();
         CreateAndStartServer();
       }
     }
 
-    //public void AddAuthenticationModule(AuthenticationModule module)
-    //{
-    //  _httpServers.Values.ToList().ForEach(x => x.AuthenticationModules.Add(module));
-    //}
-
-    public void RemoveHttpModule(Type module)
+    public void RemoveHttpModule(Type moduleType)
     {
-      _middleWares.Remove(module);
+      _middleWares.Remove(moduleType);
     }
 
     #endregion

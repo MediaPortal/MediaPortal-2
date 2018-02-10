@@ -125,21 +125,7 @@ namespace UPnP.Infrastructure.Dv
       get { return _endpointIPAddress; }
       internal set { _endpointIPAddress = value; }
     }
-
-    ///// <summary>
-    ///// The port where the HTTP server, which corresponds to this endpoint, listens.
-    ///// </summary>
-    //public int HTTPServerPort
-    //{
-    //  get { return _httpServerPort; }
-    //  internal set { _httpServerPort = value; }
-    //}
-
-    ///// <summary>
-    ///// Contains the root path of web service, it will be unique per instance.
-    ///// </summary>
-    //public string ServicePrefix { get; internal set; }
-
+    
     /// <summary>
     /// Returns the information if the <see cref="SSDPSearchPort"/> is another port than
     /// <see cref="UPnPConsts.DEFAULT_SSDP_SEARCH_PORT"/>.
@@ -288,7 +274,7 @@ namespace UPnP.Infrastructure.Dv
 
     public string GetEndpointHttpPrefixString()
     {
-      var httpServerPort = 55555; // TODO
+      var httpServerPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
       return "http://" + NetworkHelper.IPEndPointToString(EndPointIPAddress, httpServerPort);
     }
   }

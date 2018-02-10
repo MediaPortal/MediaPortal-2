@@ -38,6 +38,7 @@ using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.CP.SSDP;
+using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Utils;
 using UPnP.Infrastructure.Utils.HTTP;
 
@@ -113,9 +114,8 @@ namespace UPnP.Infrastructure.CP.GENA
       _upnpVersion = upnpVersion;
       _eventNotificationPath = cpData.ServicePrefix + "/" + Guid.NewGuid();
       IPAddress address = endpoint.EndPointIPAddress;
-      _eventNotificationEndpoint = new IPEndPoint(address, 55555); // TODO
-        //address.AddressFamily == AddressFamily.InterNetwork ?
-        //  cpData.HttpPortV4 : cpData.HttpPortV6);
+      var port = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
+      _eventNotificationEndpoint = new IPEndPoint(address, port);
       _subscriptionRenewalTimer = new Timer(OnSubscriptionRenewalTimerElapsed);
     }
 

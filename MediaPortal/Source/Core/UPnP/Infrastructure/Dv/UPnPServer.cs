@@ -51,9 +51,10 @@ namespace UPnP.Infrastructure.Dv
   public class UPnPServer : IDisposable
   {
     /// <summary>
-    /// Size of the queue which holds open HTTP requests before they are evaluated.
+    /// The default port number that is used for http listening. It has to be added to Httpsys Url reservation and the Windows firewall.
+    /// Note: When changing this constant here, the installer project needs to be changed as well to match the new port in CustomActions.
     /// </summary>
-    public static int DEFAULT_HTTP_REQUEST_QUEUE_SIZE = 5;
+    public static int DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER = 55555;
 
     /// <summary>
     /// Prefix which is added to URLs for description documents.
@@ -189,48 +190,6 @@ namespace UPnP.Infrastructure.Dv
           UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server", e);
         }
 
-
-        //{
-        //  foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, UPnPConfiguration.IP_ADDRESS_BINDINGS))
-        //  {
-        //    //HttpListener httpListenerV4 = HttpListener.Create(address, _serverData.HTTP_PORTv4);
-        //    //httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-        //  }
-        //}
-        //else
-        //{
-        //  UPnPConfiguration.LOGGER.Info("UPnP server: IPv4 protocol disabled, so no HTTP listener started for IPv4");
-        //}
-
-        //_serverData.HTTP_PORTv6 = 0;
-        //if (UPnPConfiguration.USE_IPV6)
-        //{
-        //  foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, UPnPConfiguration.IP_ADDRESS_BINDINGS))
-        //  {
-        //    //HttpListener httpListenerV6 = HttpListener.Create(address, _serverData.HTTP_PORTv6); // Might fail if IPv6 isn't installed
-        //    //httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-        //    IDisposable server = null;
-        //    try
-        //    {
-        //      _serverData.HTTP_PORTv6 = NetworkHelper.GetFreePort(_serverData.HTTP_PORTv6);
-        //      var bindableAddress = NetworkHelper.TranslateBindableAddress(address);
-        //      server = WebApp.Start($"http://{bindableAddress}:{_serverData.HTTP_PORTv6}", builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
-        //      //httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-        //      //_serverData.HTTP_PORTv6 = httpListenerV6.LocalEndpoint.Port;
-        //      UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
-        //      _serverData.HTTPListeners.Add(server);
-        //    }
-        //    catch (SocketException e)
-        //    {
-        //      UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv6)", e);
-        //    }
-        //  }
-        //}
-        //else
-        //{
-        //  UPnPConfiguration.LOGGER.Info("UPnP server: IPv6 protocol disabled, so no HTTP listener started for IPv6");
-        //}
-
         _serverData.SSDPController = new SSDPServerController(_serverData)
         {
           AdvertisementExpirationTime = advertisementInterval
@@ -265,7 +224,7 @@ namespace UPnP.Infrastructure.Dv
           listenAddresses.Add(address);
 
       StartOptions startOptions = new StartOptions();
-      int port = 55555;
+      int port = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
       foreach (IPAddress address in listenAddresses)
       {
         var bindableAddress = NetworkHelper.TranslateBindableAddress(address);

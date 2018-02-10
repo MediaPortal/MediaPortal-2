@@ -70,16 +70,6 @@ namespace UPnP.Infrastructure.Dv
     /// </summary>
     public List<IDisposable> HTTPListeners = new List<IDisposable>();
 
-    ///// <summary>
-    ///// Port where the HTTP server is listening for IPv4.
-    ///// </summary>
-    //public int HTTP_PORTv4 = DEFAULT_HTTP_PORT;
-
-    ///// <summary>
-    ///// Port where the HTTP server is listening for IPv6.
-    ///// </summary>
-    //public int HTTP_PORTv6 = DEFAULT_HTTP_PORT;
-
     /// <summary>
     /// Contains the root path of web service, it will be unique per instance.
     /// </summary>

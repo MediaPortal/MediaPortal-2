@@ -82,8 +82,6 @@ namespace UPnP.Infrastructure.Utils
       if (filters == null || filters.Count == 0)
       {
         result.Add((family == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any));
-        //if (family == AddressFamily.InterNetwork)
-        //  result.Add((family == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Loopback : IPAddress.Loopback));
       }
       else
       {

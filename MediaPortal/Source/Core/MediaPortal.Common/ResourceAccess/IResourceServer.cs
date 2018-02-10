@@ -47,29 +47,18 @@ namespace MediaPortal.Common.ResourceAccess
     void RestartHttpServers();
 
     /// <summary>
-    /// Adds a new HTTP module to the HTTP server.
+    /// Adds a new HTTP middleware to the HTTP server.
     /// </summary>
     /// <remarks>
-    /// The HTTP module approach is implemented by our <see cref="HttpServer.HttpServer"/> and fits very well into
-    /// the MediaPortal concept: Plugins simply can add a module to the HTTP server.
+    /// The HTTP module approach is implemented by Owin self host which allows to add a OwinMiddleware to the HTTP server.
     /// </remarks>
-    /// <param name="module"></param>
-    void AddHttpModule(Type module);
-
-    /// <summary>
-    /// Adds a new Authentication Module to the HTTP server.
-    /// </summary>
-    /// <remarks>
-    /// The Authentication Module approach is implemented by our <see cref="HttpServer.HttpServer"/> and fits very well into
-    /// the MediaPortal concept: Plugins simply can add a module to the HTTP server.
-    /// </remarks>
-    /// <param name="module"></param>
-    //void AddAuthenticationModule(AuthenticationModule module);
+    /// <param name="moduleType">Type of OwinMiddleware</param>
+    void AddHttpModule(Type moduleType);
 
     /// <summary>
     /// Removes an HTTP module from the HTTP server.
     /// </summary>
-    /// <param name="module">Module to remove.</param>
-    void RemoveHttpModule(Type module);
+    /// <param name="moduleType">Type of OwinMiddleware to remove.</param>
+    void RemoveHttpModule(Type moduleType);
   }
 }
