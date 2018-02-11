@@ -886,12 +886,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (!season.HasValue)
         season = _stubs[0].DisplaySeason;
 
-      var episode = _stubs[0].Episodes;
-      string episodeName = null;
-      if(_stubs[0].Title != null)
-        episodeName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].Title);
-
-      if (seriesName != null && season.HasValue && episode.Count > 0)
+      if (seriesName != null && season.HasValue && _stubs.Count > 0)
       {
         string name = String.Format(EpisodeInfo.EPISODE_FORMAT_STR,
           seriesName,
@@ -899,7 +894,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           StringUtils.Join(", ", _stubs.OrderBy(e => e.Episodes.First()).Select(e => e.Episodes.First().ToString().PadLeft(2, '0'))),
           string.Join("; ", _stubs.OrderBy(e => e.Episodes.First()).Select(e => e.Title).ToArray()));
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, name);
-        if(episodeName != null)
+
+        string episodeName = string.Join("; ", _stubs.OrderBy(e => e.Episodes.First()).Select(e => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(e.Title)));
+        if (episodeName != null)
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(episodeName));
         else
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(name));
@@ -1072,7 +1069,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         if (_stubs.Count == 1)
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Plot);
         else
-          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episodes).Select(e => string.Format("{0,02}) {1}", e.Episodes, e.Plot)).ToArray()));
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episodes.First()).Select(e => string.Format("{0,02}) {1}", e.Episodes.First(), e.Plot)).ToArray()));
         return true;
       }
       // priority 2:
@@ -1081,7 +1078,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         if (_stubs.Count == 1)
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Outline);
         else
-          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episodes).Select(e => string.Format("{0,02}) {1}", e.Episodes, e.Outline)).ToArray()));
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episodes.First()).Select(e => string.Format("{0,02}) {1}", e.Episodes.First(), e.Outline)).ToArray()));
         return true;
       }
       // priority 3:
@@ -1257,7 +1254,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Title != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODE_NAME, string.Join("; ", _stubs.OrderBy(e => e.Episodes).
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODE_NAME, string.Join("; ", _stubs.OrderBy(e => e.Episodes.First()).
           Select(e => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(e.Title)).ToArray()));
         return true;
       }
