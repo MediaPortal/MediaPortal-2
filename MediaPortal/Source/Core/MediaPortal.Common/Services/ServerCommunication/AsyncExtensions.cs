@@ -22,9 +22,11 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using MediaPortal.Common.Logging;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Common.Services.ServerCommunication
@@ -55,6 +57,56 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
   public static class AsyncExtensions
   {
+    /// <summary>
+    /// Adds a try/catch block around the given <paramref name="task"/> and logs possible exceptions as warnings.
+    /// </summary>
+    /// <param name="task">Task to execute</param>
+    public static async Task Try(this Task task)
+    {
+      try
+      {
+        await task;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Exception in async taks: ", e);
+      }
+    }
+    /// <summary>
+    /// Adds a try/catch block around the given <paramref name="task"/> and logs possible exceptions as warnings.
+    /// </summary>
+    /// <param name="task">Task to execute</param>
+    public static async Task<T> Try<T>(this Task<T> task)
+    {
+      try
+      {
+        return await task;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Exception in async taks: ", e);
+        return default(T);
+      }
+    }
+
+    /// <summary>
+    /// Adds a try/catch block around the given <paramref name="task"/>, logs possible exceptions as warnings and synchronously waits for completion.
+    /// </summary>
+    /// <param name="task">Task to execute</param>
+    public static void TryWait(this Task task)
+    {
+      task.Try().Wait();
+    }
+
+    /// <summary>
+    /// Adds a try/catch block around the given <paramref name="task"/>, logs possible exceptions as warnings and synchronously waits for completion.
+    /// </summary>
+    /// <param name="task">Task to execute</param>
+    public static T TryWait<T>(this Task<T> task)
+    {
+      return task.Try().Result;
+    }
+
     public static async Task<IList<object>> InvokeAsyncTask(this CpAction action, IList<object> inParameters)
     {
       return await Task.Factory.FromAsync((callback, stateObject) => action.BeginInvokeAction(inParameters, callback, stateObject), action.EndInvokeAction, null).ConfigureAwait(false);

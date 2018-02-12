@@ -356,6 +356,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               _debugLogger.Warn("[#{0}]: No valid metadata found in series nfo-file", miNumber);
           }
         }
+        else if (episodeNfoReader != null)
+        {
+          // Then we store the found metadata in the MediaItemAspects. If we only found metadata that is
+          // not (yet) supported by our MediaItemAspects, this MetadataExtractor returns false.
+          if (!episodeNfoReader.TryWriteMetadata(extractedAspectData))
+          {
+            _debugLogger.Warn("[#{0}]: No metadata was written into MediaItemsAspects", miNumber);
+            return false;
+          }
+        }
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);
         return true;

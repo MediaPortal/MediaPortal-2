@@ -23,11 +23,14 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.General;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Services.UserManagement
@@ -38,6 +41,7 @@ namespace MediaPortal.UI.Services.UserManagement
 
     private UserProfile _currentUser = null;
     private bool _applyRestrictions = false;
+    private ICollection<string> _restrictionGroups = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 
     public bool IsValidUser
     {
@@ -46,8 +50,14 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public UserProfile CurrentUser
     {
-      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().Result ?? UNKNOWN_USER); }
-      set { _currentUser = value; }
+      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().TryWait() ?? UNKNOWN_USER); }
+      set
+      {
+        bool changed = _currentUser != value;
+        _currentUser = value;
+        if (changed)
+          UserMessaging.SendUserMessage(UserMessaging.MessageType.UserChanged);
+      }
     }
 
     public IUserProfileDataManagement UserProfileDataManagement
@@ -57,6 +67,31 @@ namespace MediaPortal.UI.Services.UserManagement
         UPnPClientControlPoint controlPoint = ServiceRegistration.Get<IServerConnectionManager>().ControlPoint;
         return controlPoint != null ? controlPoint.UserProfileDataManagementService : null;
       }
+    }
+
+    public void RegisterRestrictionGroup(string restrictionGroup)
+    {
+      if (!string.IsNullOrWhiteSpace(restrictionGroup))
+        foreach (var group in restrictionGroup.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+        {
+          _restrictionGroups.Add(group);
+        }
+    }
+
+    public ICollection<string> RestrictionGroups
+    {
+      get { return _restrictionGroups; }
+    }
+
+    public bool CheckUserAccess(IUserRestriction restrictedElement)
+    {
+      if (!IsValidUser || !CurrentUser.EnableRestrictionGroups || string.IsNullOrEmpty(restrictedElement.RestrictionGroup))
+        return true;
+
+      foreach (var group in restrictedElement.RestrictionGroup.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+        if (CurrentUser.RestrictionGroups.Contains(group))
+          return true;
+      return false;
     }
 
     public bool ApplyUserRestriction

@@ -37,6 +37,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria

@@ -32,13 +32,17 @@ namespace MediaPortal.UiComponents.Login.General
     public const string KEY_NAME = "Name";
     public const string KEY_USER = "User";
     public const string KEY_SHARE = "Share";
-    public const string KEY_PROFILE_TYPE = "ProfileType";
+    public const string KEY_PROFILE_TEMPLATE_ID = "TemplateId";
     public const string KEY_COUNTRY = "Country";
+    public const string KEY_RESTRICTION_GROUP = "RestrictionGroup";
 
     public const string RES_CLIENT_PROFILE_TEXT = "[UserConfig.ClientProfileType]";
     public const string RES_USER_PROFILE_TEXT = "[UserConfig.UserProfileType]";
     public const string RES_ADMIN_PROFILE_TEXT = "[UserConfig.AdminProfileType]";
     public const string RES_SHARES_TEXT = "[UserConfig.SharesText]";
+    public const string RES_RESTRICTIONS_NUMBERS = "[UserConfig.RestrictedNumbers]";
+    public const string RES_RESTRICTIONS_ALL = "[UserConfig.RestrictedAll]";
+    public const string RES_RESTRICTIONS_NONE = "[UserConfig.RestrictedNone]";
     public const string RES_ANY_TEXT = "[UserConfig.AnyText]";
     public const string RES_NEW_USER_TEXT = "[UserConfig.NewUserText]";
     public const string RES_SELECT_USER_IMAGE = "[UserConfig.SelectImage]";

@@ -37,11 +37,13 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Threading;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 

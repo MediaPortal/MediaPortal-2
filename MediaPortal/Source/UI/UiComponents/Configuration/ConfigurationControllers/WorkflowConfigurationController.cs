@@ -55,7 +55,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       if (!(setting is CustomConfigSetting))
         return false;
       ConfigSettingMetadata metadata = (ConfigSettingMetadata) setting.Metadata;
-      return metadata.AdditionalData.ContainsKey("WorkflowState");
+      return base.IsSettingSupported(setting) && metadata.AdditionalData.ContainsKey("WorkflowState");
     }
 
     public override Type ConfigSettingType

@@ -48,6 +48,8 @@ namespace MediaPortal.UiComponents.Login.Models
     protected AbstractProperty _profileTypeProperty;
     protected AbstractProperty _restrictAgesProperty;
     protected AbstractProperty _restrictSharesProperty;
+    protected AbstractProperty _enableRestrictionGroupsProperty;
+    protected AbstractProperty _restrictionGroupsProperty;
     protected AbstractProperty _allowedAgeProperty;
     protected AbstractProperty _includeParentGuidedAgesProperty;
     protected AbstractProperty _includeUnratedProperty;
@@ -56,6 +58,7 @@ namespace MediaPortal.UiComponents.Login.Models
     protected AbstractProperty _lastLoginProperty;
     protected AbstractProperty _imageProperty;
     protected AbstractProperty _idProperty;
+    protected AbstractProperty _templateIdProperty;
 
     protected Timer _inputTimer;
     protected readonly object _syncObj = new object();
@@ -66,12 +69,15 @@ namespace MediaPortal.UiComponents.Login.Models
     public UserProxy()
     {
       _idProperty = new WProperty(typeof(Guid), Guid.Empty);
+      _templateIdProperty = new WProperty(typeof(Guid), Guid.Empty);
       _userNameProperty = new WProperty(typeof(string), string.Empty);
       _selectedSharesList = new List<Guid>();
       _isUserValidProperty = new WProperty(typeof(bool), false);
-      _profileTypeProperty = new WProperty(typeof(int), UserProfile.USER_PROFILE);
+      _profileTypeProperty = new WProperty(typeof(UserProfileType), UserProfileType.UserProfile);
       _restrictAgesProperty = new WProperty(typeof(bool), false);
       _restrictSharesProperty = new WProperty(typeof(bool), false);
+      _enableRestrictionGroupsProperty = new WProperty(typeof(bool), false);
+      _restrictionGroupsProperty = new WProperty(typeof(ICollection<string>), new HashSet<string>());
       _allowedAgeProperty = new WProperty(typeof(int), 5);
       _passwordProperty = new WProperty(typeof(string), string.Empty);
       _includeParentGuidedAgesProperty = new WProperty(typeof(bool), false);
@@ -91,60 +97,46 @@ namespace MediaPortal.UiComponents.Login.Models
     public void SetUserProfile(UserProfile userProfile, ItemsList localSharesList = null, ItemsList serverSharesList = null)
     {
       Id = userProfile.ProfileId;
+      TemplateId = userProfile.TemplateId;
       Name = userProfile.Name;
       Password = userProfile.Password;
       _originalPassword = userProfile.Password;
       ProfileType = userProfile.ProfileType;
       LastLogin = userProfile.LastLogin ?? DateTime.MinValue;
       Image = userProfile.Image;
+      EnableRestrictionGroups = userProfile.EnableRestrictionGroups;
+      RestrictionGroups = userProfile.RestrictionGroups;
 
       SelectedShares.Clear();
-
-      int allowedAge = 5;
-      bool allowAllAges = true;
-      bool allowAllShares = true;
-      bool includeParentContent = false;
-      bool includeUnratedContent = false;
-      string preferredMovieCountry = string.Empty;
-      string preferredSeriesCountry = string.Empty;
 
       foreach (var data in userProfile.AdditionalData)
       {
         foreach (var val in data.Value)
         {
-          if (data.Key == UserDataKeysKnown.KEY_ALLOWED_AGE)
-            allowedAge = Convert.ToInt32(val.Value);
-          else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_AGES)
-            allowAllAges = Convert.ToInt32(val.Value) > 0;
-          else if (data.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
-            allowAllShares = Convert.ToInt32(val.Value) > 0;
-          else if (data.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
+          if (data.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
           {
             Guid shareId = Guid.Parse(val.Value);
             if (localSharesList != null && localSharesList.Any(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId) ||
                 serverSharesList != null && serverSharesList.Any(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId))
               SelectedShares.Add(shareId);
           }
-          else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT)
-            includeParentContent = Convert.ToInt32(val.Value) > 0;
-          else if (data.Key == UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT)
-            includeUnratedContent = Convert.ToInt32(val.Value) > 0;
         }
       }
 
-      RestrictAges = !allowAllAges;
-      RestrictShares = !allowAllShares;
-      AllowedAge = allowedAge;
-      IncludeParentGuidedContent = includeParentContent;
-      IncludeUnratedContent = includeUnratedContent;
+      RestrictAges = userProfile.RestrictAges;
+      RestrictShares = userProfile.RestrictShares;
+      AllowedAge = userProfile.AllowedAge ?? 5;
+      IncludeParentGuidedContent = userProfile.IncludeParentGuidedContent;
+      IncludeUnratedContent = userProfile.IncludeUnratedContent;
     }
 
     public void Clear()
     {
       Id = Guid.Empty;
+      TemplateId = Guid.Empty;
       Name = String.Empty;
       Password = String.Empty;
-      ProfileType = UserProfile.USER_PROFILE;
+      ProfileType = UserProfileType.UserProfile;
       LastLogin = DateTime.MinValue;
       Image = null;
 
@@ -152,6 +144,8 @@ namespace MediaPortal.UiComponents.Login.Models
 
       RestrictAges = false;
       RestrictShares = false;
+      EnableRestrictionGroups = false;
+      RestrictionGroups.Clear();
       AllowedAge = 5;
       IncludeParentGuidedContent = false;
       IncludeUnratedContent = false;
@@ -194,6 +188,17 @@ namespace MediaPortal.UiComponents.Login.Models
       set { _idProperty.SetValue(value); }
     }
 
+    public AbstractProperty TemplateIdProperty
+    {
+      get { return _templateIdProperty; }
+    }
+
+    public Guid TemplateId
+    {
+      get { return (Guid)_templateIdProperty.GetValue(); }
+      set { _templateIdProperty.SetValue(value); }
+    }
+
     public AbstractProperty NameProperty
     {
       get { return _userNameProperty; }
@@ -221,9 +226,9 @@ namespace MediaPortal.UiComponents.Login.Models
       get { return _profileTypeProperty; }
     }
 
-    public int ProfileType
+    public UserProfileType ProfileType
     {
-      get { return (int)_profileTypeProperty.GetValue(); }
+      get { return (UserProfileType)_profileTypeProperty.GetValue(); }
       set { _profileTypeProperty.SetValue(value); }
     }
 
@@ -247,6 +252,28 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       get { return (bool)_restrictSharesProperty.GetValue(); }
       set { _restrictSharesProperty.SetValue(value); }
+    }
+
+    public AbstractProperty EnableRestrictionGroupsProperty
+    {
+      get { return _enableRestrictionGroupsProperty; }
+    }
+
+    public bool EnableRestrictionGroups
+    {
+      get { return (bool)_enableRestrictionGroupsProperty.GetValue(); }
+      set { _enableRestrictionGroupsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty RestrictionGroupsProperty
+    {
+      get { return _restrictionGroupsProperty; }
+    }
+
+    public ICollection<string> RestrictionGroups
+    {
+      get { return (ICollection<string>)_restrictionGroupsProperty.GetValue(); }
+      set { _restrictionGroupsProperty.SetValue(value); }
     }
 
     public AbstractProperty AllowedAgeProperty

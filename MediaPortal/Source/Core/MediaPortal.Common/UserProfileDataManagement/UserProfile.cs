@@ -26,12 +26,32 @@ using MediaPortal.Utilities.UPnP;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
 namespace MediaPortal.Common.UserProfileDataManagement
 {
+  /// <summary>
+  /// Defines the known user profile types.
+  /// </summary>
+  public enum UserProfileType
+  {
+    ClientProfile = 0,
+    UserProfile = 1,
+  }
+
+  public class UserProfileTemplate
+  {
+    public Guid TemplateId { get; set; }
+    public string TemplateName { get; set; }
+    public bool EnableRestrictionGroups { get; set; }
+    public ICollection<string> RestrictionGroups { get; set; }
+    public bool RestrictAges { get; set; }
+    public int? AllowedAge { get; set; }
+  }
+
   /// <summary>
   /// Data object for a named user profile.
   /// </summary>
@@ -43,22 +63,19 @@ namespace MediaPortal.Common.UserProfileDataManagement
   /// </remarks>
   public class UserProfile
   {
-    public const int CLIENT_PROFILE = 0;
-    public const int USER_PROFILE = 1;
-    public const int ADMIN_PROFILE = 100;
-
     protected Guid _profileId;
     protected string _name;
     protected string _password;
     protected DateTime? _lastLogin;
-    protected int _profileType;
+    protected UserProfileType _profileType;
     protected byte[] _image;
     protected IDictionary<string, IDictionary<int, string>> _userData = new Dictionary<string, IDictionary<int, string>>();
+    protected readonly ICollection<string> EMPTY_COLLECTION = new HashSet<string>();
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
-    public UserProfile(Guid profileId, string name, int profileType = CLIENT_PROFILE, string password = null, DateTime? lastLogin = null, byte[] image = null)
+    public UserProfile(Guid profileId, string name, UserProfileType profileType = UserProfileType.ClientProfile, string password = null, DateTime? lastLogin = null, byte[] image = null)
     {
       _profileId = profileId;
       _name = name;
@@ -82,9 +99,50 @@ namespace MediaPortal.Common.UserProfileDataManagement
 
     public void AddAdditionalData(string key, int valueNo, string value)
     {
-      if(!AdditionalData.ContainsKey(key))
+      if (!AdditionalData.ContainsKey(key))
         AdditionalData.Add(key, new Dictionary<int, string>());
       AdditionalData[key].Add(valueNo, value);
+    }
+
+    /// <summary>
+    /// Indicates if restrictions should be applied for this user.
+    /// </summary>
+    [XmlIgnore]
+    public bool EnableRestrictionGroups
+    {
+      get
+      {
+        IDictionary<int, string> values;
+        if (!AdditionalData.TryGetValue(UserDataKeysKnown.KEY_ENABLE_RESTRICTION_GROUPS, out values) || values.Count == 0)
+          return false;
+        return values[0] == "1";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_ENABLE_RESTRICTION_GROUPS, value ? "1" : "0");
+      }
+    }
+
+    /// <summary>
+    /// If <see cref="EnableRestrictionGroups"/> is <c>true</c>,  this property exposes all allowed group names.
+    /// </summary>
+    [XmlIgnore]
+    public ICollection<string> RestrictionGroups
+    {
+      get
+      {
+        IDictionary<int, string> values;
+        if (!AdditionalData.TryGetValue(UserDataKeysKnown.KEY_RESTRICTION_GROUPS, out values))
+          return EMPTY_COLLECTION;
+
+        return new HashSet<string>(values.Values, StringComparer.InvariantCultureIgnoreCase);
+      }
+      set
+      {
+        int idx = 0;
+        foreach (string group in value)
+          AddAdditionalData(UserDataKeysKnown.KEY_RESTRICTION_GROUPS, ++idx, group);
+      }
     }
 
     /// <summary>
@@ -94,6 +152,116 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public Guid ProfileId
     {
       get { return _profileId; }
+    }
+
+    /// <summary>
+    /// Returns the template ID which was used when user was created.
+    /// </summary>
+    [XmlIgnore]
+    public Guid TemplateId
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        Guid templateId;
+        if (AdditionalData.TryGetValue(UserDataKeysKnown.KEY_TEMPLATE_ID, out value) &&
+          Guid.TryParse(value.Values.FirstOrDefault(), out templateId))
+          return templateId;
+        return Guid.Empty;
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_TEMPLATE_ID, 0, value.ToString());
+      }
+    }
+
+    /// <summary>
+    /// Define if age restrictions should be applied.
+    /// </summary>
+    [XmlIgnore]
+    public bool RestrictAges
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        return AdditionalData.TryGetValue(UserDataKeysKnown.KEY_ALLOW_ALL_AGES, out value) && value.Values.FirstOrDefault() == "0";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_AGES, 0, value ? "0" : "1");
+      }
+    }
+    /// <summary>
+    /// Define the allowed age.
+    /// </summary>
+    [XmlIgnore]
+    public int? AllowedAge
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        int age;
+        if (AdditionalData.TryGetValue(UserDataKeysKnown.KEY_ALLOWED_AGE, out value) &&
+            int.TryParse(value.Values.FirstOrDefault(), out age))
+          return age;
+        return null;
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_AGE, 0, value.ToString());
+      }
+    }
+
+    /// <summary>
+    /// Define if share restrictions should be applied.
+    /// </summary>
+    [XmlIgnore]
+    public bool RestrictShares
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        return AdditionalData.TryGetValue(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, out value) && value.Values.FirstOrDefault() == "0";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, 0, value ? "0" : "1");
+      }
+    }
+
+    /// <summary>
+    /// Define if PG content should be allowed.
+    /// </summary>
+    [XmlIgnore]
+    public bool IncludeParentGuidedContent
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        return AdditionalData.TryGetValue(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, out value) && value.Values.FirstOrDefault() == "1";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, 0, value ? "1" : "0");
+      }
+    }
+
+
+    /// <summary>
+    /// Define if unrated content should be allowed.
+    /// </summary>
+    [XmlIgnore]
+    public bool IncludeUnratedContent
+    {
+      get
+      {
+        IDictionary<int, string> value;
+        return AdditionalData.TryGetValue(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, out value) && value.Values.FirstOrDefault() == "1";
+      }
+      set
+      {
+        AddAdditionalData(UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, 0, value ? "1" : "0");
+      }
     }
 
     /// <summary>
@@ -109,7 +277,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     /// Returns the type this profile.
     /// </summary>
     [XmlIgnore]
-    public int ProfileType
+    public UserProfileType ProfileType
     {
       get { return _profileType; }
     }
@@ -160,7 +328,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
       StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
-      using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
+      using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings { OmitXmlDeclaration = true }))
         xs.Serialize(writer, this);
       return sb.ToString();
     }
@@ -204,7 +372,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       if (!(obj is UserProfile))
         return false;
-      UserProfile other = (UserProfile) obj;
+      UserProfile other = (UserProfile)obj;
       return _profileId == other._profileId;
     }
 
@@ -253,7 +421,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     /// For internal use of the XML serialization system only.
     /// </summary>
     [XmlAttribute("ProfileType")]
-    public int XML_ProfileType
+    public UserProfileType XML_ProfileType
     {
       get { return _profileType; }
       set { _profileType = value; }
@@ -305,7 +473,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
             convert.Add(new Tuple<string, string, string>(key.Key, val.Key.ToString(), val.Value));
           }
         }
-        if(convert.Count > 0)
+        if (convert.Count > 0)
           return MarshallingHelper.SerializeTuple3EnumerationToCsv(convert);
         return null;
       }
@@ -316,7 +484,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
         if (convert == null)
           return;
 
-        foreach(var data in convert)
+        foreach (var data in convert)
         {
           if (!_userData.ContainsKey(data.Item1))
             _userData.Add(data.Item1, new Dictionary<int, string>());

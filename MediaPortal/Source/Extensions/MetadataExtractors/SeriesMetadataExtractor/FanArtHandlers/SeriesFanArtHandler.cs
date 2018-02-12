@@ -228,6 +228,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
 
           //Series fanart
+          var thumbPaths = new List<ResourcePath>();
           var fanArtPaths = new List<ResourcePath>();
           var posterPaths = new List<ResourcePath>();
           var bannerPaths = new List<ResourcePath>();
@@ -262,6 +263,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 }
 
                 var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+
+                thumbPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "thumb"
+                    select potentialFanArtFile);
 
                 posterPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
@@ -316,9 +323,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               await SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, seriesMediaItemId.Value, series.ToString()).ConfigureAwait(false);
             foreach (ResourcePath fanartPath in fanArtPaths)
               await SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, seriesMediaItemId.Value, series.ToString()).ConfigureAwait(false);
+            foreach (ResourcePath thumbPath in thumbPaths)
+              await SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, seriesMediaItemId.Value, series.ToString()).ConfigureAwait(false);
           }
 
           //Season fanart
+          thumbPaths.Clear();
           fanArtPaths.Clear();
           posterPaths.Clear();
           bannerPaths.Clear();
@@ -353,6 +363,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 }
 
                 var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+
+                thumbPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "thumb"
+                    select potentialFanArtFile);
 
                 posterPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
@@ -396,6 +412,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
                 foreach (string prefix in prefixes)
                 {
+                  if (thumbPaths.Count == 0)
+                    thumbPaths.AddRange(
+                      from potentialFanArtFile in potentialFanArtFiles
+                      let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                      where potentialFanArtFileNameWithoutExtension == prefix + "thumb"
+                      select potentialFanArtFile);
+
                   if (posterPaths.Count == 0)
                     posterPaths.AddRange(
                       from potentialFanArtFile in potentialFanArtFiles
@@ -443,11 +466,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               await SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, seasonMediaItemId.Value, season.ToString()).ConfigureAwait(false);
             foreach (ResourcePath fanartPath in fanArtPaths)
               await SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, seasonMediaItemId.Value, season.ToString()).ConfigureAwait(false);
+            foreach (ResourcePath thumbPath in thumbPaths)
+              await SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, seasonMediaItemId.Value, season.ToString()).ConfigureAwait(false);
           }
 
           //Episode fanart
           //Also saved by the video MDE but saved here again in case of the offline option being different
-          var thumbPaths = new List<ResourcePath>();
+          thumbPaths.Clear();
           if (episodeMediaItemId.HasValue)
           {
             using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, seasonMediaItemDirectoryPath).CreateAccessor())
