@@ -284,6 +284,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
       return false;
     }
 
+    public async Task<byte[]> LoadImageDataAsync()
+    {
+      try
+      {
+        WebClient client = new CompressionWebClient();
+        return await client.DownloadDataTaskAsync(TvdbLinkCreator.CreateBannerLink(BannerPath)).ConfigureAwait(false);
+      }
+      catch (Exception ex)
+      {
+        Log.Error("Error while loading image ", ex);
+        return null;
+      }
+    }
+
     /// <summary>
     /// Loads the image from the given path
     /// </summary>

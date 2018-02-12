@@ -385,17 +385,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (episode.SeriesTvdbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
         {
-          seriesDetail = await _tvdbHandler.GetSeriesAsync(episode.SeriesTvdbId, language, true, true, false).ConfigureAwait(false);
+          seriesDetail = await _tvdbHandler.GetSeriesAsync(episode.SeriesTvdbId, language, true, true, true).ConfigureAwait(false);
           if (seriesDetail == null && !cacheOnly && !string.IsNullOrEmpty(episode.SeriesImdbId))
           {
             TvdbSearchResult foundSeries = await _tvdbHandler.GetSeriesByRemoteIdAsync(ExternalId.ImdbId, episode.SeriesImdbId).ConfigureAwait(false);
             if (foundSeries != null)
             {
-              seriesDetail = await _tvdbHandler.GetSeriesAsync(foundSeries.Id, language, true, true, false).ConfigureAwait(false);
+              seriesDetail = await _tvdbHandler.GetSeriesAsync(foundSeries.Id, language, true, true, true).ConfigureAwait(false);
             }
           }
           if (seriesDetail == null) return false;
 
+          bool isFirstEpisode = true;
           foreach (int episodeNumber in episode.EpisodeNumbers)
           {
             episodeDetail = seriesDetail.Episodes.Where(e => e.EpisodeNumber == episodeNumber &&
@@ -431,7 +432,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             info.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0, episodeDetail.EpisodeName, seriesDetail.SeriesName);
             info.Languages.Add(episodeDetail.Language.Abbriviation);
 
+            if (isFirstEpisode && !episode.HasThumbnail && episodeDetail.Banner != null)
+              info.Thumbnail = await episodeDetail.Banner.LoadImageDataAsync().ConfigureAwait(false);
+            
             episodeDetails.Add(info);
+            isFirstEpisode = false;
           }
         }
 

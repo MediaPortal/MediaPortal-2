@@ -733,24 +733,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     protected virtual void SetMultiEpisodeDetails(EpisodeInfo episodeInfo, List<EpisodeInfo> episodeMatches)
     {
-      episodeInfo.ImdbId = episodeMatches.First().ImdbId;
-      episodeInfo.TvdbId = episodeMatches.First().TvdbId;
-      episodeInfo.MovieDbId = episodeMatches.First().MovieDbId;
-      episodeInfo.TvMazeId = episodeMatches.First().TvMazeId;
-      episodeInfo.TvRageId = episodeMatches.First().TvRageId;
+      EpisodeInfo firstEpisodeMatch = episodeMatches.First();
+      episodeInfo.ImdbId = firstEpisodeMatch.ImdbId;
+      episodeInfo.TvdbId = firstEpisodeMatch.TvdbId;
+      episodeInfo.MovieDbId = firstEpisodeMatch.MovieDbId;
+      episodeInfo.TvMazeId = firstEpisodeMatch.TvMazeId;
+      episodeInfo.TvRageId = firstEpisodeMatch.TvRageId;
 
-      episodeInfo.SeriesImdbId = episodeMatches.First().SeriesImdbId;
-      episodeInfo.SeriesMovieDbId = episodeMatches.First().SeriesMovieDbId;
-      episodeInfo.SeriesTvdbId = episodeMatches.First().SeriesTvdbId;
-      episodeInfo.SeriesTvRageId = episodeMatches.First().SeriesTvRageId;
-      episodeInfo.SeriesTvMazeId = episodeMatches.First().SeriesTvMazeId;
-      episodeInfo.SeriesName = episodeMatches.First().SeriesName;
-      episodeInfo.SeriesFirstAired = episodeMatches.First().SeriesFirstAired;
+      episodeInfo.SeriesImdbId = firstEpisodeMatch.SeriesImdbId;
+      episodeInfo.SeriesMovieDbId = firstEpisodeMatch.SeriesMovieDbId;
+      episodeInfo.SeriesTvdbId = firstEpisodeMatch.SeriesTvdbId;
+      episodeInfo.SeriesTvRageId = firstEpisodeMatch.SeriesTvRageId;
+      episodeInfo.SeriesTvMazeId = firstEpisodeMatch.SeriesTvMazeId;
+      episodeInfo.SeriesName = firstEpisodeMatch.SeriesName;
+      episodeInfo.SeriesFirstAired = firstEpisodeMatch.SeriesFirstAired;
 
-      episodeInfo.SeasonNumber = episodeMatches.First().SeasonNumber;
+      episodeInfo.SeasonNumber = firstEpisodeMatch.SeasonNumber;
       episodeInfo.EpisodeNumbers = episodeMatches.SelectMany(x => x.EpisodeNumbers).ToList();
       episodeInfo.DvdEpisodeNumbers = episodeMatches.SelectMany(x => x.DvdEpisodeNumbers).ToList();
-      episodeInfo.FirstAired = episodeMatches.First().FirstAired;
+      episodeInfo.FirstAired = firstEpisodeMatch.FirstAired;
       episodeInfo.Rating = new SimpleRating(episodeMatches.Where(e => !e.Rating.IsEmpty).
         Sum(e => e.Rating.RatingValue.Value) / episodeMatches.Where(e => !e.Rating.IsEmpty).Count()); // Average rating
       episodeInfo.Rating.VoteCount = episodeMatches.Where(e => !e.Rating.IsEmpty && e.Rating.VoteCount.HasValue).
@@ -759,13 +760,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.EpisodeName.DefaultLanguage = episodeMatches.First().EpisodeName.DefaultLanguage;
       episodeInfo.Summary = string.Join("\r\n\r\n", episodeMatches.OrderBy(e => e.FirstEpisodeNumber).
         Select(e => string.Format("{0,02}) {1}", e.FirstEpisodeNumber, e.Summary.Text)).ToArray());
-      episodeInfo.Summary.DefaultLanguage = episodeMatches.First().Summary.DefaultLanguage;
+      episodeInfo.Summary.DefaultLanguage = firstEpisodeMatch.Summary.DefaultLanguage;
 
       episodeInfo.Genres = episodeMatches.SelectMany(e => e.Genres).Distinct().ToList();
       episodeInfo.Actors = episodeMatches.SelectMany(e => e.Actors).Distinct().ToList();
       episodeInfo.Directors = episodeMatches.SelectMany(e => e.Directors).Distinct().ToList();
       episodeInfo.Writers = episodeMatches.SelectMany(e => e.Writers).Distinct().ToList();
       episodeInfo.Characters = episodeMatches.SelectMany(e => e.Characters).Distinct().ToList();
+
+      episodeInfo.Thumbnail = firstEpisodeMatch.Thumbnail;
     }
 
     protected virtual void SetEpisodeDetails(EpisodeInfo episodeInfo, EpisodeInfo episodeMatch)
@@ -797,6 +800,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.Directors = episodeMatch.Directors;
       episodeInfo.Writers = episodeMatch.Writers;
       episodeInfo.Characters = episodeMatch.Characters;
+
+      episodeInfo.Thumbnail = episodeMatch.Thumbnail;
     }
 
     #endregion
