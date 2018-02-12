@@ -671,7 +671,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    protected async Task ExtractMatroskaTagsAsync(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       try
       {
@@ -684,7 +684,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
         // Add keys to be extracted to tags dictionary, matching results will returned as value
         Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
-        mkvReader.ReadTags(tagsToExtract);
+        await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
         // Read title
         string title = string.Empty;
@@ -716,7 +716,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
             int? width = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_WIDTH);
 
-            MatroskaInfoReader.StereoMode mode = mkvReader.ReadStereoMode();
+            MatroskaInfoReader.StereoMode mode = await mkvReader.ReadStereoModeAsync().ConfigureAwait(false);
             if (mode == MatroskaInfoReader.StereoMode.AnaglyphCyanRed || mode == MatroskaInfoReader.StereoMode.AnaglyphGreenMagenta)
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_ANAGLYPH);
             else if (mode == MatroskaInfoReader.StereoMode.SBSLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.SBSRightEyeFirst)
@@ -1239,13 +1239,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       get { return _metadata; }
     }
 
-    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra == null)
-          return Task.FromResult(false);
+          return false;
 
         VideoResult result = null;
         if (!fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
@@ -1257,7 +1257,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             using (MediaInfoWrapper videoTsInfo = ReadMediaInfo(fsraVideoTs.GetResource("VIDEO_TS.IFO")))
             {
               if (!videoTsInfo.IsValid || videoTsInfo.GetVideoCount() == 0)
-                return Task.FromResult(false); // Invalid video_ts.ifo file
+                return false; // Invalid video_ts.ifo file
               result = VideoResult.CreateDVDInfo(fsra.ResourceName, videoTsInfo);
             }
             // Iterate over all video files; MediaInfo finds different audio/video metadata for each .ifo file
@@ -1288,7 +1288,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 result.UpdateMetadata(extractedAspectData, lfsra, -1, 0, false);
                 try
                 {
-                  ExtractMatroskaTags(lfsra, extractedAspectData);
+                  await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
                   ExtractMp4Tags(lfsra, extractedAspectData);
                   ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
                 }
@@ -1298,7 +1298,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 }
                 UpdateSetName(lfsra, extractedAspectData, -1);
               }
-              return Task.FromResult(true);
+              return true;
             }
           }
         }
@@ -1309,7 +1309,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           if (HasVideoExtension(filePath))
           {
             if (IsSampleFile(fsra))
-              return Task.FromResult(false);
+              return false;
 
             int multipart = -1;
             int multipartSet = 0;
@@ -1327,7 +1327,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             {
               // Before we start evaluating the file, check if it is a video at all
               if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
-                return Task.FromResult(false);
+                return false;
 
               result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
             }
@@ -1345,7 +1345,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                   result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, false);
                   try
                   {
-                    ExtractMatroskaTags(lfsra, extractedAspectData);
+                    await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
                     ExtractMp4Tags(lfsra, extractedAspectData);
                     ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
                   }
@@ -1359,7 +1359,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                   if (!forceQuickMode)
                     FindExternalSubtitles(lfsra, extractedAspectData);
 
-                  return Task.FromResult(true);
+                  return true;
                 }
               }
             }
@@ -1372,7 +1372,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("VideoMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", e, mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
-      return Task.FromResult(false);
+      return false;
     }
 
     public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)

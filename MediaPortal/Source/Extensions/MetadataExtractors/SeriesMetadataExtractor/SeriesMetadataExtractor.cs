@@ -197,7 +197,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         try
         {
           MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-          if (matroskaMatcher.MatchSeries(lfsra, episodeInfo))
+          if (await matroskaMatcher.MatchSeriesAsync(lfsra, episodeInfo).ConfigureAwait(false))
           {
             ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
               episodeInfo.SeriesName, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.IsBaseInfoPresent);

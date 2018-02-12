@@ -210,8 +210,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         try
         {
           // Try to use an existing TMDB id for exact mapping
-          string tmdbId;
-          if (MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
+          string tmdbId = await MatroskaMatcher.TryMatchTmdbIdAsync(lfsra).ConfigureAwait(false);
+          if (!string.IsNullOrEmpty(tmdbId))
             movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
         }
         catch (Exception ex)
@@ -225,8 +225,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         try
         {
           // Try to use an existing IMDB id for exact mapping
-          string imdbId = null;
-          if (pathsToTest.Any(path => MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId)))
+          string imdbId = await MatroskaMatcher.TryMatchImdbIdAsync(lfsra).ConfigureAwait(false);
+          if (!string.IsNullOrEmpty(imdbId))
             movieInfo.ImdbId = imdbId;
           else if (pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)))
             movieInfo.ImdbId = imdbId;
@@ -278,7 +278,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       try
       {
-        MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
+        await MatroskaMatcher.ExtractFromTagsAsync(lfsra, movieInfo).ConfigureAwait(false);
         MP4Matcher.ExtractFromTags(lfsra, movieInfo);
       }
       catch (Exception ex)

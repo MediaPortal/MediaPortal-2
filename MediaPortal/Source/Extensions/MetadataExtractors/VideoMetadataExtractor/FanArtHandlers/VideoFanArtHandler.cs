@@ -165,8 +165,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
           foreach (var pattern in patterns)
           {
-            byte[] binaryData;
-            if (mkvReader.GetAttachmentByName(pattern.Key, out binaryData))
+            byte[] binaryData = await mkvReader.GetAttachmentByNameAsync(pattern.Key).ConfigureAwait(false);
+            if (binaryData != null)
             {
               string filename = pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath);
               await fanArtCache.TrySaveFanArt(mediaItemId, movieTitle, pattern.Value,
