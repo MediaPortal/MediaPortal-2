@@ -115,11 +115,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      EpisodeInfo episodeInfo = new EpisodeInfo();
-      if (!episodeInfo.FromMetadata(aspects))
-        return false;
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = extractedLinkedAspects.Count > 0 ?
+        extractedLinkedAspects[0] : new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
       if (!await TryExtractSeriesMetadataAsync(mediaItemAccessor, extractedAspectData).ConfigureAwait(false))
         return false;
 
@@ -128,15 +126,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
 
       GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres);
-      extractedAspectData.Clear();
       seriesInfo.SetMetadata(extractedAspectData);
+      if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        return false;
 
       bool episodeVirtual;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out episodeVirtual))
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
 
-      if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        return false;
+      extractedLinkedAspects.Clear();
       extractedLinkedAspects.Add(extractedAspectData);
       return true;
     }

@@ -114,27 +114,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      MovieInfo movieInfo = new MovieInfo();
-      if (!movieInfo.FromMetadata(aspects))
-        return false;
-      
-      if(!await TryExtractMovieDirectorMetadataAsync(mediaItemAccessor, extractedLinkedAspects).ConfigureAwait(false))
+      IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (!await TryExtractMovieDirectorMetadataAsync(mediaItemAccessor, nfoLinkedAspects).ConfigureAwait(false))
         return false;
 
-      IList<PersonInfo> directors = extractedLinkedAspects.Select(a =>
-      {
-        PersonInfo person = new PersonInfo();
-        return person.SetMetadata(a) ? person : null;
-      })
-      .Where(p => p != null && !string.IsNullOrEmpty(p.Name))
-      .ToList();
+      List<PersonInfo> directors;
+      if (!RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(nfoLinkedAspects, out directors))
+        return false;
+
+      directors = directors.Where(p => p != null && !string.IsNullOrEmpty(p.Name)).ToList();
+      if (directors.Count == 0)
+        return false;
 
       extractedLinkedAspects.Clear();
       foreach (PersonInfo person in directors)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(personAspects);
+        if (person.SetLinkedMetadata() && person.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(person.LinkedAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }

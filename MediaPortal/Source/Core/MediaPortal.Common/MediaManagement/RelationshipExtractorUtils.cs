@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
@@ -73,6 +74,23 @@ namespace MediaPortal.Common.MediaManagement
       if (externalAspects == null)
         return new List<string>();
       return externalAspects.Select(a => GetIdentifier(a, externalIdType)).ToList();
+    }
+
+    public static bool TryCreateInfoFromLinkedAspects<T>(IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> aspects, out List<T> infos) where T : BaseInfo
+    {
+      infos = null;
+      if (aspects == null)
+        return false;
+      foreach (IDictionary<Guid, IList<MediaItemAspect>> aspect in aspects)
+      {
+        T info = Activator.CreateInstance<T>();
+        if (!info.FromLinkedMetadata(aspect))
+          continue;
+        if (infos == null)
+          infos = new List<T>();
+        infos.Add(info);
+      }
+      return infos != null && infos.Count > 0;
     }
 
     private static IEnumerable<MultipleMediaItemAspect> GetExternalIdentifierAspectsForType(IDictionary<Guid, IList<MediaItemAspect>> aspects, string externalIdType)

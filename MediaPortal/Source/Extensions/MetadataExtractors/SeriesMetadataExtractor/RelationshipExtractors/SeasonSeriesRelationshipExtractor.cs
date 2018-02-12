@@ -89,11 +89,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seasonInfo.FromMetadata(aspects))
         return false;
 
-      SeriesInfo seriesInfo = seasonInfo.CloneBasicInstance<SeriesInfo>();
+      SeriesInfo seriesInfo = RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<SeriesInfo> series) ?
+        series[0] : seasonInfo.CloneBasicInstance<SeriesInfo>();
+
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false).ConfigureAwait(false);
-      
-      IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = seriesInfo.LinkedAspects != null ?
+        seriesInfo.LinkedAspects : new Dictionary<Guid, IList<MediaItemAspect>>();
       seriesInfo.SetMetadata(seriesAspects);
 
       if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
@@ -106,7 +109,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seriesAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
-      extractedLinkedAspects.Add(seriesAspects);
+      if (seriesInfo.LinkedAspects == null)
+        extractedLinkedAspects.Add(seriesAspects);
       return true;
     }
 

@@ -39,6 +39,7 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using MediaPortal.Utilities;
 using System.Globalization;
 using MediaPortal.Common.Genres;
+using MediaPortal.Utilities.Cache;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -85,6 +86,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// If true, file details will also be read from the nfo-file
     /// </summary>
     private bool _readFileDetails;
+
+    /// <summary>
+    /// Default timeout for the cache is 5 minutes
+    /// </summary>
+    private static readonly TimeSpan CACHE_TIMEOUT = new TimeSpan(0, 5, 0);
+
+    /// <summary>
+    /// Cache used to temporarily store <see cref="SeriesEpisodeStub"/> objects so that the same episode.nfo file
+    /// doesn't have to be parsed once for every episode
+    /// </summary>
+    private static readonly AsyncStaticTimeoutCache<ResourcePath, List<SeriesEpisodeStub>> CACHE = new AsyncStaticTimeoutCache<ResourcePath, List<SeriesEpisodeStub>>(CACHE_TIMEOUT);
 
     #endregion
 
@@ -1448,6 +1460,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return true;
       _debugLogger.Warn("[#{0}]: Cannot extract metadata; name of the item root element is {1} instead of {2}", _miNumber, itemRootElementName, EPISODE_ROOT_ELEMENT_NAME);
       return false;
+    }
+
+    /// <summary>
+    /// Tries to read a album nfo-file into <see cref="AlbumStub"/> objects (or gets them from cache)
+    /// </summary>
+    /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
+    /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
+    public override async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
+    {
+      var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path =>
+      {
+        _debugLogger.Info("[#{0}]: SeriesEpisodeStub object for episode nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
+        if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
+        {
+          if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
+            LogStubObjects();
+          return _stubs;
+        }
+        return null;
+      }).ConfigureAwait(false);
+      if (stubs == null)
+        return false;
+      _stubs = stubs;
+      return true;
     }
 
     #endregion

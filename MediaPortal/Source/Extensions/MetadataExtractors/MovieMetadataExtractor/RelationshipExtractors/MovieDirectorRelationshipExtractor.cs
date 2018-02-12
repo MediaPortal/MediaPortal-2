@@ -96,14 +96,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
+      if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<PersonInfo> directors))
+        movieInfo.Directors = directors;
+
       if (MovieMetadataExtractor.IncludeDirectorDetails && !MovieMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdatePersonsAsync(movieInfo, PersonAspect.OCCUPATION_DIRECTOR).ConfigureAwait(false);
-
+      
       foreach (PersonInfo person in movieInfo.Directors)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(personAspects);
+        if (person.LinkedAspects != null)
+          person.SetLinkedMetadata();
+        else
+        {
+          IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+            extractedLinkedAspects.Add(personAspects);
+        }
       }
       return extractedLinkedAspects.Count > 0;
     }

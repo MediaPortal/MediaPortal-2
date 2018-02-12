@@ -120,6 +120,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
+
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeasonAsync(seasonInfo).ConfigureAwait(false);
 

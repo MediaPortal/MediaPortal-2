@@ -129,23 +129,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       int? season = episodeInfo.SeasonNumber;
       int? episode = episodeInfo.EpisodeNumbers != null && episodeInfo.EpisodeNumbers.Any() ? episodeInfo.EpisodeNumbers.First() : (int?)null;
 
-      if (!await TryExtractEpisodeCharactersMetadataAsync(mediaItemAccessor, extractedLinkedAspects, season, episode).ConfigureAwait(false))
+      IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (!await TryExtractEpisodeCharactersMetadataAsync(mediaItemAccessor, nfoLinkedAspects, season, episode).ConfigureAwait(false))
         return false;
 
-      IList<CharacterInfo> characters = extractedLinkedAspects.Select(a =>
-      {
-        CharacterInfo character = new CharacterInfo();
-        return character.SetMetadata(a) ? character : null;
-      })
-      .Where(p => p != null && !string.IsNullOrEmpty(p.Name))
-      .ToList();
+      List<CharacterInfo> characters;
+      if (!RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(nfoLinkedAspects, out characters))
+        return false;
 
-      extractedLinkedAspects.Clear();
+      characters = characters.Where(c => c != null && !string.IsNullOrEmpty(c.Name)).ToList();
+      if (characters.Count == 0)
+        return false;
+
+      extractedLinkedAspects.Clear();      
       foreach (CharacterInfo character in characters)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (character.SetMetadata(characterAspects) && characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(characterAspects);
+        if (character.SetLinkedMetadata() && character.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(character.LinkedAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }

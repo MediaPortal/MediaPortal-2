@@ -115,25 +115,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = extractedLinkedAspects.Count > 0 ?
+        extractedLinkedAspects[0] : new Dictionary<Guid, IList<MediaItemAspect>>();
       if (!await TryExtractAlbumMetadataAsync(mediaItemAccessor, extractedAspectData).ConfigureAwait(false))
         return false;
 
       AlbumInfo albumInfo = new AlbumInfo();
       if (!albumInfo.FromMetadata(extractedAspectData))
         return false;
-
-      extractedAspectData.Clear();
+      
       GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres);
       albumInfo.SetMetadata(extractedAspectData);
+
+      if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        return false;
 
       bool trackVirtual;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
 
-      if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        return false;
-
+      extractedLinkedAspects.Clear();
       extractedLinkedAspects.Add(extractedAspectData);
       return true;
     }

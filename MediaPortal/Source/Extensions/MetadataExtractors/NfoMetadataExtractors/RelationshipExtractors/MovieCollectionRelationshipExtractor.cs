@@ -113,33 +113,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      MovieInfo movieInfo = new MovieInfo();
-      if (!movieInfo.FromMetadata(aspects))
+      IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (!await TryExtractMovieCollectionMetadataAsync(mediaItemAccessor, nfoLinkedAspects).ConfigureAwait(false))
         return false;
 
-      if (!await TryExtractMovieCollectionMetadataAsync(mediaItemAccessor, extractedLinkedAspects).ConfigureAwait(false))
+      List<MovieCollectionInfo> collections;
+      if (!RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(nfoLinkedAspects, out collections))
         return false;
 
-      IList<MovieCollectionInfo> movieCollections = extractedLinkedAspects.Select(a =>
-      {
-        MovieCollectionInfo collection = new MovieCollectionInfo();
-        return collection.SetMetadata(a) ? collection : null;
-      })
-      .Where(c => c != null && !c.CollectionName.IsEmpty)
-      .ToList();
+      collections = collections.Where(c => c != null && !c.CollectionName.IsEmpty).ToList();
 
       bool movieVirtual;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
         movieVirtual = false;
 
       extractedLinkedAspects.Clear();
-      foreach (MovieCollectionInfo collection in movieCollections)
+      foreach (MovieCollectionInfo collection in collections)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (collection.SetMetadata(collectionAspects) && collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (collection.SetLinkedMetadata() && collection.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
-          MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
-          extractedLinkedAspects.Add(collectionAspects);
+          MediaItemAspect.SetAttribute(collection.LinkedAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
+          extractedLinkedAspects.Add(collection.LinkedAspects);
         }
       }
       return extractedLinkedAspects.Count > 0;

@@ -120,24 +120,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       int? season = episodeInfo.SeasonNumber;
       int? episode = episodeInfo.EpisodeNumbers != null && episodeInfo.EpisodeNumbers.Any() ? episodeInfo.EpisodeNumbers.First() : (int?)null;
-
-      if (!await TryExtractEpisodeActorsMetadataAsync(mediaItemAccessor, extractedLinkedAspects, season, episode).ConfigureAwait(false))
+      
+      IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (!await TryExtractEpisodeActorsMetadataAsync(mediaItemAccessor, nfoLinkedAspects, season, episode).ConfigureAwait(false))
         return false;
 
-      IList<PersonInfo> actors = extractedLinkedAspects.Select(a =>
-      {
-        PersonInfo person = new PersonInfo();
-        return person.SetMetadata(a) ? person : null;
-      })
-      .Where(p => p != null && !string.IsNullOrEmpty(p.Name))
-      .ToList();
+      List<PersonInfo> actors;
+      if (!RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(nfoLinkedAspects, out actors))
+        return false;
+
+      actors = actors.Where(p => p != null && !string.IsNullOrEmpty(p.Name)).ToList();
+      if (actors.Count == 0)
+        return false;
 
       extractedLinkedAspects.Clear();
       foreach (PersonInfo person in actors)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(personAspects);
+        if (person.SetLinkedMetadata() && person.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(person.LinkedAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }

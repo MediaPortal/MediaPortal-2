@@ -27,7 +27,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.MediaManagement.TransientAspects;
 using MediaPortal.Extensions.OnlineLibraries;
 using System;
 using System.Collections.Generic;
@@ -57,7 +56,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public SeriesRelationshipExtractor()
     {
-      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Series relationship extractor");
+      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Series relationship extractor", MetadataExtractorPriority.External);
       RegisterRelationships();
       InitExtractors();
     }

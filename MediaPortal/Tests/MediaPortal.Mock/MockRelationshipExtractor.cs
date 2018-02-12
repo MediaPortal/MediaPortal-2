@@ -137,7 +137,7 @@ namespace MediaPortal.Mock
   {
     private readonly IList<RelationshipLookup> _lookups = new List<RelationshipLookup>();
 
-    private static readonly RelationshipExtractorMetadata METADATA = new RelationshipExtractorMetadata(Guid.Empty, "MockRelationshipExtractor");
+    private static readonly RelationshipExtractorMetadata METADATA = new RelationshipExtractorMetadata(Guid.Empty, "MockRelationshipExtractor", MetadataExtractorPriority.Core);
 
     public RelationshipExtractorMetadata Metadata
     {

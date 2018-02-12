@@ -93,14 +93,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
+      if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<PersonInfo> actors))
+        seriesInfo.Actors = actors;
+
       if (SeriesMetadataExtractor.IncludeActorDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesPersonsAsync(seriesInfo, PersonAspect.OCCUPATION_ACTOR).ConfigureAwait(false);
 
       foreach (PersonInfo person in seriesInfo.Actors.Take(SeriesMetadataExtractor.MaximumActorCount))
       {
-        IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(personAspects);
+        if (person.LinkedAspects != null)
+          person.SetLinkedMetadata();
+        else
+        {
+          IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+            extractedLinkedAspects.Add(personAspects);
+        }
       }
       return extractedLinkedAspects.Count > 0;
     }

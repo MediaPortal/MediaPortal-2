@@ -91,20 +91,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+      MovieCollectionInfo collectionInfo = RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<MovieCollectionInfo> collection) ?
+        collection[0] : movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
         await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, false).ConfigureAwait(false);
 
-      IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = collectionInfo.LinkedAspects != null ?
+        collectionInfo.LinkedAspects : new Dictionary<Guid, IList<MediaItemAspect>>();
       collectionInfo.SetMetadata(collectionAspects);
 
       bool movieVirtual = true;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
         MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
 
-      if (collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        extractedLinkedAspects.Add(collectionAspects);
+      if (!collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        return false;
 
+      if (collectionInfo.LinkedAspects == null)
+        extractedLinkedAspects.Add(collectionAspects);
       return extractedLinkedAspects.Count > 0;
     }
 

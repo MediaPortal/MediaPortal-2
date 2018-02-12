@@ -98,15 +98,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
-      
+
+      if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<CharacterInfo> characters))
+        seriesInfo.Characters = characters;
+
       if (SeriesMetadataExtractor.IncludeCharacterDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesCharactersAsync(seriesInfo).ConfigureAwait(false);
-      
+
       foreach (CharacterInfo character in seriesInfo.Characters.Take(SeriesMetadataExtractor.MaximumCharacterCount))
       {
-        IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (character.SetMetadata(characterAspects) && characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(characterAspects);
+        if (character.LinkedAspects != null)
+          character.SetLinkedMetadata();
+        else
+        {
+          IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (character.SetMetadata(characterAspects) && characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+            extractedLinkedAspects.Add(characterAspects);
+        }
       }
       return extractedLinkedAspects.Count > 0;
     }

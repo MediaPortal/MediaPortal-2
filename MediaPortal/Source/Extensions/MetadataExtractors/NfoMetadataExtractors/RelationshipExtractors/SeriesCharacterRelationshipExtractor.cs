@@ -120,27 +120,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      SeriesInfo seriesInfo = new SeriesInfo();
-      if (!seriesInfo.FromMetadata(aspects))
+      IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (!await TryExtractSeriesCharactersMetadataAsync(mediaItemAccessor, nfoLinkedAspects).ConfigureAwait(false))
         return false;
 
-      if (!await TryExtractSeriesCharactersMetadataAsync(mediaItemAccessor, extractedLinkedAspects).ConfigureAwait(false))
+      List<CharacterInfo> characters;
+      if (!RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(nfoLinkedAspects, out characters))
         return false;
 
-      IList<CharacterInfo> characters = extractedLinkedAspects.Select(a =>
-      {
-        CharacterInfo character = new CharacterInfo();
-        return character.SetMetadata(a) ? character : null;
-      })
-      .Where(p => p != null && !string.IsNullOrEmpty(p.Name))
-      .ToList();
+      characters = characters.Where(c => c != null && !string.IsNullOrEmpty(c.Name)).ToList();
+      if (characters.Count == 0)
+        return false;
 
       extractedLinkedAspects.Clear();
       foreach (CharacterInfo character in characters)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (character.SetMetadata(characterAspects) && characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(characterAspects);
+        if (character.SetLinkedMetadata() && character.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(character.LinkedAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }

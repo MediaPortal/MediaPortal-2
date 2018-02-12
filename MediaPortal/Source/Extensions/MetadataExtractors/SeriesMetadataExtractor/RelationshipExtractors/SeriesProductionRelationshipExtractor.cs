@@ -91,15 +91,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
-      
+
+      if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<CompanyInfo> companies))
+        seriesInfo.ProductionCompanies = companies;
+
       if (SeriesMetadataExtractor.IncludeProductionCompanyDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesCompaniesAsync(seriesInfo, CompanyAspect.COMPANY_PRODUCTION).ConfigureAwait(false);
       
       foreach (CompanyInfo company in seriesInfo.ProductionCompanies)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (company.SetMetadata(companyAspects) && companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(companyAspects);
+        if (company.LinkedAspects != null)
+          company.SetLinkedMetadata();
+        else
+        {
+          IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (company.SetMetadata(companyAspects) && companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+            extractedLinkedAspects.Add(companyAspects);
+        }
       }
       return extractedLinkedAspects.Count > 0;
     }

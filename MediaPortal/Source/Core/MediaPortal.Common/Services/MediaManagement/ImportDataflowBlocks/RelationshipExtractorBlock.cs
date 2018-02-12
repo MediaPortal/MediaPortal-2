@@ -227,8 +227,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       ICollection<ExtractedRelation> relations = new List<ExtractedRelation>();
-      foreach (IRelationshipRoleExtractor extractor in GetRoleExtractors(aspects))
-        await ExtractRelationshipMetadata(extractor, mediaItemAccessor, mediaItemId, aspects, relations);
+      foreach (IList<IRelationshipRoleExtractor> extractorList in GetExtractorsByRoleLinkedRole(aspects).Values)
+        await ExtractRelationshipMetadata(extractorList, mediaItemAccessor, mediaItemId, aspects, relations);
       return relations;
     }
 
@@ -239,19 +239,17 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="mediaItemId">The id of the media item.</param>
     /// <param name="aspects">The aspects of the media item.</param>
     /// <param name="relations">Collection of relations to add any extracted relations.</param>
-    protected async Task ExtractRelationshipMetadata(IRelationshipRoleExtractor roleExtractor, IResourceAccessor mediaItemAccessor,
+    protected async Task ExtractRelationshipMetadata(IList<IRelationshipRoleExtractor> roleExtractors, IResourceAccessor mediaItemAccessor,
       Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, ICollection<ExtractedRelation> relations)
     {
-      int extractedCount = 0;
       IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedItems = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      if (await roleExtractor.TryExtractRelationshipsAsync(mediaItemAccessor, aspects, extractedItems))
-      {
-        extractedCount = extractedItems.Count;
-        foreach (IDictionary<Guid, IList<MediaItemAspect>> extractedItem in extractedItems)
-          relations.Add(new ExtractedRelation(roleExtractor, extractedItem));
-      }
+      foreach (IRelationshipRoleExtractor roleExtractor in roleExtractors)
+        await roleExtractor.TryExtractRelationshipsAsync(mediaItemAccessor, aspects, extractedItems);
 
-      ServiceRegistration.Get<ILogger>().Debug("Extractor {0} extracted {1} media items from media item {2}", roleExtractor.GetType().Name, extractedCount, mediaItemId);
+      foreach (IDictionary<Guid, IList<MediaItemAspect>> extractedItem in extractedItems)
+        relations.Add(new ExtractedRelation(roleExtractors[0], extractedItem));
+
+      ServiceRegistration.Get<ILogger>().Debug("Extractor {0} extracted {1} media items from media item {2}", roleExtractors[0].GetType().Name, extractedItems.Count, mediaItemId);
     }
 
     /// <summary>
@@ -417,11 +415,22 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
-    private static IEnumerable<IRelationshipRoleExtractor> GetRoleExtractors(IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    private static IDictionary<(Guid, Guid), IList<IRelationshipRoleExtractor>> GetExtractorsByRoleLinkedRole(IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
+      IDictionary<(Guid, Guid), IList<IRelationshipRoleExtractor>> extractors = new Dictionary<(Guid, Guid), IList<IRelationshipRoleExtractor>>();
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      return mediaAccessor.LocalRelationshipExtractors.Values.SelectMany(r => r.RoleExtractors)
-        .Where(r => r.RoleAspects.All(a => aspects.ContainsKey(a)));
+      foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values.OrderBy(r => (int)r.Metadata.Priority))
+      {
+        foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors.Where(r => r.RoleAspects.All(a => aspects.ContainsKey(a))))
+        {
+          var key = (roleExtractor.Role, roleExtractor.LinkedRole);
+          IList<IRelationshipRoleExtractor> roleExtractors;
+          if (!extractors.TryGetValue(key, out roleExtractors))
+            extractors[key] = roleExtractors = new List<IRelationshipRoleExtractor>();
+          roleExtractors.Add(roleExtractor);
+        }
+      }
+      return extractors;
     }
 
     private static IEnumerable<IRelationshipRoleExtractor> GetLinkedRoleExtractors(IDictionary<Guid, IList<MediaItemAspect>> aspects)

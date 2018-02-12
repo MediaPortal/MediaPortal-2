@@ -101,9 +101,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       foreach (CompanyInfo company in movieInfo.ProductionCompanies)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        if (company.SetMetadata(companyAspects) && companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(companyAspects);
+        if (company.LinkedAspects != null)
+          company.SetLinkedMetadata();
+        else
+        {
+          IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (company.SetMetadata(companyAspects) && companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+            extractedLinkedAspects.Add(companyAspects);
+        }
       }
       return extractedLinkedAspects.Count > 0;
     }
