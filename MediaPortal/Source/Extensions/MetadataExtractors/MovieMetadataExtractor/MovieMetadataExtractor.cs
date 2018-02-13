@@ -173,13 +173,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     private async Task<bool> ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
+      // VideoAspect must be present to be sure it is actually a video resource.
+      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
+        return false;
+
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
       string title = null;
       string sortTitle = null;
-      // VideoAspect must be present to be sure it is actually a video resource.
-      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
-        return false;
 
       MovieInfo movieInfo = new MovieInfo();
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
@@ -191,9 +192,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
           !string.IsNullOrEmpty(title) && !lfsra.ResourceName.StartsWith(title, StringComparison.InvariantCultureIgnoreCase))
         {
-          movieInfo.MovieName = title;
-          /* Clear the names from unwanted strings */
-          MovieNameMatcher.CleanupTitle(movieInfo);
+          //The title may still contain tags and other noise, try and parse it for a title and year.
+          MovieNameMatcher.MatchTitleYear(title, movieInfo);
         }
       }
       if (movieInfo.MovieNameSort.IsEmpty)
