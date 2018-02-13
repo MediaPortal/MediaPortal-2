@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
@@ -166,6 +167,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
         }
         Logger.Debug(_id + " Download: Finished saving images for {0} [{1}]", info, mediaItemId);
         return true;
+      }
+      catch (WebException)
+      {
+        //Remote server probably returned an error/not found, just log at debug level
+        Logger.Debug(_id + " Download: WebException when downloading images for {0} [{1}]", info, mediaItemId);
       }
       catch (Exception ex)
       {
