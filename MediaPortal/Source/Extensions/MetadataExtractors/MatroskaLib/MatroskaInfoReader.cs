@@ -141,11 +141,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       await MKVEXTRACT_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        executionResult = await _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).ConfigureAwait(false);
+        //Awaiting here rather than blocking seems to cause the impersonation handle to be disposed for mysterious reasons
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
-      catch (TaskCanceledException)
+      catch (AggregateException ae)
       {
-        ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadTags: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadTags: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
+            return true;
+          }
+          return false;
+        });
       }
       finally
       {
@@ -206,11 +215,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       await MKVINFO_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        executionResult = await _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).ConfigureAwait(false);
+        //Awaiting here rather than blocking seems to cause the impersonation handle to be disposed for mysterious reasons
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
-      catch (TaskCanceledException)
+      catch (AggregateException ae)
       {
-        ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadAttachments: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvInfoPath, arguments);
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadAttachments: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
+            return true;
+          }
+          return false;
+        });
       }
       finally
       {
@@ -256,11 +274,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       await MKVINFO_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        executionResult = await _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).ConfigureAwait(false);
+        //Awaiting here rather than blocking seems to cause the impersonation handle to be disposed for mysterious reasons
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
-      catch (TaskCanceledException)
+      catch (AggregateException ae)
       {
-        ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadAttachments: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvInfoPath, arguments);
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadStereoMode: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
+            return true;
+          }
+          return false;
+        });
       }
       finally
       {
@@ -345,11 +372,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       await MKVEXTRACT_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        success = (await _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).ConfigureAwait(false)).Success;
+        //Awaiting here rather than blocking seems to cause the impersonation handle to be disposed for mysterious reasons
+        success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result.Success;
       }
-      catch (TaskCanceledException)
+      catch (AggregateException ae)
       {
-        ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ExtractAttachment: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ExtractAttachment: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
+            return true;
+          }
+          return false;
+        });
       }
       finally
       {

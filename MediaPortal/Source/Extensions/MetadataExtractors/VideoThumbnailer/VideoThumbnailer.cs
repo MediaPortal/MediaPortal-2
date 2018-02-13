@@ -191,7 +191,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       await FFMPEG_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        ProcessExecutionResult executionResult = await FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS).ConfigureAwait(false);
+        //Awaiting here rather than blocking seems to cause the impersonation handle to be disposed for mysterious reasons
+        ProcessExecutionResult executionResult = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS).Result;
         if (executionResult.Success && File.Exists(tempFileName))
         {
           var binary = FileUtils.ReadFile(tempFileName);
@@ -206,10 +207,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
           ServiceRegistration.Get<ILogger>().Debug("VideoThumbnailer: FFMpeg failure {0} dump:\n{1}", executionResult.ExitCode, executionResult.StandardError);
         }
       }
-      catch (TaskCanceledException)
+      catch (AggregateException ae)
       {
-        ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer.ExtractThumbnail: External process aborted due to timeout: Executable='{0}', Arguments='{1}', Timeout='{2}'", executable, arguments, PROCESS_TIMEOUT_MS);
-        return true;
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", executable, arguments);
+            return true;
+          }
+          return false;
+        });
       }
       finally
       {
