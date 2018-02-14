@@ -312,22 +312,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     private void InitializeSupportedAttributes(bool videoOnly)
     {
-      if (videoOnly)
-      {
-        _supportedAttributes.Add(TryWriteMediaAspectTitle);
-        _supportedAttributes.Add(TryWriteMediaAspectSortTitle);
-        _supportedAttributes.Add(TryWriteMediaAspectRecordingTime);
-        _supportedAttributes.Add(TryWriteMediaAspectPlayCount);
-        _supportedAttributes.Add(TryWriteMediaAspectLastPlayed);
-        _supportedAttributes.Add(TryWriteVideoAspectStoryPlot);
-        _supportedAttributes.Add(TryWriteVideoAspectActors);
-        _supportedAttributes.Add(TryWriteVideoAspectDirectors);
-        _supportedAttributes.Add(TryWriteVideoAspectWriters);
-        _supportedAttributes.Add(TryWriteVideoAspectGenres);
+      _supportedAttributes.Add(TryWriteMediaAspectTitle);
+      _supportedAttributes.Add(TryWriteMediaAspectSortTitle);
+      _supportedAttributes.Add(TryWriteMediaAspectRecordingTime);
+      _supportedAttributes.Add(TryWriteMediaAspectPlayCount);
+      _supportedAttributes.Add(TryWriteMediaAspectLastPlayed);
+      _supportedAttributes.Add(TryWriteVideoAspectStoryPlot);
+      _supportedAttributes.Add(TryWriteVideoAspectActors);
+      _supportedAttributes.Add(TryWriteVideoAspectDirectors);
+      _supportedAttributes.Add(TryWriteVideoAspectWriters);
+      _supportedAttributes.Add(TryWriteVideoAspectGenres);
 
-        _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
-      }
-      else
+      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+
+      if (!videoOnly)
       {
         _supportedAttributes.Add(TryWriteMovieAspectCompanies);
         _supportedAttributes.Add(TryWriteMovieAspectMovieName);
