@@ -129,13 +129,6 @@ namespace MediaPortal.Utilities.Process
         // Any other "real" error sets the state of tcs to Faulted below.
         process.PriorityClass = priorityClass;
       }
-      catch (InvalidOperationException)
-      {
-        // This exception indicates that the process is no longer available which is probably 
-        // because the process has exited already. The exception should not be logged because 
-        // there is no guarantee that the exited event has finished setting the task to the 
-        // RanToCompletion state before this exception sets it to the Faulted state.
-      }
       catch (Exception e)
       {
         tcs.TrySetException(e);
@@ -147,15 +140,10 @@ namespace MediaPortal.Utilities.Process
 
       // Here we take care of the maximum time to wait for the process if such was requested.
       if (maxWaitMs != INFINITE)
-      {
-        CancellationTokenSource delayToken = new CancellationTokenSource();
-        Task.WhenAny(tcs.Task, Task.Delay(maxWaitMs, delayToken.Token)).ContinueWith(task =>
+        Task.Delay(maxWaitMs).ContinueWith(task =>
         {
           try
           {
-            //Cancel delay in case of the process already having exited
-            delayToken.Cancel();
-
             // We only kill the process if the state of tcs was not set to Faulted or
             // RanToCompletion before.
             if (tcs.TrySetCanceled())
@@ -168,7 +156,6 @@ namespace MediaPortal.Utilities.Process
           catch
           { }
         });
-      }
       return tcs.Task;
     }
 
