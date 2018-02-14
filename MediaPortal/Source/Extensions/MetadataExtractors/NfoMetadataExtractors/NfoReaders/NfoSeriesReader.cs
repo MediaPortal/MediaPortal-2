@@ -120,6 +120,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _readFileDetails = readFileDetails;
       _settings = settings;
       InitializeSupportedElements();
+      InitializeSupportedAttributes();
     }
 
     #endregion
