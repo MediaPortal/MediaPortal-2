@@ -49,6 +49,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
     private readonly CancellationTokenSource _cts;
     private readonly TaskCompletionSource<object> _tcs;
 
+    //When fanart collection is restored from disk during startup the aspects of all items
+    //restored to this block need to be reloaded from the database.
+    //To avoid a big spike in db connections this semaphore limits the number of
+    //concurrent connections when reloading the aspects.
+    protected readonly SemaphoreSlim _loadItemThrottle = new SemaphoreSlim(2, 2);
+
     //Persists pending actions to disk
     protected readonly ITargetBlock<object> _persistBlock;
     //Does the actual collection/deletion
@@ -77,7 +83,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
       //persisted and restored on server startup
       _innerBlock = new TransformBlock<FanArtManagerAction, FanArtManagerAction>(
         new Func<FanArtManagerAction, Task<FanArtManagerAction>>(InnerBlockMethod),
-        new ExecutionDataflowBlockOptions { CancellationToken = _cts.Token, MaxDegreeOfParallelism = Environment.ProcessorCount * 5 });
+        new ExecutionDataflowBlockOptions { CancellationToken = _cts.Token, MaxDegreeOfParallelism = Environment.ProcessorCount });
 
       //Action block to mark actions as completed
       _outputBlock = new ActionBlock<FanArtManagerAction>(
@@ -105,7 +111,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
       if (action.Type == ActionType.Collect)
       {
         //This action might have been restored in which case we need to reload the aspects
-        if (TryRestoreAspects(action))
+        if (await TryRestoreAspects(action))
           await CollectFanArt(action.MediaItemId, action.Aspects);
       }
       else if (action.Type == ActionType.Delete)
@@ -179,25 +185,34 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
     /// </summary>
     /// <param name="action">The action to check.</param>
     /// <returns>True if the aspects were present or successfully restored.</returns>
-    protected bool TryRestoreAspects(FanArtManagerAction action)
+    protected async Task<bool> TryRestoreAspects(FanArtManagerAction action)
     {
       //Already has aspects, nothing to do
       if (action.Aspects != null)
         return true;
-      //No aspects, this action was restored from disk so try
-      //and restore the aspects from the media library
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-      MediaItemQuery query = new MediaItemQuery(null,
-        mediaLibrary.GetManagedMediaItemAspectMetadata().Keys,
-        new MediaItemIdFilter(action.MediaItemId));
-      var items = mediaLibrary.Search(query, false, null, true);
-      if (items != null && items.Count > 0)
+      
+      //No aspects, this resource was restored from disk, try and restore the aspects from the media library.
+      //Throttle the number of concurrent queries To avoid a spike during startup.
+      await _loadItemThrottle.WaitAsync(_cts.Token);
+      try
       {
-        action.Aspects = items[0].Aspects;
-        return true;
+        IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+        MediaItemQuery query = new MediaItemQuery(null,
+          mediaLibrary.GetManagedMediaItemAspectMetadata().Keys,
+          new MediaItemIdFilter(action.MediaItemId));
+        var items = mediaLibrary.Search(query, false, null, true);
+        if (items != null && items.Count > 0)
+        {
+          action.Aspects = items[0].Aspects;
+          return true;
+        }
+        ServiceRegistration.Get<ILogger>().Warn("FanArtActionBlock: Unable to restore FanArtAction, media item with id {0} was not found in the media library", action.MediaItemId);
+        return false;
       }
-      ServiceRegistration.Get<ILogger>().Warn("FanArtActionBlock: Unable to restore FanArtAction, media item with id {0} was not found in the media library", action.MediaItemId);
-      return false;
+      finally
+      {
+        _loadItemThrottle.Release();
+      }
     }
 
     /// <summary>

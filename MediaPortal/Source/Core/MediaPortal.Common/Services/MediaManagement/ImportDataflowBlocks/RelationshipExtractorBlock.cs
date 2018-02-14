@@ -66,6 +66,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #region Variables
 
+    //When an import is restored from disk during startup the aspects of all items
+    //restored to this block need to be reloaded from the database.
+    //To avoid a big spike in db connections this semaphore limits the number of
+    //concurrent connections when reloading the aspects.
+    protected readonly SemaphoreSlim _loadItemThrottle = new SemaphoreSlim(2, 2);
+
     protected SemaphoreSlim _cacheSync;
     protected RelationshipCache _relationshipCache;
     protected CancellationToken _ct;
@@ -156,15 +162,26 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         !_processedMediaItemIds.TryAdd(importResource.MediaItemId.Value, DUMMY_DICTIONARY_VALUE))
         return false;
 
-      //Aspects will be null if this import resource was restored from disk, try and load the aspects from the DB
-      if (importResource.Aspects == null)
+      //Aspects will only be null if this import resource was restored from disk
+      if (importResource.Aspects != null)
+        return true;
+
+      //No aspects, this resource was restored from disk, try and restore the aspects from the media library.
+      //Throttle the number of concurrent database connections to avoid a spike during startup.
+      await _loadItemThrottle.WaitAsync(_ct);
+      try
       {
+        //Try and restore the aspects
         MediaItem loadItem = await LoadLocalItem(importResource.MediaItemId.Value, null, await GetAllManagedMediaItemAspectTypes());
         if (loadItem == null)
           return false;
         importResource.Aspects = loadItem.Aspects;
+        return true;
       }
-      return true;
+      finally
+      {
+        _loadItemThrottle.Release();
+      }
     }
 
     #endregion
@@ -189,32 +206,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       ICollection<MediaItem> updatedMediaItems = await ReconcileRelationships(mediaItemId, aspects, relations);
 
       //Extract relationships for any new relations
-      if (updatedMediaItems != null && updatedMediaItems.Count > 0)
-        await Task.WhenAll(updatedMediaItems.Select(i => ExtractChildRelationships(mediaItemAccessor, i.MediaItemId, i.Aspects)));
-    }
-
-    /// <summary>
-    /// Extracts relationships and additionally swallows TaskCancelledExceptions.
-    /// </summary>
-    /// <remarks>
-    /// Multiple tasks created by this method will be awaited with Task.WhenAll. To avoid that an AggregateException
-    /// is thrown with a OperationCanceledException for each task when an import is cancelled we swallow the OperationCanceledException,
-    /// The exception is still thrown in the parent task where it is handled appropriately.
-    /// </remarks>
-    /// <param name="mediaItemId">The id of the media item.</param>
-    /// <param name="aspects">The aspects of the media item.</param>
-    /// <returns></returns>
-    protected async Task ExtractChildRelationships(IResourceAccessor mediaItemAccessor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
-    {
-      try
-      {
-        await ExtractRelationships(mediaItemAccessor, mediaItemId, aspects);
-      }
-      catch (OperationCanceledException)
-      {
-        //Operation cancelled is handled by the parent task, we don't want to
-        //throw it again from child tasks
-      }
+      //if (updatedMediaItems != null && updatedMediaItems.Count > 0)
+      //  await Task.WhenAll(updatedMediaItems.Select(i => ExtractChildRelationships(mediaItemAccessor, i.MediaItemId, i.Aspects)));
+      if (updatedMediaItems != null)
+        foreach (MediaItem updatedItem in updatedMediaItems)
+          await ExtractRelationships(mediaItemAccessor, updatedItem.MediaItemId, updatedItem.Aspects);
     }
 
     /// <summary>
