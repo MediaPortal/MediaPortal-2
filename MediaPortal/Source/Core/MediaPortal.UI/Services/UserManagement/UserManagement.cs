@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.General;
@@ -56,7 +57,11 @@ namespace MediaPortal.UI.Services.UserManagement
         bool changed = _currentUser != value;
         _currentUser = value;
         if (changed)
+        {
           UserMessaging.SendUserMessage(UserMessaging.MessageType.UserChanged);
+          // Set new user name to allow overriding settings
+          ServiceRegistration.Get<ISettingsManager>().ChangeUserContext(_currentUser?.ProfileId.ToString());
+        }
       }
     }
 
