@@ -170,7 +170,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static void ExecuteInMainThread(WorkDlgt method)
     {
-      _setup.RenderTarget.Invoke(method);
+      try
+      {
+        _setup.RenderTarget.Invoke(method);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("GraphicsDevice: Error executing action in MainThread.", ex);
+      }
     }
 
     public static void ReCreateDXDevice()
