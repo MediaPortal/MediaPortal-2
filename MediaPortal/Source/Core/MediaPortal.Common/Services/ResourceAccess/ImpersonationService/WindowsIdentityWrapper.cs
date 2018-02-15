@@ -150,10 +150,16 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// </remarks>
     internal WindowsImpersonationContextWrapper Impersonate()
     {
-      WindowsImpersonationContext ctx = null;
-      if(Interlocked.Increment(ref _usageCount) > 0)
-        ctx = _identity.Impersonate();
-      return new WindowsImpersonationContextWrapper(ctx, DecrementUsageCount);
+      int count = Interlocked.Increment(ref _usageCount);
+      try
+      {
+        WindowsImpersonationContext ctx = count > 0 ? WindowsIdentity.Impersonate(_identity.Token) : null;
+        return new WindowsImpersonationContextWrapper(ctx);
+      }
+      finally
+      {
+        DecrementUsageCount();
+      }
     }
 
     #endregion
@@ -161,8 +167,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     #region Private methods
 
     /// <summary>
-    /// Used as <see cref="Action"/> to let <see cref="WindowsImpersonationContextWrapper"/> and
-    /// <see cref="TokenWrapper"/> signal that they were disposed.
+    /// Decrements the usage count for the wrapped <see cref="WindowsIdentity"/>.
     /// </summary>
     private void DecrementUsageCount()
     {

@@ -36,9 +36,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
   /// The wrapped <see cref="WindowsImpersonationContext"/> is disposed when this wrapper is disposed.
   /// It is ensured that <see cref="WindowsImpersonationContext"/> is only disposed once, even when calling
   /// <see cref="Dispose"/> multiple times in a multithreaded environment.
-  /// Additionally, an <see cref="Action"/> can be supplied which is called exactly once when this object
-  /// is disposed even when calling <see cref="Dispose"/> multiple times in a multithreaded environment.
-  /// Both, the <see cref="WindowsImpersonationContext"/> and the <see cref="Action"/> can be <c>null</c>,
+  /// The <see cref="WindowsImpersonationContext"/> can be <c>null</c>,
   /// to be able to provide an <see cref="IDisposable"/> if no impersonation is necessary.
   /// </remarks>
   public sealed class WindowsImpersonationContextWrapper : IDisposable
@@ -53,7 +51,6 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     #region Private fields
 
     private readonly WindowsImpersonationContext _ctx;
-    private readonly Action _notifyDispose;
     private int _disposed;
 
     #endregion
@@ -64,11 +61,9 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// Creates a new instance of <see cref="WindowsImpersonationContextWrapper"/>
     /// </summary>
     /// <param name="ctx"><see cref="WindowsImpersonationContext"/> to wrap (can be <c>null</c>)</param>
-    /// <param name="notifyDispose"><see cref="Action"/> to call when this object is disposed</param>
-    internal WindowsImpersonationContextWrapper(WindowsImpersonationContext ctx, Action notifyDispose)
+    internal WindowsImpersonationContextWrapper(WindowsImpersonationContext ctx)
     {
        _ctx = ctx;
-      _notifyDispose = notifyDispose;
       _disposed = NOT_DISPOSED;
     }
 
@@ -86,8 +81,6 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       {
         if (_ctx != null)
           _ctx.Dispose();
-        if (_notifyDispose != null)
-          _notifyDispose.Invoke();
       }
     }
 

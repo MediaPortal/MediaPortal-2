@@ -221,7 +221,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
         if (TryImpersonate(bestMatchingIdentity, out ctxWrapper))
           return ctxWrapper;
       }
-      return new WindowsImpersonationContextWrapper(null, null);
+      return new WindowsImpersonationContextWrapper(null);
     }
 
     /// <summary>
