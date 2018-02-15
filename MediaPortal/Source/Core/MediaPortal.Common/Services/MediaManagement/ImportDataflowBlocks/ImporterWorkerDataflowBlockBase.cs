@@ -443,6 +443,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           await _importResultHandler.DeleteMediaItemAsync(path);
+          return;
         }
         catch (DisconnectedException)
         {
@@ -460,6 +461,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           await _importResultHandler.DeleteUnderPathAsync(path);
+          return;
         }
         catch (DisconnectedException)
         {

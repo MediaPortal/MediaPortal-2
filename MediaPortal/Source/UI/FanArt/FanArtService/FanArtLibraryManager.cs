@@ -56,6 +56,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     protected readonly object _syncObj = new object();
     protected bool _isInit = true;
+    protected bool _hasSkippedCleanupBeenLogged = false;
     protected AsynchronousMessageQueue _messageQueue;
     protected SettingsChangeWatcher<FanArtServiceSettings> _settings;
     protected IIntervalWork _fanArtCleanupIntervalWork;
@@ -234,15 +235,22 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart deletion for {0}.", mediaItemId);
       _fanartActionBlock.Post(new FanArtManagerAction(ActionType.Delete, mediaItemId, null));
     }
-
+    
     /// <summary>
     /// Schedules a cleanup of all fanart where the corresponding media item no longer exists.
     /// </summary>
     public void ScheduleFanArtCleanup()
     {
-      ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart cleanup.");
-      if (!_fanartCleanupBlock.Post(true))
-        ServiceRegistration.Get<ILogger>().Info("FanArtManagement: Skipping additional fanart cleanup. There is already a cleanup in the works and another one scheduled.");
+      if (_fanartCleanupBlock.Post(true))
+      {
+        _hasSkippedCleanupBeenLogged = false;
+        ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart cleanup.");
+      }
+      else if (!_hasSkippedCleanupBeenLogged)
+      {
+        _hasSkippedCleanupBeenLogged = true;
+        ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Skipping additional fanart cleanup. There is already a cleanup in the works and another one scheduled.");
+      }
     }
 
     #endregion
