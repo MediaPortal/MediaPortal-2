@@ -176,7 +176,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 
     public void Dispose()
     {
-      if (Interlocked.Decrement(ref _usageCount) < 0 && Interlocked.Exchange(ref _disposed, DISPOSED) == NOT_DISPOSED)
+      if (Interlocked.Exchange(ref _disposed, DISPOSED) == NOT_DISPOSED && Interlocked.Decrement(ref _usageCount) < 0)
         _identity.Dispose();
     }
 
