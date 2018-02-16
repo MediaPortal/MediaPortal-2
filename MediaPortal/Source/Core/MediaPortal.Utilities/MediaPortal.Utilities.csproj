@@ -57,6 +57,7 @@
     <Compile Include="Cache\AsyncStaticCache.cs" />
     <Compile Include="Cache\AsyncStaticTimeoutCache.cs" />
     <Compile Include="Cache\ILRUCache.cs" />
+    <Compile Include="Cache\LargeLRUCache.cs" />
     <Compile Include="Cache\SmallLRUCache.cs" />
     <Compile Include="Collections\SafeList.cs" />
     <Compile Include="Collections\SafeDictionary.cs" />

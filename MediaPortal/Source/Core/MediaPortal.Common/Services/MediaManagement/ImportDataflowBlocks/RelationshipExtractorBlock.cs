@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -73,7 +73,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     protected readonly SemaphoreSlim _loadItemThrottle = new SemaphoreSlim(2, 2);
 
     protected SemaphoreSlim _cacheSync;
-    protected RelationshipCache _relationshipCache;
+    protected IRelationshipCache _relationshipCache;
     protected CancellationToken _ct;
     //Used as a ConcurrentHashSet to avoid processing items with the same media item id
     protected ConcurrentDictionary<Guid, byte> _processedMediaItemIds;
@@ -102,7 +102,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       BLOCK_NAME, true, parentImportJobController)
     {
-      _relationshipCache = new RelationshipCache();
+      _relationshipCache = new LRURelationshipCache();
       _ct = ct;
       _cacheSync = new SemaphoreSlim(1, 1);
       _processedMediaItemIds = new ConcurrentDictionary<Guid, byte>();
@@ -258,7 +258,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <returns>A collection of added or updated media items for the specified relations.</returns>
     protected async Task<ICollection<MediaItem>> ReconcileRelationships(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, ICollection<ExtractedRelation> relations)
     {
-      ICollection<MediaItem> newMediaItems;
+      ICollection<MediaItem> newMediaItems = new List<MediaItem>();
 
       await _cacheSync.WaitAsync(_ct);
       try
@@ -268,15 +268,19 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
         //Add new relations to the MediaLibrary and update the relationship aspects of the parent item.
         //The MediaLibrary will handle adding the relationship aspects for the new relations. 
-        newMediaItems = await ReconcileMediaItemRelationships(mediaItemId, MediaItemAspect.GetAspects(aspects),
+        ICollection<MediaItem> updatedMediaItems = await ReconcileMediaItemRelationships(mediaItemId, MediaItemAspect.GetAspects(aspects),
           newRelations.Select(r => new RelationshipItem(r.Extractor.Role, r.Extractor.LinkedRole, r.Aspects)));
-
+        
         //Cache all newly added/updated relations
-        foreach (MediaItem updatedMediaItem in newMediaItems)
+        foreach (MediaItem updatedMediaItem in updatedMediaItems)
         {
+          //Check if the item has previously been cached but was later pruned,
+          //in which case we don't need to process it again
+          if (!_relationshipCache.HasItemEverBeenCached(updatedMediaItem.MediaItemId))
+            newMediaItems.Add(updatedMediaItem);
           var itemMatcher = GetLinkedRoleExtractors(updatedMediaItem.Aspects).FirstOrDefault();
           if (itemMatcher != null)
-            _relationshipCache.TryAddExternalItem(updatedMediaItem, itemMatcher);
+            _relationshipCache.TryAddItem(updatedMediaItem, itemMatcher);
         }
       }
       finally
@@ -304,11 +308,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       IList<ExtractedRelation> newRelations = new List<ExtractedRelation>();
       foreach (var relation in relations)
       {
-        MediaItem externalItem;
-        if (_relationshipCache.TryGetExternalItem(relation.Aspects, relation.Extractor, out externalItem))
+        Guid externalItemId;
+        if (_relationshipCache.TryGetItemId(relation.Aspects, relation.Extractor, out externalItemId))
         {
           if (relation.Extractor.BuildRelationship)
-            AddRelationship(relation.Extractor, externalItem.MediaItemId, aspects, relation.Aspects, false);
+            AddRelationship(relation.Extractor, externalItemId, aspects, relation.Aspects, false);
         }
         else
         {
@@ -337,7 +341,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         foreach (IRelationshipRoleExtractor roleExtractor in GetLinkedRoleExtractors(importResource.Aspects))
-          result |= _relationshipCache.TryAddExternalItem(item, roleExtractor);
+          result |= _relationshipCache.TryAddItem(item, roleExtractor);
       }
       finally
       {
