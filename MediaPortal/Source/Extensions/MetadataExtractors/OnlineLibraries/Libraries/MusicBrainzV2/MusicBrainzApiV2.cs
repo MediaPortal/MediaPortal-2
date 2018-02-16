@@ -213,14 +213,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// </summary>
     /// <param name="id">MusicBrainz id of track</param>
     /// <returns>Track information</returns>
-    public Task<Track> GetTrackAsync(string id, bool cahceOnly)
+    public Task<Track> GetTrackAsync(string id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Track");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         return _downloader.ReadCacheAsync<Track>(cache);
       }
-      if (cahceOnly) return null;
+      if (cacheOnly) return Task.FromResult<Track>(null);
       string url = GetUrl(URL_GETRECORDING, id);
       return DownloadAsync<Track>(url, cache);
     }
@@ -248,7 +248,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       {
         return _downloader.ReadCacheAsync<TrackRelease>(cache);
       }
-      if (cahceOnly) return null;
+      if (cahceOnly) return Task.FromResult<TrackRelease>(null);
       string url = GetUrl(URL_GETRELEASE, id);
       return DownloadAsync<TrackRelease>(url, cache);
     }
@@ -276,7 +276,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       {
         return _downloader.ReadCacheAsync<TrackReleaseGroup>(cache);
       }
-      if (cahceOnly) return null;
+      if (cahceOnly) return Task.FromResult<TrackReleaseGroup>(null);
       string url = GetUrl(URL_GETRELEASEGROUP, id);
       return DownloadAsync<TrackReleaseGroup>(url, cache);
     }
@@ -297,14 +297,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// </summary>
     /// <param name="id">MusicBrainz id of artist</param>
     /// <returns>Artist information</returns>
-    public Task<TrackArtist> GetArtistAsync(string id, bool cahceOnly)
+    public Task<TrackArtist> GetArtistAsync(string id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Artist");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         return _downloader.ReadCacheAsync<TrackArtist>(cache);
       }
-      if (cahceOnly) return null;
+      if (cacheOnly) return Task.FromResult<TrackArtist>(null);
       string url = GetUrl(URL_GETARTIST, id);
       return DownloadAsync<TrackArtist>(url, cache);
     }
@@ -332,7 +332,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       {
         return _downloader.ReadCacheAsync<TrackLabel>(cache);
       }
-      if (cahceOnly) return null;
+      if (cahceOnly) return Task.FromResult<TrackLabel>(null);
       string url = GetUrl(URL_GETLABEL, id);
       return DownloadAsync<TrackLabel>(url, cache);
     }
