@@ -13,8 +13,8 @@
   <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1"/>
-  <ResourceWrapper x:Key="PosterButtonZoomCoefficientX" Resource="1.17"/>
-  <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.15"/>
+  <ResourceWrapper x:Key="PosterButtonZoomCoefficientX" Resource="1.14"/>
+  <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.12"/>
   <Model x:Key="ScreenModeModel" Id="0E621AA5-0733-4E88-A0F0-887F8D73A055"/>
   <Model x:Key="LoginModel" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>

@@ -33,16 +33,16 @@
     
     <ResourceWrapper x:Key="POSTER_GRID_WIDTH" Resource="162.5"/>
     <ResourceWrapper x:Key="POSTER_GRID_HEIGHT" Resource="250"/>
-    <ResourceWrapper x:Key="POSTER_GRID_WIDTH_S" Resource="105"/>
-    <ResourceWrapper x:Key="POSTER_GRID_HEIGHT_S" Resource="165"/>
+    <ResourceWrapper x:Key="POSTER_GRID_WIDTH_S" Resource="140"/>
+    <ResourceWrapper x:Key="POSTER_GRID_HEIGHT_S" Resource="220"/>
 
     <ResourceWrapper x:Key="POSTER_COVER_WIDTH" Resource="260"/>
     <ResourceWrapper x:Key="POSTER_COVER_HEIGHT" Resource="410"/>
 
     <ResourceWrapper x:Key="AUDIO_GRID_WIDTH" Resource="162.5"/> 
     <ResourceWrapper x:Key="AUDIO_GRID_HEIGHT" Resource="162.5"/>
-    <ResourceWrapper x:Key="AUDIO_GRID_WIDTH_S" Resource="135"/>
-    <ResourceWrapper x:Key="AUDIO_GRID_HEIGHT_S" Resource="135"/>
+    <ResourceWrapper x:Key="AUDIO_GRID_WIDTH_S" Resource="162"/>
+    <ResourceWrapper x:Key="AUDIO_GRID_HEIGHT_S" Resource="162"/>
 
     <ResourceWrapper x:Key="AUDIO_COVER_WIDTH" Resource="260"/>
     <ResourceWrapper x:Key="AUDIO_COVER_HEIGHT" Resource="260"/>
