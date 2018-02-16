@@ -286,16 +286,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 
     public async Task<byte[]> LoadImageDataAsync()
     {
+      string url = TvdbLinkCreator.CreateBannerLink(BannerPath);
       try
       {
         WebClient client = new CompressionWebClient();
-        return await client.DownloadDataTaskAsync(TvdbLinkCreator.CreateBannerLink(BannerPath)).ConfigureAwait(false);
+        return await client.DownloadDataTaskAsync(url).ConfigureAwait(false);
+      }
+      catch (WebException ex)
+      {
+        //Server probably returned an error/not found, just log at debug level
+        Log.Debug($"TvdbBanner: WebException while loading image from '{url}' - {ex.Message}");
       }
       catch (Exception ex)
       {
-        Log.Error("Error while loading image ", ex);
-        return null;
+        Log.Error($"TvdbBanner: Error while loading image from '{url}'", ex);
       }
+      return null;
     }
 
     /// <summary>
