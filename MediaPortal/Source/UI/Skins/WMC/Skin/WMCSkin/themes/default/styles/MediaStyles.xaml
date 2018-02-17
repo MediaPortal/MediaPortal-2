@@ -2878,12 +2878,44 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-
+       
       <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" Margin="0,0,10,0">
         <media:AudioAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Orientation="Horizontal" IsVisible="{Binding Path=NumDiscs,Converter={StaticResource ReferenceToBoolConverter}}">
+                <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+                  <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 1">
+                      <Binding Path="NumDiscs"/>
+                    </MultiBinding>
+                  </StackPanel.IsVisible>
+                  <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Uniform" Source="Medialogos\audio\disc.png" Margin="-10,5,0,5" Height="30">
+                  <Image.Opacity>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                      <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                      <Binding Source="1"/>
+                      <Binding Source="0.7"/>
+                    </MultiBinding>
+                  </Image.Opacity>
+                </Image>
+                  <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=DiscId}" Margin="-5,0,0,0"
+                       FontFamily="SegoeUIBold" VerticalAlignment="Center">
+                  <Label.Color>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                      <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                      <Binding Source="{ThemeResource MediaItemFocussedColor}"/>
+                      <Binding Source="{ThemeResource MediaItemUnwatchedColor}"/>
+                    </MultiBinding>
+                  </Label.Color>
+                </Label>
+                </StackPanel>
+              </StackPanel>
+              <Label x:Name="ItemLabel" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
                     <Binding Path="Track"/>
@@ -2895,7 +2927,7 @@
             </Grid>
           </ControlTemplate>
         </media:AudioAspectWrapper.Template>
-      </media:AudioAspectWrapper>
+      </media:AudioAspectWrapper>        
       
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2" Source="{Binding MediaItem}"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
