@@ -250,7 +250,9 @@ namespace UPnP.Infrastructure.Dv
     {
       public TextWriter Create(string outputFile)
       {
-        return StreamWriter.Null;
+        // Beware that there's a multi threaded race condition using StreamWriter.Null, since it's also used by Console.Write* when no console is attached, e.g. from Windows Services.
+        // It's better to use TextWriter.Synchronized(new StreamWriter(Stream.Null)) instead.
+        return TextWriter.Synchronized(new StreamWriter(Stream.Null));
       }
     }
     /// <summary>
