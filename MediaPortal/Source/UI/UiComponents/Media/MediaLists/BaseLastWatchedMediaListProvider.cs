@@ -42,7 +42,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       if (navigationFilter != null)
         filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, navigationFilter);
 
-      return new MediaItemQuery(_necessaryMias, filter)
+      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
       {
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
       };
@@ -63,7 +63,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      return new MediaItemQuery(_necessaryMias, null)
+      return new MediaItemQuery(_necessaryMias, _optionalMias, null)
       {
         Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(
           new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
